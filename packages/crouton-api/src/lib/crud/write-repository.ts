@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import type { WriteOp, ResourceConfig, SubResourceConfig } from './crud.config';
+import type { ResourceConfig, SubResourceConfig, WriteOp } from './crud.config';
 import { resolveDefinition, upsertOnFor } from './crud.config';
 
 /**

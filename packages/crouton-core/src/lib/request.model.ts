@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { PositiveRequestNumber, StringOrArray } from './zod.types';
 
 export const SortDirEnum = z.enum(['asc', 'desc']);

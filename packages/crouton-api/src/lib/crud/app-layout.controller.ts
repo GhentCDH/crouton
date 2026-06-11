@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { type ResourceConfig } from './crud.config';
 import { IS_DEV } from './dev-mode';
 import { ResourceConfigRegistry } from './resource-config.registry';

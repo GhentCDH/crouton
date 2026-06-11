@@ -1,24 +1,24 @@
 import { Controller, type Type } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { Body } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
+import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
 import {
+  type ResourceConfig,
   isOperationEnabled,
   resolveDefinition,
-  type ResourceConfig,
   schemaFor,
   upsertOnFor,
 } from './crud.config';
 import { DataSourceRegistry } from './data-source';
+import type { OperationContext } from './operations/operation-context';
+import { registerActionRoutes } from './operations/register-actions';
+import { registerCreate, registerDelete, registerFindAll, registerFindOne, registerUpdate, registerUpsert } from './operations/register-crud';
+import { registerDefinitionEndpoint, registerResourceJsonEndpoint, registerSchemasEndpoint } from './operations/register-schema-endpoints';
+import { registerSubResourceRoutes } from './operations/register-sub-resources';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
 import { ZodValidationPipe } from './zod-validation.pipe';
-import { createCrudRepository, type CrudRepository } from './crud-repository.factory';
-import type { OperationContext } from './operations/operation-context';
-import { registerFindAll, registerFindOne, registerCreate, registerUpdate, registerUpsert, registerDelete } from './operations/register-crud';
-import { registerDefinitionEndpoint, registerSchemasEndpoint, registerResourceJsonEndpoint } from './operations/register-schema-endpoints';
-import { registerActionRoutes } from './operations/register-actions';
-import { registerSubResourceRoutes } from './operations/register-sub-resources';
 
 /**
  * Dynamically build a NestJS controller class for the given resource config.

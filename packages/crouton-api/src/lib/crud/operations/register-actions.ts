@@ -1,4 +1,4 @@
-import { Post, Param } from '@nestjs/common';
+import { Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudRepository } from '../crud-repository.factory';

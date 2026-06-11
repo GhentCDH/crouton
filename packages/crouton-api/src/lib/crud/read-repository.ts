@@ -1,8 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
-import { buildSort, Operator, type OperatorType } from '@ghentcdh/crouton-core';
-import type { RequestDto } from './request.dto';
+
+import { Operator, type OperatorType, buildSort } from '@ghentcdh/crouton-core';
 
 import type { ReadOp, ResourceConfig, SubResourceConfig } from './crud.config';
+import type { RequestDto } from './request.dto';
 import { buildChildSortClause, buildIncludeClause, mergeCalculatedColumnsForRows } from './sql.helpers';
 
 // FilterOperator (OperatorType) and Operator list are imported from @ghentcdh/crouton-core

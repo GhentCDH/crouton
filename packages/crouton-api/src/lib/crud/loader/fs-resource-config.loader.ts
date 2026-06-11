@@ -1,6 +1,7 @@
+import { loadResourceConfigsFromDir } from './index';
+
 import { ResourceConfigLoader } from './resource-config.loader';
 import type { ResourceConfig } from '../crud.config';
-import { loadResourceConfigsFromDir } from './index';
 
 export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
   constructor(

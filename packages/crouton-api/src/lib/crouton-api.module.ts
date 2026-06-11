@@ -1,13 +1,14 @@
 import { type DynamicModule, Module } from '@nestjs/common';
-import { type ResourceConfig } from './crud/crud.config';
-import { createCrudController } from './crud/crud-controller.factory';
+
 import { createAppLayoutController } from './crud/app-layout.controller';
-import { loadResourceConfigsFromDir } from './crud/loader/index';
-import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
-import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
-import { ResourceConfigRegistry } from './crud/resource-config.registry';
+import { createCrudController } from './crud/crud-controller.factory';
+import { type ResourceConfig } from './crud/crud.config';
 import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
+import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
+import { loadResourceConfigsFromDir } from './crud/loader/index';
+import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
+import { ResourceConfigRegistry } from './crud/resource-config.registry';
 
 type CroutonConfig = {
   baseUrl: string;

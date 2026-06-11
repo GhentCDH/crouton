@@ -3,6 +3,7 @@
  */
 
 import type { RelationType } from '@ghentcdh/crouton-core';
+
 export type { RelationType } from '@ghentcdh/crouton-core';
 
 type BoolOrUpsert = boolean | { upsertOn: string | string[] };

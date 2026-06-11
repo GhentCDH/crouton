@@ -21,14 +21,15 @@
  */
 
 import type { ZodObject, ZodRawShape } from 'zod';
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
 
-import { fromJson } from './json-adapter';
+
 import { loadActions } from './action.loader';
-import { findModule, importDefault } from './module.loader';
+import { fromJson } from './json-adapter';
 import type { JsonResourceConfig } from './json-config.types';
+import { findModule, importDefault } from './module.loader';
 import type { ResourceConfig, ResourceHooks, SubResourceConfig } from '../crud.config';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const loadSubResourceHooks = async (
   subResources: SubResourceConfig[],

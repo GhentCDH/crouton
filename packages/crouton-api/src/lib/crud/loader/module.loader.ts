@@ -1,6 +1,6 @@
+import { IS_DEV } from '../dev-mode';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { IS_DEV } from '../dev-mode';
 
 /** Find a module file by trying `.ts` then `.js` extensions. */
 export const findModule = (dir: string, name: string): string | undefined => {

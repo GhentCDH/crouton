@@ -2,14 +2,14 @@ import { Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { IS_DEV } from '../dev-mode';
-import { ResourceConfigRegistry } from '../resource-config.registry';
+import { type ResourceConfigRegistry } from '../resource-config.registry';
 import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 import {
   buildDefinitionPayload,
   buildResourceJsonPayload,
   buildViewsPayload,
 } from './payload-builders';
-import type { OperationContext } from './operation-context';
 
 /**
  * Register `GET /definition` — returns the resource's enabled operations and JSON Schemas.

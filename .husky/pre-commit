@@ -1,0 +1,1 @@
+npx nx affected -t lint format --base=origin/main --parallel=5 --fix

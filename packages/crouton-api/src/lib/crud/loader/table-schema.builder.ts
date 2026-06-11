@@ -1,4 +1,5 @@
 import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '@ghentcdh/crouton-core';
+
 import type { JsonColumn } from './json-config.types';
 
 // ── Column type helpers ───────────────────────────────────────────────────

@@ -1,4 +1,5 @@
-import { toJSONSchema, ZodObject, type ZodRawShape, type ZodType, z } from 'zod';
+import { ZodObject, type ZodRawShape, type ZodType, toJSONSchema, z } from 'zod';
+
 import { type JsonSchema, type SchemaInput } from './crud.config';
 
 /** Post-process override: patch date schemas to `{ type: "string", format: "date-time" }`. */

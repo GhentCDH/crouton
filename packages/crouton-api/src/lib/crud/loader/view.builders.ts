@@ -1,10 +1,10 @@
-import { toJSONSchema, type ZodObject, type ZodRawShape } from 'zod';
+import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import type { CalculatedColumn, JsonColumn } from './json-config.types';
 import type { ViewColumnConfig, ViewConfig } from '../crud.config';
 import { jsonSchemaOpts } from '../schema.utils';
-import { allowAdditionalProperties, enforceRequiredMinLength } from './schema-transforms';
 import { buildFormUiSchema } from './form-schema.builder';
+import { allowAdditionalProperties, enforceRequiredMinLength } from './schema-transforms';
 import { buildTableUiSchema, resolveDefaultSort } from './table-schema.builder'; // ── Column sorting ────────────────────────────────────────────────────────
 
 // ── Column sorting ────────────────────────────────────────────────────────
@@ -140,7 +140,11 @@ const injectCalculatedColumnsIntoView = (
   for (const c of visible) {
     const pos = calcPosition(c);
     const entry: ViewColumnConfig = { id: c.id, label: c.label };
-    pos !== undefined ? columns.splice(pos, 0, entry) : columns.push(entry);
+    if (pos !== undefined) {
+      columns.splice(pos, 0, entry);
+    } else {
+      columns.push(entry);
+    }
   }
 
   return {

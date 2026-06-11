@@ -1,7 +1,7 @@
 import {
+  type ResourceConfig,
   isOperationEnabled,
   resolveDefinition,
-  type ResourceConfig,
   schemaFor,
   upsertOnFor,
 } from '../crud.config';

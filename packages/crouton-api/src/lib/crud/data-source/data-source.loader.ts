@@ -1,7 +1,7 @@
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import type { DataSourceEntry, DataSourceJsonConfig } from './data-source.types';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { DataSourceEntry, DataSourceJsonConfig } from './data-source.types';
 
 /**
  * Scan a directory for data-source subdirectories and load their configs + clients.

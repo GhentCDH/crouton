@@ -1,4 +1,4 @@
-import type { resolveDefinition, ResourceConfig, schemaFor } from '../crud.config';
+import type { ResourceConfig, resolveDefinition, schemaFor } from '../crud.config';
 
 export type OperationContext = {
   /** The dynamically-built controller class. */

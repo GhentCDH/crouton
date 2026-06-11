@@ -1,6 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
-import { ZodArray, ZodNullable, ZodObject, ZodOptional, type ZodRawShape } from 'zod';
+import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
 import type { CalculatedColumn, JsonColumn, JsonResourceConfig, RelationType } from './json-config.types';
 import { normalizeColumns } from './json-config.types';
@@ -14,6 +12,8 @@ import type {
   ResourceHooks,
   SubResourceConfig,
 } from '../crud.config';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the

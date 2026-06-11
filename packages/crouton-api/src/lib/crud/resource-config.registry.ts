@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import type { ResourceConfig } from './crud.config';
-import type { ResourceConfigLoader } from './loader/resource-config.loader';
 import { IS_DEV } from './dev-mode';
+import type { ResourceConfigLoader } from './loader/resource-config.loader';
 
 @Injectable()
 export class ResourceConfigRegistry {

@@ -1,4 +1,5 @@
 import { ControlBuilder, LayoutBuilder } from '@ghentcdh/crouton-core';
+
 import type { DetailConfig, JsonColumn } from './json-config.types';
 
 // ── Condition / rule builders ─────────────────────────────────────────────

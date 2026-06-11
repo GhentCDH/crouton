@@ -1,7 +1,7 @@
-import { join } from 'node:path';
 import type { JsonAction } from './json-config.types';
 import type { ResourceAction } from '../crud.config';
 import { findModule, importDefault } from './module.loader';
+import { join } from 'node:path';
 
 /**
  * Resolve each declared action into a `ResourceAction`:
