@@ -196,7 +196,8 @@ export class ReadRepository<T = any> {
 
   /**
    * Fetch a single record by id.
-   * Sub-resources with `includeInFindOne: true` are eagerly loaded.
+   * Sub-resources with `includeInFindOne: true` are eagerly loaded (flat).
+   * `config.include` entries are loaded with full nesting via `buildIncludeClause`.
    * @throws {NotFoundException} When no record exists for the given id.
    */
   async findOne(id: number | string): Promise<T> {
@@ -211,14 +212,21 @@ export class ReadRepository<T = any> {
       ...projection,
     };
 
-    if (formIncludes.length) {
-      const includeClause = Object.fromEntries(
-        formIncludes.map((r) => [r, true]),
-      );
+    // Merge flat sub-resource includes (includeInFindOne) with nested config.include
+    const flatIncludes = formIncludes.length
+      ? Object.fromEntries(formIncludes.map((r) => [r, true]))
+      : undefined;
+    const configInclude = buildIncludeClause(this.config.include);
+    const mergedInclude =
+      flatIncludes || configInclude
+        ? { ...flatIncludes, ...configInclude }
+        : undefined;
+
+    if (mergedInclude) {
       if (projection.select) {
-        query.select = { ...projection.select, ...includeClause };
+        query.select = { ...projection.select, ...mergedInclude };
       } else {
-        query.include = includeClause;
+        query.include = mergedInclude;
       }
     }
 

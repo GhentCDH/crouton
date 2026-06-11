@@ -1,7 +1,12 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import type { JsonIncludeEntry } from './loader/json-config.types';
 import type { ResourceConfig, SubResourceConfig, WriteOp } from './crud.config';
 import { resolveDefinition, upsertOnFor } from './crud.config';
+
+/** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
+const includeRelationNames = (include: JsonIncludeEntry[] | undefined): Set<string> =>
+  new Set((include ?? []).map((e) => (typeof e === 'string' ? e : e.relation)));
 
 /**
  * Handles all write operations for a resource — create, update, upsert, delete, and child mutations.
@@ -113,7 +118,7 @@ export class WriteRepository<T = any> {
       ? await sub.hooks.beforeWrite(payload, { prisma: this.prisma, op: 'create' })
       : payload;
 
-    const includeKeys = new Set(sub.include ?? []);
+    const includeKeys = includeRelationNames(sub.include);
     const prismaData = {
       ...Object.fromEntries(
         Object.entries(prepared as Record<string, unknown>).filter(([k]) => !includeKeys.has(k)),
@@ -137,7 +142,7 @@ export class WriteRepository<T = any> {
       ? await sub.hooks.beforeWrite(data, { prisma: this.prisma, op: 'update', id })
       : data;
 
-    const includeKeys = new Set(sub.include ?? []);
+    const includeKeys = includeRelationNames(sub.include);
     const prepared = Object.fromEntries(
       Object.entries(afterHook as Record<string, unknown>).filter(([k]) => !includeKeys.has(k)),
     );

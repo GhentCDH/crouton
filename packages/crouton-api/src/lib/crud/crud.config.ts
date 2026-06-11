@@ -1,6 +1,6 @@
 import { type ZodObject, type ZodRawShape } from 'zod';
 
-import type { CalculatedColumn, FieldInput, JsonAction, JsonActionCondition } from './loader/json-config.types';
+import type { CalculatedColumn, FieldInput, JsonAction, JsonActionCondition, JsonIncludeEntry } from './loader/json-config.types';
 
 export type ResourceProcedureAction = {
   type?: 'procedure';
@@ -193,8 +193,8 @@ export type SubResourceConfig = {
   actions?: JsonAction[];
   /** Modal width when opening a form for this sub-resource. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
-  /** Prisma relations to include when querying this sub-resource. */
-  include?: string[];
+  /** Relations to include when querying this sub-resource. Supports nested includes — see `JsonIncludeEntry`. */
+  include?: JsonIncludeEntry[];
   /** Calculated columns to compute and merge for each row of this sub-resource. */
   calculatedColumns?: CalculatedColumn[];
   /** When true, the relation is included in findOne responses (column is visible in form or view). */
@@ -221,6 +221,8 @@ export type ResourceConfig = {
   actions?: ResourceAction[];
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
   tableActions?: ResourceTableAction[];
+  /** Relations to eagerly include when querying this resource. Supports nested includes — see `JsonIncludeEntry`. */
+  include?: JsonIncludeEntry[];
   /** Modal width when opening a form for this resource. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
 };

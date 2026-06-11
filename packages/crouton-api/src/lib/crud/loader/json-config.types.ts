@@ -284,11 +284,22 @@ export type JsonResourceConfig = {
   /** Modal width when opening the form for this resource. One of `xs`, `sm`, `lg`, `xl`. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
   /**
-   * Prisma relation names to include when querying this resource.
-   * e.g. `["author"]` adds `include: { author: true }` to findMany queries.
+   * Relations to include when querying this resource.
+   * Each entry is either a plain relation name (`"author"` → `include: { author: true }`)
+   * or an object for nested includes:
+   * `{ "relation": "text_author", "include": ["author"] }` →
+   *   `include: { text_author: { include: { author: true } } }`
    */
-  include?: string[];
+  include?: JsonIncludeEntry[];
 };
+
+/**
+ * A single entry in an `include` list.
+ * - Plain string: `"author"` → `{ author: true }`
+ * - Object with nested includes: `{ relation: "text_author", include: ["author"] }`
+ *   → `{ text_author: { include: { author: true } } }`
+ */
+export type JsonIncludeEntry = string | { relation: string; include: JsonIncludeEntry[] };
 
 /**
  * Derive a human-readable label from a column id.

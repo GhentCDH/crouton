@@ -215,6 +215,7 @@ export const fromJson = (
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(actions?.length && { actions }),
     ...(tableActions?.length && { tableActions }),
+    ...(json.include?.length && { include: json.include }),
     ...(json.modalSize && { modalSize: json.modalSize }),
   };
 };

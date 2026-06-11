@@ -1,6 +1,6 @@
 import { buildSort } from '@ghentcdh/crouton-core';
 
-import type { CalculatedColumn } from './loader/json-config.types';
+import type { CalculatedColumn, JsonIncludeEntry } from './loader/json-config.types';
 
 // ── SQL expression helpers ────────────────────────────────────────────────
 
@@ -76,9 +76,24 @@ export const mergeCalculatedColumnsForRows = async (
   });
 };
 
-/** Build a Prisma `include` clause from an array of relation names. */
-export const buildIncludeClause = (include: string[] | undefined) =>
-  include?.length ? Object.fromEntries(include.map((r) => [r, true])) : undefined;
+/**
+ * Build a Prisma `include` clause from an array of `JsonIncludeEntry` values.
+ *
+ * Plain strings produce `{ relation: true }`.
+ * Objects produce nested includes:
+ *   `{ relation: "text_author", include: ["author"] }`
+ *   → `{ text_author: { include: { author: true } } }`
+ */
+export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Record<string, unknown> | undefined => {
+  if (!include?.length) return undefined;
+  return Object.fromEntries(
+    include.map((entry) => {
+      if (typeof entry === 'string') return [entry, true];
+      const nested = buildIncludeClause(entry.include);
+      return [entry.relation, nested ? { include: nested } : true];
+    }),
+  );
+};
 
 /**
  * Build Prisma `orderBy` supporting dotted paths like `"author.origin"`.
