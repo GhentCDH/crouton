@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+
+ignoredBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - nx
+
+onlyBuiltDependencies:
+  - '@scarf/scarf'

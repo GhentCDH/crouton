@@ -1,0 +1,17 @@
+{
+  "name": "@ghentcdh/crouton-core",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "@ghentcdh/crouton": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./src/index.ts",
+  "peerDependencies": {
+    "zod": "^4.0.0",
+    "@jsonforms/core": "^3.0.0"
+  }
+}

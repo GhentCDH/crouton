@@ -1,0 +1,30 @@
+{
+  "name": "@ghentcdh/crouton-api",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "@ghentcdh/crouton-core": "workspace:*",
+    "tsup": "^8.0.0"
+  },
+  "peerDependencies": {
+    "@anatine/zod-nestjs": ">=2.0.0",
+    "@nestjs/common": ">=10.0.0",
+    "@nestjs/core": ">=10.0.0",
+    "@nestjs/swagger": ">=7.0.0",
+    "@prisma/client": ">=5.0.0",
+    "zod": "^4.0.0"
+  }
+}

@@ -1,0 +1,56 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - v*.*.*
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # needed for provenance data generation
+    steps:
+      - name: Verify NPM token
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npm token list
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/use-cache
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: npx nx run-many -t build --parallel --max-parallel=6
+
+      - name: Publish package on NPM
+        run: npx nx release publish --access public --yes
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Create GitHub Release
+        run: gh release create ${{ github.ref_name }} --title "${{ github.ref_name }}" --notes-file RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

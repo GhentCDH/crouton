@@ -1,19 +1,30 @@
 {
-  "name": "@org/source",
+  "name": "@ghentcdh/crouton-workspace",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "lint": "nx run-many -t lint",
+    "format": "prettier --write \"packages/**/*.{ts,js,json,md}\""
+  },
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@nx/eslint": "22.7.5",
+    "@nx/eslint-plugin": "22.7.5",
     "@nx/js": "22.7.5",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
+    "@types/node": "^25.9.3",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import-x": "4.16.2",
+    "jsonc-eslint-parser": "^3.1.0",
     "nx": "22.7.5",
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.9.2"
+    "tsup": "^8.0.0",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.0.0"
   },
   "workspaces": [
     "packages/*"

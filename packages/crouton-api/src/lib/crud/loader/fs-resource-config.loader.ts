@@ -1,0 +1,21 @@
+import { ResourceConfigLoader } from './resource-config.loader';
+import type { ResourceConfig } from '../crud.config';
+import { loadResourceConfigsFromDir } from './index';
+
+export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
+  constructor(
+    private readonly dirPath: string,
+    private readonly baseUrl?: string,
+  ) {
+    super();
+  }
+
+  async loadAll(): Promise<ResourceConfig[]> {
+    return loadResourceConfigsFromDir(this.dirPath, this.baseUrl);
+  }
+
+  async loadByRoute(route: string): Promise<ResourceConfig | undefined> {
+    const configs = await this.loadAll();
+    return configs.find((c) => c.route === route);
+  }
+}
