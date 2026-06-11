@@ -1,0 +1,57 @@
+import type { ControlElement, JsonSchema } from '@jsonforms/core';
+
+import { useControlBinding } from '@ghentcdh/json-forms-vue';
+
+import { useResources } from '../consumable/resource';
+import { useCrouton } from '../consumable/useCrouton';
+import { computedAsync } from '../utils/computedAsync';
+
+const inlineTypes = ['manyToOne', 'oneToOne'] as const;
+
+const getMessage = (isNew: boolean, schemasUri: string) => {
+  // if (isNew) return `Create first the main object to manage the relations.`;
+  if (!schemasUri) return 'No schemasUri configured for this relation.';
+  return null;
+};
+
+const getRelationResource = async (
+  schemasUri: string,
+  formValues: any,
+  readonly: boolean,
+) => {
+  const crouton = useCrouton();
+  const config = await crouton.getFormByUri(schemasUri);
+
+  if (!config) return null;
+
+  return useResources(config, {
+    defaultUriParams: { parent: formValues },
+    readonly,
+  });
+};
+
+export const useRelationBinding = (
+  uischema: ControlElement,
+  schema: JsonSchema,
+  readonly = false,
+) => {
+  const bindings = useControlBinding(uischema, schema);
+  const { formValues } = bindings;
+  const opts = (uischema.options ?? {}) as Record<string, any>;
+  const isInline = inlineTypes.includes(opts.relationType);
+
+  const isNew =
+    formValues || Object.keys(formValues).length === 0 || !formValues.id;
+  const schemasUri = opts.schemasUri ?? opts.resource;
+
+  return {
+    ...bindings,
+    isInline,
+    isNew,
+    schemasUri,
+    message: getMessage(isNew, schemasUri),
+    resource: computedAsync(() =>
+      getRelationResource(schemasUri, bindings.formValues, readonly),
+    ),
+  };
+};

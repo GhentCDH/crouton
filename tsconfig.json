@@ -2,12 +2,5 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": [
-    {
-      "path": "./packages/crouton-core"
-    },
-    {
-      "path": "./packages/crouton-api"
-    }
-  ]
+  "references": []
 }

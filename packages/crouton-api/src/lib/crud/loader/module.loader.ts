@@ -21,13 +21,22 @@ const IS_VITE = typeof (globalThis as any).__vite_ssr_import__ === 'function';
 /** Dynamically import a default export, returning `undefined` on failure. */
 export const importDefault = async <T>(filePath: string): Promise<T | undefined> => {
   try {
-    // Bust Vite's module cache so edits to schema.ts are picked up without a
-    // full server restart. In plain Node (nodemon) the process restarts on
-    // file changes, so cache-busting is unnecessary — and the query string
-    // would cause Node's import() to fail with "Cannot find module".
-    const importPath = (IS_DEV && IS_VITE) ? `${filePath}?t=${Date.now()}` : filePath;
-    const mod = await import(importPath);
-    return mod.default as T;
+    if (IS_VITE) {
+      // In Vite dev mode, bust the module cache so edits are picked up without
+      // a full server restart. The ?t= trick only works inside Vite's resolver.
+      const importPath = IS_DEV ? `${filePath}?t=${Date.now()}` : filePath;
+      const mod = await import(importPath);
+      return (mod.default ?? mod) as T;
+    } else {
+      // In CJS mode (nodemon + @swc-node/register), native import() goes
+      // through Node's ESM loader which rejects .ts files. require() is
+      // intercepted by @swc-node/register and handles .ts source correctly.
+      // nodemon restarts the whole process on file changes, so no cache-busting
+      // is needed here.
+       
+      const mod = require(filePath) as { default?: T };
+      return mod.default;
+    }
   } catch {
     return undefined;
   }

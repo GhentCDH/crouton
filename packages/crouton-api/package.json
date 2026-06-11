@@ -4,14 +4,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "../../dist/crouton-api/index.d.ts",
+      "import": "../../dist/crouton-api/index.js",
+      "require": "../../dist/crouton-api/index.cjs"
     }
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "main": "../../dist/crouton-api/index.cjs",
+  "types": "../../dist/crouton-api/index.d.ts",
+  "files": ["../../dist/crouton-api"],
   "scripts": {
     "build": "tsup"
   },

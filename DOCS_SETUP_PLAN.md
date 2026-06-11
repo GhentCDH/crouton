@@ -19,10 +19,12 @@ Mirror the ghentcdh-monorepo docs setup, simplified to a **single docs site** (c
 vuepress                  2.0.0-rc.26
 @vuepress/bundler-vite    2.0.0-rc.26
 vuepress-theme-hope       2.0.0-rc.102
-sass                      ^1.97.0        (only if custom styles are wanted)
+@tailwindcss/vite         ^4.2.1         (for live crouton-vue demos)
+tailwindcss               ^4.2.1
+sass                      ^1.97.0        (custom .vuepress/styles)
 ```
 
-Skip Tailwind/`@ghentcdh/ui` style imports — crouton has no UI lib to demo yet. Add when `crouton-vue` lands and live component demos are needed.
+`crouton-vue` peer-depends on `@ghentcdh/ui` and `@ghentcdh/json-forms-vue` — install those as devDependencies too so demo pages can render components (same role the `dist/libs/ui` build plays in ghentcdh's ui-site).
 
 ### 2. Folder structure
 
@@ -35,7 +37,9 @@ docs/
 │   └── styles/                   # optional, copy from ghentcdh if styling needed
 ├── crouton-api/                  # populated from packages/crouton-api docs
 │   └── typedoc_sidebar.json      # generated
-└── crouton-core/
+├── crouton-core/
+│   └── typedoc_sidebar.json      # generated
+└── crouton-vue/
     └── typedoc_sidebar.json      # generated
 ```
 
@@ -46,8 +50,10 @@ Copy `tools/doc/vuepress.mjs` from ghentcdh → `tools/doc/vuepress.mjs`, replac
 ```js
 copyReadme('packages/crouton-api', 'crouton-api');
 copyReadme('packages/crouton-core', 'crouton-core');
+copyReadme('packages/crouton-vue', 'crouton-vue');
 createMenu('crouton-api');
 createMenu('crouton-core');
+createMenu('crouton-vue');
 copyReadme('', '', 1); // root README → docs home
 ```
 
@@ -86,15 +92,18 @@ This matches what the existing workflow calls (`npx nx run docs:build`).
 
 ### 5. `docs/.vuepress/config.js`
 
-Trimmed-down version of ghentcdh's `core-site` config:
+Modeled on ghentcdh's `ui-site` config (Tailwind + vite aliases so demo pages import `@ghentcdh/crouton-vue` from source):
 
 ```js
+import tailwindcss from '@tailwindcss/vite';
 import { viteBundler } from '@vuepress/bundler-vite';
 import { defineUserConfig } from 'vuepress';
 import { hopeTheme } from 'vuepress-theme-hope';
+import { fileURLToPath } from 'node:url';
 
 import apiSideBar from '../crouton-api/typedoc_sidebar.json';
 import coreSideBar from '../crouton-core/typedoc_sidebar.json';
+import vueSideBar from '../crouton-vue/typedoc_sidebar.json';
 
 export default defineUserConfig({
   base: process.env.DOCS_BASE ? `${process.env.DOCS_BASE}/` : '/',
@@ -102,7 +111,21 @@ export default defineUserConfig({
   description: 'Configure Resources Once, Use Them Over and Over, Naturally',
   pagePatterns: ['**/*.md', '!.vuepress', '!**/node_modules'],
   lastUpdated: true,
-  bundler: viteBundler(),
+  bundler: viteBundler({
+    viteOptions: {
+      plugins: [tailwindcss()],
+      resolve: {
+        alias: {
+          '@ghentcdh/crouton-vue': fileURLToPath(
+            new URL('../../packages/crouton-vue/src/index.ts', import.meta.url),
+          ),
+          '@ghentcdh/crouton-core': fileURLToPath(
+            new URL('../../packages/crouton-core/src/index.ts', import.meta.url),
+          ),
+        },
+      },
+    },
+  }),
   theme: hopeTheme({
     docsRepo: 'https://github.com/GhentCDH/crouton',
     docsBranch: 'main',
@@ -114,12 +137,13 @@ export default defineUserConfig({
     sidebar: [
       { text: 'Crouton API', children: apiSideBar },
       { text: 'Crouton Core', children: coreSideBar },
+      { text: 'Crouton Vue', children: vueSideBar },
     ],
   }),
 });
 ```
 
-Add vite aliases later when `crouton-vue` exists and docs need live demos (see ghentcdh ui-site config for the pattern).
+For live `crouton-vue` demos the peer deps (`@ghentcdh/ui`, `@ghentcdh/json-forms-vue`, `vue-router`, `axios`, `@jsonforms/core`) must resolve in the docs build, and `@ghentcdh/ui/style.css` should be imported in `.vuepress/styles/index.scss` (ghentcdh ui-site does exactly this). Demo data/mocked API responses can live in `docs/data/` aliased as `@demo/data`, following the ghentcdh ui-site pattern — crouton demos will need a mocked axios/api layer since components fetch schemas from `/schemas` endpoints.
 
 ### 6. CI workflow fixes (`.github/workflows/publish-docs.yml` — already present)
 
@@ -133,8 +157,9 @@ Also enable GitHub Pages (Settings → Pages → Source: GitHub Actions) on the 
 
 ### 7. Content seeding
 
-- Write `packages/crouton-api/README.md` and `packages/crouton-core/README.md` (api one likely exists; both get copied into docs)
-- Optionally split topics into extra `.md` files per package (`resource-json.md`, `repositories.md`, …) — the menu script picks them up automatically
+- Write `README.md` for `crouton-api`, `crouton-core`, and `crouton-vue` (all copied into docs by the menu script)
+- Split topics into extra `.md` files per package (`resource-json.md`, `repositories.md`; for crouton-vue: `admin-view.md`, `table.md`, `form.md`, `relation.md`, `router.md` matching its src modules) — the menu script picks them up automatically
+- crouton-vue pages can include live demos via the mdEnhance `demo` plugin once aliases + mocked data are in place
 - Add `docs/.gitignore` for generated files: `.vuepress/.cache`, `.vuepress/.temp`, `.vuepress/dist`; decide whether `typedoc_sidebar.json` + copied READMEs are committed (ghentcdh commits them) or gitignored and always regenerated
 
 ### 8. Verify
@@ -149,9 +174,10 @@ Then tag-push or `workflow_dispatch` to test the Pages deploy.
 
 ## Order of work
 
-1. Add deps + `pnpm install`
+1. Add deps (incl. Tailwind + crouton-vue peer deps) + `pnpm install`
 2. Copy & adapt `tools/doc/vuepress.mjs`
-3. Create `docs/.vuepress/config.js` + `docs/project.json`
-4. Write/verify package READMEs
+3. Create `docs/.vuepress/config.js` (with vite aliases) + `docs/project.json`
+4. Write/verify READMEs for all three packages
 5. Run serve/build locally
-6. Fix workflow (base path, mkdir), enable Pages, deploy
+6. Add live crouton-vue demo pages (mocked api/data)
+7. Fix workflow (base path, mkdir), enable Pages, deploy

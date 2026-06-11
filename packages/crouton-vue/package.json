@@ -1,0 +1,29 @@
+{
+  "name": "@ghentcdh/crouton-vue",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "vite build"
+  },
+  "peerDependencies": {
+    "@ghentcdh/json-forms-vue": "*",
+    "@ghentcdh/ui": "*",
+    "@jsonforms/core": ">=3.0.0",
+    "axios": ">=1.0.0",
+    "vue": ">=3.0.0",
+    "vue-router": ">=4.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@ghentcdh/crouton-core": "workspace:*"
+  }
+}
