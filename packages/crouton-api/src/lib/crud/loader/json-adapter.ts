@@ -10,6 +10,7 @@ import type {
   ResourceConfig,
   ResourceDefinition,
   ResourceHooks,
+  ResourceTableAction,
   SubResourceConfig,
 } from '../crud.config';
 import { existsSync, readFileSync } from 'node:fs';
@@ -145,6 +146,8 @@ export const fromJson = (
   baseUrl?: string,
   /** Resolved action procedures loaded from the `actions/` directory. */
   actions?: ResourceAction[],
+  /** Resolved table-level action procedures loaded from the `actions/` directory. */
+  tableActions?: ResourceTableAction[],
 ): ResourceConfig => {
   const rawColumns = normalizeColumns(json.columns);
   const columns = enrichRelationTypes(rawColumns ?? [], schema);
@@ -211,6 +214,7 @@ export const fromJson = (
     ...(subResources.length && { subResources }),
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(actions?.length && { actions }),
+    ...(tableActions?.length && { tableActions }),
     ...(json.modalSize && { modalSize: json.modalSize }),
   };
 };

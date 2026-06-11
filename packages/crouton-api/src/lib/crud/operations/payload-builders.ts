@@ -157,5 +157,20 @@ export const buildViewsPayload = (config: ResourceConfig, baseUrl?: string): Rec
             },
       ),
     }),
+    ...(config.tableActions?.length && {
+      tableActions: config.tableActions.map((a) =>
+        a.type === 'link'
+          ? { type: 'link', id: a.id, label: a.label, icon: a.icon, tooltip: a.tooltip, href: resolveEnvPlaceholders(a.href) }
+          : {
+              id: a.id,
+              label: a.label,
+              icon: a.icon,
+              tooltip: a.tooltip,
+              uri: `${baseUrl}/${config.route}/table-action/${a.id}`,
+              method: a.method ?? 'post',
+              ...(a.data && { data: a.data }),
+            },
+      ),
+    }),
   };
 };

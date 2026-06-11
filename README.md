@@ -8,6 +8,9 @@
 
 ---
 
+> ⚠️ **Work in progress** — crouton is still in active development. APIs, schemas, and components may change without
+> notice; use at your own risk until a stable release is published.
+
 A schema-driven CRUD framework for **NestJS + Vue**. Define your resources once in JSON — crouton handles the rest: API
 endpoints, data tables, forms, and filters.
 
@@ -15,10 +18,10 @@ Configure resources once. Use them over and over. No boilerplate, just filling.
 
 ## Packages
 
-| Package                 | Description                                                                                           |
-|-------------------------|-------------------------------------------------------------------------------------------------------|
-| `@ghentcdh/crouton-api` | NestJS library — generates controllers, repositories, and `/schemas` endpoints from a `resource.json` |
-| `@ghentcdh/crouton-vue` | Vue 3 component library — renders data tables, forms, filters, and views driven by the schemas        |
+| Package                 | Description                                                                                           | Status            |
+|-------------------------|-------------------------------------------------------------------------------------------------------|-------------------|
+| `@ghentcdh/crouton-api` | NestJS library — generates controllers, repositories, and `/schemas` endpoints from a `resource.json` | 🚧 in development |
+| `@ghentcdh/crouton-vue` | Vue 3 component library — renders data tables, forms, filters, and views driven by the schemas        | 🚧 in development |
 
 ## How it works
 
@@ -88,11 +91,25 @@ npx nx run-many -t typecheck
 ```
 packages/
   crouton-api/   — NestJS CRUD framework
+  crouton-core/  — shared schema & builder logic (internal, bundled)
   crouton-vue/   — Vue 3 UI components
 ```
 
 > `crouton-core` is an internal build-time package bundled into both `crouton-api` and `crouton-vue` — it is never
 > published separately.
+
+### Documentation
+
+The docs site is built with [VuePress](https://vuepress.vuejs.org/). Each package documents itself in
+`packages/<name>/docs/`; the site is assembled from those files.
+
+```sh
+# Serve the docs locally
+pnpm docs:serve
+
+# Build the docs site
+pnpm docs:build
+```
 
 ---
 

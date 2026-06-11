@@ -224,6 +224,47 @@ export type JsonLinkAction = {
 
 export type JsonAction = JsonProcedureAction | JsonLinkAction;
 
+// ─── Table-level (global) actions ────────────────────────────────────────────
+
+/** Table-level action that calls a backend procedure endpoint (no record id). */
+export type JsonTableProcedureAction = {
+  type?: 'procedure';
+  /** Unique identifier used as the URL segment, e.g. `"syncZotero"`. */
+  id: string;
+  /** Human-readable button label (shown as tooltip when `icon` is set). */
+  label?: string;
+  /** MDI icon name, e.g. `"mdi:sync"`. When set, the button shows an icon instead of a label. */
+  icon?: string;
+  /** Tooltip text. Falls back to `label` when omitted. */
+  tooltip?: string;
+  /**
+   * Filename (without extension) inside the resource's `actions/` directory
+   * that exports the table-action procedure, e.g. `"syncZotero"`.
+   */
+  procedure: string;
+  /** HTTP method for the frontend. Defaults to `"post"`. */
+  method?: string;
+  /** Static query / body params passed to the endpoint. */
+  data?: Record<string, unknown>;
+};
+
+/** Table-level action that opens a URL in a new browser tab. */
+export type JsonTableLinkAction = {
+  type: 'link';
+  /** Unique identifier for the action. */
+  id: string;
+  /** Human-readable button label. */
+  label?: string;
+  /** MDI icon name, e.g. `"mdi:open-in-new"`. */
+  icon?: string;
+  /** Tooltip text. Falls back to `label` when omitted. */
+  tooltip?: string;
+  /** URL to open. May contain `{env.VAR}` placeholders. */
+  href: string;
+};
+
+export type JsonTableAction = JsonTableProcedureAction | JsonTableLinkAction;
+
 export type JsonResourceConfig = {
   name: string;
   route: string;
@@ -238,6 +279,8 @@ export type JsonResourceConfig = {
   columns?: JsonColumn[] | JsonColumnsMap;
   calculatedColumns?: CalculatedColumn[];
   actions?: JsonAction[];
+  /** Global table-level actions (no record id). Shown as toolbar buttons. */
+  tableActions?: JsonTableAction[];
   /** Modal width when opening the form for this resource. One of `xs`, `sm`, `lg`, `xl`. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
   /**

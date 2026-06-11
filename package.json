@@ -5,10 +5,15 @@
   "scripts": {
     "lint": "nx run-many -t lint",
     "format": "prettier --write \"packages/**/*.{ts,js,json,md}\"",
+    "docs:build": "nx run docs:build",
+    "docs:serve": "nx run docs:serve",
     "prepare": "husky"
   },
   "private": true,
   "devDependencies": {
+    "@ghentcdh/json-forms-vue": "^1.1.1",
+    "@ghentcdh/ui": "^1.1.1",
+    "@jsonforms/core": "^3.7.0",
     "@nx/eslint": "22.7.5",
     "@nx/eslint-plugin": "22.7.5",
     "@nx/js": "22.7.5",
@@ -17,8 +22,11 @@
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
+    "@tailwindcss/vite": "^4.2.1",
     "@types/node": "^25.9.3",
     "@vitejs/plugin-vue": "6.0.4",
+    "@vuepress/bundler-vite": "2.0.0-rc.26",
+    "axios": "^1.16.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-import-x": "4.16.2",
@@ -26,6 +34,8 @@
     "jsonc-eslint-parser": "^3.1.0",
     "nx": "22.7.5",
     "prettier": "^3.8.1",
+    "sass": "^1.97.0",
+    "tailwindcss": "^4.2.1",
     "tslib": "^2.3.0",
     "tsup": "^8.0.0",
     "typescript": "~5.9.2",
@@ -33,7 +43,11 @@
     "vite": "7.3.1",
     "vite-plugin-dts": "4.5.4",
     "vue": "3.5.29",
-    "vue-tsc": "3.2.5"
+    "vue-router": "^5.1.0",
+    "vue-tsc": "3.2.5",
+    "vuepress": "2.0.0-rc.26",
+    "vuepress-theme-hope": "2.0.0-rc.102",
+    "zod": "^4.4.3"
   },
   "workspaces": [
     "packages/*"

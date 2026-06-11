@@ -42,6 +42,29 @@ export type FormDefLinkAction = {
 
 export type FormDefAction = FormDefProcedureAction | FormDefLinkAction;
 
+/** Table-level procedure action — no record id, shown as a toolbar button. */
+export type FormDefTableProcedureAction = {
+  type?: 'procedure';
+  id: string;
+  label?: string;
+  icon?: string;
+  tooltip?: string;
+  uri: string;
+  method?: string;
+  data?: Record<string, unknown>;
+};
+
+export type FormDefTableLinkAction = {
+  type: 'link';
+  id: string;
+  label?: string;
+  icon?: string;
+  tooltip?: string;
+  href: string;
+};
+
+export type FormDefTableAction = FormDefTableProcedureAction | FormDefTableLinkAction;
+
 export type FormDef = {
   id: string;
   name: string;
@@ -53,4 +76,5 @@ export type FormDef = {
   schemas: FormSchemas;
   operations: Record<string, boolean>;
   actions?: FormDefAction[];
+  tableActions?: FormDefTableAction[];
 };

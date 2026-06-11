@@ -47,3 +47,7 @@ Thumbs.db
 .claude/settings.local.json
 .nx/polygraph
 .nx/self-healing
+
+# pnpm temp files
+_tmp_*
+*_PLAN.md

@@ -86,6 +86,30 @@ export const ActionSchema = z.union([
 
 export type Action = z.infer<typeof ActionSchema>;
 
+/** Schema for a single table-level (global) action — no record id, no condition. */
+export const TableActionSchema = z.union([
+  z.object({
+    type: z.literal('link'),
+    id: z.string(),
+    label: z.string().optional(),
+    icon: z.string().optional(),
+    tooltip: z.string().optional(),
+    href: z.string(),
+  }),
+  z.object({
+    type: z.literal('procedure').optional().default('procedure'),
+    id: z.string(),
+    label: z.string().optional(),
+    icon: z.string().optional(),
+    tooltip: z.string().optional(),
+    uri: z.string(),
+    method: MethodSchema.optional().default('post'),
+    data: z.any().optional(),
+  }),
+]);
+
+export type TableAction = z.infer<typeof TableActionSchema>;
+
 export const FormDevSchemas = z.object({
   table: ViewSchemaZ,
   form: ViewSchemaZ,
@@ -105,6 +129,7 @@ export const FormDefResponseZ = z
     modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
     operations: Operations,
     actions: z.array(ActionSchema).optional().default([]),
+    tableActions: z.array(TableActionSchema).optional().default([]),
     schemas: FormDevSchemas,
   })
   .transform((data) => {

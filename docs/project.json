@@ -1,0 +1,28 @@
+{
+  "name": "docs",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "docs",
+  "targets": {
+    "build:menu": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/doc/vuepress.mjs"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build:menu"],
+      "options": {
+        "command": "vuepress build docs"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build:menu"],
+      "options": {
+        "command": "vuepress dev docs"
+      }
+    }
+  }
+}

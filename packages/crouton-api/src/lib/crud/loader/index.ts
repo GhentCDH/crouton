@@ -23,7 +23,7 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 
-import { loadActions } from './action.loader';
+import { loadActions, loadTableActions } from './action.loader';
 import { fromJson } from './json-adapter';
 import type { JsonResourceConfig } from './json-config.types';
 import { findModule, importDefault } from './module.loader';
@@ -64,7 +64,8 @@ export const loadResourceConfigsFromDir = async (
     if (existsSync(jsonFile)) {
       const json: JsonResourceConfig = JSON.parse(readFileSync(jsonFile, 'utf-8'));
       const actions = await loadActions(json.actions ?? [], basePath);
-      const config = fromJson(json, schema, hooks, basePath, baseUrl, actions);
+      const tableActions = await loadTableActions(json.tableActions ?? [], basePath);
+      const config = fromJson(json, schema, hooks, basePath, baseUrl, actions, tableActions);
       await loadSubResourceHooks(config.subResources ?? [], basePath);
       configs.push(config);
       continue;

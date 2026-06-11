@@ -8,13 +8,32 @@ export type { RequestData };
 /**
  * Reactive object returned by {@link useResources} that exposes
  * the current loading state and fetched data for a resource.
+ *
+ * Derived from the actual return shape of `useResources` so it
+ * stays in sync automatically.
  */
-export interface ResourceApi {
-  /** Whether a network request is currently in progress. */
+export type ResourceApi = {
+  operations: Record<string, unknown>;
+  uiSchema: unknown;
+  schema: unknown;
+  filterSchema: Record<string, unknown> | undefined;
   loading: boolean;
-  /** The fetched resource data. */
-  data: any;
-}
+  data: unknown;
+  page: unknown;
+  sort: unknown;
+  filter: unknown[];
+  search: string;
+  onSort: (...args: unknown[]) => void;
+  onUpdatePage: (...args: unknown[]) => void;
+  onUpdatePageSize: (...args: unknown[]) => void;
+  onUpdateFilters: (...args: unknown[]) => void;
+  onUpdateSearch: (...args: unknown[]) => void;
+  cellRenderers: unknown;
+  actions: unknown;
+  backendAction: (action: unknown) => unknown;
+  tableActions: unknown[];
+  resourceModal: unknown;
+};
 
 /**
  * Callback invoked when a resource action occurs (e.g. view, create, update, close).

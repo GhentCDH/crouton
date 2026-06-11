@@ -9,7 +9,7 @@ export const CroutonRouter = [
       {
         path: '',
         name: CROUTON_FORM,
-        component: () => import('./form/form.vue'),
+        component: () => import('./resource/resource.vue'),
       },
     ],
   },

@@ -12,7 +12,7 @@ import {
 } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
-import { registerActionRoutes } from './operations/register-actions';
+import { registerActionRoutes, registerTableActionRoutes } from './operations/register-actions';
 import { registerCreate, registerDelete, registerFindAll, registerFindOne, registerUpdate, registerUpsert } from './operations/register-crud';
 import { registerDefinitionEndpoint, registerResourceJsonEndpoint, registerSchemasEndpoint } from './operations/register-schema-endpoints';
 import { registerSubResourceRoutes } from './operations/register-sub-resources';
@@ -84,6 +84,7 @@ export function createCrudController(
   registerSchemasEndpoint(ctx);
   registerResourceJsonEndpoint(ctx);
   registerActionRoutes(ctx);
+  registerTableActionRoutes(ctx);
   registerSubResourceRoutes(ctx);
   registerFindOne(ctx);
   registerCreate(ctx);

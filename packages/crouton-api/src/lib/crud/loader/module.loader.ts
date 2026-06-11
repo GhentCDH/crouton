@@ -1,6 +1,10 @@
 import { IS_DEV } from '../dev-mode';
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
+
+// createRequire works in both CJS and ESM contexts, unlike bare `require`.
+const _require = createRequire(import.meta.url);
 
 /** Find a module file by trying `.ts` then `.js` extensions. */
 export const findModule = (dir: string, name: string): string | undefined => {
@@ -34,7 +38,7 @@ export const importDefault = async <T>(filePath: string): Promise<T | undefined>
       // nodemon restarts the whole process on file changes, so no cache-busting
       // is needed here.
        
-      const mod = require(filePath) as { default?: T };
+      const mod = _require(filePath) as { default?: T };
       return mod.default;
     }
   } catch {

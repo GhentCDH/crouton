@@ -35,6 +35,32 @@ export type ResourceLinkAction = {
 
 export type ResourceAction = ResourceProcedureAction | ResourceLinkAction;
 
+// ─── Table-level (global) actions ────────────────────────────────────────────
+
+/** Table-level procedure action — no record id is passed to the procedure. */
+export type ResourceTableProcedureAction = {
+  type?: 'procedure';
+  id: string;
+  label?: string;
+  icon?: string;
+  tooltip?: string;
+  method?: string;
+  data?: Record<string, unknown>;
+  /** The procedure function called with only prisma (no record id). */
+  procedure: (prisma: any) => Promise<any>;
+};
+
+export type ResourceTableLinkAction = {
+  type: 'link';
+  id: string;
+  label?: string;
+  icon?: string;
+  tooltip?: string;
+  href: string;
+};
+
+export type ResourceTableAction = ResourceTableProcedureAction | ResourceTableLinkAction;
+
 export type CrudOperation =
   | 'findAll'
   | 'findOne'
@@ -193,6 +219,8 @@ export type ResourceConfig = {
   subResources?: SubResourceConfig[];
   calculatedColumns?: CalculatedColumn[];
   actions?: ResourceAction[];
+  /** Global table-level actions (no record id). Shown as toolbar buttons. */
+  tableActions?: ResourceTableAction[];
   /** Modal width when opening a form for this resource. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
 };

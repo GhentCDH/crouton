@@ -14,7 +14,7 @@ export default [
   },
   importPlugin.flatConfigs.recommended,
   {
-    ignores: ['**/dist', '**/node_modules', '**/vite.config.*.timestamp*'],
+    ignores: ['**/dist', '**/node_modules', '**/vite.config.*.timestamp*', 'docs/.vuepress/.cache', 'docs/.vuepress/.temp'],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

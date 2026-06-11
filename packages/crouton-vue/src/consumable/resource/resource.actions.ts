@@ -1,14 +1,25 @@
-import { type FormModalResult, JsonFormModalService } from '@ghentcdh/json-forms-vue';
-import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
+import {
+  type FormModalResult,
+  JsonFormModalService,
+} from '@ghentcdh/json-forms-vue';
+import {
+  ModalService,
+  NotificationService,
+  type TableAction,
+} from '@ghentcdh/ui';
 
-import { type Action, type FormDefResponse } from '../form-def.schema';
+import {
+  type Action,
+  type FormDefResponse,
+  type TableAction as TableActionDef,
+} from '../form-def.schema';
 import type { FormDefActionCondition } from '../form-def.types';
 import type { ResourceApiInstance } from './api';
 import { getFetch } from './api';
 import { type Resource } from './resource';
 import type { HandleEvent } from './types';
 import { replaceUriParams } from './uri.utils';
-import { readonlyRenderers, renderers } from '../../form/renderers';
+import { readonlyRenderers, renderers } from '../../resource/renderers';
 import { useCrouton } from '../useCrouton';
 import { useResources } from './useResources';
 
@@ -143,7 +154,7 @@ const openEditModal =
     });
   };
 
-const backendAction = (
+export const backendAction = (
   resource: Resource,
   formDef: FormDefResponse,
   defaultUriParams: Record<string, string>,
@@ -162,6 +173,7 @@ const backendAction = (
     }
 
     const uri = replaceUriParams(action.uri, formData);
+
     return fetch[action.method](
       replaceUriParams(uri, defaultUriParams),
       defaultUriParams,
@@ -225,6 +237,48 @@ export const actions = (
   ]
     .flat()
     .filter(Boolean) as TableAction[];
+};
+
+/**
+ * Build the list of table-level (toolbar) action buttons for a resource.
+ * These are global actions — no row data is passed to the handler.
+ */
+export const tableActions = (
+  resource: Resource,
+  formDef: FormDefResponse | null | undefined,
+): TableAction[] => {
+  if (!formDef || !formDef.tableActions?.length) return [];
+
+  const fetch = getFetch(formDef);
+
+  return formDef.tableActions.map((action: TableActionDef) => {
+    const label = action.tooltip ?? action.label ?? action.id;
+    const handler = () => {
+      if (action.type === 'link') {
+        window.open(action.href, '_blank');
+        return;
+      }
+      return fetch[action.method](action.uri, action.data ?? {})
+        .then(({ data }: { data: any }) => {
+          if (data?.success !== false) {
+            NotificationService.success(data?.message ?? 'Done');
+            resource.reload();
+          } else {
+            NotificationService.error(data?.message ?? 'Action failed');
+          }
+        })
+        .catch(() => {
+          NotificationService.error('Something went wrong, please try again');
+        });
+    };
+
+    return {
+      action: handler,
+      tooltip: label,
+      ...(action.label && !action.icon && { label: action.label }),
+      ...(action.icon && { icon: action.icon }),
+    } as TableAction;
+  });
 };
 
 export const resourceModals = (

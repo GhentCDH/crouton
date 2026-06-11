@@ -2,10 +2,15 @@ import { cloneDeep } from 'lodash-es';
 import { reactive } from 'vue';
 
 import { customCellRenderers } from '../../table/cells';
-import { type FormDefResponse } from '../form-def.schema';
+import { type Action, type FormDefResponse } from '../form-def.schema';
 import { resourceApi } from './api';
 import { Resource } from './resource';
-import { actions, resourceModals } from './resource.actions';
+import {
+  actions,
+  backendAction,
+  resourceModals,
+  tableActions,
+} from './resource.actions';
 import type { HandleEvent, ResourceApi } from './types';
 import { type Request } from '../../utils/request';
 
@@ -75,6 +80,9 @@ export const useResources = (
       handleEvent,
       readonly,
     ),
+    backendAction: (action: Action) =>
+      backendAction(resource, formDef, defaultUriParams, action),
+    tableActions: tableActions(resource, _formDef),
     resourceModal: resourceModals(api, resource, _formDef, handleEvent),
   });
 };
