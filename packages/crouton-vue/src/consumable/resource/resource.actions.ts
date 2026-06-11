@@ -103,7 +103,10 @@ const openViewModal =
           .then((config) => {
             if (!config) return;
             const _resource = useResources(config, { defaultUriParams: data });
-            _resource.resourceModal.view(data.id);
+
+            const valueKey = data.options.valueKey;
+            const id = valueKey ? data.data[valueKey] : data.data;
+            _resource.resourceModal.view(id);
           });
       },
       onClose: () => {
