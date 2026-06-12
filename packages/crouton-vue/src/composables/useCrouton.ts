@@ -3,10 +3,10 @@ import { computed, ref } from 'vue';
 
 import type { ShellMenu } from '@ghentcdh/ui';
 
-import { configureApi, useApi } from './useApi';
 import { FormDefCache } from './form-def';
 import type { SideBarItem } from './sidebar';
 import { menu } from './sidebar';
+import { configureApi, useApi } from './useApi';
 
 export { menu } from './sidebar';
 export type { FormDef, FormSchema, FormSchemas } from './form-def.types';

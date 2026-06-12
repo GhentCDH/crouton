@@ -24,8 +24,7 @@
       <RelationButton
         v-for="v of value"
         :key="v"
-        :displayKey="displayKey"
-        :description-key="descriptionKey"
+        :options="appliedOptions"
         :value="v"
         @view="view"
       />

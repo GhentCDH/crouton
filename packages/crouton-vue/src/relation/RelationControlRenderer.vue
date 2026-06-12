@@ -3,17 +3,16 @@
     <div v-if="message" class="text-sm text-secondary italic py-2">
       {{ message }}
     </div>
-    <div
-      v-if="!message && resource"
-      class="h-full overflow-auto flex flex-col gap-2"
-    >
-      <!-- Table view (default) -->
-      <TableComponent
-        :id="`relation_${scope}`"
-        :cell-renderers="customCellRenderers"
-        v-bind="resource"
-        :hide-pagination="resource.page.totalPages < 2"
-      />
+    <div v-if="!message && resource">
+      <div class="flex flex-wrap gap-2 mb-2">
+        <RelationButton
+          v-for="v of value"
+          :key="v"
+          :options="appliedOptions"
+          :value="v"
+          v-bind="operations"
+        />
+      </div>
       <div>
         <Btn
           v-if="resource.operations?.create"
@@ -31,11 +30,9 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { Btn, ControlWrapper } from '@ghentcdh/ui';
-import { TableComponent } from '@ghentcdh/json-forms-vue';
 import { computed } from 'vue';
-
-import { customCellRenderers } from '../table/cells';
 import { useRelationBinding } from './useRelationBinding';
+import RelationButton from './RelationButton.vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
@@ -46,11 +43,25 @@ const {
   resource,
   scope,
   isNew,
+  appliedOptions,
 } = useRelationBinding(props.uischema, props.schema);
 
 const message = computed(() => {
   if (isNew.value)
     return `Create first the main object to manage the relations.`;
   return _message;
+});
+
+const operations = computed(() => {
+  const operations = resource.value?.operations ?? {};
+  const resourceModal = resource.value?.resourceModal ?? {};
+  const ops = {
+    onView: (value) => {
+      resourceModal.view(value);
+    },
+  };
+  if (operations.update) ops['onEdit'] = resourceModal.edit;
+  if (operations.delete) ops['onDelete'] = resourceModal.delete;
+  return ops;
 });
 </script>

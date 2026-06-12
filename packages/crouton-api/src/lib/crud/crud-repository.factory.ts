@@ -1,8 +1,8 @@
-import type { RequestDto } from './request.dto';
 
 import type { ResourceConfig, SubResourceConfig } from './crud.config';
 import { resolveDefinition, schemaFor } from './crud.config';
 import { ReadRepository } from './read.repository';
+import type { RequestDto } from './request.dto';
 import { toSelectFields } from './schema.utils';
 import { WriteRepository } from './write.repository';
 

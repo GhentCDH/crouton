@@ -1,9 +1,9 @@
 import { NotificationService } from '@ghentcdh/ui';
 
-import { useApi } from '../composables/useApi';
-import { type FormDefResponse, type Operation, type OperationKey } from '../composables/form-def.schema';
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
+import { type FormDefResponse, type Operation, type OperationKey } from '../composables/form-def.schema';
+import { useApi } from '../composables/useApi';
 
 const paramsSerializer = (params: Record<string, unknown>) => {
   const p = new URLSearchParams();

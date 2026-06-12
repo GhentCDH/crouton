@@ -2,8 +2,8 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
 import { useControlBinding } from '@ghentcdh/json-forms-vue';
 
-import { useResources } from '../resource';
 import { useCrouton } from '../composables/useCrouton';
+import { useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
 
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;

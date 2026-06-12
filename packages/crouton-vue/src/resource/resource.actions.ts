@@ -1,27 +1,16 @@
-import {
-  type FormModalResult,
-  JsonFormModalService,
-} from '@ghentcdh/json-forms-vue';
-import {
-  ModalService,
-  NotificationService,
-  type TableAction,
-} from '@ghentcdh/ui';
+import { type FormModalResult, JsonFormModalService } from '@ghentcdh/json-forms-vue';
+import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
-import {
-  type Action,
-  type FormDefResponse,
-  type TableAction as TableActionDef,
-} from '../composables/form-def.schema';
-import type { FormDefActionCondition } from '../composables/form-def.types';
-import type { ResourceApiInstance } from './resource.api';
-import { useApi } from '../composables/useApi';
+import { relationReadonlyRenderers, relationRenderers } from './renderers';
 import { type Resource } from './resource';
+import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import { relationReadonlyRenderers, relationRenderers } from './renderers';
-import { useCrouton } from '../composables/useCrouton';
 import { useResources } from './useResources';
+import { type Action, type FormDefResponse, type TableAction as TableActionDef } from '../composables/form-def.schema';
+import type { FormDefActionCondition } from '../composables/form-def.types';
+import { useApi } from '../composables/useApi';
+import { useCrouton } from '../composables/useCrouton';
 
 const evaluateCondition = (
   condition: FormDefActionCondition | undefined,
@@ -89,10 +78,12 @@ const openViewModal =
       modalTitle: formDef.title ?? '',
       renderers: relationReadonlyRenderers,
       onEdit: op.update
-        ? (data: any) => openEditModal(api, resource, formDef, handleEvent)(data ?? formData)
+        ? (data: any) =>
+            openEditModal(api, resource, formDef, handleEvent)(data ?? formData)
         : undefined,
       onDelete: op.delete
-        ? (data: any) => openDeleteModal(api, resource, handleEvent)(data ?? formData)
+        ? (data: any) =>
+            openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
       http: useApi(),
       onView: (data) => {

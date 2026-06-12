@@ -13,7 +13,7 @@ export const MethodSchema = z
     'PUT',
     'PATCH',
   ])
-  .transform((d) => d.toLowerCase());
+  .transform((d) => d.toLowerCase() as Lowercase<typeof d>);
 
 export type Method = z.infer<typeof MethodSchema>;
 export const OperationSchema = z.object({
@@ -154,7 +154,7 @@ export const FormDefResponseZ = z
 
         return {
           uri: operation.uri,
-          method: operation.method?.toLowerCase() ?? defaultOperation,
+          method: (operation.method?.toLowerCase() ?? defaultOperation) as Method,
         };
       };
 

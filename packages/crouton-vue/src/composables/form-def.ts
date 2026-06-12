@@ -1,8 +1,8 @@
 import { fromJSONSchema, z } from 'zod';
 
-import { useApi } from './useApi';
 import { FormDefResponseZ } from './form-def.schema';
 import type { FormDef, FormSchema } from './form-def.types';
+import { useApi } from './useApi';
 
 const stripAdditionalProperties = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripAdditionalProperties);
