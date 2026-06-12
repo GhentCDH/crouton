@@ -5,9 +5,9 @@
     style="max-width: 200px"
     :tooltip="labelValue"
   >
-    <span class="pl-2 flex items-center min-w-0 overflow-hidden">
-      <div class="flex gap-2 items-center font-medium" @click="view">
-        <div class="truncate flex-grow text-gray-700">
+    <span class="pl-2 flex items-center min-w-0">
+      <div class="flex flex-1 min-w-0 gap-2 items-center font-medium" @click="view">
+        <div class="truncate min-w-0 text-gray-700">
           {{ labelValue }}
           <small v-if="description" class="text-gray-500">
             {{ description }}
@@ -22,7 +22,7 @@
         <Icon :icon="IconEnum.Edit" size="sm" class="shrink-0" v-if="hasEdit" />
       </div>
       <div
-        class="hover:bg-gray-100 py-2 px-1"
+        class="shrink-0 hover:bg-gray-100 py-2 px-1"
         @click="deleteFn($event)"
         v-if="hasDelete"
       >
