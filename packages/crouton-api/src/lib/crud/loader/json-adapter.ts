@@ -14,7 +14,7 @@ import type {
   SubResourceConfig,
 } from '../crud.config';
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 
 type ResolvedChildResource = { json: JsonResourceConfig; dir: string };
 

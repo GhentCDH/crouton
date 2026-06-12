@@ -1,4 +1,4 @@
-import type { SortDir } from './request.model';
+import { SortDirEnum } from './request.model';
 
 export const Operator = [
   'contains',
@@ -56,8 +56,8 @@ const buildFilterKey = (keys: string[], filterObj: any): any => {
   return buildFilterKey(keys, { [buildKey]: filterObj });
 };
 
-export const buildSort = (key: string, sortDir: SortDir) =>
-  buildSortKey(key.split('.'), sortDir);
+export const buildSort = (key: string, sortDir?: string) =>
+  buildSortKey(key.split('.'), SortDirEnum.safeParse(sortDir).data ?? 'asc');
 
 export const buildSortKey = (keys: string[], sortDir: any): any => {
   if (keys.length === 1) return { [keys[0]]: sortDir };

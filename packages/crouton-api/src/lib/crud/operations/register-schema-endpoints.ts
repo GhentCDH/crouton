@@ -16,7 +16,7 @@ import {
  * In dev mode the response is rebuilt from the live config registry on every request.
  */
 export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
-  const { cls, config, baseUrl } = ctx;
+  const { cls, config } = ctx;
   const { route, name } = config;
   const definitionPayload = buildDefinitionPayload(config);
 

@@ -15,7 +15,7 @@ import {
 } from '../composables/form-def.schema';
 import type { FormDefActionCondition } from '../composables/form-def.types';
 import type { ResourceApiInstance } from './resource.api';
-import { getFetch } from './resource.api';
+import { useApi } from '../composables/useApi';
 import { type Resource } from './resource';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
@@ -94,7 +94,7 @@ const openViewModal =
       onDelete: op.delete
         ? (data: any) => openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
-      http: getFetch(formDef),
+      http: useApi(),
       onView: (data) => {
         const resource = data.options.resource ?? data.options.schemasUri;
         if (!resource) return;
@@ -135,7 +135,7 @@ const openEditModal =
       modalSize: formDef.modalSize ?? 'lg',
       initialData: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
-      http: getFetch(formDef),
+      http: useApi(),
       renderers: relationRenderers,
       onClose: (result: FormModalResult) => {
         if (result && result.valid) {
@@ -161,7 +161,7 @@ export const backendAction = (
   defaultUriParams: Record<string, string>,
   action: Action,
 ) => {
-  const fetch = getFetch(formDef);
+  const fetch = useApi();
 
   return (formData: any) => {
     if (action.type === 'link') {
@@ -250,7 +250,7 @@ export const tableActions = (
 ): TableAction[] => {
   if (!formDef || !formDef.tableActions?.length) return [];
 
-  const fetch = getFetch(formDef);
+  const fetch = useApi();
 
   return formDef.tableActions.map((action: TableActionDef) => {
     const label = action.tooltip ?? action.label ?? action.id;

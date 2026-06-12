@@ -2,8 +2,11 @@ import { ZodObject, type ZodRawShape, type ZodType, toJSONSchema, z } from 'zod'
 
 import { type JsonSchemaInput, type SchemaInput } from './crud.config';
 
+type ToJSONSchemaParams = NonNullable<Parameters<typeof toJSONSchema>[1]>;
+type OverrideContext = Parameters<NonNullable<ToJSONSchemaParams['override']>>[0];
+
 /** Post-process override: patch date schemas to `{ type: "string", format: "date-time" }`. */
-const dateOverride = ({ zodSchema, jsonSchema }: { zodSchema: ZodType; jsonSchema: Record<string, unknown>; path: string[] }) => {
+const dateOverride = ({ zodSchema, jsonSchema }: OverrideContext) => {
   if (zodSchema instanceof z.ZodDate) {
     jsonSchema.type = 'string';
     jsonSchema.format = 'date-time';

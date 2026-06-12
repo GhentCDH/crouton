@@ -110,7 +110,7 @@ const registerSubResourceCreate = (ctx: OperationContext, sub: SubResourceConfig
 
 const registerSubResourceFindOne = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.findOne) return;
-  const { cls, config } = ctx;
+  const { cls } = ctx;
   const methodName = `findOneChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, parentId: string, childId: string) {
@@ -127,7 +127,7 @@ const registerSubResourceFindOne = (ctx: OperationContext, sub: SubResourceConfi
 
 const registerSubResourceUpdate = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.update) return;
-  const { cls, config } = ctx;
+  const { cls } = ctx;
   const methodName = `updateChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, _id: string, childId: string, body: any) {
@@ -145,7 +145,7 @@ const registerSubResourceUpdate = (ctx: OperationContext, sub: SubResourceConfig
 
 const registerSubResourceDelete = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.delete) return;
-  const { cls, config } = ctx;
+  const { cls } = ctx;
   const methodName = `deleteChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, parentId: string, childId: string) {

@@ -5,34 +5,13 @@ import { type FormDefResponse, type Operation, type OperationKey } from '../comp
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 
-const paramsSerializer = (params) => {
+const paramsSerializer = (params: Record<string, unknown>) => {
   const p = new URLSearchParams();
   Object.entries(params).forEach(([key, val]) => {
-    if (Array.isArray(val)) val.forEach((v) => p.append(key, v));
-    else p.append(key, val);
+    if (Array.isArray(val)) val.forEach((v) => p.append(key, String(v)));
+    else p.append(key, String(val));
   });
   return p.toString();
-};
-
-// If needed custom auth can be added here
-export const getFetch = (formDef: FormDefResponse) => {
-  return useApi();
-};
-
-export const loadDataData = (data: RequestData) => {
-  const request = data.request;
-  return {
-    data: data.data,
-    pageData: {
-      count: request.count ?? 0,
-      pageSize: request.pageSize ?? 1,
-      page: request.page ?? 1,
-    },
-    sort: {
-      sortColumn: request.sort,
-      sortDirection: request.sortDir,
-    },
-  };
 };
 
 const apiCall = (
@@ -52,7 +31,7 @@ const apiCall = (
   const uri = replaceUriParams(request.uri, defaultUriParams);
   const method = request.method;
 
-  const fetch = getFetch(formDef);
+  const fetch = useApi();
 
   return fetch[method](uri, {
     ...data,
@@ -75,13 +54,12 @@ export const resourceApi = (
     )
       .then((data) => {
         return data.data;
-        return loadDataData(data.data);
       })
       .catch((error) => {
         if (signal?.aborted) return null;
         console.error(error);
-        // TODO snackbar error
-        return loadDataData({ data: undefined });
+        NotificationService.error('Error loading data');
+        return null;
       });
 
   const idField = formDef.idField ?? 'id';

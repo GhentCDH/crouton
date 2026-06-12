@@ -1,6 +1,7 @@
-import { Body, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import {
   ApiBody,
+  type ApiBodyOptions,
   ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
@@ -14,6 +15,9 @@ import { toJsonSchema } from '../schema.utils';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
+
+/** Swagger's SchemaObject is not exported from the package root — derive it from ApiBodyOptions. */
+type SchemaObject = NonNullable<Extract<ApiBodyOptions, { schema?: unknown }>['schema']>;
 
 /**
  * Register `GET /` with pagination, sorting, filtering, and optional `?q=` lookup search.
@@ -87,7 +91,7 @@ export const registerCreate = (ctx: OperationContext): void => {
   Post()(cls.prototype, 'create', d);
   bodyDecorator(createSchema)(cls.prototype, 'create', 0);
   ApiOperation({ summary: `Create a ${name}` })(cls.prototype, 'create', d);
-  if (createSchema) ApiBody({ schema: toJsonSchema(createSchema) })(cls.prototype, 'create', d);
+  if (createSchema) ApiBody({ schema: toJsonSchema(createSchema) as SchemaObject })(cls.prototype, 'create', d);
   ApiResponse({ status: 201, description: `${name} created` })(cls.prototype, 'create', d);
 };
 
@@ -106,7 +110,7 @@ export const registerUpdate = (ctx: OperationContext): void => {
   bodyDecorator(updateSchema)(cls.prototype, 'update', 1);
   ApiOperation({ summary: `Update a ${name}` })(cls.prototype, 'update', d);
   ApiParam(idParamMeta)(cls.prototype, 'update', d);
-  if (updateSchema) ApiBody({ schema: toJsonSchema(updateSchema) })(cls.prototype, 'update', d);
+  if (updateSchema) ApiBody({ schema: toJsonSchema(updateSchema) as SchemaObject })(cls.prototype, 'update', d);
   ApiResponse({ status: 200, description: `${name} updated` })(cls.prototype, 'update', d);
   ApiNotFoundResponse({ description: 'Not found' })(cls.prototype, 'update', d);
 };
@@ -124,7 +128,7 @@ export const registerUpsert = (ctx: OperationContext): void => {
   Put()(cls.prototype, 'upsert', d);
   bodyDecorator(upsertSchema)(cls.prototype, 'upsert', 0);
   ApiOperation({ summary: `Upsert a ${name}` })(cls.prototype, 'upsert', d);
-  if (upsertSchema) ApiBody({ schema: toJsonSchema(upsertSchema) })(cls.prototype, 'upsert', d);
+  if (upsertSchema) ApiBody({ schema: toJsonSchema(upsertSchema) as SchemaObject })(cls.prototype, 'upsert', d);
   ApiResponse({ status: 200, description: `${name} upserted` })(cls.prototype, 'upsert', d);
 };
 

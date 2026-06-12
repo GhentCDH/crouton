@@ -9,7 +9,6 @@ import { computedAsync } from '../utils/computedAsync';
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;
 
 const getMessage = (isNew: boolean, schemasUri: string) => {
-  // if (isNew) return `Create first the main object to manage the relations.`;
   if (!schemasUri) return 'No schemasUri configured for this relation.';
   return null;
 };
