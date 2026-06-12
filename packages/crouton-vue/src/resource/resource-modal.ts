@@ -1,3 +1,5 @@
+import { ZodObject } from 'zod';
+
 import {
   type FormEventPayload,
   type FormModalResult,
@@ -5,7 +7,6 @@ import {
   createRepository,
 } from '@ghentcdh/json-forms-vue';
 import { NotificationService } from '@ghentcdh/ui';
-import { ZodObject } from 'zod';
 
 import { useApi } from '../composables/useApi';
 import { type FormDef, useCrouton } from '../composables/useCrouton';

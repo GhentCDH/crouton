@@ -12,8 +12,8 @@
   },
   "private": true,
   "devDependencies": {
-    "@ghentcdh/json-forms-vue": "^1.1.1",
-    "@ghentcdh/ui": "^1.1.1",
+    "@ghentcdh/json-forms-vue": "^2.0.0",
+    "@ghentcdh/ui": "^2.0.0",
     "@jsonforms/core": "^3.7.0",
     "@nx/eslint": "22.7.5",
     "@nx/eslint-plugin": "22.7.5",

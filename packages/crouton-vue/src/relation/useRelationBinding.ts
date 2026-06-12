@@ -1,5 +1,5 @@
-import { computed } from 'vue';
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
+import { computed } from 'vue';
 
 import { useControlBinding } from '@ghentcdh/json-forms-vue';
 
