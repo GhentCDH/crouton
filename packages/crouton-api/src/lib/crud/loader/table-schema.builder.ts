@@ -57,6 +57,23 @@ export const resolveDefaultSort = (
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 
+/**
+ * Field-input options that are also meaningful in table cells, so the table
+ * can reuse the same logic as the form (e.g. mapping a select's stored value
+ * to its label, or resolving a referenced resource):
+ * - `values` / `storeValue` — select options
+ * - `uri` / `resourceUri` / `schemasUri` — injected resource references
+ */
+const SHARED_CELL_OPTION_KEYS = ['values', 'storeValue', 'uri', 'resourceUri', 'schemasUri'] as const;
+
+/** Pick the shared (form ↔ table) option keys from a column's `fieldInput.options`. */
+export const pickSharedCellOptions = (col: JsonColumn): Record<string, unknown> => {
+  const options = (col.fieldInput?.options ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(
+    SHARED_CELL_OPTION_KEYS.filter((key) => options[key] !== undefined).map((key) => [key, options[key]]),
+  );
+};
+
 /** Build the TableBuilder UI schema — one TextCell / BooleanCell per visible column. */
 export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> => {
   const layout = TableBuilder.init<any>()
@@ -76,7 +93,11 @@ export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> 
     const id = el.scope?.replace('#/properties/', '');
     const col = id ? colMap[id] : undefined;
     if (!col) return el;
-    const fieldInputOptions = isRecordCell(col) ? (col.fieldInput?.options as object ?? {}) : {};
+    // Record cells get all fieldInput options; plain cells still receive the
+    // shared ones (select values, resource URIs) so they can reuse form logic.
+    const fieldInputOptions = isRecordCell(col)
+      ? (col.fieldInput?.options as object ?? {})
+      : pickSharedCellOptions(col);
     const dataPathOption = col.column ? { dataPath: col.column } : {};
     const derivedSortId = isRecordCell(col) ? null : deriveSortId(col);
     const sortOptions = derivedSortId ? { sortId: derivedSortId } : { sortable: false };

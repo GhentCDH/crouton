@@ -2,10 +2,10 @@
 import { Btn, Modal } from '@ghentcdh/ui';
 import { computedAsync } from '../utils/computedAsync';
 import { useResources } from '../resource';
-import { customCellRenderers } from '../table/cells';
 import { TableComponent } from '@ghentcdh/json-forms-vue';
 import { type PropType, shallowRef, watch } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
+import { customCellRenderers } from '../resource/renderers';
 
 const properties = defineProps({
   /** Title displayed in the modal header. */

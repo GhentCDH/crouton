@@ -244,8 +244,18 @@ export const buildViewsFromColumns = (
             properties: {},
           };
         }
-        const propKey = c.displayKey ?? c.id;
-        properties[c.column].properties[propKey] = {
+        // Support dotted displayKey paths (e.g. "internal_author.name") by building
+        // nested object nodes so the JSON schema mirrors the actual data structure.
+        const keyPath = (c.displayKey ?? c.id).split('.');
+        let target = properties[c.column].properties;
+        for (let i = 0; i < keyPath.length - 1; i++) {
+          const segment = keyPath[i];
+          if (!target[segment]) {
+            target[segment] = { type: 'object', additionalProperties: true, properties: {} };
+          }
+          target = target[segment].properties;
+        }
+        target[keyPath[keyPath.length - 1]] = {
           type: 'string',
           title: c.label ?? c.id,
         };
@@ -276,10 +286,13 @@ export const buildViewsFromColumns = (
         );
         const col = id ? colMap[id] : undefined;
         if (!col?.column) return el;
-        const propKey = col.displayKey ?? col.id;
+        // Support dotted displayKey paths (e.g. "internal_author.name") — each segment
+        // becomes a nested /properties/ step in the JSON pointer.
+        const keyPath = (col.displayKey ?? col.id).split('.');
+        const propPath = keyPath.map((k) => `properties/${k}`).join('/');
         return {
           ...el,
-          scope: `#/properties/${col.column}/properties/${propKey}`,
+          scope: `#/properties/${col.column}/${propPath}`,
         };
       }),
     };

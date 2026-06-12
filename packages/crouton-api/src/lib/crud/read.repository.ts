@@ -243,7 +243,24 @@ export class ReadRepository<T = any> {
       this.config.model,
       this.prisma,
     );
-    return this.decorateOne(withCalc ?? record, 'findOne');
+
+    // Enrich nested sub-resource arrays with their own calculated columns.
+    // e.g. text.text_metadata items need metadata's calculatedColumns applied.
+    let enriched: any = withCalc ?? record;
+    for (const sub of this.config.subResources ?? []) {
+      if (!sub.calculatedColumns?.length) continue;
+      const nested = enriched[sub.relation];
+      if (!Array.isArray(nested) || !nested.length) continue;
+      const enrichedNested = await mergeCalculatedColumnsForRows(
+        nested,
+        sub.calculatedColumns,
+        sub.childModel,
+        this.prisma,
+      );
+      enriched = { ...enriched, [sub.relation]: enrichedNested };
+    }
+
+    return this.decorateOne(enriched, 'findOne');
   }
 
   /**
@@ -335,11 +352,21 @@ export class ReadRepository<T = any> {
       throw new NotFoundException(
         `${sub.childRoute} with id ${childId} not found`,
       );
+
+    const [withCalc] = sub.calculatedColumns?.length
+      ? await mergeCalculatedColumnsForRows(
+          [record],
+          sub.calculatedColumns,
+          sub.childModel,
+          this.prisma,
+        )
+      : [record];
+
     if (sub.hooks?.afterRead)
-      return sub.hooks.afterRead(record, {
+      return sub.hooks.afterRead(withCalc, {
         prisma: this.prisma,
         op: 'findOne',
       });
-    return record;
+    return withCalc;
   }
 }

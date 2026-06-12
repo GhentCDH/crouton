@@ -53,7 +53,8 @@ const label = computed(() => {
 });
 
 const openDetails = () => {
-  if (props.options?.relationType === 'manyToOne') return openDetailsManyToOne();
+  if (props.options?.relationType === 'manyToOne')
+    return openDetailsManyToOne();
   return openDetailsManyToMany();
 };
 
@@ -68,7 +69,7 @@ const resource = computed(() => {
 });
 
 const openDetailsManyToOne = () => {
-  resource.value?.resourceModal.view(value.value[props.options?.idKey]);
+  resource.value?.resourceModal.view(value.value);
 };
 
 const openDetailsManyToMany = () => {

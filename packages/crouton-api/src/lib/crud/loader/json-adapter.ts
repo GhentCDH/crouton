@@ -92,7 +92,11 @@ const expandExtendColumns = (
       if (refCol.idField) continue;
 
       const virtualId = `${col.id}_${refCol.id}`;
-      const displayKey = refCol.displayKey ?? refCol.id;
+      // When refCol has a displayKey (e.g. internal_author.displayKey = "name"), the value
+      // lives at refCol.id.displayKey within the parent column object. Build the full dotted
+      // path so scopes and table keys navigate correctly: "internal_author.name".
+      // For plain scalar columns with no displayKey the path is just refCol.id.
+      const displayKey = refCol.displayKey ? `${refCol.id}.${refCol.displayKey}` : refCol.id;
 
       // The more restrictive visibility wins (true = hidden beats false = visible)
       const hiddenInTable =
@@ -217,6 +221,39 @@ const enrichActionColumns = (
   });
 };
 
+/**
+ * Return a new columns array with `resourceUri`/`schemasUri` injected into
+ * `fieldInput.options` for NON-relation columns that reference a resource file
+ * (e.g. a select whose values come from another resource). Relation columns
+ * are handled by `enrichActionColumns`.
+ */
+const enrichResourceRefColumns = (
+  columns: JsonColumn[] | undefined,
+  parentDir?: string,
+  baseUrl?: string,
+): JsonColumn[] | undefined => {
+  if (!columns || !parentDir) return columns;
+  const base = baseUrl ?? '';
+  return columns.map((col) => {
+    if (!col.fieldInput?.resource || col.fieldInput.format === 'relation') return col;
+    const childResolved = resolveChildResource(col.fieldInput.resource, parentDir);
+    const childRoute =
+      childResolved?.json?.route ??
+      col.fieldInput.resource.replace(/^\.\//, '').replace(/\.resource$/, '');
+    return {
+      ...col,
+      fieldInput: {
+        ...col.fieldInput,
+        options: {
+          ...(col.fieldInput.options as object | undefined),
+          resourceUri: `${base}/${childRoute}`,
+          schemasUri: `${base}/${childRoute}/schemas`,
+        },
+      },
+    };
+  });
+};
+
 export const fromJson = (
   json: JsonResourceConfig,
   schema: ZodObject<ZodRawShape> | undefined,
@@ -234,7 +271,12 @@ export const fromJson = (
   const columns = enrichRelationTypes(rawColumns, schema);
 
   const subResources = buildSubResources(columns, json.route, json.model, dirPath);
-  const enrichedColumns = enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;
+  const enrichedColumns =
+    enrichResourceRefColumns(
+      enrichActionColumns(columns, json.route, subResources, baseUrl),
+      dirPath,
+      baseUrl,
+    ) ?? columns;
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 

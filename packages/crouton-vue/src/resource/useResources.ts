@@ -2,13 +2,18 @@ import { cloneDeep } from 'lodash-es';
 import { reactive } from 'vue';
 
 import { Resource } from './resource';
-import { actions, backendAction, resourceModals, tableActions } from './resource.actions';
+import {
+  actions,
+  backendAction,
+  resourceModals,
+  tableActions,
+} from './resource.actions';
 import { resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
-import { customCellRenderers } from '../table/cells';
 import { type Request } from '../utils/request';
+import { customCellRenderers } from './renderers';
 
 export interface UseResourcesProperties {
   initialRequestParams?: Partial<Request>;
