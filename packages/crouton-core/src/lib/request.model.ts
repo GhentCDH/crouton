@@ -14,7 +14,10 @@ export const RequestSchema = z.object({
   filter: StringOrArray().optional().default([]),
 });
 
-export type Request = z.infer<typeof RequestSchema>;
+export type ListRequest = z.infer<typeof RequestSchema>;
+
+/** @deprecated Use `ListRequest` instead — `Request` shadows the global DOM `Request` type. */
+export type Request = ListRequest;
 
 export const RequestSchemaWithOffset = RequestSchema.transform((schema) => {
   const { page, pageSize, sort } = schema;

@@ -2,8 +2,8 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
 import { useControlBinding } from '@ghentcdh/json-forms-vue';
 
-import { useResources } from '../consumable/resource';
-import { useCrouton } from '../consumable/useCrouton';
+import { useResources } from '../resource';
+import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;
@@ -41,7 +41,7 @@ export const useRelationBinding = (
   const isInline = inlineTypes.includes(opts.relationType);
 
   const isNew =
-    formValues || Object.keys(formValues).length === 0 || !formValues.id;
+    !formValues || Object.keys(formValues).length === 0 || !formValues.id;
   const schemasUri = opts.schemasUri ?? opts.resource;
 
   return {

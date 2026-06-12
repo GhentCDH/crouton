@@ -44,7 +44,7 @@ const buildNestedPath = (path: string[], condition: unknown): Record<string, unk
  * Map a parsed operator + value to a Prisma field condition.
  * Numeric coercion is applied for `gt` and `lt`.
  */
-const operatorToCondition = (value: string, operator: FilterOperator): unknown => {
+const operatorToCondition = (value: string, operator: OperatorType): unknown => {
   const num = Number(value);
   const numVal = Number.isNaN(num) ? value : num;
 
@@ -65,6 +65,8 @@ const operatorToCondition = (value: string, operator: FilterOperator): unknown =
       return null;
     case 'isnotnull':
       return { not: null };
+    default:
+      return undefined;
   }
 };
 

@@ -7,7 +7,8 @@
     "format": "prettier --write \"packages/**/*.{ts,js,json,md}\"",
     "docs:build": "nx run docs:build",
     "docs:serve": "nx run docs:serve",
-    "prepare": "husky"
+    "prepare": "husky",
+    "typecheck": "nx run-many -t typecheck"
   },
   "private": true,
   "devDependencies": {

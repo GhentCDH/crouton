@@ -1,9 +1,9 @@
 import { ref } from 'vue';
 
-import { type Request, RequestSchema } from '../../utils/request';
-import { type FormDefResponse } from '../form-def.schema';
-import type { ResourceApiInstance } from './api';
-import type { RequestData } from './types';
+import { type Request, RequestSchema } from '../utils/request';
+import { type FormDefResponse } from '../composables/form-def.schema';
+import type { ResourceApiInstance } from './resource.api';
+import type { RequestData } from './resource.types';
 
 export class Resource {
   private requestData = ref<RequestData>();

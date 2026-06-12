@@ -11,9 +11,12 @@
   },
   "main": "../../dist/crouton-api/index.cjs",
   "types": "../../dist/crouton-api/index.d.ts",
-  "files": ["../../dist/crouton-api"],
+  "files": [
+    "../../dist/crouton-api"
+  ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
     "@ghentcdh/crouton-core": "workspace:*",

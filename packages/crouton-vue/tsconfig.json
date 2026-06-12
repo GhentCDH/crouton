@@ -5,6 +5,7 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "preserve",
     "jsxImportSource": "vue",
+    "lib": ["es2022", "dom", "dom.iterable"],
     "noEmit": true,
     "resolveJsonModule": true
   },

@@ -4,10 +4,10 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { TableComponent, TableToolbar } from '@ghentcdh/json-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
-import { useCrouton } from '../consumable/useCrouton';
+import { useCrouton } from '../composables/useCrouton';
 
 import { Btn, IconEnum } from '@ghentcdh/ui';
-import { useResources } from '../consumable/resource';
+import { useResources } from './useResources';
 import { Request } from '../utils/request';
 
 const route = useRoute();

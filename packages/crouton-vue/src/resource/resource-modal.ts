@@ -6,8 +6,8 @@ import {
 } from '@ghentcdh/json-forms-vue';
 import { NotificationService } from '@ghentcdh/ui';
 
-import { useApi } from '../api';
-import { type FormDef, useCrouton } from '../consumable/useCrouton';
+import { useApi } from '../composables/useApi';
+import { type FormDef, useCrouton } from '../composables/useCrouton';
 
 export type OpenFormPayload<TData = any, TResult = any> = {
   data?: TData;
@@ -30,30 +30,28 @@ export const useFormDefRepository = (formDef: FormDef) => {
 export const openFormModal = async (key: string, payload: OpenFormPayload) => {
   const formDef = await useCrouton().getFormDef(key);
   if (!formDef) throw new Error(`Form "${key}" not found`);
+  const formSchema = formDef.schemas.form;
   JsonFormModalService.openModal({
     data: payload.data ?? {},
-    schema: formDef.form.json_schema,
-    uiSchema: formDef.form.ui_schema,
-    modalSize: 'sm',
+    schema: formSchema.data,
+    uiSchema: formSchema.ui,
+    modalSize: formDef.modalSize ?? 'sm',
     modalTitle: `Create ${formDef.title}`,
     onClose: (result: FormModalResult) => {
       const repository = useFormDefRepository(formDef);
       if (result && result.valid) {
         repository
           .create(result.data)
-          .then((result) => {
-            const zodSchema = formDef.form.zodSchema;
+          .then((created) => {
+            const zodSchema = formSchema.zodSchema;
             payload.onSuccess({
-              id: result.id,
-              ...zodSchema.strip().safeParse(result).data,
+              id: created.id,
+              ...zodSchema.strip().safeParse(created).data,
             });
           })
-          .catch((err) => {
+          .catch(() => {
             payload.onError?.(result);
           });
-        // store.save(formData?.id, result.data).then(() => {
-        //   reload.value = Date.now();
-        // });
       }
     },
   });

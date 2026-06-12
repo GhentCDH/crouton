@@ -2,19 +2,24 @@ import type { JsonSchema, Layout } from '@jsonforms/core';
 import type { ZodObject } from 'zod';
 import { toJSONSchema } from 'zod';
 
-export enum Size {
+export enum ModalSize {
   xs = 'xs',
   sm = 'sm',
   lg = 'lg',
   xl = 'xl',
 }
 
-export type SizeType = keyof typeof Size;
+export type ModalSizeType = keyof typeof ModalSize;
+
+/** @deprecated Use `ModalSize` instead. */
+export { ModalSize as Size };
+/** @deprecated Use `ModalSizeType` instead. */
+export type SizeType = ModalSizeType;
 
 export type JsonFormsLayout = {
   uiSchema: Layout;
   schema: JsonSchema;
-  modalSize?: SizeType;
+  modalSize?: ModalSizeType;
 };
 
 export type FormSchemaModel = {
@@ -57,7 +62,7 @@ export const createSchema = (props: {
   responseSchema?: ZodObject<any>;
   uri: string;
   searchUri?: string;
-  modalSize?: SizeType;
+  modalSize?: ModalSizeType;
 }) => {
   if (!props.schema) throw new Error('no schema provided');
   const schema = props.schema;

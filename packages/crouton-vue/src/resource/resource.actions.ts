@@ -12,15 +12,15 @@ import {
   type Action,
   type FormDefResponse,
   type TableAction as TableActionDef,
-} from '../form-def.schema';
-import type { FormDefActionCondition } from '../form-def.types';
-import type { ResourceApiInstance } from './api';
-import { getFetch } from './api';
+} from '../composables/form-def.schema';
+import type { FormDefActionCondition } from '../composables/form-def.types';
+import type { ResourceApiInstance } from './resource.api';
+import { getFetch } from './resource.api';
 import { type Resource } from './resource';
-import type { HandleEvent } from './types';
+import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import { readonlyRenderers, renderers } from '../../resource/renderers';
-import { useCrouton } from '../useCrouton';
+import { relationReadonlyRenderers, relationRenderers } from './renderers';
+import { useCrouton } from '../composables/useCrouton';
 import { useResources } from './useResources';
 
 const evaluateCondition = (
@@ -87,12 +87,12 @@ const openViewModal =
       modalSize: formDef.modalSize ?? 'lg',
       data: formData,
       modalTitle: formDef.title ?? '',
-      renderers: readonlyRenderers,
+      renderers: relationReadonlyRenderers,
       onEdit: op.update
-        ? (data) => openEditModal(api, resource, formDef, handleEvent)(formData)
+        ? (data: any) => openEditModal(api, resource, formDef, handleEvent)(data ?? formData)
         : undefined,
       onDelete: op.delete
-        ? (data) => openDeleteModal(api, resource, handleEvent)(formData)
+        ? (data: any) => openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
       http: getFetch(formDef),
       onView: (data) => {
@@ -136,7 +136,7 @@ const openEditModal =
       initialData: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: getFetch(formDef),
-      renderers: renderers,
+      renderers: relationRenderers,
       onClose: (result: FormModalResult) => {
         if (result && result.valid) {
           const data = result.data;

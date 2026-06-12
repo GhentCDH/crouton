@@ -21,7 +21,7 @@
 </template>
 <script setup lang="ts">
 import { Drawer } from '@ghentcdh/ui';
-import { useCrouton } from './consumable/useCrouton';
+import { useCrouton } from '../composables/useCrouton';
 import { RouterLink } from 'vue-router';
 
 const app = useCrouton();

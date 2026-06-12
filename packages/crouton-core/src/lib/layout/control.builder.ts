@@ -1,4 +1,4 @@
-import { Builder } from './builder';
+import { Builder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
 
 export const ControlType = {

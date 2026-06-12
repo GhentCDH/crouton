@@ -1,18 +1,47 @@
 <script setup lang="ts">
-import {
-  RelationModalEmits,
-  RelationModalProperties,
-} from './RelationModal.properties';
 import { Btn, Modal } from '@ghentcdh/ui';
 import { computedAsync } from '../utils/computedAsync';
-import { useResources } from '../consumable/resource';
+import { useResources } from '../resource';
 import { customCellRenderers } from '../table/cells';
 import { TableComponent } from '@ghentcdh/json-forms-vue';
-import { shallowRef, watch } from 'vue';
-import { useCrouton } from '../consumable/useCrouton';
+import { type PropType, shallowRef, watch } from 'vue';
+import { useCrouton } from '../composables/useCrouton';
 
-const properties = defineProps(RelationModalProperties);
-const emits = defineEmits(RelationModalEmits);
+const properties = defineProps({
+  /** Title displayed in the modal header. */
+  modalTitle: { type: String, required: true },
+  /** Label for the close button. */
+  closeLabel: { type: String, default: 'Close' },
+  column: { type: Object, required: true },
+  options: { type: Object, required: true },
+  /** Callback invoked when the modal closes (with result or `null` on cancel). */
+  onClose: {
+    type: Function as PropType<() => void>,
+    default: () => {
+      //the default one
+    },
+  },
+  /**
+   * Show the Edit button.
+   * The caller wires the action by listening to the `edit` event via `onEdit`
+   * in the props object — Vue's v-bind spread in modalWrapper converts onXxx
+   * keys into event handlers automatically.
+   */
+  canEdit: { type: Boolean, default: false },
+  /**
+   * Show the Delete button.
+   * The caller wires the action by listening to the `delete` event via `onDelete`
+   * in the props object.
+   */
+  canDelete: { type: Boolean, default: false },
+  /** Initial form data to populate the form with. */
+  data: { type: Object as PropType<any>, required: true },
+});
+
+const emits = defineEmits<{
+  /** Emitted when the modal is closed (payload is the result, or `null` on cancel). */
+  closeModal: [result: unknown | null];
+}>();
 
 const onCancel = () => {
   emits('closeModal', null);

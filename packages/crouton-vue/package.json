@@ -11,9 +11,13 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "styles.css"],
+  "files": [
+    "dist",
+    "styles.css"
+  ],
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
   },
   "dependencies": {
     "lodash-es": "^4.17.21"

@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import type { ResourceConfig, SubResourceConfig, WriteOp } from './crud.config';
 import { resolveDefinition, upsertOnFor } from './crud.config';
 import type { JsonIncludeEntry } from './loader/json-config.types';
@@ -79,7 +80,7 @@ export class WriteRepository<T = any> {
         data: await this.prepare(this.stripSubResourceKeys(data), 'update', this.toId(id)),
       });
     } catch (e: any) {
-      if (e?.code === 'P2025') throw this.notFound(id);
+      if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
   }
@@ -99,7 +100,7 @@ export class WriteRepository<T = any> {
     try {
       return await this.prismaModel.delete({ where: { [idField]: this.toId(id) } });
     } catch (e: any) {
-      if (e?.code === 'P2025') throw this.notFound(id);
+      if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
   }
@@ -147,9 +148,9 @@ export class WriteRepository<T = any> {
       Object.entries(afterHook as Record<string, unknown>).filter(([k]) => !includeKeys.has(k)),
     );
     try {
-      return await childModel.update({ where: { id }, data: prepared });
+      return await childModel.update({ where: { [sub.idField ?? DEFAULT_ID_FIELD]: id }, data: prepared });
     } catch (e: any) {
-      if (e?.code === 'P2025') throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
+      if (e?.code === PRISMA_NOT_FOUND_CODE) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
       throw e;
     }
   }
@@ -173,7 +174,7 @@ export class WriteRepository<T = any> {
       if (result.count === 0) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
       return result;
     } catch (e: any) {
-      if (e?.code === 'P2025') throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
+      if (e?.code === PRISMA_NOT_FOUND_CODE) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
       throw e;
     }
   }

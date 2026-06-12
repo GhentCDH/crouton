@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 
 import type { ShellMenu } from '@ghentcdh/ui';
 
-import { configureApi, useApi } from '../api';
+import { configureApi, useApi } from './useApi';
 import { FormDefCache } from './form-def';
 import type { SideBarItem } from './sidebar';
 import { menu } from './sidebar';
@@ -39,7 +39,10 @@ export const useCrouton = () => {
 
   return {
     init,
-    sidebar: sidebar.value,
+    /** Reactive when accessed during render — implemented as a getter so late `init()` calls update consumers. */
+    get sidebar() {
+      return sidebar.value;
+    },
     version: computed(() => config.value.VERSION),
     title: computed(() => config.value.title),
     getFormDef: (formId: string) => formDefCache.getFormDef(formId),

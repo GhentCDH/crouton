@@ -1,6 +1,6 @@
 import { ZodObject, type ZodRawShape, type ZodType, toJSONSchema, z } from 'zod';
 
-import { type JsonSchema, type SchemaInput } from './crud.config';
+import { type JsonSchemaInput, type SchemaInput } from './crud.config';
 
 /** Post-process override: patch date schemas to `{ type: "string", format: "date-time" }`. */
 const dateOverride = ({ zodSchema, jsonSchema }: { zodSchema: ZodType; jsonSchema: Record<string, unknown>; path: string[] }) => {
@@ -22,9 +22,9 @@ export function isZodSchema(
 }
 
 /** Returns a plain JSON Schema object for Swagger / AJV */
-export function toJsonSchema(schema: SchemaInput): JsonSchema {
+export function toJsonSchema(schema: SchemaInput): JsonSchemaInput {
   if (isZodSchema(schema)) {
-    return toJSONSchema(schema, { target: 'openApi3', ...jsonSchemaOpts }) as JsonSchema;
+    return toJSONSchema(schema, { target: 'openApi3', ...jsonSchemaOpts }) as JsonSchemaInput;
   }
   return schema;
 }

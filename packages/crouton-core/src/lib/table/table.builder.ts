@@ -1,4 +1,4 @@
-import { Builder } from '../layout/builder';
+import { Builder } from '../layout/base.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 
 export interface TextCellOption {

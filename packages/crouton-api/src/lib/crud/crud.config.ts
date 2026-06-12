@@ -69,14 +69,17 @@ export type CrudOperation =
   | 'upsert'
   | 'delete';
 
-export type SchemaInput = ZodObject<ZodRawShape> | JsonSchema;
+export type SchemaInput = ZodObject<ZodRawShape> | JsonSchemaInput;
 
-export interface JsonSchema {
+export interface JsonSchemaInput {
   type: 'object';
   properties: Record<string, unknown>;
   required?: string[];
   additionalProperties?: boolean;
 }
+
+/** @deprecated Use `JsonSchemaInput` instead — `JsonSchema` clashes with the `@jsonforms/core` type of the same name. */
+export type JsonSchema = JsonSchemaInput;
 
 export type WriteOp = 'create' | 'update' | 'upsert';
 export type ReadOp = 'findAll' | 'findOne';
@@ -209,6 +212,8 @@ export type ResourceConfig = {
   model: string;
   tag: string;
   title?: string;
+  /** Primary key field name on the model. Defaults to `"id"`. */
+  idField?: string;
   idType?: 'number' | 'string';
   database?: string;
   sidebar?: { hide?: boolean; position?: number };

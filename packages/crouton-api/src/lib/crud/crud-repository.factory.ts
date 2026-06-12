@@ -1,10 +1,10 @@
-import type { RequestDto } from '@ghentcdh/json-forms-api';
+import type { RequestDto } from './request.dto';
 
 import type { ResourceConfig, SubResourceConfig } from './crud.config';
 import { resolveDefinition, schemaFor } from './crud.config';
-import { ReadRepository } from './read-repository';
+import { ReadRepository } from './read.repository';
 import { toSelectFields } from './schema.utils';
-import { WriteRepository } from './write-repository';
+import { WriteRepository } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = any> {

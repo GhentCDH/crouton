@@ -13,5 +13,8 @@
   "peerDependencies": {
     "zod": "^4.0.0",
     "@jsonforms/core": "^3.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.lib.json"
   }
 }

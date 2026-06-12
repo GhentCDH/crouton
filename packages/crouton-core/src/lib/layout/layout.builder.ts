@@ -1,8 +1,8 @@
-import { BuilderWithElements } from './builder';
+import { BuilderWithElements } from './base.builder';
 import type { CategoryBuilder } from './category.builder';
 import type { ControlBuilder, ControlTypes } from './control.builder';
 import type { GroupBuilder } from './group.builder';
-import type { TextCellBuilder } from '../table/builder';
+import type { TextCellBuilder } from '../table/table.builder';
 
 export type ElementBuilder<TYPE> =
   | ControlBuilder<TYPE>

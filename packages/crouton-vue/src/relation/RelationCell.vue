@@ -15,9 +15,9 @@
 import { computed } from 'vue';
 import { Btn, ModalService } from '@ghentcdh/ui';
 import RelationModal from './RelationModal.vue';
-import { useResources } from '../consumable/resource';
+import { useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
-import { useCrouton } from '../consumable/useCrouton';
+import { useCrouton } from '../composables/useCrouton';
 
 const props = defineProps({
   data: { type: Object, required: true },

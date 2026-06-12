@@ -11,16 +11,16 @@ export const isRelationControl = and(optionIsIgnoreCase('format', 'relation'));
 /**
  * Additional renderers to pass as the `renderers` prop.
  * These are merged ON TOP of the base renderers inside FormComponent —
- * no need to include customRenderes or readonlyRenderers here.
+ * no need to include customRenderes or relationReadonlyRenderers here.
  */
-export const renderers = [
+export const relationRenderers = [
   {
     tester: rankWith(16, isRelationControl),
     renderer: markRaw(RelationControlRenderer),
   },
 ];
 
-export const readonlyRenderers = [
+export const relationReadonlyRenderers = [
   {
     tester: rankWith(16, isRelationControl),
     renderer: markRaw(RelationReadonlyRenderer),

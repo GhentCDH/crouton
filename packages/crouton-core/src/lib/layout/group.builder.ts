@@ -1,4 +1,4 @@
-import { BuilderWithElements } from './builder';
+import { BuilderWithElements } from './base.builder';
 import type { ElementBuilder } from './layout.builder';
 
 export type GroupType<TYPE> = {
