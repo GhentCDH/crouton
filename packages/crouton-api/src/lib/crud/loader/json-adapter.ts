@@ -16,22 +16,24 @@ import type {
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
+type ResolvedChildResource = { json: JsonResourceConfig; dir: string };
+
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the
- * parent resource's directory and return the child `resource.json` contents,
- * or `undefined` if the file cannot be found.
+ * parent resource's directory and return the child `resource.json` contents
+ * AND the child's directory (needed so the child can resolve its own `extend` paths).
  *
  * Convention: `"./author.resource"` → sibling directory `author/resource.json`.
  */
 const resolveChildResource = (
   resourcePath: string,
   parentDir: string,
-): JsonResourceConfig | undefined => {
+): ResolvedChildResource | undefined => {
   // Direct .json file reference (e.g. "./resource.content.json") — resolve relative to parentDir itself
   const directPath = resolve(parentDir, resourcePath);
   if (resourcePath.endsWith('.json') && existsSync(directPath)) {
     try {
-      return JSON.parse(readFileSync(directPath, 'utf-8')) as JsonResourceConfig;
+      return { json: JSON.parse(readFileSync(directPath, 'utf-8')) as JsonResourceConfig, dir: dirname(directPath) };
     } catch {
       return undefined;
     }
@@ -42,10 +44,86 @@ const resolveChildResource = (
   const childJsonPath = resolve(dirname(parentDir), childName, 'resource.json');
   if (!existsSync(childJsonPath)) return undefined;
   try {
-    return JSON.parse(readFileSync(childJsonPath, 'utf-8')) as JsonResourceConfig;
+    return { json: JSON.parse(readFileSync(childJsonPath, 'utf-8')) as JsonResourceConfig, dir: dirname(childJsonPath) };
   } catch {
     return undefined;
   }
+};
+
+/**
+ * Expand columns that declare `extend` into virtual sub-columns derived from the
+ * referenced resource.json.
+ *
+ * Each non-id column in the referenced resource becomes a virtual column:
+ *   id         → `{extendColId}_{refColId}`
+ *   column     → the extending column's `column` value (or its `id`)
+ *   displayKey → the referenced column's `displayKey` or its `id`
+ *   label      → the referenced column's label
+ *
+ * Visibility is the union of the extending column's visibility and the referenced
+ * column's own visibility — the more restrictive setting wins.
+ * Optional `columns` map on the extending column lets you override individual sub-columns.
+ */
+const expandExtendColumns = (
+  columns: JsonColumn[],
+  dirPath: string | undefined,
+): JsonColumn[] => {
+  if (!dirPath) return columns;
+
+  const result: JsonColumn[] = [];
+  for (const col of columns) {
+    if (!col.extend) {
+      result.push(col);
+      continue;
+    }
+
+    const resolved = resolveChildResource(col.extend, dirPath);
+    if (!resolved) {
+      console.warn(`[extend] Could not resolve "${col.extend}" for column "${col.id}" — keeping as-is`);
+      result.push(col);
+      continue;
+    }
+
+    const refColumns = normalizeColumns(resolved.json.columns) ?? [];
+    const parentColumnKey = col.column ?? col.id;
+
+    for (const refCol of refColumns) {
+      // Skip primary key fields
+      if (refCol.idField) continue;
+
+      const virtualId = `${col.id}_${refCol.id}`;
+      const displayKey = refCol.displayKey ?? refCol.id;
+
+      // The more restrictive visibility wins (true = hidden beats false = visible)
+      const hiddenInTable =
+        col.hiddenInTable === true || refCol.hiddenInTable === true ? true : col.hiddenInTable ?? refCol.hiddenInTable;
+      const hiddenInForm =
+        col.hiddenInForm === true || refCol.hiddenInForm === true ? true : col.hiddenInForm ?? refCol.hiddenInForm;
+      const hiddenInView =
+        col.hiddenInView === true || refCol.hiddenInView === true ? true : col.hiddenInView ?? refCol.hiddenInView;
+
+      // Per-sub-column overrides keyed by virtual id or ref column id
+      const override = col.columns?.[virtualId] ?? col.columns?.[refCol.id] ?? {};
+
+      const virtualCol: JsonColumn = {
+        id: virtualId,
+        column: parentColumnKey,
+        displayKey,
+        label: refCol.label ?? refCol.id,
+        columnType: 'object',
+        ...(hiddenInTable !== undefined && { hiddenInTable }),
+        ...(hiddenInForm !== undefined && { hiddenInForm }),
+        ...(hiddenInView !== undefined && { hiddenInView }),
+        ...(refCol.sortable != null && { sortable: refCol.sortable }),
+        ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
+        ...override,
+      };
+
+      result.push(virtualCol);
+    }
+  }
+
+  return result;
 };
 
 /**
@@ -62,11 +140,14 @@ const buildSubResources = (
   return columns
     .filter((c) => c.fieldInput?.format === 'relation' && c.fieldInput?.resource)
     .map((c) => {
-      const childJson = resolveChildResource(c.fieldInput!.resource!, parentDir);
+      const childResolved = resolveChildResource(c.fieldInput!.resource!, parentDir);
+      const childJson = childResolved?.json;
+      const childDir = childResolved?.dir;
       const childRoute = childJson?.route ??
         c.fieldInput!.resource!.replace(/^\.\//, '').replace(/\.resource$/, '');
 
-      const childColumns = childJson ? normalizeColumns(childJson.columns) : undefined;
+      const rawChildColumns = childJson ? normalizeColumns(childJson.columns) : undefined;
+      const childColumns = rawChildColumns ? expandExtendColumns(rawChildColumns, childDir) : undefined;
       const childLookupKey = childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = childJson?.calculatedColumns ?? [];
       let childViews = childJson ? buildViewsFromColumns(childColumns) : undefined;
@@ -149,8 +230,8 @@ export const fromJson = (
   /** Resolved table-level action procedures loaded from the `actions/` directory. */
   tableActions?: ResourceTableAction[],
 ): ResourceConfig => {
-  const rawColumns = normalizeColumns(json.columns);
-  const columns = enrichRelationTypes(rawColumns ?? [], schema);
+  const rawColumns = expandExtendColumns(normalizeColumns(json.columns) ?? [], dirPath);
+  const columns = enrichRelationTypes(rawColumns, schema);
 
   const subResources = buildSubResources(columns, json.route, json.model, dirPath);
   const enrichedColumns = enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;

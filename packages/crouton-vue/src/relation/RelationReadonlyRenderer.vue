@@ -16,19 +16,18 @@
           color="secondary"
           :icon="IconEnum.View"
           tooltip="View"
-          @click="view()"
+          @click="view(value)"
         />
       </div>
     </div>
-    <div v-else class="h-full overflow-auto w-full">
-      <!-- Table view (default) -->
-      <DisplayInline v-bind="resource" :options="appliedOptions" />
-      <TableComponent
-        v-if="resource"
-        :id="`relation_${scope}`"
-        :cell-renderers="customCellRenderers"
-        v-bind="resource"
-        :hide-pagination="resource.page.totalPages < 2"
+    <div v-else class="flex flex-wrap gap-2">
+      <RelationButton
+        v-for="v of value"
+        :key="v"
+        :displayKey="displayKey"
+        :description-key="descriptionKey"
+        :value="v"
+        @view="view"
       />
     </div>
   </ReadonlyLabel>
@@ -36,24 +35,24 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { ReadonlyLabel, TableComponent } from '@ghentcdh/json-forms-vue';
+import { ReadonlyLabel } from '@ghentcdh/json-forms-vue';
 import { Btn, IconEnum } from '@ghentcdh/ui';
-import { customCellRenderers } from '../table/cells';
 import { useRelationBinding } from './useRelationBinding';
 import { computed } from 'vue';
-import DisplayInline from './DisplayInline.vue';
+import RelationButton from './RelationButton.vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 const { value, wrapper, appliedOptions, isInline, message, resource } =
   useRelationBinding(props.uischema, props.schema, true);
 
-const displayValue = computed(() => {
-  return value.value[appliedOptions.value.labelKey] as string;
+const displayKey = computed(() => {
+  return props.uischema.options?.displayKey ?? 'id';
 });
-
-const view = () => {
-  const id = value.value[appliedOptions.value.idKey];
-  resource.value?.resourceModal.view(id);
+const descriptionKey = computed(() => {
+  return props.uischema.options?.descriptionKey;
+});
+const view = (value) => {
+  resource.value?.resourceModal.view(value);
 };
 </script>

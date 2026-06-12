@@ -4,9 +4,7 @@ import { defineUserConfig } from 'vuepress';
 import { hopeTheme } from 'vuepress-theme-hope';
 
 
-import apiSideBar from '../crouton-api/typedoc_sidebar.json' with { type: 'json' };
-import coreSideBar from '../crouton-core/typedoc_sidebar.json' with { type: 'json' };
-import vueSideBar from '../crouton-vue/typedoc_sidebar.json' with { type: 'json' };
+import guideSideBar from '../guide/typedoc_sidebar.json' with { type: 'json' };
 import { fileURLToPath } from 'node:url';
 
 export default defineUserConfig({
@@ -41,6 +39,9 @@ export default defineUserConfig({
     docsDir: 'docs',
     lastUpdated: true,
     colorMode: 'light',
+    markdown: {
+      mermaid: true,
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/GhentCDH/crouton' },
     ],
@@ -54,17 +55,12 @@ export default defineUserConfig({
     navbar: [{ text: 'Home', link: '/' }],
     sidebar: [
       {
-        text: 'Crouton API',
-        children: apiSideBar,
+        text: 'Guide',
+        children: guideSideBar,
       },
-      {
-        text: 'Crouton Core',
-        children: coreSideBar,
-      },
-      {
-        text: 'Crouton Vue',
-        children: vueSideBar,
-      },
+      // Package reference sections (crouton-api / crouton-core / crouton-vue)
+      // are disabled for now — re-enable by restoring the sidebar imports and
+      // the copyMd/createMenu calls in tools/doc/vuepress.mjs.
     ],
   }),
 });

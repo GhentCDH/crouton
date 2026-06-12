@@ -96,17 +96,15 @@ const openViewModal =
         : undefined,
       http: getFetch(formDef),
       onView: (data) => {
-        if (!data.options.resource) return;
+        const resource = data.options.resource ?? data.options.schemasUri;
+        if (!resource) return;
 
         useCrouton()
-          .getFormByUri(data.options.resource)
+          .getFormByUri(resource)
           .then((config) => {
             if (!config) return;
             const _resource = useResources(config, { defaultUriParams: data });
-
-            const valueKey = data.options.valueKey;
-            const id = valueKey ? data.data[valueKey] : data.data;
-            _resource.resourceModal.view(id);
+            _resource.resourceModal.view(data.data);
           });
       },
       onClose: () => {

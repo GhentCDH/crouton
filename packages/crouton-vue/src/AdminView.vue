@@ -9,7 +9,7 @@
           <li v-for="side in app.sidebar" :key="side.label">
             <RouterLink
               :to="{ name: side.routerLink, params: side.params }"
-              active-class="bg-white text-bold"
+              active-class="bg-white font-bold"
             >
               {{ side.label }}
             </RouterLink>

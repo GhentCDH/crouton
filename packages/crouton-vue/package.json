@@ -6,13 +6,17 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./styles.css"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": ["dist", "styles.css"],
   "scripts": {
     "build": "vite build"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
     "@ghentcdh/json-forms-vue": "*",

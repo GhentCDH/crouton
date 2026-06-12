@@ -113,6 +113,23 @@ export type JsonColumn = {
    */
   columnType?: string;
   fieldInput?: FieldInput;
+  /**
+   * Path to another `resource.json` whose columns are expanded as nested sub-columns
+   * under this column's object key.
+   *
+   * Example: `"extend": "../internalAuthor/resource.json"` on a column `author`
+   * auto-generates virtual sub-columns like `author_name` (column: "author", displayKey: "name").
+   *
+   * Visibility (`hiddenInTable/Form/View`) on this column is inherited by all sub-columns as a
+   * default; the referenced resource's own column visibility further restricts it.
+   */
+  extend?: string;
+  /**
+   * Per-sub-column overrides when using `extend`.
+   * Key: the virtual column id (`"{extendId}_{refColId}"`) or just the referenced column id.
+   * Value: any `JsonColumn` fields to merge over the generated virtual column.
+   */
+  columns?: Record<string, Partial<Omit<JsonColumn, 'id'>>>;
   [k: string]: unknown;
 };
 

@@ -1,6 +1,7 @@
 /// <reference types='vitest' />
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
@@ -12,6 +13,7 @@ export default defineConfig({
   cacheDir: '../../node_modules/.vite/packages/crouton-vue',
   plugins: [
     vue(),
+    tailwindcss(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
     dts({
@@ -38,12 +40,15 @@ export default defineConfig({
         '@ghentcdh/ui',
         '@jsonforms/core',
         'axios',
+        'lodash-es',
         'vue',
         'vue-router',
         'zod',
       ],
       output: {
         globals: { vue: 'Vue' },
+        // Emit the compiled CSS as styles.css (matches the package export)
+        assetFileNames: 'styles[extname]',
       },
     },
   },

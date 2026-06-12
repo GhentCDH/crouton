@@ -1,8 +1,8 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import type { JsonIncludeEntry } from './loader/json-config.types';
 import type { ResourceConfig, SubResourceConfig, WriteOp } from './crud.config';
 import { resolveDefinition, upsertOnFor } from './crud.config';
+import type { JsonIncludeEntry } from './loader/json-config.types';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (include: JsonIncludeEntry[] | undefined): Set<string> =>

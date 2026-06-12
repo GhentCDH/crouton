@@ -79,18 +79,44 @@ export const mergeCalculatedColumnsForRows = async (
 /**
  * Build a Prisma `include` clause from an array of `JsonIncludeEntry` values.
  *
- * Plain strings produce `{ relation: true }`.
- * Objects produce nested includes:
- *   `{ relation: "text_author", include: ["author"] }`
- *   → `{ text_author: { include: { author: true } } }`
+ * Supports three forms:
+ * - Plain string:  `"author"` → `{ author: true }`
+ * - Dotted string: `"author.internal_author"` → `{ author: { include: { internal_author: true } } }`
+ * - Object:        `{ relation: "author", include: ["internal_author"] }` → same as above
+ *
+ * Multiple entries for the same relation are merged:
+ *   `["author", "author.internal_author"]`
+ *   → `{ author: { include: { internal_author: true } } }`
  */
 export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Record<string, unknown> | undefined => {
   if (!include?.length) return undefined;
+
+  // Normalise every entry to { relation, nestedIncludes[] }
+  const map = new Map<string, JsonIncludeEntry[]>();
+
+  for (const entry of include) {
+    if (typeof entry === 'string') {
+      const dotIdx = entry.indexOf('.');
+      if (dotIdx === -1) {
+        // Plain relation — only add if nothing more specific already exists
+        if (!map.has(entry)) map.set(entry, []);
+      } else {
+        // Dotted path: "author.internal_author" → relation "author", nested "internal_author"
+        const relation = entry.slice(0, dotIdx);
+        const rest = entry.slice(dotIdx + 1) as JsonIncludeEntry;
+        map.set(relation, [...(map.get(relation) ?? []), rest]);
+      }
+    } else {
+      // Object form: { relation, include[] }
+      map.set(entry.relation, [...(map.get(entry.relation) ?? []), ...(entry.include ?? [])]);
+    }
+  }
+
   return Object.fromEntries(
-    include.map((entry) => {
-      if (typeof entry === 'string') return [entry, true];
-      const nested = buildIncludeClause(entry.include);
-      return [entry.relation, nested ? { include: nested } : true];
+    Array.from(map.entries()).map(([relation, nestedIncludes]) => {
+      if (!nestedIncludes.length) return [relation, true];
+      const nested = buildIncludeClause(nestedIncludes);
+      return [relation, nested ? { include: nested } : true];
     }),
   );
 };

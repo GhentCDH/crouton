@@ -126,13 +126,18 @@ const copyMd = (
 // Each package keeps its documentation in packages/<name>/docs (README.md +
 // any extra .md files / subfolders). They are copied into the docs site and a
 // sidebar (typedoc_sidebar.json) is generated per package.
-copyMd('packages/crouton-api/docs', 'crouton-api');
-copyMd('packages/crouton-core/docs', 'crouton-core');
-copyMd('packages/crouton-vue/docs', 'crouton-vue');
+// Disabled for now — re-enable together with the sidebar sections in
+// docs/.vuepress/config.js.
+// copyMd('packages/crouton-api/docs', 'crouton-api');
+// copyMd('packages/crouton-core/docs', 'crouton-core');
+// copyMd('packages/crouton-vue/docs', 'crouton-vue');
+//
+// createMenu('crouton-api');
+// createMenu('crouton-core');
+// createMenu('crouton-vue');
 
-createMenu('crouton-api');
-createMenu('crouton-core');
-createMenu('crouton-vue');
+// ── guide (committed directly in docs/guide) ─────────────────────────────────
+createMenu('guide');
 
 // ── root README → docs home ──────────────────────────────────────────────────
 copyMd('', '', { depth: 1, readmeOnly: true });
