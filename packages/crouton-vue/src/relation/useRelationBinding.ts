@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
 import { useControlBinding } from '@ghentcdh/json-forms-vue';
@@ -39,8 +40,9 @@ export const useRelationBinding = (
   const opts = (uischema.options ?? {}) as Record<string, any>;
   const isInline = inlineTypes.includes(opts.relationType);
 
-  const isNew =
-    !formValues || Object.keys(formValues).length === 0 || !formValues.id;
+  const isNew = computed(
+    () => !formValues || Object.keys(formValues).length === 0 || !formValues.id,
+  );
   const schemasUri = opts.schemasUri ?? opts.resource;
 
   return {
@@ -48,7 +50,7 @@ export const useRelationBinding = (
     isInline,
     isNew,
     schemasUri,
-    message: getMessage(isNew, schemasUri),
+    message: getMessage(isNew.value, schemasUri),
     resource: computedAsync(() =>
       getRelationResource(schemasUri, bindings.formValues, readonly),
     ),

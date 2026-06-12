@@ -18,8 +18,8 @@ const crouton = useCrouton();
 const id = computed(() => `${formId.value}_${Date.now()}`);
 const config = computedAsync(() => crouton.getFormDef(formId.value as string));
 
-const handleEvent = (event, data: any) => {
-  let querydata = { id: data?.id, event };
+const handleEvent = (event: string, data: any) => {
+  let querydata: Record<string, string | undefined> = { id: data?.id, event };
   if (event === 'close') {
     querydata = { id: undefined, event: undefined };
   }
@@ -59,6 +59,7 @@ watch(
 watch(
   () => resource.value,
   () => {
+    if (!resource.value) return;
     const id = route.query['id'] as string | undefined;
     const event = route.query['event'] as string | undefined;
 
@@ -82,7 +83,7 @@ watch(
   { once: true },
 );
 
-const create = () => resource.value.resourceModal.create();
+const create = () => resource.value?.resourceModal.create();
 </script>
 
 <template>

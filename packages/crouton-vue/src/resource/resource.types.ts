@@ -1,3 +1,5 @@
+import type { useResources } from './useResources';
+
 /**
  * Data payload sent with API requests (query params, body, etc.).
  */
@@ -12,28 +14,7 @@ export type { RequestData };
  * Derived from the actual return shape of `useResources` so it
  * stays in sync automatically.
  */
-export type ResourceApi = {
-  operations: Record<string, unknown>;
-  uiSchema: unknown;
-  schema: unknown;
-  filterSchema: Record<string, unknown> | undefined;
-  loading: boolean;
-  data: unknown;
-  page: unknown;
-  sort: unknown;
-  filter: unknown[];
-  search: string;
-  onSort: (...args: unknown[]) => void;
-  onUpdatePage: (...args: unknown[]) => void;
-  onUpdatePageSize: (...args: unknown[]) => void;
-  onUpdateFilters: (...args: unknown[]) => void;
-  onUpdateSearch: (...args: unknown[]) => void;
-  cellRenderers: unknown;
-  actions: unknown;
-  backendAction: (action: unknown) => unknown;
-  tableActions: unknown[];
-  resourceModal: unknown;
-};
+export type ResourceApi = NonNullable<ReturnType<typeof useResources>>;
 
 /**
  * Callback invoked when a resource action occurs (e.g. view, create, update, close).

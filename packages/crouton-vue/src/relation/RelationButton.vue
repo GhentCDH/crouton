@@ -53,7 +53,12 @@ const getNestedValue = (path: string): unknown => {
   }, value);
 };
 
-const attrs = useAttrs();
+type RelationHandlers = {
+  onView?: (value: unknown) => void;
+  onEdit?: (value: unknown) => void;
+  onDelete?: (value: unknown) => void;
+};
+const attrs = useAttrs() as RelationHandlers;
 const hasView = computed(() => 'onView' in attrs);
 const hasEdit = computed(() => 'onEdit' in attrs);
 const hasDelete = computed(() => 'onDelete' in attrs);
@@ -71,14 +76,14 @@ const description = computed(() => {
 });
 
 const view = () => {
-  if (hasEdit.value) return attrs.onEdit(props.value);
-  if (hasView.value) return attrs.onView(props.value);
+  if (hasEdit.value) return attrs.onEdit?.(props.value);
+  if (hasView.value) return attrs.onView?.(props.value);
 };
 
-const deleteFn = (event) => {
+const deleteFn = (event: MouseEvent) => {
   event.preventDefault();
   if (!hasDelete.value) return;
 
-  return attrs.onDelete(props.value);
+  return attrs.onDelete?.(props.value);
 };
 </script>

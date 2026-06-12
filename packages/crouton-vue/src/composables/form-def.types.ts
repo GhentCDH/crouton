@@ -1,10 +1,13 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
+import type { ZodType } from 'zod';
+
+import type { FormDefResponse } from './form-def.schema';
 
 export type FormSchema = {
   data: JsonSchema;
   ui: Layout;
   defaultSort?: string;
-  zodSchema: any;
+  zodSchema: ZodType;
   parseValue: (value: any) => any;
 };
 
@@ -65,16 +68,11 @@ export type FormDefTableLinkAction = {
 
 export type FormDefTableAction = FormDefTableProcedureAction | FormDefTableLinkAction;
 
-export type FormDef = {
-  id: string;
-  name: string;
-  route: string;
-  title: string;
-  idField: string;
-  idType: 'string' | 'number';
-  modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
+/**
+ * Parsed form definition: the raw {@link FormDefResponse} with every view
+ * schema enriched with a compiled `zodSchema` and `parseValue` helper.
+ * Derived from the response type so the two can never drift apart.
+ */
+export type FormDef = Omit<FormDefResponse, 'schemas'> & {
   schemas: FormSchemas;
-  operations: Record<string, boolean>;
-  actions?: FormDefAction[];
-  tableActions?: FormDefTableAction[];
 };

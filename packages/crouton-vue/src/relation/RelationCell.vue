@@ -53,13 +53,13 @@ const label = computed(() => {
 });
 
 const openDetails = () => {
-  if (props.options.relationType === 'manyToOne') return openDetailsManyToOne();
+  if (props.options?.relationType === 'manyToOne') return openDetailsManyToOne();
   return openDetailsManyToMany();
 };
 
 const config = computedAsync(() => {
-  const resource = props.options.resource;
-  if (!resource) return null;
+  const resource = props.options?.resource;
+  if (!resource) return Promise.resolve(null);
 
   return useCrouton().getFormByUri(resource);
 });
@@ -68,7 +68,7 @@ const resource = computed(() => {
 });
 
 const openDetailsManyToOne = () => {
-  resource.value?.resourceModal.view(value.value[props.options.idKey]);
+  resource.value?.resourceModal.view(value.value[props.options?.idKey]);
 };
 
 const openDetailsManyToMany = () => {

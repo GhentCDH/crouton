@@ -37,7 +37,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { ReadonlyLabel } from '@ghentcdh/json-forms-vue';
 import { Btn, IconEnum } from '@ghentcdh/ui';
 import { useRelationBinding } from './useRelationBinding';
-import { computed } from 'vue';
+import { computed, unref } from 'vue';
 import RelationButton from './RelationButton.vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
@@ -48,10 +48,20 @@ const { value, wrapper, appliedOptions, isInline, message, resource } =
 const displayKey = computed(() => {
   return props.uischema.options?.displayKey ?? 'id';
 });
-const descriptionKey = computed(() => {
-  return props.uischema.options?.descriptionKey;
+/** Inline display label: resolve the (possibly nested) displayKey on the bound value. */
+const displayValue = computed(() => {
+  const v = unref(value);
+  if (v == null || typeof v !== 'object') return v;
+  let current: unknown = v;
+  for (const key of String(displayKey.value).split('.')) {
+    current =
+      current != null && typeof current === 'object'
+        ? (current as Record<string, unknown>)[key]
+        : undefined;
+  }
+  return current;
 });
-const view = (value) => {
+const view = (value: unknown) => {
   resource.value?.resourceModal.view(value);
 };
 </script>

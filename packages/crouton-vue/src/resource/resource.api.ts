@@ -2,7 +2,8 @@ import { NotificationService } from '@ghentcdh/ui';
 
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import { type FormDefResponse, type Operation, type OperationKey } from '../composables/form-def.schema';
+import { type Operation, type OperationKey } from '../composables/form-def.schema';
+import type { FormDef } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 
 const paramsSerializer = (params: Record<string, unknown>) => {
@@ -15,7 +16,7 @@ const paramsSerializer = (params: Record<string, unknown>) => {
 };
 
 const apiCall = (
-  formDef: FormDefResponse,
+  formDef: FormDef,
   operation: OperationKey,
   defaultUriParams: Record<string, string>,
   data?: any,
@@ -41,7 +42,7 @@ const apiCall = (
 };
 
 export const resourceApi = (
-  formDef: FormDefResponse,
+  formDef: FormDef,
   defaultUriParams: Record<string, string>,
 ) => {
   const loadData = (requestData: RequestData, signal?: AbortSignal) =>

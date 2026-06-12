@@ -4,8 +4,9 @@ import { reactive } from 'vue';
 import { Resource } from './resource';
 import { actions, backendAction, resourceModals, tableActions } from './resource.actions';
 import { resourceApi } from './resource.api';
-import type { HandleEvent, ResourceApi } from './resource.types';
-import { type Action, type FormDefResponse } from '../composables/form-def.schema';
+import type { HandleEvent } from './resource.types';
+import { type Action } from '../composables/form-def.schema';
+import type { FormDef } from '../composables/form-def.types';
 import { customCellRenderers } from '../table/cells';
 import { type Request } from '../utils/request';
 
@@ -18,7 +19,7 @@ export interface UseResourcesProperties {
 }
 
 export const useResources = (
-  formDef: FormDefResponse | null | undefined,
+  formDef: FormDef | null | undefined,
   {
     initialRequestParams = {},
     onRequest = () => {
@@ -30,7 +31,7 @@ export const useResources = (
     defaultUriParams = {},
     readonly = false,
   }: UseResourcesProperties = {},
-): ResourceApi | null => {
+) => {
   if (!formDef) return null;
 
   const _formDef = cloneDeep(formDef);

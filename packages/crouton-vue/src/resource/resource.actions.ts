@@ -7,8 +7,8 @@ import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
-import { type Action, type FormDefResponse, type TableAction as TableActionDef } from '../composables/form-def.schema';
-import type { FormDefActionCondition } from '../composables/form-def.types';
+import { type Action, type TableAction as TableActionDef } from '../composables/form-def.schema';
+import type { FormDef, FormDefActionCondition } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
@@ -61,7 +61,7 @@ const openViewModal =
   (
     api: ResourceApiInstance,
     resource: Resource,
-    formDef: FormDefResponse,
+    formDef: FormDef,
     handleEvent: HandleEvent,
   ) =>
   (formData: any) => {
@@ -86,7 +86,7 @@ const openViewModal =
             openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
       http: useApi(),
-      onView: (data) => {
+      onView: (data: any) => {
         const resource = data.options.resource ?? data.options.schemasUri;
         if (!resource) return;
 
@@ -95,7 +95,7 @@ const openViewModal =
           .then((config) => {
             if (!config) return;
             const _resource = useResources(config, { defaultUriParams: data });
-            _resource.resourceModal.view(data.data);
+            _resource?.resourceModal.view(data.data);
           });
       },
       onClose: () => {
@@ -108,7 +108,7 @@ const openEditModal =
   (
     api: ResourceApiInstance,
     resource: Resource,
-    formDef: FormDefResponse,
+    formDef: FormDef,
     handleEvent: HandleEvent,
   ) =>
   (formData?: any) => {
@@ -148,7 +148,7 @@ const openEditModal =
 
 export const backendAction = (
   resource: Resource,
-  formDef: FormDefResponse,
+  formDef: FormDef,
   defaultUriParams: Record<string, string>,
   action: Action,
 ) => {
@@ -178,7 +178,7 @@ export const backendAction = (
           NotificationService.error(data.message);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         NotificationService.error('Something went wrong, please try again');
       });
   };
@@ -187,12 +187,12 @@ export const backendAction = (
 export const actions = (
   api: ResourceApiInstance,
   resource: Resource,
-  formDef: FormDefResponse | null | undefined,
+  formDef: FormDef | null | undefined,
   defaultUriParams: Record<string, string>,
   handleEvent: HandleEvent,
   readonly: boolean,
 ) => {
-  if (!formDef) return [] as TableAction;
+  if (!formDef) return [] as TableAction[];
 
   const op = formDef.operations ?? {};
   const modals = resourceModals(api, resource, formDef, handleEvent);
@@ -237,7 +237,7 @@ export const actions = (
  */
 export const tableActions = (
   resource: Resource,
-  formDef: FormDefResponse | null | undefined,
+  formDef: FormDef | null | undefined,
 ): TableAction[] => {
   if (!formDef || !formDef.tableActions?.length) return [];
 
@@ -276,14 +276,14 @@ export const tableActions = (
 export const resourceModals = (
   api: ResourceApiInstance,
   resource: Resource,
-  formDef: FormDefResponse,
+  formDef: FormDef,
   handleEvent: HandleEvent,
 ) => {
-  const openWithData = (id: string | any, fn: (data) => void) => {
-    let _id = id;
-    if (typeof id !== 'string') {
-      _id = id[formDef.idField];
-    }
+  const openWithData = (id: unknown, fn: (data: any) => void) => {
+    const _id =
+      typeof id === 'string'
+        ? id
+        : String((id as Record<string, unknown>)[formDef.idField]);
 
     api
       .getOneById(_id)
@@ -295,11 +295,11 @@ export const resourceModals = (
 
   return {
     create: () => openEditModal(api, resource, formDef, handleEvent)(),
-    edit: (id: string) =>
+    edit: (id: unknown) =>
       openWithData(id, openEditModal(api, resource, formDef, handleEvent)),
-    view: (id: string) =>
+    view: (id: unknown) =>
       openWithData(id, openViewModal(api, resource, formDef, handleEvent)),
-    delete: (id: string) =>
+    delete: (id: unknown) =>
       openWithData(id, openDeleteModal(api, resource, handleEvent)),
   };
 };

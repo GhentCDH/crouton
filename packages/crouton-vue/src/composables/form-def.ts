@@ -16,7 +16,7 @@ const stripAdditionalProperties = (value: unknown): unknown => {
   return value;
 };
 
-const safeFromJSONSchema = (data: Record<string, unknown>) => {
+const safeFromJSONSchema = (data: unknown) => {
   try {
     return fromJSONSchema(
       stripAdditionalProperties(data) as Record<string, unknown>,
@@ -34,8 +34,9 @@ const createFormSchema = (
   const zodSchema = safeFromJSONSchema(formSchema.data);
   const parseValue = (value: any) => {
     try {
-      const parsed =
-        zodSchema.partial?.().safeParse(value) ?? zodSchema.safeParse(value);
+      const schema =
+        zodSchema instanceof z.ZodObject ? zodSchema.partial() : zodSchema;
+      const parsed = schema.safeParse(value);
       return parsed.data ?? value;
     } catch {
       return value;

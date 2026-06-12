@@ -5,6 +5,7 @@ import {
   createRepository,
 } from '@ghentcdh/json-forms-vue';
 import { NotificationService } from '@ghentcdh/ui';
+import { ZodObject } from 'zod';
 
 import { useApi } from '../composables/useApi';
 import { type FormDef, useCrouton } from '../composables/useCrouton';
@@ -32,7 +33,7 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
   if (!formDef) throw new Error(`Form "${key}" not found`);
   const formSchema = formDef.schemas.form;
   JsonFormModalService.openModal({
-    data: payload.data ?? {},
+    initialData: payload.data ?? {},
     schema: formSchema.data,
     uiSchema: formSchema.ui,
     modalSize: formDef.modalSize ?? 'sm',
@@ -42,11 +43,15 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
       if (result && result.valid) {
         repository
           .create(result.data)
-          .then((created) => {
+          .then((created: any) => {
             const zodSchema = formSchema.zodSchema;
+            const parsed =
+              zodSchema instanceof ZodObject
+                ? zodSchema.strip().safeParse(created)
+                : zodSchema.safeParse(created);
             payload.onSuccess({
               id: created.id,
-              ...zodSchema.strip().safeParse(created).data,
+              ...(parsed.data ?? {}),
             });
           })
           .catch(() => {

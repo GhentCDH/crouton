@@ -41,7 +41,6 @@ const {
   wrapper,
   message: _message,
   resource,
-  scope,
   isNew,
   appliedOptions,
 } = useRelationBinding(props.uischema, props.schema);
@@ -53,15 +52,15 @@ const message = computed(() => {
 });
 
 const operations = computed(() => {
-  const operations = resource.value?.operations ?? {};
-  const resourceModal = resource.value?.resourceModal ?? {};
-  const ops = {
-    onView: (value) => {
-      resourceModal.view(value);
+  const ops: Record<string, (value: unknown) => void> = {
+    onView: (value: unknown) => {
+      resource.value?.resourceModal.view(value);
     },
   };
-  if (operations.update) ops['onEdit'] = resourceModal.edit;
-  if (operations.delete) ops['onDelete'] = resourceModal.delete;
+  const resourceModal = resource.value?.resourceModal;
+  if (!resourceModal) return ops;
+  if (resource.value?.operations.update) ops['onEdit'] = resourceModal.edit;
+  if (resource.value?.operations.delete) ops['onDelete'] = resourceModal.delete;
   return ops;
 });
 </script>

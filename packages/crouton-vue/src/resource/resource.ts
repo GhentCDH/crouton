@@ -2,7 +2,7 @@ import { ref } from 'vue';
 
 import type { ResourceApiInstance } from './resource.api';
 import type { RequestData } from './resource.types';
-import { type FormDefResponse } from '../composables/form-def.schema';
+import type { FormDef } from '../composables/form-def.types';
 import { type Request, RequestSchema } from '../utils/request';
 
 export class Resource {
@@ -11,7 +11,7 @@ export class Resource {
   private abortController: AbortController | null = null;
 
   constructor(
-    private formDef: FormDefResponse,
+    private formDef: FormDef,
     private api: ResourceApiInstance,
     initialRequestParams: Partial<Request>,
     private onRequest: (request: Request) => void,
