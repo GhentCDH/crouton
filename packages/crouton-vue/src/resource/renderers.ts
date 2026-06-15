@@ -3,9 +3,9 @@ import { markRaw } from 'vue';
 
 import { type CellRendererEntry, cellTypeIs, optionIsIgnoreCase } from '@ghentcdh/json-forms-vue';
 
+import RelationCell from '../relation/RelationCell.vue';
 import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
 import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
-import RelationCell from '../relation/RelationCell.vue';
 
 export const isRelationControl = and(optionIsIgnoreCase('format', 'relation'));
 

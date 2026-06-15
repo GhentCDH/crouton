@@ -1,0 +1,30 @@
+{
+  "name": "@ghentcdh/crouton-codegen",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@ghentcdh/crouton": "./src/index.ts",
+      "types": "../../dist/crouton-codegen/index.d.ts",
+      "import": "../../dist/crouton-codegen/index.js"
+    }
+  },
+  "main": "../../dist/crouton-codegen/index.js",
+  "types": "../../dist/crouton-codegen/index.d.ts",
+  "files": [
+    "../../dist/crouton-codegen"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@prisma/internals": "^7.0.0"
+  },
+  "devDependencies": {
+    "@ghentcdh/crouton-core": "workspace:*",
+    "tsup": "^8.0.0",
+    "vitest": "^4.0.0"
+  }
+}

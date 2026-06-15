@@ -30,15 +30,18 @@ export type FormSchemaModel = {
   searchUri: string;
 };
 
-const simplifyNullableAnyOf = (property: Record<string, unknown>): void => {
+/** Collapses a nullable `anyOf` to its non-null branch. Returns true if the property was nullable. */
+const simplifyNullableAnyOf = (property: Record<string, unknown>): boolean => {
   const anyOf = property['anyOf'];
-  if (!Array.isArray(anyOf) || anyOf.length !== 2) return;
+  if (!Array.isArray(anyOf) || anyOf.length !== 2) return false;
   const nonNull = anyOf.find((s: Record<string, unknown>) => s['type'] !== 'null');
   const hasNull = anyOf.some((s: Record<string, unknown>) => s['type'] === 'null');
   if (nonNull && hasNull) {
     delete property['anyOf'];
     Object.assign(property, nonNull);
+    return true;
   }
+  return false;
 };
 
 const transformToJsonSchema = (schema: ZodObject<any>): JsonSchema => {
@@ -46,8 +49,14 @@ const transformToJsonSchema = (schema: ZodObject<any>): JsonSchema => {
   jsonSchema.additionalProperties = true;
   const properties = (jsonSchema as any).properties;
   if (properties) {
+    const nullableKeys = new Set<string>();
     for (const key of Object.keys(properties)) {
-      simplifyNullableAnyOf(properties[key]);
+      if (simplifyNullableAnyOf(properties[key])) nullableKeys.add(key);
+    }
+    // Nullable fields are treated as optional, so drop them from `required`.
+    const required = (jsonSchema as any).required;
+    if (Array.isArray(required)) {
+      (jsonSchema as any).required = required.filter((key: string) => !nullableKeys.has(key));
     }
   }
   return jsonSchema as any;

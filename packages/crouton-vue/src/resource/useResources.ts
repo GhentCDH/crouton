@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash-es';
 import { reactive } from 'vue';
 
+import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
   actions,
@@ -13,7 +14,6 @@ import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
 import { type Request } from '../utils/request';
-import { customCellRenderers } from './renderers';
 
 export interface UseResourcesProperties {
   initialRequestParams?: Partial<Request>;

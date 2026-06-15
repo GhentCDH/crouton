@@ -4,7 +4,7 @@ import type { CalculatedColumn, JsonColumn } from './json-config.types';
 import type { ViewColumnConfig, ViewConfig } from '../crud.config';
 import { jsonSchemaOpts } from '../schema.utils';
 import { buildFormUiSchema } from './form-schema.builder';
-import { allowAdditionalProperties, enforceRequiredMinLength } from './schema-transforms';
+import { allowAdditionalProperties, dropNullableFromRequired, enforceRequiredMinLength } from './schema-transforms';
 import { buildTableUiSchema, resolveDefaultSort } from './table-schema.builder'; // ── Column sorting ────────────────────────────────────────────────────────
 
 // ── Column sorting ────────────────────────────────────────────────────────
@@ -56,6 +56,7 @@ const buildView = (
     ...jsonSchemaOpts,
   }) as Record<string, unknown>;
   allowAdditionalProperties(jsonSchema);
+  dropNullableFromRequired(jsonSchema);
   enforceRequiredMinLength(jsonSchema);
 
   return {

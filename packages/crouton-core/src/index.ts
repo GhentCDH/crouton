@@ -6,6 +6,7 @@ export * from './lib/create-schema';
 export * from './lib/schema.utils';
 export * from './lib/from-json.builder';
 export * from './lib/relation.types';
+export * from './lib/json-config.types';
 export * from './lib/layout/layout.builder';
 export * from './lib/layout/control.builder';
 export * from './lib/layout/category.builder';

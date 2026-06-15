@@ -17,6 +17,35 @@ export const allowAdditionalProperties = (schema: Record<string, unknown>): void
   }
 };
 
+/** A property is nullable when its `anyOf` contains a `{ type: "null" }` branch. */
+const isNullableProperty = (prop: Record<string, unknown> | undefined): boolean => {
+  const anyOf = prop?.['anyOf'];
+  return (
+    Array.isArray(anyOf) &&
+    anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
+  );
+};
+
+/**
+ * Recursively drop nullable fields from `required`. A nullable field accepts
+ * `null`, so it should be treated as optional rather than required.
+ */
+export const dropNullableFromRequired = (schema: Record<string, unknown>): void => {
+  if (schema['type'] !== 'object') return;
+
+  const props = schema['properties'] as Record<string, Record<string, unknown>> | undefined;
+  if (!props) return;
+
+  const required = schema['required'] as string[] | undefined;
+  if (Array.isArray(required)) {
+    schema['required'] = required.filter((key) => !isNullableProperty(props[key]));
+  }
+
+  for (const value of Object.values(props)) {
+    dropNullableFromRequired(value);
+  }
+};
+
 /** Add `minLength: 1` to required string properties so empty strings are rejected. */
 export const enforceRequiredMinLength = (schema: Record<string, unknown>): void => {
   if (schema['type'] !== 'object') return;
