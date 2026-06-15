@@ -1,0 +1,25 @@
+{
+  "name": "@ghentcdh/crouton-cli",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "crouton": "../../dist/crouton-cli/index.js"
+  },
+  "files": [
+    "../../dist/crouton-cli"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@prisma/internals": "^7.0.0"
+  },
+  "devDependencies": {
+    "@clack/prompts": "^0.11.0",
+    "@ghentcdh/crouton-codegen": "workspace:*",
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.0",
+    "tsup": "^8.0.0"
+  }
+}

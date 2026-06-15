@@ -1,0 +1,229 @@
+/**
+ * `crouton update resources` orchestrator.
+ *
+ * Flow: load/scaffold config → pick datasource → (db pull → generate) →
+ * introspect → pick models → build diffs → resolve (interactive or auto) →
+ * preview → confirm → commit. All heavy lifting lives in the pure
+ * `@ghentcdh/crouton-codegen` engine; this module is just the interactive shell.
+ */
+
+
+import * as clack from '@clack/prompts';
+import pc from 'picocolors';
+
+import {
+  type ApplyContext,
+  type DbModel,
+  type LoadedConfig,
+  type ResolvedDiff,
+  type WritePlan,
+  apply,
+  buildResourceDiffs,
+  commit,
+  introspect,
+  loadConfig,
+  makeRelationResolver,
+  makeSchemaExportName,
+  readExistingResource,
+  recommendedResolver,
+  resolve as resolveDiff,
+  resolveDatasource,
+  resolveFromRoot,
+  resolveRuleset,
+  resourceNames,
+  scaffoldConfigFromProject,
+} from '@ghentcdh/crouton-codegen';
+
+import { formatResourceChange } from './preview';
+import { backupSchema, isGitDirty, prismaDbPull, prismaGenerate } from './prisma';
+import { CancelledError, interactiveResolver } from './resolver';
+import { writeFile } from 'node:fs/promises';
+import { join, resolve as pathResolve } from 'node:path';
+
+export interface UpdateResourcesOptions {
+  cwd?: string;
+  datasource?: string;
+  models?: string;
+  dryRun?: boolean;
+  yes?: boolean;
+  skipPull?: boolean;
+  skipGenerate?: boolean;
+}
+
+const assertNotCancel = <T>(value: T | symbol): T => {
+  if (clack.isCancel(value)) throw new CancelledError();
+  return value as T;
+};
+
+const loadOrScaffoldConfig = async (cwd: string, yes: boolean): Promise<LoadedConfig> => {
+  try {
+    return await loadConfig(cwd);
+  } catch {
+    clack.log.warn('No crouton.config found.');
+    const { config, notes } = await scaffoldConfigFromProject(cwd);
+    for (const n of notes) clack.log.info(n);
+    clack.log.message(pc.dim(JSON.stringify(config, null, 2)));
+    const write = yes
+      ? true
+      : assertNotCancel(await clack.confirm({ message: 'Write this crouton.config.json?', initialValue: true }));
+    if (!write) throw new CancelledError();
+    const path = join(cwd, 'crouton.config.json');
+    await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, 'utf-8');
+    clack.log.success(`Wrote ${path}`);
+    return { config, path, root: cwd };
+  }
+};
+
+const pickDatasource = async (loaded: LoadedConfig, requested: string | undefined, yes: boolean) => {
+  const names = Object.keys(loaded.config.datasources);
+  if (requested || names.length === 1 || names.some((n) => loaded.config.datasources[n].default)) {
+    return resolveDatasource(loaded.config, requested);
+  }
+  if (yes) return resolveDatasource(loaded.config, names[0]);
+  const chosen = assertNotCancel(
+    await clack.select({
+      message: 'Which datasource?',
+      options: names.map((n) => ({ value: n, label: n })),
+    }),
+  ) as string;
+  return resolveDatasource(loaded.config, chosen);
+};
+
+const pickModels = async (
+  models: DbModel[],
+  filter: string | undefined,
+  loaded: LoadedConfig,
+  yes: boolean,
+): Promise<DbModel[]> => {
+  if (filter) {
+    const wanted = new Set(filter.split(',').map((s) => s.trim()).filter(Boolean));
+    return models.filter(
+      (m) => wanted.has(m.prismaName) || wanted.has(resourceNames(m.prismaName).name),
+    );
+  }
+  if (yes) return models;
+  const existing = new Set(
+    (await Promise.all(models.map((m) => readExistingResource(loaded, resourceNames(m.prismaName).name)))).flatMap(
+      (r, i) => (r.config ? [models[i].prismaName] : []),
+    ),
+  );
+  const selected = assertNotCancel(
+    await clack.multiselect({
+      message: 'Select models to generate / update',
+      options: models.map((m) => ({
+        value: m.prismaName,
+        label: resourceNames(m.prismaName).name,
+        hint: existing.has(m.prismaName) ? 'existing' : 'new',
+      })),
+      initialValues: models.map((m) => m.prismaName),
+      required: false,
+    }),
+  ) as string[];
+  return models.filter((m) => selected.includes(m.prismaName));
+};
+
+export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<void> => {
+  const cwd = pathResolve(opts.cwd ?? process.cwd());
+  clack.intro(pc.bold('crouton update resources'));
+
+  try {
+    const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes);
+    const ds = await pickDatasource(loaded, opts.datasource, !!opts.yes);
+    const schemaAbs = resolveFromRoot(loaded.root, ds.prismaSchema);
+
+    if (!opts.skipPull) {
+      if (await isGitDirty(loaded.root, schemaAbs)) {
+        const cont = opts.yes
+          ? true
+          : assertNotCancel(
+              await clack.confirm({
+                message: `${ds.prismaSchema} has uncommitted changes; \`db pull\` will overwrite it. Continue?`,
+                initialValue: false,
+              }),
+            );
+        if (!cont) throw new CancelledError();
+      }
+      await backupSchema(schemaAbs);
+      const spin = clack.spinner();
+      spin.start(`prisma db pull (${ds.name})`);
+      const pull = await prismaDbPull(loaded.root, schemaAbs);
+      spin.stop(pull.ok ? 'Schema pulled' : 'db pull failed');
+      if (!pull.ok) {
+        clack.log.error(pull.output);
+        throw new CancelledError();
+      }
+    }
+
+    // Always refresh generated types (independent of pull) unless skipped.
+    if (!opts.skipGenerate) {
+      const spin = clack.spinner();
+      spin.start('prisma generate');
+      const gen = await prismaGenerate(loaded.root, schemaAbs);
+      spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
+      if (!gen.ok) clack.log.warn(gen.output);
+    }
+
+    const allModels = await introspect({ schemaPath: schemaAbs });
+    const models = await pickModels(allModels, opts.models, loaded, !!opts.yes);
+    if (models.length === 0) {
+      clack.outro('No models selected — nothing to do.');
+      return;
+    }
+
+    const resolveRelationResource = await makeRelationResolver(loaded);
+    const diffs = await buildResourceDiffs(models, {
+      database: ds.name,
+      ruleset: resolveRuleset(loaded.config),
+      resolveRelationResource,
+      readExisting: (name) => readExistingResource(loaded, name),
+    });
+
+    const applyCtx: ApplyContext = {
+      resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
+      generatedTypesImport: loaded.config.generatedTypesImport,
+      schemaExportName: makeSchemaExportName(loaded.config),
+    };
+    const resolver = opts.yes ? recommendedResolver : interactiveResolver;
+
+    const all: { resolved: ResolvedDiff; plan: WritePlan }[] = [];
+    for (const diff of diffs) {
+      const resolved = await resolveDiff(diff, resolver);
+      all.push({ resolved, plan: apply(resolved, applyCtx) });
+    }
+    // Only surface resources that actually changed — adjusted files only.
+    const changes = all.filter((c) => c.plan.files.length > 0 || c.plan.notes.length > 0);
+
+    if (changes.length === 0) {
+      clack.outro(pc.green('Everything is up to date — nothing to write.'));
+      return;
+    }
+
+    clack.log.message(changes.map((c) => formatResourceChange(c)).join('\n'));
+
+    if (opts.dryRun) {
+      clack.outro(pc.yellow('Dry run — no files written.'));
+      return;
+    }
+
+    const fileCount = changes.reduce((n, c) => n + c.plan.files.length, 0);
+    const go = opts.yes
+      ? true
+      : assertNotCancel(await clack.confirm({ message: `Write ${fileCount} file(s)?`, initialValue: true }));
+    if (!go) throw new CancelledError();
+
+    let written = 0;
+    let skipped = 0;
+    for (const c of changes) {
+      const res = await commit(c.plan);
+      written += res.written.length;
+      skipped += res.skipped.length;
+    }
+    clack.outro(pc.green(`Done — ${written} written, ${skipped} skipped (existing).`));
+  } catch (err) {
+    if (err instanceof CancelledError) {
+      clack.cancel('Cancelled.');
+      return;
+    }
+    throw err;
+  }
+};
