@@ -40,7 +40,7 @@ describe('resolveDatasource', () => {
 
 describe('makeSchemaExportName', () => {
   it('applies the template', () => {
-    expect(makeSchemaExportName(base)('Language')).toBe('LanguageSchema');
+    expect(makeSchemaExportName(base)('Language')).toBe('LanguageWithRelationsSchema');
     expect(makeSchemaExportName({ ...base, schemaExportName: '{Model}Model' })('Text')).toBe('TextModel');
   });
 });

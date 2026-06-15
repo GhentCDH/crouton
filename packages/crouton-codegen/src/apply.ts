@@ -18,7 +18,7 @@ export interface ApplyContext {
   resourcesDir: string;
   /** Import path for the generated Zod types (e.g. `@new-polities/generated/types`). */
   generatedTypesImport: string;
-  /** Export name for a model's Zod schema. Default `<PrismaName>Schema`. */
+  /** Export name for a model's Zod schema. Default `<PrismaName>WithRelationsSchema`. */
   schemaExportName?: (prismaName: string) => string;
 }
 
@@ -26,7 +26,7 @@ type Column = Omit<JsonColumn, 'id'>;
 
 export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
   const { diff, resolutions } = resolved;
-  const exportNameFor = ctx.schemaExportName ?? ((p: string) => `${p}Schema`);
+  const exportNameFor = ctx.schemaExportName ?? ((p: string) => `${p}WithRelationsSchema`);
   const dir = joinPath(ctx.resourcesDir, diff.name);
   const notes = diff.draft.unwiredRelations.map(
     (r) => `Relation "${r.field}" → model "${r.targetModel}": target resource not found; left hidden.`,

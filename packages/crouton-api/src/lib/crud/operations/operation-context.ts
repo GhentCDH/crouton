@@ -1,4 +1,5 @@
 import type { ResourceConfig, resolveDefinition, schemaFor } from '../crud.config';
+import type { ZodValidationPipeOptions } from '../zod-validation.pipe';
 
 export type OperationContext = {
   /** The dynamically-built controller class. */
@@ -13,6 +14,9 @@ export type OperationContext = {
   /** `{ name: 'id', type: 'string' | 'number' }` for Swagger @ApiParam. */
   idParamMeta: { name: string; type: string };
   /** Returns the correct Body() decorator: with ZodValidationPipe for Zod schemas, plain Body() otherwise. */
-  bodyDecorator: (schema?: ReturnType<typeof schemaFor>) => ParameterDecorator;
+  bodyDecorator: (
+    schema?: ReturnType<typeof schemaFor>,
+    options?: ZodValidationPipeOptions,
+  ) => ParameterDecorator;
   baseUrl?: string;
 };

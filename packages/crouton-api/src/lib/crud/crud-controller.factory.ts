@@ -18,7 +18,7 @@ import { registerDefinitionEndpoint, registerResourceJsonEndpoint, registerSchem
 import { registerSubResourceRoutes } from './operations/register-sub-resources';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
-import { ZodValidationPipe } from './zod-validation.pipe';
+import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
 
 /**
  * Dynamically build a NestJS controller class for the given resource config.
@@ -48,9 +48,12 @@ export function createCrudController(
     throw new Error(`Resource "${name}" declares 'upsert' but no upsertOn`);
   }
 
-  const bodyDecorator = (schema?: ReturnType<typeof schemaFor>): ParameterDecorator => {
+  const bodyDecorator = (
+    schema?: ReturnType<typeof schemaFor>,
+    options?: ZodValidationPipeOptions,
+  ): ParameterDecorator => {
     if (!schema) return Body();
-    if (isZodSchema(schema)) return Body(new ZodValidationPipe(schema));
+    if (isZodSchema(schema)) return Body(new ZodValidationPipe(schema, options));
     return Body();
   };
 
