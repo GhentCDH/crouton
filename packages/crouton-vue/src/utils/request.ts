@@ -18,7 +18,7 @@ export type SortDir = z.infer<typeof SortDirEnum>;
 export const RequestSchema = z.object({
   page: PositiveRequestNumber().optional().default(1),
   pageSize: PositiveRequestNumber().optional().default(20),
-  sort: z.string().optional().default('id'),
+  sort: z.string().optional().default(''),
   sortDir: SortDirEnum.optional().default('asc'),
   filter: StringOrArray().optional().default([]),
 });

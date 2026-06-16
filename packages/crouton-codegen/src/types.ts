@@ -101,6 +101,12 @@ export interface Ruleset {
    * the label-aware object and the table/view renders the label. Default true.
    */
   enumValueLabel: boolean;
+  /**
+   * Emit enum columns as a `enum: "<Name>"` reference into the shared project
+   * registry (`crouton.enums.json`) instead of inlining the `values` list, and
+   * maintain that registry. Default true.
+   */
+  sharedEnums: boolean;
   /** Operations enabled on a freshly generated resource. */
   defaultOperations: JsonResourceConfig['operations'];
 }

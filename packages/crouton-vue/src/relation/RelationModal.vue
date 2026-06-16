@@ -49,7 +49,7 @@ const onCancel = () => {
 
 const crouton = useCrouton();
 const config = computedAsync(() =>
-  crouton.getFormByUri(properties.options.schemasUri),
+  crouton.getFormByUri(properties.options.resource),
 );
 
 const handleEvent = (_event: string, _data: any) => {};

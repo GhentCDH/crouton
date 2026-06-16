@@ -34,6 +34,8 @@ export interface CroutonConfig {
    * emitted by zod-prisma-types when `createRelationValuesTypes` is on).
    */
   schemaExportName?: string;
+  /** Path to the shared enum registry, relative to project root. Default `crouton.enums.json`. */
+  enumsFile?: string;
   datasources: Record<string, DatasourceConfig>;
   /** Optional overrides of the default visibility ruleset. */
   rules?: Partial<Ruleset>;

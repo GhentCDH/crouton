@@ -25,6 +25,9 @@ export const isRecordCell = (col: JsonColumn): boolean =>
 /**
  * Derive the sort key for a column:
  * - Explicit `sortId` wins.
+ * - Value/label enum column (`enum` ref or `options.emitObject`): sort by the
+ *   scalar column, NOT `${column}.label` — the label is a serialization
+ *   envelope, not a DB field, so a nested orderBy would be invalid.
  * - Nested relation column: `${column ?? id}.${displayKey}` (e.g. `author.origin_name`).
  * - Plain column: `col.id`.
  * Returns `null` when `sortable: false`.
@@ -33,8 +36,17 @@ export const deriveSortId = (col: JsonColumn): string | null => {
   if (col.sortable === false) return null;
   if (col.sortId) return col.sortId;
   const base = col.column ?? col.id;
-  if (col.displayKey) return `${base}.${col.displayKey}`;
-  return col.id;
+  if (!col.displayKey) return base;
+  const path = `${base}.${col.displayKey}`;
+  const isValueLabel =
+    !!col.enum ||
+    (col.fieldInput?.options as { emitObject?: boolean } | undefined)?.emitObject === true;
+  // For value-label columns the displayKey targets the `{value,label}` envelope,
+  // which is not a DB field. Sort by the underlying scalar: drop a trailing
+  // `.label` while keeping any relation path (e.g. `author.origin.label` →
+  // `author.origin`, `text_type.label` → `text_type`).
+  if (isValueLabel && path.endsWith('.label')) return path.slice(0, -'.label'.length);
+  return path;
 };
 
 /**

@@ -83,18 +83,27 @@ describe('classify', () => {
     expect(d.unwiredRelations).toEqual([{ field: 'sources', targetModel: 'Source' }]);
   });
 
-  it('renders enums as select with values + value/label envelope by default', () => {
+  it('renders enums as a shared-enum reference + value/label envelope by default', () => {
     const d = classify(model);
-    expect(col(d, 'kind')).toMatchObject({
+    const kind = col(d, 'kind') as any;
+    expect(kind).toMatchObject({
       displayKey: 'label',
-      fieldInput: {
-        type: 'select',
-        options: {
-          values: [{ label: 'a', value: 'a' }, { label: 'b', value: 'b' }],
-          emitObject: true,
-        },
-      },
+      enum: 'TextKind',
+      fieldInput: { type: 'select', options: { emitObject: true } },
     });
+    // shared-enum mode does NOT inline the values list
+    expect(kind.fieldInput.options.values).toBeUndefined();
+  });
+
+  it('inlines values (no enum ref) when sharedEnums is off', () => {
+    const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false } });
+    const kind = col(d, 'kind') as any;
+    expect(kind.enum).toBeUndefined();
+    expect(kind.fieldInput.options.values).toEqual([
+      { label: 'a', value: 'a' },
+      { label: 'b', value: 'b' },
+    ]);
+    expect(kind.fieldInput.options.emitObject).toBe(true);
   });
 
   it('omits the value/label envelope when enumValueLabel is off', () => {

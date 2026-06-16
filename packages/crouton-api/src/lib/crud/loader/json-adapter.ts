@@ -1,5 +1,6 @@
 import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
+import { type EnumRegistry, injectEnumValues } from './enum-registry';
 import type { CalculatedColumn, JsonColumn, JsonResourceConfig, RelationType } from './json-config.types';
 import { normalizeColumns } from './json-config.types';
 import { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
@@ -153,6 +154,7 @@ const buildSubResources = (
   parentRoute: string,
   parentModel: string,
   parentDir?: string,
+  enums: EnumRegistry = {},
 ): SubResourceConfig[] => {
   if (!columns || !parentDir) return [];
 
@@ -167,6 +169,7 @@ const buildSubResources = (
 
       const rawChildColumns = childJson ? normalizeColumns(childJson.columns) : undefined;
       const childColumns = rawChildColumns ? expandExtendColumns(rawChildColumns, childDir) : undefined;
+      injectEnumValues(childColumns, enums);
       const childLookupKey = childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = childJson?.calculatedColumns ?? [];
       let childViews = childJson ? buildViewsFromColumns(childColumns) : undefined;
@@ -209,7 +212,7 @@ const buildSubResources = (
 };
 
 /**
- * Return a new columns array with `uri`, `resourceUri`, and `schemasUri`
+ * Return a new columns array with `uri`, `resourceUri`, and `resource` (schemas URL)
  * injected into `fieldInput.options` for relation columns.
  */
 const enrichActionColumns = (
@@ -232,7 +235,7 @@ const enrichActionColumns = (
           ...(col.fieldInput.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
-          ...(sub.views && { schemasUri: `${base}/${parentRoute}/${sub.childRoute}/schemas` }),
+          ...(sub.views && { resource: `${base}/${parentRoute}/${sub.childRoute}/schemas` }),
         },
       },
     };
@@ -284,11 +287,14 @@ export const fromJson = (
   actions?: ResourceAction[],
   /** Resolved table-level action procedures loaded from the `actions/` directory. */
   tableActions?: ResourceTableAction[],
+  /** Project enum registry — injected into columns that reference an enum by name. */
+  enums: EnumRegistry = {},
 ): ResourceConfig => {
   const rawColumns = expandExtendColumns(normalizeColumns(json.columns) ?? [], dirPath);
   const columns = enrichRelationTypes(rawColumns, schema);
+  injectEnumValues(columns, enums);
 
-  const subResources = buildSubResources(columns, json.route, json.model, dirPath);
+  const subResources = buildSubResources(columns, json.route, json.model, dirPath, enums);
   const enrichedColumns =
     enrichResourceRefColumns(
       enrichActionColumns(columns, json.route, subResources, baseUrl),

@@ -14,14 +14,18 @@ import pc from 'picocolors';
 import {
   type ApplyContext,
   type DbModel,
+  type EnumRegistry,
   type LoadedConfig,
   type ResolvedDiff,
   type WritePlan,
   apply,
+  buildEnumRegistry,
   buildResourceDiffs,
   commit,
   introspect,
   loadConfig,
+  mergeEnumRegistry,
+  serializeEnumRegistry,
   makeRelationResolver,
   makeSchemaExportName,
   readExistingResource,
@@ -37,7 +41,7 @@ import {
 import { formatResourceChange } from './preview';
 import { backupSchema, isGitDirty, prismaDbPull, prismaGenerate } from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join, resolve as pathResolve } from 'node:path';
 
 export interface UpdateResourcesOptions {
@@ -170,6 +174,20 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
       return;
     }
 
+    // Shared enum registry: collect from the selected models and merge into the
+    // existing crouton.enums.json (preserving hand-edited labels).
+    const enumsRel = loaded.config.enumsFile ?? 'crouton.enums.json';
+    const enumsPath = resolveFromRoot(loaded.root, enumsRel);
+    let existingEnums: EnumRegistry = {};
+    try {
+      existingEnums = JSON.parse(await readFile(enumsPath, 'utf-8')) as EnumRegistry;
+    } catch {
+      /* no registry yet */
+    }
+    const mergedEnums = mergeEnumRegistry(existingEnums, buildEnumRegistry(models));
+    const enumsChanged =
+      serializeEnumRegistry(mergedEnums) !== serializeEnumRegistry(existingEnums);
+
     const resolveRelationResource = await makeRelationResolver(loaded);
     const diffs = await buildResourceDiffs(models, {
       database: ds.name,
@@ -193,19 +211,24 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
     // Only surface resources that actually changed — adjusted files only.
     const changes = all.filter((c) => c.plan.files.length > 0 || c.plan.notes.length > 0);
 
-    if (changes.length === 0) {
+    if (changes.length === 0 && !enumsChanged) {
       clack.outro(pc.green('Everything is up to date — nothing to write.'));
       return;
     }
 
-    clack.log.message(changes.map((c) => formatResourceChange(c)).join('\n'));
+    const previewLines = changes.map((c) => formatResourceChange(c));
+    if (enumsChanged) {
+      previewLines.push(pc.cyan(`~ ${enumsRel} (${Object.keys(mergedEnums).length} enum(s))`));
+    }
+    clack.log.message(previewLines.join('\n'));
 
     if (opts.dryRun) {
       clack.outro(pc.yellow('Dry run — no files written.'));
       return;
     }
 
-    const fileCount = changes.reduce((n, c) => n + c.plan.files.length, 0);
+    const fileCount =
+      changes.reduce((n, c) => n + c.plan.files.length, 0) + (enumsChanged ? 1 : 0);
     const go = opts.yes
       ? true
       : assertNotCancel(await clack.confirm({ message: `Write ${fileCount} file(s)?`, initialValue: true }));
@@ -217,6 +240,10 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
       const res = await commit(c.plan);
       written += res.written.length;
       skipped += res.skipped.length;
+    }
+    if (enumsChanged) {
+      await writeFile(enumsPath, serializeEnumRegistry(mergedEnums), 'utf-8');
+      written += 1;
     }
     clack.outro(pc.green(`Done — ${written} written, ${skipped} skipped (existing).`));
   } catch (err) {
