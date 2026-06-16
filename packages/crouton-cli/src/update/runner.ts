@@ -24,10 +24,9 @@ import {
   commit,
   introspect,
   loadConfig,
-  mergeEnumRegistry,
-  serializeEnumRegistry,
   makeRelationResolver,
   makeSchemaExportName,
+  mergeEnumRegistry,
   readExistingResource,
   recommendedResolver,
   resolve as resolveDiff,
@@ -36,6 +35,7 @@ import {
   resolveRuleset,
   resourceNames,
   scaffoldConfigFromProject,
+  serializeEnumRegistry,
 } from '@ghentcdh/crouton-codegen';
 
 import { formatResourceChange } from './preview';

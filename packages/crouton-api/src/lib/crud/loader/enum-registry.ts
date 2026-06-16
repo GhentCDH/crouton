@@ -5,10 +5,10 @@
  * into `fieldInput.options.values`, so no column duplicates the labels.
  */
 
+import type { JsonColumn } from './json-config.types';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-import type { JsonColumn } from './json-config.types';
 
 export type EnumRegistry = Record<string, { value: unknown; label: string }[]>;
 
@@ -23,7 +23,7 @@ export const loadEnumRegistry = (startDir: string, enumsFile?: string): EnumRegi
   let file = enumsFile;
   if (!file) {
     let dir = startDir;
-    // eslint-disable-next-line no-constant-condition
+     
     while (true) {
       const candidate = join(dir, ENUMS_FILE);
       if (existsSync(candidate)) {
