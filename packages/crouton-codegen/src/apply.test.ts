@@ -41,7 +41,7 @@ describe('apply — new resource', () => {
 
     const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
     expect(schema.contents).toBe(
-      'import { LanguageSchema } from \'@np/generated/types\';\n\nexport default LanguageSchema;\n',
+      'import { LanguageWithRelationsSchema } from \'@np/generated/types\';\n\nexport default LanguageWithRelationsSchema;\n',
     );
     const res = JSON.parse(plan.files.find((f) => f.path.endsWith('resource.json'))!.contents);
     expect(res.sidebar).toEqual({ hide: false }); // recommended = yes

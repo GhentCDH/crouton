@@ -172,6 +172,18 @@ export const injectCalculatedColumnsToView = (
 
 // ── Public view builders ──────────────────────────────────────────────────
 
+/**
+ * A minimal, column-less `table` view. The frontend always expects
+ * `schemas.table` to be an object, so resources whose columns are all hidden in
+ * the table (e.g. join tables like `text_author`) still get a valid — if empty —
+ * table view instead of `undefined`.
+ */
+const emptyTableView = (): ViewConfig => ({
+  json_schema: { type: 'object', additionalProperties: true, properties: {} },
+  ui_schema: buildTableUiSchema([]),
+  columns: [],
+});
+
 /** Build table / form / filter / view schemas from a Zod schema + column definitions. */
 export const buildViews = (
   schema: ZodObject<ZodRawShape> | undefined,
@@ -191,6 +203,8 @@ export const buildViews = (
       columns,
     );
     views.table = table;
+  } else if (columns?.length) {
+    views.table = emptyTableView();
   }
 
   const form = buildView(
@@ -318,6 +332,8 @@ export const buildViewsFromColumns = (
   if (table) {
     table.defaultSort = resolveDefaultSort(tableCols, columns);
     views.table = table;
+  } else {
+    views.table = emptyTableView();
   }
 
   const formCols = sortByPosition(columns.filter((c) => !c.hiddenInForm));

@@ -7,12 +7,13 @@ export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
   constructor(
     private readonly dirPath: string,
     private readonly baseUrl?: string,
+    private readonly enumsFile?: string,
   ) {
     super();
   }
 
   async loadAll(): Promise<ResourceConfig[]> {
-    return loadResourceConfigsFromDir(this.dirPath, this.baseUrl);
+    return loadResourceConfigsFromDir(this.dirPath, this.baseUrl, this.enumsFile);
   }
 
   async loadByRoute(route: string): Promise<ResourceConfig | undefined> {

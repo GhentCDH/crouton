@@ -9,18 +9,18 @@ import { computedAsync } from '../utils/computedAsync';
 
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;
 
-const getMessage = (isNew: boolean, schemasUri: string) => {
-  if (!schemasUri) return 'No schemasUri configured for this relation.';
+const getMessage = (isNew: boolean, resource: string) => {
+  if (!resource) return 'No resource configured for this relation.';
   return null;
 };
 
 const getRelationResource = async (
-  schemasUri: string,
+  resource: string,
   formValues: any,
   readonly: boolean,
 ) => {
   const crouton = useCrouton();
-  const config = await crouton.getFormByUri(schemasUri);
+  const config = await crouton.getFormByUri(resource);
 
   if (!config) return null;
 
@@ -43,16 +43,15 @@ export const useRelationBinding = (
   const isNew = computed(
     () => !formValues || Object.keys(formValues).length === 0 || !formValues.id,
   );
-  const schemasUri = opts.schemasUri ?? opts.resource;
+  const resource = opts.resource as string;
 
   return {
     ...bindings,
     isInline,
     isNew,
-    schemasUri,
-    message: getMessage(isNew.value, schemasUri),
+    message: getMessage(isNew.value, resource),
     resource: computedAsync(() =>
-      getRelationResource(schemasUri, bindings.formValues, readonly),
+      getRelationResource(resource, bindings.formValues, readonly),
     ),
   };
 };

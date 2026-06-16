@@ -1,7 +1,10 @@
 import { type FormModalResult, JsonFormModalService } from '@ghentcdh/json-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
-import { relationReadonlyRenderers, relationRenderers } from './renderers';
+import {
+  customControlRenderers,
+  relationReadonlyRenderers,
+} from './renderers';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
@@ -127,7 +130,7 @@ const openEditModal =
       initialData: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
-      renderers: relationRenderers,
+      renderers: customControlRenderers,
       onClose: (result: FormModalResult) => {
         if (result && result.valid) {
           const data = result.data;

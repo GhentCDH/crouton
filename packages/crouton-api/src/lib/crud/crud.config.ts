@@ -155,6 +155,17 @@ export type ViewConfig = {
   defaultSort?: string;
 };
 
+/**
+ * A column whose stored scalar is serialized as `{ value, label }` on read and
+ * normalized back to the scalar on write. Computed at load time from columns
+ * flagged `fieldInput.options.emitObject` that carry an `options.values` list.
+ */
+export type ValueLabelColumn = {
+  /** Row field/key to transform. */
+  field: string;
+  values: { value: unknown; label: string }[];
+};
+
 export type LookupConfig = {
   /** The primary key field name (used for id-based lookups). */
   key: string;
@@ -204,6 +215,8 @@ export type SubResourceConfig = {
   includeInFindOne?: boolean;
   /** Lifecycle hooks for this sub-resource (beforeWrite, afterRead). */
   hooks?: ResourceHooks;
+  /** Columns serialized as `{ value, label }` on read / unwrapped on write. */
+  valueLabelColumns?: ValueLabelColumn[];
 };
 
 export type ResourceConfig = {
@@ -230,6 +243,8 @@ export type ResourceConfig = {
   include?: JsonIncludeEntry[];
   /** Modal width when opening a form for this resource. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
+  /** Columns serialized as `{ value, label }` on read / unwrapped on write. */
+  valueLabelColumns?: ValueLabelColumn[];
 };
 
 // ─── helpers ────────────────────────────────────────────────────────────────

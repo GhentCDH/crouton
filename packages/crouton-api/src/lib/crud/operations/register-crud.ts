@@ -89,7 +89,7 @@ export const registerCreate = (ctx: OperationContext): void => {
   });
   const d = desc(cls, 'create');
   Post()(cls.prototype, 'create', d);
-  bodyDecorator(createSchema)(cls.prototype, 'create', 0);
+  bodyDecorator(createSchema, { coerceNullableUndefinedToNull: true })(cls.prototype, 'create', 0);
   ApiOperation({ summary: `Create a ${name}` })(cls.prototype, 'create', d);
   if (createSchema) ApiBody({ schema: toJsonSchema(createSchema) as SchemaObject })(cls.prototype, 'create', d);
   ApiResponse({ status: 201, description: `${name} created` })(cls.prototype, 'create', d);
@@ -126,7 +126,7 @@ export const registerUpsert = (ctx: OperationContext): void => {
   });
   const d = desc(cls, 'upsert');
   Put()(cls.prototype, 'upsert', d);
-  bodyDecorator(upsertSchema)(cls.prototype, 'upsert', 0);
+  bodyDecorator(upsertSchema, { coerceNullableUndefinedToNull: true })(cls.prototype, 'upsert', 0);
   ApiOperation({ summary: `Upsert a ${name}` })(cls.prototype, 'upsert', d);
   if (upsertSchema) ApiBody({ schema: toJsonSchema(upsertSchema) as SchemaObject })(cls.prototype, 'upsert', d);
   ApiResponse({ status: 200, description: `${name} upserted` })(cls.prototype, 'upsert', d);

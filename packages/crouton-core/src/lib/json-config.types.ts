@@ -106,6 +106,12 @@ export type JsonColumn = {
   displayKey?: string;
   /** Override the sort column (e.g. `"speech.name"`). Maps to `TextCellBuilder.setSortId()`. */
   sortId?: string;
+  /**
+   * Name of a shared enum in the project enum registry (`crouton.enums.json`).
+   * At load time the loader injects that enum's `{ value, label }[]` into
+   * `fieldInput.options.values`, so columns don't duplicate the option list.
+   */
+  enum?: string;
   /** Mark as the primary key column for lookup resolution. */
   idField?: boolean;
   /** Include this column as a display label in the resource lookup descriptor. */

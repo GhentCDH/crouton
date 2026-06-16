@@ -28,8 +28,14 @@ export interface CroutonConfig {
   dataSourcesDir?: string;
   /** Import path for generated Zod types, e.g. `@new-polities/generated/types`. */
   generatedTypesImport: string;
-  /** Template for a model's Zod export name. `{Model}` → Prisma model name. */
+  /**
+   * Template for a model's Zod export name. `{Model}` → Prisma model name.
+   * Defaults to `{Model}WithRelationsSchema` (the relations-aware schema
+   * emitted by zod-prisma-types when `createRelationValuesTypes` is on).
+   */
   schemaExportName?: string;
+  /** Path to the shared enum registry, relative to project root. Default `crouton.enums.json`. */
+  enumsFile?: string;
   datasources: Record<string, DatasourceConfig>;
   /** Optional overrides of the default visibility ruleset. */
   rules?: Partial<Ruleset>;
@@ -135,7 +141,7 @@ export const resolveDatasource = (
 
 /** Build the `(prismaName) → exportName` function from the config template. */
 export const makeSchemaExportName = (config: CroutonConfig): ((prismaName: string) => string) => {
-  const template = config.schemaExportName ?? '{Model}Schema';
+  const template = config.schemaExportName ?? '{Model}WithRelationsSchema';
   return (prismaName: string) => template.replace('{Model}', prismaName);
 };
 

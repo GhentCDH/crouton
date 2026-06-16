@@ -95,6 +95,18 @@ export interface Ruleset {
    * (Only relevant when `includeRelations` is true.)
    */
   showRelationsInForm: boolean;
+  /**
+   * Emit enum/select columns as a `{ value, label }` envelope: sets
+   * `fieldInput.options.emitObject` + `displayKey: 'label'` so the API returns
+   * the label-aware object and the table/view renders the label. Default true.
+   */
+  enumValueLabel: boolean;
+  /**
+   * Emit enum columns as a `enum: "<Name>"` reference into the shared project
+   * registry (`crouton.enums.json`) instead of inlining the `values` list, and
+   * maintain that registry. Default true.
+   */
+  sharedEnums: boolean;
   /** Operations enabled on a freshly generated resource. */
   defaultOperations: JsonResourceConfig['operations'];
 }

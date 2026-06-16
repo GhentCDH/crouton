@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 
-import { Operator, type OperatorType, buildSort } from '@ghentcdh/crouton-core';
+import { Operator, type OperatorType, buildSort, toValueLabel } from '@ghentcdh/crouton-core';
 
-import type { ReadOp, ResourceConfig, SubResourceConfig } from './crud.config';
+import type { ReadOp, ResourceConfig, SubResourceConfig, ValueLabelColumn } from './crud.config';
 import type { RequestDto } from './request.dto';
 import { buildChildSortClause, buildIncludeClause, mergeCalculatedColumnsForRows } from './sql.helpers';
 
@@ -90,6 +90,57 @@ export const buildFilterWhere = (
 };
 
 /**
+ * Drop a trailing `.label` from a sort path when it targets a value-label
+ * column — the label is a serialization envelope, not a DB field, so sorting
+ * must fall back to the underlying scalar (e.g. `text_type.label` → `text_type`,
+ * `author.origin.label` → `author.origin`). Real columns named `label` are not
+ * affected: only paths whose value-label field sits right before `.label`.
+ */
+export const sanitizeValueLabelSort = (
+  sort: string | undefined,
+  cols: ValueLabelColumn[] | undefined,
+): string | undefined => {
+  if (!sort || !cols?.length || !sort.endsWith('.label')) return sort;
+  const base = sort.slice(0, -'.label'.length);
+  const leaf = base.split('.').pop();
+  return cols.some((c) => c.field === base || c.field === leaf) ? base : sort;
+};
+
+/**
+ * Drop a sub-resource sort when its field doesn't exist on the child — the
+ * frontend defaults to `id`, but join tables (composite PK) have no `id`, which
+ * makes Prisma throw. Valid order keys = the child model's Prisma fields
+ * (scalars + relations, via the field-reference API) plus any column ids on the
+ * sub-resource's views. When neither source is available we trust the sort.
+ */
+export const orderableChildSort = (
+  sort: string | undefined,
+  childModel: any,
+  sub: SubResourceConfig,
+): string | undefined => {
+  if (!sort) return undefined;
+  const orderable = new Set<string>([
+    ...Object.keys((childModel?.fields ?? {}) as Record<string, unknown>),
+    ...Object.values(sub.views ?? {}).flatMap((v) => v.columns.map((c) => c.id)),
+  ]);
+  if (orderable.size === 0) return sort;
+  return orderable.has(sort.split('.')[0]) ? sort : undefined;
+};
+
+/** Wrap configured columns of a row as `{ value, label }`. Returns a shallow copy. */
+export const applyValueLabelColumns = (
+  row: any,
+  cols: ValueLabelColumn[] | undefined,
+): any => {
+  if (!row || !cols?.length) return row;
+  const out = { ...row };
+  for (const { field, values } of cols) {
+    if (field in out) out[field] = toValueLabel(out[field], values);
+  }
+  return out;
+};
+
+/**
  * Handles all read operations for a resource — list, count, detail, and sub-resource queries.
  *
  * Constructed by `createCrudRepository`; instantiate directly only in tests.
@@ -130,13 +181,17 @@ export class ReadRepository<T = any> {
 
   private async decorate(rows: any[], op: ReadOp): Promise<any[]> {
     const hook = this.config.hooks?.afterRead;
-    if (!hook) return rows;
-    return Promise.all(
-      rows.map((row) => hook(row, { prisma: this.prisma, op })),
-    );
+    const hooked = hook
+      ? await Promise.all(rows.map((row) => hook(row, { prisma: this.prisma, op })))
+      : rows;
+    const cols = this.config.valueLabelColumns;
+    return cols?.length ? hooked.map((r) => applyValueLabelColumns(r, cols)) : hooked;
   }
 
   private async decorateOne(row: any, op: ReadOp): Promise<any> {
+    // Note: the `{ value, label }` envelope is applied on list reads only.
+    // findOne feeds the form/detail view, where the select control maps the
+    // stored scalar to its label itself and submits the scalar back.
     const hook = this.config.hooks?.afterRead;
     return hook ? hook(row, { prisma: this.prisma, op }) : row;
   }
@@ -153,7 +208,10 @@ export class ReadRepository<T = any> {
       where: this.buildWhere(params.filter),
       take: params.pageSize,
       skip: (params as any).offset ?? (params.page - 1) * params.pageSize,
-      orderBy: this.safeSort(params.sort, params.sortDir),
+      orderBy: this.safeSort(
+        sanitizeValueLabelSort(params.sort, this.config.valueLabelColumns),
+        params.sortDir,
+      ),
     };
 
     if (subResources.length) {
@@ -290,15 +348,18 @@ export class ReadRepository<T = any> {
       [sub.foreignKey]: this.toId(parentId),
     };
     const includeClause = buildIncludeClause(sub.include);
+    const childSort = orderableChildSort(
+      sanitizeValueLabelSort(params.sort, sub.valueLabelColumns),
+      childModel,
+      sub,
+    );
 
     const [data, count] = await Promise.all([
       childModel.findMany({
         where,
         take: params.pageSize,
         skip: (params as any).offset ?? (params.page - 1) * params.pageSize,
-        orderBy: params.sort
-          ? buildChildSortClause(params.sort, params.sortDir)
-          : undefined,
+        orderBy: childSort ? buildChildSortClause(childSort, params.sortDir) : undefined,
         ...(includeClause && { include: includeClause }),
       }),
       childModel.count({ where }),
@@ -321,7 +382,10 @@ export class ReadRepository<T = any> {
         )
       : withCalc;
 
-    return { data: decorated, count };
+    const labeled = sub.valueLabelColumns?.length
+      ? decorated.map((r: any) => applyValueLabelColumns(r, sub.valueLabelColumns))
+      : decorated;
+    return { data: labeled, count };
   }
 
   /**
@@ -362,11 +426,9 @@ export class ReadRepository<T = any> {
         )
       : [record];
 
+    // findOne (single child) keeps the scalar — see decorateOne.
     if (sub.hooks?.afterRead)
-      return sub.hooks.afterRead(withCalc, {
-        prisma: this.prisma,
-        op: 'findOne',
-      });
+      return sub.hooks.afterRead(withCalc, { prisma: this.prisma, op: 'findOne' });
     return withCalc;
   }
 }

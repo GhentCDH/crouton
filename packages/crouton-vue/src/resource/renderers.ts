@@ -3,11 +3,14 @@ import { markRaw } from 'vue';
 
 import { type CellRendererEntry, cellTypeIs, optionIsIgnoreCase } from '@ghentcdh/json-forms-vue';
 
+import DateRangeControlRenderer from '../range/DateRangeControlRenderer.vue';
 import RelationCell from '../relation/RelationCell.vue';
 import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
 import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 
 export const isRelationControl = and(optionIsIgnoreCase('format', 'relation'));
+
+export const isDateRangeControl = and(optionIsIgnoreCase('format', 'date-range'));
 
 /**
  * Additional renderers to pass as the `renderers` prop.
@@ -18,6 +21,18 @@ export const relationRenderers = [
   {
     tester: rankWith(16, isRelationControl),
     renderer: markRaw(RelationControlRenderer),
+  },
+];
+
+/**
+ * All custom control renderers to pass as the `renderers` prop.
+ * Merged ON TOP of the base renderers inside the form modal.
+ */
+export const customControlRenderers = [
+  ...relationRenderers,
+  {
+    tester: rankWith(16, isDateRangeControl),
+    renderer: markRaw(DateRangeControlRenderer),
   },
 ];
 

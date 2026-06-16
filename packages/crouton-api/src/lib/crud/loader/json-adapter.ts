@@ -1,5 +1,6 @@
 import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
+import { type EnumRegistry, injectEnumValues } from './enum-registry';
 import type { CalculatedColumn, JsonColumn, JsonResourceConfig, RelationType } from './json-config.types';
 import { normalizeColumns } from './json-config.types';
 import { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
@@ -12,6 +13,7 @@ import type {
   ResourceHooks,
   ResourceTableAction,
   SubResourceConfig,
+  ValueLabelColumn,
 } from '../crud.config';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -131,6 +133,94 @@ const expandExtendColumns = (
 };
 
 /**
+ * Collect columns that should be serialized as `{ value, label }`: those whose
+ * `fieldInput.options.emitObject` is true and that carry an `options.values`
+ * list (typically enum/select columns).
+ */
+const buildValueLabelColumns = (columns: JsonColumn[] | undefined): ValueLabelColumn[] =>
+  (columns ?? []).flatMap((c) => {
+    const opts = c.fieldInput?.options as
+      | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
+      | undefined;
+    if (!opts?.emitObject || !Array.isArray(opts.values)) return [];
+    return [{ field: c.column ?? c.id, values: opts.values }];
+  });
+
+/**
+ * Default `fieldInput.format` to `"relation"` for columns that reference a
+ * resource (`fieldInput.resource`) but declare no explicit `format` or control
+ * `type`. Such a column is a relation by convention, e.g.:
+ *   `"fieldInput": { "resource": "../bibliography/resource.json", "options": { "displayKey": "bib" } }`
+ * (A typed control that references a resource — `type: "select"`/`"autocomplete"` —
+ * is left untouched.)
+ */
+const applyRelationFormatDefault = (
+  cols: JsonColumn[] | undefined,
+): JsonColumn[] | undefined =>
+  cols?.map((col) => {
+    const fi = col.fieldInput;
+    if (fi && fi.resource && !fi.format && !fi.type) {
+      return { ...col, fieldInput: { ...fi, format: 'relation' } };
+    }
+    return col;
+  });
+
+/**
+ * Heuristic `relationType` for when no Zod schema is available (sub-resources):
+ * a relation column with a sibling scalar foreign-key column (`<name>_id`) is a
+ * single reference (`manyToOne`); otherwise it's a collection (`oneToMany`).
+ */
+const deriveRelationTypeFromColumns = (
+  col: JsonColumn,
+  cols: JsonColumn[],
+): RelationType => {
+  const base = col.column ?? col.id;
+  const fkNames = new Set([`${base}_id`, `${col.id}_id`]);
+  return cols.some((c) => fkNames.has(c.id)) ? 'manyToOne' : 'oneToMany';
+};
+
+/**
+ * Inject resource references (`uri`, `resourceUri`, `resource` = schemas URL)
+ * into a sub-resource's own relation columns. `enrichActionColumns` only runs
+ * for top-level resource columns, so a relation nested inside a sub-resource
+ * (e.g. `text → text_author → author`) would otherwise have no way to fetch the
+ * related form/list. These point at the related resource's standalone routes.
+ */
+const enrichNestedRelationColumns = (
+  cols: JsonColumn[] | undefined,
+  dir: string | undefined,
+  baseUrl?: string,
+): JsonColumn[] | undefined => {
+  if (!cols || !dir) return cols;
+  const base = baseUrl ?? '';
+  return cols.map((col) => {
+    if (col.fieldInput?.format !== 'relation' || !col.fieldInput.resource) return col;
+    const resolved = resolveChildResource(col.fieldInput.resource, dir);
+    const targetRoute =
+      resolved?.json?.route ??
+      col.fieldInput.resource
+        .replace(/^\.\//, '')
+        .replace(/\/resource\.json$/, '')
+        .replace(/\.resource$/, '');
+    const relationType =
+      col.fieldInput.relationType ?? deriveRelationTypeFromColumns(col, cols);
+    return {
+      ...col,
+      fieldInput: {
+        ...col.fieldInput,
+        relationType,
+        options: {
+          ...(col.fieldInput.options as object | undefined),
+          uri: `${base}/${targetRoute}`,
+          resourceUri: `${base}/${targetRoute}`,
+          resource: `${base}/${targetRoute}/schemas`,
+        },
+      },
+    };
+  });
+};
+
+/**
  * Build `SubResourceConfig` entries for columns with `fieldInput.format === "action"`.
  */
 const buildSubResources = (
@@ -138,6 +228,8 @@ const buildSubResources = (
   parentRoute: string,
   parentModel: string,
   parentDir?: string,
+  enums: EnumRegistry = {},
+  baseUrl?: string,
 ): SubResourceConfig[] => {
   if (!columns || !parentDir) return [];
 
@@ -151,10 +243,13 @@ const buildSubResources = (
         c.fieldInput!.resource!.replace(/^\.\//, '').replace(/\.resource$/, '');
 
       const rawChildColumns = childJson ? normalizeColumns(childJson.columns) : undefined;
-      const childColumns = rawChildColumns ? expandExtendColumns(rawChildColumns, childDir) : undefined;
+      const expandedChildColumns = rawChildColumns ? expandExtendColumns(rawChildColumns, childDir) : undefined;
+      const childColumns = applyRelationFormatDefault(expandedChildColumns) ?? expandedChildColumns;
+      injectEnumValues(childColumns, enums);
+      const enrichedChildColumns = enrichNestedRelationColumns(childColumns, childDir, baseUrl);
       const childLookupKey = childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = childJson?.calculatedColumns ?? [];
-      let childViews = childJson ? buildViewsFromColumns(childColumns) : undefined;
+      let childViews = childJson ? buildViewsFromColumns(enrichedChildColumns) : undefined;
       if (childViews && childCalculatedColumns.length) {
         childViews = { ...childViews, table: injectCalculatedColumns(childViews.table, childCalculatedColumns) };
         if (childViews.view) {
@@ -186,12 +281,15 @@ const buildSubResources = (
         ...(childJson?.include?.length && { include: childJson.include }),
         ...(childJson?.calculatedColumns?.length && { calculatedColumns: childJson.calculatedColumns }),
         ...((c.hiddenInForm === false || c.hiddenInView === false) && { includeInFindOne: true }),
+        ...(buildValueLabelColumns(childColumns).length && {
+          valueLabelColumns: buildValueLabelColumns(childColumns),
+        }),
       } satisfies SubResourceConfig;
     });
 };
 
 /**
- * Return a new columns array with `uri`, `resourceUri`, and `schemasUri`
+ * Return a new columns array with `uri`, `resourceUri`, and `resource` (schemas URL)
  * injected into `fieldInput.options` for relation columns.
  */
 const enrichActionColumns = (
@@ -214,7 +312,7 @@ const enrichActionColumns = (
           ...(col.fieldInput.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
-          ...(sub.views && { schemasUri: `${base}/${parentRoute}/${sub.childRoute}/schemas` }),
+          ...(sub.views && { resource: `${base}/${parentRoute}/${sub.childRoute}/schemas` }),
         },
       },
     };
@@ -266,11 +364,17 @@ export const fromJson = (
   actions?: ResourceAction[],
   /** Resolved table-level action procedures loaded from the `actions/` directory. */
   tableActions?: ResourceTableAction[],
+  /** Project enum registry — injected into columns that reference an enum by name. */
+  enums: EnumRegistry = {},
 ): ResourceConfig => {
   const rawColumns = expandExtendColumns(normalizeColumns(json.columns) ?? [], dirPath);
-  const columns = enrichRelationTypes(rawColumns, schema);
+  const columns = enrichRelationTypes(
+    applyRelationFormatDefault(rawColumns) ?? rawColumns,
+    schema,
+  );
+  injectEnumValues(columns, enums);
 
-  const subResources = buildSubResources(columns, json.route, json.model, dirPath);
+  const subResources = buildSubResources(columns, json.route, json.model, dirPath, enums, baseUrl);
   const enrichedColumns =
     enrichResourceRefColumns(
       enrichActionColumns(columns, json.route, subResources, baseUrl),
@@ -340,6 +444,9 @@ export const fromJson = (
     ...(tableActions?.length && { tableActions }),
     ...(json.include?.length && { include: json.include }),
     ...(json.modalSize && { modalSize: json.modalSize }),
+    ...(buildValueLabelColumns(enrichedColumns).length && {
+      valueLabelColumns: buildValueLabelColumns(enrichedColumns),
+    }),
   };
 };
 
@@ -387,7 +494,7 @@ const enrichRelationTypes = (
     const isRelationField = fi.type === 'autocomplete' || fi.format === 'relation';
     if (!isRelationField) return col;
     if (fi.relationType) return col; // explicit wins
-    const derived = deriveRelationType(schema, col.id);
+    const derived = deriveRelationType(schema, col.id) ?? deriveRelationTypeFromColumns(col, columns);
     if (!derived) return col;
     return { ...col, fieldInput: { ...fi, relationType: derived } };
   });

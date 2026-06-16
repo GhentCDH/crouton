@@ -1,9 +1,21 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import { fromValueLabel } from '@ghentcdh/crouton-core';
+
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
-import type { ResourceConfig, SubResourceConfig, WriteOp } from './crud.config';
+import type { ResourceConfig, SubResourceConfig, ValueLabelColumn, WriteOp } from './crud.config';
 import { resolveDefinition, upsertOnFor } from './crud.config';
 import type { JsonIncludeEntry } from './loader/json-config.types';
+
+/** Unwrap `{ value, label }` fields back to their scalar before persistence. */
+const normalizeValueLabels = (data: unknown, cols: ValueLabelColumn[] | undefined): unknown => {
+  if (!data || typeof data !== 'object' || Array.isArray(data) || !cols?.length) return data;
+  const out = { ...(data as Record<string, unknown>) };
+  for (const { field } of cols) {
+    if (field in out) out[field] = fromValueLabel(out[field]);
+  }
+  return out;
+};
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (include: JsonIncludeEntry[] | undefined): Set<string> =>
@@ -54,8 +66,9 @@ export class WriteRepository<T = any> {
   }
 
   private async prepare(data: any, op: WriteOp, id?: string | number): Promise<any> {
+    const normalized = normalizeValueLabels(data, this.config.valueLabelColumns);
     const hook = this.config.hooks?.beforeWrite;
-    return hook ? hook(data, { prisma: this.prisma, op, id }) : data;
+    return hook ? hook(normalized, { prisma: this.prisma, op, id }) : normalized;
   }
 
   private upsertWhere(data: any): Record<string, unknown> {
@@ -114,7 +127,8 @@ export class WriteRepository<T = any> {
     if (!childModel) throw new Error(`Prisma model "${sub.childModel}" not found`);
 
     const stripped = this.stripNonCreateableChildFields(data, sub);
-    const payload = { ...(stripped as object), [sub.foreignKey]: this.toId(parentId) };
+    const normalized = normalizeValueLabels(stripped, sub.valueLabelColumns) as object;
+    const payload = { ...normalized, [sub.foreignKey]: this.toId(parentId) };
     const prepared = sub.hooks?.beforeWrite
       ? await sub.hooks.beforeWrite(payload, { prisma: this.prisma, op: 'create' })
       : payload;
@@ -139,9 +153,10 @@ export class WriteRepository<T = any> {
     if (!childModel) throw new Error(`Prisma model "${sub.childModel}" not found`);
 
     const id = (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
+    const normalized = normalizeValueLabels(data, sub.valueLabelColumns);
     const afterHook = sub.hooks?.beforeWrite
-      ? await sub.hooks.beforeWrite(data, { prisma: this.prisma, op: 'update', id })
-      : data;
+      ? await sub.hooks.beforeWrite(normalized, { prisma: this.prisma, op: 'update', id })
+      : normalized;
 
     const includeKeys = includeRelationNames(sub.include);
     const prepared = Object.fromEntries(

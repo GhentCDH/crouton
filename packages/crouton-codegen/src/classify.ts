@@ -27,6 +27,8 @@ export const defaultRuleset = (): Ruleset => ({
   includeRelations: false,
   hideRelationsInTable: true,
   showRelationsInForm: true,
+  enumValueLabel: true,
+  sharedEnums: true,
   defaultOperations: {
     findAll: true,
     findOne: true,
@@ -97,14 +99,15 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
         unwiredRelations.push({ field: field.name, targetModel: field.relationModel ?? '' });
       }
     } else if (field.kind === 'enum') {
+      const options: Record<string, unknown> = {};
+      if (ruleset.enumValueLabel) options.emitObject = true;
+      if (!ruleset.sharedEnums) {
+        options.values = (field.enumValues ?? []).map((v) => ({ label: v, value: v }));
+      }
       col = {
-        fieldInput: {
-          type: 'select',
-          position: position++,
-          options: {
-            values: (field.enumValues ?? []).map((v) => ({ label: v, value: v })),
-          },
-        },
+        ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
+        ...(ruleset.sharedEnums ? { enum: field.type } : {}),
+        fieldInput: { type: 'select', position: position++, options },
       };
     } else {
       col = {

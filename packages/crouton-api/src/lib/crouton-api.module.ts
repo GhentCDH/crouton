@@ -12,6 +12,11 @@ import { ResourceConfigRegistry } from './crud/resource-config.registry';
 
 type CroutonConfig = {
   baseUrl: string;
+  /**
+   * Explicit path to the project enum registry (`crouton.enums.json`).
+   * When omitted, the loader walks up from the resources dir to find it.
+   */
+  enumsFile?: string;
 };
 @Module({
   controllers: [],
@@ -47,8 +52,8 @@ export class CroutonApiModule {
     dataSourcesPath: string,
     config: CroutonConfig,
   ): Promise<DynamicModule> {
-    const loader = new FileSystemResourceConfigLoader(dirPath, config.baseUrl);
-    const configs = await loadResourceConfigsFromDir(dirPath, config.baseUrl);
+    const loader = new FileSystemResourceConfigLoader(dirPath, config.baseUrl, config.enumsFile);
+    const configs = await loadResourceConfigsFromDir(dirPath, config.baseUrl, config.enumsFile);
     const dataSources = await loadDataSourcesFromDir(dataSourcesPath);
     return CroutonApiModule.forResources(configs, dataSources, loader, config);
   }

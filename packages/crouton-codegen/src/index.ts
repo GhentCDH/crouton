@@ -20,4 +20,5 @@ export * from './commit';
 export * from './config';
 export * from './project';
 export * from './plan';
+export * from './enum-registry';
 export { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
