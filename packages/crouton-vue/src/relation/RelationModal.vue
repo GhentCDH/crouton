@@ -2,7 +2,7 @@
 import { Btn, Modal } from '@ghentcdh/ui';
 import { computedAsync } from '../utils/computedAsync';
 import { useResources } from '../resource';
-import { TableComponent } from '@ghentcdh/json-forms-vue';
+import { TableComponent } from '@ghentcdh/crouton-forms-vue';
 import { type PropType, shallowRef, watch } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
 import { customCellRenderers } from '../resource/renderers';

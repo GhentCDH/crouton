@@ -2,7 +2,7 @@
 import { computed, shallowRef, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { TableComponent, TableToolbar } from '@ghentcdh/json-forms-vue';
+import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
 import { useCrouton } from '../composables/useCrouton';
 

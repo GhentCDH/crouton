@@ -1,7 +1,7 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
-import { useControlBinding } from '@ghentcdh/json-forms-vue';
+import { useControlBinding } from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
 import { useResources } from '../resource';
@@ -47,6 +47,10 @@ export const useRelationBinding = (
 
   return {
     ...bindings,
+    // jsonforms options are an open bag; expose them loosely for relation renderers
+    appliedOptions: computed(
+      () => (bindings.appliedOptions.value ?? {}) as Record<string, any>,
+    ),
     isInline,
     isNew,
     message: getMessage(isNew.value, resource),
