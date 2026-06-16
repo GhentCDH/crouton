@@ -12,6 +12,7 @@ import type {
   ResourceHooks,
   ResourceTableAction,
   SubResourceConfig,
+  ValueLabelColumn,
 } from '../crud.config';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -131,6 +132,20 @@ const expandExtendColumns = (
 };
 
 /**
+ * Collect columns that should be serialized as `{ value, label }`: those whose
+ * `fieldInput.options.emitObject` is true and that carry an `options.values`
+ * list (typically enum/select columns).
+ */
+const buildValueLabelColumns = (columns: JsonColumn[] | undefined): ValueLabelColumn[] =>
+  (columns ?? []).flatMap((c) => {
+    const opts = c.fieldInput?.options as
+      | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
+      | undefined;
+    if (!opts?.emitObject || !Array.isArray(opts.values)) return [];
+    return [{ field: c.column ?? c.id, values: opts.values }];
+  });
+
+/**
  * Build `SubResourceConfig` entries for columns with `fieldInput.format === "action"`.
  */
 const buildSubResources = (
@@ -186,6 +201,9 @@ const buildSubResources = (
         ...(childJson?.include?.length && { include: childJson.include }),
         ...(childJson?.calculatedColumns?.length && { calculatedColumns: childJson.calculatedColumns }),
         ...((c.hiddenInForm === false || c.hiddenInView === false) && { includeInFindOne: true }),
+        ...(buildValueLabelColumns(childColumns).length && {
+          valueLabelColumns: buildValueLabelColumns(childColumns),
+        }),
       } satisfies SubResourceConfig;
     });
 };
@@ -340,6 +358,9 @@ export const fromJson = (
     ...(tableActions?.length && { tableActions }),
     ...(json.include?.length && { include: json.include }),
     ...(json.modalSize && { modalSize: json.modalSize }),
+    ...(buildValueLabelColumns(enrichedColumns).length && {
+      valueLabelColumns: buildValueLabelColumns(enrichedColumns),
+    }),
   };
 };
 

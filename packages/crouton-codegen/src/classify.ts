@@ -27,6 +27,7 @@ export const defaultRuleset = (): Ruleset => ({
   includeRelations: false,
   hideRelationsInTable: true,
   showRelationsInForm: true,
+  enumValueLabel: true,
   defaultOperations: {
     findAll: true,
     findOne: true,
@@ -98,11 +99,13 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
       }
     } else if (field.kind === 'enum') {
       col = {
+        ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
         fieldInput: {
           type: 'select',
           position: position++,
           options: {
             values: (field.enumValues ?? []).map((v) => ({ label: v, value: v })),
+            ...(ruleset.enumValueLabel ? { emitObject: true } : {}),
           },
         },
       };

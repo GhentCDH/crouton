@@ -83,12 +83,25 @@ describe('classify', () => {
     expect(d.unwiredRelations).toEqual([{ field: 'sources', targetModel: 'Source' }]);
   });
 
-  it('renders enums as select with values', () => {
+  it('renders enums as select with values + value/label envelope by default', () => {
     const d = classify(model);
-    expect(col(d, 'kind').fieldInput).toMatchObject({
-      type: 'select',
-      options: { values: [{ label: 'a', value: 'a' }, { label: 'b', value: 'b' }] },
+    expect(col(d, 'kind')).toMatchObject({
+      displayKey: 'label',
+      fieldInput: {
+        type: 'select',
+        options: {
+          values: [{ label: 'a', value: 'a' }, { label: 'b', value: 'b' }],
+          emitObject: true,
+        },
+      },
     });
+  });
+
+  it('omits the value/label envelope when enumValueLabel is off', () => {
+    const d = classify(model, { ruleset: { ...defaultRuleset(), enumValueLabel: false } });
+    const kind = col(d, 'kind') as any;
+    expect(kind.displayKey).toBeUndefined();
+    expect((kind.fieldInput?.options ?? {}).emitObject).toBeUndefined();
   });
 
   it('gives plain scalars a typed control', () => {

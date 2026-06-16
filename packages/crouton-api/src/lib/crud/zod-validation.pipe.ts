@@ -18,7 +18,7 @@ export class ZodValidationPipe implements PipeTransform {
 
   constructor(
     private readonly schema: ZodObject<ZodRawShape>,
-    private readonly options: ZodValidationPipeOptions = {},
+    options: ZodValidationPipeOptions = {},
   ) {
     this.nullableKeys = options.coerceNullableUndefinedToNull
       ? Object.entries(schema.shape)

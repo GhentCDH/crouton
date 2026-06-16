@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 
-import { Operator, type OperatorType, buildSort } from '@ghentcdh/crouton-core';
+import { Operator, type OperatorType, buildSort, toValueLabel } from '@ghentcdh/crouton-core';
 
-import type { ReadOp, ResourceConfig, SubResourceConfig } from './crud.config';
+import type { ReadOp, ResourceConfig, SubResourceConfig, ValueLabelColumn } from './crud.config';
 import type { RequestDto } from './request.dto';
 import { buildChildSortClause, buildIncludeClause, mergeCalculatedColumnsForRows } from './sql.helpers';
 
@@ -89,6 +89,19 @@ export const buildFilterWhere = (
   return conditions.length ? { AND: conditions } : undefined;
 };
 
+/** Wrap configured columns of a row as `{ value, label }`. Returns a shallow copy. */
+export const applyValueLabelColumns = (
+  row: any,
+  cols: ValueLabelColumn[] | undefined,
+): any => {
+  if (!row || !cols?.length) return row;
+  const out = { ...row };
+  for (const { field, values } of cols) {
+    if (field in out) out[field] = toValueLabel(out[field], values);
+  }
+  return out;
+};
+
 /**
  * Handles all read operations for a resource — list, count, detail, and sub-resource queries.
  *
@@ -130,15 +143,17 @@ export class ReadRepository<T = any> {
 
   private async decorate(rows: any[], op: ReadOp): Promise<any[]> {
     const hook = this.config.hooks?.afterRead;
-    if (!hook) return rows;
-    return Promise.all(
-      rows.map((row) => hook(row, { prisma: this.prisma, op })),
-    );
+    const hooked = hook
+      ? await Promise.all(rows.map((row) => hook(row, { prisma: this.prisma, op })))
+      : rows;
+    const cols = this.config.valueLabelColumns;
+    return cols?.length ? hooked.map((r) => applyValueLabelColumns(r, cols)) : hooked;
   }
 
   private async decorateOne(row: any, op: ReadOp): Promise<any> {
     const hook = this.config.hooks?.afterRead;
-    return hook ? hook(row, { prisma: this.prisma, op }) : row;
+    const hooked = hook ? await hook(row, { prisma: this.prisma, op }) : row;
+    return applyValueLabelColumns(hooked, this.config.valueLabelColumns);
   }
 
   /**
@@ -321,7 +336,10 @@ export class ReadRepository<T = any> {
         )
       : withCalc;
 
-    return { data: decorated, count };
+    const labeled = sub.valueLabelColumns?.length
+      ? decorated.map((r: any) => applyValueLabelColumns(r, sub.valueLabelColumns))
+      : decorated;
+    return { data: labeled, count };
   }
 
   /**
@@ -362,11 +380,9 @@ export class ReadRepository<T = any> {
         )
       : [record];
 
-    if (sub.hooks?.afterRead)
-      return sub.hooks.afterRead(withCalc, {
-        prisma: this.prisma,
-        op: 'findOne',
-      });
-    return withCalc;
+    const hooked = sub.hooks?.afterRead
+      ? await sub.hooks.afterRead(withCalc, { prisma: this.prisma, op: 'findOne' })
+      : withCalc;
+    return applyValueLabelColumns(hooked, sub.valueLabelColumns);
   }
 }
