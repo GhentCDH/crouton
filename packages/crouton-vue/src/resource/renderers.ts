@@ -1,7 +1,7 @@
 import { and, rankWith } from '@jsonforms/core';
 import { markRaw } from 'vue';
 
-import { type CellRendererEntry, cellTypeIs, optionIsIgnoreCase } from '@ghentcdh/json-forms-vue';
+import { type CellRendererEntry, cellTypeIs, optionIsIgnoreCase } from '@ghentcdh/crouton-forms-vue';
 
 import DateRangeControlRenderer from '../range/DateRangeControlRenderer.vue';
 import RelationCell from '../relation/RelationCell.vue';

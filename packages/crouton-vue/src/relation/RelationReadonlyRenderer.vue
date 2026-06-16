@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { ReadonlyLabel } from '@ghentcdh/json-forms-vue';
+import { ReadonlyLabel } from '@ghentcdh/crouton-forms-vue';
 import { useRelationBinding } from './useRelationBinding';
 import { computed } from 'vue';
 import RelationButton from './RelationButton.vue';

@@ -207,11 +207,33 @@ importers:
         specifier: ^4.0.0
         version: 4.4.3
 
+  packages/crouton-forms-vue:
+    dependencies:
+      '@ghentcdh/ui':
+        specifier: '*'
+        version: 2.0.0(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.29(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))
+      '@jsonforms/core':
+        specifier: '>=3.0.0'
+        version: 3.7.0
+      vee-validate:
+        specifier: '>=4.0.0'
+        version: 4.15.1(vue@3.5.29(typescript@5.9.3))
+      vue:
+        specifier: '>=3.0.0'
+        version: 3.5.29(typescript@5.9.3)
+      vue-router:
+        specifier: '>=4.0.0'
+        version: 5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3))
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
+    devDependencies:
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
+
   packages/crouton-vue:
     dependencies:
-      '@ghentcdh/json-forms-vue':
-        specifier: '*'
-        version: 1.1.1(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/tools-vue@1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3)))(@ghentcdh/ui@1.1.1(@floating-ui/dom@1.7.6)(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/tools-vue@1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3)))(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3)))(@jsonforms/core@3.7.0)(@vueuse/core@14.3.0(vue@3.5.29(typescript@5.9.3)))(axios@1.16.0)(lodash-es@4.18.1)(vee-validate@4.15.1(vue@3.5.29(typescript@5.9.3)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))(zod@4.4.3)
       '@ghentcdh/ui':
         specifier: '*'
         version: 1.1.1(@floating-ui/dom@1.7.6)(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/tools-vue@1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3)))(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))
@@ -237,6 +259,9 @@ importers:
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../crouton-core
+      '@ghentcdh/crouton-forms-vue':
+        specifier: workspace:*
+        version: link:../crouton-forms-vue
 
 packages:
 
@@ -1219,25 +1244,6 @@ packages:
     peerDependencies:
       '@jsonforms/core': 3.7.0
       zod: 4.3.6
-
-  '@ghentcdh/json-forms-vue@1.1.1':
-    resolution: {integrity: sha512-LoClt8BAoIIfW82ugQFR7N/mta830t7LL7nr6EitHkniYIkvOFzmNH4ubNnnznwmT+SdCdnAZqlViQO4Zm2DkQ==}
-    peerDependencies:
-      '@ghentcdh/json-forms-core': '>=0.0.1'
-      '@ghentcdh/tools-vue': '>=0.6.0'
-      '@ghentcdh/ui': '>=0.6.0'
-      '@jsonforms/core': ^3.4.0
-      '@playwright/test': '>=1.50.0'
-      '@vueuse/core': ^14.0.0
-      axios: ^1.0.0
-      lodash-es: ^4.17.0
-      vee-validate: '>=4.0.0'
-      vue: ^3.5.0
-      vue-router: ^5.0.0
-      zod: ^4.0.0
-    peerDependenciesMeta:
-      '@playwright/test':
-        optional: true
 
   '@ghentcdh/json-forms-vue@2.0.0':
     resolution: {integrity: sha512-cu/KHUwHRsapki112B9FB5jnAXoLNzLMgXCizJHOZdwxPkToIJXjBKCg8FKxn/3t0J5aumYlYEvmkTZ8gc6rDQ==}
@@ -7327,20 +7333,6 @@ snapshots:
   '@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3)':
     dependencies:
       '@jsonforms/core': 3.7.0
-      zod: 4.4.3
-
-  '@ghentcdh/json-forms-vue@1.1.1(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/tools-vue@1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3)))(@ghentcdh/ui@1.1.1(@floating-ui/dom@1.7.6)(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/tools-vue@1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3)))(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3)))(@jsonforms/core@3.7.0)(@vueuse/core@14.3.0(vue@3.5.29(typescript@5.9.3)))(axios@1.16.0)(lodash-es@4.18.1)(vee-validate@4.15.1(vue@3.5.29(typescript@5.9.3)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))(zod@4.4.3)':
-    dependencies:
-      '@ghentcdh/json-forms-core': 1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3)
-      '@ghentcdh/tools-vue': 1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3))
-      '@ghentcdh/ui': 1.1.1(@floating-ui/dom@1.7.6)(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/tools-vue@1.1.1(axios@1.16.0)(vue@3.5.29(typescript@5.9.3)))(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))
-      '@jsonforms/core': 3.7.0
-      '@vueuse/core': 14.3.0(vue@3.5.29(typescript@5.9.3))
-      axios: 1.16.0
-      lodash-es: 4.18.1
-      vee-validate: 4.15.1(vue@3.5.29(typescript@5.9.3))
-      vue: 3.5.29(typescript@5.9.3)
-      vue-router: 5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3))
       zod: 4.4.3
 
   '@ghentcdh/json-forms-vue@2.0.0(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@ghentcdh/ui@2.0.0(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.7.0)(zod@4.4.3))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.29(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.38)(vite@7.3.1(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))':

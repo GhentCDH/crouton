@@ -5,7 +5,7 @@ import {
   type FormModalResult,
   JsonFormModalService,
   createRepository,
-} from '@ghentcdh/json-forms-vue';
+} from '@ghentcdh/crouton-forms-vue';
 import { NotificationService } from '@ghentcdh/ui';
 
 import { useApi } from '../composables/useApi';

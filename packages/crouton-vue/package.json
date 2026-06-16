@@ -23,7 +23,7 @@
     "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
-    "@ghentcdh/json-forms-vue": "*",
+    "@ghentcdh/crouton-forms-vue": "*",
     "@ghentcdh/ui": "*",
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
@@ -32,6 +32,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@ghentcdh/crouton-core": "workspace:*"
+    "@ghentcdh/crouton-core": "workspace:*",
+    "@ghentcdh/crouton-forms-vue": "workspace:*"
   }
 }

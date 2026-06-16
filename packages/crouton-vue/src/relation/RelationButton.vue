@@ -38,7 +38,7 @@ import { computed, PropType, useAttrs } from 'vue';
 
 const props = defineProps({
   options: {
-    type: Object as PropType<{ descriptionKey?: string; displayKey: string }>,
+    type: Object as PropType<{ descriptionKey?: string; displayKey?: string }>,
     required: true as const,
   },
   value: { type: Object as PropType<unknown>, required: true as const },

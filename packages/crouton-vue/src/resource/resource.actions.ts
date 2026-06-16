@@ -1,4 +1,4 @@
-import { type FormModalResult, JsonFormModalService } from '@ghentcdh/json-forms-vue';
+import { type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
 import {

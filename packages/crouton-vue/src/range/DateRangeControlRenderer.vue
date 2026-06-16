@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { ControlWrapper } from '@ghentcdh/ui';
-import { useCustomControlBinding } from '@ghentcdh/json-forms-vue';
+import { useCustomControlBinding } from '@ghentcdh/crouton-forms-vue';
 
 type DateRange = { from?: string; to?: string };
 
