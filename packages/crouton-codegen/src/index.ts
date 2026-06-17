@@ -18,6 +18,7 @@ export * from './serialize';
 export * from './apply';
 export * from './commit';
 export * from './config';
+export * from './datasource-scaffold';
 export * from './project';
 export * from './plan';
 export * from './enum-registry';

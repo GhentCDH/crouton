@@ -81,7 +81,24 @@ Each resource is described by a `resource.json` file in its own directory under 
 | `showWhen` / `hideWhen` / `disabledWhen` | Conditional display: `{ "field": "...", "eq"/"neq"/"exists": ... }` |
 | `displayKey` | Nested field to display (e.g. `author.name`) |
 | `showInLookup` | Shown in autocomplete lookups of this resource |
+| `enum` | Name of a shared [enum registry](./cli.md#enum-registry) list whose `{ value, label }` options back this column |
 | `fieldInput` | Form control configuration, see below |
+
+### Enum columns
+
+Reference a shared option list by name instead of inlining values. The list is defined once in `crouton.enums.json` and injected at load time:
+
+```json
+{
+  "text_type": {
+    "enum": "text_type_enum",
+    "displayKey": "label",
+    "fieldInput": { "options": { "emitObject": true } }
+  }
+}
+```
+
+The table shows the `label`; forms submit the underlying scalar `value`. See the [enum registry](./cli.md#enum-registry) for how the lists are defined and shared.
 
 ### Field inputs
 

@@ -10,8 +10,7 @@ import { join } from 'node:path';
 
 const config: CroutonConfig = {
   resourcesDir: 'resources',
-  generatedTypesImport: '@np/generated/types',
-  datasources: { docsdb: { prismaSchema: 'prisma/schema.prisma', default: true } },
+  dataSourcesDir: 'data-sources',
 };
 
 let loaded: LoadedConfig;
