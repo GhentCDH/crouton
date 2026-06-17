@@ -8,8 +8,12 @@ import type { ResourceHooks } from '@ghentcdh/crouton-api';
 
 const hooks: ResourceHooks = {
   beforeWrite: async (data, ctx) => {
-    // runs before Prisma create / update / upsert
+    // runs before Prisma create / update / upsert / delete
     return data;
+  },
+  afterWrite: async (result, ctx) => {
+    // runs after Prisma create / update / upsert / delete
+    return result;
   },
   afterRead: async (row, ctx) => {
     // runs on every row returned by findAll / findOne
@@ -23,7 +27,7 @@ export default hooks;
 ## beforeWrite
 
 ```ts
-beforeWrite?: (data, ctx: { prisma; op: 'create' | 'update' | 'upsert'; id? }) => any;
+beforeWrite?: (data, ctx: { prisma; op: 'create' | 'update' | 'upsert' | 'delete'; id? }) => any;
 ```
 
 Called with the validated payload right before it is passed to Prisma. Whatever you return is what gets written. `ctx.id` is set for updates, `undefined` for creates.
@@ -47,6 +51,29 @@ const hooks: ResourceHooks = {
     }
 
     return { ...data, author_id: author.id };
+  },
+};
+```
+
+## afterWrite
+
+```ts
+afterWrite?: (result, ctx: { prisma; op: 'create' | 'update' | 'delete'; id? }) => any;
+```
+
+Called with the persisted record right after Prisma writes it. Whatever you return is sent as the response. `ctx.id` is set for updates and deletes, `undefined` for creates.
+
+For upsert operations the `op` is resolved to `'create'` or `'update'` based on whether a matching record existed before the operation — so your hook always receives a specific op, never `'upsert'`.
+
+Typical use: trigger side-effects after a write, such as sending a notification or invalidating a cache:
+
+```ts
+const hooks: ResourceHooks = {
+  afterWrite: async (result, ctx) => {
+    if (ctx.op === 'create') {
+      await notify(`New book created: ${result.title}`);
+    }
+    return result;
   },
 };
 ```

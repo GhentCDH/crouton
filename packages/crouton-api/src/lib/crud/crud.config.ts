@@ -1,6 +1,12 @@
 import { type ZodObject, type ZodRawShape } from 'zod';
 
-import type { CalculatedColumn, FieldInput, JsonAction, JsonActionCondition, JsonIncludeEntry } from './loader/json-config.types';
+import type {
+  CalculatedColumn,
+  FieldInput,
+  JsonAction,
+  JsonActionCondition,
+  JsonIncludeEntry
+} from './loader/json-config.types';
 
 export type ResourceProcedureAction = {
   type?: 'procedure';
@@ -59,7 +65,9 @@ export type ResourceTableLinkAction = {
   href: string;
 };
 
-export type ResourceTableAction = ResourceTableProcedureAction | ResourceTableLinkAction;
+export type ResourceTableAction =
+  | ResourceTableProcedureAction
+  | ResourceTableLinkAction;
 
 export type CrudOperation =
   | 'findAll'
@@ -81,32 +89,48 @@ export interface JsonSchemaInput {
 /** @deprecated Use `JsonSchemaInput` instead — `JsonSchema` clashes with the `@jsonforms/core` type of the same name. */
 export type JsonSchema = JsonSchemaInput;
 
-export type WriteOp = 'create' | 'update' | 'upsert';
+export type WriteOp = 'create' | 'update' | 'upsert' | 'delete';
 export type ReadOp = 'findAll' | 'findOne';
 
-export interface WriteHookContext {
-  prisma: any;
+export interface WriteHookContext<PRISMACLIENT> {
+  prisma: PRISMACLIENT;
   op: WriteOp;
   /** The record id for `update`; `undefined` for `create`/`upsert`. */
   id?: string | number;
 }
 
-export interface ReadHookContext {
-  prisma: any;
+export interface ReadHookContext<PRISMACLIENT> {
+  prisma: PRISMACLIENT;
   op: ReadOp;
 }
 
-export interface ResourceHooks {
+export interface ResourceHooks<PRISMACLIENT = any> {
   /**
    * Runs before the data is passed to Prisma for create/update/upsert.
    * Use this to connect-or-create related entities.
    */
-  beforeWrite?: (data: any, ctx: WriteHookContext) => Promise<any> | any;
+  beforeWrite?: (
+    data: any,
+    ctx: WriteHookContext<PRISMACLIENT>,
+  ) => Promise<any> | any;
+  /**
+   * Runs after Prisma has persisted the record for create/update/delete.
+   * For upsert the op is resolved to `'create'` or `'update'` depending on
+   * whether a matching record existed before the operation.
+   * Receives the persisted record; the return value replaces the response.
+   */
+  afterWrite?: (
+    result: any,
+    ctx: WriteHookContext<PRISMACLIENT>,
+  ) => Promise<any> | any;
   /**
    * Runs on every row returned by findAll / findOne. Use this to
    * decorate rows with derived fields (e.g. URIs).
    */
-  afterRead?: (row: any, ctx: ReadHookContext) => Promise<any> | any;
+  afterRead?: (
+    row: any,
+    ctx: ReadHookContext<PRISMACLIENT>,
+  ) => Promise<any> | any;
 }
 
 /**
@@ -202,7 +226,9 @@ export type SubResourceConfig = {
   /** View schemas (table/form/view) for the child resource. */
   views?: Record<string, ViewConfig>;
   /** Enabled operations on the child resource. */
-  operations?: Partial<Record<'findAll' | 'findOne' | 'create' | 'update' | 'delete', boolean>>;
+  operations?: Partial<
+    Record<'findAll' | 'findOne' | 'create' | 'update' | 'delete', boolean>
+  >;
   /** Actions declared in the child resource.json (serializable form, no procedure functions). */
   actions?: JsonAction[];
   /** Modal width when opening a form for this sub-resource. */

@@ -71,6 +71,11 @@ export class WriteRepository<T = any> {
     return hook ? hook(normalized, { prisma: this.prisma, op, id }) : normalized;
   }
 
+  private async postWrite(result: any, op: WriteOp, id?: string | number): Promise<any> {
+    const hook = this.config.hooks?.afterWrite;
+    return hook ? hook(result, { prisma: this.prisma, op, id }) : result;
+  }
+
   private upsertWhere(data: any): Record<string, unknown> {
     const keys = upsertOnFor(resolveDefinition(this.config));
     if (!keys) throw new BadRequestException(`${this.config.name} has no upsertOn configured`);
@@ -80,18 +85,20 @@ export class WriteRepository<T = any> {
   }
 
   async create(data: unknown): Promise<T> {
-    return this.prismaModel.create({
+    const result = await this.prismaModel.create({
       data: await this.prepare(this.stripSubResourceKeys(data), 'create'),
     });
+    return this.postWrite(result, 'create');
   }
 
   async update(id: number | string, data: unknown): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      return await this.prismaModel.update({
+      const result = await this.prismaModel.update({
         where: { [idField]: this.toId(id) },
         data: await this.prepare(this.stripSubResourceKeys(data), 'update', this.toId(id)),
       });
+      return this.postWrite(result, 'update', this.toId(id));
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
@@ -99,8 +106,12 @@ export class WriteRepository<T = any> {
   }
 
   async upsert(data: unknown): Promise<T> {
-    const prepared = await this.prepare(this.stripSubResourceKeys(data), 'upsert');
-    return this.prismaModel.upsert({ where: this.upsertWhere(data), create: prepared, update: prepared });
+    const where = this.upsertWhere(data);
+    const existing = await this.prismaModel.findFirst({ where });
+    const op: WriteOp = existing ? 'update' : 'create';
+    const prepared = await this.prepare(this.stripSubResourceKeys(data), op, existing ? existing[this.config.idField ?? DEFAULT_ID_FIELD] : undefined);
+    const result = await this.prismaModel.upsert({ where, create: prepared, update: prepared });
+    return this.postWrite(result, op, existing ? existing[this.config.idField ?? DEFAULT_ID_FIELD] : undefined);
   }
 
   /** Upsert multiple rows in parallel. */
@@ -111,7 +122,8 @@ export class WriteRepository<T = any> {
   async delete(id: number | string): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      return await this.prismaModel.delete({ where: { [idField]: this.toId(id) } });
+      const result = await this.prismaModel.delete({ where: { [idField]: this.toId(id) } });
+      return this.postWrite(result, 'delete', this.toId(id));
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
@@ -140,7 +152,10 @@ export class WriteRepository<T = any> {
       ),
       [sub.foreignKey]: this.toId(parentId),
     };
-    return childModel.create({ data: prismaData });
+    const result = await childModel.create({ data: prismaData });
+    return sub.hooks?.afterWrite
+      ? sub.hooks.afterWrite(result, { prisma: this.prisma, op: 'create' })
+      : result;
   }
 
   /**
@@ -163,7 +178,10 @@ export class WriteRepository<T = any> {
       Object.entries(afterHook as Record<string, unknown>).filter(([k]) => !includeKeys.has(k)),
     );
     try {
-      return await childModel.update({ where: { [sub.idField ?? DEFAULT_ID_FIELD]: id }, data: prepared });
+      const result = await childModel.update({ where: { [sub.idField ?? DEFAULT_ID_FIELD]: id }, data: prepared });
+      return sub.hooks?.afterWrite
+        ? sub.hooks.afterWrite(result, { prisma: this.prisma, op: 'update', id })
+        : result;
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
       throw e;
@@ -187,7 +205,9 @@ export class WriteRepository<T = any> {
     try {
       const result = await childModel.deleteMany({ where });
       if (result.count === 0) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
-      return result;
+      return sub.hooks?.afterWrite
+        ? sub.hooks.afterWrite(result, { prisma: this.prisma, op: 'delete', id })
+        : result;
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
       throw e;
