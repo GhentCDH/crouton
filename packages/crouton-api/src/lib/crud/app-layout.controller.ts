@@ -44,6 +44,7 @@ const buildLayoutPayload = (
   configs: ResourceConfig[],
   sidebarGroups: Record<string, SidebarGroupConfig> = {},
   title?: string,
+  autoSave = true,
 ) => {
   const visible = configs.filter(
     (c) => c.sidebar?.hide !== true && c.views?.['table'],
@@ -103,15 +104,16 @@ const buildLayoutPayload = (
   // Merge top-level items and groups, sort together.
   const sidebar: SidebarNode[] = [...topLevel, ...groups].sort(byPosition);
 
-  return { sidebar, title };
+  return { sidebar, title, autoSave };
 };
 
 export const createAppLayoutController = (
   configs: ResourceConfig[],
   sidebarGroups: Record<string, SidebarGroupConfig> = {},
   title?: string,
+  autoSave = true,
 ) => {
-  const layoutPayload = buildLayoutPayload(configs, sidebarGroups, title);
+  const layoutPayload = buildLayoutPayload(configs, sidebarGroups, title, autoSave);
 
   @Controller('_app')
   @ApiTags('App')
@@ -124,7 +126,7 @@ export const createAppLayoutController = (
     async getLayout() {
       if (IS_DEV) {
         const fresh = await this.configRegistry.getAll();
-        return buildLayoutPayload(fresh, sidebarGroups, title);
+        return buildLayoutPayload(fresh, sidebarGroups, title, autoSave);
       }
       return layoutPayload;
     }

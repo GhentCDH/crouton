@@ -15,6 +15,13 @@ export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
 export const AppConfig = {
   VERSION: 'unknown',
   title: 'Crouton',
+  /**
+   * Whether form fields are saved automatically on edit.
+   * Served by the backend via `GET /_app/layout` and mirrors `autoSave` in
+   * `crouton.json`. Defaults to `true`; set to `false` in `crouton.json` to
+   * restore explicit Save/Cancel buttons across the whole application.
+   */
+  autoSave: true,
   /** Extra control renderers merged on top of the built-in crouton renderers in form/edit modals. */
   renderers: [] as JsonFormsRendererRegistryEntry[],
   /** Extra renderers merged on top of the built-in crouton renderers in view (readonly) modals. */
@@ -42,6 +49,10 @@ export const useCrouton = () => {
         if (res.data.title && !_config.title) {
           config.value = { ...config.value, title: res.data.title };
         }
+        // autoSave from the backend wins unless the consumer passed an explicit override.
+        if (res.data.autoSave !== undefined && _config.autoSave === undefined) {
+          config.value = { ...config.value, autoSave: res.data.autoSave };
+        }
       })
       .catch(() => {
         console.error('no layout');
@@ -56,6 +67,7 @@ export const useCrouton = () => {
     },
     version: computed(() => config.value.VERSION),
     title: computed(() => config.value.title),
+    autoSave: computed(() => config.value.autoSave),
     /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
     get renderers() {
       return config.value.renderers;

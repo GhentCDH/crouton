@@ -1,6 +1,6 @@
 <template>
   <ControlWrapper v-bind="wrapper">
-    <div v-if="message" class="text-sm text-secondary italic py-2">
+    <div v-if="message" class="text-sm text-gray-500 italic py-2">
       {{ message }}
     </div>
     <div v-if="!message && resource">

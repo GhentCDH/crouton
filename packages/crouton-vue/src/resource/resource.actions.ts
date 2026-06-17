@@ -123,36 +123,60 @@ const openEditModal =
 
     handleEvent(isUpdate ? 'update' : 'create', { id: recordId });
 
-    JsonFormModalService.openModal({
+    const crouton = useCrouton();
+    const autoSaveEnabled = crouton.autoSave.value;
+    const renderers = [...customControlRenderers, ...crouton.renderers];
+
+    const sharedProps = {
       schema: form.data,
       uiSchema: form.ui,
       modalSize: formDef.modalSize ?? 'lg',
       initialData: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
-      renderers: [...customControlRenderers, ...useCrouton().renderers],
-      onEvents: (event) => {
+      renderers,
+      onEvents: (event: any) => {
         if (event.event === 'update-relation') {
-          // TODO this one should be reloaded the edit modal
+          // TODO this one should reload the edit modal
           console.warn('Reload the data related to this', event);
         }
       },
-      onClose: (result: FormModalResult) => {
-        if (result && result.valid) {
-          const data = result.data;
-          const promise = isUpdate
-            ? api.save(recordId, data)
-            : api.create(data);
+    } as const;
 
-          promise.then((response) => {
-            if (response) resource.reload();
-          });
-          handleEvent('close', result.data);
-        } else {
+    if (autoSaveEnabled && isUpdate) {
+      // ── Auto-save mode (edit only) ────────────────────────────────────────
+      JsonFormModalService.openModal({
+        ...sharedProps,
+        autoSave: true,
+        onAutoSave: (data: any) => api.save(recordId, data),
+        onClose: () => {
+          resource.reload();
           handleEvent('close', {});
-        }
-      },
-    });
+        },
+      });
+    } else {
+      // ── Explicit save mode ────────────────────────────────────────────────
+      // Always used for create; also used for update when autoSave is disabled.
+      JsonFormModalService.openModal({
+        ...sharedProps,
+        saveLabel: isUpdate ? 'Save' : 'Create',
+        onClose: (result: FormModalResult) => {
+          if (result && result.valid) {
+            const data = result.data;
+            const promise = isUpdate
+              ? api.save(recordId, data)
+              : api.create(data);
+
+            promise.then((response) => {
+              if (response) resource.reload();
+            });
+            handleEvent('close', result.data);
+          } else {
+            handleEvent('close', {});
+          }
+        },
+      });
+    }
   };
 
 export const backendAction = (
@@ -293,11 +317,11 @@ export const resourceModals = (
       typeof id === 'string'
         ? id
         : String((id as Record<string, unknown>)[formDef.idField]);
-
     api
       .getOneById(_id)
       .then((data) => fn(data))
       .catch((error) => {
+        console.error(error);
         NotificationService.error('Something went wrong, please try again');
       });
   };

@@ -79,7 +79,7 @@ export const resourceApi = (
   const save = (id: string, data: any) =>
     apiCall(formDef, 'update', { ...defaultUriParams, id, [idField]: id }, data)
       .then((response) => {
-        NotificationService.success('Data saved');
+        // NotificationService.success('Data saved');
         return response.data;
       })
       .catch((error) => {
@@ -91,7 +91,7 @@ export const resourceApi = (
   const create = (data: any) =>
     apiCall(formDef, 'create', defaultUriParams, data)
       .then((response) => {
-        NotificationService.success('Data saved');
+        // NotificationService.success('Data saved');
         return response.data;
       })
       .catch((error) => {

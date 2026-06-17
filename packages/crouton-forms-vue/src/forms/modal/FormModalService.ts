@@ -19,6 +19,9 @@ export class JsonFormModalService {
     onEvents,
     http,
     renderers,
+    autoSave,
+    onAutoSave,
+    onRefreshData,
   }: {
     initialData?: DATA;
     schema: any;
@@ -29,6 +32,10 @@ export class JsonFormModalService {
     onEvents?: (payload: FormEventPayload) => void;
     http?: HttpClient;
     renderers?: any[];
+    /** Enable auto-save mode. Replaces Save/Cancel with Close + status indicator. */
+    autoSave?: boolean;
+    /** Called with form data on each debounced save. Required when `autoSave` is true. */
+    onAutoSave?: (data: DATA) => Promise<any>;
   }) {
     ModalService.openModal<FormModalProp, FormModalResult>({
       component: FormModal,
@@ -42,6 +49,8 @@ export class JsonFormModalService {
         onEvents,
         http,
         renderers,
+        autoSave: autoSave ?? false,
+        onAutoSave,
       },
     });
   }

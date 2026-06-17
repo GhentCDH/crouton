@@ -17,6 +17,8 @@ export * from './forms/renderers/controls/composables/useReadonlyBinding';
 export { useDisplayValue } from './forms/renderers/controls/readonly/useDisplayValue';
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
+export { useAutoSave } from './composables/useAutoSave';
+export type { AutoSaveStatus, UseAutoSaveOptions, UseAutoSaveReturn } from './composables/useAutoSave';
 
 // Components
 export { default as JsonForm } from './forms/FormComponent.vue';

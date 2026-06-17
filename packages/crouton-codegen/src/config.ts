@@ -53,6 +53,15 @@ export interface CroutonConfig {
    * ```
    */
   sidebarGroups?: Record<string, SidebarGroupConfig>;
+  /**
+   * Whether form fields are saved automatically as the user edits them.
+   * When `true` (default) the Save button is replaced by auto-save with a
+   * status indicator. Set to `false` to restore explicit Save/Cancel buttons
+   * across the whole application.
+   *
+   * @default true
+   */
+  autoSave?: boolean;
 }
 
 export interface ResolvedDatasource {

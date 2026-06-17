@@ -30,6 +30,13 @@ type CroutonConfig = {
    * Displayed in the admin sidebar header.
    */
   title?: string;
+  /**
+   * Whether form fields are saved automatically as the user edits them.
+   * Served to the frontend via `GET /_app/layout`. Defaults to `true`.
+   * Set to `false` to restore explicit Save/Cancel buttons across the app.
+   * Matches `autoSave` in `crouton.json`.
+   */
+  autoSave?: boolean;
 };
 @Module({
   controllers: [],
@@ -47,7 +54,7 @@ export class CroutonApiModule {
     const configRegistry = new ResourceConfigRegistry(loader, configs);
     const controllers = [
       ...configs.map((c) => createCrudController(c, config.baseUrl)),
-      createAppLayoutController(configs, config.sidebarGroups, config.title),
+      createAppLayoutController(configs, config.sidebarGroups, config.title, config.autoSave ?? true),
     ];
 
     return {

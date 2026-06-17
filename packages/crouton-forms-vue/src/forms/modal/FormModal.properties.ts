@@ -45,6 +45,23 @@ export const FormModalProperties = {
     type: Array as PropType<any[]>,
     default: null,
   },
+  /**
+   * When true, form changes are saved automatically (debounced) instead of
+   * requiring an explicit Save button click. Save/Cancel are replaced by a
+   * Close button with a status indicator. Requires `onAutoSave`.
+   */
+  autoSave: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * Called with the current form data whenever the debounce fires and the form
+   * is valid. Should return a promise. Only used when `autoSave` is true.
+   */
+  onAutoSave: {
+    type: Function as PropType<(data: any) => Promise<any>>,
+    default: null,
+  },
 };
 
 export type FormModalProp = ExtractPublicPropTypes<typeof FormModalProperties>;
