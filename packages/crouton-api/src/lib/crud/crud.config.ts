@@ -104,7 +104,7 @@ export interface ReadHookContext<PRISMACLIENT> {
   op: ReadOp;
 }
 
-export interface ResourceHooks<PRISMACLIENT> {
+export interface ResourceHooks<PRISMACLIENT = any> {
   /**
    * Runs before the data is passed to Prisma for create/update/upsert.
    * Use this to connect-or-create related entities.
