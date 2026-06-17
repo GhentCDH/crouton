@@ -1,4 +1,4 @@
-import { inject, type InjectionKey, provide } from 'vue';
+import { type InjectionKey, inject, provide } from 'vue';
 
 /**
  * Event names that renderers can dispatch up to the form host. Expand this

@@ -2,7 +2,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
 import {
-  FormEvents,
+  type FormEvents,
   useControlBinding,
   useFormEvents,
 } from '@ghentcdh/crouton-forms-vue';
