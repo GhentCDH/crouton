@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { labelFromId, type SidebarGroupConfig } from '@ghentcdh/crouton-core';
+import { type SidebarGroupConfig, labelFromId } from '@ghentcdh/crouton-core';
 
 import { type ResourceConfig } from './crud.config';
 import { IS_DEV } from './dev-mode';

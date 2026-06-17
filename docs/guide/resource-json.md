@@ -1,6 +1,7 @@
 # resource.json
 
-Each resource is described by a `resource.json` file in its own directory under `resources/`. This one file drives the API endpoints, validation wiring, table columns, form fields, and filters.
+Each resource is described by a `resource.json` file in its own directory under `resources/`. This one file drives the
+API endpoints, validation wiring, table columns, form fields, and filters.
 
 ## A complete example
 
@@ -12,7 +13,11 @@ Each resource is described by a `resource.json` file in its own directory under 
   "tag": "Book",
   "title": "Books",
   "database": "maindb",
-  "sidebar": { "position": 1, "label": "Books", "group": "catalogue" },
+  "sidebar": {
+    "position": 1,
+    "label": "Books",
+    "group": "catalogue"
+  },
   "operations": {
     "findAll": true,
     "findOne": true,
@@ -34,7 +39,9 @@ Each resource is described by a `resource.json` file in its own directory under 
     },
     "summary": {
       "hiddenInTable": true,
-      "fieldInput": { "type": "textarea" }
+      "fieldInput": {
+        "type": "textarea"
+      }
     },
     "created_at": {
       "hiddenInTable": true,
@@ -48,57 +55,40 @@ Each resource is described by a `resource.json` file in its own directory under 
 
 ## Top-level fields
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `name` | `string` | Unique resource name (used as form id in the frontend) |
-| `route` | `string` | URL segment for the generated endpoints |
-| `model` | `string` | Prisma model name |
-| `tag` | `string` | OpenAPI tag |
-| `title` | `string` | Display title in the UI |
-| `table` | `string` | Database table (when it differs from the model) |
-| `idType` | `'number' \| 'string'` | Type of the id field (default `number`) |
-| `database` | `string` | Name of the [data source](./datasource.md) to use |
-| `sidebar` | object | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
-| `operations` | object | Enable `findAll`, `findOne`, `create`, `update`, `upsert`, `delete` |
-| `columns` | map or array | Column definitions, see below |
-| `calculatedColumns` | array | SQL-computed read-only columns, see below |
-| `actions` | array | Row-level [actions](./actions.md) |
-| `tableActions` | array | Table-level [actions](./actions.md) |
-| `modalSize` | `'xs' \| 'sm' \| 'lg' \| 'xl'` | Size of the create/edit modal |
-| `include` | array | Relations to eagerly load, see below |
+| Field               | Type                           | Description                                                          |
+|---------------------|--------------------------------|----------------------------------------------------------------------|
+| `name`              | `string`                       | Unique resource name (used as form id in the frontend)               |
+| `route`             | `string`                       | URL segment for the generated endpoints                              |
+| `model`             | `string`                       | Prisma model name                                                    |
+| `tag`               | `string`                       | OpenAPI tag                                                          |
+| `title`             | `string`                       | Display title in the UI                                              |
+| `table`             | `string`                       | Database table (when it differs from the model)                      |
+| `idType`            | `'number' \| 'string'`         | Type of the id field (default `number`)                              |
+| `database`          | `string`                       | Name of the [data source](./datasource.md) to use                    |
+| `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
+| `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `upsert`, `delete`  |
+| `columns`           | map or array                   | Column definitions, see below                                        |
+| `calculatedColumns` | array                          | SQL-computed read-only columns, see below                            |
+| `actions`           | array                          | Row-level [actions](./actions.md)                                    |
+| `tableActions`      | array                          | Table-level [actions](./actions.md)                                  |
+| `modalSize`         | `'xs' \| 'sm' \| 'lg' \| 'xl'` | Size of the create/edit modal                                        |
+| `include`           | array                          | Relations to eagerly load, see below                                 |
 
 ## Columns
 
-| Option | Description |
-| --- | --- |
-| `idField` | Marks the id column |
-| `label` / `hideLabel` | Display label, or hide it |
-| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context |
-| `sortable` / `defaultSort` | Sorting; `sortId` overrides the sort column |
-| `searchable` | Included in free-text search |
-| `filterable` | Gets a filter control |
-| `createable` / `updateable` | Whether the field is written on create/update |
-| `showWhen` / `hideWhen` / `disabledWhen` | Conditional display: `{ "field": "...", "eq"/"neq"/"exists": ... }` |
-| `displayKey` | Nested field to display (e.g. `author.name`) |
-| `showInLookup` | Shown in autocomplete lookups of this resource |
-| `enum` | Name of a shared [enum registry](./cli.md#enum-registry) list whose `{ value, label }` options back this column |
-| `fieldInput` | Form control configuration, see below |
-
-### Enum columns
-
-Reference a shared option list by name instead of inlining values. The list is defined once in `crouton.enums.json` and injected at load time:
-
-```json
-{
-  "text_type": {
-    "enum": "text_type_enum",
-    "displayKey": "label",
-    "fieldInput": { "options": { "emitObject": true } }
-  }
-}
-```
-
-The table shows the `label`; forms submit the underlying scalar `value`. See the [enum registry](./cli.md#enum-registry) for how the lists are defined and shared.
+| Option                                            | Description                                                         |
+|---------------------------------------------------|---------------------------------------------------------------------|
+| `idField`                                         | Marks the id column                                                 |
+| `label` / `hideLabel`                             | Display label, or hide it                                           |
+| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context                                              |
+| `sortable` / `defaultSort`                        | Sorting; `sortId` overrides the sort column                         |
+| `searchable`                                      | Included in free-text search                                        |
+| `filterable`                                      | Gets a filter control                                               |
+| `createable` / `updateable`                       | Whether the field is written on create/update                       |
+| `showWhen` / `hideWhen` / `disabledWhen`          | Conditional display: `{ "field": "...", "eq"/"neq"/"exists": ... }` |
+| `displayKey`                                      | Nested field to display (e.g. `author.name`)                        |
+| `showInLookup`                                    | Shown in autocomplete lookups of this resource                      |
+| `fieldInput`                                      | Form control configuration, see below                               |
 
 ### Field inputs
 
@@ -110,14 +100,17 @@ The table shows the `label`; forms submit the underlying scalar `value`. See the
   "fieldInput": {
     "type": "textarea",
     "position": 2,
-    "options": { "colspan": 4 }
+    "options": {
+      "colspan": 4
+    }
   }
 }
 ```
 
 ## Relations (sub-resources)
 
-A relation is configured as a column with `fieldInput.format: "relation"` pointing to a sub-resource file in the same directory:
+A relation is configured as a column with `fieldInput.format: "relation"` pointing to a sub-resource file in the same
+directory:
 
 ```json
 {
@@ -130,9 +123,11 @@ A relation is configured as a column with `fieldInput.format: "relation"` pointi
 }
 ```
 
-`resource.author.json` then describes the related resource (its columns, operations, and lookup display). Supported `relationType` values: `oneToOne`, `manyToOne`, `oneToMany`, `manyToMany`.
+`resource.author.json` then describes the related resource (its columns, operations, and lookup display). Supported
+`relationType` values: `oneToOne`, `manyToOne`, `oneToMany`, `manyToMany`.
 
-The frontend picks the matching control automatically — an autocomplete for `manyToOne`, an editable nested table for `oneToMany`, and so on.
+The frontend picks the matching control automatically — an autocomplete for `manyToOne`, an editable nested table for
+`oneToMany`, and so on.
 
 ## Calculated columns
 
@@ -160,7 +155,12 @@ Eagerly load relations with the list/detail queries:
 {
   "include": [
     "author",
-    { "relation": "chapters", "include": ["sections"] }
+    {
+      "relation": "chapters",
+      "include": [
+        "sections"
+      ]
+    }
   ]
 }
 ```
@@ -169,22 +169,26 @@ Eagerly load relations with the list/detail queries:
 
 The `sidebar` object controls how (and whether) a resource appears in the admin navigation. All fields are optional.
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `hide` | `boolean` | Exclude this resource from the sidebar entirely (default `false`) |
-| `position` | `number` | Order within its group or at the top level. Lower values come first; resources without a position are sorted alphabetically after positioned ones. |
-| `label` | `string` | Override the sidebar label. Defaults to the resource `title`. |
-| `group` | `string` | Slug of a group defined in `sidebarGroups` in `crouton.config.json`. Resources with the same `group` are nested under a shared collapsible section. |
+| Field      | Type      | Description                                                                                                                                        |
+|------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `hide`     | `boolean` | Exclude this resource from the sidebar entirely (default `false`)                                                                                  |
+| `position` | `number`  | Order within its group or at the top level. Lower values come first; resources without a position are sorted alphabetically after positioned ones. |
+| `label`    | `string`  | Override the sidebar label. Defaults to the resource `title`.                                                                                      |
+| `group`    | `string`  | Slug of a group defined in `sidebarGroups` in `crouton.json`. Resources with the same `group` are nested under a shared collapsible section.       |
 
-Group labels and ordering are configured centrally in `crouton.config.json`, not per resource. See [Sidebar groups](#sidebar-groups) below.
+Group labels and ordering are configured centrally in `crouton.json`, not per resource.
+See [Sidebar groups](#sidebar-groups) below.
 
 ### Example — grouping metadata resources
 
 ```json
-// crouton.config.json
+// crouton.json
 {
   "sidebarGroups": {
-    "metadata": { "label": "Metadata", "position": 10 }
+    "metadata": {
+      "label": "Metadata",
+      "position": 10
+    }
   }
 }
 ```
@@ -193,7 +197,11 @@ Group labels and ordering are configured centrally in `crouton.config.json`, not
 // author.resource.json
 {
   "name": "author",
-  "sidebar": { "label": "Authors", "group": "metadata", "position": 1 }
+  "sidebar": {
+    "label": "Authors",
+    "group": "metadata",
+    "position": 1
+  }
 }
 ```
 
@@ -201,7 +209,11 @@ Group labels and ordering are configured centrally in `crouton.config.json`, not
 // genre.resource.json
 {
   "name": "genre",
-  "sidebar": { "label": "Genres", "group": "metadata", "position": 2 }
+  "sidebar": {
+    "label": "Genres",
+    "group": "metadata",
+    "position": 2
+  }
 }
 ```
 
@@ -216,24 +228,32 @@ Texts
 
 ## Sidebar groups
 
-Groups are defined in `crouton.config.json` under `sidebarGroups`, keyed by slug:
+Groups are defined in `crouton.json` under `sidebarGroups`, keyed by slug:
 
 ```json
 {
   "sidebarGroups": {
-    "metadata": { "label": "Metadata", "position": 10 },
-    "admin":    { "label": "Admin",    "position": 20 }
+    "metadata": {
+      "label": "Metadata",
+      "position": 10
+    },
+    "admin": {
+      "label": "Admin",
+      "position": 20
+    }
   }
 }
 ```
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `label` | `string` | Heading shown in the sidebar. Defaults to a title-cased version of the slug. |
-| `position` | `number` | Order of this group among top-level sidebar items. |
+| Field      | Type     | Description                                                                  |
+|------------|----------|------------------------------------------------------------------------------|
+| `label`    | `string` | Heading shown in the sidebar. Defaults to a title-cased version of the slug. |
+| `position` | `number` | Order of this group among top-level sidebar items.                           |
 
-Keeping groups in the config file instead of individual resource files ensures label and ordering are defined exactly once and can't drift out of sync.
+Keeping groups in the config file instead of individual resource files ensures label and ordering are defined exactly
+once and can't drift out of sync.
 
 ## Escape hatch: resource.ts
 
-When JSON is not expressive enough, replace `resource.json` with a `resource.ts` that default-exports a full `ResourceConfig` object. The loader falls back to it automatically when no `resource.json` is present.
+When JSON is not expressive enough, replace `resource.json` with a `resource.ts` that default-exports a full
+`ResourceConfig` object. The loader falls back to it automatically when no `resource.json` is present.

@@ -21,7 +21,7 @@ type CroutonConfig = {
   enumsFile?: string;
   /**
    * Sidebar group definitions, keyed by group slug.
-   * Matches `sidebarGroups` in `crouton.config.json`.
+   * Matches `sidebarGroups` in `crouton.json`.
    * Resources reference a group via `sidebar.group` in their `resource.json`.
    */
   sidebarGroups?: Record<string, SidebarGroupConfig>;
@@ -60,8 +60,16 @@ export class CroutonApiModule {
     dataSourcesPath: string,
     config: CroutonConfig,
   ): Promise<DynamicModule> {
-    const loader = new FileSystemResourceConfigLoader(dirPath, config.baseUrl, config.enumsFile);
-    const configs = await loadResourceConfigsFromDir(dirPath, config.baseUrl, config.enumsFile);
+    const loader = new FileSystemResourceConfigLoader(
+      dirPath,
+      config.baseUrl,
+      config.enumsFile,
+    );
+    const configs = await loadResourceConfigsFromDir(
+      dirPath,
+      config.baseUrl,
+      config.enumsFile,
+    );
     const dataSources = await loadDataSourcesFromDir(dataSourcesPath);
     return CroutonApiModule.forResources(configs, dataSources, loader, config);
   }

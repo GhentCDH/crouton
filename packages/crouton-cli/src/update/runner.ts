@@ -7,25 +7,20 @@
  * `@ghentcdh/crouton-codegen` engine; this module is just the interactive shell.
  */
 
-
 import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
 import {
-  type ApplyContext,
-  type DbModel,
-  type EnumRegistry,
-  type LoadedConfig,
-  type ResolvedDatasource,
-  type ResolvedDiff,
-  type WritePlan,
   apply,
+  type ApplyContext,
   buildEnumRegistry,
   buildResourceDiffs,
   commit,
+  type DbModel,
+  type EnumRegistry,
   introspect,
   loadConfig,
-  loadDatasources,
+  type LoadedConfig,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
@@ -33,18 +28,25 @@ import {
   recommendedResolver,
   resolve as resolveDiff,
   resolveDatasource,
+  type ResolvedDiff,
   resolveFromRoot,
   resolveRuleset,
   resourceNames,
   scaffoldConfigFromProject,
   serializeEnumRegistry,
+  type WritePlan,
 } from '@ghentcdh/crouton-codegen';
 
 import { formatResourceChange } from './preview';
-import { backupSchema, isGitDirty, prismaDbPull, prismaGenerate } from './prisma';
+import {
+  backupSchema,
+  isGitDirty,
+  prismaDbPull,
+  prismaGenerate,
+} from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve as pathResolve } from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, resolve as pathResolve } from 'node:path';
 
 export interface UpdateResourcesOptions {
   cwd?: string;
@@ -61,49 +63,54 @@ const assertNotCancel = <T>(value: T | symbol): T => {
   return value as T;
 };
 
-const loadOrScaffoldConfig = async (cwd: string, yes: boolean): Promise<LoadedConfig> => {
+const loadOrScaffoldConfig = async (
+  cwd: string,
+  yes: boolean,
+): Promise<LoadedConfig> => {
   try {
     return await loadConfig(cwd);
   } catch {
-    clack.log.warn('No crouton.json found.');
-    const { config, datasources, notes } = await scaffoldConfigFromProject(cwd);
+    clack.log.warn('No crouton.config found.');
+    const { config, notes } = await scaffoldConfigFromProject(cwd);
     for (const n of notes) clack.log.info(n);
     clack.log.message(pc.dim(JSON.stringify(config, null, 2)));
     const write = yes
       ? true
-      : assertNotCancel(await clack.confirm({ message: 'Write this crouton.json (+ data-source.json files)?', initialValue: true }));
+      : assertNotCancel(
+          await clack.confirm({
+            message: 'Write this crouton.json?',
+            initialValue: true,
+          }),
+        );
     if (!write) throw new CancelledError();
-
     const path = join(cwd, 'crouton.json');
     await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, 'utf-8');
-    // Write a self-describing data-source.json per discovered/proposed datasource.
-    for (const { folder, ...ds } of datasources) {
-      const dsPath = join(cwd, config.dataSourcesDir, folder, 'data-source.json');
-      await mkdir(dirname(dsPath), { recursive: true });
-      await writeFile(dsPath, `${JSON.stringify(ds, null, 2)}\n`, 'utf-8');
-    }
-    clack.log.success(`Wrote ${path} + ${datasources.length} data-source.json`);
+    clack.log.success(`Wrote ${path}`);
     return { config, path, root: cwd };
   }
 };
 
 const pickDatasource = async (
-  datasources: ResolvedDatasource[],
+  loaded: LoadedConfig,
   requested: string | undefined,
   yes: boolean,
-): Promise<ResolvedDatasource> => {
-  const hasDefault = datasources.some((d) => d.default);
-  if (requested || datasources.length === 1 || hasDefault) {
-    return resolveDatasource(datasources, requested);
+) => {
+  const names = Object.keys(loaded.config.datasources);
+  if (
+    requested ||
+    names.length === 1 ||
+    names.some((n) => loaded.config.datasources[n].default)
+  ) {
+    return resolveDatasource(loaded.config, requested);
   }
-  if (yes) return resolveDatasource(datasources, datasources[0]?.name);
+  if (yes) return resolveDatasource(loaded.config, names[0]);
   const chosen = assertNotCancel(
     await clack.select({
       message: 'Which datasource?',
-      options: datasources.map((d) => ({ value: d.name, label: d.name })),
+      options: names.map((n) => ({ value: n, label: n })),
     }),
   ) as string;
-  return resolveDatasource(datasources, chosen);
+  return resolveDatasource(loaded.config, chosen);
 };
 
 const pickModels = async (
@@ -113,16 +120,27 @@ const pickModels = async (
   yes: boolean,
 ): Promise<DbModel[]> => {
   if (filter) {
-    const wanted = new Set(filter.split(',').map((s) => s.trim()).filter(Boolean));
+    const wanted = new Set(
+      filter
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
     return models.filter(
-      (m) => wanted.has(m.prismaName) || wanted.has(resourceNames(m.prismaName).name),
+      (m) =>
+        wanted.has(m.prismaName) ||
+        wanted.has(resourceNames(m.prismaName).name),
     );
   }
   if (yes) return models;
   const existing = new Set(
-    (await Promise.all(models.map((m) => readExistingResource(loaded, resourceNames(m.prismaName).name)))).flatMap(
-      (r, i) => (r.config ? [models[i].prismaName] : []),
-    ),
+    (
+      await Promise.all(
+        models.map((m) =>
+          readExistingResource(loaded, resourceNames(m.prismaName).name),
+        ),
+      )
+    ).flatMap((r, i) => (r.config ? [models[i].prismaName] : [])),
   );
   const selected = assertNotCancel(
     await clack.multiselect({
@@ -139,16 +157,16 @@ const pickModels = async (
   return models.filter((m) => selected.includes(m.prismaName));
 };
 
-export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<void> => {
+export const runUpdateResources = async (
+  opts: UpdateResourcesOptions,
+): Promise<void> => {
   const cwd = pathResolve(opts.cwd ?? process.cwd());
   clack.intro(pc.bold('crouton update resources'));
 
   try {
     const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes);
-    const datasources = await loadDatasources(loaded);
-    const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
+    const ds = await pickDatasource(loaded, opts.datasource, !!opts.yes);
     const schemaAbs = resolveFromRoot(loaded.root, ds.prismaSchema);
-    const configAbs = resolveFromRoot(loaded.root, ds.prismaConfig);
 
     if (!opts.skipPull) {
       if (await isGitDirty(loaded.root, schemaAbs)) {
@@ -165,7 +183,7 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
       await backupSchema(schemaAbs);
       const spin = clack.spinner();
       spin.start(`prisma db pull (${ds.name})`);
-      const pull = await prismaDbPull(loaded.root, configAbs);
+      const pull = await prismaDbPull(loaded.root, schemaAbs);
       spin.stop(pull.ok ? 'Schema pulled' : 'db pull failed');
       if (!pull.ok) {
         clack.log.error(pull.output);
@@ -177,7 +195,7 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
     if (!opts.skipGenerate) {
       const spin = clack.spinner();
       spin.start('prisma generate');
-      const gen = await prismaGenerate(loaded.root, configAbs);
+      const gen = await prismaGenerate(loaded.root, schemaAbs);
       spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
       if (!gen.ok) clack.log.warn(gen.output);
     }
@@ -195,13 +213,19 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
     const enumsPath = resolveFromRoot(loaded.root, enumsRel);
     let existingEnums: EnumRegistry = {};
     try {
-      existingEnums = JSON.parse(await readFile(enumsPath, 'utf-8')) as EnumRegistry;
+      existingEnums = JSON.parse(
+        await readFile(enumsPath, 'utf-8'),
+      ) as EnumRegistry;
     } catch {
       /* no registry yet */
     }
-    const mergedEnums = mergeEnumRegistry(existingEnums, buildEnumRegistry(models));
+    const mergedEnums = mergeEnumRegistry(
+      existingEnums,
+      buildEnumRegistry(models),
+    );
     const enumsChanged =
-      serializeEnumRegistry(mergedEnums) !== serializeEnumRegistry(existingEnums);
+      serializeEnumRegistry(mergedEnums) !==
+      serializeEnumRegistry(existingEnums);
 
     const resolveRelationResource = await makeRelationResolver(loaded);
     const diffs = await buildResourceDiffs(models, {
@@ -213,7 +237,7 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
 
     const applyCtx: ApplyContext = {
       resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
-      generatedTypesImport: ds.generatedTypesImport,
+      generatedTypesImport: loaded.config.generatedTypesImport,
       schemaExportName: makeSchemaExportName(loaded.config),
     };
     const resolver = opts.yes ? recommendedResolver : interactiveResolver;
@@ -224,7 +248,9 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
       all.push({ resolved, plan: apply(resolved, applyCtx) });
     }
     // Only surface resources that actually changed — adjusted files only.
-    const changes = all.filter((c) => c.plan.files.length > 0 || c.plan.notes.length > 0);
+    const changes = all.filter(
+      (c) => c.plan.files.length > 0 || c.plan.notes.length > 0,
+    );
 
     if (changes.length === 0 && !enumsChanged) {
       clack.outro(pc.green('Everything is up to date — nothing to write.'));
@@ -233,7 +259,9 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
 
     const previewLines = changes.map((c) => formatResourceChange(c));
     if (enumsChanged) {
-      previewLines.push(pc.cyan(`~ ${enumsRel} (${Object.keys(mergedEnums).length} enum(s))`));
+      previewLines.push(
+        pc.cyan(`~ ${enumsRel} (${Object.keys(mergedEnums).length} enum(s))`),
+      );
     }
     clack.log.message(previewLines.join('\n'));
 
@@ -243,10 +271,16 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
     }
 
     const fileCount =
-      changes.reduce((n, c) => n + c.plan.files.length, 0) + (enumsChanged ? 1 : 0);
+      changes.reduce((n, c) => n + c.plan.files.length, 0) +
+      (enumsChanged ? 1 : 0);
     const go = opts.yes
       ? true
-      : assertNotCancel(await clack.confirm({ message: `Write ${fileCount} file(s)?`, initialValue: true }));
+      : assertNotCancel(
+          await clack.confirm({
+            message: `Write ${fileCount} file(s)?`,
+            initialValue: true,
+          }),
+        );
     if (!go) throw new CancelledError();
 
     let written = 0;
@@ -260,7 +294,9 @@ export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<
       await writeFile(enumsPath, serializeEnumRegistry(mergedEnums), 'utf-8');
       written += 1;
     }
-    clack.outro(pc.green(`Done — ${written} written, ${skipped} skipped (existing).`));
+    clack.outro(
+      pc.green(`Done — ${written} written, ${skipped} skipped (existing).`),
+    );
   } catch (err) {
     if (err instanceof CancelledError) {
       clack.cancel('Cancelled.');

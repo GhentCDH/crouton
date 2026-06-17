@@ -5,8 +5,8 @@ import { FormDefCache } from './form-def';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 
-export { menu, isSidebarGroup, isSidebarLeaf } from './sidebar';
-export type { SidebarLeaf, SidebarGroup, SidebarNode } from './sidebar';
+export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
+export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
 export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
 
 export const AppConfig = {
