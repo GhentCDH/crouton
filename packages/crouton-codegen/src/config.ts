@@ -183,6 +183,10 @@ export const makeSchemaExportName = (
 export const resolveFromRoot = (root: string, p: string): string =>
   isAbsolute(p) ? p : join(root, p);
 
+/** Default prisma config path for a named datasource. */
+export const defaultPrismaConfig = (name: string): string =>
+  `prisma/${name}/prisma.config.ts`;
+
 // ─── scaffolding ─────────────────────────────────────────────────────────────
 
 export interface ScaffoldResult {
