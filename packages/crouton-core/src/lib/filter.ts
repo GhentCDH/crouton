@@ -33,6 +33,18 @@ export const OperatorOptions = Operator.map((k) => ({
 /** Operators that don't require a user-supplied value. */
 export const OperatorNoValue = new Set<OperatorType>(['isnull', 'isnotnull']);
 
+/** Field types used to restrict which operators are shown in the filter UI. */
+export type FieldType = 'string' | 'number' | 'date' | 'boolean' | 'enum';
+
+/** Operators available for each field type. */
+export const OperatorsByType: Record<FieldType, OperatorType[]> = {
+  string:  ['contains', 'not_contains', 'equals', 'not_equals', 'isnull', 'isnotnull'],
+  number:  ['equals', 'not_equals', 'gt', 'lt', 'isnull', 'isnotnull'],
+  date:    ['equals', 'not_equals', 'gt', 'lt', 'isnull', 'isnotnull'],
+  boolean: ['equals', 'not_equals', 'isnull', 'isnotnull'],
+  enum:    ['equals', 'not_equals', 'isnull', 'isnotnull'],
+};
+
 export type Filter = {
   key: string;
   value: any;

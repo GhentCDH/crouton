@@ -5,7 +5,53 @@ import type { ViewColumnConfig, ViewConfig } from '../crud.config';
 import { jsonSchemaOpts } from '../schema.utils';
 import { buildFormUiSchema } from './form-schema.builder';
 import { allowAdditionalProperties, dropNullableFromRequired, enforceRequiredMinLength } from './schema-transforms';
-import { buildTableUiSchema, resolveDefaultSort } from './table-schema.builder'; // ── Column sorting ────────────────────────────────────────────────────────
+import { buildTableUiSchema, resolveDefaultSort } from './table-schema.builder';
+
+// ── Filter schema enrichment ──────────────────────────────────────────────
+
+/**
+ * Patch a filter view's JSON schema properties with human-readable titles and
+ * enum/type hints so the frontend can show correct labels, restricted operator
+ * lists, and a select box for enum fields.
+ *
+ * Called after `buildView` for the filter view, where `columns` are the
+ * filterable columns (already enum-injected by `injectEnumValues`).
+ */
+const patchFilterProperties = (
+  jsonSchema: Record<string, any>,
+  columns: JsonColumn[] | undefined,
+): void => {
+  if (!columns?.length) return;
+  const properties = jsonSchema.properties as Record<string, any> | undefined;
+  if (!properties) return;
+
+  for (const col of columns) {
+    const prop = properties[col.id];
+    if (!prop) continue;
+
+    // Always inject title from the column label.
+    prop.title = col.label ?? col.id;
+
+    // Inject enum values so the UI can render a select box.
+    const values = (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values'];
+    if (values) {
+      prop['x-values'] = values;
+    }
+
+    // Inject a field-type hint for operator restriction on the frontend.
+    const ft = col.fieldInput?.type;
+    if (ft === 'select' || col.enum) {
+      prop['x-field-type'] = 'enum';
+    } else if (ft === 'number' || prop.type === 'number' || prop.type === 'integer') {
+      prop['x-field-type'] = 'number';
+    } else if (prop.format === 'date-time' || prop.format === 'date') {
+      prop['x-field-type'] = 'date';
+    } else if (prop.type === 'boolean') {
+      prop['x-field-type'] = 'boolean';
+    }
+    // string / default: no hint needed — frontend defaults to 'string'
+  }
+};
 
 // ── Column sorting ────────────────────────────────────────────────────────
 
@@ -224,7 +270,10 @@ export const buildViews = (
     buildFormUiSchema,
     true,
   );
-  if (filter) views.filter = filter;
+  if (filter) {
+    patchFilterProperties(filter.json_schema as Record<string, any>, columns?.filter((c) => !!c.filterable));
+    views.filter = filter;
+  }
 
   const view = buildView(
     schema,

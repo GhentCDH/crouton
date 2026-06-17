@@ -69,8 +69,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-import type { Filter } from '@ghentcdh/crouton-core';
-import { extractFilters, filterToString } from '@ghentcdh/crouton-core';
+import type { FieldType, Filter } from '@ghentcdh/crouton-core';
+import { extractFilters, filterToString, OperatorNoValue } from '@ghentcdh/crouton-core';
 import { Btn, Icon, IconEnum } from '@ghentcdh/ui';
 
 import FilterRowInput, { type FieldOption } from './FilterRowInput.vue';
@@ -104,6 +104,16 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+/** Map an x-field-type hint (or JSON schema type/format) to a FieldType. */
+const resolveFieldType = (schema: Record<string, any>): FieldType => {
+  const hint = schema['x-field-type'];
+  if (hint === 'enum' || hint === 'number' || hint === 'date' || hint === 'boolean') return hint;
+  if (schema.type === 'number' || schema.type === 'integer') return 'number';
+  if (schema.format === 'date-time' || schema.format === 'date') return 'date';
+  if (schema.type === 'boolean') return 'boolean';
+  return 'string';
+};
+
 /** Field options derived from the filterSchema properties */
 const fields = computed<FieldOption[]>(() => {
   const properties = props.filterSchema?.properties as
@@ -113,6 +123,8 @@ const fields = computed<FieldOption[]>(() => {
   return Object.entries(properties).map(([key, schema]) => ({
     value: key,
     label: (schema as any).title ?? key,
+    type: resolveFieldType(schema as Record<string, any>),
+    values: (schema as any)['x-values'],
   }));
 });
 
@@ -151,7 +163,7 @@ const removeRow = (index: number) => {
 
 const onApply = () => {
   const serialized = rows.value
-    .filter((r) => r.key && r.value)
+    .filter((r) => r.key && (r.value || OperatorNoValue.has(r.operator)))
     .map(filterToString);
   appliedCount.value = serialized.length;
   emit('changeFilters', serialized);
