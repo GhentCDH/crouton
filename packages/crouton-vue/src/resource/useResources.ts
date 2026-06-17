@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash-es';
 import { reactive } from 'vue';
 
 import { customCellRenderers } from './renderers';
+import { useCrouton } from '../composables/useCrouton';
 import { Resource } from './resource';
 import {
   actions,
@@ -72,7 +73,7 @@ export const useResources = (
     onUpdatePageSize: resource.updatePageSize,
     onUpdateFilters: resource.updateFilters,
     onUpdateSearch: resource.updateSearch,
-    cellRenderers: customCellRenderers,
+    cellRenderers: [...customCellRenderers, ...useCrouton().cellRenderers],
     actions: actions(
       api,
       resource,

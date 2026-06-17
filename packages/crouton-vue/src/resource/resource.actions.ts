@@ -79,7 +79,7 @@ const openViewModal =
       modalSize: formDef.modalSize ?? 'lg',
       data: formData,
       modalTitle: formDef.title ?? '',
-      renderers: relationReadonlyRenderers,
+      renderers: [...relationReadonlyRenderers, ...useCrouton().readonlyRenderers],
       onEdit: op.update
         ? (data: any) =>
             openEditModal(api, resource, formDef, handleEvent)(data ?? formData)
@@ -130,7 +130,7 @@ const openEditModal =
       initialData: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
-      renderers: customControlRenderers,
+      renderers: [...customControlRenderers, ...useCrouton().renderers],
       onClose: (result: FormModalResult) => {
         if (result && result.valid) {
           const data = result.data;

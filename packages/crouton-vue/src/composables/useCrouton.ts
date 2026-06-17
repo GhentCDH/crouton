@@ -1,5 +1,8 @@
+import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { computed, ref } from 'vue';
+
+import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 
 import { FormDefCache } from './form-def';
 import type { SidebarNode } from './sidebar';
@@ -12,11 +15,17 @@ export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
 export const AppConfig = {
   VERSION: 'unknown',
   title: 'Crouton',
+  /** Extra control renderers merged on top of the built-in crouton renderers in form/edit modals. */
+  renderers: [] as JsonFormsRendererRegistryEntry[],
+  /** Extra renderers merged on top of the built-in crouton renderers in view (readonly) modals. */
+  readonlyRenderers: [] as JsonFormsRendererRegistryEntry[],
+  /** Extra cell renderers merged on top of the built-in crouton cell renderers in tables. */
+  cellRenderers: [] as CellRendererEntry[],
 };
 
 const sidebar = ref<SidebarNode[]>([]);
 const formDefCache = new FormDefCache();
-const config = ref(AppConfig);
+const config = ref({ ...AppConfig });
 
 export const useCrouton = () => {
   const init = (
@@ -29,6 +38,10 @@ export const useCrouton = () => {
       .get('/_app/layout')
       .then((res) => {
         sidebar.value = res.data.sidebar as SidebarNode[];
+        // Title from the backend wins unless the consumer passed an explicit override.
+        if (res.data.title && !_config.title) {
+          config.value = { ...config.value, title: res.data.title };
+        }
       })
       .catch(() => {
         console.error('no layout');
@@ -43,6 +56,18 @@ export const useCrouton = () => {
     },
     version: computed(() => config.value.VERSION),
     title: computed(() => config.value.title),
+    /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
+    get renderers() {
+      return config.value.renderers;
+    },
+    /** Consumer-supplied renderers, merged on top of built-ins in view (readonly) modals. */
+    get readonlyRenderers() {
+      return config.value.readonlyRenderers;
+    },
+    /** Consumer-supplied cell renderers, merged on top of built-ins in tables. */
+    get cellRenderers() {
+      return config.value.cellRenderers;
+    },
     getFormDef: (formId: string) => formDefCache.getFormDef(formId),
     getFormByUri: (uri: string) => formDefCache.getFormDefByUri(uri),
   };

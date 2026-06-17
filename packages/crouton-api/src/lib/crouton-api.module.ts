@@ -25,6 +25,11 @@ type CroutonConfig = {
    * Resources reference a group via `sidebar.group` in their `resource.json`.
    */
   sidebarGroups?: Record<string, SidebarGroupConfig>;
+  /**
+   * Application title served to the frontend via `GET /_app/layout`.
+   * Displayed in the admin sidebar header.
+   */
+  title?: string;
 };
 @Module({
   controllers: [],
@@ -42,7 +47,7 @@ export class CroutonApiModule {
     const configRegistry = new ResourceConfigRegistry(loader, configs);
     const controllers = [
       ...configs.map((c) => createCrudController(c, config.baseUrl)),
-      createAppLayoutController(configs, config.sidebarGroups),
+      createAppLayoutController(configs, config.sidebarGroups, config.title),
     ];
 
     return {
