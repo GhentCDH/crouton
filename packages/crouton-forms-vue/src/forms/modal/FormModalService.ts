@@ -21,7 +21,6 @@ export class JsonFormModalService {
     renderers,
     autoSave,
     onAutoSave,
-    onRefreshData,
   }: {
     initialData?: DATA;
     schema: any;
@@ -51,6 +50,7 @@ export class JsonFormModalService {
         renderers,
         autoSave: autoSave ?? false,
         onAutoSave,
+        saveLabel: 'Create',
       },
     });
   }
