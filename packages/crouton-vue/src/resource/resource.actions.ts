@@ -1,10 +1,7 @@
 import { type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
-import {
-  customControlRenderers,
-  relationReadonlyRenderers,
-} from './renderers';
+import { customControlRenderers, relationReadonlyRenderers } from './renderers';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
@@ -79,7 +76,10 @@ const openViewModal =
       modalSize: formDef.modalSize ?? 'lg',
       data: formData,
       modalTitle: formDef.title ?? '',
-      renderers: [...relationReadonlyRenderers, ...useCrouton().readonlyRenderers, ...useCrouton().renderers],
+      renderers: [
+        ...relationReadonlyRenderers,
+        ...useCrouton().readonlyRenderers,
+      ],
       onEdit: op.update
         ? (data: any) =>
             openEditModal(api, resource, formDef, handleEvent)(data ?? formData)
@@ -131,6 +131,12 @@ const openEditModal =
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
       renderers: [...customControlRenderers, ...useCrouton().renderers],
+      onEvents: (event) => {
+        if (event.event === 'update-relation') {
+          // TODO this one should be reloaded the edit modal
+          console.warn('Reload the data related to this', event);
+        }
+      },
       onClose: (result: FormModalResult) => {
         if (result && result.valid) {
           const data = result.data;

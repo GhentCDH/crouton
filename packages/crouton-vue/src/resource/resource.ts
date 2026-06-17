@@ -15,12 +15,14 @@ export class Resource {
     private api: ResourceApiInstance,
     initialRequestParams: Partial<Request>,
     private onRequest: (request: Request) => void,
+    initialLoad: boolean,
   ) {
     this.requestData.value = RequestSchema.parse({
       ...{ sort: this.formDef.schemas.table.defaultSort ?? undefined },
       ...initialRequestParams,
     });
-    this.reload();
+
+    if (initialLoad) this.reload();
   }
 
   public reload() {

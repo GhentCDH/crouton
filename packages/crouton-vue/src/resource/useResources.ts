@@ -22,6 +22,7 @@ export interface UseResourcesProperties {
   handleEvent?: HandleEvent;
   defaultUriParams?: Record<string, string>;
   readonly?: boolean;
+  initialLoad?: boolean;
 }
 
 export const useResources = (
@@ -36,13 +37,20 @@ export const useResources = (
     },
     defaultUriParams = {},
     readonly = false,
+    initialLoad = true,
   }: UseResourcesProperties = {},
 ) => {
   if (!formDef) return null;
 
   const _formDef = cloneDeep(formDef);
   const api = resourceApi(_formDef, defaultUriParams);
-  const resource = new Resource(_formDef, api, initialRequestParams, onRequest);
+  const resource = new Resource(
+    _formDef,
+    api,
+    initialRequestParams,
+    onRequest,
+    initialLoad,
+  );
 
   const filterSchema = (_formDef.schemas as any).filter?.data as
     | Record<string, any>

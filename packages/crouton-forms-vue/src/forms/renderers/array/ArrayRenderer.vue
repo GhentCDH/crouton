@@ -6,11 +6,7 @@
         layout === 'row' ? 'flex-row items-center' : 'flex-col',
       ]"
     >
-      <div
-        v-for="(entry, index) in fields"
-        :key="entry.key"
-        class="flex-1"
-      >
+      <div v-for="(entry, index) in fields" :key="entry.key" class="flex-1">
         <div
           :class="[
             'flex gap-2',
@@ -37,21 +33,11 @@
         </div>
       </div>
 
-      <div
-        v-if="fields.length === 0"
-        class="text-sm text-base-content/50"
-      >
+      <div v-if="fields.length === 0" class="text-sm text-base-content/50">
         No data
       </div>
-
       <div v-if="showActions">
-        <Btn
-          :icon="IconEnum.Plus"
-          :outline="true"
-          @click="push({})"
-        >
-          Add
-        </Btn>
+        <Btn :icon="IconEnum.Plus" :outline="true" @click="push({})"> Add </Btn>
       </div>
     </div>
   </div>

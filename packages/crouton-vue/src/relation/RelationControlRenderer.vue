@@ -45,7 +45,7 @@ const {
   resource,
   isNew,
   appliedOptions,
-} = useRelationBinding(props.uischema, props.schema, formEvents);
+} = useRelationBinding(props.uischema, props.schema, false, formEvents);
 
 const message = computed(() => {
   if (isNew.value)

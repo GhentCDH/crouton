@@ -1,7 +1,11 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
-import { type FormEvents, useControlBinding } from '@ghentcdh/crouton-forms-vue';
+import {
+  FormEvents,
+  useControlBinding,
+  useFormEvents,
+} from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
 import { useResources } from '../resource';
@@ -18,25 +22,29 @@ const getRelationResource = async (
   resource: string,
   formValues: any,
   readonly: boolean,
-  formEvents?: FormEvents,
+  formEvents: FormEvents,
 ) => {
   const crouton = useCrouton();
   const config = await crouton.getFormByUri(resource);
 
   if (!config) return null;
 
-  const handleEvent = (event) => {
-    // console.log(event);
-    // console.log('formEvents', formEvents);
-    // formEvents.dispatch({
-    //   event: 'update-relation',
-    // });
+  const handleEvent = (event: string, data: any) => {
+    if (!formEvents) if (event !== 'close') return;
+    if (!data || Object.keys(data).length === 0) return;
+
+    formEvents.dispatch({
+      event: 'update-relation',
+      type: resource,
+      data,
+    });
   };
 
   return useResources(config, {
     defaultUriParams: { parent: formValues },
     readonly,
     handleEvent,
+    initialLoad: false,
   });
 };
 
@@ -44,8 +52,8 @@ export const useRelationBinding = (
   uischema: ControlElement,
   schema: JsonSchema,
   readonly = false,
-  formEvents?: FormEvents,
 ) => {
+  const formEvents = useFormEvents();
   const bindings = useControlBinding(uischema, schema);
   const { formValues } = bindings;
   const opts = (uischema.options ?? {}) as Record<string, any>;
@@ -66,7 +74,7 @@ export const useRelationBinding = (
     isNew,
     message: getMessage(isNew.value, resource),
     resource: computedAsync(() =>
-      getRelationResource(resource, bindings.formValues, readonly),
+      getRelationResource(resource, bindings.formValues, readonly, formEvents),
     ),
   };
 };
