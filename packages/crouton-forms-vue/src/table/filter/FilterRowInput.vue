@@ -5,17 +5,25 @@
       :value="modelValue.key"
       :options="fields"
       :clearable="false"
-      @change="update('key', $event.value)"
+      @change="onFieldChange($event.value)"
     />
     <SelectComponent
       size="sm"
       :value="modelValue.operator"
-      :options="OperatorOptions"
+      :options="operatorOptions"
       :clearable="false"
       @change="onOperatorChange($event.value)"
     />
+    <SelectComponent
+      v-if="!noValue && currentField?.type === 'enum'"
+      size="sm"
+      :value="modelValue.value"
+      :options="currentField.values ?? []"
+      :clearable="false"
+      @change="update('value', $event.value)"
+    />
     <Input
-      v-if="!noValue"
+      v-else-if="!noValue"
       size="sm"
       placeholder="Enter a value"
       :value="modelValue.value"
@@ -41,10 +49,24 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { type Filter, OperatorNoValue, OperatorOptions, type OperatorType } from '@ghentcdh/crouton-core';
+import {
+  type FieldType,
+  type Filter,
+  OperatorNoValue,
+  OperatorOptions,
+  OperatorsByType,
+  type OperatorType,
+} from '@ghentcdh/crouton-core';
 import { Btn, IconEnum, Input, SelectComponent } from '@ghentcdh/ui';
 
-export type FieldOption = { label: string; value: string };
+export type EnumValue = { value: unknown; label: string };
+
+export type FieldOption = {
+  label: string;
+  value: string;
+  type?: FieldType;
+  values?: EnumValue[];
+};
 
 const props = defineProps<{
   modelValue: Filter;
@@ -56,10 +78,30 @@ const emit = defineEmits<{
   remove: [];
 }>();
 
+const currentField = computed(() =>
+  props.fields.find((f) => f.value === props.modelValue.key),
+);
+
+const operatorOptions = computed(() => {
+  const type = currentField.value?.type ?? 'string';
+  const allowed = OperatorsByType[type];
+  return OperatorOptions.filter((o) => allowed.includes(o.value));
+});
+
 const noValue = computed(() => OperatorNoValue.has(props.modelValue.operator));
 
 const update = (key: keyof Filter, value: any) => {
   emit('update:modelValue', { ...props.modelValue, [key]: value });
+};
+
+/** When switching field, reset operator to first valid one for the new field type. */
+const onFieldChange = (key: string) => {
+  const field = props.fields.find((f) => f.value === key);
+  const type = field?.type ?? 'string';
+  const validOps = OperatorsByType[type];
+  const currentOp = props.modelValue.operator;
+  const op: OperatorType = validOps.includes(currentOp) ? currentOp : validOps[0];
+  emit('update:modelValue', { ...props.modelValue, key, operator: op, value: '' });
 };
 
 /** When switching to a no-value operator, clear the value field. */
