@@ -12,7 +12,7 @@ Each resource is described by a `resource.json` file in its own directory under 
   "tag": "Book",
   "title": "Books",
   "database": "maindb",
-  "sidebar": { "hide": false, "position": 1 },
+  "sidebar": { "position": 1, "label": "Books", "group": "catalogue" },
   "operations": {
     "findAll": true,
     "findOne": true,
@@ -58,7 +58,7 @@ Each resource is described by a `resource.json` file in its own directory under 
 | `table` | `string` | Database table (when it differs from the model) |
 | `idType` | `'number' \| 'string'` | Type of the id field (default `number`) |
 | `database` | `string` | Name of the [data source](./datasource.md) to use |
-| `sidebar` | `{ hide?, position? }` | Sidebar visibility and ordering |
+| `sidebar` | object | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
 | `operations` | object | Enable `findAll`, `findOne`, `create`, `update`, `upsert`, `delete` |
 | `columns` | map or array | Column definitions, see below |
 | `calculatedColumns` | array | SQL-computed read-only columns, see below |
@@ -164,6 +164,75 @@ Eagerly load relations with the list/detail queries:
   ]
 }
 ```
+
+## Sidebar
+
+The `sidebar` object controls how (and whether) a resource appears in the admin navigation. All fields are optional.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `hide` | `boolean` | Exclude this resource from the sidebar entirely (default `false`) |
+| `position` | `number` | Order within its group or at the top level. Lower values come first; resources without a position are sorted alphabetically after positioned ones. |
+| `label` | `string` | Override the sidebar label. Defaults to the resource `title`. |
+| `group` | `string` | Slug of a group defined in `sidebarGroups` in `crouton.config.json`. Resources with the same `group` are nested under a shared collapsible section. |
+
+Group labels and ordering are configured centrally in `crouton.config.json`, not per resource. See [Sidebar groups](#sidebar-groups) below.
+
+### Example — grouping metadata resources
+
+```json
+// crouton.config.json
+{
+  "sidebarGroups": {
+    "metadata": { "label": "Metadata", "position": 10 }
+  }
+}
+```
+
+```json
+// author.resource.json
+{
+  "name": "author",
+  "sidebar": { "label": "Authors", "group": "metadata", "position": 1 }
+}
+```
+
+```json
+// genre.resource.json
+{
+  "name": "genre",
+  "sidebar": { "label": "Genres", "group": "metadata", "position": 2 }
+}
+```
+
+This renders as:
+
+```
+Texts
+▾ Metadata
+    Authors
+    Genres
+```
+
+## Sidebar groups
+
+Groups are defined in `crouton.config.json` under `sidebarGroups`, keyed by slug:
+
+```json
+{
+  "sidebarGroups": {
+    "metadata": { "label": "Metadata", "position": 10 },
+    "admin":    { "label": "Admin",    "position": 20 }
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `label` | `string` | Heading shown in the sidebar. Defaults to a title-cased version of the slug. |
+| `position` | `number` | Order of this group among top-level sidebar items. |
+
+Keeping groups in the config file instead of individual resource files ensures label and ordering are defined exactly once and can't drift out of sync.
 
 ## Escape hatch: resource.ts
 

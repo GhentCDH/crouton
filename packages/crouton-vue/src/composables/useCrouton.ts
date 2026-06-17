@@ -1,14 +1,12 @@
 import type { AxiosInstance } from 'axios';
 import { computed, ref } from 'vue';
 
-import type { ShellMenu } from '@ghentcdh/ui';
-
 import { FormDefCache } from './form-def';
-import type { SideBarItem } from './sidebar';
-import { menu } from './sidebar';
+import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 
-export { menu } from './sidebar';
+export { menu, isSidebarGroup, isSidebarLeaf } from './sidebar';
+export type { SidebarLeaf, SidebarGroup, SidebarNode } from './sidebar';
 export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
 
 export const AppConfig = {
@@ -16,7 +14,7 @@ export const AppConfig = {
   title: 'Crouton',
 };
 
-const sidebar = ref<ShellMenu>([]);
+const sidebar = ref<SidebarNode[]>([]);
 const formDefCache = new FormDefCache();
 const config = ref(AppConfig);
 
@@ -30,7 +28,7 @@ export const useCrouton = () => {
     return useApi()
       .get('/_app/layout')
       .then((res) => {
-        sidebar.value = menu(res.data.sidebar as SideBarItem[]);
+        sidebar.value = res.data.sidebar as SidebarNode[];
       })
       .catch(() => {
         console.error('no layout');

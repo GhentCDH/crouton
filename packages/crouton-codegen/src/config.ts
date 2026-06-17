@@ -9,6 +9,7 @@
  * import, zod output, and Prisma config (for multi-datasource projects).
  */
 
+import type { SidebarGroupConfig } from '@ghentcdh/crouton-core';
 import type { Ruleset } from './types';
 import { access, readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
@@ -51,6 +52,19 @@ export interface CroutonConfig {
   enumsFile?: string;
   /** Optional overrides of the default visibility ruleset. */
   rules?: Partial<Ruleset>;
+  /**
+   * Sidebar group definitions, keyed by group slug (e.g. `"metadata"`).
+   * Resources reference a group via `sidebar.group` in their `resource.json`.
+   * Centralising groups here avoids duplicated labels/positions across resource files.
+   *
+   * Example:
+   * ```json
+   * "sidebarGroups": {
+   *   "metadata": { "label": "Metadata", "position": 10 }
+   * }
+   * ```
+   */
+  sidebarGroups?: Record<string, SidebarGroupConfig>;
 }
 
 /** A fully-resolved datasource (from `data-source.json` + defaults). */

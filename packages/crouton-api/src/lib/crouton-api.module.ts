@@ -1,5 +1,7 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 
+import type { SidebarGroupConfig } from '@ghentcdh/crouton-core';
+
 import { createAppLayoutController } from './crud/app-layout.controller';
 import { createCrudController } from './crud/crud-controller.factory';
 import { type ResourceConfig } from './crud/crud.config';
@@ -17,6 +19,12 @@ type CroutonConfig = {
    * When omitted, the loader walks up from the resources dir to find it.
    */
   enumsFile?: string;
+  /**
+   * Sidebar group definitions, keyed by group slug.
+   * Matches `sidebarGroups` in `crouton.config.json`.
+   * Resources reference a group via `sidebar.group` in their `resource.json`.
+   */
+  sidebarGroups?: Record<string, SidebarGroupConfig>;
 };
 @Module({
   controllers: [],
@@ -34,7 +42,7 @@ export class CroutonApiModule {
     const configRegistry = new ResourceConfigRegistry(loader, configs);
     const controllers = [
       ...configs.map((c) => createCrudController(c, config.baseUrl)),
-      createAppLayoutController(configs),
+      createAppLayoutController(configs, config.sidebarGroups),
     ];
 
     return {

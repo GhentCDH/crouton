@@ -291,6 +291,17 @@ export type JsonTableLinkAction = {
 
 export type JsonTableAction = JsonTableProcedureAction | JsonTableLinkAction;
 
+/**
+ * Configuration for a single sidebar group, defined centrally in `crouton.config.json`.
+ * Keyed by the group slug (e.g. `"metadata"`).
+ */
+export type SidebarGroupConfig = {
+  /** Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug. */
+  label?: string;
+  /** Controls the order of this group among top-level sidebar items. */
+  position?: number;
+};
+
 export type JsonResourceConfig = {
   name: string;
   route: string;
@@ -300,7 +311,20 @@ export type JsonResourceConfig = {
   table?: string;
   idType?: 'number' | 'string';
   database?: string;
-  sidebar?: { hide?: boolean; position?: number };
+  sidebar?: {
+    /** Hide this resource from the sidebar entirely. */
+    hide?: boolean;
+    /** Order within its group (or at the top level). Lower values come first. */
+    position?: number;
+    /** Override the sidebar label. Defaults to the resource `title`. */
+    label?: string;
+    /**
+     * Slug of the group this resource belongs to.
+     * Must match a key in `sidebarGroups` in `crouton.config.json`.
+     * Resources with the same `group` are nested under a shared collapsible section.
+     */
+    group?: string;
+  };
   operations: JsonOperations;
   columns?: JsonColumn[] | JsonColumnsMap;
   calculatedColumns?: CalculatedColumn[];
