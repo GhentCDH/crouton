@@ -20,6 +20,10 @@ export const isAutocomplete = (col: JsonColumn): boolean =>
 export const isRecordCell = (col: JsonColumn): boolean =>
   isRelation(col) || isAutocomplete(col);
 
+/** Returns `true` when the column is a date-range control rendered in the table. */
+export const isDateRange = (col: JsonColumn): boolean =>
+  col.fieldInput?.format === 'date-range';
+
 // ── Sort helpers ──────────────────────────────────────────────────────────
 
 /**
@@ -107,17 +111,29 @@ export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> 
     if (!col) return el;
     // Record cells get all fieldInput options; plain cells still receive the
     // shared ones (select values, resource URIs) so they can reuse form logic.
-    const fieldInputOptions = isRecordCell(col)
-      ? (col.fieldInput?.options as object ?? {})
-      : pickSharedCellOptions(col);
+    // Date-range reuses the form control renderer, so it needs its full options
+    // (format, fromField/toField, labels).
+    const fieldInputOptions =
+      isRecordCell(col) || isDateRange(col)
+        ? (col.fieldInput?.options as object ?? {})
+        : pickSharedCellOptions(col);
     const dataPathOption = col.column ? { dataPath: col.column } : {};
-    const derivedSortId = isRecordCell(col) ? null : deriveSortId(col);
+    const derivedSortId = isRecordCell(col) || isDateRange(col) ? null : deriveSortId(col);
     const sortOptions = derivedSortId ? { sortId: derivedSortId } : { sortable: false };
     const relationTypeOption = col.fieldInput?.relationType ? { relationType: col.fieldInput.relationType } : {};
     return {
       ...el,
-      options: { ...(el.options ?? {}), ...fieldInputOptions, ...dataPathOption, ...sortOptions, ...relationTypeOption, label: col.label },
+      options: {
+        ...(el.options ?? {}),
+        ...fieldInputOptions,
+        ...dataPathOption,
+        ...sortOptions,
+        ...relationTypeOption,
+        ...(isDateRange(col) && { format: 'date-range' }),
+        label: col.label,
+      },
       ...(isRecordCell(col) && { type: 'RecordCell' }),
+      ...(isDateRange(col) && { type: 'Control' }),
     };
   });
 

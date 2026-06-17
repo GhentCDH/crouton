@@ -26,6 +26,28 @@ const patchFilterProperties = (
   if (!properties) return;
 
   for (const col of columns) {
+    // A date-range json column isn't filterable as a whole object. Expand it
+    // into two date filter fields keyed with the `->` json-path marker that
+    // the API filter builder (buildFilterWhere) understands, e.g.
+    // `date_range->from` / `date_range->to`. The frontend filter dropdown
+    // reads these straight from `properties` and emits `key:value:operator`.
+    if (col.fieldInput?.format === 'date-range') {
+      delete properties[col.id];
+      const opts = (col.fieldInput?.options as Record<string, unknown> | undefined) ?? {};
+      const base = col.label ?? col.id;
+      const fromField = (opts['fromField'] as string) ?? 'from';
+      const toField = (opts['toField'] as string) ?? 'to';
+      const dateProp = (title: string) => ({
+        type: 'string',
+        format: 'date',
+        title,
+        'x-field-type': 'date',
+      });
+      properties[`${col.id}->${fromField}`] = dateProp((opts['fromLabel'] as string) ?? `${base} (from)`);
+      properties[`${col.id}->${toField}`] = dateProp((opts['toLabel'] as string) ?? `${base} (to)`);
+      continue;
+    }
+
     const prop = properties[col.id];
     if (!prop) continue;
 

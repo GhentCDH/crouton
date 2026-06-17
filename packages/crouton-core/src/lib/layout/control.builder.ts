@@ -17,7 +17,20 @@ export const ControlType = {
   relation: 'relation',
   date: 'date',
   dateTime: 'dateTime',
+  dateRange: 'date-range',
 } as const;
+
+export interface DateRangeOptions extends ControlOption {
+  format: 'date-range';
+  /** Label shown above the start date input. Defaults to "From". */
+  fromLabel?: string;
+  /** Label shown above the end date input. Defaults to "To". */
+  toLabel?: string;
+  /** JSON object key for the start date. Defaults to "from". */
+  fromField?: string;
+  /** JSON object key for the end date. Defaults to "to". */
+  toField?: string;
+}
 
 export interface TextAreaOptions extends ControlOption {
   format: 'textarea';
@@ -95,6 +108,14 @@ export interface ControlOption {
   skipAuth?: boolean;
   freeText?: boolean;
   enableCreate?: boolean;
+  /** date-range: label above the start date input. */
+  fromLabel?: string;
+  /** date-range: label above the end date input. */
+  toLabel?: string;
+  /** date-range: JSON object key for the start date. Defaults to "from". */
+  fromField?: string;
+  /** date-range: JSON object key for the end date. Defaults to "to". */
+  toField?: string;
 }
 
 export type ControlTypes = {

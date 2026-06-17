@@ -3,6 +3,8 @@ import type { Component } from 'vue';
 import type { TextCellType } from '@ghentcdh/crouton-core';
 import { BooleanCell, TextCell } from '@ghentcdh/ui';
 
+import TableCellRender from '../TableCellRender.vue';
+
 export interface CellRendererEntry {
   tester: (element: TextCellType) => number;
   renderer: Component;
@@ -29,10 +31,11 @@ export const findCellRenderer = (
       best = { rank, renderer: entry.renderer };
     }
   }
-  return best?.renderer;
+  return best?.renderer ?? TableCellRender;
 };
 
 export const defaultCellRenderers: CellRendererEntry[] = [
   { tester: cellTypeIs('TextCell', 10), renderer: TextCell },
   { tester: cellTypeIs('BooleanCell', 10), renderer: BooleanCell },
+  { tester: cellTypeIs('control', 10), renderer: TableCellRender },
 ];

@@ -17,10 +17,7 @@ import type { ColumnDef, TextCellType } from '@ghentcdh/crouton-core';
 import { findColumnDef } from '@ghentcdh/crouton-core';
 import { Table } from '@ghentcdh/ui';
 
-import {
-  TableComponentEmits,
-  TableComponentProperties,
-} from './TableComponent.properties';
+import { TableComponentEmits, TableComponentProperties } from './TableComponent.properties';
 import { defaultCellRenderers, findCellRenderer } from './cells';
 
 const properties = defineProps(TableComponentProperties);
@@ -39,7 +36,12 @@ const displayColumns = computed(() =>
     const component = findCellRenderer(allRenderers.value, element);
 
     if (!component)
-      console.warn('No cell renderer found for', element.type, element.options?.format);
+      console.warn(
+        'No cell renderer found for',
+        element.type,
+        element.options?.format,
+      );
+    console.log(def);
 
     return {
       ...def,

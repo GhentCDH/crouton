@@ -41,6 +41,51 @@ const buildNestedPath = (path: string[], condition: unknown): Record<string, unk
 };
 
 /**
+ * Separator marking a JSON (jsonb) column path in a filter key.
+ * `"date_range->from"` targets the `from` key inside the `date_range` json column.
+ */
+const JSON_PATH_SEP = '->';
+
+const isJsonPath = (field: string): boolean => field.includes(JSON_PATH_SEP);
+
+/**
+ * Build a Prisma JSON-filter `where` fragment for a jsonb sub-path, e.g.
+ * `date_range->from` + `gt` → `{ date_range: { path: ['from'], gt: value } }`.
+ *
+ * Values are kept as strings: ISO-8601 dates compare lexicographically, which
+ * is the same as chronological order, so no casting is needed for `gt`/`lt`.
+ * Returns `null` for operators that have no meaningful JSON-path mapping.
+ */
+const buildJsonPathCondition = (
+  field: string,
+  value: string,
+  operator: OperatorType,
+): Record<string, unknown> | null => {
+  const [column, ...path] = field.split(JSON_PATH_SEP);
+  if (!column || path.length === 0) return null;
+  const frag = (extra: Record<string, unknown>) => ({ [column]: { path, ...extra } });
+
+  switch (operator) {
+    case 'equals':
+      return frag({ equals: value });
+    case 'not_equals':
+      return frag({ not: value });
+    case 'gt':
+      return frag({ gt: value });
+    case 'lt':
+      return frag({ lt: value });
+    case 'contains':
+      return frag({ string_contains: value });
+    case 'not_contains':
+      return { NOT: frag({ string_contains: value }) };
+    // isnull/isnotnull on a json sub-path are not supported — filter on the
+    // whole column instead if you need an emptiness check.
+    default:
+      return null;
+  }
+};
+
+/**
  * Map a parsed operator + value to a Prisma field condition.
  * Numeric coercion is applied for `gt` and `lt`.
  */
@@ -83,8 +128,11 @@ export const buildFilterWhere = (
     .map(parseFilterString)
     .filter((f): f is NonNullable<typeof f> => f !== null)
     .map(({ field, value, operator }) =>
-      buildNestedPath(field.split('.'), operatorToCondition(value, operator)),
-    );
+      isJsonPath(field)
+        ? buildJsonPathCondition(field, value, operator)
+        : buildNestedPath(field.split('.'), operatorToCondition(value, operator)),
+    )
+    .filter((c): c is Record<string, unknown> => c !== null);
 
   return conditions.length ? { AND: conditions } : undefined;
 };
