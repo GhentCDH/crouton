@@ -41,7 +41,6 @@ const displayColumns = computed(() =>
         element.type,
         element.options?.format,
       );
-    console.log(def);
 
     return {
       ...def,
