@@ -1,7 +1,3 @@
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -14,6 +10,11 @@ import {
   scaffoldConfigFromProject,
   validateConfig,
 } from './config';
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+
 
 const ds = (over: Partial<ResolvedDatasource> & { name: string }): ResolvedDatasource => ({
   default: false,
@@ -119,7 +120,7 @@ describe('scaffoldConfigFromProject', () => {
     await writeFile(join(dsDir, 'data-source.json'), JSON.stringify({ name: 'docsdb', default: true }));
     const resDir = join(root, 'apps', 'backend', 'src', 'app', 'resources', 'language');
     await mkdir(resDir, { recursive: true });
-    await writeFile(join(resDir, 'schema.ts'), "import { LanguageWithRelationsSchema } from '@np/generated/docsdb';\nexport default LanguageWithRelationsSchema;\n");
+    await writeFile(join(resDir, 'schema.ts'), 'import { LanguageWithRelationsSchema } from \'@np/generated/docsdb\';\nexport default LanguageWithRelationsSchema;\n');
 
     const { config, datasources } = await scaffoldConfigFromProject(root);
     expect((config as any).datasources).toBeUndefined();

@@ -9,9 +9,9 @@
  * never collide (the Prisma-7 multi-datasource requirement).
  */
 
+import { defaultPrismaConfig } from './config';
 import { dirname, posix, relative } from 'node:path';
 
-import { defaultPrismaConfig } from './config';
 
 export interface DatasourceScaffoldOptions {
   /** Datasource name (folder + `name` in data-source.json). */

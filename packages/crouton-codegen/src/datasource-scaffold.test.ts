@@ -58,16 +58,16 @@ describe('buildDatasourceFiles', () => {
   it('imports the generated client by relative path in index.ts', () => {
     const idx = file('index.ts').contents;
     expect(idx).toContain(
-      "import { PrismaClient } from '../../../../../../generated/analyticsdb/client';",
+      'import { PrismaClient } from \'../../../../../../generated/analyticsdb/client\';',
     );
     expect(idx).toContain('process.env.ANALYTICS_DATABASE_URL');
   });
 
   it('binds the urlEnv in prisma.config.ts', () => {
     const cfg = file('prisma.config.ts').contents;
-    expect(cfg).toContain("schema: 'prisma/analyticsdb/schema.prisma'");
-    expect(cfg).toContain("path: 'prisma/analyticsdb/migrations'");
-    expect(cfg).toContain("url: env('ANALYTICS_DATABASE_URL')");
+    expect(cfg).toContain('schema: \'prisma/analyticsdb/schema.prisma\'');
+    expect(cfg).toContain('path: \'prisma/analyticsdb/migrations\'');
+    expect(cfg).toContain('url: env(\'ANALYTICS_DATABASE_URL\')');
   });
 
   it('maps known db types to prisma providers', () => {

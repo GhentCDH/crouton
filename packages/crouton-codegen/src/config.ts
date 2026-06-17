@@ -9,10 +9,10 @@
  * import, zod output, and Prisma config (for multi-datasource projects).
  */
 
-import { access, readdir, readFile } from 'node:fs/promises';
+import type { Ruleset } from './types';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
-import type { Ruleset } from './types';
 
 /**
  * Shape of a `data-source.json`. The `type`/`name`/`default` keys are also read
@@ -87,7 +87,7 @@ const fileExists = async (p: string): Promise<boolean> => {
 /** Walk up from `cwd` to find `crouton.json`. */
 export const findConfigPath = async (cwd: string): Promise<string | undefined> => {
   let dir = resolve(cwd);
-  // eslint-disable-next-line no-constant-condition
+   
   while (true) {
     for (const name of CONFIG_FILES) {
       const candidate = join(dir, name);
