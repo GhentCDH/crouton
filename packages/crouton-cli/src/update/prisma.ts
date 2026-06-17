@@ -40,14 +40,14 @@ export interface PrismaRunResult {
   output: string;
 }
 
-/** `prisma db pull` against a specific schema, run in the project root. */
-export const prismaDbPull = async (cwd: string, schemaPath: string): Promise<PrismaRunResult> => {
-  const { code, stdout, stderr } = await run('npx', ['prisma', 'db', 'pull', '--schema', schemaPath], cwd);
+/** `prisma db pull` for a datasource's Prisma config, run in the project root. */
+export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
+  const { code, stdout, stderr } = await run('npx', ['prisma', 'db', 'pull', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
-/** `prisma generate` (refreshes zod-prisma-types output). */
-export const prismaGenerate = async (cwd: string, schemaPath: string): Promise<PrismaRunResult> => {
-  const { code, stdout, stderr } = await run('npx', ['prisma', 'generate', '--schema', schemaPath], cwd);
+/** `prisma generate` (refreshes zod-prisma-types output) for a datasource's config. */
+export const prismaGenerate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
+  const { code, stdout, stderr } = await run('npx', ['prisma', 'generate', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };

@@ -22,6 +22,12 @@ export default defineUserConfig({
           '@ghentcdh/crouton-vue': fileURLToPath(
             new URL('../../packages/crouton-vue/src/index.ts', import.meta.url),
           ),
+          '@ghentcdh/crouton-forms-vue': fileURLToPath(
+            new URL(
+              '../../packages/crouton-forms-vue/src/index.ts',
+              import.meta.url,
+            ),
+          ),
           '@ghentcdh/crouton-core': fileURLToPath(
             new URL(
               '../../packages/crouton-core/src/index.ts',

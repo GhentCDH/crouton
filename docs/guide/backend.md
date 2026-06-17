@@ -26,6 +26,7 @@ import { CroutonApiModule } from '@ghentcdh/crouton-api';
       resolve(__dirname, 'data-sources'),
       {
         baseUrl: 'http://localhost:3000',
+        // enumsFile: resolve(__dirname, 'crouton.enums.json'), // optional
       },
     ),
   ],
@@ -34,6 +35,8 @@ export class AppModule {}
 ```
 
 Every subdirectory of `resources/` is loaded as one resource (see [resource.json](./resource-json.md)); every subdirectory of `data-sources/` provides a database client (see [Data sources](./datasource.md)).
+
+The config object accepts `baseUrl` and an optional `enumsFile` pointing at the shared [enum registry](./cli.md#enum-registry). When omitted, the registry is found by walking up from the resources directory for a `crouton.enums.json`.
 
 ### Other registration styles
 
