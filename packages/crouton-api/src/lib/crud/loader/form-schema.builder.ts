@@ -85,6 +85,13 @@ const buildFormControl = (col: JsonColumn) => {
     control.detailFixed(detailLayout, {
       layout: fieldInput.detail.layout === 'collapse' ? 'row' : undefined,
     });
+  } else if (fieldInput?.format === 'date-range') {
+    // Drive the renderer off the explicit `format` so its option-based tester
+    // matches, not `type` (which for this json column is 'object' and has no
+    // renderer). Mirrors the relation branch.
+    const options: any = { ...(fieldInput.options as object | undefined) };
+    if (!options.colspan) options.colspan = 12;
+    control.control('date-range', options).width('full');
   } else {
     const options: any = fieldInput?.options ?? {};
     if (!options.colspan) options.colspan = 12;

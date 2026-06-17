@@ -2,13 +2,19 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { type FieldContext, useField, useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
-import { type ControlOption } from '@ghentcdh/crouton-core';
+import { type ControlOption, ControlType } from '@ghentcdh/crouton-core';
 
 import { type useCustomProps } from './useControlBinding';
 import { type UseInputOptions, useInputProps } from './useInput';
-import { isIntegerFormat, isMarkdownControl, isNumberFormat } from '../../../../testers/tester';
+import {
+  isDateRangeControl,
+  isIntegerFormat,
+  isMarkdownControl,
+  isNumberFormat,
+} from '../../../../testers/tester';
 import { scopeToPath } from '../../../scope';
 import BooleanValue from '../readonly/displayValue/BooleanValue.vue';
+import DateRangeValue from '../readonly/displayValue/DateRangeValue.vue';
 import DateValue from '../readonly/displayValue/DateValue.vue';
 import LinkValue from '../readonly/displayValue/LinkValue.vue';
 import MarkdownValue from '../readonly/displayValue/MarkdownValue.vue';
@@ -82,18 +88,39 @@ const getDisplayValue = (value: any, formValues: any, opts: any) => {
   return getNestedValue(value, opts, formValues);
 };
 
-const _getComponent = (value: any, options: any, schema: any, uiSchema: any) => {
-  if (isNumberFormat(uiSchema, schema)) return NumberValue;
-  if (isIntegerFormat(uiSchema, schema)) return NumberValue;
-  if (isMarkdownControl(uiSchema, schema)) return MarkdownValue;
+export const getDisplayComponent = (value: any, options: any) => {
+  const format = options.format;
+  switch (format) {
+    case 'date-range':
+      return DateRangeValue;
+    case ControlType.number:
+    case ControlType.integer:
+      return NumberValue;
+  }
+
   if (value === null || value === undefined) return NotSetValue;
   if (options.resource) return ViewDetailValue;
+
   if (isDate(value)) return DateValue;
   if (isLink(value)) return LinkValue;
   if (typeof value === 'boolean') return BooleanValue;
   if (typeof value === 'object') return ObjectValue;
 
   return StringValue;
+};
+
+const _getComponent = (
+  value: any,
+  options: any,
+  schema: any,
+  uiSchema: any,
+) => {
+  if (isDateRangeControl(uiSchema, schema)) return DateRangeValue;
+  if (isNumberFormat(uiSchema, schema)) return NumberValue;
+  if (isIntegerFormat(uiSchema, schema)) return NumberValue;
+  if (isMarkdownControl(uiSchema, schema)) return MarkdownValue;
+
+  return getDisplayComponent(value, options);
 };
 
 const getComponent = (

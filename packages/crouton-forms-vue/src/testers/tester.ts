@@ -111,3 +111,7 @@ export const isRelationControl = and(
   uiTypeIs('Control'),
   optionIsIgnoreCase('format', ControlType.relation),
 );
+
+export const isDateRangeControl = and(
+  optionIsIgnoreCase('format', 'date-range'),
+);

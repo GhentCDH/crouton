@@ -1,5 +1,8 @@
+import { markRaw } from 'vue';
+
 import AutocompleteControlRenderer from './AutocompleteControlRenderer.vue';
 import BooleanControlRenderer from './BooleanControlRenderer.vue';
+import DateRangeControlRenderer from './DateRangeControlRenderer.vue';
 import MarkdownControlRenderer from './MarkdownControlRenderer.vue';
 import MultiSelectControlRenderer from './MultiSelectControlRenderer.vue';
 import NumberControlRenderer from './NumberControlRenderer.vue';
@@ -10,13 +13,14 @@ import { rankWith } from '../../../testers/jsonforms-testers';
 import {
   isAutoCompleteControl,
   isBooleanControl,
+  isDateRangeControl,
   isIntegerFormat,
   isMarkdownControl,
   isMultiselectControl,
   isNumberFormat,
   isSelectControl,
   isStringFormat,
-  isTextAreaControl
+  isTextAreaControl,
 } from '../../../testers/tester';
 
 export const controlRenderers = [
@@ -46,5 +50,9 @@ export const controlRenderers = [
   {
     tester: rankWith(12, isIntegerFormat),
     renderer: NumberControlRenderer,
+  },
+  {
+    tester: rankWith(12, isDateRangeControl),
+    renderer: markRaw(DateRangeControlRenderer),
   },
 ];

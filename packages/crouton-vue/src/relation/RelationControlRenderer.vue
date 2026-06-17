@@ -33,9 +33,11 @@ import { Btn, ControlWrapper } from '@ghentcdh/ui';
 import { computed } from 'vue';
 import { useRelationBinding } from './useRelationBinding';
 import RelationButton from './RelationButton.vue';
+import { useFormEvents } from '@ghentcdh/crouton-forms-vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
+const formEvents = useFormEvents();
 const {
   value,
   wrapper,
@@ -43,7 +45,7 @@ const {
   resource,
   isNew,
   appliedOptions,
-} = useRelationBinding(props.uischema, props.schema);
+} = useRelationBinding(props.uischema, props.schema, formEvents);
 
 const message = computed(() => {
   if (isNew.value)
