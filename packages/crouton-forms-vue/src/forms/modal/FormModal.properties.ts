@@ -62,6 +62,18 @@ export const FormModalProperties = {
     type: Function as PropType<(data: any) => Promise<any>>,
     default: null,
   },
+  /**
+   * Called when a relation inside the form is created, updated, or deleted.
+   * Should return a promise resolving to the fresh parent record. When
+   * provided the form reloads automatically after every relation change,
+   * and any pending auto-save debounce is cancelled first to prevent stale
+   * data from overwriting the server state.
+   * Only meaningful in edit mode (relations require an existing parent id).
+   */
+  onRefreshData: {
+    type: Function as PropType<() => Promise<any>>,
+    default: null,
+  },
 };
 
 export type FormModalProp = ExtractPublicPropTypes<typeof FormModalProperties>;

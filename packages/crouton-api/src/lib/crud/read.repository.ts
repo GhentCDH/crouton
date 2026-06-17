@@ -155,24 +155,35 @@ export const sanitizeValueLabelSort = (
 };
 
 /**
- * Drop a sub-resource sort when its field doesn't exist on the child — the
- * frontend defaults to `id`, but join tables (composite PK) have no `id`, which
- * makes Prisma throw. Valid order keys = the child model's Prisma fields
- * (scalars + relations, via the field-reference API) plus any column ids on the
- * sub-resource's views. When neither source is available we trust the sort.
+ * Sanitize a sub-resource `orderBy` field so Prisma never rejects it:
+ *
+ * - A nested path (`author.origin_name`) is kept as-is — Prisma builds a nested
+ *   `orderBy` and validates the leaf against the related model.
+ * - A single segment must be a real **scalar/enum** field of the child model
+ *   (the Prisma field-reference API, `model.fields`, lists exactly those — not
+ *   object relations). A bare relation name (`author`) or a computed/aliased
+ *   column id is NOT orderable on its own and would throw
+ *   (`Expected …OrderByWithRelationInput, provided String`), so it is dropped.
+ * - This also covers join tables (composite PK, no `id`): the frontend's default
+ *   `id` isn't a scalar field, so it's dropped instead of crashing.
+ *
+ * When the model exposes no field metadata we can't validate, so we trust the
+ * caller (e.g. mocked models in tests).
  */
 export const orderableChildSort = (
   sort: string | undefined,
   childModel: any,
-  sub: SubResourceConfig,
+  _sub: SubResourceConfig,
 ): string | undefined => {
   if (!sort) return undefined;
-  const orderable = new Set<string>([
-    ...Object.keys((childModel?.fields ?? {}) as Record<string, unknown>),
-    ...Object.values(sub.views ?? {}).flatMap((v) => v.columns.map((c) => c.id)),
-  ]);
-  if (orderable.size === 0) return sort;
-  return orderable.has(sort.split('.')[0]) ? sort : undefined;
+  const scalarFields = new Set(
+    Object.keys((childModel?.fields ?? {}) as Record<string, unknown>),
+  );
+  if (scalarFields.size === 0) return sort; // no metadata → trust the caller
+  // Nested relation path: Prisma builds a valid nested orderBy.
+  if (sort.includes('.')) return sort;
+  // Single segment must be an orderable scalar/enum field of the child.
+  return scalarFields.has(sort) ? sort : undefined;
 };
 
 /** Wrap configured columns of a row as `{ value, label }`. Returns a shallow copy. */

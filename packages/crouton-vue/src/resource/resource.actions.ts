@@ -136,11 +136,14 @@ const openEditModal =
       http: useApi(),
       renderers,
       onEvents: (event: any) => {
-        if (event.event === 'update-relation') {
-          // TODO this one should reload the edit modal
-          console.warn('Reload the data related to this', event);
-        }
+        // Other renderer events (e.g. 'create', 'view') can be handled here.
       },
+      // Re-fetch the parent record when a relation changes so the form stays in
+      // sync. onRefreshData cancels any pending auto-save debounce first to
+      // prevent the stale captured data from overwriting the server state.
+      onRefreshData: isUpdate
+        ? () => api.getOneById(recordId)
+        : undefined,
     } as const;
 
     if (autoSaveEnabled && isUpdate) {

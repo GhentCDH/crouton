@@ -21,6 +21,8 @@ export class JsonFormModalService {
     renderers,
     autoSave,
     onAutoSave,
+    onRefreshData,
+    saveLabel,
   }: {
     initialData?: DATA;
     schema: any;
@@ -35,6 +37,14 @@ export class JsonFormModalService {
     autoSave?: boolean;
     /** Called with form data on each debounced save. Required when `autoSave` is true. */
     onAutoSave?: (data: DATA) => Promise<any>;
+    /**
+     * Called when a relation inside the form changes. Should return the fresh
+     * parent record so the form can reload. Any pending auto-save debounce is
+     * cancelled first to prevent stale data from overwriting the server state.
+     */
+    onRefreshData?: () => Promise<any>;
+    /** Label for the save button. Defaults to 'Save'. */
+    saveLabel?: string;
   }) {
     ModalService.openModal<FormModalProp, FormModalResult>({
       component: FormModal,
@@ -50,7 +60,8 @@ export class JsonFormModalService {
         renderers,
         autoSave: autoSave ?? false,
         onAutoSave,
-        saveLabel: 'Create',
+        onRefreshData,
+        ...(saveLabel && { saveLabel }),
       },
     });
   }

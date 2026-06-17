@@ -21,7 +21,7 @@
           @errors="onErrors"
           @change="onChange"
           @valid="onValid"
-          @events="emits('events', $event)"
+          @events="onFormEvents"
         />
         <slot name="content-after" />
       </div>
@@ -61,11 +61,7 @@
         >
           {{ cancelLabel }}
         </Btn>
-        <Btn
-          :disabled="!valid"
-          :aria-label="saveLabel"
-          @click="onSubmit"
-        >
+        <Btn :disabled="!valid" :aria-label="saveLabel" @click="onSubmit">
           {{ saveLabel }}
         </Btn>
       </template>
@@ -74,13 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 import { Btn, Color, Modal } from '@ghentcdh/ui';
 
 import { FormModalEmits, FormModalProperties } from './FormModal.properties';
 import FormComponent from '../FormComponent.vue';
 import { useAutoSave } from '../../composables/useAutoSave';
+import type { FormEventPayload } from '../../composables/useFormEvents';
 
 const properties = defineProps(FormModalProperties);
 
@@ -106,24 +103,34 @@ const autoSaver =
 // Prevents the initial mount validation from firing a spurious save.
 const userHasEdited = ref(false);
 
+// Guard: prevents the async vee-validate callbacks that fire after a server
+// refresh from arming auto-save or marking the form as user-edited.
+// Set to true while onRefreshData is in-flight; reset after effects settle.
+let isRefreshing = false;
+
 const autoSaveStatus = computed(() => autoSaver?.status.value ?? 'idle');
 
 const autoSaveStatusLabel = computed(() => {
   switch (autoSaveStatus.value) {
-    case 'saving':  return 'Saving…';
-    case 'saved':   return 'Saved ✓';
-    case 'pending': return 'Fill required fields to save';
-    case 'error':   return 'Save failed';
-    default:        return '';
+    case 'saving':
+      return 'Saving…';
+    case 'saved':
+      return 'Saved ✓';
+    case 'pending':
+      return 'Fill required fields to save';
+    case 'error':
+      return 'Save failed';
+    default:
+      return '';
   }
 });
 
 const autoSaveStatusClass = computed(() => ({
-  'text-gray-400':  autoSaveStatus.value === 'idle',
-  'text-blue-500':  autoSaveStatus.value === 'saving',
+  'text-gray-400': autoSaveStatus.value === 'idle',
+  'text-blue-500': autoSaveStatus.value === 'saving',
   'text-green-600': autoSaveStatus.value === 'saved',
   'text-amber-500': autoSaveStatus.value === 'pending',
-  'text-red-500':   autoSaveStatus.value === 'error',
+  'text-red-500': autoSaveStatus.value === 'error',
 }));
 
 // ─── Form event handlers ──────────────────────────────────────────────────────
@@ -139,7 +146,9 @@ const onValid = (isValid: boolean) => {
 
 const onChange = (data: any) => {
   formData.value = data;
-  if (autoSaver) {
+  // During a server refresh, async vee-validate callbacks can fire onChange;
+  // skip auto-save arming until the refresh has fully settled.
+  if (autoSaver && !isRefreshing) {
     userHasEdited.value = true;
     autoSaver.trigger(data, valid.value);
   }
@@ -155,6 +164,41 @@ const onRetry = () => {
   if (autoSaver && formData.value) {
     autoSaver.saveNow(formData.value);
   }
+};
+
+const onFormEvents = (payload: FormEventPayload) => {
+  if (payload.event === 'update-relation' && properties.onRefreshData) {
+    // 1. Kill any pending debounce — its captured data is now stale.
+    autoSaver?.cancel();
+    // 2. Reset the dirty flag so the incoming fresh data doesn't re-arm the debounce.
+    userHasEdited.value = false;
+    // 3. Block onChange from arming auto-save while the refresh is in-flight.
+    isRefreshing = true;
+    // 4. Pull the latest record from the server and sync the form.
+    //    Use nextTick to defer the formData assignment so it lands in a fresh
+    //    Vue flush cycle — this breaks the synchronous prop→watcher→setValues
+    //    chain that otherwise causes "Maximum recursive updates" in FormComponent.
+    properties.onRefreshData()
+      .then((fresh) => {
+        if (fresh) {
+          nextTick(() => {
+            formData.value = fresh;
+          });
+        }
+      })
+      .finally(() => {
+        // Double nextTick: let formData update + all async vee-validate callbacks
+        // (triggered by useControlBinding's field watchers) fully settle before
+        // re-enabling onChange auto-save arming.
+        nextTick(() => {
+          nextTick(() => {
+            isRefreshing = false;
+            userHasEdited.value = false;
+          });
+        });
+      });
+  }
+  emits('events', payload);
 };
 
 const onErrors = (errors: any) => {

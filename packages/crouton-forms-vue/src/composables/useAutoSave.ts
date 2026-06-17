@@ -30,6 +30,12 @@ export type UseAutoSaveReturn = {
    * Useful for the Retry button after an error.
    */
   saveNow: (data: any) => Promise<void>;
+  /**
+   * Cancel any pending debounce without saving and reset status to `'saved'`.
+   * Call this before externally refreshing the form data (e.g. after a relation
+   * change) to prevent stale captured data from being written to the server.
+   */
+  cancel: () => void;
 };
 
 export const useAutoSave = ({
@@ -75,5 +81,12 @@ export const useAutoSave = ({
 
   const saveNow = (data: any) => executeSave(data);
 
-  return { status, trigger, saveNow };
+  const cancel = () => {
+    clearTimer();
+    // Server already holds the correct state (e.g. after an external write like
+    // a relation change), so 'saved' is the right status to show.
+    status.value = 'saved';
+  };
+
+  return { status, trigger, saveNow, cancel };
 };

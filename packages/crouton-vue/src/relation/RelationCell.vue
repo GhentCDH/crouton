@@ -4,10 +4,10 @@
     :outline="true"
     color="custom"
     size="xs"
-    class="px-5 text-gray-500 border-gray-300"
+    class="px-5 text-gray-500 border-gray-300 max-w-96 [&>span]:flex [&>span]:min-w-0"
     @click="openDetails"
   >
-    {{ label }}
+    <div class="truncate min-w-0">{{ label }}</div>
   </Btn>
 </template>
 
@@ -32,6 +32,13 @@ const isNumberValue = computed(() => {
   return typeof value.value === 'number';
 });
 
+const getNestedValue = (value: any, path: string): unknown => {
+  return path.split('.').reduce<unknown>((obj, key) => {
+    return obj != null && typeof obj === 'object'
+      ? (obj as Record<string, unknown>)[key]
+      : undefined;
+  }, value);
+};
 const label = computed(() => {
   const val = value.value;
   if (isNumberValue.value) {
@@ -42,6 +49,9 @@ const label = computed(() => {
   if (typeof val === 'undefined' || typeof val === 'undefined' || val === null)
     return undefined;
 
+  const displayKey = props.options.displayKey ?? 'id';
+
+  return getNestedValue(val, displayKey) as string;
   const key = props.column.options?.key;
   if (key) return val[key] ?? null;
 

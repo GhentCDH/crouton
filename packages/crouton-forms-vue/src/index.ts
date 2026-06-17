@@ -1,5 +1,6 @@
 // Types
 export { default as ReadonlyLabel } from './forms/renderers/controls/readonly/ReadonlyLabel.vue';
+export { default as ControlLabel } from './forms/renderers/controls/ControlLabel.vue';
 
 export type { ErrorMode } from './forms/errorMode';
 export type { HttpClient } from './http-client';
@@ -18,7 +19,11 @@ export { useDisplayValue } from './forms/renderers/controls/readonly/useDisplayV
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
 export { useAutoSave } from './composables/useAutoSave';
-export type { AutoSaveStatus, UseAutoSaveOptions, UseAutoSaveReturn } from './composables/useAutoSave';
+export type {
+  AutoSaveStatus,
+  UseAutoSaveOptions,
+  UseAutoSaveReturn,
+} from './composables/useAutoSave';
 
 // Components
 export { default as JsonForm } from './forms/FormComponent.vue';
