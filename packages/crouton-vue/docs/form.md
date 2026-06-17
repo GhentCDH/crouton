@@ -51,8 +51,8 @@ useCrouton().init(useApi(), {
 
 The three renderer slots:
 
-- **`renderers`** — merged into create/edit modal renderer lists.
-- **`readonlyRenderers`** — merged into view (readonly) modal renderer lists.
+- **`renderers`** — merged into both create/edit _and_ view (readonly) modal renderer lists. Use this for custom formats that should work in all contexts.
+- **`readonlyRenderers`** — merged into view (readonly) modals only, on top of `renderers`. Use this when you need a genuinely different display component for readonly mode.
 - **`cellRenderers`** — merged into table cell renderer lists.
 
 See [use-crouton.md](./use-crouton.md) for the full `init()` API.

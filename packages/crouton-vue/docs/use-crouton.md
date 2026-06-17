@@ -69,8 +69,8 @@ useCrouton().init(useApi(), {
 
 The three renderer arrays map to these modal contexts:
 
-- `renderers` — create and edit form modals
-- `readonlyRenderers` — view (readonly) modals
+- `renderers` — create/edit modals **and** view (readonly) modals. Use for custom formats that should work in all contexts.
+- `readonlyRenderers` — view (readonly) modals only, stacked on top of `renderers`. Use when you need a different display component specifically for readonly mode.
 - `cellRenderers` — table cell rendering
 
 ## Reactive state

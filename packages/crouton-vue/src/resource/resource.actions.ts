@@ -79,7 +79,7 @@ const openViewModal =
       modalSize: formDef.modalSize ?? 'lg',
       data: formData,
       modalTitle: formDef.title ?? '',
-      renderers: [...relationReadonlyRenderers, ...useCrouton().readonlyRenderers],
+      renderers: [...relationReadonlyRenderers, ...useCrouton().readonlyRenderers, ...useCrouton().renderers],
       onEdit: op.update
         ? (data: any) =>
             openEditModal(api, resource, formDef, handleEvent)(data ?? formData)

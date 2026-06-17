@@ -26,6 +26,8 @@ const getRelationResource = async (
   if (!config) return null;
 
   const handleEvent = (event) => {
+    // console.log(event);
+    // console.log('formEvents', formEvents);
     // formEvents.dispatch({
     //   event: 'update-relation',
     // });

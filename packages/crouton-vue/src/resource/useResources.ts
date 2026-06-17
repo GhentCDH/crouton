@@ -2,7 +2,6 @@ import { cloneDeep } from 'lodash-es';
 import { reactive } from 'vue';
 
 import { customCellRenderers } from './renderers';
-import { useCrouton } from '../composables/useCrouton';
 import { Resource } from './resource';
 import {
   actions,
@@ -14,6 +13,7 @@ import { resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
+import { useCrouton } from '../composables/useCrouton';
 import { type Request } from '../utils/request';
 
 export interface UseResourcesProperties {
