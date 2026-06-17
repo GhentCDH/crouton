@@ -1,31 +1,42 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import type { CroutonConfig, LoadedConfig } from './config';
-import { listResourceNames, makeRelationResolver, readExistingResource } from './project';
+import {
+  listResourceNames,
+  makeRelationResolver,
+  readExistingResource,
+} from './project';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-
-
 const config: CroutonConfig = {
   resourcesDir: 'resources',
-  dataSourcesDir: 'data-sources',
+  generatedTypesImport: '@np/generated/types',
+  datasources: {
+    docsdb: { prismaSchema: 'prisma/schema.prisma', default: true },
+  },
 };
 
 let loaded: LoadedConfig;
 
 beforeAll(async () => {
   const root = await mkdtemp(join(tmpdir(), 'crouton-proj-'));
-  loaded = { config, path: join(root, 'crouton.config.json'), root };
+  loaded = { config, path: join(root, 'crouton.json'), root };
   const res = join(root, 'resources');
   // language: has resource.json + schema.ts
   await mkdir(join(res, 'language'), { recursive: true });
-  await writeFile(join(res, 'language', 'resource.json'), JSON.stringify({ name: 'language', columns: { id: { idField: true } } }));
+  await writeFile(
+    join(res, 'language', 'resource.json'),
+    JSON.stringify({ name: 'language', columns: { id: { idField: true } } }),
+  );
   await writeFile(join(res, 'language', 'schema.ts'), 'export default {};');
   // author: resource.json only
   await mkdir(join(res, 'author'), { recursive: true });
-  await writeFile(join(res, 'author', 'resource.json'), JSON.stringify({ name: 'author' }));
+  await writeFile(
+    join(res, 'author', 'resource.json'),
+    JSON.stringify({ name: 'author' }),
+  );
   // notAResource: directory without resource.json
   await mkdir(join(res, 'helpers'), { recursive: true });
 });

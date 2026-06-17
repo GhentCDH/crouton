@@ -41,7 +41,6 @@ export type DetailConfig = {
   controls: DetailControl[];
 };
 
-
 export type FieldInput = {
   type: string;
   /**
@@ -89,19 +88,37 @@ export type JsonColumn = {
    * e.g. `{ "field": "source", "eq": "existing" }`
    * Translates to a JSON Forms `SHOW` rule.
    */
-  showWhen?: { field: string; eq?: unknown; neq?: unknown; exists?: boolean; notExists?: boolean };
+  showWhen?: {
+    field: string;
+    eq?: unknown;
+    neq?: unknown;
+    exists?: boolean;
+    notExists?: boolean;
+  };
   /**
    * Hide this field when another field matches a value.
    * e.g. `{ "field": "source", "eq": "new" }`
    * Translates to a JSON Forms `HIDE` rule.
    */
-  hideWhen?: { field: string; eq?: unknown; neq?: unknown; exists?: boolean; notExists?: boolean };
+  hideWhen?: {
+    field: string;
+    eq?: unknown;
+    neq?: unknown;
+    exists?: boolean;
+    notExists?: boolean;
+  };
   /**
    * Disable this field when another field has no value (or matches a condition).
    * e.g. `{ "field": "author_origin", "notExists": true }` — disabled when author_origin is empty.
    * Translates to a JSON Forms `DISABLE` rule.
    */
-  disabledWhen?: { field: string; eq?: unknown; neq?: unknown; exists?: boolean; notExists?: boolean };
+  disabledWhen?: {
+    field: string;
+    eq?: unknown;
+    neq?: unknown;
+    exists?: boolean;
+    notExists?: boolean;
+  };
   /** Display a nested key (e.g. `"name"` for `speech.name`). Maps to `TextCellBuilder.key()`. */
   displayKey?: string;
   /** Override the sort column (e.g. `"speech.name"`). Maps to `TextCellBuilder.setSortId()`. */
@@ -291,6 +308,17 @@ export type JsonTableLinkAction = {
 
 export type JsonTableAction = JsonTableProcedureAction | JsonTableLinkAction;
 
+/**
+ * Configuration for a single sidebar group, defined centrally in `crouton.json`.
+ * Keyed by the group slug (e.g. `"metadata"`).
+ */
+export type SidebarGroupConfig = {
+  /** Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug. */
+  label?: string;
+  /** Controls the order of this group among top-level sidebar items. */
+  position?: number;
+};
+
 export type JsonResourceConfig = {
   name: string;
   route: string;
@@ -300,7 +328,20 @@ export type JsonResourceConfig = {
   table?: string;
   idType?: 'number' | 'string';
   database?: string;
-  sidebar?: { hide?: boolean; position?: number };
+  sidebar?: {
+    /** Hide this resource from the sidebar entirely. */
+    hide?: boolean;
+    /** Order within its group (or at the top level). Lower values come first. */
+    position?: number;
+    /** Override the sidebar label. Defaults to the resource `title`. */
+    label?: string;
+    /**
+     * Slug of the group this resource belongs to.
+     * Must match a key in `sidebarGroups` in `crouton.json`.
+     * Resources with the same `group` are nested under a shared collapsible section.
+     */
+    group?: string;
+  };
   operations: JsonOperations;
   columns?: JsonColumn[] | JsonColumnsMap;
   calculatedColumns?: CalculatedColumn[];
@@ -325,7 +366,9 @@ export type JsonResourceConfig = {
  * - Object with nested includes: `{ relation: "text_author", include: ["author"] }`
  *   → `{ text_author: { include: { author: true } } }`
  */
-export type JsonIncludeEntry = string | { relation: string; include: JsonIncludeEntry[] };
+export type JsonIncludeEntry =
+  | string
+  | { relation: string; include: JsonIncludeEntry[] };
 
 /**
  * Derive a human-readable label from a column id.
@@ -334,7 +377,7 @@ export type JsonIncludeEntry = string | { relation: string; include: JsonInclude
 export const labelFromId = (id: string): string => {
   const words = id
     .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase → camel Case
-    .replace(/[_-]+/g, ' ')              // snake_case / kebab-case → spaces
+    .replace(/[_-]+/g, ' ') // snake_case / kebab-case → spaces
     .trim();
   return words.charAt(0).toUpperCase() + words.slice(1).toLowerCase();
 };

@@ -1,46 +1,34 @@
 /**
- * Project configuration.
+ * Project configuration (`crouton.config.{json,js,mjs}`).
  *
- * `crouton.json` (project root) holds only project-wide settings — paths, the
- * schema export-name template, the enum registry, ruleset overrides. Datasources
- * are NOT listed here: each is self-describing in its own
- * `<dataSourcesDir>/<name>/data-source.json` and discovered by scanning that
- * directory. Every datasource carries its own Prisma schema, generated zod
- * import, zod output, and Prisma config (for multi-datasource projects).
+ * Nothing in a crouton project links a datasource to a Prisma schema, a DB URL
+ * env var, the resources directory, or the generated-types import path — these
+ * are not derivable, so they live in a small project-root config that both the
+ * CLI and the (future) backend endpoint read.
  */
+
+import type { SidebarGroupConfig } from '@ghentcdh/crouton-core';
 
 import type { Ruleset } from './types';
-import { access, readFile, readdir } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
-
-/**
- * Shape of a `data-source.json`. The `type`/`name`/`default` keys are also read
- * by crouton-api at runtime; the rest are codegen-only.
- */
 export interface DatasourceConfig {
-  type?: string;
-  /** Datasource name (defaults to the folder name). */
-  name?: string;
-  /** Marks the default datasource when more than one exists. */
-  default?: boolean;
   /** Path to this datasource's Prisma schema, relative to the project root. */
   prismaSchema: string;
-  /** Env var holding the connection URL. */
+  /** Env var holding the connection URL (used by `prisma db pull`). */
   urlEnv?: string;
-  /** Import path for this datasource's generated Zod types (for `schema.ts`). */
-  generatedTypesImport: string;
-  /** This datasource's zod-prisma-types output dir, relative to project root. */
-  zodOutput?: string;
-  /** Prisma config file for this datasource. Default `prisma/<name>/prisma.config.ts`. */
-  prismaConfig?: string;
+  /** Marks the default datasource when more than one is configured. */
+  default?: boolean;
 }
 
 export interface CroutonConfig {
   /** Where resource directories live, relative to the project root. */
   resourcesDir: string;
-  /** Where datasource folders live (each with a `data-source.json`). */
-  dataSourcesDir: string;
+  /** Where datasource folders live (optional; used by the scaffolder/UX). */
+  dataSourcesDir?: string;
+  /** Import path for generated Zod types, e.g. `@new-polities/generated/types`. */
+  generatedTypesImport: string;
   /**
    * Template for a model's Zod export name. `{Model}` → Prisma model name.
    * Defaults to `{Model}WithRelationsSchema` (the relations-aware schema
@@ -49,31 +37,43 @@ export interface CroutonConfig {
   schemaExportName?: string;
   /** Path to the shared enum registry, relative to project root. Default `crouton.enums.json`. */
   enumsFile?: string;
+  datasources: Record<string, DatasourceConfig>;
   /** Optional overrides of the default visibility ruleset. */
   rules?: Partial<Ruleset>;
+  /**
+   * Sidebar group definitions, keyed by group slug (e.g. `"metadata"`).
+   * Resources reference a group via `sidebar.group` in their `resource.json`.
+   * Centralising groups here avoids duplicated labels/positions across resource files.
+   *
+   * Example:
+   * ```json
+   * "sidebarGroups": {
+   *   "metadata": { "label": "Metadata", "position": 10 }
+   * }
+   * ```
+   */
+  sidebarGroups?: Record<string, SidebarGroupConfig>;
 }
 
-/** A fully-resolved datasource (from `data-source.json` + defaults). */
 export interface ResolvedDatasource {
   name: string;
-  default: boolean;
   prismaSchema: string;
   urlEnv?: string;
-  generatedTypesImport: string;
-  zodOutput?: string;
-  /** Prisma config file path, relative to project root. */
-  prismaConfig: string;
 }
 
 export interface LoadedConfig {
   config: CroutonConfig;
-  /** Absolute path to `crouton.json`. */
+  /** Absolute path to the config file. */
   path: string;
   /** Absolute project root (config file directory). */
   root: string;
 }
 
-const CONFIG_FILES = ['crouton.json', 'crouton.mjs', 'crouton.js'];
+const CONFIG_FILES = [
+  'crouton.json',
+  'crouton.config.mjs',
+  'crouton.config.js',
+];
 
 const fileExists = async (p: string): Promise<boolean> => {
   try {
@@ -84,10 +84,12 @@ const fileExists = async (p: string): Promise<boolean> => {
   }
 };
 
-/** Walk up from `cwd` to find `crouton.json`. */
-export const findConfigPath = async (cwd: string): Promise<string | undefined> => {
+/** Walk up from `cwd` to find a crouton config file. */
+export const findConfigPath = async (
+  cwd: string,
+): Promise<string | undefined> => {
   let dir = resolve(cwd);
-   
+
   while (true) {
     for (const name of CONFIG_FILES) {
       const candidate = join(dir, name);
@@ -99,7 +101,7 @@ export const findConfigPath = async (cwd: string): Promise<string | undefined> =
   }
 };
 
-/** Load + validate `crouton.json`. Throws if none is found. */
+/** Load + validate the config. Throws if none is found. */
 export const loadConfig = async (cwd: string): Promise<LoadedConfig> => {
   const path = await findConfigPath(cwd);
   if (!path) {
@@ -111,93 +113,68 @@ export const loadConfig = async (cwd: string): Promise<LoadedConfig> => {
   if (path.endsWith('.json')) {
     config = JSON.parse(await readFile(path, 'utf-8')) as CroutonConfig;
   } else {
-    const mod = (await import(path)) as { default?: CroutonConfig } & CroutonConfig;
+    const mod = (await import(path)) as {
+      default?: CroutonConfig;
+    } & CroutonConfig;
     config = mod.default ?? mod;
   }
   validateConfig(config, path);
   return { config, path, root: dirname(path) };
 };
 
-export const validateConfig = (config: CroutonConfig, path = '<config>'): void => {
-  if (!config.resourcesDir) throw new Error(`${path}: "resourcesDir" is required.`);
-  if (!config.dataSourcesDir) throw new Error(`${path}: "dataSourcesDir" is required.`);
-};
-
-/** Default Prisma config path for a datasource: `prisma/<name>/prisma.config.ts`. */
-export const defaultPrismaConfig = (name: string): string => `prisma/${name}/prisma.config.ts`;
-
-/**
- * Discover datasources by scanning `dataSourcesDir`: each subdirectory with a
- * `data-source.json` becomes a `ResolvedDatasource`. The datasource `name`
- * defaults to the folder name; `prismaConfig` defaults to `prisma/<name>/prisma.config.ts`.
- */
-export const loadDatasources = async (loaded: LoadedConfig): Promise<ResolvedDatasource[]> => {
-  const base = resolveFromRoot(loaded.root, loaded.config.dataSourcesDir);
-  if (!(await fileExists(base))) return [];
-  const entries = await readdir(base, { withFileTypes: true });
-  const datasources: ResolvedDatasource[] = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    const jsonPath = join(base, e.name, 'data-source.json');
-    if (!(await fileExists(jsonPath))) continue;
-    const ds = JSON.parse(await readFile(jsonPath, 'utf-8')) as DatasourceConfig;
-    const name = ds.name ?? e.name;
-    datasources.push({
-      name,
-      default: ds.default === true,
-      prismaSchema: ds.prismaSchema,
-      urlEnv: ds.urlEnv,
-      generatedTypesImport: ds.generatedTypesImport,
-      zodOutput: ds.zodOutput,
-      prismaConfig: ds.prismaConfig ?? defaultPrismaConfig(name),
-    });
+export const validateConfig = (
+  config: CroutonConfig,
+  path = '<config>',
+): void => {
+  if (!config.resourcesDir)
+    throw new Error(`${path}: "resourcesDir" is required.`);
+  if (!config.generatedTypesImport) {
+    throw new Error(`${path}: "generatedTypesImport" is required.`);
   }
-  validateDatasources(datasources);
-  return datasources;
-};
-
-export const validateDatasources = (datasources: ResolvedDatasource[]): void => {
-  if (datasources.length === 0) {
-    throw new Error('No datasources found (no data-source.json under the data-sources dir).');
-  }
-  const defaults = datasources.filter((d) => d.default);
+  const names = Object.keys(config.datasources ?? {});
+  if (names.length === 0)
+    throw new Error(`${path}: at least one datasource is required.`);
+  const defaults = names.filter((n) => config.datasources[n].default);
   if (defaults.length > 1) {
-    throw new Error(
-      `Only one datasource may be marked "default" (found: ${defaults.map((d) => d.name).join(', ')}).`,
-    );
+    throw new Error(`${path}: only one datasource may be marked "default".`);
   }
 };
 
 /**
- * Resolve which discovered datasource to use:
+ * Resolve which datasource to use:
  *  - explicit `name` → must exist
  *  - else the one marked `default`
  *  - else the only one
  *  - else ambiguous → throw (the CLI prompts before calling this)
  */
 export const resolveDatasource = (
-  datasources: ResolvedDatasource[],
+  config: CroutonConfig,
   name?: string,
 ): ResolvedDatasource => {
-  if (name) {
-    const found = datasources.find((d) => d.name === name);
-    if (!found) {
-      throw new Error(
-        `Unknown datasource "${name}". Available: ${datasources.map((d) => d.name).join(', ')}.`,
-      );
-    }
-    return found;
+  const names = Object.keys(config.datasources);
+  let chosen = name;
+  if (!chosen) {
+    chosen =
+      names.find((n) => config.datasources[n].default) ??
+      (names.length === 1 ? names[0] : undefined);
   }
-  const def = datasources.find((d) => d.default);
-  if (def) return def;
-  if (datasources.length === 1) return datasources[0];
-  throw new Error(
-    `Multiple datasources found (${datasources.map((d) => d.name).join(', ')}); specify which one to use.`,
-  );
+  if (!chosen) {
+    throw new Error(
+      `Multiple datasources configured (${names.join(', ')}); specify which one to use.`,
+    );
+  }
+  const ds = config.datasources[chosen];
+  if (!ds)
+    throw new Error(
+      `Unknown datasource "${chosen}". Available: ${names.join(', ')}.`,
+    );
+  return { name: chosen, prismaSchema: ds.prismaSchema, urlEnv: ds.urlEnv };
 };
 
 /** Build the `(prismaName) → exportName` function from the config template. */
-export const makeSchemaExportName = (config: CroutonConfig): ((prismaName: string) => string) => {
+export const makeSchemaExportName = (
+  config: CroutonConfig,
+): ((prismaName: string) => string) => {
   const template = config.schemaExportName ?? '{Model}WithRelationsSchema';
   return (prismaName: string) => template.replace('{Model}', prismaName);
 };
@@ -208,19 +185,15 @@ export const resolveFromRoot = (root: string, p: string): string =>
 
 // ─── scaffolding ─────────────────────────────────────────────────────────────
 
-export interface ScaffoldDatasource extends DatasourceConfig {
-  /** Folder name under `dataSourcesDir`. */
-  folder: string;
-}
-
 export interface ScaffoldResult {
   config: CroutonConfig;
-  /** Proposed `data-source.json` per discovered datasource folder. */
-  datasources: ScaffoldDatasource[];
   notes: string[];
 }
 
-const firstExisting = async (root: string, candidates: string[]): Promise<string | undefined> => {
+const firstExisting = async (
+  root: string,
+  candidates: string[],
+): Promise<string | undefined> => {
   for (const c of candidates) {
     if (await fileExists(join(root, c))) return c;
   }
@@ -228,97 +201,111 @@ const firstExisting = async (root: string, candidates: string[]): Promise<string
 };
 
 /**
- * Best-effort proposal for a new-style project: a `crouton.json` (paths only)
- * plus a self-describing `data-source.json` per discovered datasource folder.
- * Returned, not written — the CLI shows it and offers to save.
+ * Best-effort `crouton.config` proposal by inspecting a project: locates the
+ * Prisma schema + URL env (from `prisma.config.ts`), the data-sources folder
+ * (reading each `data-source.json`), the resources dir, and the generated-types
+ * import (from an existing resource `schema.ts`). Returned, not written — the
+ * CLI shows it and offers to save.
  */
-export const scaffoldConfigFromProject = async (root: string): Promise<ScaffoldResult> => {
+export const scaffoldConfigFromProject = async (
+  root: string,
+): Promise<ScaffoldResult> => {
   const notes: string[] = [];
 
+  const prismaSchema =
+    (await firstExisting(root, ['prisma/schema.prisma', 'schema.prisma'])) ??
+    'prisma/schema.prisma';
+
   let urlEnv: string | undefined;
-  const prismaConfigFile = await firstExisting(root, ['prisma.config.ts', 'prisma.config.js', 'prisma.config.mjs']);
-  if (prismaConfigFile) {
-    const text = await readFile(join(root, prismaConfigFile), 'utf-8');
+  const prismaConfig = await firstExisting(root, [
+    'prisma.config.ts',
+    'prisma.config.js',
+    'prisma.config.mjs',
+  ]);
+  if (prismaConfig) {
+    const text = await readFile(join(root, prismaConfig), 'utf-8');
     urlEnv = /env\(\s*["']([^"']+)["']\s*\)/.exec(text)?.[1];
   }
-  if (!urlEnv) notes.push('Could not detect a DB URL env var; set "urlEnv" per datasource manually.');
+  if (!urlEnv)
+    notes.push('Could not detect the DB URL env var; set "urlEnv" manually.');
 
-  const dataSourcesDir =
-    (await firstExisting(root, [
-      'apps/backend/src/app/data-sources',
-      'src/app/data-sources',
-      'data-sources',
-    ])) ?? 'src/app/data-sources';
+  const dataSourcesDir = await firstExisting(root, [
+    'apps/backend/src/app/data-sources',
+    'src/app/data-sources',
+    'data-sources',
+  ]);
+
+  const datasources: Record<string, DatasourceConfig> = {};
+  if (dataSourcesDir) {
+    const { readdir } = await import('node:fs/promises');
+    const entries = await readdir(join(root, dataSourcesDir), {
+      withFileTypes: true,
+    });
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      const dsJsonPath = join(root, dataSourcesDir, e.name, 'data-source.json');
+      if (!(await fileExists(dsJsonPath))) continue;
+      const dsJson = JSON.parse(await readFile(dsJsonPath, 'utf-8')) as {
+        name?: string;
+        default?: boolean;
+      };
+      const name = dsJson.name ?? e.name;
+      datasources[name] = {
+        prismaSchema,
+        urlEnv,
+        ...(dsJson.default ? { default: true } : {}),
+      };
+    }
+  }
+  if (Object.keys(datasources).length === 0) {
+    datasources['default'] = { prismaSchema, urlEnv, default: true };
+    notes.push('No data-sources found; added a single "default" datasource.');
+  }
 
   const resourcesDir =
-    (await firstExisting(root, ['apps/backend/src/app/resources', 'src/app/resources', 'resources'])) ??
-    join(dirname(dataSourcesDir), 'resources');
+    (dataSourcesDir ? join(dirname(dataSourcesDir), 'resources') : undefined) ??
+    (await firstExisting(root, [
+      'apps/backend/src/app/resources',
+      'src/app/resources',
+      'resources',
+    ])) ??
+    'src/app/resources';
 
-  // Detect a generated-types import from an existing resource schema.ts.
-  let detectedImport: string | undefined;
+  let generatedTypesImport = '';
+  // Try to read an existing resource schema.ts import path.
   if (await fileExists(join(root, resourcesDir))) {
-    const dirs = await readdir(join(root, resourcesDir), { withFileTypes: true });
+    const { readdir } = await import('node:fs/promises');
+    const dirs = await readdir(join(root, resourcesDir), {
+      withFileTypes: true,
+    });
     for (const d of dirs) {
       if (!d.isDirectory()) continue;
       const schemaTs = join(root, resourcesDir, d.name, 'schema.ts');
       if (await fileExists(schemaTs)) {
-        const m = /from\s+["']([^"']+)["']/.exec(await readFile(schemaTs, 'utf-8'));
+        const text = await readFile(schemaTs, 'utf-8');
+        const m = /from\s+["']([^"']+)["']/.exec(text);
         if (m) {
-          detectedImport = m[1];
+          generatedTypesImport = m[1];
           break;
         }
       }
     }
   }
-
-  const datasources: ScaffoldDatasource[] = [];
-  if (await fileExists(join(root, dataSourcesDir))) {
-    const entries = await readdir(join(root, dataSourcesDir), { withFileTypes: true });
-    for (const e of entries) {
-      if (!e.isDirectory()) continue;
-      const existing = join(root, dataSourcesDir, e.name, 'data-source.json');
-      const prev: Partial<DatasourceConfig> = (await fileExists(existing))
-        ? (JSON.parse(await readFile(existing, 'utf-8')) as DatasourceConfig)
-        : {};
-      const name = prev.name ?? e.name;
-      datasources.push({
-        folder: e.name,
-        type: prev.type ?? 'postgres',
-        name,
-        ...(prev.default ? { default: true } : {}),
-        prismaSchema: prev.prismaSchema ?? `prisma/${name}/schema.prisma`,
-        urlEnv: prev.urlEnv ?? urlEnv,
-        generatedTypesImport: prev.generatedTypesImport ?? detectedImport ?? `@your-scope/generated/${name}`,
-        zodOutput: prev.zodOutput ?? `generated/${name}/src`,
-        prismaConfig: prev.prismaConfig ?? defaultPrismaConfig(name),
-      });
-    }
-  }
-  if (datasources.length === 0) {
-    datasources.push({
-      folder: 'default',
-      type: 'postgres',
-      name: 'default',
-      default: true,
-      prismaSchema: 'prisma/default/schema.prisma',
-      urlEnv,
-      generatedTypesImport: detectedImport ?? '@your-scope/generated/default',
-      zodOutput: 'generated/default/src',
-      prismaConfig: defaultPrismaConfig('default'),
-    });
-    notes.push('No data-sources found; proposed a single "default" datasource.');
-  } else if (!datasources.some((d) => d.default)) {
-    datasources[0].default = true;
+  if (!generatedTypesImport) {
+    generatedTypesImport = '@your-scope/generated/types';
+    notes.push(
+      'Could not detect the generated-types import; set "generatedTypesImport" manually.',
+    );
   }
 
   return {
     config: {
       resourcesDir,
       dataSourcesDir,
-      schemaExportName: '{Model}WithRelationsSchema',
-      enumsFile: 'crouton.enums.json',
+      generatedTypesImport,
+      schemaExportName: '{Model}Schema',
+      datasources,
     },
-    datasources,
     notes,
   };
 };
