@@ -13,6 +13,7 @@ import { resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
+import { useCrouton } from '../composables/useCrouton';
 import { type Request } from '../utils/request';
 
 export interface UseResourcesProperties {
@@ -21,6 +22,7 @@ export interface UseResourcesProperties {
   handleEvent?: HandleEvent;
   defaultUriParams?: Record<string, string>;
   readonly?: boolean;
+  initialLoad?: boolean;
 }
 
 export const useResources = (
@@ -35,13 +37,20 @@ export const useResources = (
     },
     defaultUriParams = {},
     readonly = false,
+    initialLoad = true,
   }: UseResourcesProperties = {},
 ) => {
   if (!formDef) return null;
 
   const _formDef = cloneDeep(formDef);
   const api = resourceApi(_formDef, defaultUriParams);
-  const resource = new Resource(_formDef, api, initialRequestParams, onRequest);
+  const resource = new Resource(
+    _formDef,
+    api,
+    initialRequestParams,
+    onRequest,
+    initialLoad,
+  );
 
   const filterSchema = (_formDef.schemas as any).filter?.data as
     | Record<string, any>
@@ -72,7 +81,7 @@ export const useResources = (
     onUpdatePageSize: resource.updatePageSize,
     onUpdateFilters: resource.updateFilters,
     onUpdateSearch: resource.updateSearch,
-    cellRenderers: customCellRenderers,
+    cellRenderers: [...customCellRenderers, ...useCrouton().cellRenderers],
     actions: actions(
       api,
       resource,

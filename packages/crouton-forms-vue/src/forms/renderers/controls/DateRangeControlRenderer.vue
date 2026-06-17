@@ -2,9 +2,7 @@
   <ControlWrapper v-bind="wrapper">
     <div class="flex items-end gap-2">
       <label class="flex flex-col gap-1">
-        <span v-if="fromLabel" class="text-xs text-secondary">{{
-          fromLabel
-        }}</span>
+        <small class="text-gray-500">{{ fromLabel }}</small>
         <input
           type="date"
           class="input"
@@ -16,7 +14,7 @@
       </label>
       <span class="text-secondary pb-2">→</span>
       <label class="flex flex-col gap-1">
-        <span v-if="toLabel" class="text-xs text-secondary">{{ toLabel }}</span>
+        <small class="text-gray-500">{{ toLabel }}</small>
         <input
           type="date"
           class="input"

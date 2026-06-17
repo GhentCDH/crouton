@@ -16,12 +16,21 @@ Register the module and point it at your resource configuration:
 
 ```ts
 import { CroutonApiModule } from '@ghentcdh/crouton-api';
+import { resolve } from 'node:path';
 
 @Module({
   imports: [
-    CroutonApiModule.register({
-      // load resource.json files from disk
-    }),
+    CroutonApiModule.forResourceDir(
+      resolve(__dirname, 'resources'),
+      resolve(__dirname, 'data-sources'),
+      {
+        baseUrl: process.env.BE_API_URL || 'http://localhost:3000',
+        title: 'My App',           // served to the frontend via GET /_app/layout
+        sidebarGroups: {           // optional — group resources in the sidebar
+          content: { label: 'Content', position: 1 },
+        },
+      },
+    ),
   ],
 })
 export class AppModule {}
@@ -35,6 +44,15 @@ For every registered resource you get:
 - `PATCH /<route>/:id` — update with Zod validation
 - `DELETE /<route>/:id` — delete (when enabled)
 - `GET /schemas/...` — JSON schemas driving the Vue components
+
+## CroutonConfig options
+
+| Field | Type | Description |
+|---|---|---|
+| `baseUrl` | `string` | Base URL of the backend API. |
+| `title` | `string` | Application title served to the frontend via `GET /_app/layout`. Shown in the admin sidebar header. |
+| `sidebarGroups` | `Record<string, SidebarGroupConfig>` | Optional sidebar group definitions (label, position). Resources opt in via `sidebar.group` in `resource.json`. |
+| `enumsFile` | `string` | Explicit path to `crouton.enums.json`. Defaults to auto-discovery from the resources dir. |
 
 ## Building blocks
 

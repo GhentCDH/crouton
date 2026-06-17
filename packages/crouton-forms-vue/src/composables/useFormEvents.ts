@@ -4,7 +4,7 @@ import { type InjectionKey, inject, provide } from 'vue';
  * Event names that renderers can dispatch up to the form host. Expand this
  * union as new events are needed.
  */
-export type FormEventName = 'create' | 'view';
+export type FormEventName = 'create' | 'view' | 'update-relation';
 
 /**
  * Payload passed along with every form event. `type` is user-defined (e.g.
