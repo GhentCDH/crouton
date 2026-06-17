@@ -11,16 +11,18 @@ import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
 import {
-  apply,
   type ApplyContext,
+  type DbModel,
+  type EnumRegistry,
+  type LoadedConfig,
+  type ResolvedDiff,
+  type WritePlan,
+  apply,
   buildEnumRegistry,
   buildResourceDiffs,
   commit,
-  type DbModel,
-  type EnumRegistry,
   introspect,
   loadConfig,
-  type LoadedConfig,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
@@ -28,13 +30,11 @@ import {
   recommendedResolver,
   resolve as resolveDiff,
   resolveDatasource,
-  type ResolvedDiff,
   resolveFromRoot,
   resolveRuleset,
   resourceNames,
   scaffoldConfigFromProject,
   serializeEnumRegistry,
-  type WritePlan,
 } from '@ghentcdh/crouton-codegen';
 
 import { formatResourceChange } from './preview';
