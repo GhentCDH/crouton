@@ -116,6 +116,7 @@ export interface ControlOption {
   fromField?: string;
   /** date-range: JSON object key for the end date. Defaults to "to". */
   toField?: string;
+  customRender?: any;
 }
 
 export type ControlTypes = {
