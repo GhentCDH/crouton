@@ -169,6 +169,12 @@ export class ControlBuilder<
     return builder;
   }
 
+  setCustomRender(customRender: string) {
+    this.addOptions({ customRender });
+
+    return this;
+  }
+
   detail<TYPE>(layoutBuilder: LayoutBuilder<TYPE>, label?: string) {
     this._detail = layoutBuilder;
     this.addOptions({

@@ -14,7 +14,9 @@ export type WhenCondition = {
 };
 
 /** Convert a `WhenCondition` to the JSON Schema fragment used inside a JSON Forms rule. */
-export const buildConditionSchema = (when: WhenCondition): Record<string, unknown> => {
+export const buildConditionSchema = (
+  when: WhenCondition,
+): Record<string, unknown> => {
   if (when.notExists) return { not: { minLength: 1 } };
   if (when.exists) return { minLength: 1 };
   if (when.neq !== undefined) return { not: { const: when.neq } };
@@ -25,17 +27,28 @@ export const buildConditionSchema = (when: WhenCondition): Record<string, unknow
  * Build a JSON Forms rule object for a column's visibility/disabled condition.
  * Returns `undefined` when the column has no conditional rules.
  */
-export const buildRule = (col: JsonColumn): Record<string, unknown> | undefined => {
+export const buildRule = (
+  col: JsonColumn,
+): Record<string, unknown> | undefined => {
   if (col.disabledWhen) {
     return {
       effect: 'DISABLE',
-      condition: { scope: `#/properties/${col.disabledWhen.field}`, schema: buildConditionSchema(col.disabledWhen) },
+      condition: {
+        scope: `#/properties/${col.disabledWhen.field}`,
+        schema: buildConditionSchema(col.disabledWhen),
+      },
     };
   }
   const when = col.showWhen ?? col.hideWhen;
   if (!when) return undefined;
   const effect = col.showWhen ? 'SHOW' : 'HIDE';
-  return { effect, condition: { scope: `#/properties/${when.field}`, schema: buildConditionSchema(when) } };
+  return {
+    effect,
+    condition: {
+      scope: `#/properties/${when.field}`,
+      schema: buildConditionSchema(when),
+    },
+  };
 };
 
 // ── Form control builders ─────────────────────────────────────────────────
@@ -99,12 +112,16 @@ const buildFormControl = (col: JsonColumn) => {
     control.control(type, options).width('full');
   }
 
+  if (fieldInput?.customRender)
+    control.setCustomRender(fieldInput?.customRender);
   if (col.hideLabel) control.hideLabel();
   return control;
 };
 
 /** Build the GridLayout UI schema for a form view. */
-export const buildFormUiSchema = (cols: JsonColumn[]): Record<string, unknown> => {
+export const buildFormUiSchema = (
+  cols: JsonColumn[],
+): Record<string, unknown> => {
   const layout = LayoutBuilder.grid<any>()
     .addControls(...cols.map(buildFormControl))
     .build() as any;

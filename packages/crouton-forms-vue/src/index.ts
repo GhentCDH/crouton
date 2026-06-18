@@ -37,8 +37,8 @@ export {
 export { JsonFormModalService } from './forms/modal/FormModalService';
 
 // Renderers & testers
-export { customRenderers, readonlyRenderers } from './forms/renderers';
-export { optionIsIgnoreCase } from './testers/tester';
+export * from './forms/renderers';
+export { optionIsIgnoreCase, isCustomControlRender } from './testers/tester';
 // Error handling
 export { formatError, registerZodErrorMap } from './forms/errorMessages';
 
