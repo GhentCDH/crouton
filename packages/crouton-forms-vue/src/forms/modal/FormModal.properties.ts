@@ -45,6 +45,35 @@ export const FormModalProperties = {
     type: Array as PropType<any[]>,
     default: null,
   },
+  /**
+   * When true, form changes are saved automatically (debounced) instead of
+   * requiring an explicit Save button click. Save/Cancel are replaced by a
+   * Close button with a status indicator. Requires `onAutoSave`.
+   */
+  autoSave: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * Called with the current form data whenever the debounce fires and the form
+   * is valid. Should return a promise. Only used when `autoSave` is true.
+   */
+  onAutoSave: {
+    type: Function as PropType<(data: any) => Promise<any>>,
+    default: null,
+  },
+  /**
+   * Called when a relation inside the form is created, updated, or deleted.
+   * Should return a promise resolving to the fresh parent record. When
+   * provided the form reloads automatically after every relation change,
+   * and any pending auto-save debounce is cancelled first to prevent stale
+   * data from overwriting the server state.
+   * Only meaningful in edit mode (relations require an existing parent id).
+   */
+  onRefreshData: {
+    type: Function as PropType<() => Promise<any>>,
+    default: null,
+  },
 };
 
 export type FormModalProp = ExtractPublicPropTypes<typeof FormModalProperties>;

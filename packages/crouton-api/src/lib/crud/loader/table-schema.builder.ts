@@ -40,11 +40,34 @@ export const deriveSortId = (col: JsonColumn): string | null => {
   if (col.sortable === false) return null;
   if (col.sortId) return col.sortId;
   const base = col.column ?? col.id;
+  const fi = col.fieldInput;
+  const opts = (fi?.options ?? {}) as Record<string, unknown>;
+
+  // Relation columns (autocomplete / `format: relation`) can't be ordered by the
+  // bare relation name — Prisma expects a nested `…OrderByWithRelationInput`, not
+  // a scalar. Sort by a nested scalar of the related model instead, preferring an
+  // explicit `displayKey`, then the autocomplete label/display key. With no usable
+  // key the column is not sortable (`null`) rather than crashing at query time.
+  const isRelation =
+    fi?.format === 'relation' ||
+    !!fi?.relationType ||
+    fi?.type === 'autocomplete' ||
+    typeof opts.resource === 'string';
+  if (isRelation) {
+    const key =
+      (typeof col.displayKey === 'string' ? col.displayKey : undefined) ??
+      (typeof opts.displayKey === 'string' ? opts.displayKey : undefined) ??
+      (typeof opts.labelKey === 'string' ? opts.labelKey : undefined);
+    if (!key) return null;
+    const path = key.includes('.') ? key : `${base}.${key}`;
+    return path.endsWith('.label') ? path.slice(0, -'.label'.length) : path;
+  }
+
   if (!col.displayKey) return base;
   const path = `${base}.${col.displayKey}`;
   const isValueLabel =
     !!col.enum ||
-    (col.fieldInput?.options as { emitObject?: boolean } | undefined)?.emitObject === true;
+    (opts as { emitObject?: boolean }).emitObject === true;
   // For value-label columns the displayKey targets the `{value,label}` envelope,
   // which is not a DB field. Sort by the underlying scalar: drop a trailing
   // `.label` while keeping any relation path (e.g. `author.origin.label` →

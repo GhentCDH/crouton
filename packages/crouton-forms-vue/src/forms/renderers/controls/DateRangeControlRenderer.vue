@@ -1,11 +1,11 @@
 <template>
-  <ControlWrapper v-bind="wrapper">
+  <ControlLabel v-bind="wrapper">
     <div class="flex items-end gap-2">
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ fromLabel }}</small>
         <input
           type="date"
-          class="input"
+          class="input w-36"
           :value="value?.[fromField] ?? ''"
           :max="value?.[toField] || undefined"
           @input="update(fromField, ($event.target as HTMLInputElement).value)"
@@ -17,7 +17,7 @@
         <small class="text-gray-500">{{ toLabel }}</small>
         <input
           type="date"
-          class="input"
+          class="input w-36"
           :value="value?.[toField] ?? ''"
           :min="value?.[fromField] || undefined"
           @input="update(toField, ($event.target as HTMLInputElement).value)"
@@ -25,14 +25,14 @@
         />
       </label>
     </div>
-  </ControlWrapper>
+  </ControlLabel>
 </template>
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { ControlWrapper } from '@ghentcdh/ui';
 import { useCustomControlBinding } from './composables/useControlBinding';
 import { computed } from 'vue';
+import ControlLabel from './ControlLabel.vue';
 
 type DateRange = Record<string, string | undefined>;
 

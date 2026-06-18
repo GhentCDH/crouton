@@ -37,7 +37,7 @@ export default defineConfig({
       fileName: (_format, entryName) => `${entryName}.js`,
       formats: ['es'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         '@ghentcdh/crouton-core',
         '@ghentcdh/ui',

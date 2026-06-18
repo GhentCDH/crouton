@@ -1,6 +1,6 @@
 <template>
-  <ControlWrapper v-bind="wrapper">
-    <div v-if="message" class="text-sm text-secondary italic py-2">
+  <ControlLabel v-bind="wrapper">
+    <div v-if="message" class="text-sm text-gray-500 italic py-2">
       {{ message }}
     </div>
     <div v-if="!message && resource">
@@ -24,16 +24,16 @@
         </Btn>
       </div>
     </div>
-  </ControlWrapper>
+  </ControlLabel>
 </template>
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { Btn, ControlWrapper } from '@ghentcdh/ui';
+import { Btn } from '@ghentcdh/ui';
 import { computed } from 'vue';
 import { useRelationBinding } from './useRelationBinding';
 import RelationButton from './RelationButton.vue';
-import { useFormEvents } from '@ghentcdh/crouton-forms-vue';
+import { ControlLabel, useFormEvents } from '@ghentcdh/crouton-forms-vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
