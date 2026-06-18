@@ -51,3 +51,5 @@ Thumbs.db
 # pnpm temp files
 _tmp_*
 *_PLAN.md
+
+.nx/migrate-runs
