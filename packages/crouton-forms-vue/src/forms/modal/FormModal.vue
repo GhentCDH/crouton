@@ -144,10 +144,17 @@ const onValid = (isValid: boolean) => {
   valid.value = isValid;
 };
 
+// Helper: always read live vee-validate values rather than the (potentially
+// stale) formData ref. formData is only updated on intentional assignments
+// (initial load / server refresh / cancel) — never on every keystroke.
+const liveValues = () => formRef.value?.getCurrentValues() ?? formData.value;
+
 const onChange = (data: any) => {
-  formData.value = data;
-  // During a server refresh, async vee-validate callbacks can fire onChange;
-  // skip auto-save arming until the refresh has fully settled.
+  // Do NOT update formData.value here.
+  // Doing so would create a reactive cycle:
+  //   values watcher → onChange → formData.value = data
+  //   → prop watcher → setValues(data) → values watcher → …
+  // formData is only written on initial load, server refresh, and cancel.
   if (autoSaver && !isRefreshing) {
     userHasEdited.value = true;
     autoSaver.trigger(data, valid.value);
@@ -157,12 +164,12 @@ const onChange = (data: any) => {
 const onSubmit = () => {
   formRef.value?.markSubmitted();
   if (!valid.value) return;
-  emits('closeModal', { data: formData.value, valid: valid.value });
+  emits('closeModal', { data: liveValues(), valid: valid.value });
 };
 
 const onRetry = () => {
-  if (autoSaver && formData.value) {
-    autoSaver.saveNow(formData.value);
+  if (autoSaver) {
+    autoSaver.saveNow(liveValues());
   }
 };
 
@@ -212,8 +219,8 @@ const onErrors = (errors: any) => {
 
   // Re-evaluate auto-save whenever validity changes via the errors path,
   // but only if the user has already made at least one change.
-  if (autoSaver && userHasEdited.value && formData.value) {
-    autoSaver.trigger(formData.value, isValid);
+  if (autoSaver && userHasEdited.value) {
+    autoSaver.trigger(liveValues(), isValid);
   }
 };
 

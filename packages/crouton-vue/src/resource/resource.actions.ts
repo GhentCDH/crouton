@@ -48,9 +48,9 @@ const openDeleteModal =
       message: 'Are you sure to delete, the data will be lost?',
       onClose: (result) => {
         if (result.confirmed) {
-          handleEvent('close', { delete: true, data });
           api.delete(data).then((response) => {
             if (response) resource.reload();
+            handleEvent('close', { delete: true, data });
           });
         } else handleEvent('close', {});
       },
@@ -141,9 +141,7 @@ const openEditModal =
       // Re-fetch the parent record when a relation changes so the form stays in
       // sync. onRefreshData cancels any pending auto-save debounce first to
       // prevent the stale captured data from overwriting the server state.
-      onRefreshData: isUpdate
-        ? () => api.getOneById(recordId)
-        : undefined,
+      onRefreshData: isUpdate ? () => api.getOneById(recordId) : undefined,
     } as const;
 
     if (autoSaveEnabled && isUpdate) {
@@ -171,9 +169,9 @@ const openEditModal =
               : api.create(data);
 
             promise.then((response) => {
+              handleEvent('close', response);
               if (response) resource.reload();
             });
-            handleEvent('close', result.data);
           } else {
             handleEvent('close', {});
           }

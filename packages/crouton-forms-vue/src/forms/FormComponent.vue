@@ -1,12 +1,6 @@
 <template>
-  <form
-    :id="id"
-    @submit.prevent="onSubmit"
-  >
-    <Dispatch
-      :uischema="uiSchema"
-      :schema="schema"
-    />
+  <form :id="id" @submit.prevent="onSubmit">
+    <Dispatch :uischema="uiSchema" :schema="schema" />
   </form>
 </template>
 
@@ -85,10 +79,16 @@ if (properties.http) {
 // an infinite update cycle.
 let syncing = false;
 
-// Sync external formData changes into vee-validate
+// Sync external formData changes into vee-validate.
+// Shallow watch (no `deep: true`) is intentional: vee-validate stores references
+// to nested objects from the data passed to setValues, so a deep watcher would
+// re-fire whenever vee-validate mutates those shared nested references internally
+// — causing "Maximum recursive updates" on the second (and subsequent) refreshes.
+// We only need to react when a wholly new formData object is assigned.
 watch(
   () => properties.formData,
-  (newData) => {
+  () => {
+    const newData = toRaw(properties.formData);
     if (!newData) return;
     if (JSON.stringify(newData) === JSON.stringify(toRaw(values))) return;
     syncing = true;
@@ -97,7 +97,6 @@ watch(
       syncing = false;
     });
   },
-  { deep: true },
 );
 
 // Emit changes when vee-validate values change
@@ -136,5 +135,8 @@ const markSubmitted = () => {
   submitted.value = true;
 };
 
-defineExpose({ markSubmitted });
+/** Returns a plain-object snapshot of the current vee-validate values. */
+const getCurrentValues = (): Data => toRaw(values) as Data;
+
+defineExpose({ markSubmitted, getCurrentValues });
 </script>

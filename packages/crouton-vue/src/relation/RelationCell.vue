@@ -52,14 +52,6 @@ const label = computed(() => {
   const displayKey = props.options.displayKey ?? 'id';
 
   return getNestedValue(val, displayKey) as string;
-  const key = props.column.options?.key;
-  if (key) return val[key] ?? null;
-
-  if (props.column.options?.format === 'keyValue') {
-    return val[props.column.options.key];
-  }
-
-  return val;
 });
 
 const openDetails = () => {
