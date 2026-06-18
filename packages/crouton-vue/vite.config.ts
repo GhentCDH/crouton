@@ -34,7 +34,7 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         '@ghentcdh/crouton-forms-vue',
         '@ghentcdh/ui',
