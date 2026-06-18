@@ -23,6 +23,9 @@ import {
   isTextAreaControl,
 } from '../../../testers/tester';
 
+export { default as AutocompleteControlRenderer } from './AutocompleteControlRenderer.vue';
+export { useFetchOptions } from './composables/useFetchOption';
+
 export const controlRenderers = [
   { tester: rankWith(10, isStringFormat), renderer: StringControlRenderer },
   {

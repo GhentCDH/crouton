@@ -116,6 +116,7 @@ export interface ControlOption {
   fromField?: string;
   /** date-range: JSON object key for the end date. Defaults to "to". */
   toField?: string;
+  customRender?: any;
 }
 
 export type ControlTypes = {
@@ -167,6 +168,12 @@ export class ControlBuilder<
     } as unknown as Partial<ControlOption>);
 
     return builder;
+  }
+
+  setCustomRender(customRender: string) {
+    this.addOptions({ customRender });
+
+    return this;
   }
 
   detail<TYPE>(layoutBuilder: LayoutBuilder<TYPE>, label?: string) {

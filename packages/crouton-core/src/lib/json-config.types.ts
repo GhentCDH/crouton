@@ -43,6 +43,7 @@ export type DetailConfig = {
 
 export type FieldInput = {
   type: string;
+  customRender?: string;
   /**
    * Render format hint for the frontend (e.g. `"relation"` for sub-resource
    * relations). When `format` is `"relation"`, `resource` must also be set.

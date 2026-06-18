@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash-es';
-import { reactive } from 'vue';
+import { reactive, shallowRef } from 'vue';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
@@ -14,6 +14,7 @@ import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
 import { useCrouton } from '../composables/useCrouton';
+import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
 
 export interface UseResourcesProperties {
@@ -24,6 +25,27 @@ export interface UseResourcesProperties {
   readonly?: boolean;
   initialLoad?: boolean;
 }
+
+export const useResourcesByUri = (
+  uri: string,
+  params: UseResourcesProperties = {},
+) => {
+  const crouton = useCrouton();
+
+  return computedAsync(async () => {
+    const config = await crouton.getFormByUri(id);
+
+    return useResources(config, params);
+  });
+};
+export const useResourcesById = (
+  id: string,
+  params: UseResourcesProperties = {},
+) => {
+  const crouton = useCrouton();
+  const config = computedAsync(() => crouton.getFormDef(id as string));
+  return shallowRef(useResources(config.value, params));
+};
 
 export const useResources = (
   formDef: FormDef | null | undefined,
@@ -94,5 +116,6 @@ export const useResources = (
       backendAction(resource, formDef, defaultUriParams, action),
     tableActions: tableActions(resource, _formDef),
     resourceModal: resourceModals(api, resource, _formDef, handleEvent),
+    api,
   });
 };
