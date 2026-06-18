@@ -2,7 +2,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
 import { useField, useFormContext } from 'vee-validate';
 import type { Ref } from 'vue';
-import { computed, inject, watch } from 'vue';
+import { computed, inject } from 'vue';
 
 import type { ControlOption } from '@ghentcdh/crouton-core';
 
@@ -42,17 +42,6 @@ export const useCustomControlBinding = <
 
     const onBlur = () => field.handleBlur(new Event('blur'));
     const onChange = () => field.handleChange(field.value.value);
-
-    // Mark dirty when value changes via v-model (e.g. typing in text input)
-    // Native change event only fires on blur for text inputs, so this covers keystroke updates.
-    let initialized = false;
-    watch(field.value, (val) => {
-      if (!initialized) {
-        initialized = true;
-        return;
-      }
-      field.handleChange(val);
-    });
 
     return {
       formValues,
