@@ -20,6 +20,7 @@
     "@nx/eslint-plugin": "23.0.0",
     "@nx/js": "23.0.0",
     "@nx/vite": "23.0.0",
+    "@nx/vitest": "23.0.0",
     "@nx/vue": "23.0.0",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
@@ -54,5 +55,6 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {}
 }
