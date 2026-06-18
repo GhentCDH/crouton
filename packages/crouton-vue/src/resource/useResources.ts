@@ -16,6 +16,7 @@ import type { FormDef } from '../composables/form-def.types';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
+import { computedAsync } from '../utils/computedAsync';
 
 export interface UseResourcesProperties {
   initialRequestParams?: Partial<Request>;
