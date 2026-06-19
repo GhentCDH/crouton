@@ -16,7 +16,13 @@
   />
   <ControlLabel v-bind="wrapper" v-else>
     <div v-if="resource">
-      <div class="flex flex-wrap gap-2 mb-2">
+      <div
+        class="flex flex-wrap gap-2 mb-2"
+        :class="{
+          'flex-col': appliedOptions.direction === 'column',
+          'flex-row': appliedOptions.direction === 'row',
+        }"
+      >
         <RelationButton
           v-for="v of value"
           :key="v"

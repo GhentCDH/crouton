@@ -1,7 +1,7 @@
 import { arrayRenderers } from './array/ArrayRenderers';
 import { controlRenderers } from './controls';
 import { readonlyControlRenderers } from './controls/readonly';
-import { layoutRenderers } from './layout/LayoutRenderers';
+import { layoutRenderers, readonlyLayoutRenderers } from './layout/LayoutRenderers';
 
 export * from './array/ArrayRenderers';
 export * from './controls';
@@ -16,7 +16,7 @@ export const customRenderers = [
 ].flat();
 
 export const readonlyRenderers = [
-  layoutRenderers,
+  readonlyLayoutRenderers,
   readonlyControlRenderers,
   arrayRenderers,
 ].flat();

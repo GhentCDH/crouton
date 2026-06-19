@@ -7,14 +7,16 @@
       v-else-if="isInline"
       class="flex gap-2 items-center justify-between w-full"
     >
-      <RelationButton
-        :key="value"
-        :options="appliedOptions"
-        :value="value"
-        @view="view"
-      />
+      <RelationButton :options="appliedOptions" :value="value" @view="view" />
     </div>
-    <div v-else class="flex flex-wrap gap-2">
+    <div
+      v-else
+      class="flex flex-wrap gap-2"
+      :class="{
+        'flex-col': appliedOptions.direction === 'column',
+        'flex-row': appliedOptions.direction === 'row',
+      }"
+    >
       <RelationButton
         v-for="v of value"
         :key="v"
