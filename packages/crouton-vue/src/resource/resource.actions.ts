@@ -1,3 +1,5 @@
+import { ref } from 'vue';
+
 import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
@@ -11,7 +13,6 @@ import { type Action, type TableAction as TableActionDef } from '../composables/
 import type { FormDef, FormDefActionCondition } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
-import { ref } from 'vue';
 
 const evaluateCondition = (
   condition: FormDefActionCondition | undefined,

@@ -4,7 +4,7 @@ import type { SizeType } from '@ghentcdh/crouton-core';
 
 import type { FormEventPayload } from '../composables/useFormEvents';
 import type { HttpClient } from '../http-client';
-import { ErrorMode } from './errorMode';
+import { type ErrorMode } from './errorMode';
 
 export const AutoSaveFormProperties = {
   /** Title displayed in the modal header. */
