@@ -22,15 +22,15 @@ import {
   injectCalculatedColumnsToView,
 } from './view.builders';
 import {
-  LookupConfig,
-  ResourceAction,
-  ResourceConfig,
-  ResourceDefinition,
-  ResourceDisplay,
-  ResourceHooks,
-  ResourceTableAction,
-  SubResourceConfig,
-  ValueLabelColumn,
+  type LookupConfig,
+  type ResourceAction,
+  type ResourceConfig,
+  type ResourceDefinition,
+  type ResourceDisplay,
+  type ResourceHooks,
+  type ResourceTableAction,
+  type SubResourceConfig,
+  type ValueLabelColumn,
 } from '../crud.config';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
