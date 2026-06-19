@@ -119,3 +119,5 @@ export const useResources = (
     api,
   });
 };
+
+export type UseResource = NonNullable<ReturnType<typeof useResources>>;
