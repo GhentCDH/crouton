@@ -1,4 +1,6 @@
 // Types
+export { default as FormComponent } from './forms/FormComponent.vue';
+
 export { default as ReadonlyLabel } from './forms/renderers/controls/readonly/ReadonlyLabel.vue';
 export { default as ControlLabel } from './forms/renderers/controls/ControlLabel.vue';
 

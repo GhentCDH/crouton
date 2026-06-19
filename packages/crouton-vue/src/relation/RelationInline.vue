@@ -33,7 +33,12 @@
 <script setup lang="ts">
 import RelationButton from './RelationButton.vue';
 
-import { JsonFormModalService, ReadonlyLabel, useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
+import {
+  JsonFormModalService,
+  ReadonlyLabel,
+  useFetchOptions,
+  useHttpClient,
+} from '@ghentcdh/crouton-forms-vue';
 import { Autocomplete, Btn } from '@ghentcdh/ui';
 import { computed, ref, useAttrs } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
