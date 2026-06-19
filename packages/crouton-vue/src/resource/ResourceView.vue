@@ -37,18 +37,18 @@ const initialLoad = (resource: UseResource) => {
 
   if (!event) return;
 
-  if (event === 'create') resource.resourceModal.create();
+  if (event === 'create') resource.create();
   if (!id) return;
 
   switch (event) {
     case 'view':
-      resource.resourceModal.view(id);
+      resource.view(id);
       break;
     case 'update':
-      resource.resourceModal.edit(id);
+      resource.edit(id);
       break;
     case 'delete':
-      resource.resourceModal.delete(id);
+      resource.delete(id);
       break;
   }
 };

@@ -1,4 +1,4 @@
-import { type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
+import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
 import { customControlRenderers, relationReadonlyRenderers } from './renderers';
@@ -11,6 +11,7 @@ import { type Action, type TableAction as TableActionDef } from '../composables/
 import type { FormDef, FormDefActionCondition } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import { ref } from 'vue';
 
 const evaluateCondition = (
   condition: FormDefActionCondition | undefined,
@@ -107,6 +108,76 @@ const openViewModal =
     });
   };
 
+const getEditParams = (
+  api: ResourceApiInstance,
+  resource: Resource,
+  formDef: FormDef,
+  handleEvent: HandleEvent,
+  formData?: any,
+) => {
+  const form = formDef.schemas.form;
+  if (!form) return;
+
+  const recordId = formData?.[formDef.idField];
+  const isUpdate = !!recordId;
+
+  handleEvent(isUpdate ? 'update' : 'create', { id: recordId });
+
+  const crouton = useCrouton();
+  const autoSaveEnabled = crouton.autoSave.value;
+  const renderers = [...customControlRenderers, ...crouton.renderers];
+  let formParams = {
+    schema: form.data,
+    uiSchema: form.ui,
+    initialData: formData ?? form.parseValue({}),
+    modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
+    http: useApi(),
+    renderers,
+    // Re-fetch the parent record when a relation changes so the form stays in
+    // sync. onRefreshData cancels any pending auto-save debounce first to
+    // prevent the stale captured data from overwriting the server state.
+    onRefreshData: isUpdate ? () => api.getOneById(recordId) : undefined,
+  };
+
+  if (autoSaveEnabled && isUpdate) {
+    formParams = {
+      ...formParams,
+      autoSave: true,
+      onAutoSave: (data: any) => api.save(recordId, data),
+      onClose: () => {
+        resource.reload();
+        handleEvent('close', {});
+      },
+    };
+  } else {
+    formParams = {
+      saveLabel: isUpdate ? 'Save' : 'Create',
+      onClose: (result: FormModalResult) => {
+        if (result && result.valid) {
+          const data = result.data;
+          const promise = isUpdate
+            ? api.save(recordId, data)
+            : api.create(data);
+
+          promise.then((response) => {
+            handleEvent('close', response);
+            if (response) resource.reload();
+          });
+        } else {
+          handleEvent('close', {});
+        }
+      },
+    };
+  }
+
+  return {
+    autoSaveEnabled,
+    recordId,
+    isUpdate,
+    formParams,
+  };
+};
+
 const openEditModal =
   (
     api: ResourceApiInstance,
@@ -132,6 +203,7 @@ const openEditModal =
       uiSchema: form.ui,
       modalSize: formDef.modalSize ?? 'lg',
       initialData: formData ?? form.parseValue({}),
+      data: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
       renderers,
@@ -146,7 +218,7 @@ const openEditModal =
 
     if (autoSaveEnabled && isUpdate) {
       // ── Auto-save mode (edit only) ────────────────────────────────────────
-      JsonFormModalService.openModal({
+      return {
         ...sharedProps,
         autoSave: true,
         onAutoSave: (data: any) => api.save(recordId, data),
@@ -154,11 +226,11 @@ const openEditModal =
           resource.reload();
           handleEvent('close', {});
         },
-      });
+      };
     } else {
       // ── Explicit save mode ────────────────────────────────────────────────
       // Always used for create; also used for update when autoSave is disabled.
-      JsonFormModalService.openModal({
+      return {
         ...sharedProps,
         saveLabel: isUpdate ? 'Save' : 'Create',
         onClose: (result: FormModalResult) => {
@@ -176,7 +248,7 @@ const openEditModal =
             handleEvent('close', {});
           }
         },
-      });
+      };
     }
   };
 
@@ -327,10 +399,41 @@ export const resourceModals = (
       });
   };
 
+  const form = ref<{ component: any; config: any; hideTable: boolean } | null>(
+    null,
+  );
+
+  const openForm =
+    (
+      api: ResourceApiInstance,
+      resource: Resource,
+      formDef: FormDef,
+      handleEvent: HandleEvent,
+    ) =>
+    (formData?: any) => {
+      // TODO should come from the resource
+      const mode = '__page';
+      const component = mode === 'page' ? AutoSaveForm : FormModal;
+
+      const config = openEditModal(
+        api,
+        resource,
+        formDef,
+        handleEvent,
+      )(formData);
+
+      form.value = {
+        component,
+        config,
+        hideTable: mode === 'page',
+      };
+    };
+
   return {
-    create: () => openEditModal(api, resource, formDef, handleEvent)(),
+    form,
+    create: () => openForm(api, resource, formDef, handleEvent)(),
     edit: (id: unknown) =>
-      openWithData(id, openEditModal(api, resource, formDef, handleEvent)),
+      openWithData(id, openForm(api, resource, formDef, handleEvent)),
     view: (id: unknown) =>
       openWithData(id, openViewModal(api, resource, formDef, handleEvent)),
     delete: (id: unknown) =>

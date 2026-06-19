@@ -57,10 +57,18 @@ watch(
   },
   { once: true },
 );
+
+const form = computed(() => resource.value?.form);
 </script>
 
 <template>
-  <div class="max-w-screen-xl m-auto p-4" v-if="config && resource">
+  <div v-if="form">
+    <component :is="form.component" v-bind="form.config" />
+  </div>
+  <div
+    class="max-w-screen-xl m-auto p-4"
+    v-if="config && resource && !form?.hideTable"
+  >
     <TableToolbar
       :filter-schema="resource.filterSchema"
       :filters="resource.filter"
@@ -77,7 +85,7 @@ watch(
         <Btn
           v-if="config.operations.create"
           :icon="IconEnum.Plus"
-          @click="resource.resourceModal.create"
+          @click="resource.create"
         >
           <span class="whitespace-nowrap">Add record</span>
         </Btn>

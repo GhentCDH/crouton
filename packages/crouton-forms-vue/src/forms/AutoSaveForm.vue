@@ -1,33 +1,30 @@
 <template>
-  {{ initialData }}
-  <Modal
-    v-bind="properties"
-    :open="true"
-    :disable-close="false"
-    :width="modalSize"
-    @close-modal="onCancel"
-  >
-    <template #content>
-      <div class="overflow-auto">
-        <slot name="content-before" />
-        <FormComponent
-          :id="`modal-${id}`"
-          ref="formRef"
-          :form-data="formData"
-          :schema="schema"
-          :ui-schema="uiSchema"
-          :error-mode="errorMode"
-          :http="properties.http"
-          :renderers="properties.renderers"
-          @errors="onErrors"
-          @change="onChange"
-          @valid="onValid"
-          @events="onFormEvents"
-        />
-        <slot name="content-after" />
-      </div>
-    </template>
-    <template #actions>
+  <div class="border border-gray-200 p-4 mt-4">
+    <slot v-if="$slots.title" name="title" />
+    <h3 v-else :id="titleId" class="font-bold shrink-0">
+      {{ modalTitle }}
+    </h3>
+    <div class="overflow-y-auto">
+      <slot name="content-before" />
+      <FormComponent
+        :id="`modal-${id}`"
+        ref="formRef"
+        :form-data="formData"
+        :schema="schema"
+        :ui-schema="uiSchema"
+        :error-mode="errorMode"
+        :http="properties.http"
+        :renderers="properties.renderers"
+        @errors="onErrors"
+        @change="onChange"
+        @valid="onValid"
+        @events="onFormEvents"
+      />
+      <slot name="content-after" />
+    </div>
+    <div
+      class="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-300 shrink-0"
+    >
       <!-- Auto-save mode: status indicator + optional Retry + Close -->
       <template v-if="properties.autoSave">
         <span class="text-sm mr-3" :class="autoSaveStatusClass">
@@ -66,19 +63,22 @@
           {{ saveLabel }}
         </Btn>
       </template>
-    </template>
-  </Modal>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 
-import { Btn, Color, Modal } from '@ghentcdh/ui';
+import { Btn, Color } from '@ghentcdh/ui';
 
-import { FormModalEmits, FormModalProperties } from './FormModal.properties';
-import FormComponent from '../FormComponent.vue';
-import { useAutoSave } from '../../composables/useAutoSave';
-import type { FormEventPayload } from '../../composables/useFormEvents';
+import {
+  FormModalEmits,
+  FormModalProperties,
+} from './modal/FormModal.properties';
+import FormComponent from './FormComponent.vue';
+import { useAutoSave } from '../composables/useAutoSave';
+import type { FormEventPayload } from '../composables/useFormEvents';
 
 const properties = defineProps(FormModalProperties);
 

@@ -30,6 +30,12 @@ export type {
 // Components
 export { default as JsonForm } from './forms/FormComponent.vue';
 export { default as JsonFormModal } from './forms/modal/FormModal.vue';
+export { default as FormModal } from './forms/modal/FormModal.vue';
+export { default as AutoSaveForm } from './forms/AutoSaveForm.vue';
+export {
+  AutoSaveFormEmits,
+  AutoSaveFormProperties,
+} from './forms/AutoSaveForm.properties';
 export {
   FormModalEmits,
   FormModalProperties,
