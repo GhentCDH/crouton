@@ -1,15 +1,32 @@
-import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
+import {
+  ZodArray,
+  ZodNullable,
+  type ZodObject,
+  ZodOptional,
+  type ZodRawShape,
+} from 'zod';
 
 import { type EnumRegistry, injectEnumValues } from './enum-registry';
-import type { CalculatedColumn, JsonColumn, JsonResourceConfig, RelationType } from './json-config.types';
+import type {
+  CalculatedColumn,
+  JsonColumn,
+  JsonResourceConfig,
+  RelationType,
+} from './json-config.types';
 import { normalizeColumns } from './json-config.types';
 import { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
-import { buildViews, buildViewsFromColumns, injectCalculatedColumns, injectCalculatedColumnsToView } from './view.builders';
-import type {
+import {
+  buildViews,
+  buildViewsFromColumns,
+  injectCalculatedColumns,
+  injectCalculatedColumnsToView,
+} from './view.builders';
+import {
   LookupConfig,
   ResourceAction,
   ResourceConfig,
   ResourceDefinition,
+  ResourceDisplay,
   ResourceHooks,
   ResourceTableAction,
   SubResourceConfig,
@@ -35,18 +52,30 @@ const resolveChildResource = (
   const directPath = resolve(parentDir, resourcePath);
   if (resourcePath.endsWith('.json') && existsSync(directPath)) {
     try {
-      return { json: JSON.parse(readFileSync(directPath, 'utf-8')) as JsonResourceConfig, dir: dirname(directPath) };
+      return {
+        json: JSON.parse(
+          readFileSync(directPath, 'utf-8'),
+        ) as JsonResourceConfig,
+        dir: dirname(directPath),
+      };
     } catch {
       return undefined;
     }
   }
 
   // Directory convention: "./author.resource" → sibling dir "author/resource.json"
-  const childName = resourcePath.replace(/^\.\//, '').replace(/\.resource$/, '');
+  const childName = resourcePath
+    .replace(/^\.\//, '')
+    .replace(/\.resource$/, '');
   const childJsonPath = resolve(dirname(parentDir), childName, 'resource.json');
   if (!existsSync(childJsonPath)) return undefined;
   try {
-    return { json: JSON.parse(readFileSync(childJsonPath, 'utf-8')) as JsonResourceConfig, dir: dirname(childJsonPath) };
+    return {
+      json: JSON.parse(
+        readFileSync(childJsonPath, 'utf-8'),
+      ) as JsonResourceConfig,
+      dir: dirname(childJsonPath),
+    };
   } catch {
     return undefined;
   }
@@ -81,7 +110,9 @@ const expandExtendColumns = (
 
     const resolved = resolveChildResource(col.extend, dirPath);
     if (!resolved) {
-      console.warn(`[extend] Could not resolve "${col.extend}" for column "${col.id}" — keeping as-is`);
+      console.warn(
+        `[extend] Could not resolve "${col.extend}" for column "${col.id}" — keeping as-is`,
+      );
       result.push(col);
       continue;
     }
@@ -98,18 +129,27 @@ const expandExtendColumns = (
       // lives at refCol.id.displayKey within the parent column object. Build the full dotted
       // path so scopes and table keys navigate correctly: "internal_author.name".
       // For plain scalar columns with no displayKey the path is just refCol.id.
-      const displayKey = refCol.displayKey ? `${refCol.id}.${refCol.displayKey}` : refCol.id;
+      const displayKey = refCol.displayKey
+        ? `${refCol.id}.${refCol.displayKey}`
+        : refCol.id;
 
       // The more restrictive visibility wins (true = hidden beats false = visible)
       const hiddenInTable =
-        col.hiddenInTable === true || refCol.hiddenInTable === true ? true : col.hiddenInTable ?? refCol.hiddenInTable;
+        col.hiddenInTable === true || refCol.hiddenInTable === true
+          ? true
+          : (col.hiddenInTable ?? refCol.hiddenInTable);
       const hiddenInForm =
-        col.hiddenInForm === true || refCol.hiddenInForm === true ? true : col.hiddenInForm ?? refCol.hiddenInForm;
+        col.hiddenInForm === true || refCol.hiddenInForm === true
+          ? true
+          : (col.hiddenInForm ?? refCol.hiddenInForm);
       const hiddenInView =
-        col.hiddenInView === true || refCol.hiddenInView === true ? true : col.hiddenInView ?? refCol.hiddenInView;
+        col.hiddenInView === true || refCol.hiddenInView === true
+          ? true
+          : (col.hiddenInView ?? refCol.hiddenInView);
 
       // Per-sub-column overrides keyed by virtual id or ref column id
-      const override = col.columns?.[virtualId] ?? col.columns?.[refCol.id] ?? {};
+      const override =
+        col.columns?.[virtualId] ?? col.columns?.[refCol.id] ?? {};
 
       const virtualCol: JsonColumn = {
         id: virtualId,
@@ -137,7 +177,9 @@ const expandExtendColumns = (
  * `fieldInput.options.emitObject` is true and that carry an `options.values`
  * list (typically enum/select columns).
  */
-const buildValueLabelColumns = (columns: JsonColumn[] | undefined): ValueLabelColumn[] =>
+const buildValueLabelColumns = (
+  columns: JsonColumn[] | undefined,
+): ValueLabelColumn[] =>
   (columns ?? []).flatMap((c) => {
     const opts = c.fieldInput?.options as
       | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
@@ -194,7 +236,8 @@ const enrichNestedRelationColumns = (
   if (!cols || !dir) return cols;
   const base = baseUrl ?? '';
   return cols.map((col) => {
-    if (col.fieldInput?.format !== 'relation' || !col.fieldInput.resource) return col;
+    if (col.fieldInput?.format !== 'relation' || !col.fieldInput.resource)
+      return col;
     const resolved = resolveChildResource(col.fieldInput.resource, dir);
     const targetRoute =
       resolved?.json?.route ??
@@ -234,26 +277,57 @@ const buildSubResources = (
   if (!columns || !parentDir) return [];
 
   return columns
-    .filter((c) => c.fieldInput?.format === 'relation' && c.fieldInput?.resource)
+    .filter(
+      (c) => c.fieldInput?.format === 'relation' && c.fieldInput?.resource,
+    )
     .map((c) => {
-      const childResolved = resolveChildResource(c.fieldInput!.resource!, parentDir);
+      const childResolved = resolveChildResource(
+        c.fieldInput!.resource!,
+        parentDir,
+      );
       const childJson = childResolved?.json;
       const childDir = childResolved?.dir;
-      const childRoute = childJson?.route ??
+      const childRoute =
+        childJson?.route ??
         c.fieldInput!.resource!.replace(/^\.\//, '').replace(/\.resource$/, '');
 
-      const rawChildColumns = childJson ? normalizeColumns(childJson.columns) : undefined;
-      const expandedChildColumns = rawChildColumns ? expandExtendColumns(rawChildColumns, childDir) : undefined;
-      const childColumns = applyRelationFormatDefault(expandedChildColumns) ?? expandedChildColumns;
+      const rawChildColumns = childJson
+        ? normalizeColumns(childJson.columns)
+        : undefined;
+      const expandedChildColumns = rawChildColumns
+        ? expandExtendColumns(rawChildColumns, childDir)
+        : undefined;
+      const childColumns =
+        applyRelationFormatDefault(expandedChildColumns) ??
+        expandedChildColumns;
       injectEnumValues(childColumns, enums);
-      const enrichedChildColumns = enrichNestedRelationColumns(childColumns, childDir, baseUrl);
-      const childLookupKey = childColumns?.find((col) => col.idField)?.id ?? 'id';
+      const enrichedChildColumns = enrichNestedRelationColumns(
+        childColumns,
+        childDir,
+        baseUrl,
+      );
+      const childLookupKey =
+        childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = childJson?.calculatedColumns ?? [];
-      let childViews = childJson ? buildViewsFromColumns(enrichedChildColumns) : undefined;
+      let childViews = childJson
+        ? buildViewsFromColumns(enrichedChildColumns)
+        : undefined;
       if (childViews && childCalculatedColumns.length) {
-        childViews = { ...childViews, table: injectCalculatedColumns(childViews.table, childCalculatedColumns) };
+        childViews = {
+          ...childViews,
+          table: injectCalculatedColumns(
+            childViews.table,
+            childCalculatedColumns,
+          ),
+        };
         if (childViews.view) {
-          childViews = { ...childViews, view: injectCalculatedColumnsToView(childViews.view, childCalculatedColumns) };
+          childViews = {
+            ...childViews,
+            view: injectCalculatedColumnsToView(
+              childViews.view,
+              childCalculatedColumns,
+            ),
+          };
         }
       }
       const childOps = childJson?.operations ?? {};
@@ -279,8 +353,12 @@ const buildSubResources = (
         ...(childJson?.actions?.length && { actions: childJson.actions }),
         ...(childJson?.modalSize && { modalSize: childJson.modalSize }),
         ...(childJson?.include?.length && { include: childJson.include }),
-        ...(childJson?.calculatedColumns?.length && { calculatedColumns: childJson.calculatedColumns }),
-        ...((c.hiddenInForm === false || c.hiddenInView === false) && { includeInFindOne: true }),
+        ...(childJson?.calculatedColumns?.length && {
+          calculatedColumns: childJson.calculatedColumns,
+        }),
+        ...((c.hiddenInForm === false || c.hiddenInView === false) && {
+          includeInFindOne: true,
+        }),
         ...(buildValueLabelColumns(childColumns).length && {
           valueLabelColumns: buildValueLabelColumns(childColumns),
         }),
@@ -312,7 +390,9 @@ const enrichActionColumns = (
           ...(col.fieldInput.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
-          ...(sub.views && { resource: `${base}/${parentRoute}/${sub.childRoute}/schemas` }),
+          ...(sub.views && {
+            resource: `${base}/${parentRoute}/${sub.childRoute}/schemas`,
+          }),
         },
       },
     };
@@ -333,8 +413,12 @@ const enrichResourceRefColumns = (
   if (!columns || !parentDir) return columns;
   const base = baseUrl ?? '';
   return columns.map((col) => {
-    if (!col.fieldInput?.resource || col.fieldInput.format === 'relation') return col;
-    const childResolved = resolveChildResource(col.fieldInput.resource, parentDir);
+    if (!col.fieldInput?.resource || col.fieldInput.format === 'relation')
+      return col;
+    const childResolved = resolveChildResource(
+      col.fieldInput.resource,
+      parentDir,
+    );
     const childRoute =
       childResolved?.json?.route ??
       col.fieldInput.resource.replace(/^\.\//, '').replace(/\.resource$/, '');
@@ -367,14 +451,24 @@ export const fromJson = (
   /** Project enum registry — injected into columns that reference an enum by name. */
   enums: EnumRegistry = {},
 ): ResourceConfig => {
-  const rawColumns = expandExtendColumns(normalizeColumns(json.columns) ?? [], dirPath);
+  const rawColumns = expandExtendColumns(
+    normalizeColumns(json.columns) ?? [],
+    dirPath,
+  );
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
     schema,
   );
   injectEnumValues(columns, enums);
 
-  const subResources = buildSubResources(columns, json.route, json.model, dirPath, enums, baseUrl);
+  const subResources = buildSubResources(
+    columns,
+    json.route,
+    json.model,
+    dirPath,
+    enums,
+    baseUrl,
+  );
   const enrichedColumns =
     enrichResourceRefColumns(
       enrichActionColumns(columns, json.route, subResources, baseUrl),
@@ -397,9 +491,15 @@ export const fromJson = (
   );
   let views = buildViews(schema, enrichedColumns);
   if (views && calculatedColumns.length) {
-    views = { ...views, table: injectCalculatedColumns(views.table, calculatedColumns) };
+    views = {
+      ...views,
+      table: injectCalculatedColumns(views.table, calculatedColumns),
+    };
     if (views.view) {
-      views = { ...views, view: injectCalculatedColumnsToView(views.view, calculatedColumns) };
+      views = {
+        ...views,
+        view: injectCalculatedColumnsToView(views.view, calculatedColumns),
+      };
     }
   }
 
@@ -424,11 +524,17 @@ export const fromJson = (
     ...(json.operations.delete !== false && { delete: true }),
   };
 
+  const display: ResourceDisplay = {
+    mode: json.display?.mode === 'page' ? 'page' : 'modal',
+    customComponent: json.display?.customComponent ?? null,
+  };
+
   return {
     name: json.name,
     route: json.route,
     model: json.model,
     tag: json.tag,
+    display,
     ...(json.title && { title: json.title }),
     ...(json.sidebar && { sidebar: json.sidebar }),
     ...(json.idType && { idType: json.idType }),
@@ -491,10 +597,13 @@ const enrichRelationTypes = (
   return columns.map((col) => {
     const fi = col.fieldInput;
     if (!fi) return col;
-    const isRelationField = fi.type === 'autocomplete' || fi.format === 'relation';
+    const isRelationField =
+      fi.type === 'autocomplete' || fi.format === 'relation';
     if (!isRelationField) return col;
     if (fi.relationType) return col; // explicit wins
-    const derived = deriveRelationType(schema, col.id) ?? deriveRelationTypeFromColumns(col, columns);
+    const derived =
+      deriveRelationType(schema, col.id) ??
+      deriveRelationTypeFromColumns(col, columns);
     if (!derived) return col;
     return { ...col, fieldInput: { ...fi, relationType: derived } };
   });

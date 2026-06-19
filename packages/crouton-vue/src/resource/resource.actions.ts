@@ -400,9 +400,12 @@ export const resourceModals = (
       });
   };
 
-  const form = ref<{ component: any; config: any; hideTable: boolean } | null>(
-    null,
-  );
+  const form = ref<{
+    component: any;
+    config: any;
+    hideTable: boolean;
+    customComponent: string | null;
+  } | null>(null);
 
   const openForm =
     (
@@ -412,8 +415,7 @@ export const resourceModals = (
       handleEvent: HandleEvent,
     ) =>
     (formData?: any) => {
-      // TODO should come from the resource
-      const mode = '__page';
+      const mode = formDef.display.mode;
       const component = mode === 'page' ? AutoSaveForm : FormModal;
 
       const config = openEditModal(
@@ -426,6 +428,7 @@ export const resourceModals = (
       form.value = {
         component,
         config,
+        customComponent: formDef.display.customComponent ?? null,
         hideTable: mode === 'page',
       };
     };

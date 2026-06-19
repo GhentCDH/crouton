@@ -116,6 +116,11 @@ export const FormDevSchemas = z.object({
   view: ViewSchemaZ.optional(),
   filter: ViewSchemaZ.optional(),
 });
+export const Display = z.object({
+  mode: z.enum(['page', 'modal']),
+  customComponent: z.string().nullish(),
+});
+
 export type FormDevSchema = z.infer<typeof FormDevSchemas>;
 export const FormDefResponseZ = z
   .object({
@@ -124,6 +129,7 @@ export const FormDefResponseZ = z
     route: z.string(),
     title: z.string(),
     uri: z.string(),
+    display: Display,
     idField: z.string().default('id'),
     idType: z.enum(['string', 'number']).default('string'),
     modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
@@ -154,7 +160,8 @@ export const FormDefResponseZ = z
 
         return {
           uri: operation.uri,
-          method: (operation.method?.toLowerCase() ?? defaultOperation) as Method,
+          method: (operation.method?.toLowerCase() ??
+            defaultOperation) as Method,
         };
       };
 
