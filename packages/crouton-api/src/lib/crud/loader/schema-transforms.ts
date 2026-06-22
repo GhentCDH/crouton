@@ -46,24 +46,18 @@ export const dropNullableFromRequired = (schema: Record<string, unknown>): void 
   }
 };
 
-/** Add `minLength: 1` to required string properties so empty strings are rejected. */
+/** Add `minLength: 1` to all string properties so empty strings are rejected. */
 export const enforceRequiredMinLength = (schema: Record<string, unknown>): void => {
   if (schema['type'] !== 'object') return;
 
-  const required = schema['required'] as string[] | undefined;
   const props = schema['properties'] as Record<string, Record<string, unknown>> | undefined;
-  if (!required?.length || !props) return;
+  if (!props) return;
 
-  for (const key of required) {
-    const prop = props[key];
+  for (const prop of Object.values(props)) {
     if (prop?.['type'] === 'string' && !('minLength' in prop)) {
       prop['minLength'] = 1;
-    }
-  }
-
-  if (props) {
-    for (const value of Object.values(props)) {
-      enforceRequiredMinLength(value);
+    } else if (prop?.['type'] === 'object') {
+      enforceRequiredMinLength(prop);
     }
   }
 };

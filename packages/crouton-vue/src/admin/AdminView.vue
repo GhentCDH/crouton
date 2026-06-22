@@ -35,6 +35,8 @@
             </li>
           </template>
         </ul>
+
+        <div class="bg-base-200 p-4">version: {{ version }}</div>
       </div>
     </template>
   </Drawer>
