@@ -59,7 +59,15 @@ export class FormDefCache {
     const promise = useApi()
       .get(uri)
       .then((res) => {
-        const result = FormDefResponseZ.parse(res.data);
+        const safe = FormDefResponseZ.safeParse(res.data);
+        if (!safe.success) {
+          console.error('Parse failed for ', uri);
+          console.error(safe.error);
+          throw new Error(safe.error as string);
+        }
+
+        const result = safe.data ?? res.data;
+
         const formDef: FormDef = {
           ...result,
           schemas: {

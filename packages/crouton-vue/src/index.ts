@@ -1,5 +1,7 @@
 import './styles.css';
 
+export { croutonApiCall } from './resource/resource.api';
+
 export * from './router';
 export * from './composables/useCrouton';
 export * from './resource/resource-modal';

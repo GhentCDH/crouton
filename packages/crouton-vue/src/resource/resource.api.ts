@@ -2,7 +2,10 @@ import { NotificationService } from '@ghentcdh/ui';
 
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import { type Operation, type OperationKey } from '../composables/form-def.schema';
+import {
+  type Operation,
+  type OperationKey,
+} from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 
@@ -40,6 +43,8 @@ const apiCall = (
     paramsSerializer,
   });
 };
+
+export const croutonApiCall = apiCall;
 
 export const resourceApi = (
   formDef: FormDef,

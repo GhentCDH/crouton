@@ -129,7 +129,7 @@ export const FormDefResponseZ = z
     route: z.string(),
     title: z.string(),
     uri: z.string(),
-    display: Display,
+    display: Display.optional(),
     idField: z.string().default('id'),
     idType: z.enum(['string', 'number']).default('string'),
     modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
@@ -170,6 +170,7 @@ export const FormDefResponseZ = z
 
     return {
       ...data,
+      display: data.display ?? { mode: 'modal' },
       operations,
     };
   });
