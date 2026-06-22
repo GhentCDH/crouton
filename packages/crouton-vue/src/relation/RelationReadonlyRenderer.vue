@@ -45,6 +45,6 @@ const displayKey = computed(() => {
 });
 
 const view = (value: unknown) => {
-  resource.value?.resourceModal.view(value);
+  resource.value?.view(value);
 };
 </script>

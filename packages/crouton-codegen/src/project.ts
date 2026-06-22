@@ -20,32 +20,6 @@ const fileExists = async (p: string): Promise<boolean> => {
   }
 };
 
-export interface LoadedDatasource {
-  name: string;
-  default?: boolean;
-  [key: string]: unknown;
-}
-
-/** Load datasource definitions from `dataSourcesDir` by reading `data-source.json` files. */
-export const loadDatasources = async (
-  loaded: LoadedConfig,
-): Promise<LoadedDatasource[]> => {
-  const { config, root } = loaded;
-  if (!config.dataSourcesDir) return [];
-  const dir = resolveFromRoot(root, config.dataSourcesDir);
-  if (!(await fileExists(dir))) return [];
-  const entries = await readdir(dir, { withFileTypes: true });
-  const result: LoadedDatasource[] = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    const jsonPath = join(dir, e.name, 'data-source.json');
-    if (!(await fileExists(jsonPath))) continue;
-    const json = JSON.parse(await readFile(jsonPath, 'utf-8'));
-    result.push({ name: json.name ?? e.name, ...json });
-  }
-  return result;
-};
-
 /** Absolute path to a resource directory. */
 export const resourceDir = (loaded: LoadedConfig, name: string): string =>
   join(resolveFromRoot(loaded.root, loaded.config.resourcesDir), name);

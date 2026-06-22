@@ -5,7 +5,7 @@ import type {
   FieldInput,
   JsonAction,
   JsonActionCondition,
-  JsonIncludeEntry
+  JsonIncludeEntry,
 } from './loader/json-config.types';
 
 export type ResourceProcedureAction = {
@@ -179,6 +179,11 @@ export type ViewConfig = {
   defaultSort?: string;
 };
 
+export type ResourceDisplay = {
+  mode: 'page' | 'modal';
+  customComponent: string | null;
+};
+
 /**
  * A column whose stored scalar is serialized as `{ value, label }` on read and
  * normalized back to the scalar on write. Computed at load time from columns
@@ -271,6 +276,7 @@ export type ResourceConfig = {
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
   /** Columns serialized as `{ value, label }` on read / unwrapped on write. */
   valueLabelColumns?: ValueLabelColumn[];
+  display: ResourceDisplay;
 };
 
 // ─── helpers ────────────────────────────────────────────────────────────────

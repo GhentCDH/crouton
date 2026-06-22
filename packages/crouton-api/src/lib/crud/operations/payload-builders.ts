@@ -14,36 +14,63 @@ import { toJsonSchema } from '../schema.utils';
  * Unknown variables are left as-is.
  */
 export const resolveEnvPlaceholders = (value: string): string =>
-  value.replace(/\{env\.([^}]+)\}/g, (match, varName) => process.env[varName] ?? match);
+  value.replace(
+    /\{env\.([^}]+)\}/g,
+    (match, varName) => process.env[varName] ?? match,
+  );
 
 /**
  * Build an operations map for a sub-resource with full URIs.
  * `baseUri` is the collection endpoint, e.g. `http://host/text/{id}/content`.
  */
 export const buildSubResourceOperations = (
-  ops: Partial<Record<'findAll' | 'findOne' | 'create' | 'update' | 'delete', boolean>> | undefined,
+  ops:
+    | Partial<
+        Record<'findAll' | 'findOne' | 'create' | 'update' | 'delete', boolean>
+      >
+    | undefined,
   baseUri: string,
   idField = 'id',
 ): Record<string, unknown> => {
   if (!ops) return {};
   const idPlaceholder = `{${idField}}`;
   return {
-    ...(ops.findAll && { findAll: { uri: baseUri,                       method: 'get' } }),
-    ...(ops.findOne && { findOne: { uri: `${baseUri}/${idPlaceholder}`, method: 'get' } }),
-    ...(ops.create  && { create:  { uri: baseUri,                       method: 'post' } }),
-    ...(ops.update  && { update:  { uri: `${baseUri}/${idPlaceholder}`, method: 'patch' } }),
-    ...(ops.delete  && { delete:  { uri: `${baseUri}/${idPlaceholder}`, method: 'delete' } }),
+    ...(ops.findAll && { findAll: { uri: baseUri, method: 'get' } }),
+    ...(ops.findOne && {
+      findOne: { uri: `${baseUri}/${idPlaceholder}`, method: 'get' },
+    }),
+    ...(ops.create && { create: { uri: baseUri, method: 'post' } }),
+    ...(ops.update && {
+      update: { uri: `${baseUri}/${idPlaceholder}`, method: 'patch' },
+    }),
+    ...(ops.delete && {
+      delete: { uri: `${baseUri}/${idPlaceholder}`, method: 'delete' },
+    }),
   };
 };
 
-const RESOURCE_OPS = ['findAll', 'findOne', 'create', 'update', 'delete'] as const;
-type ResourceOp = typeof RESOURCE_OPS[number];
+const RESOURCE_OPS = [
+  'findAll',
+  'findOne',
+  'create',
+  'update',
+  'delete',
+] as const;
+type ResourceOp = (typeof RESOURCE_OPS)[number];
 
 const OP_METHOD: Record<ResourceOp, string> = {
-  findAll: 'get', findOne: 'get', create: 'post', update: 'patch', delete: 'delete',
+  findAll: 'get',
+  findOne: 'get',
+  create: 'post',
+  update: 'patch',
+  delete: 'delete',
 };
 const OP_SUFFIX: Record<ResourceOp, string> = {
-  findAll: '', findOne: '/{id}', create: '', update: '/{id}', delete: '/{id}',
+  findAll: '',
+  findOne: '/{id}',
+  create: '',
+  update: '/{id}',
+  delete: '/{id}',
 };
 
 /** Build an operations map for a top-level resource with full URIs. */
@@ -52,15 +79,20 @@ export const buildResourceOperations = (
   baseUri: string,
 ): Record<string, unknown> =>
   Object.fromEntries(
-    RESOURCE_OPS
-      .filter((op) => isOperationEnabled(definition, op))
-      .map((op) => [op, { uri: `${baseUri}${OP_SUFFIX[op]}`, method: OP_METHOD[op] }]),
+    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map(
+      (op) => [
+        op,
+        { uri: `${baseUri}${OP_SUFFIX[op]}`, method: OP_METHOD[op] },
+      ],
+    ),
   );
 
 // ── Public payload builders ───────────────────────────────────────────────
 
 /** Build the payload for `GET /definition` — enabled operations and their JSON Schemas. */
-export const buildDefinitionPayload = (config: ResourceConfig): Record<string, unknown> => {
+export const buildDefinitionPayload = (
+  config: ResourceConfig,
+): Record<string, unknown> => {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
   const listSchema = schemaFor(definition, 'findAll');
@@ -93,7 +125,10 @@ export const buildDefinitionPayload = (config: ResourceConfig): Record<string, u
 };
 
 /** Build the payload for `GET /resource.json` — URI, enabled operations, and optional form schema. */
-export const buildResourceJsonPayload = (config: ResourceConfig, baseUrl?: string): Record<string, unknown> => {
+export const buildResourceJsonPayload = (
+  config: ResourceConfig,
+  baseUrl?: string,
+): Record<string, unknown> => {
   const { name, route } = config;
   const definition = resolveDefinition(config);
   const uri = `${baseUrl}/${route}`;
@@ -114,11 +149,17 @@ export const buildResourceJsonPayload = (config: ResourceConfig, baseUrl?: strin
  * Build the payload for `GET /schemas` — view schemas (table/form), operations, and actions.
  * Returns `undefined` when the resource has no views configured.
  */
-export const buildViewsPayload = (config: ResourceConfig, baseUrl?: string): Record<string, unknown> | undefined => {
+export const buildViewsPayload = (
+  config: ResourceConfig,
+  baseUrl?: string,
+): Record<string, unknown> | undefined => {
   if (!config.views || !Object.keys(config.views).length) return undefined;
   const definition = resolveDefinition(config);
   const baseUri = `${baseUrl}/${config.route}`;
-  const operations: Record<string, unknown> = buildResourceOperations(definition, baseUri);
+  const operations: Record<string, unknown> = buildResourceOperations(
+    definition,
+    baseUri,
+  );
   if (isOperationEnabled(definition, 'findAll')) {
     operations['lookup'] = `${baseUri}?q={text}`;
   }
@@ -142,11 +183,18 @@ export const buildViewsPayload = (config: ResourceConfig, baseUrl?: string): Rec
     idType: config.idType ?? 'string',
     ...(config.modalSize && { modalSize: config.modalSize }),
     operations,
+    display: config.display,
     schemas,
     ...(config.actions?.length && {
       actions: config.actions.map((a) =>
         a.type === 'link'
-          ? { type: 'link', id: a.id, label: a.label, href: resolveEnvPlaceholders(a.href), ...(a.condition && { condition: a.condition }) }
+          ? {
+              type: 'link',
+              id: a.id,
+              label: a.label,
+              href: resolveEnvPlaceholders(a.href),
+              ...(a.condition && { condition: a.condition }),
+            }
           : {
               id: a.id,
               label: a.label,
@@ -160,7 +208,14 @@ export const buildViewsPayload = (config: ResourceConfig, baseUrl?: string): Rec
     ...(config.tableActions?.length && {
       tableActions: config.tableActions.map((a) =>
         a.type === 'link'
-          ? { type: 'link', id: a.id, label: a.label, icon: a.icon, tooltip: a.tooltip, href: resolveEnvPlaceholders(a.href) }
+          ? {
+              type: 'link',
+              id: a.id,
+              label: a.label,
+              icon: a.icon,
+              tooltip: a.tooltip,
+              href: resolveEnvPlaceholders(a.href),
+            }
           : {
               id: a.id,
               label: a.label,

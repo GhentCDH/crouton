@@ -11,6 +11,11 @@ import type { RelationType } from './relation.types';
 
 type BoolOrUpsert = boolean | { upsertOn: string | string[] };
 
+export type JsonDisplay = {
+  mode?: 'page' | 'modal';
+  customComponent?: string | null;
+};
+
 export type JsonOperations = {
   findAll?: boolean;
   findOne?: boolean;
@@ -343,6 +348,7 @@ export type JsonResourceConfig = {
      */
     group?: string;
   };
+  display?: JsonDisplay;
   operations: JsonOperations;
   columns?: JsonColumn[] | JsonColumnsMap;
   calculatedColumns?: CalculatedColumn[];

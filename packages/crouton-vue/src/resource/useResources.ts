@@ -83,6 +83,8 @@ export const useResources = (
     _formDef.operations.create = null;
   }
 
+  const resourceModal = resourceModals(api, resource, _formDef, handleEvent);
+
   return reactive({
     operations: _formDef.operations ?? {},
     uiSchema: _formDef.schemas.table.ui,
@@ -115,7 +117,13 @@ export const useResources = (
     backendAction: (action: Action) =>
       backendAction(resource, formDef, defaultUriParams, action),
     tableActions: tableActions(resource, _formDef),
-    resourceModal: resourceModals(api, resource, _formDef, handleEvent),
+    create: resourceModal.create,
+    edit: resourceModal.edit,
+    view: resourceModal.view,
+    delete: resourceModal.delete,
+    form: resourceModal.form,
     api,
   });
 };
+
+export type UseResource = NonNullable<ReturnType<typeof useResources>>;

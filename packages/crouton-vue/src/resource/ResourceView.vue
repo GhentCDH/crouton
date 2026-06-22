@@ -1,33 +1,29 @@
 <script setup lang="ts">
-import { computed, shallowRef, toRaw, watch } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
-import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
 import { useCrouton } from '../composables/useCrouton';
-
-import { Btn, IconEnum } from '@ghentcdh/ui';
-import { useResources } from './useResources';
-import { Request } from '../utils/request';
+import ResourceTable from './ResourceTable.vue';
+import { UseResource } from './useResources';
 
 const route = useRoute();
 const router = useRouter();
-const formId = computed(() => route.params['formId']);
+const formId = computed(() => route.params['formId'] as string);
 const crouton = useCrouton();
 
 const id = computed(() => `${formId.value}_${Date.now()}`);
 const config = computedAsync(() => crouton.getFormDef(formId.value as string));
 
-const handleEvent = (event: string, data: any) => {
+const handleEvent = ({ event, data }: { event: string; data: any }) => {
   let querydata: Record<string, string | undefined> = { id: data?.id, event };
   if (event === 'close') {
     querydata = { id: undefined, event: undefined };
   }
-  router.replace({ query: { ...route.query, ...querydata } });
+  router.push({ query: { ...route.query, ...querydata } });
 };
 
 const onRequest = (requestData: Request) => {
-  router.replace({
+  router.push({
     query: {
       ...route.query,
       ...requestData,
@@ -35,82 +31,36 @@ const onRequest = (requestData: Request) => {
   });
 };
 
-const resource = shallowRef(
-  useResources(config.value, {
-    initialRequestParams: { ...toRaw(route.query) },
-    onRequest,
-    handleEvent,
-  }),
-);
+const initialLoad = (resource: UseResource) => {
+  const id = route.query['id'] as string | undefined;
+  const event = route.query['event'] as string | undefined;
 
-watch(
-  () => config.value,
-  (newConfig) => {
-    resource.value = newConfig
-      ? useResources(newConfig, {
-          initialRequestParams: { ...toRaw(route.query) },
-          onRequest,
-          handleEvent,
-        })
-      : null;
-  },
-);
+  if (!event) return;
 
-watch(
-  () => resource.value,
-  () => {
-    if (!resource.value) return;
-    const id = route.query['id'] as string | undefined;
-    const event = route.query['event'] as string | undefined;
+  if (event === 'create') resource.create();
+  if (!id) return;
 
-    if (!event) return;
-
-    if (event === 'create') resource.value.resourceModal.create();
-    if (!id) return;
-
-    switch (event) {
-      case 'view':
-        resource.value.resourceModal.view(id);
-        break;
-      case 'update':
-        resource.value.resourceModal.edit(id);
-        break;
-      case 'delete':
-        resource.value.resourceModal.delete(id);
-        break;
-    }
-  },
-  { once: true },
-);
-
-const create = () => resource.value?.resourceModal.create();
+  switch (event) {
+    case 'view':
+      resource.view(id);
+      break;
+    case 'update':
+      resource.edit(id);
+      break;
+    case 'delete':
+      resource.delete(id);
+      break;
+  }
+};
 </script>
 
 <template>
-  <div class="max-w-screen-xl m-auto p-4" v-if="config && resource">
-    <TableToolbar
-      :filter-schema="resource.filterSchema"
-      :filters="resource.filter"
-      :search="resource.search"
-      :actions="resource.tableActions"
-      @update-search="resource.onUpdateSearch"
-      @update-filters="resource.onUpdateFilters"
-      @action="resource.backendAction"
-    >
-      <template #left>
-        <span class="text-xl font-bold mr-4">{{ config.title }}</span>
-      </template>
-      <template #right>
-        <Btn
-          v-if="config.operations.create"
-          :icon="IconEnum.Plus"
-          @click="create"
-        >
-          <span class="whitespace-nowrap">Add record</span>
-        </Btn>
-      </template>
-    </TableToolbar>
-
-    <TableComponent :id="`form_table_${id}`" v-bind="resource" />
-  </div>
+  <ResourceTable
+    #resourceTable
+    :form-id="formId"
+    :initial-request-params="route.query"
+    @handle-event="handleEvent"
+    @on-request="onRequest"
+    @initial-load="initialLoad"
+  />
 </template>

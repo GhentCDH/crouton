@@ -36,7 +36,7 @@
           v-if="resource.operations?.create"
           icon="Plus"
           size="xs"
-          @click="resource.resourceModal?.create()"
+          @click="resource.create()"
         >
           Add
         </Btn>
@@ -78,17 +78,16 @@ const message = computed(() => {
 
 const formEvents = useFormEvents();
 const operations = computed(() => {
+  const res = resource.value!;
   const ops: Record<string, (value: unknown) => void> = {
     onView: (value: unknown) => {
-      resource.value?.resourceModal.view(value);
+      res.view(value);
     },
   };
-  const resourceModal = resource.value?.resourceModal;
-  if (!resourceModal) return ops;
   if (resource.value?.operations.create)
     ops['onCreate'] = (value) => {
       const data = { value };
-      resource.value.api.create(data).then((response) => {
+      res.api.create(data).then((response) => {
         formEvents.dispatch({
           event: 'update-relation',
           type: 'text_metadata',
@@ -96,8 +95,8 @@ const operations = computed(() => {
         });
       });
     };
-  if (resource.value?.operations.update) ops['onEdit'] = resourceModal.edit;
-  if (resource.value?.operations.delete) ops['onDelete'] = resourceModal.delete;
+  if (resource.value?.operations.update) ops['onEdit'] = res.edit;
+  if (resource.value?.operations.delete) ops['onDelete'] = res.delete;
   return ops;
 });
 
