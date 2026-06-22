@@ -122,7 +122,7 @@ describe('scaffoldConfigFromProject', () => {
     await mkdir(resDir, { recursive: true });
     await writeFile(
       join(resDir, 'schema.ts'),
-      "import { LanguageSchema } from '@np/generated/types';\nexport default LanguageSchema;\n",
+      'import { LanguageSchema } from \'@np/generated/types\';\nexport default LanguageSchema;\n',
     );
 
     const { config, datasources } = await scaffoldConfigFromProject(root);

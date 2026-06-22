@@ -1,5 +1,4 @@
 <template>
-  {{ initialData }}
   <Modal
     v-bind="properties"
     :open="true"

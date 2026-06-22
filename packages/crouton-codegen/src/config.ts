@@ -12,7 +12,7 @@
 import type { SidebarGroupConfig } from '@ghentcdh/crouton-core';
 
 import type { Ruleset } from './types';
-import { access, readdir, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
 /**
@@ -98,7 +98,7 @@ const fileExists = async (p: string): Promise<boolean> => {
 /** Walk up from `cwd` to find `crouton.json`. */
 export const findConfigPath = async (cwd: string): Promise<string | undefined> => {
   let dir = resolve(cwd);
-  // eslint-disable-next-line no-constant-condition
+   
   while (true) {
     for (const name of CONFIG_FILES) {
       const candidate = join(dir, name);

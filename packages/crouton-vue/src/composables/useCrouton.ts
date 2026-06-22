@@ -7,7 +7,7 @@ import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import { FormDefCache } from './form-def';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
-import { CustomComponentEntry } from '../utils/custom-component';
+import { type CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
