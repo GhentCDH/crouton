@@ -121,7 +121,6 @@ watch(
   (newValues) => {
     if (syncing) return;
     const isValid = meta.value.valid;
-    console.table(meta.value);
     emits('valid', isValid);
     emits('change', toRaw(newValues) as Data);
   },
@@ -135,8 +134,6 @@ watch(
     const errorList = Object.entries(newErrors)
       .filter(([, msg]) => !!msg)
       .map(([path, message]) => ({ path, message }));
-    console.log('errors', newErrors);
-    console.table(newErrors);
     emits('errors', errorList);
   },
   { deep: true },
