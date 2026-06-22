@@ -153,6 +153,19 @@ export const loadDatasources = async (loaded: LoadedConfig): Promise<ResolvedDat
     if (!(await fileExists(jsonPath))) continue;
     const ds = JSON.parse(await readFile(jsonPath, 'utf-8')) as DatasourceConfig;
     const name = ds.name ?? e.name;
+    if (!ds.prismaSchema || !ds.generatedTypesImport) {
+      const missing = [
+        !ds.prismaSchema && '"prismaSchema"',
+        !ds.generatedTypesImport && '"generatedTypesImport"',
+      ]
+        .filter(Boolean)
+        .join(' and ');
+      throw new Error(
+        `${jsonPath}: datasource "${name}" is missing ${missing}. ` +
+          'A v2 data-source.json must be self-describing — add prismaSchema, urlEnv, ' +
+          'generatedTypesImport, zodOutput and prismaConfig (see `crouton create-datasource`).',
+      );
+    }
     datasources.push({
       name,
       default: ds.default === true,

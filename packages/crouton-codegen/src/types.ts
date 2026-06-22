@@ -121,6 +121,12 @@ export interface ResourceDraft {
   /** Prisma model name (needed for the generated schema.ts export name). */
   prismaName: string;
   config: JsonResourceConfig;
+  /**
+   * Whether the model has any relation (object) fields. zod-prisma-types only
+   * emits a `…WithRelationsSchema` for models that have relations, so the
+   * generated `schema.ts` must fall back to the plain `…Schema` otherwise.
+   */
+  hasRelations: boolean;
   /** Column ids in generation order (columns map has no guaranteed order in JSON). */
   columnOrder: string[];
   /** Relations whose target resource does not (yet) exist — left hidden. */

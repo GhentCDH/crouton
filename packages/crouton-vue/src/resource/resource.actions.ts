@@ -299,11 +299,12 @@ export const actions = (
   defaultUriParams: Record<string, string>,
   handleEvent: HandleEvent,
   readonly: boolean,
+  modals?: ReturnType<typeof resourceModals>,
 ) => {
   if (!formDef) return [] as TableAction[];
 
   const op = formDef.operations ?? {};
-  const modals = resourceModals(api, resource, formDef, handleEvent);
+  const _modals = modals ?? resourceModals(api, resource, formDef, handleEvent);
   return [
     formDef.actions.map((action) => {
       return {
@@ -316,20 +317,20 @@ export const actions = (
       };
     }),
     {
-      action: modals.view,
+      action: _modals.view,
       tooltip: 'View',
       icon: 'View',
     },
     !readonly && op.update
       ? {
-          action: modals.edit,
+          action: _modals.edit,
           tooltip: 'Edit',
           icon: 'Edit',
         }
       : undefined,
     !readonly && op.delete
       ? {
-          action: modals.delete,
+          action: _modals.delete,
           tooltip: 'Delete',
           icon: 'Delete',
         }
@@ -441,8 +442,15 @@ export const resourceModals = (
       };
     };
 
+  const closeForm = (result: any) => {
+    const onClose = form.value?.config?.onClose;
+    form.value = null;
+    if (onClose) onClose(result);
+  };
+
   return {
     form,
+    closeForm,
     create: () => openForm(api, resource, formDef, handleEvent)(),
     edit: (id: unknown) =>
       openWithData(id, openForm(api, resource, formDef, handleEvent)),

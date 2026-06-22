@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
-import { type ZodType, fromJSONSchema } from 'zod';
+import { fromJSONSchema, type ZodType } from 'zod';
 
 import { enforceRequiredStringMinLength } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';

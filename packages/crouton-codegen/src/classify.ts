@@ -132,5 +132,6 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
     columns,
   };
 
-  return { name: names.name, prismaName: model.prismaName, config, columnOrder, unwiredRelations };
+  const hasRelations = model.fields.some((f) => f.kind === 'relation');
+  return { name: names.name, prismaName: model.prismaName, config, hasRelations, columnOrder, unwiredRelations };
 };
