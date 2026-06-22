@@ -37,7 +37,7 @@ const zodSchema = computed(() => {
   }
 });
 
-const { values, errors, meta, setValues, validate } = useForm({
+const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema: zodSchema as any,
   initialValues: properties.formData as Record<string, unknown>,
 });
@@ -60,9 +60,16 @@ provide(FORM_SUBMITTED_KEY, submitted);
 provide(FORM_READONLY_KEY, toRef(properties, 'readonly'));
 
 // Validate on mount to emit accurate initial validity state.
-// This does NOT set touched/dirty, so errors only display per errorMode rules.
+// When the initial data is already invalid (e.g. a pre-existing empty required
+// field loaded from the server), mark those fields as touched so the error is
+// visible immediately — the user needs to know what to fix before saving.
 onMounted(async () => {
   const result = await validate();
+  if (!result.valid) {
+    for (const field of Object.keys(result.errors)) {
+      setFieldTouched(field, true);
+    }
+  }
   emits('valid', result.valid);
 });
 
