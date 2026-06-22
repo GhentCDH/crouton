@@ -141,6 +141,7 @@ const onCancel = () => {
 };
 
 const onValid = (isValid: boolean) => {
+  console.log('on valid', isValid);
   valid.value = isValid;
 };
 
@@ -162,6 +163,7 @@ const onChange = (data: any) => {
 };
 
 const onSubmit = () => {
+  console.log('check if the form is valiue', valid.value);
   formRef.value?.markSubmitted();
   if (!valid.value) return;
   emits('closeModal', { data: liveValues(), valid: valid.value });

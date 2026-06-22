@@ -113,6 +113,7 @@ export const useResources = (
       defaultUriParams,
       handleEvent,
       readonly,
+      resourceModal,
     ),
     backendAction: (action: Action) =>
       backendAction(resource, formDef, defaultUriParams, action),
@@ -121,6 +122,7 @@ export const useResources = (
     edit: resourceModal.edit,
     view: resourceModal.view,
     delete: resourceModal.delete,
+    closeForm: resourceModal.closeForm,
     form: resourceModal.form,
     api,
   });

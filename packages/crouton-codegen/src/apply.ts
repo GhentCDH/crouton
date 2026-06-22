@@ -78,9 +78,15 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
 
   // schema.ts is created only when absent; never clobber a hand-written one.
   if (!diff.hasSchemaFile) {
+    // zod-prisma-types only emits `…WithRelationsSchema` for models that have
+    // relations; relation-less models only have the plain `…Schema`. Fall back
+    // so the generated import always resolves to a real export.
+    const exportName = diff.draft.hasRelations
+      ? exportNameFor(diff.draft.prismaName)
+      : `${diff.draft.prismaName}Schema`;
     files.push({
       path: joinPath(dir, 'schema.ts'),
-      contents: serializeSchemaTs(exportNameFor(diff.draft.prismaName), ctx.generatedTypesImport),
+      contents: serializeSchemaTs(exportName, ctx.generatedTypesImport),
       action: 'create',
     });
   }

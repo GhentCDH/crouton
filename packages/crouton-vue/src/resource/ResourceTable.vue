@@ -63,7 +63,11 @@ const form = computed(() => resource.value?.form);
 
 <template>
   <div v-if="form">
-    <component :is="form.component" v-bind="form.config">
+    <component
+      :is="form.component"
+      v-bind="form.config"
+      @close-modal="resource.closeForm"
+    >
       <template #content-after>
         <template v-if="form.customComponent">
           <component

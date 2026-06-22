@@ -40,8 +40,9 @@ describe('apply — new resource', () => {
     expect(paths).toContain('apps/backend/src/app/resources/language/schema.ts');
 
     const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
+    // Language has no relations → plain LanguageSchema (no WithRelations export).
     expect(schema.contents).toBe(
-      'import { LanguageWithRelationsSchema } from \'@np/generated/types\';\n\nexport default LanguageWithRelationsSchema;\n',
+      'import { LanguageSchema } from \'@np/generated/types\';\n\nexport default LanguageSchema;\n',
     );
     const res = JSON.parse(plan.files.find((f) => f.path.endsWith('resource.json'))!.contents);
     expect(res.sidebar).toEqual({ hide: false }); // recommended = yes
@@ -51,6 +52,23 @@ describe('apply — new resource', () => {
   it('does not regenerate schema.ts when one already exists', async () => {
     const plan = await run(undefined, true);
     expect(plan.files.some((f) => f.path.endsWith('schema.ts'))).toBe(false);
+  });
+
+  it('uses the WithRelations export for a model that has relations', async () => {
+    const withRel: DbModel = {
+      ...model,
+      prismaName: 'Work',
+      clientAccessor: 'work',
+      tableName: 'work',
+      fields: [
+        ...model.fields,
+        { name: 'sections', kind: 'relation', type: 'Section', isList: true, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, relationModel: 'Section' },
+      ],
+    };
+    const d = diff({ draft: classify(withRel, { database: 'docsdb' }), hasSchemaFile: false });
+    const plan = apply(await resolve(d, recommendedResolver), ctx);
+    const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
+    expect(schema.contents).toContain('WorkWithRelationsSchema');
   });
 });
 

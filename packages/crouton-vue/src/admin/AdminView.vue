@@ -3,9 +3,9 @@
     <router-view />
 
     <template #left-drawer>
-      <div class="gap-2 flex flex-col">
+      <div class="gap-2 flex flex-col h-full">
         <h2>{{ app.title }} Admin</h2>
-        <ul class="menu w-full gap-2">
+        <ul class="menu w-full gap-2 flex-1 flex-grow h-full">
           <template v-for="node in app.sidebar" :key="node.id">
             <!-- Group with children -->
             <li v-if="isSidebarGroup(node)">
@@ -35,6 +35,10 @@
             </li>
           </template>
         </ul>
+
+        <div class="bg-base-200 p-4 text-gray-500 text-sm">
+          version: {{ app.version }}
+        </div>
       </div>
     </template>
   </Drawer>
