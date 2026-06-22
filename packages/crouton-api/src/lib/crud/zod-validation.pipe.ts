@@ -1,5 +1,7 @@
-import { BadRequestException, type PipeTransform } from '@nestjs/common';
+import { type PipeTransform } from '@nestjs/common';
 import { type ZodError, type ZodObject, type ZodRawShape, type ZodType } from 'zod';
+
+import { CroutonValidationError } from './crouton-validation.error';
 
 export interface ZodValidationPipeOptions {
   /**
@@ -34,7 +36,7 @@ export class ZodValidationPipe implements PipeTransform {
     const input = this.coerceNullable(stripped);
     const result = this.schema.safeParse(input);
     if (!result.success) {
-      throw new BadRequestException(this.formatErrors(result.error));
+      throw new CroutonValidationError(this.formatErrors(result.error));
     }
     return result.data;
   }
