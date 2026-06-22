@@ -1,8 +1,10 @@
 import { type DynamicModule, Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 
 import type { SidebarGroupConfig } from '@ghentcdh/crouton-core';
 
 import { createAppLayoutController } from './crud/app-layout.controller';
+import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { type ResourceConfig } from './crud/crud.config';
 import type { DataSourceEntry } from './crud/data-source';
@@ -61,6 +63,7 @@ export class CroutonApiModule {
       module: CroutonApiModule,
       controllers,
       providers: [
+        { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },
       ],

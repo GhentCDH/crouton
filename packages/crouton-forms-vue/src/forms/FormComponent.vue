@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
-import { fromJSONSchema } from 'zod';
+import { type ZodType, fromJSONSchema } from 'zod';
 
 import { enforceRequiredStringMinLength } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';
@@ -27,17 +27,45 @@ registerZodErrorMap();
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
+/**
+ * Wrap a Zod schema as a vee-validate TypedSchema.
+ *
+ * vee-validate v4 identifies typed schemas by `__type === 'VVTypedSchema'`.
+ * Without this wrapper, vee-validate falls back to `validateObjectSchema`
+ * which calls `Object.keys()` on the raw Zod instance — iterating Zod
+ * internals instead of form fields — so validation silently always passes.
+ *
+ * The `parse()` contract: return `{ value, errors: [] }` on success, or
+ * `{ errors: [{ path, errors: string[] }] }` on failure.
+ */
+function toVeeValidateTypedSchema(schema: ZodType) {
+  return {
+    __type: 'VVTypedSchema' as const,
+    parse(values: unknown) {
+      const result = schema.safeParse(values);
+      if (result.success) {
+        return Promise.resolve({ value: result.data, errors: [] });
+      }
+      const errors = result.error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        errors: [issue.message],
+      }));
+      return Promise.resolve({ value: undefined, errors });
+    },
+  };
+}
+
 const zodSchema = computed(() => {
   if (!properties.schema) return undefined;
   try {
     const patched = enforceRequiredStringMinLength(properties.schema);
-    return fromJSONSchema(patched as any);
+    return toVeeValidateTypedSchema(fromJSONSchema(patched as any));
   } catch {
     return undefined;
   }
 });
 
-const { values, errors, meta, setValues, validate } = useForm({
+const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema: zodSchema as any,
   initialValues: properties.formData as Record<string, unknown>,
 });
@@ -60,9 +88,16 @@ provide(FORM_SUBMITTED_KEY, submitted);
 provide(FORM_READONLY_KEY, toRef(properties, 'readonly'));
 
 // Validate on mount to emit accurate initial validity state.
-// This does NOT set touched/dirty, so errors only display per errorMode rules.
+// When the initial data is already invalid (e.g. a pre-existing empty required
+// field loaded from the server), mark those fields as touched so the error is
+// visible immediately — the user needs to know what to fix before saving.
 onMounted(async () => {
   const result = await validate();
+  if (!result.valid) {
+    for (const field of Object.keys(result.errors)) {
+      setFieldTouched(field, true);
+    }
+  }
   emits('valid', result.valid);
 });
 

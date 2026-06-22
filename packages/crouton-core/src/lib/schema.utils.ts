@@ -4,20 +4,15 @@ type Field = { scope: string };
 
 export const enforceRequiredStringMinLength = (schema: JsonSchema): JsonSchema => {
   if (!schema?.properties) return schema;
-  const required: string[] = (schema as any).required ?? [];
   const patchedProperties = { ...schema.properties };
   let changed = false;
-  for (const key of required) {
+  for (const key of Object.keys(patchedProperties)) {
     const prop = patchedProperties[key];
     if (!prop || typeof prop !== 'object') continue;
     if (prop.type === 'string' && prop.minLength === undefined) {
       patchedProperties[key] = { ...prop, minLength: 1 };
       changed = true;
-    }
-  }
-  for (const key of Object.keys(patchedProperties)) {
-    const prop = patchedProperties[key];
-    if (prop && typeof prop === 'object' && prop.type === 'object') {
+    } else if (prop.type === 'object') {
       const patched = enforceRequiredStringMinLength(prop as JsonSchema);
       if (patched !== prop) { patchedProperties[key] = patched; changed = true; }
     }

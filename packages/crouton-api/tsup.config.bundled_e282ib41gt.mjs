@@ -1,0 +1,27 @@
+// tsup.config.ts
+import { defineConfig } from "tsup";
+const tsup_config_default = defineConfig({
+  entry: ["src/index.ts"],
+  outDir: "../../dist/crouton-api",
+  format: ["esm", "cjs"],
+  dts: true,
+  splitting: false,
+  sourcemap: true,
+  clean: true,
+  noExternal: ["@ghentcdh/crouton-core"],
+  external: [
+    "@nestjs/common",
+    "@nestjs/core",
+    "@nestjs/swagger",
+    "@anatine/zod-nestjs",
+    "@prisma/client",
+    "zod"
+  ],
+  esbuildOptions(options) {
+    options.conditions = ["@ghentcdh/crouton"];
+  }
+});
+export {
+  tsup_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidHN1cC5jb25maWcudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnN0IF9faW5qZWN0ZWRfZmlsZW5hbWVfXyA9IFwiL3Nlc3Npb25zL2ZlcnZlbnQtZWxvcXVlbnQtY2Fyc29uL21udC9hbm5vdGF0aW9ucy9jcm91dG9uL3BhY2thZ2VzL2Nyb3V0b24tYXBpL3RzdXAuY29uZmlnLnRzXCI7Y29uc3QgX19pbmplY3RlZF9kaXJuYW1lX18gPSBcIi9zZXNzaW9ucy9mZXJ2ZW50LWVsb3F1ZW50LWNhcnNvbi9tbnQvYW5ub3RhdGlvbnMvY3JvdXRvbi9wYWNrYWdlcy9jcm91dG9uLWFwaVwiO2NvbnN0IF9faW5qZWN0ZWRfaW1wb3J0X21ldGFfdXJsX18gPSBcImZpbGU6Ly8vc2Vzc2lvbnMvZmVydmVudC1lbG9xdWVudC1jYXJzb24vbW50L2Fubm90YXRpb25zL2Nyb3V0b24vcGFja2FnZXMvY3JvdXRvbi1hcGkvdHN1cC5jb25maWcudHNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tICd0c3VwJztcblxuZXhwb3J0IGRlZmF1bHQgZGVmaW5lQ29uZmlnKHtcbiAgZW50cnk6IFsnc3JjL2luZGV4LnRzJ10sXG4gIG91dERpcjogJy4uLy4uL2Rpc3QvY3JvdXRvbi1hcGknLFxuICBmb3JtYXQ6IFsnZXNtJywgJ2NqcyddLFxuICBkdHM6IHRydWUsXG4gIHNwbGl0dGluZzogZmFsc2UsXG4gIHNvdXJjZW1hcDogdHJ1ZSxcbiAgY2xlYW46IHRydWUsXG4gIG5vRXh0ZXJuYWw6IFsnQGdoZW50Y2RoL2Nyb3V0b24tY29yZSddLFxuICBleHRlcm5hbDogW1xuICAgICdAbmVzdGpzL2NvbW1vbicsXG4gICAgJ0BuZXN0anMvY29yZScsXG4gICAgJ0BuZXN0anMvc3dhZ2dlcicsXG4gICAgJ0BhbmF0aW5lL3pvZC1uZXN0anMnLFxuICAgICdAcHJpc21hL2NsaWVudCcsXG4gICAgJ3pvZCcsXG4gIF0sXG4gIGVzYnVpbGRPcHRpb25zKG9wdGlvbnMpIHtcbiAgICBvcHRpb25zLmNvbmRpdGlvbnMgPSBbJ0BnaGVudGNkaC9jcm91dG9uJ107XG4gIH0sXG59KTtcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBd1gsU0FBUyxvQkFBb0I7QUFFclosSUFBTyxzQkFBUSxhQUFhO0FBQUEsRUFDMUIsT0FBTyxDQUFDLGNBQWM7QUFBQSxFQUN0QixRQUFRO0FBQUEsRUFDUixRQUFRLENBQUMsT0FBTyxLQUFLO0FBQUEsRUFDckIsS0FBSztBQUFBLEVBQ0wsV0FBVztBQUFBLEVBQ1gsV0FBVztBQUFBLEVBQ1gsT0FBTztBQUFBLEVBQ1AsWUFBWSxDQUFDLHdCQUF3QjtBQUFBLEVBQ3JDLFVBQVU7QUFBQSxJQUNSO0FBQUEsSUFDQTtBQUFBLElBQ0E7QUFBQSxJQUNBO0FBQUEsSUFDQTtBQUFBLElBQ0E7QUFBQSxFQUNGO0FBQUEsRUFDQSxlQUFlLFNBQVM7QUFDdEIsWUFBUSxhQUFhLENBQUMsbUJBQW1CO0FBQUEsRUFDM0M7QUFDRixDQUFDOyIsCiAgIm5hbWVzIjogW10KfQo=
