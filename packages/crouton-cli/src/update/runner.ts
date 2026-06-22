@@ -15,6 +15,7 @@ import {
   type DbModel,
   type EnumRegistry,
   type LoadedConfig,
+  type ResolvedDatasource,
   type ResolvedDiff,
   type WritePlan,
   apply,
@@ -23,6 +24,7 @@ import {
   commit,
   introspect,
   loadConfig,
+  loadDatasources,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
@@ -38,15 +40,10 @@ import {
 } from '@ghentcdh/crouton-codegen';
 
 import { formatResourceChange } from './preview';
-import {
-  backupSchema,
-  isGitDirty,
-  prismaDbPull,
-  prismaGenerate,
-} from './prisma';
+import { backupSchema, isGitDirty, prismaDbPull, prismaGenerate } from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
-import { readFile, writeFile } from 'node:fs/promises';
-import { join, resolve as pathResolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve as pathResolve } from 'node:path';
 
 export interface UpdateResourcesOptions {
   cwd?: string;
@@ -63,54 +60,54 @@ const assertNotCancel = <T>(value: T | symbol): T => {
   return value as T;
 };
 
-const loadOrScaffoldConfig = async (
-  cwd: string,
-  yes: boolean,
-): Promise<LoadedConfig> => {
+const loadOrScaffoldConfig = async (cwd: string, yes: boolean): Promise<LoadedConfig> => {
   try {
     return await loadConfig(cwd);
   } catch {
-    clack.log.warn('No crouton.config found.');
-    const { config, notes } = await scaffoldConfigFromProject(cwd);
+    clack.log.warn('No crouton.json found.');
+    const { config, datasources, notes } = await scaffoldConfigFromProject(cwd);
     for (const n of notes) clack.log.info(n);
     clack.log.message(pc.dim(JSON.stringify(config, null, 2)));
     const write = yes
       ? true
       : assertNotCancel(
           await clack.confirm({
-            message: 'Write this crouton.json?',
+            message: 'Write this crouton.json (+ data-source.json files)?',
             initialValue: true,
           }),
         );
     if (!write) throw new CancelledError();
+
     const path = join(cwd, 'crouton.json');
     await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, 'utf-8');
-    clack.log.success(`Wrote ${path}`);
+    // Write a self-describing data-source.json per discovered/proposed datasource.
+    for (const { folder, ...ds } of datasources) {
+      const dsPath = join(cwd, config.dataSourcesDir, folder, 'data-source.json');
+      await mkdir(dirname(dsPath), { recursive: true });
+      await writeFile(dsPath, `${JSON.stringify(ds, null, 2)}\n`, 'utf-8');
+    }
+    clack.log.success(`Wrote ${path} + ${datasources.length} data-source.json`);
     return { config, path, root: cwd };
   }
 };
 
 const pickDatasource = async (
-  loaded: LoadedConfig,
+  datasources: ResolvedDatasource[],
   requested: string | undefined,
   yes: boolean,
-) => {
-  const names = Object.keys(loaded.config.datasources);
-  if (
-    requested ||
-    names.length === 1 ||
-    names.some((n) => loaded.config.datasources[n].default)
-  ) {
-    return resolveDatasource(loaded.config, requested);
+): Promise<ResolvedDatasource> => {
+  const hasDefault = datasources.some((d) => d.default);
+  if (requested || datasources.length === 1 || hasDefault) {
+    return resolveDatasource(datasources, requested);
   }
-  if (yes) return resolveDatasource(loaded.config, names[0]);
+  if (yes) return resolveDatasource(datasources, datasources[0]?.name);
   const chosen = assertNotCancel(
     await clack.select({
       message: 'Which datasource?',
-      options: names.map((n) => ({ value: n, label: n })),
+      options: datasources.map((d) => ({ value: d.name, label: d.name })),
     }),
   ) as string;
-  return resolveDatasource(loaded.config, chosen);
+  return resolveDatasource(datasources, chosen);
 };
 
 const pickModels = async (
@@ -120,27 +117,16 @@ const pickModels = async (
   yes: boolean,
 ): Promise<DbModel[]> => {
   if (filter) {
-    const wanted = new Set(
-      filter
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean),
-    );
+    const wanted = new Set(filter.split(',').map((s) => s.trim()).filter(Boolean));
     return models.filter(
-      (m) =>
-        wanted.has(m.prismaName) ||
-        wanted.has(resourceNames(m.prismaName).name),
+      (m) => wanted.has(m.prismaName) || wanted.has(resourceNames(m.prismaName).name),
     );
   }
   if (yes) return models;
   const existing = new Set(
-    (
-      await Promise.all(
-        models.map((m) =>
-          readExistingResource(loaded, resourceNames(m.prismaName).name),
-        ),
-      )
-    ).flatMap((r, i) => (r.config ? [models[i].prismaName] : [])),
+    (await Promise.all(models.map((m) => readExistingResource(loaded, resourceNames(m.prismaName).name)))).flatMap(
+      (r, i) => (r.config ? [models[i].prismaName] : []),
+    ),
   );
   const selected = assertNotCancel(
     await clack.multiselect({
@@ -157,16 +143,16 @@ const pickModels = async (
   return models.filter((m) => selected.includes(m.prismaName));
 };
 
-export const runUpdateResources = async (
-  opts: UpdateResourcesOptions,
-): Promise<void> => {
+export const runUpdateResources = async (opts: UpdateResourcesOptions): Promise<void> => {
   const cwd = pathResolve(opts.cwd ?? process.cwd());
   clack.intro(pc.bold('crouton update resources'));
 
   try {
     const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes);
-    const ds = await pickDatasource(loaded, opts.datasource, !!opts.yes);
+    const datasources = await loadDatasources(loaded);
+    const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
     const schemaAbs = resolveFromRoot(loaded.root, ds.prismaSchema);
+    const configAbs = resolveFromRoot(loaded.root, ds.prismaConfig);
 
     if (!opts.skipPull) {
       if (await isGitDirty(loaded.root, schemaAbs)) {
@@ -183,7 +169,7 @@ export const runUpdateResources = async (
       await backupSchema(schemaAbs);
       const spin = clack.spinner();
       spin.start(`prisma db pull (${ds.name})`);
-      const pull = await prismaDbPull(loaded.root, schemaAbs);
+      const pull = await prismaDbPull(loaded.root, configAbs);
       spin.stop(pull.ok ? 'Schema pulled' : 'db pull failed');
       if (!pull.ok) {
         clack.log.error(pull.output);
@@ -195,7 +181,7 @@ export const runUpdateResources = async (
     if (!opts.skipGenerate) {
       const spin = clack.spinner();
       spin.start('prisma generate');
-      const gen = await prismaGenerate(loaded.root, schemaAbs);
+      const gen = await prismaGenerate(loaded.root, configAbs);
       spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
       if (!gen.ok) clack.log.warn(gen.output);
     }
@@ -213,19 +199,13 @@ export const runUpdateResources = async (
     const enumsPath = resolveFromRoot(loaded.root, enumsRel);
     let existingEnums: EnumRegistry = {};
     try {
-      existingEnums = JSON.parse(
-        await readFile(enumsPath, 'utf-8'),
-      ) as EnumRegistry;
+      existingEnums = JSON.parse(await readFile(enumsPath, 'utf-8')) as EnumRegistry;
     } catch {
       /* no registry yet */
     }
-    const mergedEnums = mergeEnumRegistry(
-      existingEnums,
-      buildEnumRegistry(models),
-    );
+    const mergedEnums = mergeEnumRegistry(existingEnums, buildEnumRegistry(models));
     const enumsChanged =
-      serializeEnumRegistry(mergedEnums) !==
-      serializeEnumRegistry(existingEnums);
+      serializeEnumRegistry(mergedEnums) !== serializeEnumRegistry(existingEnums);
 
     const resolveRelationResource = await makeRelationResolver(loaded);
     const diffs = await buildResourceDiffs(models, {
@@ -237,7 +217,7 @@ export const runUpdateResources = async (
 
     const applyCtx: ApplyContext = {
       resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
-      generatedTypesImport: loaded.config.generatedTypesImport,
+      generatedTypesImport: ds.generatedTypesImport,
       schemaExportName: makeSchemaExportName(loaded.config),
     };
     const resolver = opts.yes ? recommendedResolver : interactiveResolver;
@@ -248,9 +228,7 @@ export const runUpdateResources = async (
       all.push({ resolved, plan: apply(resolved, applyCtx) });
     }
     // Only surface resources that actually changed — adjusted files only.
-    const changes = all.filter(
-      (c) => c.plan.files.length > 0 || c.plan.notes.length > 0,
-    );
+    const changes = all.filter((c) => c.plan.files.length > 0 || c.plan.notes.length > 0);
 
     if (changes.length === 0 && !enumsChanged) {
       clack.outro(pc.green('Everything is up to date — nothing to write.'));
@@ -259,9 +237,7 @@ export const runUpdateResources = async (
 
     const previewLines = changes.map((c) => formatResourceChange(c));
     if (enumsChanged) {
-      previewLines.push(
-        pc.cyan(`~ ${enumsRel} (${Object.keys(mergedEnums).length} enum(s))`),
-      );
+      previewLines.push(pc.cyan(`~ ${enumsRel} (${Object.keys(mergedEnums).length} enum(s))`));
     }
     clack.log.message(previewLines.join('\n'));
 
@@ -271,16 +247,10 @@ export const runUpdateResources = async (
     }
 
     const fileCount =
-      changes.reduce((n, c) => n + c.plan.files.length, 0) +
-      (enumsChanged ? 1 : 0);
+      changes.reduce((n, c) => n + c.plan.files.length, 0) + (enumsChanged ? 1 : 0);
     const go = opts.yes
       ? true
-      : assertNotCancel(
-          await clack.confirm({
-            message: `Write ${fileCount} file(s)?`,
-            initialValue: true,
-          }),
-        );
+      : assertNotCancel(await clack.confirm({ message: `Write ${fileCount} file(s)?`, initialValue: true }));
     if (!go) throw new CancelledError();
 
     let written = 0;
@@ -294,9 +264,7 @@ export const runUpdateResources = async (
       await writeFile(enumsPath, serializeEnumRegistry(mergedEnums), 'utf-8');
       written += 1;
     }
-    clack.outro(
-      pc.green(`Done — ${written} written, ${skipped} skipped (existing).`),
-    );
+    clack.outro(pc.green(`Done — ${written} written, ${skipped} skipped (existing).`));
   } catch (err) {
     if (err instanceof CancelledError) {
       clack.cancel('Cancelled.');

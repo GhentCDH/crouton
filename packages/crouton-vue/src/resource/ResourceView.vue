@@ -19,11 +19,11 @@ const handleEvent = ({ event, data }: { event: string; data: any }) => {
   if (event === 'close') {
     querydata = { id: undefined, event: undefined };
   }
-  router.replace({ query: { ...route.query, ...querydata } });
+  router.push({ query: { ...route.query, ...querydata } });
 };
 
 const onRequest = (requestData: Request) => {
-  router.replace({
+  router.push({
     query: {
       ...route.query,
       ...requestData,

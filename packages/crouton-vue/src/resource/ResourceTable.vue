@@ -63,7 +63,17 @@ const form = computed(() => resource.value?.form);
 
 <template>
   <div v-if="form">
-    <component :is="form.component" v-bind="form.config" />
+    <component :is="form.component" v-bind="form.config">
+      <template #content-after>
+        <template v-if="form.customComponent">
+          <component
+            :is="form.customComponent"
+            :resource="resource"
+            v-bind="form.config"
+          />
+        </template>
+      </template>
+    </component>
   </div>
   <div
     class="max-w-screen-xl m-auto p-4"

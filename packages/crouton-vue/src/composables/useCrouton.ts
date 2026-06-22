@@ -7,6 +7,7 @@ import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import { FormDefCache } from './form-def';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
+import { CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
@@ -28,6 +29,7 @@ export const AppConfig = {
   readonlyRenderers: [] as JsonFormsRendererRegistryEntry[],
   /** Extra cell renderers merged on top of the built-in crouton cell renderers in tables. */
   cellRenderers: [] as CellRendererEntry[],
+  customComponents: [] as CustomComponentEntry[],
 };
 
 const sidebar = ref<SidebarNode[]>([]);
@@ -71,6 +73,9 @@ export const useCrouton = () => {
     /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
     get renderers() {
       return config.value.renderers;
+    },
+    get customComponents() {
+      return config.value.customComponents;
     },
     /** Consumer-supplied renderers, merged on top of built-ins in view (readonly) modals. */
     get readonlyRenderers() {

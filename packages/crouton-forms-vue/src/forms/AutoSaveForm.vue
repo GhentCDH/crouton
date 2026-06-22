@@ -1,4 +1,6 @@
 <template>
+  <button @click="() => navigate.go(-1)">Back</button>
+
   <div class="border border-gray-200 p-4 mt-4">
     <slot v-if="$slots.title" name="title" />
     <h3 v-else :id="titleId" class="font-bold shrink-0">
@@ -20,7 +22,6 @@
         @valid="onValid"
         @events="onFormEvents"
       />
-      <slot name="content-after" />
     </div>
     <div
       class="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-300 shrink-0"
@@ -38,14 +39,6 @@
           @click="onRetry"
         >
           Retry
-        </Btn>
-        <Btn
-          :color="Color.secondary"
-          :outline="true"
-          aria-label="Close"
-          @click="onCancel"
-        >
-          Close
         </Btn>
       </template>
 
@@ -65,6 +58,9 @@
       </template>
     </div>
   </div>
+  <div>
+    <slot name="content-after" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -79,6 +75,7 @@ import {
 import FormComponent from './FormComponent.vue';
 import { useAutoSave } from '../composables/useAutoSave';
 import type { FormEventPayload } from '../composables/useFormEvents';
+import { useRouter } from 'vue-router';
 
 const properties = defineProps(FormModalProperties);
 
@@ -88,6 +85,7 @@ const formRef = ref<InstanceType<typeof FormComponent>>();
 const valid = ref(false);
 const formData = defineModel<any>();
 const emits = defineEmits(FormModalEmits);
+const navigate = useRouter();
 
 if (properties.data) {
   formData.value = properties.data;

@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { Component, ref } from 'vue';
 
 import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
@@ -13,6 +13,7 @@ import { type Action, type TableAction as TableActionDef } from '../composables/
 import type { FormDef, FormDefActionCondition } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import { findCustomComponent } from '../utils/custom-component';
 
 const evaluateCondition = (
   condition: FormDefActionCondition | undefined,
@@ -401,11 +402,13 @@ export const resourceModals = (
   };
 
   const form = ref<{
-    component: any;
+    component: Component;
     config: any;
     hideTable: boolean;
-    customComponent: string | null;
+    customComponent: Component | null;
   } | null>(null);
+
+  const crouton = useCrouton();
 
   const openForm =
     (
@@ -418,6 +421,11 @@ export const resourceModals = (
       const mode = formDef.display.mode;
       const component = mode === 'page' ? AutoSaveForm : FormModal;
 
+      const customComponent =
+        findCustomComponent(
+          crouton.customComponents,
+          formDef.display.customComponent,
+        ) ?? null;
       const config = openEditModal(
         api,
         resource,
@@ -428,7 +436,7 @@ export const resourceModals = (
       form.value = {
         component,
         config,
-        customComponent: formDef.display.customComponent ?? null,
+        customComponent,
         hideTable: mode === 'page',
       };
     };
