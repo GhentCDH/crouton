@@ -40,7 +40,7 @@ type CustomErrorIssue = Parameters<
 type IssueTester = (issue: CustomErrorIssue) => boolean;
 
 const isRequired: IssueTester = (issue) =>
-  (issue.code === 'invalid_type' &&
+  ((issue.code === 'invalid_type' || issue.code === 'invalid_value') &&
     (issue.input === undefined || issue.input === null)) ||
   (issue.code === 'too_small' &&
     (issue as any).origin === 'string' &&
@@ -50,7 +50,7 @@ const isTooSmallString: IssueTester = (issue) =>
   issue.code === 'too_small' && (issue as any).origin === 'string';
 
 const isTooBigString: IssueTester = (issue) =>
-  issue.code === 'too_big' && (issue as any).type === 'string';
+  issue.code === 'too_big' && (issue as any).origin === 'string';
 
 const errorDictionary: {
   test: IssueTester;
@@ -59,19 +59,18 @@ const errorDictionary: {
   { test: isRequired, message: 'This field is required' },
   {
     test: isTooSmallString,
-    message: (issue) =>
-      `Must be at least ${(issue as any).minimum} characters`,
+    message: (issue) => `Must be at least ${(issue as any).minimum} characters`,
   },
   {
     test: isTooBigString,
-    message: (issue) =>
-      `Must be at most ${(issue as any).maximum} characters`,
+    message: (issue) => `Must be at most ${(issue as any).maximum} characters`,
   },
 ];
 
 export const registerZodErrorMap = () => {
   z.config({
     customError: (issue) => {
+      if (issue.message) return { message: issue.message };
       const match = errorDictionary.find((entry) => entry.test(issue));
       if (match) {
         return {
