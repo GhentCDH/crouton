@@ -24,6 +24,7 @@ export type {
   JsonTableAction,
   JsonTableLinkAction,
   JsonTableProcedureAction,
+  RelationFieldInputOptions,
   RelationType,
 } from '@ghentcdh/crouton-core';
 

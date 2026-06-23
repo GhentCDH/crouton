@@ -23,6 +23,8 @@ const getRelationResource = async (
   formValues: any,
   readonly: boolean,
   formEvents: FormEvents,
+  sort?: string,
+  sortDir?: 'asc' | 'desc',
 ) => {
   const crouton = useCrouton();
   const config = await crouton.getFormByUri(resource);
@@ -45,6 +47,7 @@ const getRelationResource = async (
     readonly,
     handleEvent,
     initialLoad: false,
+    ...(sort && { initialRequestParams: { sort, sortDir: sortDir ?? 'asc' } }),
   });
 };
 
@@ -63,6 +66,8 @@ export const useRelationBinding = (
     () => !formValues || Object.keys(formValues).length === 0 || !formValues.id,
   );
   const resource = opts.resource as string;
+  const sort = opts.sort as string | undefined;
+  const sortDir = (opts.sortDir ?? 'asc') as 'asc' | 'desc';
 
   return {
     ...bindings,
@@ -74,7 +79,7 @@ export const useRelationBinding = (
     isNew,
     message: getMessage(isNew.value, resource),
     resource: computedAsync(() =>
-      getRelationResource(resource, bindings.formValues, readonly, formEvents),
+      getRelationResource(resource, bindings.formValues, readonly, formEvents, sort, sortDir),
     ),
   };
 };

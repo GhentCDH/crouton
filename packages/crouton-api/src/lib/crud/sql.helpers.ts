@@ -91,8 +91,9 @@ export const mergeCalculatedColumnsForRows = async (
 export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Record<string, unknown> | undefined => {
   if (!include?.length) return undefined;
 
-  // Normalise every entry to { relation, nestedIncludes[] }
+  // Normalise every entry to { relation, nestedIncludes[], orderBy? }
   const map = new Map<string, JsonIncludeEntry[]>();
+  const orderByMap = new Map<string, Record<string, unknown>>();
 
   for (const entry of include) {
     if (typeof entry === 'string') {
@@ -107,16 +108,21 @@ export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Rec
         map.set(relation, [...(map.get(relation) ?? []), rest]);
       }
     } else {
-      // Object form: { relation, include[] }
+      // Object form: { relation, include[], orderBy? }
       map.set(entry.relation, [...(map.get(entry.relation) ?? []), ...(entry.include ?? [])]);
+      if (entry.orderBy) orderByMap.set(entry.relation, entry.orderBy);
     }
   }
 
   return Object.fromEntries(
     Array.from(map.entries()).map(([relation, nestedIncludes]) => {
-      if (!nestedIncludes.length) return [relation, true];
+      const orderBy = orderByMap.get(relation);
+      if (!nestedIncludes.length && !orderBy) return [relation, true];
       const nested = buildIncludeClause(nestedIncludes);
-      return [relation, nested ? { include: nested } : true];
+      const clause: Record<string, unknown> = {};
+      if (nested) clause.include = nested;
+      if (orderBy) clause.orderBy = orderBy;
+      return [relation, clause];
     }),
   );
 };

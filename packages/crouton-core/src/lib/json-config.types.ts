@@ -46,6 +46,25 @@ export type DetailConfig = {
   controls: DetailControl[];
 };
 
+/**
+ * Options for relation field inputs (`fieldInput.format === "relation"`).
+ * These are injected into the frontend control and — for `sort`/`sortDir` —
+ * also used by the backend to apply `orderBy` on included relation records.
+ */
+export type RelationFieldInputOptions = {
+  /** Field to sort related records by, e.g. `"title"` or `"author.name"`. */
+  sort?: string;
+  /** Sort direction. Defaults to `"asc"` when omitted. */
+  sortDir?: 'asc' | 'desc';
+  /** CSS flex direction for the relation control button layout. */
+  direction?: string;
+  /** Key used as the display label in the relation control. */
+  displayKey?: string;
+  /** Path to the related resource (resolved to a URI at load time). */
+  resource?: string;
+  [k: string]: unknown;
+};
+
 export type FieldInput = {
   type: string;
   customRender?: string;
@@ -69,7 +88,7 @@ export type FieldInput = {
   relationType?: RelationType;
   /** Override the display order in form views. Lower values come first. */
   position?: number;
-  options?: unknown;
+  options?: RelationFieldInputOptions | unknown;
   /** Nested array detail layout (renders via `detailFixed`). */
   detail?: DetailConfig;
 };
@@ -372,10 +391,17 @@ export type JsonResourceConfig = {
  * - Plain string: `"author"` → `{ author: true }`
  * - Object with nested includes: `{ relation: "text_author", include: ["author"] }`
  *   → `{ text_author: { include: { author: true } } }`
+ * - Object with orderBy: `{ relation: "sections", orderBy: { title: "asc" } }`
+ *   → `{ sections: { orderBy: { title: "asc" } } }`
  */
 export type JsonIncludeEntry =
   | string
-  | { relation: string; include: JsonIncludeEntry[] };
+  | {
+      relation: string;
+      include?: JsonIncludeEntry[];
+      /** Prisma-format orderBy clause applied to the included records. */
+      orderBy?: Record<string, unknown>;
+    };
 
 /**
  * Derive a human-readable label from a column id.
