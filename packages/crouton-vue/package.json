@@ -1,6 +1,6 @@
 {
   "name": "@ghentcdh/crouton-vue",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
   "type": "module",
   "exports": {
     ".": {
@@ -23,7 +23,7 @@
     "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
-    "@ghentcdh/crouton-forms-vue": "*",
+    "@ghentcdh/crouton-forms-vue": "workspace:^",
     "@ghentcdh/ui": "*",
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
