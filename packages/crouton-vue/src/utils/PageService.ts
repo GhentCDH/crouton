@@ -1,8 +1,9 @@
 import { ref } from 'vue';
-import { RequestData } from '../resource/resource.types';
-import { croutonApiCall } from '../resource/resource.api';
-import { useCrouton } from '../composables/useCrouton';
+
 import { RequestSchema } from './request';
+import { useCrouton } from '../composables/useCrouton';
+import { croutonApiCall } from '../resource/resource.api';
+import { type RequestData } from '../resource/resource.types';
 
 export abstract class PageService {
   protected requestData = ref<RequestData>();
