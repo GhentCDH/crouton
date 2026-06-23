@@ -103,7 +103,6 @@ export abstract class PageService {
     data?: {
       defaultUriParams?: Record<string, string>;
       data?: any;
-      query?: any;
     },
   ) {
     const formDef = await this.getFormDef(formDefId);

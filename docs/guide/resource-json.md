@@ -129,6 +129,43 @@ directory:
 The frontend picks the matching control automatically — an autocomplete for `manyToOne`, an editable nested table for
 `oneToMany`, and so on.
 
+### Relation options
+
+`fieldInput.options` accepts the following fields for relation columns:
+
+| Option        | Type                  | Description                                                                  |
+|---------------|-----------------------|------------------------------------------------------------------------------|
+| `displayKey`  | `string`              | Field used as the label in the relation control (e.g. `"title"`)             |
+| `direction`   | `'row' \| 'column'`  | CSS flex direction for the relation button layout                             |
+| `sort`        | `string`              | Field to sort related records by, e.g. `"title"` or `"author.name"`         |
+| `sortDir`     | `'asc' \| 'desc'`    | Sort direction (default `"asc"`)                                              |
+
+### Sorting related records
+
+Add `sort` (and optionally `sortDir`) to `fieldInput.options` to control the order of related records. This affects two places:
+
+- **Backend includes** — when the parent record is fetched, the included relation records are returned in the specified order (Prisma `orderBy` inside the `include` clause).
+- **Frontend picker** — when the relation control fetches its option list (autocomplete / dropdown), the same sort params are forwarded as query parameters.
+
+```json
+{
+  "id": "sections",
+  "label": "Sections",
+  "hiddenInForm": true,
+  "fieldInput": {
+    "type": "relation",
+    "resource": "./section/resource.json",
+    "options": {
+      "sort": "title",
+      "sortDir": "asc",
+      "displayKey": "title"
+    }
+  }
+}
+```
+
+Dotted paths work too — `"sort": "author.name"` sorts by a nested field.
+
 ## Calculated columns
 
 Read-only columns computed in SQL at query time. Use `main` as the alias for the resource's own table:
@@ -164,6 +201,8 @@ Eagerly load relations with the list/detail queries:
   ]
 }
 ```
+
+When a relation column has a `sort` option (see [Sorting related records](#sorting-related-records)), the loader automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
 
 ## Sidebar
 

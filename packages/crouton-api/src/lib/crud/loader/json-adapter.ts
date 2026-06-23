@@ -10,10 +10,13 @@ import { type EnumRegistry, injectEnumValues } from './enum-registry';
 import type {
   CalculatedColumn,
   JsonColumn,
+  JsonIncludeEntry,
   JsonResourceConfig,
+  RelationFieldInputOptions,
   RelationType,
 } from './json-config.types';
 import { normalizeColumns } from './json-config.types';
+import { buildChildSortClause } from '../sql.helpers';
 import { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
 import {
   buildViews,
@@ -436,6 +439,33 @@ const enrichResourceRefColumns = (
   });
 };
 
+/**
+ * Scan relation columns for a `sort` option and inject a Prisma-format `orderBy`
+ * into the corresponding `include` entry so included records are returned sorted.
+ *
+ * Example: a column `{ id: "sections", fieldInput: { options: { sort: "title" } } }`
+ * turns `include: ["sections"]` into `include: [{ relation: "sections", orderBy: { title: "asc" } }]`.
+ */
+const enrichIncludeWithSort = (
+  include: JsonIncludeEntry[] | undefined,
+  columns: JsonColumn[],
+): JsonIncludeEntry[] | undefined => {
+  if (!include?.length) return include;
+  return include.map((entry) => {
+    const relationName = typeof entry === 'string' ? entry : entry.relation;
+    const col = columns.find((c) => {
+      const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
+      return (c.column ?? c.id) === relationName && opts?.sort;
+    });
+    if (!col) return entry;
+    const opts = col.fieldInput!.options as RelationFieldInputOptions;
+    const orderBy = buildChildSortClause(opts.sort!, opts.sortDir ?? 'asc');
+    return typeof entry === 'string'
+      ? { relation: entry, orderBy }
+      : { ...entry, orderBy };
+  });
+};
+
 export const fromJson = (
   json: JsonResourceConfig,
   schema: ZodObject<ZodRawShape> | undefined,
@@ -504,6 +534,7 @@ export const fromJson = (
   }
 
   const lookup = buildLookup(enrichedColumns);
+  const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
 
   const definition: ResourceDefinition = {
     ...(opWithSchema(json.operations.findAll, picked) && {
@@ -548,7 +579,7 @@ export const fromJson = (
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(actions?.length && { actions }),
     ...(tableActions?.length && { tableActions }),
-    ...(json.include?.length && { include: json.include }),
+    ...(enrichedInclude?.length && { include: enrichedInclude }),
     ...(json.modalSize && { modalSize: json.modalSize }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
