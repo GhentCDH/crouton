@@ -11,3 +11,4 @@ export { default as RelationButton } from './relation/RelationButton.vue';
 export { default as RelationInline } from './relation/RelationInline.vue';
 export * from './utils/computedAsync';
 export * from './utils/custom-component';
+export * from './utils/request';

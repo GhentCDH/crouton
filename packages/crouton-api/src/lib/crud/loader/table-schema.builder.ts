@@ -63,6 +63,9 @@ export const deriveSortId = (col: JsonColumn): string | null => {
     return path.endsWith('.label') ? path.slice(0, -'.label'.length) : path;
   }
 
+  // Array displayKey (concat): sorting is ambiguous — disable unless sortId is explicit.
+  if (Array.isArray(col.displayKey)) return null;
+
   if (!col.displayKey) return base;
   const path = `${base}.${col.displayKey}`;
   const isValueLabel =
@@ -120,7 +123,15 @@ export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> 
       ...cols.map((col) => {
         const cellBuilder = isBoolean(col) ? BooleanCellBuilder : TextCellBuilder;
         let builder = cellBuilder.properties<any>(col.id as keyof any);
-        if (col.displayKey) builder = builder.key(col.displayKey);
+        if (Array.isArray(col.displayKey)) {
+          builder = (builder as TextCellBuilder<any>).keys(
+            col.displayKey,
+            col.displayKeySeparator as string | undefined,
+            col.displayListSeparator as string | undefined,
+          );
+        } else if (col.displayKey) {
+          builder = builder.key(col.displayKey);
+        }
         if (col.sortId) builder = builder.setSortId(col.sortId);
         return builder;
       }),

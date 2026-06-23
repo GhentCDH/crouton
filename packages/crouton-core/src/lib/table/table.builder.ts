@@ -12,13 +12,23 @@ export interface KeyValueOption extends Omit<TextCellOption, 'format'> {
   key: string;
 }
 
+export interface ConcatCellOption extends Omit<TextCellOption, 'format'> {
+  format: 'concat';
+  /** Fields to extract and join from the raw object. Dotted paths are supported. */
+  keys: string[];
+  /** Separator between fields within a single item. Defaults to `" "`. */
+  separator?: string;
+  /** Separator between items when the value is an array. Defaults to `", "`. */
+  listSeparator?: string;
+}
+
 export type TextCellType = {
   type: 'TextCell';
   scope: string;
-  options?: KeyValueOption;
+  options?: KeyValueOption | ConcatCellOption;
 };
 export class TextCellBuilder<TYPE> extends Builder<TextCellType> {
-  private options: KeyValueOption | TextCellOption | undefined;
+  private options: KeyValueOption | ConcatCellOption | TextCellOption | undefined;
 
   protected constructor(
     private readonly scope: string,
@@ -35,6 +45,16 @@ export class TextCellBuilder<TYPE> extends Builder<TextCellType> {
     this.options = {
       format: 'keyValue',
       key: key,
+    };
+    return this;
+  }
+
+  keys(keys: string[], separator?: string, listSeparator?: string): TextCellBuilder<TYPE> {
+    this.options = {
+      format: 'concat',
+      keys,
+      ...(separator !== undefined && { separator }),
+      ...(listSeparator !== undefined && { listSeparator }),
     };
     return this;
   }

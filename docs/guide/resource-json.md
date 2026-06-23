@@ -86,9 +86,64 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `filterable`                                      | Gets a filter control                                               |
 | `createable` / `updateable`                       | Whether the field is written on create/update                       |
 | `showWhen` / `hideWhen` / `disabledWhen`          | Conditional display: `{ "field": "...", "eq"/"neq"/"exists": ... }` |
-| `displayKey`                                      | Nested field to display (e.g. `author.name`)                        |
+| `displayKey`                                      | Nested field to display — string or array of fields, see below      |
+| `displayKeySeparator`                             | Separator between fields when `displayKey` is an array (default `" "`) |
+| `displayListSeparator`                            | Separator between items when the value is an array relation (default `", "`) |
 | `showInLookup`                                    | Shown in autocomplete lookups of this resource                      |
 | `fieldInput`                                      | Form control configuration, see below                               |
+
+### displayKey
+
+`displayKey` tells the table and form views which property to extract from an object-type field for display.
+
+**Single nested key** — a dotted path into the related object:
+
+```json
+{ "id": "author", "displayKey": "name" }
+```
+
+Renders `author.name` (e.g. `"Alice"`).
+
+**Concatenated fields** — an array of keys joined into one label:
+
+```json
+{ "id": "section", "displayKey": ["section_number", "title"] }
+```
+
+Renders `"3 Introduction"` (space-separated by default). Use `displayKeySeparator` to change the separator:
+
+```json
+{ "id": "section", "displayKey": ["section_number", "title"], "displayKeySeparator": " – " }
+```
+
+Renders `"3 – Introduction"`. Dotted paths work per key too:
+
+```json
+{ "id": "section", "displayKey": ["author.name", "title"] }
+```
+
+**Multi-value relations** — when the field value is an array (e.g. `oneToMany`), each item is resolved via `displayKey` and the results are joined with `displayListSeparator` (default `", "`):
+
+```json
+{ "id": "authors", "displayKey": "name" }
+```
+
+`[{name: "Alice"}, {name: "Bob"}]` → `"Alice, Bob"`
+
+Concat keys work per item too:
+
+```json
+{
+  "id": "authors",
+  "displayKey": ["first_name", "last_name"],
+  "displayKeySeparator": " ",
+  "displayListSeparator": " · "
+}
+```
+
+`[{first_name: "Alice", last_name: "A"}, {first_name: "Bob", last_name: "B"}]` → `"Alice A · Bob B"`
+
+> **Sorting** — array `displayKey` disables column sorting (ambiguous). Set an explicit `sortId` to re-enable it.
 
 ### Field inputs
 

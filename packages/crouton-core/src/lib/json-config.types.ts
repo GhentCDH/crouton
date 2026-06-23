@@ -125,8 +125,23 @@ export type JsonColumn = {
     exists?: boolean;
     notExists?: boolean;
   };
-  /** Display a nested key (e.g. `"name"` for `speech.name`). Maps to `TextCellBuilder.key()`. */
-  displayKey?: string;
+  /**
+   * Display a nested key (e.g. `"name"` for `speech.name`), or an array of
+   * keys to concatenate (e.g. `["section_number", "title"]`). Dotted paths
+   * are supported per key (e.g. `["author.name", "title"]`).
+   * Maps to `TextCellBuilder.key()` / `TextCellBuilder.keys()`.
+   */
+  displayKey?: string | string[];
+  /**
+   * Separator used when joining multiple `displayKey` fields into one label.
+   * Defaults to `" "` (space). Only used when `displayKey` is an array.
+   */
+  displayKeySeparator?: string;
+  /**
+   * Separator used when joining multiple items from an array-value relation.
+   * Defaults to `", "`. Applied after each item is resolved via `displayKey`.
+   */
+  displayListSeparator?: string;
   /** Override the sort column (e.g. `"speech.name"`). Maps to `TextCellBuilder.setSortId()`. */
   sortId?: string;
   /**

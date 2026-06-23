@@ -330,21 +330,26 @@ export const buildViewsFromColumns = (
             properties: {},
           };
         }
-        // Support dotted displayKey paths (e.g. "internal_author.name") by building
-        // nested object nodes so the JSON schema mirrors the actual data structure.
-        const keyPath = (c.displayKey ?? c.id).split('.');
-        let target = properties[c.column].properties;
-        for (let i = 0; i < keyPath.length - 1; i++) {
-          const segment = keyPath[i];
-          if (!target[segment]) {
-            target[segment] = { type: 'object', additionalProperties: true, properties: {} };
+        // Support dotted displayKey paths and array displayKey (concat fields).
+        // For an array, add a property node for each key so the schema mirrors the data.
+        const displayKeys = Array.isArray(c.displayKey)
+          ? c.displayKey
+          : [(c.displayKey ?? c.id)];
+        for (const dk of displayKeys) {
+          const keyPath = dk.split('.');
+          let target = properties[c.column].properties;
+          for (let i = 0; i < keyPath.length - 1; i++) {
+            const segment = keyPath[i];
+            if (!target[segment]) {
+              target[segment] = { type: 'object', additionalProperties: true, properties: {} };
+            }
+            target = target[segment].properties;
           }
-          target = target[segment].properties;
+          target[keyPath[keyPath.length - 1]] = {
+            type: 'string',
+            title: c.label ?? c.id,
+          };
         }
-        target[keyPath[keyPath.length - 1]] = {
-          type: 'string',
-          title: c.label ?? c.id,
-        };
       } else {
         properties[c.id] = {
           type: c.columnType ?? 'string',
@@ -372,6 +377,14 @@ export const buildViewsFromColumns = (
         );
         const col = id ? colMap[id] : undefined;
         if (!col?.column) return el;
+        // For concat (array displayKey), point to the parent object — the renderer
+        // uses opts.keys to extract and join individual fields at display time.
+        if (Array.isArray(col.displayKey)) {
+          return {
+            ...el,
+            scope: `#/properties/${col.column}`,
+          };
+        }
         // Support dotted displayKey paths (e.g. "internal_author.name") — each segment
         // becomes a nested /properties/ step in the JSON pointer.
         const keyPath = (col.displayKey ?? col.id).split('.');
