@@ -55,5 +55,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@vee-validate/zod": "^4.15.1"
+  }
 }

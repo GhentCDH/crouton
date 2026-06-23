@@ -95,7 +95,9 @@ export const useInputProps = (
         return submitted.value;
       case 'onBlur':
       default:
-        return meta.touched;
+        // Show when the user has blurred the field OR when they've already changed
+        // it (dirty) — this covers auto-save flows where blur never fires.
+        return meta.touched || meta.dirty;
     }
   });
 

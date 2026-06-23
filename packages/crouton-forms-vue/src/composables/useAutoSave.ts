@@ -10,6 +10,13 @@ export type UseAutoSaveOptions = {
    */
   onSave: (data: any) => Promise<any>;
   /**
+   * Optional callback re-checked at execution time (when the debounce fires).
+   * Use this to guard against the race where `trigger` is called with a stale
+   * `isValid=true` before async validation (vee-validate's 5 ms debounce) has
+   * had a chance to update the validity flag.
+   */
+  isValid?: () => boolean;
+  /**
    * Milliseconds of inactivity after a field change before the save fires.
    * Defaults to 800.
    */
@@ -40,6 +47,7 @@ export type UseAutoSaveReturn = {
 
 export const useAutoSave = ({
   onSave,
+  isValid,
   debounceMs = 800,
 }: UseAutoSaveOptions): UseAutoSaveReturn => {
   const status = ref<AutoSaveStatus>('idle');
@@ -53,6 +61,13 @@ export const useAutoSave = ({
   };
 
   const executeSave = async (data: any) => {
+    // Re-check validity at execution time. This defends against the race where
+    // onChange fires with a stale valid=true (before vee-validate's async
+    // validation has completed) and onErrors didn't manage to cancel the timer.
+    if (isValid && !isValid()) {
+      status.value = 'pending';
+      return;
+    }
     clearTimer();
     status.value = 'saving';
     try {
