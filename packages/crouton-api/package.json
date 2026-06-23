@@ -1,18 +1,18 @@
 {
   "name": "@ghentcdh/crouton-api",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "type": "module",
   "exports": {
     ".": {
-      "types": "../../dist/crouton-api/index.d.ts",
-      "import": "../../dist/crouton-api/index.js",
-      "require": "../../dist/crouton-api/index.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
-  "main": "../../dist/crouton-api/index.cjs",
-  "types": "../../dist/crouton-api/index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "files": [
-    "../../dist/crouton-api"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",

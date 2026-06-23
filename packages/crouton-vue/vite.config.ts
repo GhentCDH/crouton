@@ -22,7 +22,7 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: '../../dist/crouton-vue',
+    outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {

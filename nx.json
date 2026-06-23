@@ -42,6 +42,14 @@
       }
     }
   ],
+  "release": {
+    "projects": ["crouton-vue", "crouton-forms-vue", "crouton-api"],
+    "version": {
+      "conventionalCommits": true,
+      "preVersionCommand": "npx nx run-many -t build"
+    },
+    "changelog": {}
+  },
   "analytics": false,
   "neverConnectToCloud": true
 }

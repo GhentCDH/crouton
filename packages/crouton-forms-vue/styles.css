@@ -1,0 +1,10 @@
+/*
+ * Workspace/dev entry. The published package ships a fully compiled
+ * dist/styles.css (see src/styles.css + vite.config.ts). This file is the
+ * source-based equivalent for in-repo consumers that run their own
+ * Tailwind build.
+ */
+@import '@ghentcdh/ui/index.css';
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);

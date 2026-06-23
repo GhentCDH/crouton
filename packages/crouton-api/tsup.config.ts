@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  outDir: '../../dist/crouton-api',
+  outDir: './dist',
   format: ['esm', 'cjs'],
   dts: true,
   splitting: false,

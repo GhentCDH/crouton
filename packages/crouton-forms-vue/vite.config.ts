@@ -22,7 +22,7 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: '../../dist/crouton-forms-vue',
+    outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {
@@ -39,7 +39,6 @@ export default defineConfig({
     },
     rolldownOptions: {
       external: [
-        '@ghentcdh/crouton-core',
         '@ghentcdh/ui',
         '@jsonforms/core',
         '@playwright/test',

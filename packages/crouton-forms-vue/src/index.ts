@@ -1,3 +1,5 @@
+import './styles.css';
+
 // Types
 export { default as FormComponent } from './forms/FormComponent.vue';
 

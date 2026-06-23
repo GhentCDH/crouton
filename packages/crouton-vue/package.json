@@ -1,6 +1,6 @@
 {
   "name": "@ghentcdh/crouton-vue",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "type": "module",
   "exports": {
     ".": {

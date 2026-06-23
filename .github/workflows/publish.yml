@@ -6,9 +6,6 @@ on:
       - v*.*.*
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 permissions:
   contents: write
   pages: write
@@ -18,16 +15,7 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write # needed for provenance data generation
     steps:
-      - name: Verify NPM token
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npm token list
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -40,10 +28,10 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: npx nx run-many -t build --parallel --max-parallel=6
+        run: npx nx run-many -t build -p crouton-vue crouton-forms-vue crouton-api
 
       - name: Publish package on NPM
-        run: npx nx release publish --access public --yes
+        run: npx nx release publish --access public --verbose
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
