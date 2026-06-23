@@ -6,7 +6,7 @@
   "exports": {
     ".": {
       "@ghentcdh/crouton": "./src/index.ts",
-      "default": "../../dist/crouton-core/index.js"
+      "default": "./src/index.ts"
     }
   },
   "main": "./src/index.ts",
