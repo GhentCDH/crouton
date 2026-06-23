@@ -1,6 +1,11 @@
 {
   "name": "@ghentcdh/crouton-forms-vue",
   "version": "0.0.1-alpha.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhentCDH/crouton",
+    "directory": "packages/crouton-forms-vue"
+  },
   "type": "module",
   "exports": {
     ".": {

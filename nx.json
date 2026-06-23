@@ -48,7 +48,13 @@
       "conventionalCommits": true,
       "preVersionCommand": "npx nx run-many -t build"
     },
-    "changelog": {}
+    "changelog": {
+      "automaticFromRef": true,
+      "workspaceChangelog": {
+        "createRelease": "github",
+        "file": "RELEASE_NOTES.md"
+      }
+    }
   },
   "analytics": false,
   "neverConnectToCloud": true

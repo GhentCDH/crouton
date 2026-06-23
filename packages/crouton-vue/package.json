@@ -1,6 +1,11 @@
 {
   "name": "@ghentcdh/crouton-vue",
   "version": "0.0.1-alpha.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhentCDH/crouton",
+    "directory": "packages/crouton-vue"
+  },
   "type": "module",
   "exports": {
     ".": {
