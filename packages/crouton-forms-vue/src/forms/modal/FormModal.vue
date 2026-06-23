@@ -96,7 +96,12 @@ if (properties.data) {
 
 const autoSaver =
   properties.autoSave && properties.onAutoSave
-    ? useAutoSave({ onSave: properties.onAutoSave })
+    ? useAutoSave({
+        onSave: properties.onAutoSave,
+        // Re-checked at execution time to guard against the race where onChange
+        // fires with a stale valid=true before async validation completes.
+        isValid: () => valid.value,
+      })
     : null;
 
 // Guard: only trigger auto-save after the user has actually changed a field.

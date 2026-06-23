@@ -6,83 +6,33 @@
 
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
-import {
-  computed,
-  nextTick,
-  onMounted,
-  provide,
-  ref,
-  toRaw,
-  toRef,
-  watch,
-} from 'vue';
-import { fromJSONSchema, type ZodType } from 'zod';
+import { nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
+import { fromJSONSchema } from 'zod';
 
 import { enforceRequiredStringMinLength } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';
 
 import Dispatch from './Dispatch.vue';
 import type { Data, SubmitFormEvent } from './FormComponent.properties';
-import {
-  JsonFormComponentEmits,
-  JsonFormComponentProperties,
-} from './FormComponent.properties';
+import { JsonFormComponentEmits, JsonFormComponentProperties } from './FormComponent.properties';
 import { registerZodErrorMap } from './errorMessages';
-import {
-  ERROR_MODE_KEY,
-  FORM_READONLY_KEY,
-  FORM_SUBMITTED_KEY,
-} from './errorMode';
+import { ERROR_MODE_KEY, FORM_READONLY_KEY, FORM_SUBMITTED_KEY } from './errorMode';
 import { customRenderers } from './renderers';
 import type { FormEventPayload } from '../composables/useFormEvents';
 import { provideFormEvents } from '../composables/useFormEvents';
 import { provideHttpClient } from '../composables/useHttpClient';
+import { toTypedSchema } from '@vee-validate/zod';
 
 registerZodErrorMap();
 
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
-/**
- * Wrap a Zod schema as a vee-validate TypedSchema.
- *
- * vee-validate v4 identifies typed schemas by `__type === 'VVTypedSchema'`.
- * Without this wrapper, vee-validate falls back to `validateObjectSchema`
- * which calls `Object.keys()` on the raw Zod instance — iterating Zod
- * internals instead of form fields — so validation silently always passes.
- *
- * The `parse()` contract: return `{ value, errors: [] }` on success, or
- * `{ errors: [{ path, errors: string[] }] }` on failure.
- */
-function toVeeValidateTypedSchema(schema: ZodType) {
-  return {
-    __type: 'VVTypedSchema' as const,
-    parse(values: unknown) {
-      const result = schema.safeParse(values);
-      if (result.success) {
-        return Promise.resolve({ value: result.data, errors: [] });
-      }
-      const errors = result.error.issues.map((issue) => ({
-        path: issue.path.join('.'),
-        errors: [issue.message],
-      }));
-      return Promise.resolve({ value: undefined, errors });
-    },
-  };
-}
-
-const zodSchema = computed(() => {
-  if (!properties.schema) return undefined;
-  try {
-    const patched = enforceRequiredStringMinLength(properties.schema);
-    return toVeeValidateTypedSchema(fromJSONSchema(patched as any));
-  } catch {
-    return undefined;
-  }
-});
+const patched = enforceRequiredStringMinLength(properties.schema);
+const validationSchema = toTypedSchema(fromJSONSchema(patched as any));
 
 const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
-  validationSchema: zodSchema as any,
+  validationSchema,
   initialValues: properties.formData as Record<string, unknown>,
 });
 
