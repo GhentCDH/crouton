@@ -1,0 +1,15 @@
+{
+  "name": "crouton-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/crouton-cli/src",
+  "targets": {
+    "publish": {
+      "dependsOn": ["build"],
+      "command": "npm publish --access public",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

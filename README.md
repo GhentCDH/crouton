@@ -4,6 +4,11 @@
 <h3>wrap your CRUD in one neat package.</h3>
 
   <p><em><strong>C</strong>onfigure <strong>R</strong>esources <strong>O</strong>nce, <strong>U</strong>se <strong>T</strong>hem <strong>O</strong>ver and Over, <strong>N</strong>aturally</em></p>
+
+[![Build](https://github.com/GhentCDH/crouton/actions/workflows/merge-request.yml/badge.svg)](https://github.com/GhentCDH/crouton/actions/workflows/merge-request.yml)
+[![Publish](https://github.com/GhentCDH/crouton/actions/workflows/publish.yml/badge.svg)](https://github.com/GhentCDH/crouton/actions/workflows/publish.yml)
+[![Publish Docs](https://github.com/GhentCDH/crouton/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/GhentCDH/crouton/actions/workflows/publish-docs.yml)
+[![npm version](https://img.shields.io/npm/v/@ghentcdh/crouton-core.svg)](https://www.npmjs.com/package/@ghentcdh/crouton-core)
 </div>
 
 ---

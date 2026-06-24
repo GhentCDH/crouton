@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 import { readFile, writeFile } from 'node:fs/promises';
 
 
-const outDir = '../../dist/crouton-cli';
+const outDir = './dist';
 
 export default defineConfig({
   entry: ['src/index.ts'],
