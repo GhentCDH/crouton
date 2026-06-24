@@ -43,10 +43,9 @@ export default defineConfig({
       name: pkg.name,
       version: pkg.version,
       description: 'Crouton project CLI',
+      publishConfig: pkg.publishConfig,
       type: 'module',
-      bin: Object.fromEntries(
-        Object.keys(pkg.bin ?? {}).map((name) => [name, './index.js']),
-      ),
+      bin: { crouton: './index.js' },
       dependencies: pkg.dependencies ?? {},
     };
     await writeFile(
