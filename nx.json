@@ -51,7 +51,7 @@
     "changelog": {
       "automaticFromRef": true,
       "workspaceChangelog": {
-        "createRelease": false,
+        "createRelease": "github",
         "file": "RELEASE_NOTES.md"
       }
     }

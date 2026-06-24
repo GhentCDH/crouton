@@ -52,4 +52,110 @@ export { formatError, registerZodErrorMap } from './forms/errorMessages';
 export * from './repository';
 export * from './table';
 export * from './forms/renderers/controls/readonly/displayValue';
-export * from '@ghentcdh/crouton-core';
+// Re-export crouton-core (explicit to support rollupTypes)
+// filter
+export {
+  Operator,
+  OperatorLabel,
+  OperatorNoValue,
+  OperatorOptions,
+  OperatorsByType,
+  buildFilter,
+  buildSort,
+  buildSortKey,
+  extractFilters,
+  filterToString,
+  stringToFilter,
+} from '@ghentcdh/crouton-core';
+export type { FieldType, Filter, OperatorType } from '@ghentcdh/crouton-core';
+
+// request & response models
+export {
+  RequestSchema,
+  RequestSchemaWithOffset,
+  ResponseRequestSchema,
+  ResponseSchema,
+  SortDirEnum,
+} from '@ghentcdh/crouton-core';
+export type {
+  ListRequest,
+  ResponseData,
+  SortDir,
+} from '@ghentcdh/crouton-core';
+
+// zod types
+export { PositiveRequestNumber, StringOrArray } from '@ghentcdh/crouton-core';
+
+// schema
+export { ModalSize, createSchema, enforceRequiredStringMinLength, findProperty } from '@ghentcdh/crouton-core';
+export { ModalSize as Size } from '@ghentcdh/crouton-core';
+export type { FormSchemaModel, JsonFormsLayout, ModalSizeType } from '@ghentcdh/crouton-core';
+export type { ModalSizeType as SizeType } from '@ghentcdh/crouton-core';
+
+// from-json builder
+export { uiFromJsonSchema } from '@ghentcdh/crouton-core';
+
+// relation types
+export type { RelationType } from '@ghentcdh/crouton-core';
+
+// json-config types
+export { labelFromId, normalizeColumns } from '@ghentcdh/crouton-core';
+export type {
+  CalculatedColumn,
+  DetailConfig,
+  DetailControl,
+  FieldInput,
+  JsonAction,
+  JsonActionCondition,
+  JsonColumn,
+  JsonColumnsMap,
+  JsonDisplay,
+  JsonIncludeEntry,
+  JsonLinkAction,
+  JsonOperations,
+  JsonProcedureAction,
+  JsonResourceConfig,
+  JsonTableAction,
+  JsonTableLinkAction,
+  JsonTableProcedureAction,
+  RelationFieldInputOptions,
+  SidebarGroupConfig,
+} from '@ghentcdh/crouton-core';
+
+// value-label
+export { fromValueLabel, toValueLabel } from '@ghentcdh/crouton-core';
+export type { ValueLabel, ValueLabelOption } from '@ghentcdh/crouton-core';
+
+// layout builders
+export {
+  Builder,
+  BuilderWithElements,
+  CategoryBuilder,
+  ControlBuilder,
+  ControlType,
+  GroupBuilder,
+  LayoutBuilder,
+  LayoutTypes,
+} from '@ghentcdh/crouton-core';
+export type {
+  ArrayAction,
+  ArrayActionType,
+  AutocompleteAllOptions,
+  AutocompleteOptions,
+  AutocompleteRemoteOptions,
+  AutocompleteResourceOptions,
+  CategoryType,
+  ControlOption,
+  ControlTypes,
+  DateRangeOptions,
+  DetailOptions,
+  ElementBuilder,
+  GroupType,
+  MarkdownOptions,
+  SelectOptions,
+  TextAreaOptions,
+} from '@ghentcdh/crouton-core';
+
+// table
+export { BooleanCellBuilder, TableBuilder, TextCellBuilder, findColumnDef } from '@ghentcdh/crouton-core';
+export type { ColumnDef, KeyValueOption, TextCellOption, TextCellType } from '@ghentcdh/crouton-core';
