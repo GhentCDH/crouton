@@ -4,7 +4,7 @@
   "projectType": "library",
   "sourceRoot": "packages/crouton-forms-vue/src",
   "targets": {
-    "publish": {
+    "nx-release-publish": {
       "dependsOn": ["build"],
       "command": "npm publish --access public",
       "options": {

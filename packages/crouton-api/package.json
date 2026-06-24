@@ -6,6 +6,9 @@
     "url": "https://github.com/GhentCDH/crouton",
     "directory": "packages/crouton-api"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "exports": {
     ".": {
