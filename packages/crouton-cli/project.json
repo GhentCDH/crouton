@@ -8,7 +8,7 @@
       "dependsOn": ["build"],
       "command": "npm publish --access public",
       "options": {
-        "cwd": "{projectRoot}"
+        "cwd": "{projectRoot}/dist"
       }
     }
   }
