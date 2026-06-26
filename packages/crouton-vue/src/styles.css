@@ -13,6 +13,7 @@
  * here.
  */
 @import '@ghentcdh/ui/index.css';
+@import '@ghentcdh/crouton-forms-vue/styles.css';
 
 /* Crouton's own Tailwind theme + utilities (preflight already provided by @ghentcdh/ui) */
 @import 'tailwindcss/theme.css' layer(theme);
@@ -20,7 +21,6 @@
 
 /* Only scan the crouton-vue sources for class usage */
 @source './';
-@source '../../crouton-forms-vue/';
 
 /*
  * Expose the daisyUI theme colors (defined at runtime by the ugent theme in
