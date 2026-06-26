@@ -1,3 +1,13 @@
+## 0.0.1-alpha.12 (2026-06-26)
+
+### 🩹 Fixes
+
+- build + linking of the style.css ([c8eaf36](https://github.com/GhentCDH/crouton/commit/c8eaf36))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.11 (2026-06-24)
 
 This was a version bump only, there were no code changes.
