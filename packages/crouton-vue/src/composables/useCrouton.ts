@@ -89,3 +89,14 @@ export const useCrouton = () => {
     getFormByUri: (uri: string) => formDefCache.getFormDefByUri(uri),
   };
 };
+
+export function createCrouton(
+  api: AxiosInstance,
+  options: Partial<typeof AppConfig> = {},
+) {
+  return {
+    install(app) {
+      useCrouton().init(api, options);
+    },
+  };
+}

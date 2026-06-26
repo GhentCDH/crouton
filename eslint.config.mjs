@@ -6,6 +6,40 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mts', '**/*.mjs'],
+    ignores: ['**/eslint.config.mjs'],
+    rules: {
+      '@nx/enforce-module-boundaries': [
+        'error',
+        {
+          enforceBuildableLibDependency: true,
+          depConstraints: [
+            // util: only depends on other util — no ui, backend, or cli
+            {
+              sourceTag: 'type:util',
+              onlyDependOnLibsWithTags: ['type:util'],
+            },
+            // backend (NestJS): only util — no Vue, no cli
+            {
+              sourceTag: 'type:backend',
+              onlyDependOnLibsWithTags: ['type:util'],
+            },
+            // ui (Vue): util + other ui — no NestJS, no cli
+            {
+              sourceTag: 'type:ui',
+              onlyDependOnLibsWithTags: ['type:util', 'type:ui'],
+            },
+            // cli: util only — no vue, no nest
+            {
+              sourceTag: 'type:cli',
+              onlyDependOnLibsWithTags: ['type:util'],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.json'],
     rules: {},
     languageOptions: {

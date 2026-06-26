@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/crouton-forms-vue/src",
+  "tags": ["scope:crouton", "type:ui", "tech:vue"],
   "targets": {
     "nx-release-publish": {
       "dependsOn": ["build"],

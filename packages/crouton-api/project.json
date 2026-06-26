@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/crouton-api/src",
+  "tags": ["scope:crouton", "type:backend", "tech:nest"],
   "targets": {
     "nx-release-publish": {
       "dependsOn": ["build"],
