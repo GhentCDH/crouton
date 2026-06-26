@@ -1,3 +1,13 @@
+## 0.0.1-alpha.14 (2026-06-26)
+
+### 🩹 Fixes
+
+- styling error ([65921b0](https://github.com/GhentCDH/crouton/commit/65921b0))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.13 (2026-06-26)
 
 ### 🩹 Fixes
