@@ -1,3 +1,13 @@
+## 0.0.1-alpha.13 (2026-06-26)
+
+### 🩹 Fixes
+
+- cjs error ([98409f1](https://github.com/GhentCDH/crouton/commit/98409f1))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.12 (2026-06-26)
 
 ### 🩹 Fixes
