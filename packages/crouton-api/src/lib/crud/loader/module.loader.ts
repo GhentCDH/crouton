@@ -4,7 +4,9 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 // createRequire works in both CJS and ESM contexts, unlike bare `require`.
-const _require = createRequire(import.meta.url);
+// In CJS contexts (nodemon + @swc-node/register), import.meta.url is undefined,
+// so fall back to __filename which is always available in CJS.
+const _require = createRequire(import.meta.url ?? __filename);
 
 /** Find a module file by trying `.ts` then `.js` extensions. */
 export const findModule = (dir: string, name: string): string | undefined => {
