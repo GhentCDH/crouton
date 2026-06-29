@@ -1,3 +1,13 @@
+## 0.0.1-alpha.17 (2026-06-29)
+
+### 🩹 Fixes
+
+- relation requirements ([15d0cfd](https://github.com/GhentCDH/crouton/commit/15d0cfd))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.16 (2026-06-29)
 
 This was a version bump only, there were no code changes.
