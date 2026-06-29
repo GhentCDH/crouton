@@ -1,0 +1,30 @@
+{
+  "name": "create-crouton",
+  "version": "0.0.1-alpha.1",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhentCDH/crouton",
+    "directory": "packages/create-crouton"
+  },
+  "bin": {
+    "create-crouton": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@clack/prompts": "^0.11.0",
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.0",
+    "tsup": "^8.0.0"
+  }
+}
