@@ -9,7 +9,7 @@ import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import { type CustomComponentEntry } from '../utils/custom-component';
 
-export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
+export { firstLeafId, isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
 export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
 
