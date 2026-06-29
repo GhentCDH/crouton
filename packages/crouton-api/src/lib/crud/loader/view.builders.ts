@@ -127,6 +127,18 @@ const buildView = (
   dropNullableFromRequired(jsonSchema);
   enforceRequiredMinLength(jsonSchema);
 
+  // When schemaVisible is provided (form view), drop non-editable fields from
+  // `required` so visible-but-readonly relation fields don't cause validation failures.
+  if (schemaVisible) {
+    const nonEditableIds = new Set(
+      schemaCols.filter((c) => !schemaVisible(c)).map((c) => c.id),
+    );
+    const required = jsonSchema['required'] as string[] | undefined;
+    if (Array.isArray(required) && nonEditableIds.size) {
+      jsonSchema['required'] = required.filter((k) => !nonEditableIds.has(k));
+    }
+  }
+
   return {
     json_schema: jsonSchema,
     ui_schema: buildUiSchema(visibleCols),
