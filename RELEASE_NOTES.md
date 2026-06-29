@@ -1,3 +1,13 @@
+## 0.0.1-alpha.15 (2026-06-29)
+
+### 🩹 Fixes
+
+- styling ([a36c41d](https://github.com/GhentCDH/crouton/commit/a36c41d))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.14 (2026-06-26)
 
 ### 🩹 Fixes
