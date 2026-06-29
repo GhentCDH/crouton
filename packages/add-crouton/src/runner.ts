@@ -6,7 +6,6 @@
 import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
-
 import { detectPm, discoverNxApps, isNxWorkspace } from './lib/detect.js';
 import { fileExists, readJsonFile, writeAddFiles } from './lib/files.js';
 import { buildDockerFiles } from './templates/docker.js';
@@ -236,7 +235,7 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
             {
               path: 'src/main.ts',
               contents:
-                "import { createApp } from 'vue';\nimport App from './App.vue';\ncreateApp(App).mount('#app');\n",
+                'import { createApp } from \'vue\';\nimport App from \'./App.vue\';\ncreateApp(App).mount(\'#app\');\n',
             },
           ]);
           clack.log.success(`Created apps/${newFeName} skeleton.`);
