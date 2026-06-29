@@ -11,7 +11,7 @@ export const CroutonRouter = [
         component: () => import('./admin/RedirectView.vue'),
       },
       {
-        path: 'formg',
+        path: 'form',
         component: () => import('./admin/RedirectView.vue'),
       },
       {
