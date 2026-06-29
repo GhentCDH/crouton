@@ -26,6 +26,6 @@
   "devDependencies": {
     "@ghentcdh/crouton-core": "workspace:*",
     "tsup": "^8.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.1.9"
   }
 }
