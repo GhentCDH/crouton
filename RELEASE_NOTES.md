@@ -1,3 +1,7 @@
+## 0.0.1-alpha.18 (2026-06-30)
+
+This was a version bump only, there were no code changes.
+
 ## 0.0.1-alpha.17 (2026-06-29)
 
 ### 🩹 Fixes
