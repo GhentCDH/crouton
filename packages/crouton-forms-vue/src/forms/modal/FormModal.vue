@@ -9,7 +9,6 @@
     <template #content>
       <div class="overflow-auto">
         <slot name="content-before" />
-        {{ formData }}
         <FormComponent
           :id="`modal-${id}`"
           ref="formRef"

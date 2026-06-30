@@ -360,8 +360,12 @@ export const buildViewsFromColumns = (
           title: c.label ?? c.id,
         };
       } else {
+        const opts = c.fieldInput?.options as Record<string, unknown> | undefined;
+        const isObject =
+          opts?.emitObject === true ||
+          c.fieldInput?.type === 'autocomplete';
         properties[c.id] = {
-          type: c.columnType ?? 'string',
+          ...(isObject ? {} : { type: c.columnType ?? 'string' }),
           title: c.label ?? c.id,
         };
       }

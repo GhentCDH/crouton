@@ -1,4 +1,4 @@
-import { type Component, markRaw, type Ref, ref } from 'vue';
+import { type Component, type Ref, markRaw, ref } from 'vue';
 
 import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
