@@ -1,3 +1,13 @@
+## 0.0.1-alpha.19 (2026-06-30)
+
+### 🩹 Fixes
+
+- relation errors ([#34](https://github.com/GhentCDH/crouton/pull/34))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.18 (2026-06-30)
 
 This was a version bump only, there were no code changes.
