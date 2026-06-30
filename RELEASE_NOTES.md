@@ -1,3 +1,13 @@
+## 0.0.1-alpha.20 (2026-06-30)
+
+### 🩹 Fixes
+
+- dropNullableFromRfequired ([ddae67c](https://github.com/GhentCDH/crouton/commit/ddae67c))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.19 (2026-06-30)
 
 ### 🩹 Fixes
