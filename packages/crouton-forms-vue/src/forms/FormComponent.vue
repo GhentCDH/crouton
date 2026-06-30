@@ -9,7 +9,7 @@ import { useForm } from 'vee-validate';
 import { nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
 import { fromJSONSchema } from 'zod';
 
-import { enforceRequiredStringMinLength } from '@ghentcdh/crouton-core';
+import { dropNullableFromRequired, enforceRequiredStringMinLength } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';
 
 import Dispatch from './Dispatch.vue';
@@ -26,7 +26,7 @@ registerZodErrorMap();
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
-const patched = enforceRequiredStringMinLength(properties.schema);
+const patched = enforceRequiredStringMinLength(dropNullableFromRequired(properties.schema));
 const validationSchema = fromJSONSchema(patched as any);
 
 const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
