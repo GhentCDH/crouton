@@ -34,7 +34,7 @@ export const JsonFormComponentProperties = {
   },
   /** HTTP client used by renderers that fetch remote data (e.g. autocomplete). */
   http: {
-    type: Object as PropType<HttpClient>,
+    type: [Object, Function] as PropType<HttpClient>,
     default: null,
   },
   /** Custom renderer registry. Overrides the default `customRenderers` when provided. */

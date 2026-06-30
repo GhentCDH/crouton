@@ -32,6 +32,7 @@ const resource = shallowRef(
     initialRequestParams: { ...toRaw(props.initialRequestParams) },
     onRequest,
     handleEvent,
+    inline: true,
   }),
 );
 

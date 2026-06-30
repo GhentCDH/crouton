@@ -8,12 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type PropType } from 'vue';
+import { computed } from 'vue';
+import { DateRangeValueProperties } from './DateRangeValue.properties';
 
-const { options, value } = defineProps({
-  options: { type: Object, required: true as const },
-  value: { type: Object as PropType<unknown>, required: true as const },
-});
+const { options, value } = defineProps(DateRangeValueProperties);
 
 const from = computed(() => {
   return value?.[options.fromField ?? 'from'];

@@ -1,6 +1,18 @@
 packages:
   - packages/*
 
+overrides:
+  vue: 3.5.39
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  '@swc/core': true
+  esbuild: true
+  nx: true
+  unrs-resolver: true
+
 ignoredBuiltDependencies:
   - '@swc/core'
   - esbuild

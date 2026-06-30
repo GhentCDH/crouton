@@ -79,7 +79,7 @@ const useResourceOptions = async (
         [method](uri, { signal })
         .then((data: any) => data.data[options.dataField ?? 'data']);
     },
-    enableCreate: !!resource.operations.create && resource.schema.ui,
+    enableCreate: !!(resource.operations.create && resource.schema.ui),
     form: resource.operations.create
       ? {
           ui_schema: resource.schema!.ui,
@@ -125,8 +125,7 @@ export const useFetchOptions = async (
 
   return {
     fetchOptions: null as
-      | ((searchTerm: string, signal: AbortSignal) => Promise<any>)
-      | null,
+      ((searchTerm: string, signal: AbortSignal) => Promise<any>) | null,
     labelKey: options.labelKey,
     valueKey: options.valueKey,
     enableCreate: options.enableCreate ?? false,

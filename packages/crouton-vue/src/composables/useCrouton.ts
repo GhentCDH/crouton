@@ -36,7 +36,21 @@ const sidebar = ref<SidebarNode[]>([]);
 const formDefCache = new FormDefCache();
 const config = ref({ ...AppConfig });
 
-export const useCrouton = () => {
+export type UseCrouton = ReturnType<typeof useCrouton>;
+
+export const useCrouton = (): {
+  init: (api: AxiosInstance, _config?: Partial<typeof AppConfig>) => Promise<void>;
+  readonly sidebar: SidebarNode[];
+  version: ReturnType<typeof computed<string>>;
+  title: ReturnType<typeof computed<string>>;
+  autoSave: ReturnType<typeof computed<boolean>>;
+  readonly renderers: JsonFormsRendererRegistryEntry[];
+  readonly customComponents: CustomComponentEntry[];
+  readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
+  readonly cellRenderers: CellRendererEntry[];
+  getFormDef: (formId: string) => ReturnType<FormDefCache['getFormDef']>;
+  getFormByUri: (uri: string) => ReturnType<FormDefCache['getFormByUri']>;
+} => {
   const init = (
     api: AxiosInstance,
     _config: Partial<typeof AppConfig> = {},

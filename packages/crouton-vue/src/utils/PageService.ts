@@ -26,7 +26,7 @@ export abstract class PageService {
 
   pageData = ref({ count: 0, pageSize: 1, page: 1, totalPages: 1 });
   sort = ref({ sortColumn: '', sortDirection: '' });
-  protected crouton = useCrouton();
+  protected crouton: ReturnType<typeof useCrouton> = useCrouton();
 
   protected abstract loadDataRequest(signal: AbortSignal): Promise<any>;
   protected abstract afterLoadData(data: any): void;

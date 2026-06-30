@@ -1,4 +1,4 @@
-import { type Component, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
 import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
@@ -69,6 +69,7 @@ const openViewModal =
   ) =>
   (formData: any) => {
     const view = formDef.schemas.view;
+    if (!formData) NotificationService.error('cannot load data');
     if (!view) return;
 
     handleEvent('view', { id: formData[formDef.idField] });
@@ -85,7 +86,12 @@ const openViewModal =
       ],
       onEdit: op.update
         ? (data: any) =>
-            openEditModal(api, resource, formDef, handleEvent)(data ?? formData)
+            openEditModal(
+              api,
+              resource,
+              formDef,
+              handleEvent,
+            )(data ?? formData) as any
         : undefined,
       onDelete: op.delete
         ? (data: any) =>
@@ -101,7 +107,7 @@ const openViewModal =
           .then((config) => {
             if (!config) return;
             const _resource = useResources(config, { defaultUriParams: data });
-            _resource?.resourceModal.view(data.data);
+            _resource?.view(data.data);
           });
       },
       onClose: () => {
@@ -181,6 +187,19 @@ const getEditParams = (
 };
 
 const openEditModal =
+  (
+    api: ResourceApiInstance,
+    resource: Resource,
+    formDef: FormDef,
+    handleEvent: HandleEvent,
+  ) =>
+  (formData?: any) => {
+    JsonFormModalService.openModal(
+      createEditForm(api, resource, formDef, handleEvent)(formData) as any,
+    );
+  };
+
+const createEditForm =
   (
     api: ResourceApiInstance,
     resource: Resource,
@@ -304,7 +323,8 @@ export const actions = (
   if (!formDef) return [] as TableAction[];
 
   const op = formDef.operations ?? {};
-  const _modals = modals ?? resourceModals(api, resource, formDef, handleEvent);
+  const _modals =
+    modals ?? resourceModals(api, resource, formDef, handleEvent, false);
   return [
     formDef.actions.map((action) => {
       return {
@@ -382,12 +402,27 @@ export const tableActions = (
   });
 };
 
+export interface ResourceModals {
+  form: Ref<{
+    component: Component;
+    config: any;
+    hideTable: boolean;
+    customComponent: Component | null;
+  } | null>;
+  closeForm: (result: any) => void;
+  create: () => void;
+  edit: (id: unknown) => void;
+  view: (id: unknown) => void;
+  delete: (id: unknown) => void;
+}
+
 export const resourceModals = (
   api: ResourceApiInstance,
   resource: Resource,
   formDef: FormDef,
   handleEvent: HandleEvent,
-) => {
+  inline: boolean,
+): ResourceModals => {
   const openWithData = (id: unknown, fn: (data: any) => void) => {
     const _id =
       typeof id === 'string'
@@ -395,7 +430,9 @@ export const resourceModals = (
         : String((id as Record<string, unknown>)[formDef.idField]);
     api
       .getOneById(_id)
-      .then((data) => fn(data))
+      .then((data) => {
+        return fn(data);
+      })
       .catch((error) => {
         console.error(error);
         NotificationService.error('Something went wrong, please try again');
@@ -419,6 +456,11 @@ export const resourceModals = (
       handleEvent: HandleEvent,
     ) =>
     (formData?: any) => {
+      if (!inline) {
+        openEditModal(api, resource, formDef, handleEvent)(formData);
+        return;
+      }
+
       const mode = formDef.display.mode;
       const component = mode === 'page' ? AutoSaveForm : FormModal;
 
@@ -427,7 +469,7 @@ export const resourceModals = (
           crouton.customComponents,
           formDef.display.customComponent,
         ) ?? null;
-      const config = openEditModal(
+      const config = createEditForm(
         api,
         resource,
         formDef,
@@ -435,9 +477,9 @@ export const resourceModals = (
       )(formData);
 
       form.value = {
-        component,
+        component: markRaw(component),
         config,
-        customComponent,
+        customComponent: customComponent ? markRaw(customComponent) : null,
         hideTable: mode === 'page',
       };
     };

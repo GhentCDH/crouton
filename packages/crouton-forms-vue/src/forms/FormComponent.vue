@@ -21,15 +21,13 @@ import { customRenderers } from './renderers';
 import type { FormEventPayload } from '../composables/useFormEvents';
 import { provideFormEvents } from '../composables/useFormEvents';
 import { provideHttpClient } from '../composables/useHttpClient';
-import { toTypedSchema } from '@vee-validate/zod';
-
 registerZodErrorMap();
 
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
 const patched = enforceRequiredStringMinLength(properties.schema);
-const validationSchema = toTypedSchema(fromJSONSchema(patched as any));
+const validationSchema = fromJSONSchema(patched as any);
 
 const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema,

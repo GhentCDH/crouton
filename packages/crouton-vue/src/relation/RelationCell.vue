@@ -71,7 +71,7 @@ const resource = computed(() => {
 });
 
 const openDetailsManyToOne = () => {
-  resource.value?.resourceModal.view(value.value);
+  resource.value?.view(value);
 };
 
 const openDetailsManyToMany = () => {

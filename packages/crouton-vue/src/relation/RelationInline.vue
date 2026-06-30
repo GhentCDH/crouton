@@ -16,7 +16,7 @@
       />
     </div>
 
-    <div v-if="hasCreate" class="flex flex-gap-2 items-center">
+    <div v-if="hasCreate && enableCreate" class="flex flex-gap-2 items-center">
       <Autocomplete
         v-if="fetchOptions"
         :model-value="newValue"
@@ -39,22 +39,22 @@
 <script setup lang="ts">
 import RelationButton from './RelationButton.vue';
 
-import { JsonFormModalService, ReadonlyLabel, useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
+import {
+  JsonFormModalService,
+  ReadonlyLabel,
+  useFetchOptions,
+  useHttpClient,
+} from '@ghentcdh/crouton-forms-vue';
 import { Autocomplete, Btn } from '@ghentcdh/ui';
 import { computed, ref, useAttrs } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { useResources } from '../resource';
+import { RelationInlineProperties } from './RelationInline.properties';
 
 const newValue = ref<string>(null);
 
-const props = defineProps<{
-  options: any;
-  labelKey: string;
-  label: string;
-  valueKey: string;
-  values: any[];
-}>();
+const props = defineProps(RelationInlineProperties);
 
 type RelationHandlers = {
   onCreate?: (value: unknown) => void;
@@ -65,11 +65,20 @@ type RelationHandlers = {
 
 const http = useHttpClient();
 const crouton = useCrouton();
-const formDef = computedAsync(() =>
-  crouton.getFormByUri(props.options.resource),
-);
-const resource = computed(() =>
-  formDef.value ? useResources(formDef.value, { initialLoad: false }) : null,
+const formDef = computedAsync(() => {
+  const uri = props.options.resourceUri
+    ? `${props.options.resourceUri}/schemas`
+    : props.options.resource;
+  return crouton.getFormByUri(uri);
+});
+const detailDef = computedAsync(() => {
+  const uri = props.options.autocompleteResource ?? props.options.resource;
+  return crouton.getFormByUri(uri);
+});
+const detailResource = computed(() =>
+  detailDef.value
+    ? useResources(detailDef.value, { initialLoad: false, readonly: true })
+    : null,
 );
 const attrs = useAttrs() as RelationHandlers;
 const hasView = computed(() => 'onView' in attrs);
@@ -78,18 +87,10 @@ const hasEdit = computed(() => 'onEdit' in attrs);
 const hasDelete = computed(() => 'onDelete' in attrs);
 
 const fetchOptions = computedAsync(() => {
-  const _resource =
-    props.options.autocompleteResource ?? props.options.resource;
-  const def = formDef.value;
-  const res = resource.value;
-  console.log(_resource);
-
-  if (!def || !res) return null;
-
-  console.table(def);
+  const resource = props.options.autocompleteResource ?? props.options.resource;
   return useFetchOptions(
     {
-      resource: `${def.id}/schemas`,
+      resource,
     },
     http,
     {},
@@ -99,7 +100,8 @@ const fetchOptions = computedAsync(() => {
 const operations = computed(() => {
   const ops: Record<string, (value: any) => void> = {
     onView: (value) => {
-      resource.value?.resourceModal.view(value.value);
+      const id = formDef.value?.idField;
+      detailResource.value?.view(value[id]);
     },
   };
 

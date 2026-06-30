@@ -1,5 +1,5 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { computed } from 'vue';
+import { type ComputedRef, type Ref, computed } from 'vue';
 
 import {
   type FormEvents,
@@ -8,7 +8,7 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
-import { useResources } from '../resource';
+import { type UseResource, useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
 
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;
@@ -55,7 +55,13 @@ export const useRelationBinding = (
   uischema: ControlElement,
   schema: JsonSchema,
   readonly = false,
-) => {
+): Record<string, any> & {
+  isInline: boolean;
+  isNew: ComputedRef<boolean>;
+  message: string | null;
+  resource: Ref<UseResource | null | undefined>;
+  appliedOptions: ComputedRef<Record<string, any>>;
+} => {
   const formEvents = useFormEvents();
   const bindings = useControlBinding(uischema, schema);
   const { formValues } = bindings;
