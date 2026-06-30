@@ -21,3 +21,20 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+# Code Style Preferences
+
+- Always use arrow function syntax for all functions: `const foo = () => { ... }` (not `function foo() { ... }`)
+- Vue component props must use runtime object syntax (not type-based `defineProps<{...}>()`), defined in a separate `*.properties.ts` file next to the component. Example:
+  ```ts
+  // MyComponent.properties.ts
+  export const MyComponentProperties = {
+    label: { type: String, required: true as const },
+    value: { type: Object as PropType<unknown>, required: true as const },
+  };
+  ```
+  ```ts
+  // MyComponent.vue
+  import { MyComponentProperties } from './MyComponent.properties';
+  const props = defineProps(MyComponentProperties);
+  ```

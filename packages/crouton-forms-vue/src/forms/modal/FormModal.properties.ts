@@ -37,7 +37,7 @@ export const FormModalProperties = {
   },
   /** HTTP client passed through to the inner JsonForm for remote renderers (e.g. autocomplete). */
   http: {
-    type: Object as PropType<HttpClient>,
+    type: [Object, Function] as PropType<HttpClient>,
     default: null,
   },
   /** Custom renderer registry passed to the inner JsonForm. */

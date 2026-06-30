@@ -1,10 +1,11 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
-import { computed, ref } from 'vue';
+import { type App, type ComputedRef, computed, ref } from 'vue';
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 
 import { FormDefCache } from './form-def';
+import type { FormDef } from './form-def.types';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import { type CustomComponentEntry } from '../utils/custom-component';
@@ -36,7 +37,21 @@ const sidebar = ref<SidebarNode[]>([]);
 const formDefCache = new FormDefCache();
 const config = ref({ ...AppConfig });
 
-export const useCrouton = () => {
+export type UseCrouton = ReturnType<typeof useCrouton>;
+
+export const useCrouton = (): {
+  init: (api: AxiosInstance, _config?: Partial<typeof AppConfig>) => Promise<void>;
+  readonly sidebar: SidebarNode[];
+  version: ComputedRef<string>;
+  title: ComputedRef<string>;
+  autoSave: ComputedRef<boolean>;
+  readonly renderers: JsonFormsRendererRegistryEntry[];
+  readonly customComponents: CustomComponentEntry[];
+  readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
+  readonly cellRenderers: CellRendererEntry[];
+  getFormDef: (formId: string) => Promise<FormDef>;
+  getFormByUri: (uri: string) => Promise<FormDef>;
+} => {
   const init = (
     api: AxiosInstance,
     _config: Partial<typeof AppConfig> = {},
@@ -90,13 +105,11 @@ export const useCrouton = () => {
   };
 };
 
-export function createCrouton(
+export const createCrouton = (
   api: AxiosInstance,
   options: Partial<typeof AppConfig> = {},
-) {
-  return {
-    install(app) {
-      useCrouton().init(api, options);
-    },
-  };
-}
+) => ({
+  install(app: App) {
+    useCrouton().init(api, options);
+  },
+});

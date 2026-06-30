@@ -1,15 +1,16 @@
 import { cloneDeep } from 'lodash-es';
-import { reactive, shallowRef } from 'vue';
+import { type Ref, reactive, shallowRef } from 'vue';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
+  type ResourceModals,
   actions,
   backendAction,
   resourceModals,
   tableActions,
 } from './resource.actions';
-import { resourceApi } from './resource.api';
+import { type ResourceApiInstance, resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
@@ -24,16 +25,46 @@ export interface UseResourcesProperties {
   defaultUriParams?: Record<string, string>;
   readonly?: boolean;
   initialLoad?: boolean;
+  inline?: boolean;
+}
+
+export interface UseResource {
+  operations: Record<string, unknown>;
+  uiSchema: any;
+  schema: any;
+  filterSchema: Record<string, any> | undefined;
+  loading: boolean;
+  data: any[];
+  page: { count: number; pageSize: number; page: number; totalPages: number };
+  sort: { sortColumn: string; sortDirection: string };
+  filter: any[];
+  search: string;
+  onSort: (id: string) => void;
+  onUpdatePage: (page: number) => void;
+  onUpdatePageSize: (size: number) => void;
+  onUpdateFilters: (filters: any) => void;
+  onUpdateSearch: (search: string) => void;
+  cellRenderers: any[];
+  actions: any;
+  backendAction: (action: Action) => Promise<any>;
+  tableActions: any[];
+  create: () => void;
+  edit: (id: unknown) => void;
+  view: (id: unknown) => void;
+  delete: (id: unknown) => void;
+  closeForm: (result: any) => void;
+  form: ResourceModals['form'];
+  api: ResourceApiInstance;
 }
 
 export const useResourcesByUri = (
   uri: string,
   params: UseResourcesProperties = {},
-) => {
+): Ref<UseResource | null | undefined> => {
   const crouton = useCrouton();
 
   return computedAsync(async () => {
-    const config = await crouton.getFormByUri(id);
+    const config = await crouton.getFormByUri(uri);
 
     return useResources(config, params);
   });
@@ -41,7 +72,7 @@ export const useResourcesByUri = (
 export const useResourcesById = (
   id: string,
   params: UseResourcesProperties = {},
-) => {
+): Ref<UseResource | null> => {
   const crouton = useCrouton();
   const config = computedAsync(() => crouton.getFormDef(id as string));
   return shallowRef(useResources(config.value, params));
@@ -60,8 +91,9 @@ export const useResources = (
     defaultUriParams = {},
     readonly = false,
     initialLoad = true,
+    inline = false,
   }: UseResourcesProperties = {},
-) => {
+): UseResource | null => {
   if (!formDef) return null;
 
   const _formDef = cloneDeep(formDef);
@@ -75,15 +107,20 @@ export const useResources = (
   );
 
   const filterSchema = (_formDef.schemas as any).filter?.data as
-    | Record<string, any>
-    | undefined;
+    Record<string, any> | undefined;
   if (readonly) {
     _formDef.operations.delete = null;
     _formDef.operations.update = null;
     _formDef.operations.create = null;
   }
 
-  const resourceModal = resourceModals(api, resource, _formDef, handleEvent);
+  const resourceModal = resourceModals(
+    api,
+    resource,
+    _formDef,
+    handleEvent,
+    inline,
+  );
 
   return reactive({
     operations: _formDef.operations ?? {},
@@ -125,7 +162,5 @@ export const useResources = (
     closeForm: resourceModal.closeForm,
     form: resourceModal.form,
     api,
-  });
+  }) as unknown as UseResource;
 };
-
-export type UseResource = NonNullable<ReturnType<typeof useResources>>;

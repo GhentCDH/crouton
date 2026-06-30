@@ -31,6 +31,12 @@ export const isSidebarLeaf = (node: SidebarNode): node is SidebarLeaf =>
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+export const firstLeafId = (nodes: SidebarNode[]): string | undefined => {
+  const first = nodes[0];
+  if (!first) return undefined;
+  return isSidebarGroup(first) ? first.children[0]?.id : first.id;
+};
+
 const leafToMenuItem = (leaf: SidebarLeaf) => ({
   name: 'admin',
   label: leaf.label,

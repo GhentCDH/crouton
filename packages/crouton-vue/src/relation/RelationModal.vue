@@ -70,7 +70,7 @@ watch(
 );
 
 const create = () => {
-  resource.value?.resourceModal.create();
+  resource.value?.create();
 };
 
 const id = Date.now();
