@@ -127,6 +127,13 @@ const buildView = (
   dropNullableFromRequired(jsonSchema);
   enforceRequiredMinLength(jsonSchema);
 
+  // Relation columns are managed via sub-resource endpoints — never required in the parent form.
+  const relationIds = new Set(
+    schemaCols
+      .filter((c) => c.fieldInput?.format === 'relation')
+      .map((c) => c.id),
+  );
+
   // Drop explicitly non-editable fields (createable=false AND updateable=false)
   // from `required` so visible-but-readonly relation fields don't cause validation failures.
   if (schemaVisible) {
@@ -135,9 +142,15 @@ const buildView = (
         .filter((c) => c.createable === false && c.updateable === false)
         .map((c) => c.id),
     );
+    relationIds.forEach((id) => nonEditableIds.add(id));
     const required = jsonSchema['required'] as string[] | undefined;
     if (Array.isArray(required) && nonEditableIds.size) {
       jsonSchema['required'] = required.filter((k) => !nonEditableIds.has(k));
+    }
+  } else if (relationIds.size) {
+    const required = jsonSchema['required'] as string[] | undefined;
+    if (Array.isArray(required)) {
+      jsonSchema['required'] = required.filter((k) => !relationIds.has(k));
     }
   }
 

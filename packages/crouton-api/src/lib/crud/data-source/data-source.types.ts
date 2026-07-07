@@ -1,10 +1,6 @@
-export type DataSourceJsonConfig = {
-  type: string;
-  name: string;
-  default?: boolean;
-};
+import { type DataSource } from '@ghentcdh/crouton-core';
 
 export type DataSourceEntry = {
-  config: DataSourceJsonConfig;
+  config: DataSource;
   client: any; // PrismaClient from any generated schema
 };

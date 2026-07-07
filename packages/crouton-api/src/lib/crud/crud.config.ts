@@ -66,16 +66,10 @@ export type ResourceTableLinkAction = {
 };
 
 export type ResourceTableAction =
-  | ResourceTableProcedureAction
-  | ResourceTableLinkAction;
+  ResourceTableProcedureAction | ResourceTableLinkAction;
 
 export type CrudOperation =
-  | 'findAll'
-  | 'findOne'
-  | 'create'
-  | 'update'
-  | 'upsert'
-  | 'delete';
+  'findAll' | 'findOne' | 'create' | 'update' | 'upsert' | 'delete';
 
 export type SchemaInput = ZodObject<ZodRawShape> | JsonSchemaInput;
 
@@ -250,6 +244,9 @@ export type SubResourceConfig = {
   valueLabelColumns?: ValueLabelColumn[];
 };
 
+/**
+ * @deprecated
+ */
 export type ResourceConfig = {
   name: string;
   route: string;

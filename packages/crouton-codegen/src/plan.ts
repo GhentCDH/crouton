@@ -6,11 +6,11 @@
  */
 
 import { classify, defaultRuleset } from './classify';
-import type { CroutonConfig } from './config';
 import { diff } from './diff';
 import { resourceNames } from './naming';
 import type { ExistingResource } from './project';
 import type { DbModel, ResourceDiff, Ruleset } from './types';
+import { CroutonConfig } from '@ghentcdh/crouton-core';
 
 export interface BuildDiffsDeps {
   /** Datasource name stamped on generated resources. */
@@ -22,7 +22,9 @@ export interface BuildDiffsDeps {
 }
 
 /** Merge a config's rule overrides over the defaults. */
-export const resolveRuleset = (config?: Pick<CroutonConfig, 'rules'>): Ruleset => ({
+export const resolveRuleset = (
+  config?: Pick<CroutonConfig, 'rules'>,
+): Ruleset => ({
   ...defaultRuleset(),
   ...(config?.rules ?? {}),
 });

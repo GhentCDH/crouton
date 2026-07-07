@@ -18,12 +18,8 @@ export type {
   JsonColumnsMap,
   JsonIncludeEntry,
   JsonLinkAction,
-  JsonOperations,
   JsonProcedureAction,
   JsonResourceConfig,
-  JsonTableAction,
-  JsonTableLinkAction,
-  JsonTableProcedureAction,
   RelationFieldInputOptions,
   RelationType,
 } from '@ghentcdh/crouton-core';

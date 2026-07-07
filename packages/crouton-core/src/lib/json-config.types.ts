@@ -8,21 +8,13 @@
  */
 
 import type { RelationType } from './relation.types';
-
-type BoolOrUpsert = boolean | { upsertOn: string | string[] };
+import type { JsonResourceOperations } from './data-source/Operations.schema';
+import { JsonIncludeEntry } from './resource/include.schema';
+import { JsonAction } from './resource';
 
 export type JsonDisplay = {
   mode?: 'page' | 'modal';
   customComponent?: string | null;
-};
-
-export type JsonOperations = {
-  findAll?: boolean;
-  findOne?: boolean;
-  create?: boolean;
-  update?: boolean;
-  upsert?: BoolOrUpsert;
-  delete?: boolean;
 };
 
 /** Describes a nested control inside a `detail`/`detailFixed` array layout. */
@@ -235,115 +227,9 @@ export type CalculatedColumn = {
   };
 };
 
-export type JsonActionCondition = {
-  /** Row field to evaluate. */
-  field: string;
-  /**
-   * Comparison operator. Defaults to `"eq"`.
-   * - `eq` / `neq`         — strict equality
-   * - `gt` / `gte` / `lt` / `lte` — numeric or date comparison
-   * - `exists`             — field is not null / undefined / empty string
-   * - `notExists`          — field is null / undefined / empty string
-   */
-  op?: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'exists' | 'notExists';
-  /** Comparison value. Not required for `exists` / `notExists`. */
-  value?: unknown;
-};
-
-/** Action that calls a backend procedure endpoint. */
-export type JsonProcedureAction = {
-  type?: 'procedure';
-  /** Unique identifier used as the URL segment, e.g. `"sendToInception"`. */
-  id: string;
-  /** Human-readable button label shown in the table. */
-  label: string;
-  /**
-   * Filename (without extension) inside the resource's `actions/` directory
-   * that exports the `procedure` function, e.g. `"sendToInception"`.
-   */
-  procedure: string;
-  /** HTTP method for the frontend to call this action. Defaults to `"post"`. */
-  method?: string;
-  /**
-   * Static data payload merged into the request body by the frontend.
-   * Values may contain `{id}` which the frontend replaces with the record id.
-   * e.g. `{ "textId": "{id}" }`.
-   */
-  data?: Record<string, unknown>;
-  /** Optional condition evaluated per row. Button is hidden when the condition is false. */
-  condition?: JsonActionCondition;
-};
-
-/** Action that opens a URL in a new browser tab — no backend call. */
-export type JsonLinkAction = {
-  type: 'link';
-  /** Unique identifier for the action. */
-  id: string;
-  /** Human-readable button label shown in the table. */
-  label: string;
-  /**
-   * URL to open. May contain `{id}` which the frontend replaces with the record id.
-   * e.g. `"/preview/{id}"`.
-   */
-  href: string;
-  /** Optional condition evaluated per row. Button is hidden when the condition is false. */
-  condition?: JsonActionCondition;
-};
-
-export type JsonAction = JsonProcedureAction | JsonLinkAction;
-
-// ─── Table-level (global) actions ────────────────────────────────────────────
-
-/** Table-level action that calls a backend procedure endpoint (no record id). */
-export type JsonTableProcedureAction = {
-  type?: 'procedure';
-  /** Unique identifier used as the URL segment, e.g. `"syncZotero"`. */
-  id: string;
-  /** Human-readable button label (shown as tooltip when `icon` is set). */
-  label?: string;
-  /** MDI icon name, e.g. `"mdi:sync"`. When set, the button shows an icon instead of a label. */
-  icon?: string;
-  /** Tooltip text. Falls back to `label` when omitted. */
-  tooltip?: string;
-  /**
-   * Filename (without extension) inside the resource's `actions/` directory
-   * that exports the table-action procedure, e.g. `"syncZotero"`.
-   */
-  procedure: string;
-  /** HTTP method for the frontend. Defaults to `"post"`. */
-  method?: string;
-  /** Static query / body params passed to the endpoint. */
-  data?: Record<string, unknown>;
-};
-
-/** Table-level action that opens a URL in a new browser tab. */
-export type JsonTableLinkAction = {
-  type: 'link';
-  /** Unique identifier for the action. */
-  id: string;
-  /** Human-readable button label. */
-  label?: string;
-  /** MDI icon name, e.g. `"mdi:open-in-new"`. */
-  icon?: string;
-  /** Tooltip text. Falls back to `label` when omitted. */
-  tooltip?: string;
-  /** URL to open. May contain `{env.VAR}` placeholders. */
-  href: string;
-};
-
-export type JsonTableAction = JsonTableProcedureAction | JsonTableLinkAction;
-
-/**
- * Configuration for a single sidebar group, defined centrally in `crouton.json`.
- * Keyed by the group slug (e.g. `"metadata"`).
+/** @deprecated use ResourceJson
+ *
  */
-export type SidebarGroupConfig = {
-  /** Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug. */
-  label?: string;
-  /** Controls the order of this group among top-level sidebar items. */
-  position?: number;
-};
-
 export type JsonResourceConfig = {
   name: string;
   route: string;
@@ -351,6 +237,7 @@ export type JsonResourceConfig = {
   tag: string;
   title?: string;
   table?: string;
+  // TODO check if used, shoudl be derived from the column
   idType?: 'number' | 'string';
   database?: string;
   sidebar?: {
@@ -368,12 +255,12 @@ export type JsonResourceConfig = {
     group?: string;
   };
   display?: JsonDisplay;
-  operations: JsonOperations;
+  operations: JsonResourceOperations;
   columns?: JsonColumn[] | JsonColumnsMap;
   calculatedColumns?: CalculatedColumn[];
   actions?: JsonAction[];
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
-  tableActions?: JsonTableAction[];
+  tableActions?: JsonAction[];
   /** Modal width when opening the form for this resource. One of `xs`, `sm`, `lg`, `xl`. */
   modalSize?: 'xs' | 'sm' | 'lg' | 'xl';
   /**
@@ -385,23 +272,6 @@ export type JsonResourceConfig = {
    */
   include?: JsonIncludeEntry[];
 };
-
-/**
- * A single entry in an `include` list.
- * - Plain string: `"author"` → `{ author: true }`
- * - Object with nested includes: `{ relation: "text_author", include: ["author"] }`
- *   → `{ text_author: { include: { author: true } } }`
- * - Object with orderBy: `{ relation: "sections", orderBy: { title: "asc" } }`
- *   → `{ sections: { orderBy: { title: "asc" } } }`
- */
-export type JsonIncludeEntry =
-  | string
-  | {
-      relation: string;
-      include?: JsonIncludeEntry[];
-      /** Prisma-format orderBy clause applied to the included records. */
-      orderBy?: Record<string, unknown>;
-    };
 
 /**
  * Derive a human-readable label from a column id.

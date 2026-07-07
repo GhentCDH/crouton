@@ -22,22 +22,23 @@
 
 import type { ZodObject, ZodRawShape } from 'zod';
 
-
 import { loadActions, loadTableActions } from './action.loader';
 import { loadEnumRegistry } from './enum-registry';
 import { fromJson } from './json-adapter';
-import type { JsonResourceConfig } from './json-config.types';
 import { findModule, importDefault } from './module.loader';
 import type { ResourceConfig, ResourceHooks, SubResourceConfig } from '../crud.config';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
 
 const loadSubResourceHooks = async (
   subResources: SubResourceConfig[],
   basePath: string,
 ): Promise<void> => {
   for (const sub of subResources) {
-    const file = sub.name ? findModule(join(basePath, 'hooks'), sub.name) : undefined;
+    const file = sub.name
+      ? findModule(join(basePath, 'hooks'), sub.name)
+      : undefined;
     if (!file) continue;
     const hooks = await importDefault<ResourceHooks>(file);
     if (hooks) (sub as any).hooks = hooks;
@@ -51,24 +52,47 @@ export const loadResourceConfigsFromDir = async (
 ): Promise<ResourceConfig[]> => {
   const enums = loadEnumRegistry(dirPath, enumsFile);
   const entries = readdirSync(dirPath, { withFileTypes: true });
-  const dirs = entries.filter((e: { isDirectory(): boolean }) => e.isDirectory()).map((e: { name: string }) => e.name);
+  const dirs = entries
+    .filter((e: { isDirectory(): boolean }) => e.isDirectory())
+    .map((e: { name: string }) => e.name);
   const configs: ResourceConfig[] = [];
 
   for (const dir of dirs) {
     const basePath = join(dirPath, dir);
 
     const schemaFile = findModule(basePath, 'schema');
-    const schema = schemaFile ? await importDefault<ZodObject<ZodRawShape>>(schemaFile) : undefined;
+    const schema = schemaFile
+      ? await importDefault<ZodObject<ZodRawShape>>(schemaFile)
+      : undefined;
 
     const hooksFile = findModule(basePath, 'hooks');
-    const hooks = hooksFile ? await importDefault<ResourceHooks>(hooksFile) : undefined;
+    const hooks = hooksFile
+      ? await importDefault<ResourceHooks>(hooksFile)
+      : undefined;
 
     const jsonFile = join(basePath, 'resource.json');
     if (existsSync(jsonFile)) {
-      const json: JsonResourceConfig = JSON.parse(readFileSync(jsonFile, 'utf-8'));
+      const _json = JSON.parse(readFileSync(jsonFile, 'utf-8'));
+      const resource = ResourceJsonSchema.safeParse(_json);
+      if (!resource.success)
+        throw new Error(`Invalid resource schema: ${resource.error}`);
+
+      const json = resource.data;
       const actions = await loadActions(json.actions ?? [], basePath);
-      const tableActions = await loadTableActions(json.tableActions ?? [], basePath);
-      const config = fromJson(json, schema, hooks, basePath, baseUrl, actions, tableActions, enums);
+      const tableActions = await loadTableActions(
+        json.tableActions ?? [],
+        basePath,
+      );
+      const config = fromJson(
+        json,
+        schema,
+        hooks,
+        basePath,
+        baseUrl,
+        actions,
+        tableActions,
+        enums,
+      );
       await loadSubResourceHooks(config.subResources ?? [], basePath);
       configs.push(config);
       continue;

@@ -87,9 +87,18 @@ export type {
 export { PositiveRequestNumber, StringOrArray } from '@ghentcdh/crouton-core';
 
 // schema
-export { ModalSize, createSchema, enforceRequiredStringMinLength, findProperty } from '@ghentcdh/crouton-core';
+export {
+  ModalSize,
+  createSchema,
+  enforceRequiredStringMinLength,
+  findProperty,
+} from '@ghentcdh/crouton-core';
 export { ModalSize as Size } from '@ghentcdh/crouton-core';
-export type { FormSchemaModel, JsonFormsLayout, ModalSizeType } from '@ghentcdh/crouton-core';
+export type {
+  FormSchemaModel,
+  JsonFormsLayout,
+  ModalSizeType,
+} from '@ghentcdh/crouton-core';
 export type { ModalSizeType as SizeType } from '@ghentcdh/crouton-core';
 
 // from-json builder
@@ -111,13 +120,8 @@ export type {
   JsonColumnsMap,
   JsonDisplay,
   JsonIncludeEntry,
-  JsonLinkAction,
-  JsonOperations,
   JsonProcedureAction,
   JsonResourceConfig,
-  JsonTableAction,
-  JsonTableLinkAction,
-  JsonTableProcedureAction,
   RelationFieldInputOptions,
   SidebarGroupConfig,
 } from '@ghentcdh/crouton-core';
@@ -157,5 +161,15 @@ export type {
 } from '@ghentcdh/crouton-core';
 
 // table
-export { BooleanCellBuilder, TableBuilder, TextCellBuilder, findColumnDef } from '@ghentcdh/crouton-core';
-export type { ColumnDef, KeyValueOption, TextCellOption, TextCellType } from '@ghentcdh/crouton-core';
+export {
+  BooleanCellBuilder,
+  TableBuilder,
+  TextCellBuilder,
+  findColumnDef,
+} from '@ghentcdh/crouton-core';
+export type {
+  ColumnDef,
+  KeyValueOption,
+  TextCellOption,
+  TextCellType,
+} from '@ghentcdh/crouton-core';

@@ -1,7 +1,7 @@
-import type { DataSourceEntry, DataSourceJsonConfig } from './data-source.types';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import type { DataSourceEntry } from './data-source.types';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
+import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
 /**
  * Scan a directory for data-source subdirectories and load their configs + clients.
@@ -25,9 +25,8 @@ export const loadDataSourcesFromDir = async (
 
     if (!existsSync(jsonFile)) continue;
 
-    const config: DataSourceJsonConfig = JSON.parse(
-      readFileSync(jsonFile, 'utf-8'),
-    );
+    const _config = JSON.parse(readFileSync(jsonFile, 'utf-8'));
+    const config = DataSourceSchema.parse(_config);
 
     const indexFile = findModule(basePath, 'index');
     if (!indexFile) continue;

@@ -66,6 +66,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `idType`            | `'number' \| 'string'`         | Type of the id field (default `number`)                              |
 | `database`          | `string`                       | Name of the [data source](./datasource.md) to use                    |
 | `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
+| `display`           | object                         | `mode` (`'page'` \| `'modal'`, default `'modal'`) and `customComponent`, see [Display](#display) |
 | `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `upsert`, `delete`  |
 | `columns`           | map or array                   | Column definitions, see below                                        |
 | `calculatedColumns` | array                          | SQL-computed read-only columns, see below                            |
@@ -74,7 +75,42 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `modalSize`         | `'xs' \| 'sm' \| 'lg' \| 'xl'` | Size of the create/edit modal                                        |
 | `include`           | array                          | Relations to eagerly load, see below                                 |
 
+## Operations
+
+All five operations default to **enabled** — omitting the `operations` object, or a specific key, still exposes that
+endpoint. Set a key to `false` to disable it.
+
+`upsert` is the exception: it defaults to **disabled** and must be an object with `upsertOn`, not `true`:
+
+```json
+{
+  "operations": {
+    "delete": false,
+    "upsert": { "upsertOn": "isbn" }
+  }
+}
+```
+
+Passing `"upsert": true` throws at load time — `upsertOn` (a column name or array of column names used to detect an
+existing record) is required.
+
 ## Columns
+
+`columns` accepts either form:
+
+- **Map** (shown in the example above) — keyed by column id; the key becomes the column's `id`.
+- **Array** — each entry needs an explicit `id`:
+
+  ```json
+  {
+    "columns": [
+      { "id": "id", "idField": true, "hiddenInForm": true },
+      { "id": "title", "searchable": true, "sortable": true }
+    ]
+  }
+  ```
+
+Both forms support the same options:
 
 | Option                                            | Description                                                         |
 |---------------------------------------------------|---------------------------------------------------------------------|
@@ -203,6 +239,23 @@ Eagerly load relations with the list/detail queries:
 ```
 
 When a relation column has a `sort` option (see [Sorting related records](#sorting-related-records)), the loader automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
+
+## Display
+
+The `display` object controls how the create/edit form is presented. Both fields are optional.
+
+| Field             | Type                    | Description                                                                 |
+|-------------------|-------------------------|-------------------------------------------------------------------------------|
+| `mode`            | `'page' \| 'modal'`     | Render the form as a full page or a modal. Default `'modal'`.                |
+| `customComponent` | `string \| null`        | Name of a custom Vue component to render instead of the generated form. Default `null`. |
+
+```json
+{
+  "display": {
+    "mode": "page"
+  }
+}
+```
 
 ## Sidebar
 
