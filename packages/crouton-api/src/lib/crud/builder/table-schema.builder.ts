@@ -1,8 +1,8 @@
 import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '@ghentcdh/crouton-core';
 
-import type { JsonColumn } from '../loader/json-config.types';
 import { isBoolean, isDateRange, isRecordCell } from './column-predicates';
 import { deriveSortId } from './sort.helpers';
+import type { JsonColumn } from '../loader/json-config.types';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 

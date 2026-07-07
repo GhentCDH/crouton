@@ -191,4 +191,4 @@ export interface WritePlan {
   notes: string[];
 }
 
-export type { JsonColumnInput as JsonColumn, ResourceJsonInput as ResourceJson, RelationType };
+export type { JsonColumnInput as JsonColumn, RelationType, ResourceJsonInput as ResourceJson };

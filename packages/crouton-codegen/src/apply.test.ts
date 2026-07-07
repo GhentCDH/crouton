@@ -79,7 +79,7 @@ describe('apply — new resource', () => {
     const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
     // Language has no relations → plain LanguageSchema (no WithRelations export).
     expect(schema.contents).toBe(
-      "import { LanguageSchema } from '@np/generated/types';\n\nexport default LanguageSchema;\n",
+      'import { LanguageSchema } from \'@np/generated/types\';\n\nexport default LanguageSchema;\n',
     );
     const res = JSON.parse(
       plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,

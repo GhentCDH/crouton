@@ -1,9 +1,9 @@
 import {
-  toJSONSchema,
-  z,
   ZodObject,
   type ZodRawShape,
   type ZodType,
+  toJSONSchema,
+  z,
 } from 'zod';
 
 import { type JsonSchemaInput, type SchemaInput } from './crud.config';

@@ -1,4 +1,5 @@
 import { labelFromId } from '@ghentcdh/crouton-core';
+
 export { labelFromId };
 
 /**

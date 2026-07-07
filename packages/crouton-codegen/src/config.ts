@@ -16,7 +16,7 @@ import {
   DataSourceSchema,
 } from '@ghentcdh/crouton-core';
 
-import { access, readdir, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
 export interface LoadedConfig {

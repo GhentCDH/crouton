@@ -10,14 +10,13 @@ import type {
   RelationFieldInputOptions,
   RelationType
 } from './json-config.types';
-import { buildChildSortClause } from '../sql.helpers';
-import { opWithSchema, pickByColumns, upsertOp } from '../builder/schema.helpers';
 import {
   buildViews,
   buildViewsFromColumns,
   injectCalculatedColumns,
   injectCalculatedColumnsToView
 } from '../builder';
+import { opWithSchema, pickByColumns, upsertOp } from '../builder/schema.helpers';
 import {
   type LookupConfig,
   type ResourceDefinition,
@@ -29,6 +28,7 @@ import {
 } from '../crud.config';
 import { type ResolveResource, readResourceJson } from '../resource/ReadResourceJson';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { buildChildSortClause } from '../sql.helpers';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 

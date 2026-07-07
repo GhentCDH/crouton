@@ -1,12 +1,12 @@
-import { toJSONSchema, type ZodObject, type ZodRawShape } from 'zod';
+import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import type { JsonColumn } from '../loader/json-config.types';
 import { jsonSchemaOpts } from '../schema.utils';
 import { isRelation } from './column-predicates';
 import { sortByPosition, toViewColumn } from './column.utils';
-import { resolveDefaultSort } from './sort.helpers';
-import { applySchemaTransforms } from './schema-transforms';
 import { buildFormUiSchema } from './form-schema.builder';
+import { applySchemaTransforms } from './schema-transforms';
+import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';
 import type { ViewConfig } from '../resource/view.schema';
 
@@ -105,9 +105,14 @@ const buildView = (
     : columns.filter(visible);
   if (!visibleCols.length) return undefined;
 
-  const schemaCols = schemaVisible
+  // Relation columns are managed via sub-resource endpoints — exclude from
+  // the schema pick so their complex Zod definitions (z.lazy arrays) don't
+  // produce validation constraints on the parent. With additionalProperties
+  // enabled, relation data in the payload still passes validation.
+  const schemaCols = (schemaVisible
     ? columns.filter((c) => visible(c) || schemaVisible(c))
-    : visibleCols;
+    : visibleCols
+  ).filter((c) => !isRelation(c));
 
   const schemaIds = schemaCols.map((c) => c.id);
   const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
@@ -118,28 +123,17 @@ const buildView = (
   }) as Record<string, unknown>;
   applySchemaTransforms(jsonSchema);
 
-  // Relation columns are managed via sub-resource endpoints — never required in the parent form.
-  const relationIds = new Set(
-    schemaCols.filter((c) => isRelation(c)).map((c) => c.id),
-  );
-
-  // Drop explicitly non-editable fields (createable=false AND updateable=false)
-  // from `required` so visible-but-readonly relation fields don't cause validation failures.
+  // Drop idField and explicitly non-editable fields from `required` so
+  // hidden-but-schema-included fields don't cause validation failures.
   if (schemaVisible) {
     const nonEditableIds = new Set(
       schemaCols
-        .filter((c) => c.createable === false && c.updateable === false)
+        .filter((c) => c.idField || (c.createable === false && c.updateable === false))
         .map((c) => c.id),
     );
-    relationIds.forEach((id) => nonEditableIds.add(id));
     const required = jsonSchema['required'] as string[] | undefined;
     if (Array.isArray(required) && nonEditableIds.size) {
       jsonSchema['required'] = required.filter((k) => !nonEditableIds.has(k));
-    }
-  } else if (relationIds.size) {
-    const required = jsonSchema['required'] as string[] | undefined;
-    if (Array.isArray(required)) {
-      jsonSchema['required'] = required.filter((k) => !relationIds.has(k));
     }
   }
 
@@ -193,7 +187,7 @@ export const buildViews = (
     (c) => !c.hiddenInForm,
     buildFormUiSchema,
     true,
-    (c) => c.createable === true || c.updateable === true,
+    (c) => !c.idField && (c.createable === true || c.updateable === true),
   );
   if (form) views.form = form;
 

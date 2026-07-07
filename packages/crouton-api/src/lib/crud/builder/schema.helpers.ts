@@ -1,9 +1,9 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
+import { isRelation } from './column-predicates';
 import type { JsonColumn } from '../loader/json-config.types';
 import { type OperationDef, type UpsertOperationDef } from '../resource/defintion.schema';
 import { type SchemaInput } from '../resource/json.schema';
-import { isRelation } from './column-predicates';
 
 /** Narrow a Zod object schema to the set of column ids listed in JSON. */
 export const pickByColumns = (

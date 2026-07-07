@@ -1,5 +1,5 @@
-import type { CalculatedColumn } from '../loader/json-config.types';
 import type { ViewColumnConfig, ViewConfig } from '../crud.config';
+import type { CalculatedColumn } from '../loader/json-config.types';
 
 // ── Calculated column injection ───────────────────────────────────────────
 

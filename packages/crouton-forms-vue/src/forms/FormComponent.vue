@@ -1,6 +1,5 @@
 <template>
   <form :id="id" @submit.prevent="onSubmit">
-    errors {{ errors }}
     <Dispatch :uischema="uiSchema" :schema="schema" />
   </form>
 </template>
@@ -10,24 +9,14 @@ import { useForm } from 'vee-validate';
 import { nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
 import { fromJSONSchema } from 'zod';
 
-import {
-  dropNullableFromRequired,
-  enforceRequiredStringMinLength,
-} from '@ghentcdh/crouton-core';
+import { dropNullableFromRequired, enforceRequiredStringMinLength } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';
 
 import Dispatch from './Dispatch.vue';
 import type { Data, SubmitFormEvent } from './FormComponent.properties';
-import {
-  JsonFormComponentEmits,
-  JsonFormComponentProperties,
-} from './FormComponent.properties';
+import { JsonFormComponentEmits, JsonFormComponentProperties } from './FormComponent.properties';
 import { registerZodErrorMap } from './errorMessages';
-import {
-  ERROR_MODE_KEY,
-  FORM_READONLY_KEY,
-  FORM_SUBMITTED_KEY,
-} from './errorMode';
+import { ERROR_MODE_KEY, FORM_READONLY_KEY, FORM_SUBMITTED_KEY } from './errorMode';
 import { customRenderers } from './renderers';
 import type { FormEventPayload } from '../composables/useFormEvents';
 import { provideFormEvents } from '../composables/useFormEvents';

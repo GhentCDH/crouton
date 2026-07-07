@@ -7,7 +7,7 @@
 import { type LoadedConfig, resolveFromRoot } from './config';
 import { clientAccessor } from './naming';
 import type { ResourceJson } from './types';
-import { access, readdir, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const fileExists = async (p: string): Promise<boolean> => {
