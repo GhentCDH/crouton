@@ -11,13 +11,13 @@ import type {
   RelationType
 } from './json-config.types';
 import { buildChildSortClause } from '../sql.helpers';
-import { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
+import { opWithSchema, pickByColumns, upsertOp } from '../builder/schema.helpers';
 import {
   buildViews,
   buildViewsFromColumns,
   injectCalculatedColumns,
   injectCalculatedColumnsToView
-} from './view.builders';
+} from '../builder';
 import {
   type LookupConfig,
   type ResourceDefinition,

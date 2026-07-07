@@ -8,11 +8,7 @@
  * drive an interactive CLI and a backend dev-mode endpoint.
  */
 
-import type {
-  JsonColumn,
-  JsonResourceConfig,
-  RelationType,
-} from '@ghentcdh/crouton-core';
+import { type JsonColumnInput, type JsonResourceOperationsInput, type RelationType, type ResourceJsonInput } from '@ghentcdh/crouton-core';
 
 // ─── introspect: normalized DB model ─────────────────────────────────────────
 
@@ -108,7 +104,7 @@ export interface Ruleset {
    */
   sharedEnums: boolean;
   /** Operations enabled on a freshly generated resource. */
-  defaultOperations: JsonResourceConfig['operations'];
+  defaultOperations: JsonResourceOperationsInput;
 }
 
 /**
@@ -120,7 +116,7 @@ export interface ResourceDraft {
   name: string;
   /** Prisma model name (needed for the generated schema.ts export name). */
   prismaName: string;
-  config: JsonResourceConfig;
+  config: ResourceJsonInput;
   /**
    * Whether the model has any relation (object) fields. zod-prisma-types only
    * emits a `…WithRelationsSchema` for models that have relations, so the
@@ -136,10 +132,7 @@ export interface ResourceDraft {
 // ─── diff: decisions ─────────────────────────────────────────────────────────
 
 export type DecisionKind =
-  | 'addToSidebar'
-  | 'addColumn'
-  | 'removeColumn'
-  | 'reconcileColumn';
+  'addToSidebar' | 'addColumn' | 'removeColumn' | 'reconcileColumn';
 
 export interface Decision {
   /** Stable id, e.g. `add:email`, `reconcile:title`, `sidebar`. */
@@ -165,7 +158,7 @@ export interface ResourceDiff {
   /** Carried forward to `apply`. */
   draft: ResourceDraft;
   /** Parsed existing resource.json, if any. */
-  existing?: JsonResourceConfig;
+  existing?: ResourceJsonInput;
   /** True when a sibling schema.ts already exists. */
   hasSchemaFile: boolean;
 }
@@ -198,4 +191,4 @@ export interface WritePlan {
   notes: string[];
 }
 
-export type { JsonColumn, JsonResourceConfig, RelationType };
+export type { JsonColumnInput as JsonColumn, ResourceJsonInput as ResourceJson, RelationType };

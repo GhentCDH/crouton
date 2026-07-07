@@ -1,6 +1,6 @@
 /** Small framework-free helpers shared by the engine stages. */
 
-import type { JsonColumn, JsonResourceConfig } from './types';
+import type { JsonColumn, ResourceJson } from './types';
 
 /** Deep clone that preserves object key insertion order (JSON-safe configs). */
 export const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -11,7 +11,8 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
   if (typeof a !== typeof b) return false;
   if (a === null || b === null) return a === b;
   if (Array.isArray(a) || Array.isArray(b)) {
-    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length)
+      return false;
     return a.every((v, i) => deepEqual(v, b[i]));
   }
   if (typeof a === 'object') {
@@ -30,7 +31,7 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
  * `[id, columnWithoutId][]` entries. Preserves declaration order.
  */
 export const columnEntries = (
-  columns: JsonResourceConfig['columns'],
+  columns: ResourceJson['columns'],
 ): [string, Omit<JsonColumn, 'id'>][] => {
   if (!columns) return [];
   if (Array.isArray(columns)) {

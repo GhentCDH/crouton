@@ -6,14 +6,17 @@
  * order when updating), so re-runs produce minimal git diffs and are idempotent.
  */
 
-import type { JsonResourceConfig } from './types';
+import type { ResourceJson } from './types';
 
-export const serializeResourceJson = (config: JsonResourceConfig): string =>
+export const serializeResourceJson = (config: ResourceJson): string =>
   `${JSON.stringify(config, null, 2)}\n`;
 
 /**
  * Content for a resource's `schema.ts` — a default re-export of the model's
  * generated Zod schema. `exportName` / `importPath` come from project config.
  */
-export const serializeSchemaTs = (exportName: string, importPath: string): string =>
+export const serializeSchemaTs = (
+  exportName: string,
+  importPath: string,
+): string =>
   `import { ${exportName} } from '${importPath}';\n\nexport default ${exportName};\n`;

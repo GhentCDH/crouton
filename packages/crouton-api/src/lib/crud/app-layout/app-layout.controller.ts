@@ -2,10 +2,11 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { type SidebarGroupConfig } from '@ghentcdh/crouton-core';
+
 import { IS_DEV } from '../dev-mode';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
-import { Resource } from '../resource/ResourceConfig.schema';
+import { type Resource } from '../resource/ResourceConfig.schema';
 
 export const createAppLayoutController = (
   configs: Resource[],

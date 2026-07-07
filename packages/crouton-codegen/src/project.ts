@@ -4,11 +4,10 @@
  * targets to sibling resource files.
  */
 
-
 import { type LoadedConfig, resolveFromRoot } from './config';
 import { clientAccessor } from './naming';
-import type { JsonResourceConfig } from './types';
-import { access, readFile, readdir } from 'node:fs/promises';
+import type { ResourceJson } from './types';
+import { access, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const fileExists = async (p: string): Promise<boolean> => {
@@ -25,7 +24,7 @@ export const resourceDir = (loaded: LoadedConfig, name: string): string =>
   join(resolveFromRoot(loaded.root, loaded.config.resourcesDir), name);
 
 export interface ExistingResource {
-  config: JsonResourceConfig | null;
+  config: ResourceJson | null;
   hasSchemaFile: boolean;
 }
 
@@ -37,21 +36,27 @@ export const readExistingResource = async (
   const dir = resourceDir(loaded, name);
   const jsonPath = join(dir, 'resource.json');
   const config = (await fileExists(jsonPath))
-    ? (JSON.parse(await readFile(jsonPath, 'utf-8')) as JsonResourceConfig)
+    ? (JSON.parse(await readFile(jsonPath, 'utf-8')) as ResourceJson)
     : null;
   const hasSchemaFile =
-    (await fileExists(join(dir, 'schema.ts'))) || (await fileExists(join(dir, 'schema.js')));
+    (await fileExists(join(dir, 'schema.ts'))) ||
+    (await fileExists(join(dir, 'schema.js')));
   return { config, hasSchemaFile };
 };
 
 /** Names of resource directories that contain a `resource.json`. */
-export const listResourceNames = async (loaded: LoadedConfig): Promise<string[]> => {
+export const listResourceNames = async (
+  loaded: LoadedConfig,
+): Promise<string[]> => {
   const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
   if (!(await fileExists(base))) return [];
   const entries = await readdir(base, { withFileTypes: true });
   const names: string[] = [];
   for (const e of entries) {
-    if (e.isDirectory() && (await fileExists(join(base, e.name, 'resource.json')))) {
+    if (
+      e.isDirectory() &&
+      (await fileExists(join(base, e.name, 'resource.json')))
+    ) {
       names.push(e.name);
     }
   }

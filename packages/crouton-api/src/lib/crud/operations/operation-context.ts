@@ -1,6 +1,6 @@
 import type { resolveDefinition, schemaFor } from '../crud.config';
+import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ZodValidationPipeOptions } from '../zod-validation.pipe';
-import { Resource } from '../resource/ResourceConfig.schema';
 
 export type OperationContext = {
   /** The dynamically-built controller class. */

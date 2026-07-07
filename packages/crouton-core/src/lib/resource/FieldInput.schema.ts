@@ -6,6 +6,7 @@ export const RelationType = z.enum([
   'oneToMany',
   'manyToMany',
 ]);
+export type RelationType = z.infer<typeof RelationType>;
 
 export const DetailControlSchema = z.object({
   property: z.string(), // required

@@ -1,22 +1,22 @@
 import { NotFoundException } from '@nestjs/common';
 
 import {
-  buildSort,
   Operator,
   type OperatorType,
+  buildSort,
   toValueLabel,
 } from '@ghentcdh/crouton-core';
 
+import { type ReadOp } from './hooks';
 import type { RequestDto } from './request.dto';
+import { type Resource } from './resource/ResourceConfig.schema';
+import { type SubResourceConfig } from './resource/SubResource.schema';
+import { type ValueLabelColumn } from './resource/valueLabel';
 import {
   buildChildSortClause,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
 } from './sql.helpers';
-import { ValueLabelColumn } from './resource/valueLabel';
-import { SubResourceConfig } from './resource/SubResource.schema';
-import { Resource } from './resource/ResourceConfig.schema';
-import { ReadOp } from './hooks';
 
 // FilterOperator (OperatorType) and Operator list are imported from @ghentcdh/crouton-core
 

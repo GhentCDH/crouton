@@ -4,8 +4,8 @@ import {
   schemaFor,
   upsertOnFor,
 } from '../crud.config';
+import { type Resource } from '../resource/ResourceConfig.schema';
 import { toJsonSchema } from '../schema.utils';
-import { Resource } from '../resource/ResourceConfig.schema';
 
 // ── Internal helpers ──────────────────────────────────────────────────────
 

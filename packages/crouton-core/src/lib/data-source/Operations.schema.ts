@@ -16,3 +16,4 @@ export const JsonOperationsSchema = z.object({
 });
 
 export type JsonResourceOperations = z.infer<typeof JsonOperationsSchema>;
+export type JsonResourceOperationsInput = z.input<typeof JsonOperationsSchema>;

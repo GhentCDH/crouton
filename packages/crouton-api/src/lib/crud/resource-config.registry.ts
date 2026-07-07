@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+
 import { IS_DEV } from './dev-mode';
 import type { ResourceConfigLoader } from './loader/resource-config.loader';
-import { Resource } from './resource/ResourceConfig.schema';
+import { type Resource } from './resource/ResourceConfig.schema';
 
 @Injectable()
 export class ResourceConfigRegistry {

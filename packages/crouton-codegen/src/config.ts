@@ -16,7 +16,7 @@ import {
   DataSourceSchema,
 } from '@ghentcdh/crouton-core';
 
-import { access, readFile, readdir } from 'node:fs/promises';
+import { access, readdir, readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
 export interface LoadedConfig {
@@ -282,7 +282,7 @@ export const scaffoldConfigFromProject = async (
     for (const e of entries) {
       if (!e.isDirectory()) continue;
       const existing = join(root, dataSourcesDir, e.name, 'data-source.json');
-      const prev: Partial<DatasourceConfig> = (await fileExists(existing))
+      const prev: Partial<DataSource> = (await fileExists(existing))
         ? JSON.parse(await readFile(existing, 'utf-8'))
         : {};
       const name = prev.name ?? e.name;

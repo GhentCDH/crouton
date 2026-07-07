@@ -61,3 +61,15 @@ export const enforceRequiredMinLength = (schema: Record<string, unknown>): void 
     }
   }
 };
+
+/**
+ * Apply all standard JSON schema post-processing transforms.
+ * Ensures every code path that produces a JSON schema gets the same treatment:
+ * additional properties allowed, nullable fields dropped from required, and
+ * empty strings rejected.
+ */
+export const applySchemaTransforms = (schema: Record<string, unknown>): void => {
+  allowAdditionalProperties(schema);
+  dropNullableFromRequired(schema);
+  enforceRequiredMinLength(schema);
+};

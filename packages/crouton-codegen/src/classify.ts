@@ -13,8 +13,8 @@ import { resourceNames, scalarFieldInputType } from './naming';
 import type {
   DbModel,
   JsonColumn,
-  JsonResourceConfig,
   ResourceDraft,
+  ResourceJson,
   Ruleset,
 } from './types';
 
@@ -49,9 +49,12 @@ export interface ClassifyContext {
   resolveRelationResource?: (targetModel: string) => string | undefined;
 }
 
-type Column = Omit<JsonColumn, 'id'>;
+type Column = Partial<Omit<JsonColumn, 'id'>>;
 
-export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDraft => {
+export const classify = (
+  model: DbModel,
+  ctx: ClassifyContext = {},
+): ResourceDraft => {
   const ruleset = ctx.ruleset ?? defaultRuleset();
   const names = resourceNames(model.prismaName);
   const columnOrder: string[] = [];
@@ -76,11 +79,21 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
       };
     } else if (field.isTimestamp) {
       col = ruleset.hideTimestamps
-        ? { hiddenInTable: true, hiddenInForm: true, createable: false, updateable: false }
+        ? {
+            hiddenInTable: true,
+            hiddenInForm: true,
+            createable: false,
+            updateable: false,
+          }
         : { fieldInput: { type: 'date', position: position++ } };
     } else if (field.kind === 'foreignKey') {
       col = ruleset.hideForeignKeys
-        ? { hiddenInTable: true, hiddenInForm: true, createable: false, updateable: false }
+        ? {
+            hiddenInTable: true,
+            hiddenInForm: true,
+            createable: false,
+            updateable: false,
+          }
         : { fieldInput: { type: 'text', position: position++ } };
     } else if (field.kind === 'relation') {
       const target = ctx.resolveRelationResource?.(field.relationModel ?? '');
@@ -96,13 +109,19 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
         };
       } else {
         col = { hiddenInTable: true, hiddenInForm: true, hiddenInView: true };
-        unwiredRelations.push({ field: field.name, targetModel: field.relationModel ?? '' });
+        unwiredRelations.push({
+          field: field.name,
+          targetModel: field.relationModel ?? '',
+        });
       }
     } else if (field.kind === 'enum') {
       const options: Record<string, unknown> = {};
       if (ruleset.enumValueLabel) options.emitObject = true;
       if (!ruleset.sharedEnums) {
-        options.values = (field.enumValues ?? []).map((v) => ({ label: v, value: v }));
+        options.values = (field.enumValues ?? []).map((v) => ({
+          label: v,
+          value: v,
+        }));
       }
       col = {
         ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
@@ -111,7 +130,10 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
       };
     } else {
       col = {
-        fieldInput: { type: scalarFieldInputType(field.name, field.type), position: position++ },
+        fieldInput: {
+          type: scalarFieldInputType(field.name, field.type),
+          position: position++,
+        },
       };
     }
 
@@ -119,7 +141,7 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
     columnOrder.push(field.name);
   }
 
-  const config: JsonResourceConfig = {
+  const config: ResourceJson = {
     name: names.name,
     route: names.route,
     model: names.model,
@@ -133,5 +155,12 @@ export const classify = (model: DbModel, ctx: ClassifyContext = {}): ResourceDra
   };
 
   const hasRelations = model.fields.some((f) => f.kind === 'relation');
-  return { name: names.name, prismaName: model.prismaName, config, hasRelations, columnOrder, unwiredRelations };
+  return {
+    name: names.name,
+    prismaName: model.prismaName,
+    config,
+    hasRelations,
+    columnOrder,
+    unwiredRelations,
+  };
 };

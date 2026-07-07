@@ -9,16 +9,25 @@
  *  - field in both, identical → no decision (keeps the run idempotent)
  */
 
-import type { Decision, JsonResourceConfig, ResourceDiff, ResourceDraft } from './types';
+import type {
+  Decision,
+  ResourceDiff,
+  ResourceDraft,
+  ResourceJson,
+} from './types';
 import { columnEntries, deepEqual } from './util';
 
 export interface DiffInput {
   draft: ResourceDraft;
-  existing?: JsonResourceConfig | null;
+  existing?: ResourceJson | null;
   hasSchemaFile?: boolean;
 }
 
-export const diff = ({ draft, existing, hasSchemaFile = false }: DiffInput): ResourceDiff => {
+export const diff = ({
+  draft,
+  existing,
+  hasSchemaFile = false,
+}: DiffInput): ResourceDiff => {
   const decisions: Decision[] = [];
   const isNew = !existing;
 

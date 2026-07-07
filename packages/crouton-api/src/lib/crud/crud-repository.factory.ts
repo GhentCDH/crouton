@@ -2,9 +2,9 @@ import { resolveDefinition, schemaFor } from './crud.config';
 import { ReadRepository } from './read.repository';
 import type { RequestDto } from './request.dto';
 import { type Resource } from './resource/ResourceConfig.schema';
+import { type SubResourceConfig } from './resource/SubResource.schema';
 import { toSelectFields } from './schema.utils';
 import { WriteRepository } from './write.repository';
-import { SubResourceConfig } from './resource/SubResource.schema';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = any> {

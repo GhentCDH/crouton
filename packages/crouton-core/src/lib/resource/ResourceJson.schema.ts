@@ -77,5 +77,6 @@ export const ResourceJsonSchema = ResourceJsonShape.transform((obj) => {
 });
 
 export type ResourceJson = z.infer<typeof ResourceJsonSchema>;
+export type ResourceJsonInput = z.input<typeof ResourceJsonShape>;
 
 export type ResourceConfig = ResourceJson;

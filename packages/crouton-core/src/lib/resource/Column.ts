@@ -63,3 +63,4 @@ export const JsonColumnSchema = z.object({
 });
 
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;
+export type JsonColumnInput = z.input<typeof JsonColumnSchema>;
