@@ -8,55 +8,9 @@
  */
 
 import type { JsonResourceOperations } from './data-source/Operations.schema';
-import { type JsonAction, type JsonColumnsMap } from './resource';
+import { type JsonAction, type JsonColumnsMap, JsonDisplay } from './resource';
 import { type CalculatedColumn } from './resource/CalculatedColumn.schema';
-import { type JsonColumn } from './resource/Column';
 import { type JsonIncludeEntry } from './resource/include.schema';
-
-export type JsonDisplay = {
-  mode?: 'page' | 'modal';
-  customComponent?: string | null;
-};
-
-/** Describes a nested control inside a `detail`/`detailFixed` array layout. */
-export type DetailControl = {
-  /** Property name on the array item. */
-  property: string;
-  /** Control type (e.g. `"text"`, `"markdown"`). Defaults to `"text"`. */
-  type?: string;
-  options?: Record<string, unknown>;
-  hideLabel?: boolean;
-  width?: string;
-};
-
-/** Configuration for array columns rendered via `detailFixed`. */
-export type DetailConfig = {
-  /** Layout style: `"collapse"` wraps each item in a collapsible panel. */
-  layout: 'collapse' | 'row';
-  /** Key on the array item used as the collapse panel title. */
-  titleKey?: string;
-  /** Nested controls rendered for each array item. */
-  controls: DetailControl[];
-};
-
-/**
- * Options for relation field inputs (`fieldInput.format === "relation"`).
- * These are injected into the frontend control and — for `sort`/`sortDir` —
- * also used by the backend to apply `orderBy` on included relation records.
- */
-export type RelationFieldInputOptions = {
-  /** Field to sort related records by, e.g. `"title"` or `"author.name"`. */
-  sort?: string;
-  /** Sort direction. Defaults to `"asc"` when omitted. */
-  sortDir?: 'asc' | 'desc';
-  /** CSS flex direction for the relation control button layout. */
-  direction?: string;
-  /** Key used as the display label in the relation control. */
-  displayKey?: string;
-  /** Path to the related resource (resolved to a URI at load time). */
-  resource?: string;
-  [k: string]: unknown;
-};
 
 /** @deprecated use ResourceJson
  *
@@ -102,30 +56,4 @@ export type JsonResourceConfig = {
    *   `include: { text_author: { include: { author: true } } }`
    */
   include?: JsonIncludeEntry[];
-};
-
-/**
- * Derive a human-readable label from a column id.
- * `"field_label"` → `"Field label"`, `"fieldLabel"` → `"Field label"`
- */
-export const labelFromId = (id: string): string => {
-  const words = id
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase → camel Case
-    .replace(/[_-]+/g, ' ') // snake_case / kebab-case → spaces
-    .trim();
-  return words.charAt(0).toUpperCase() + words.slice(1).toLowerCase();
-};
-
-/** Normalise `columns` from either array or object-map form. */
-export const normalizeColumns = (
-  columns: JsonColumn[] | JsonColumnsMap | undefined,
-): JsonColumn[] | undefined => {
-  if (!columns) return undefined;
-  const raw: JsonColumn[] = Array.isArray(columns)
-    ? columns
-    : Object.entries(columns).map(([id, col]) => ({ id, ...col }));
-  return raw.map((col) => ({
-    ...col,
-    label: col.label ?? labelFromId(col.id),
-  }));
 };

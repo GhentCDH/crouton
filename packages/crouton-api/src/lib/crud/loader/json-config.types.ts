@@ -23,5 +23,3 @@ export type {
   RelationFieldInputOptions,
   RelationType,
 } from '@ghentcdh/crouton-core';
-
-export { labelFromId, normalizeColumns } from '@ghentcdh/crouton-core';

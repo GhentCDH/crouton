@@ -19,3 +19,4 @@ export * from './lib/table/table.utils';
 export * from './lib/data-source';
 export * from './lib/resource';
 export * from './lib/config';
+export * from './lib/schema/label.helper';

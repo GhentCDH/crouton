@@ -15,22 +15,39 @@ export const DetailControlSchema = z.object({
   width: z.string().optional(),
 });
 
+export type DetailControl = z.infer<typeof DetailControlSchema>;
+
 export const DetailConfigSchema = z.object({
   layout: z.enum(['collapse', 'row']), // required
   titleKey: z.string().optional(),
   controls: z.array(DetailControlSchema), // required
 });
 
+export type DetailConfig = z.infer<typeof DetailConfigSchema>;
+
+/**
+ * Options for relation field inputs (`fieldInput.format === "relation"`).
+ * These are injected into the frontend control and — for `sort`/`sortDir` —
+ * also used by the backend to apply `orderBy` on included relation records.
+ */
 export const RelationFieldInputOptionsSchema = z
   .object({
+    /** Field to sort related records by, e.g. `"title"` or `"author.name"`. */
     sort: z.string().optional(),
+    /** Sort direction. Defaults to `"asc"` when omitted. */
     sortDir: z.enum(['asc', 'desc']).optional(), // default: 'asc'
+    /** CSS flex direction for the relation control button layout. */
     direction: z.string().optional(),
+    /** Key used as the display label in the relation control. */
     displayKey: z.string().optional(),
+    /** Path to the related resource (resolved to a URI at load time). */
     resource: z.string().optional(),
   })
   .catchall(z.unknown()); // arbitrary extra keys allowed (e.g. colspan, emitObject, values)
 
+export type RelationFieldInputOptions = z.infer<
+  typeof RelationFieldInputOptionsSchema
+>;
 export const FieldInputSchema = z.object({
   type: z.string().optional(),
   customRender: z.string().optional(),

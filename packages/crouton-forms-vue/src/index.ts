@@ -108,7 +108,7 @@ export { uiFromJsonSchema } from '@ghentcdh/crouton-core';
 export type { RelationType } from '@ghentcdh/crouton-core';
 
 // json-config types
-export { labelFromId, normalizeColumns } from '@ghentcdh/crouton-core';
+export { labelFromId } from '@ghentcdh/crouton-core';
 export type {
   CalculatedColumn,
   DetailConfig,

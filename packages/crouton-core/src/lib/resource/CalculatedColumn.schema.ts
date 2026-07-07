@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import { FieldInputSchema } from './FieldInput.schema'; // ── Calculated columns ──────────────────────────────────────────────
+import { FieldInputSchema } from './FieldInput.schema';
+import { normalizeLabel } from '../schema/label.helper'; // ── Calculated columns ──────────────────────────────────────────────
 
 /**
  * A column whose value is computed by a raw SQL subquery at query time.
@@ -47,11 +48,6 @@ export const CalculatedColumnSchema = z
      */
     fieldInput: FieldInputSchema.optional(),
   })
-  .transform((d) => {
-    return {
-      label: d.id,
-      ...d,
-    };
-  });
+  .transform(normalizeLabel);
 
 export type CalculatedColumn = z.infer<typeof CalculatedColumnSchema>;

@@ -13,7 +13,7 @@ export const WhenConditionSchema = z.object({
 
 // ── Columns ───────────────────────────────────────────────────────────
 
-export const JsonColumnShape = z.object({
+export const JsonColumnSchema = z.object({
   id: z.string(), // required in array form; implied by the map key in map form
   column: z.string().optional(), // default: same as `id`
   label: z.string().optional(), // default: title-cased version of `id`
@@ -62,12 +62,4 @@ export const JsonColumnShape = z.object({
   columns: z.record(z.string(), z.record(z.string(), z.unknown())).optional(), // per-sub-column overrides, only used with `extend`
 });
 
-export type JsonColumn = z.infer<typeof JsonColumnShape>;
-
-export const transformColumn = (c: JsonColumn) => {
-  return {
-    column: c.id,
-    title: c.id, // TODO title-cased version of id
-    ...c,
-  };
-};
+export type JsonColumn = z.infer<typeof JsonColumnSchema>;

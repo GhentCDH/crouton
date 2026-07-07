@@ -1,28 +1,20 @@
-import {
-  ZodArray,
-  ZodNullable,
-  type ZodObject,
-  ZodOptional,
-  type ZodRawShape,
-} from 'zod';
+import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
 import { type EnumRegistry, injectEnumValues } from './enum-registry';
 import type {
   CalculatedColumn,
   JsonColumn,
   JsonIncludeEntry,
-  JsonResourceConfig,
   RelationFieldInputOptions,
-  RelationType,
+  RelationType
 } from './json-config.types';
-import { normalizeColumns } from './json-config.types';
 import { buildChildSortClause } from '../sql.helpers';
 import { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
 import {
   buildViews,
   buildViewsFromColumns,
   injectCalculatedColumns,
-  injectCalculatedColumnsToView,
+  injectCalculatedColumnsToView
 } from './view.builders';
 import {
   type LookupConfig,
@@ -33,12 +25,12 @@ import {
   type ResourceRowAction,
   type ResourceTableAction,
   type SubResourceConfig,
-  type ValueLabelColumn,
+  type ValueLabelColumn
 } from '../crud.config';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-
-type ResolvedChildResource = { json: JsonResourceConfig; dir: string };
+import { readResourceJson, ResolveResource } from '../resource/ReadResourceJson';
+import { ResourceJson } from '@ghentcdh/crouton-core';
 
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the
@@ -50,35 +42,25 @@ type ResolvedChildResource = { json: JsonResourceConfig; dir: string };
 const resolveChildResource = (
   resourcePath: string,
   parentDir: string,
-): ResolvedChildResource | undefined => {
+): ResolveResource | undefined => {
   // Direct .json file reference (e.g. "./resource.content.json") — resolve relative to parentDir itself
   const directPath = resolve(parentDir, resourcePath);
-  if (resourcePath.endsWith('.json') && existsSync(directPath)) {
-    try {
-      return {
-        json: JSON.parse(
-          readFileSync(directPath, 'utf-8'),
-        ) as JsonResourceConfig,
-        dir: dirname(directPath),
-      };
-    } catch {
-      return undefined;
-    }
-  }
-
-  // Directory convention: "./author.resource" → sibling dir "author/resource.json"
-  const childName = resourcePath
-    .replace(/^\.\//, '')
-    .replace(/\.resource$/, '');
-  const childJsonPath = resolve(dirname(parentDir), childName, 'resource.json');
-  if (!existsSync(childJsonPath)) return undefined;
   try {
-    return {
-      json: JSON.parse(
-        readFileSync(childJsonPath, 'utf-8'),
-      ) as JsonResourceConfig,
-      dir: dirname(childJsonPath),
-    };
+    if (resourcePath.endsWith('.json') && existsSync(directPath)) {
+      return readResourceJson(directPath);
+    }
+
+    // Directory convention: "./author.resource" → sibling dir "author/resource.json"
+    const childName = resourcePath
+      .replace(/^\.\//, '')
+      .replace(/\.resource$/, '');
+    const childJsonPath = resolve(
+      dirname(parentDir),
+      childName,
+      'resource.json',
+    );
+
+    return readResourceJson(childJsonPath);
   } catch {
     return undefined;
   }
@@ -120,7 +102,7 @@ const expandExtendColumns = (
       continue;
     }
 
-    const refColumns = normalizeColumns(resolved.json.columns) ?? [];
+    const refColumns = resolved.json.columns; // normalizeColumns(resolved.json.columns) ?? [];
     const parentColumnKey = col.column ?? col.id;
 
     for (const refCol of refColumns) {
@@ -294,9 +276,7 @@ const buildSubResources = (
         childJson?.route ??
         c.fieldInput!.resource!.replace(/^\.\//, '').replace(/\.resource$/, '');
 
-      const rawChildColumns = childJson
-        ? normalizeColumns(childJson.columns)
-        : undefined;
+      const rawChildColumns = childJson?.columns;
       const expandedChildColumns = rawChildColumns
         ? expandExtendColumns(rawChildColumns, childDir)
         : undefined;
@@ -454,7 +434,8 @@ const enrichIncludeWithSort = (
   return include.map((entry) => {
     const relationName = typeof entry === 'string' ? entry : entry.relation;
     const col = columns.find((c) => {
-      const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
+      const opts = c.fieldInput?.options as
+        RelationFieldInputOptions | undefined;
       return (c.column ?? c.id) === relationName && opts?.sort;
     });
     if (!col) return entry;
@@ -467,7 +448,7 @@ const enrichIncludeWithSort = (
 };
 
 export const fromJson = (
-  json: JsonResourceConfig,
+  json: ResourceJson,
   schema: ZodObject<ZodRawShape> | undefined,
   hooks: ResourceHooks | undefined,
   /** Absolute path to the resource directory (needed to resolve sibling resources). */
@@ -481,10 +462,7 @@ export const fromJson = (
   /** Project enum registry — injected into columns that reference an enum by name. */
   enums: EnumRegistry = {},
 ): ResourceConfig => {
-  const rawColumns = expandExtendColumns(
-    normalizeColumns(json.columns) ?? [],
-    dirPath,
-  );
+  const rawColumns = expandExtendColumns(json.columns, dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
     schema,
