@@ -2,19 +2,23 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { type SidebarGroupConfig } from '@ghentcdh/crouton-core';
-
-import { type ResourceConfig } from '../crud.config';
 import { IS_DEV } from '../dev-mode';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
+import { Resource } from '../resource/ResourceConfig.schema';
 
 export const createAppLayoutController = (
-  configs: ResourceConfig[],
+  configs: Resource[],
   sidebarGroups: Record<string, SidebarGroupConfig> = {},
   title?: string,
   autoSave = true,
 ) => {
-  const layoutPayload = buildLayoutPayload(configs, sidebarGroups, title, autoSave);
+  const layoutPayload = buildLayoutPayload(
+    configs,
+    sidebarGroups,
+    title,
+    autoSave,
+  );
 
   @Controller('_app')
   @ApiTags('App')

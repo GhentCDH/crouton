@@ -1,4 +1,4 @@
-import { Resource } from '../resource/ResourceConfig.schema';
+import { type Resource } from '../resource/ResourceConfig.schema';
 
 export abstract class ResourceConfigLoader {
   abstract loadAll(): Promise<Resource[]>;

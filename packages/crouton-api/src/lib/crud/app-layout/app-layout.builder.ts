@@ -1,7 +1,6 @@
-import { type SidebarGroupConfig, labelFromId } from '@ghentcdh/crouton-core';
-
-import { type ResourceConfig } from '../crud.config';
+import { labelFromId, type SidebarGroupConfig } from '@ghentcdh/crouton-core';
 import { type SidebarGroup, type SidebarLeaf, SidebarLeafSchema, type SidebarNode } from './app-layout.types';
+import { Resource } from '../resource/ResourceConfig.schema';
 
 // ─── Sort helper ─────────────────────────────────────────────────────────────
 
@@ -18,7 +17,7 @@ const byPosition = (
 // ─── Builder ──────────────────────────────────────────────────────────────────
 
 export const buildLayoutPayload = (
-  configs: ResourceConfig[],
+  configs: Resource[],
   sidebarGroups: Record<string, SidebarGroupConfig> = {},
   title?: string,
   autoSave = true,

@@ -7,12 +7,12 @@ import { createAppLayoutController } from './crud/app-layout';
 import { loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
-import { type Resource } from './crud/resource/ResourceConfig.schema';
 import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
+import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
 
 type CroutonAppConfig = {

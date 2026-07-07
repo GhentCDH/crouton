@@ -27,10 +27,10 @@ import {
   type SubResourceConfig,
   type ValueLabelColumn
 } from '../crud.config';
-import { readResourceJson, type ResolveResource } from '../resource/ReadResourceJson';
+import { type ResolveResource, readResourceJson } from '../resource/ReadResourceJson';
+import { type Resource } from '../resource/ResourceConfig.schema';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { Resource } from '../resource/ResourceConfig.schema';
 
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the

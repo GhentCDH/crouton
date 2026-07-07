@@ -1,4 +1,4 @@
-import { z, ZodObject, ZodRawShape } from 'zod';
+import { ZodObject, type ZodRawShape, z } from 'zod';
 
 export const JsonSchemaInputSchema = z.object({
   type: z.literal('object'),

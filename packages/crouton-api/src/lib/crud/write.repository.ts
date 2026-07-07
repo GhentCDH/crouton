@@ -6,7 +6,7 @@ import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import type { SubResourceConfig, ValueLabelColumn, WriteOp } from './crud.config';
 import { resolveDefinition, upsertOnFor } from './crud.config';
 import type { JsonIncludeEntry } from './loader/json-config.types';
-import { Resource } from './resource/ResourceConfig.schema';
+import { type Resource } from './resource/ResourceConfig.schema';
 
 /** Unwrap `{ value, label }` fields back to their scalar before persistence. */
 const normalizeValueLabels = (

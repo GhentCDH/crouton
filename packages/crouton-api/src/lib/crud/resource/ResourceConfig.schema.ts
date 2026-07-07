@@ -1,14 +1,16 @@
-import { ResourceJsonShape } from '@ghentcdh/crouton-core';
 import { z } from 'zod';
+
+import { ResourceJsonShape } from '@ghentcdh/crouton-core';
+
+import { SubResourceConfigSchema } from './SubResource.schema';
+import { DefinitionSchema } from './defintion.schema';
+import { LookupSchema } from './lookup.schema';
+import { ValueLabelColumnSchema } from './valueLabel';
+import { ViewConfigSchema } from './view.schema';
 import {
   ResourceRowActionSchema,
   ResourceTableActionSchema,
 } from '../action/action.types';
-import { SubResourceConfigSchema } from './SubResource.schema';
-import { LookupSchema } from './lookup.schema';
-import { ValueLabelColumnSchema } from './valueLabel';
-import { ViewConfigSchema } from './view.schema';
-import { DefinitionSchema } from './defintion.schema';
 import { ResourceHooksSchema } from '../hooks';
 
 export const ResourceSchema = ResourceJsonShape.extend({

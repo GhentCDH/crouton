@@ -1,7 +1,7 @@
 import { Body, Controller, type Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { createCrudRepository, type CrudRepository } from './crud-repository.factory';
+import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
 import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
@@ -20,10 +20,10 @@ import {
   registerSchemasEndpoint
 } from './operations/register-schema-endpoints';
 import { registerSubResourceRoutes } from './operations/register-sub-resources';
+import { type Resource } from './resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
 import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
-import { Resource } from './resource/ResourceConfig.schema';
 
 /**
  * Dynamically build a NestJS controller class for the given resource config.

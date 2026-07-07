@@ -1,10 +1,11 @@
-import type { ResourceConfig, resolveDefinition, schemaFor } from '../crud.config';
+import type { resolveDefinition, schemaFor } from '../crud.config';
 import type { ZodValidationPipeOptions } from '../zod-validation.pipe';
+import { Resource } from '../resource/ResourceConfig.schema';
 
 export type OperationContext = {
   /** The dynamically-built controller class. */
   cls: any;
-  config: ResourceConfig;
+  config: Resource;
   definition: ReturnType<typeof resolveDefinition>;
   listSchema: ReturnType<typeof schemaFor>;
   oneSchema: ReturnType<typeof schemaFor>;

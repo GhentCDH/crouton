@@ -1,11 +1,11 @@
 import {
-  type ResourceConfig,
   isOperationEnabled,
   resolveDefinition,
   schemaFor,
   upsertOnFor,
 } from '../crud.config';
 import { toJsonSchema } from '../schema.utils';
+import { Resource } from '../resource/ResourceConfig.schema';
 
 // ── Internal helpers ──────────────────────────────────────────────────────
 
@@ -91,7 +91,7 @@ export const buildResourceOperations = (
 
 /** Build the payload for `GET /definition` — enabled operations and their JSON Schemas. */
 export const buildDefinitionPayload = (
-  config: ResourceConfig,
+  config: Resource,
 ): Record<string, unknown> => {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
@@ -126,7 +126,7 @@ export const buildDefinitionPayload = (
 
 /** Build the payload for `GET /resource.json` — URI, enabled operations, and optional form schema. */
 export const buildResourceJsonPayload = (
-  config: ResourceConfig,
+  config: Resource,
   baseUrl?: string,
 ): Record<string, unknown> => {
   const { name, route } = config;
@@ -150,7 +150,7 @@ export const buildResourceJsonPayload = (
  * Returns `undefined` when the resource has no views configured.
  */
 export const buildViewsPayload = (
-  config: ResourceConfig,
+  config: Resource,
   baseUrl?: string,
 ): Record<string, unknown> | undefined => {
   if (!config.views || !Object.keys(config.views).length) return undefined;

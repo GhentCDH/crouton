@@ -1,10 +1,22 @@
 import { NotFoundException } from '@nestjs/common';
 
-import { Operator, type OperatorType, buildSort, toValueLabel } from '@ghentcdh/crouton-core';
+import {
+  buildSort,
+  Operator,
+  type OperatorType,
+  toValueLabel,
+} from '@ghentcdh/crouton-core';
 
-import type { ReadOp, ResourceConfig, SubResourceConfig, ValueLabelColumn } from './crud.config';
 import type { RequestDto } from './request.dto';
-import { buildChildSortClause, buildIncludeClause, mergeCalculatedColumnsForRows } from './sql.helpers';
+import {
+  buildChildSortClause,
+  buildIncludeClause,
+  mergeCalculatedColumnsForRows,
+} from './sql.helpers';
+import { ValueLabelColumn } from './resource/valueLabel';
+import { SubResourceConfig } from './resource/SubResource.schema';
+import { Resource } from './resource/ResourceConfig.schema';
+import { ReadOp } from './hooks';
 
 // FilterOperator (OperatorType) and Operator list are imported from @ghentcdh/crouton-core
 
@@ -24,8 +36,12 @@ export const parseFilterString = (
   const lastPart = parts[parts.length - 1];
   const hasOperator = (Operator as readonly string[]).includes(lastPart);
 
-  const value = hasOperator ? parts.slice(1, -1).join(':') : parts.slice(1).join(':');
-  const operator: OperatorType = hasOperator ? (lastPart as OperatorType) : 'contains';
+  const value = hasOperator
+    ? parts.slice(1, -1).join(':')
+    : parts.slice(1).join(':');
+  const operator: OperatorType = hasOperator
+    ? (lastPart as OperatorType)
+    : 'contains';
 
   return { field, value, operator };
 };
@@ -34,7 +50,10 @@ export const parseFilterString = (
  * Build a nested Prisma condition object from a dot-separated field path.
  * `"author.name"` → `{ author: { name: condition } }`
  */
-const buildNestedPath = (path: string[], condition: unknown): Record<string, unknown> => {
+const buildNestedPath = (
+  path: string[],
+  condition: unknown,
+): Record<string, unknown> => {
   if (path.length === 1) return { [path[0]]: condition };
   const [head, ...rest] = path;
   return { [head]: buildNestedPath(rest, condition) };
@@ -63,7 +82,9 @@ const buildJsonPathCondition = (
 ): Record<string, unknown> | null => {
   const [column, ...path] = field.split(JSON_PATH_SEP);
   if (!column || path.length === 0) return null;
-  const frag = (extra: Record<string, unknown>) => ({ [column]: { path, ...extra } });
+  const frag = (extra: Record<string, unknown>) => ({
+    [column]: { path, ...extra },
+  });
 
   switch (operator) {
     case 'equals':
@@ -89,7 +110,10 @@ const buildJsonPathCondition = (
  * Map a parsed operator + value to a Prisma field condition.
  * Numeric coercion is applied for `gt` and `lt`.
  */
-const operatorToCondition = (value: string, operator: OperatorType): unknown => {
+const operatorToCondition = (
+  value: string,
+  operator: OperatorType,
+): unknown => {
   const num = Number(value);
   const numVal = Number.isNaN(num) ? value : num;
 
@@ -130,7 +154,10 @@ export const buildFilterWhere = (
     .map(({ field, value, operator }) =>
       isJsonPath(field)
         ? buildJsonPathCondition(field, value, operator)
-        : buildNestedPath(field.split('.'), operatorToCondition(value, operator)),
+        : buildNestedPath(
+            field.split('.'),
+            operatorToCondition(value, operator),
+          ),
     )
     .filter((c): c is Record<string, unknown> => c !== null);
 
@@ -214,7 +241,7 @@ export class ReadRepository<T = any> {
   constructor(
     private readonly prismaModel: any,
     private readonly prisma: any,
-    private readonly config: ResourceConfig,
+    private readonly config: Resource,
     private readonly listSelect: Record<string, any> | undefined,
     private readonly oneSelect: Record<string, any> | undefined,
   ) {}
@@ -241,10 +268,14 @@ export class ReadRepository<T = any> {
   private async decorate(rows: any[], op: ReadOp): Promise<any[]> {
     const hook = this.config.hooks?.afterRead;
     const hooked = hook
-      ? await Promise.all(rows.map((row) => hook(row, { prisma: this.prisma, op })))
+      ? await Promise.all(
+          rows.map((row) => hook(row, { prisma: this.prisma, op })),
+        )
       : rows;
     const cols = this.config.valueLabelColumns;
-    return cols?.length ? hooked.map((r) => applyValueLabelColumns(r, cols)) : hooked;
+    return cols?.length
+      ? hooked.map((r) => applyValueLabelColumns(r, cols))
+      : hooked;
   }
 
   private async decorateOne(row: any, op: ReadOp): Promise<any> {
@@ -418,7 +449,9 @@ export class ReadRepository<T = any> {
         where,
         take: params.pageSize,
         skip: (params as any).offset ?? (params.page - 1) * params.pageSize,
-        orderBy: childSort ? buildChildSortClause(childSort, params.sortDir) : undefined,
+        orderBy: childSort
+          ? buildChildSortClause(childSort, params.sortDir)
+          : undefined,
         ...(includeClause && { include: includeClause }),
       }),
       childModel.count({ where }),
@@ -442,7 +475,9 @@ export class ReadRepository<T = any> {
       : withCalc;
 
     const labeled = sub.valueLabelColumns?.length
-      ? decorated.map((r: any) => applyValueLabelColumns(r, sub.valueLabelColumns))
+      ? decorated.map((r: any) =>
+          applyValueLabelColumns(r, sub.valueLabelColumns),
+        )
       : decorated;
     return { data: labeled, count };
   }
@@ -487,7 +522,10 @@ export class ReadRepository<T = any> {
 
     // findOne (single child) keeps the scalar — see decorateOne.
     if (sub.hooks?.afterRead)
-      return sub.hooks.afterRead(withCalc, { prisma: this.prisma, op: 'findOne' });
+      return sub.hooks.afterRead(withCalc, {
+        prisma: this.prisma,
+        op: 'findOne',
+      });
     return withCalc;
   }
 }
