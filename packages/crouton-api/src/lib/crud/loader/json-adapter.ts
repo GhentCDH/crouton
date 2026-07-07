@@ -1,6 +1,8 @@
 import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
-import { type EnumRegistry, injectEnumValues } from './enum-registry';
+import { type ResourceJson } from '@ghentcdh/crouton-core';
+
+import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type {
   CalculatedColumn,
   JsonColumn,
@@ -18,19 +20,17 @@ import {
 } from './view.builders';
 import {
   type LookupConfig,
-  type ResourceConfig,
   type ResourceDefinition,
-  type ResourceDisplay,
   type ResourceHooks,
   type ResourceRowAction,
   type ResourceTableAction,
   type SubResourceConfig,
   type ValueLabelColumn
 } from '../crud.config';
+import { readResourceJson, type ResolveResource } from '../resource/ReadResourceJson';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { readResourceJson, ResolveResource } from '../resource/ReadResourceJson';
-import { ResourceJson } from '@ghentcdh/crouton-core';
+import { Resource } from '../resource/ResourceConfig.schema';
 
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the
@@ -461,7 +461,7 @@ export const fromJson = (
   tableActions?: ResourceTableAction[],
   /** Project enum registry — injected into columns that reference an enum by name. */
   enums: EnumRegistry = {},
-): ResourceConfig => {
+): Resource => {
   const rawColumns = expandExtendColumns(json.columns, dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -544,8 +544,6 @@ export const fromJson = (
     model: json.model,
     tag: json.tag,
     display,
-    ...(json.title && { title: json.title }),
-    ...(json.sidebar && { sidebar: json.sidebar }),
     ...(json.idType && { idType: json.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
     ...(json.database && { database: json.database }),

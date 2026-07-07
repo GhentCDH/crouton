@@ -1,7 +1,7 @@
 import { loadResourceConfigsFromDir } from './index';
 
 import { ResourceConfigLoader } from './resource-config.loader';
-import type { ResourceConfig } from '../crud.config';
+import { type Resource } from '../resource/ResourceConfig.schema';
 
 export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
   constructor(
@@ -12,11 +12,11 @@ export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
     super();
   }
 
-  async loadAll(): Promise<ResourceConfig[]> {
+  async loadAll(): Promise<Resource[]> {
     return loadResourceConfigsFromDir(this.dirPath, this.baseUrl, this.enumsFile);
   }
 
-  async loadByRoute(route: string): Promise<ResourceConfig | undefined> {
+  async loadByRoute(route: string): Promise<Resource | undefined> {
     const configs = await this.loadAll();
     return configs.find((c) => c.route === route);
   }

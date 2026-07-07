@@ -19,7 +19,6 @@ export type {
   JsonIncludeEntry,
   JsonLinkAction,
   JsonProcedureAction,
-  JsonResourceConfig,
   RelationFieldInputOptions,
   RelationType,
 } from '@ghentcdh/crouton-core';

@@ -1,6 +1,6 @@
-import type { ResourceConfig } from '../crud.config';
+import { Resource } from '../resource/ResourceConfig.schema';
 
 export abstract class ResourceConfigLoader {
-  abstract loadAll(): Promise<ResourceConfig[]>;
-  abstract loadByRoute(route: string): Promise<ResourceConfig | undefined>;
+  abstract loadAll(): Promise<Resource[]>;
+  abstract loadByRoute(route: string): Promise<Resource | undefined>;
 }

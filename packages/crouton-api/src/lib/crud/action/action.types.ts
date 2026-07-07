@@ -63,10 +63,17 @@ export type ResourceTableProcedureAction = z.infer<
   typeof ResourceTableProcedureActionSchema
 >;
 
-export type ResourceRowAction = ResourceRowProcedureAction | ResourceLinkAction;
-export type ResourceTableAction =
-  ResourceTableProcedureAction | ResourceLinkAction;
+export const ResourceRowActionSchema = z.union([
+  ResourceRowProcedureActionSchema,
+  ResourceLinkActionSchema,
+]);
+export type ResourceRowAction = z.infer<typeof ResourceRowActionSchema>;
 
+export const ResourceTableActionSchema = z.union([
+  ResourceTableProcedureActionSchema,
+  ResourceLinkActionSchema,
+]);
+export type ResourceTableAction = z.infer<typeof ResourceTableActionSchema>;
 // ── Type guards ────────────────────────────────────────────────────────────
 
 export const isRowProcedureAction = (

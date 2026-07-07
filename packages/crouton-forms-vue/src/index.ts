@@ -121,7 +121,6 @@ export type {
   JsonDisplay,
   JsonIncludeEntry,
   JsonProcedureAction,
-  JsonResourceConfig,
   RelationFieldInputOptions,
   SidebarGroupConfig,
 } from '@ghentcdh/crouton-core';

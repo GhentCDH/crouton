@@ -7,12 +7,12 @@ const BoolOrUpsertSchema = z.union([
 ]);
 
 export const JsonOperationsSchema = z.object({
-  findAll: z.boolean().optional(), // default: true — only explicit `false` disables it
-  findOne: z.boolean().optional(), // default: true
-  create: z.boolean().optional(), // default: true
-  update: z.boolean().optional(), // default: true
-  upsert: BoolOrUpsertSchema.optional(), // default: disabled; `true` throws at load time — must be `{ upsertOn }`
-  delete: z.boolean().optional(), // default: true
+  findAll: z.boolean().default(true), // default: true — only explicit `false` disables it
+  findOne: z.boolean().default(true), // default: true
+  create: z.boolean().default(true), // default: true
+  update: z.boolean().default(true), // default: true
+  upsert: BoolOrUpsertSchema.default(false), // default: disabled; `true` throws at load time — must be `{ upsertOn }`
+  delete: z.boolean().default(true), // default: true
 });
 
 export type JsonResourceOperations = z.infer<typeof JsonOperationsSchema>;

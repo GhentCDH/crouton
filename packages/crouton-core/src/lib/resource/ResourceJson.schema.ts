@@ -42,38 +42,39 @@ const normalizeColumns = (
 
 // ── Top-level resource.json ──────────────────────────────────────────
 
-export const ResourceJsonSchema = z
-  .object({
-    name: z.string(), // required — unique id, used as the frontend form id
-    route: z.string(), // required — URL segment for generated endpoints
-    model: z.string(), // required — Prisma model name
-    tag: z.string(), // required — OpenAPI tag
-    title: z.string().optional(), // no computed default — used as UI display title
-    table: z.string().optional(), // default: same as `model`
-    database: z.string().optional(), // default: project's default data source
-    sidebar: SidebarSchema.default({} as any), // default: shown, alphabetically ordered, ungrouped
-    display: JsonDisplaySchema.default({} as any), // default: { mode: 'modal', customComponent: null }
-    operations: JsonOperationsSchema, // required key — but every sub-field defaults to enabled
-    columns: ColumnsSchema.default({}), //  id-keyed map; omit for a columnless resource
-    calculatedColumns: z.array(CalculatedColumnSchema).default([]),
-    actions: z.array(JsonActionSchema).default([]),
-    /** Global table-level actions (no record id). Shown as toolbar buttons. */
-    tableActions: z.array(JsonActionSchema).default([]),
-    modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).default('sm'), // default: 'sm' for create/edit modal
-    /**
-     * Relations to include when querying this resource.
-     * Each entry is either a plain relation name (`"author"` → `include: { author: true }`)
-     * or an object for nested includes:
-     * `{ "relation": "text_author", "include": ["author"] }` →
-     *   `include: { text_author: { include: { author: true } } }`
-     */
-    include: z.array(JsonIncludeEntrySchema).default([]),
-  })
-  .transform((obj) => {
-    const title = obj.title ?? labelFromId(obj.name);
+export const ResourceJsonShape = z.object({
+  name: z.string(), // required — unique id, used as the frontend form id
+  route: z.string(), // required — URL segment for generated endpoints
+  model: z.string(), // required — Prisma model name
+  tag: z.string(), // required — OpenAPI tag
+  title: z.string().optional(), // no computed default — used as UI display title
+  table: z.string().optional(), // default: same as `model`
+  database: z.string().optional(), // default: project's default data source
+  sidebar: SidebarSchema.default({} as any), // default: shown, alphabetically ordered, ungrouped
+  display: JsonDisplaySchema.default({} as any), // default: { mode: 'modal', customComponent: null }
+  operations: JsonOperationsSchema, // required key — but every sub-field defaults to enabled
+  columns: ColumnsSchema.default({}), //  id-keyed map; omit for a columnless resource
+  calculatedColumns: z.array(CalculatedColumnSchema).default([]),
+  actions: z.array(JsonActionSchema).default([]),
+  /** Global table-level actions (no record id). Shown as toolbar buttons. */
+  tableActions: z.array(JsonActionSchema).default([]),
+  /** Modal width when opening a form for this resource. */
+  modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).default('sm'), // default: 'sm' for create/edit modal
+  /**
+   * Relations to include when querying this resource.
+   * Each entry is either a plain relation name (`"author"` → `include: { author: true }`)
+   * or an object for nested includes:
+   * `{ "relation": "text_author", "include": ["author"] }` →
+   *   `include: { text_author: { include: { author: true } } }`
+   */
+  include: z.array(JsonIncludeEntrySchema).default([]),
+});
 
-    return { title, ...obj, columns: normalizeColumns(obj.columns) };
-  });
+export const ResourceJsonSchema = ResourceJsonShape.transform((obj) => {
+  const title = obj.title ?? labelFromId(obj.name);
+
+  return { title, ...obj, columns: normalizeColumns(obj.columns) };
+});
 
 export type ResourceJson = z.infer<typeof ResourceJsonSchema>;
 

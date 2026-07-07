@@ -1,6 +1,7 @@
-import { dirname, resolve } from 'node:path';
+import { type ResourceJson, ResourceJsonSchema } from '@ghentcdh/crouton-core';
+
 import { existsSync, readFileSync } from 'node:fs';
-import { ResourceJson, ResourceJsonSchema } from '@ghentcdh/crouton-core';
+import { dirname, resolve } from 'node:path';
 
 export type ResolveResource = { json: ResourceJson; dir: string };
 

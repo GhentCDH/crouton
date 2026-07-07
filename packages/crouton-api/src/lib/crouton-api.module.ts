@@ -7,7 +7,7 @@ import { createAppLayoutController } from './crud/app-layout';
 import { loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
-import { type ResourceConfig } from './crud/crud.config';
+import { type Resource } from './crud/resource/ResourceConfig.schema';
 import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
@@ -48,7 +48,7 @@ type CroutonAppConfig = {
 })
 export class CroutonApiModule {
   private static forResources(
-    configs: ResourceConfig[],
+    configs: Resource[],
     dataSources: DataSourceEntry[],
     loader: ResourceConfigLoader,
     { baseUrl }: CroutonAppConfig,
@@ -108,7 +108,7 @@ export class CroutonApiModule {
 
   static async forLoader(
     loader: ResourceConfigLoader,
-    configs: ResourceConfig[],
+    configs: Resource[],
     dataSources: DataSourceEntry[],
     appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
