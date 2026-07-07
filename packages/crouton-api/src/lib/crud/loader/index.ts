@@ -22,14 +22,15 @@
 
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { loadActions, loadTableActions } from './action.loader';
+import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
+
+import { loadActions } from '../action';
 import { loadEnumRegistry } from './enum-registry';
 import { fromJson } from './json-adapter';
 import { findModule, importDefault } from './module.loader';
 import type { ResourceConfig, ResourceHooks, SubResourceConfig } from '../crud.config';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
 
 const loadSubResourceHooks = async (
   subResources: SubResourceConfig[],
@@ -74,14 +75,16 @@ export const loadResourceConfigsFromDir = async (
     if (existsSync(jsonFile)) {
       const _json = JSON.parse(readFileSync(jsonFile, 'utf-8'));
       const resource = ResourceJsonSchema.safeParse(_json);
-      if (!resource.success)
-        throw new Error(`Invalid resource schema: ${resource.error}`);
-
+      if (!resource.success) {
+        console.error(resource.error);
+        throw new Error(`Invalid resource schema: ${jsonFile}`);
+      }
       const json = resource.data;
-      const actions = await loadActions(json.actions ?? [], basePath);
-      const tableActions = await loadTableActions(
+      const actions = await loadActions(json.actions ?? [], basePath, 'row');
+      const tableActions = await loadActions(
         json.tableActions ?? [],
         basePath,
+        'table',
       );
       const config = fromJson(
         json,

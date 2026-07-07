@@ -1,7 +1,10 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 
+import { type CroutonConfig } from '@ghentcdh/crouton-core';
+
 import { createAppLayoutController } from './crud/app-layout.controller';
+import { loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { type ResourceConfig } from './crud/crud.config';
@@ -11,8 +14,6 @@ import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
-import { loadConfig } from './crud/config/read';
-import { CroutonConfig } from '@ghentcdh/crouton-core';
 
 type CroutonAppConfig = {
   baseUrl: string;

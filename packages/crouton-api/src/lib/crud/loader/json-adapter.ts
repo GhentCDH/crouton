@@ -26,7 +26,7 @@ import {
 } from './view.builders';
 import {
   type LookupConfig,
-  type ResourceAction,
+  type ResourceRowAction,
   type ResourceConfig,
   type ResourceDefinition,
   type ResourceDisplay,
@@ -475,7 +475,7 @@ export const fromJson = (
   /** Base URL for generating full URIs in column options (e.g. `http://localhost:3000`). */
   baseUrl?: string,
   /** Resolved action procedures loaded from the `actions/` directory. */
-  actions?: ResourceAction[],
+  actions?: ResourceRowAction[],
   /** Resolved table-level action procedures loaded from the `actions/` directory. */
   tableActions?: ResourceTableAction[],
   /** Project enum registry — injected into columns that reference an enum by name. */

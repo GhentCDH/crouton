@@ -1,8 +1,9 @@
 import { z } from 'zod';
+
 import { SidebarSchema } from './Sidebar.schema';
-import { JsonOperationsSchema } from '../data-source/Operations.schema';
-import { JsonIncludeEntrySchema } from './include.schema';
 import { JsonActionSchema } from './TableAction.schema';
+import { JsonIncludeEntrySchema } from './include.schema';
+import { JsonOperationsSchema } from '../data-source/Operations.schema';
 
 // ── Shared primitives ────────────────────────────────────────────────
 
@@ -56,7 +57,7 @@ const RelationFieldInputOptionsSchema = z
   .catchall(z.unknown()); // arbitrary extra keys allowed (e.g. colspan, emitObject, values)
 
 const FieldInputSchema = z.object({
-  type: z.string(), // required
+  type: z.string().optional(), // required
   customRender: z.string().optional(),
   format: z.string().optional(), // 'relation' triggers relation handling; requires `resource`
   resource: z.string().optional(), // required when format === 'relation'
@@ -96,16 +97,12 @@ const JsonColumnShape = {
   columns: z.record(z.string(), z.record(z.string(), z.unknown())).optional(), // per-sub-column overrides, only used with `extend`
 };
 
-const JsonColumnSchema = z.object(JsonColumnShape).catchall(z.unknown()); // array form
 const JsonColumnsMapSchema = z.record(
   z.string(),
   z.object(JsonColumnShape).omit({ id: true }).catchall(z.unknown()),
 ); // map form — key becomes `id`
 
-const ColumnsSchema = z.union([
-  z.array(JsonColumnSchema),
-  JsonColumnsMapSchema,
-]);
+const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Calculated columns ──────────────────────────────────────────────
 

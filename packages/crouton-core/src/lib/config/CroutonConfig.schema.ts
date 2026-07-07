@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { SidebarGroupSchema } from '../resource';
 
 const OperationsSchema = z.object({

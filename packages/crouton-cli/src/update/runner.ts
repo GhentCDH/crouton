@@ -11,17 +11,19 @@ import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
 import {
-  apply,
   type ApplyContext,
+  type DbModel,
+  type EnumRegistry,
+  type LoadedConfig,
+  type ResolvedDiff,
+  type WritePlan,
+  apply,
   buildEnumRegistry,
   buildResourceDiffs,
   commit,
-  type DbModel,
-  type EnumRegistry,
   introspect,
   loadConfig,
   loadDatasources,
-  type LoadedConfig,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
@@ -29,14 +31,13 @@ import {
   recommendedResolver,
   resolve as resolveDiff,
   resolveDatasource,
-  type ResolvedDiff,
   resolveFromRoot,
   resolveRuleset,
   resourceNames,
   scaffoldConfigFromProject,
   serializeEnumRegistry,
-  type WritePlan,
 } from '@ghentcdh/crouton-codegen';
+import { type DataSource } from '@ghentcdh/crouton-core';
 
 import { formatResourceChange } from './preview';
 import {
@@ -48,7 +49,6 @@ import {
 import { CancelledError, interactiveResolver } from './resolver';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';
-import { DataSource } from '@ghentcdh/crouton-core';
 
 export interface UpdateResourcesOptions {
   cwd?: string;

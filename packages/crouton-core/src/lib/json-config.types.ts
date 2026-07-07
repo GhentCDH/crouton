@@ -7,10 +7,10 @@
  *   - any tooling that reads or writes `resource.json`
  */
 
-import type { RelationType } from './relation.types';
 import type { JsonResourceOperations } from './data-source/Operations.schema';
-import { JsonIncludeEntry } from './resource/include.schema';
-import { JsonAction } from './resource';
+import type { RelationType } from './relation.types';
+import { type JsonAction } from './resource';
+import { type JsonIncludeEntry } from './resource/include.schema';
 
 export type JsonDisplay = {
   mode?: 'page' | 'modal';

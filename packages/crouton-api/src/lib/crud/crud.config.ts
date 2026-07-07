@@ -4,69 +4,11 @@ import type {
   CalculatedColumn,
   FieldInput,
   JsonAction,
-  JsonActionCondition,
   JsonIncludeEntry,
 } from './loader/json-config.types';
+import { ResourceRowAction, ResourceTableAction } from './action';
 
-export type ResourceProcedureAction = {
-  type?: 'procedure';
-  /** URL segment used in the endpoint: `POST /{route}/procedure/{id}/:recordId` */
-  id: string;
-  /** Human-readable label shown as a button in the table. */
-  label: string;
-  /** HTTP method for the endpoint. Defaults to `"post"`. */
-  method?: string;
-  /** Static data payload merged into the request body by the frontend. */
-  data?: Record<string, unknown>;
-  /** The procedure function to call with (prisma, recordId). */
-  procedure: (prisma: any, recordId: string | number) => Promise<any>;
-  /** Optional condition evaluated per row. Button is hidden when false. */
-  condition?: JsonActionCondition;
-};
-
-export type ResourceLinkAction = {
-  type: 'link';
-  /** Unique identifier for the action. */
-  id: string;
-  /** Human-readable label shown as a button in the table. */
-  label: string;
-  /**
-   * URL pattern to open in a new tab. May contain `{id}` which the frontend
-   * replaces with the record id, e.g. `"/preview/{id}"`.
-   */
-  href: string;
-  /** Optional condition evaluated per row. Button is hidden when false. */
-  condition?: JsonActionCondition;
-};
-
-export type ResourceAction = ResourceProcedureAction | ResourceLinkAction;
-
-// ─── Table-level (global) actions ────────────────────────────────────────────
-
-/** Table-level procedure action — no record id is passed to the procedure. */
-export type ResourceTableProcedureAction = {
-  type?: 'procedure';
-  id: string;
-  label?: string;
-  icon?: string;
-  tooltip?: string;
-  method?: string;
-  data?: Record<string, unknown>;
-  /** The procedure function called with only prisma (no record id). */
-  procedure: (prisma: any) => Promise<any>;
-};
-
-export type ResourceTableLinkAction = {
-  type: 'link';
-  id: string;
-  label?: string;
-  icon?: string;
-  tooltip?: string;
-  href: string;
-};
-
-export type ResourceTableAction =
-  ResourceTableProcedureAction | ResourceTableLinkAction;
+export { isRowProcedureAction, isTableProcedureAction } from './action';
 
 export type CrudOperation =
   'findAll' | 'findOne' | 'create' | 'update' | 'upsert' | 'delete';
@@ -264,7 +206,7 @@ export type ResourceConfig = {
   lookup?: LookupConfig;
   subResources?: SubResourceConfig[];
   calculatedColumns?: CalculatedColumn[];
-  actions?: ResourceAction[];
+  actions?: ResourceRowAction[];
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
   tableActions?: ResourceTableAction[];
   /** Relations to eagerly include when querying this resource. Supports nested includes — see `JsonIncludeEntry`. */

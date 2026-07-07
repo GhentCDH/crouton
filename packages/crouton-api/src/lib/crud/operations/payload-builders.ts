@@ -193,6 +193,8 @@ export const buildViewsPayload = (
               id: a.id,
               label: a.label,
               href: resolveEnvPlaceholders(a.href),
+              ...(a.icon && { icon: a.icon }),
+              ...(a.tooltip && { tooltip: a.tooltip }),
               ...(a.condition && { condition: a.condition }),
             }
           : {
@@ -201,6 +203,8 @@ export const buildViewsPayload = (
               uri: `${baseUrl}/${config.route}/procedure/${a.id}/{id}`,
               method: a.method ?? 'post',
               ...(a.data && { data: a.data }),
+              ...(a.icon && { icon: a.icon }),
+              ...(a.tooltip && { tooltip: a.tooltip }),
               ...(a.condition && { condition: a.condition }),
             },
       ),
@@ -215,6 +219,7 @@ export const buildViewsPayload = (
               icon: a.icon,
               tooltip: a.tooltip,
               href: resolveEnvPlaceholders(a.href),
+              ...(a.condition && { condition: a.condition }),
             }
           : {
               id: a.id,
@@ -224,6 +229,7 @@ export const buildViewsPayload = (
               uri: `${baseUrl}/${config.route}/table-action/${a.id}`,
               method: a.method ?? 'post',
               ...(a.data && { data: a.data }),
+              ...(a.condition && { condition: a.condition }),
             },
       ),
     }),

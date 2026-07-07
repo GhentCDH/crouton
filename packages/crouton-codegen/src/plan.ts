@@ -5,12 +5,13 @@
  * are injected so this composes cleanly and stays unit-testable without disk.
  */
 
+import { type CroutonConfig } from '@ghentcdh/crouton-core';
+
 import { classify, defaultRuleset } from './classify';
 import { diff } from './diff';
 import { resourceNames } from './naming';
 import type { ExistingResource } from './project';
 import type { DbModel, ResourceDiff, Ruleset } from './types';
-import { CroutonConfig } from '@ghentcdh/crouton-core';
 
 export interface BuildDiffsDeps {
   /** Datasource name stamped on generated resources. */

@@ -1,10 +1,11 @@
 import {
   CONFIG_FILES,
-  CroutonConfig,
+  type CroutonConfig,
   CroutonConfigSchema,
 } from '@ghentcdh/crouton-core';
-import { dirname, join, resolve as pathResolve, resolve } from 'node:path';
+
 import { access, readFile } from 'node:fs/promises';
+import { dirname, join, resolve, resolve as pathResolve } from 'node:path';
 
 const fileExists = async (p: string): Promise<boolean> => {
   try {
