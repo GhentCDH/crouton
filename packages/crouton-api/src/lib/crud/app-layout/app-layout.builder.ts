@@ -1,4 +1,4 @@
-import { labelFromId, type SidebarGroupConfig } from '@ghentcdh/crouton-core';
+import { type SidebarGroupConfig, labelFromId } from '@ghentcdh/crouton-core';
 
 import { type ResourceConfig } from '../crud.config';
 import { type SidebarGroup, type SidebarLeaf, SidebarLeafSchema, type SidebarNode } from './app-layout.types';

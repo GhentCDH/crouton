@@ -10,8 +10,8 @@
 import type { JsonResourceOperations } from './data-source/Operations.schema';
 import type { RelationType } from './relation.types';
 import { type JsonAction } from './resource';
+import { type CalculatedColumn } from './resource/CalculatedColumn.schema';
 import { type JsonIncludeEntry } from './resource/include.schema';
-import { CalculatedColumn } from './resource/CalculatedColumn.schema';
 
 export type JsonDisplay = {
   mode?: 'page' | 'modal';

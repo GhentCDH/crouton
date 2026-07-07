@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
+import { CalculatedColumnSchema } from './CalculatedColumn.schema';
+import { FieldInputSchema } from './FieldInput.schema';
 import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
 import { JsonIncludeEntrySchema } from './include.schema';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
-import { CalculatedColumnSchema } from './CalculatedColumn.schema';
-import { FieldInputSchema } from './FieldInput.schema';
 
 // ── Shared primitives ────────────────────────────────────────────────
 

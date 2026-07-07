@@ -3,9 +3,9 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { type SidebarGroupConfig } from '@ghentcdh/crouton-core';
 
+import { type ResourceConfig } from '../crud.config';
 import { IS_DEV } from '../dev-mode';
 import { ResourceConfigRegistry } from '../resource-config.registry';
-import { type ResourceConfig } from '../crud.config';
 import { buildLayoutPayload } from './app-layout.builder';
 
 export const createAppLayoutController = (
