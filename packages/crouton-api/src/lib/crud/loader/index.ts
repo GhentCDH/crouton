@@ -29,7 +29,7 @@ import { loadEnumRegistry } from './enum-registry';
 import { fromJson } from './json-adapter';
 import { findModule, importDefault } from './module.loader';
 import type { ResourceConfig, ResourceHooks, SubResourceConfig } from '../crud.config';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const loadSubResourceHooks = async (

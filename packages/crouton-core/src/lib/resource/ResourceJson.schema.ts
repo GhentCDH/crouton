@@ -4,15 +4,10 @@ import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
 import { JsonIncludeEntrySchema } from './include.schema';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
+import { CalculatedColumnSchema } from './CalculatedColumn.schema';
+import { FieldInputSchema } from './FieldInput.schema';
 
 // ── Shared primitives ────────────────────────────────────────────────
-
-const RelationType = z.enum([
-  'oneToOne',
-  'manyToOne',
-  'oneToMany',
-  'manyToMany',
-]);
 
 // Used by showWhen / hideWhen / disabledWhen
 const WhenConditionSchema = z.object({
@@ -21,50 +16,6 @@ const WhenConditionSchema = z.object({
   neq: z.unknown().optional(),
   exists: z.boolean().optional(),
   notExists: z.boolean().optional(),
-});
-
-// Used by row-action / table-action `condition`
-const ActionConditionSchema = z.object({
-  field: z.string(), // required
-  op: z
-    .enum(['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'notExists'])
-    .optional(), // default: 'eq'
-  value: z.unknown().optional(), // not required for exists/notExists
-});
-
-const DetailControlSchema = z.object({
-  property: z.string(), // required
-  type: z.string().optional(), // default: 'text'
-  options: z.record(z.string(), z.unknown()).optional(),
-  hideLabel: z.boolean().optional(), // default: false
-  width: z.string().optional(),
-});
-
-const DetailConfigSchema = z.object({
-  layout: z.enum(['collapse', 'row']), // required
-  titleKey: z.string().optional(),
-  controls: z.array(DetailControlSchema), // required
-});
-
-const RelationFieldInputOptionsSchema = z
-  .object({
-    sort: z.string().optional(),
-    sortDir: z.enum(['asc', 'desc']).optional(), // default: 'asc'
-    direction: z.string().optional(),
-    displayKey: z.string().optional(),
-    resource: z.string().optional(),
-  })
-  .catchall(z.unknown()); // arbitrary extra keys allowed (e.g. colspan, emitObject, values)
-
-const FieldInputSchema = z.object({
-  type: z.string().optional(), // required
-  customRender: z.string().optional(),
-  format: z.string().optional(), // 'relation' triggers relation handling; requires `resource`
-  resource: z.string().optional(), // required when format === 'relation'
-  relationType: RelationType.optional(), // auto-derived from the Zod model/sibling FK column if omitted
-  position: z.number().optional(), // default: source order
-  options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),
-  detail: DetailConfigSchema.optional(),
 });
 
 // ── Columns ───────────────────────────────────────────────────────────
@@ -103,25 +54,6 @@ const JsonColumnsMapSchema = z.record(
 ); // map form — key becomes `id`
 
 const ColumnsSchema = JsonColumnsMapSchema;
-
-// ── Calculated columns ──────────────────────────────────────────────
-
-const CalculatedColumnSchema = z.object({
-  id: z.string(), // required
-  alias: z.string(), // required — must match `id`
-  label: z.string().optional(),
-  sqlExpression: z.string(), // required
-  type: z.enum(['number', 'boolean', 'string']).optional(), // default: 'number'
-  position: z.number().optional(),
-  hiddenInTable: z.boolean().optional(), // default: false
-  hiddenInView: z.boolean().optional(), // default: false
-  fieldInput: z
-    .object({
-      position: z.number().optional(),
-      options: z.record(z.string(), z.unknown()).optional(),
-    })
-    .optional(),
-});
 
 // ── Display / sidebar ────────────────────────────────────────────────
 

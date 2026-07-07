@@ -7,8 +7,6 @@ export const DataSourceSchema = z
   .object({
     /** Datasource name (folder + `name` in data-source.json). */
     name: z.string(),
-    /** Where datasource folders live, relative to project root (from crouton.json). */
-    dataSourcesDir: z.string(),
     /** Env var holding the connection URL. */
     urlEnv: z.string(),
     /** Import path for this datasource's generated Zod types (for resource `schema.ts`). */

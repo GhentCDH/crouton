@@ -1,5 +1,5 @@
-import type { JsonAction } from '../loader/json-config.types';
 import type { ResourceRowAction, ResourceTableAction } from './action.types';
+import type { JsonAction } from '../loader/json-config.types';
 import { findModule, importDefault } from '../loader/module.loader';
 import { join } from 'node:path';
 

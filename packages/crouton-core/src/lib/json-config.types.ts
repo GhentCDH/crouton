@@ -11,6 +11,7 @@ import type { JsonResourceOperations } from './data-source/Operations.schema';
 import type { RelationType } from './relation.types';
 import { type JsonAction } from './resource';
 import { type JsonIncludeEntry } from './resource/include.schema';
+import { CalculatedColumn } from './resource/CalculatedColumn.schema';
 
 export type JsonDisplay = {
   mode?: 'page' | 'modal';
@@ -177,55 +178,6 @@ export type JsonColumn = {
 };
 
 export type JsonColumnsMap = Record<string, Omit<JsonColumn, 'id'>>;
-
-/**
- * A column whose value is computed by a raw SQL subquery at query time.
- * The `sqlExpression` may reference the parent table via the alias `main`.
- *
- * Example:
- * ```json
- * {
- *   "id": "inception",
- *   "alias": "inception",
- *   "label": "Available in inception",
- *   "sqlExpression": "SELECT COUNT(id) FROM text_content WHERE text_content.text_id = main.id",
- *   "position": 8
- * }
- * ```
- */
-export type CalculatedColumn = {
-  /** Column identifier used in the response payload and UI schema. */
-  id: string;
-  /** SQL alias — must match `id`. */
-  alias: string;
-  /** Human-readable label shown in the table header. */
-  label?: string;
-  /**
-   * Raw SQL subquery. Use `main` as the alias for the parent table row,
-   * e.g. `SELECT COUNT(*) FROM child WHERE child.parent_id = main.id`.
-   */
-  sqlExpression: string;
-  /** JSON schema / cast type for the computed value. Defaults to `"number"`. `"string"` skips CAST. */
-  type?: 'number' | 'boolean' | 'string';
-  /**
-   * Insertion position relative to the other visible columns.
-   * Uses the same semantics as `fieldInput.position` on regular columns:
-   * `position: N` places this column before the element currently at index N.
-   * Can also be set via `fieldInput.position` (takes precedence).
-   */
-  position?: number;
-  hiddenInTable?: boolean;
-  hiddenInView?: boolean;
-  /**
-   * Field input options for rendering in form / view schemas.
-   * Supports `colspan`, `format`, and any other options passed to the Control renderer.
-   * `position` here takes precedence over the top-level `position`.
-   */
-  fieldInput?: {
-    position?: number;
-    options?: Record<string, unknown>;
-  };
-};
 
 /** @deprecated use ResourceJson
  *

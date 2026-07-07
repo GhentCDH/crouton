@@ -26,11 +26,11 @@ import {
 } from './view.builders';
 import {
   type LookupConfig,
-  type ResourceRowAction,
   type ResourceConfig,
   type ResourceDefinition,
   type ResourceDisplay,
   type ResourceHooks,
+  type ResourceRowAction,
   type ResourceTableAction,
   type SubResourceConfig,
   type ValueLabelColumn,

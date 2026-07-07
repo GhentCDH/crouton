@@ -1,13 +1,13 @@
 export {
   ActionMetadataSchema,
-  ResourceLinkActionSchema,
-  ResourceRowProcedureActionSchema,
-  ResourceTableProcedureActionSchema,
   type ResourceLinkAction,
-  type ResourceRowProcedureAction,
-  type ResourceTableProcedureAction,
+  ResourceLinkActionSchema,
   type ResourceRowAction,
+  type ResourceRowProcedureAction,
+  ResourceRowProcedureActionSchema,
   type ResourceTableAction,
+  type ResourceTableProcedureAction,
+  ResourceTableProcedureActionSchema,
   isRowProcedureAction,
   isTableProcedureAction,
 } from './action.types';

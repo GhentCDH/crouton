@@ -1,12 +1,12 @@
 import { type ZodObject, type ZodRawShape } from 'zod';
 
+import { type ResourceRowAction, type ResourceTableAction } from './action';
 import type {
   CalculatedColumn,
   FieldInput,
   JsonAction,
   JsonIncludeEntry,
 } from './loader/json-config.types';
-import { ResourceRowAction, ResourceTableAction } from './action';
 
 export { isRowProcedureAction, isTableProcedureAction } from './action';
 
@@ -187,7 +187,7 @@ export type SubResourceConfig = {
 };
 
 /**
- * @deprecated
+ * @deprecated should becomesomething else
  */
 export type ResourceConfig = {
   name: string;

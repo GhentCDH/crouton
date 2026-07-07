@@ -3,7 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 
 import { type CroutonConfig } from '@ghentcdh/crouton-core';
 
-import { createAppLayoutController } from './crud/app-layout.controller';
+import { createAppLayoutController } from './crud/app-layout';
 import { loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';

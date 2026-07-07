@@ -1,7 +1,7 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
 import type { DataSourceEntry } from './data-source.types';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
