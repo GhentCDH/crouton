@@ -8,10 +8,10 @@
  */
 
 import type { JsonResourceOperations } from './data-source/Operations.schema';
-import { type JsonAction, JsonColumnsMap } from './resource';
+import { type JsonAction, type JsonColumnsMap } from './resource';
 import { type CalculatedColumn } from './resource/CalculatedColumn.schema';
+import { type JsonColumn } from './resource/Column';
 import { type JsonIncludeEntry } from './resource/include.schema';
-import { JsonColumn } from './resource/Column';
 
 export type JsonDisplay = {
   mode?: 'page' | 'modal';

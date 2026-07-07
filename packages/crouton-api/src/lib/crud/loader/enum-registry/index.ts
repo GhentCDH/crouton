@@ -1,8 +1,8 @@
 export {
-  EnumEntrySchema,
   type EnumEntry,
-  EnumRegistrySchema,
+  EnumEntrySchema,
   type EnumRegistry,
+  EnumRegistrySchema,
 } from './enum-registry.types';
 
 export { loadEnumRegistry } from './enum-registry.loader';

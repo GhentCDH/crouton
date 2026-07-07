@@ -1,5 +1,4 @@
 import type { JsonColumn } from '../json-config.types';
-
 import { type EnumRegistry } from './enum-registry.types';
 
 export const injectEnumValues = (
