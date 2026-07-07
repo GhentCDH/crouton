@@ -34,10 +34,30 @@ export const RelationFieldInputOptionsSchema = z
 export const FieldInputSchema = z.object({
   type: z.string().optional(),
   customRender: z.string().optional(),
+
+  /**
+   * Render format hint for the frontend (e.g. `"relation"` for sub-resource
+   * relations). When `format` is `"relation"`, `resource` must also be set.
+   */
   format: z.string().optional(), // 'relation' triggers relation handling; requires `resource`
+  /**
+   * Relative path to the child resource definition, e.g. `"./author.resource"`.
+   * Only used when `format` is `"relation"`. Resolved at load time to inject
+   * sub-resource URIs into `options`.
+   */
   resource: z.string().optional(), // required when format === 'relation'
+  /**
+   * Cardinality of the relation. Used by the frontend to determine the correct
+   * renderer and behaviour (e.g. single-select vs multi-select).
+   * - `manyToOne` / `oneToOne`   — single FK reference (autocomplete / relation control)
+   * - `oneToMany` / `manyToMany` — collection (sub-resource table / multi-select)
+   */
   relationType: RelationType.optional(), // auto-derived from the Zod model/sibling FK column if omitted
+  /** Override the display order in form views. Lower values come first. */
   position: z.number().optional(), // default: source order
   options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),
+  /** Nested array detail layout (renders via `detailFixed`). */
   detail: DetailConfigSchema.optional(),
 });
+
+export type FieldInput = z.infer<typeof FieldInputSchema>;

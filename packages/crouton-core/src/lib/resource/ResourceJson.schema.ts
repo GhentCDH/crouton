@@ -1,58 +1,21 @@
 import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
-import { FieldInputSchema } from './FieldInput.schema';
 import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
 import { JsonIncludeEntrySchema } from './include.schema';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
+import { JsonColumnShape, transformColumn } from './Column';
 
 // ── Shared primitives ────────────────────────────────────────────────
 
-// Used by showWhen / hideWhen / disabledWhen
-const WhenConditionSchema = z.object({
-  field: z.string(), // required
-  eq: z.unknown().optional(),
-  neq: z.unknown().optional(),
-  exists: z.boolean().optional(),
-  notExists: z.boolean().optional(),
-});
-
-// ── Columns ───────────────────────────────────────────────────────────
-
-const JsonColumnShape = {
-  id: z.string(), // required in array form; implied by the map key in map form
-  column: z.string().optional(), // default: same as `id`
-  label: z.string().optional(), // default: title-cased version of `id`
-  hiddenInTable: z.boolean().optional(), // default: false
-  hiddenInForm: z.boolean().optional(), // default: false
-  hiddenInView: z.boolean().optional(), // default: false
-  sortable: z.boolean().optional(), // default: false
-  defaultSort: z.boolean().optional(), // default: false
-  searchable: z.boolean().optional(), // default: false
-  filterable: z.boolean().optional(), // default: false
-  createable: z.boolean().optional(), // default: true (only `false` excludes it)
-  updateable: z.boolean().optional(), // default: true (only `false` excludes it)
-  hideLabel: z.boolean().optional(), // default: false
-  showWhen: WhenConditionSchema.optional(),
-  hideWhen: WhenConditionSchema.optional(),
-  disabledWhen: WhenConditionSchema.optional(),
-  displayKey: z.string().optional(), // e.g. "author.name" for nested display
-  sortId: z.string().optional(), // overrides the sort column
-  enum: z.string().optional(), // name of a shared enum in crouton.enums.json
-  idField: z.boolean().optional(), // default: false — exactly one column should set this
-  showInLookup: z.boolean().optional(), // default: false
-  columnType: z.string().optional(), // default: 'string'
-  fieldInput: FieldInputSchema.optional(),
-  extend: z.string().optional(), // path to another resource.json expanded as virtual sub-columns
-  columns: z.record(z.string(), z.record(z.string(), z.unknown())).optional(), // per-sub-column overrides, only used with `extend`
-};
-
 const JsonColumnsMapSchema = z.record(
   z.string(),
-  z.object(JsonColumnShape).omit({ id: true }).catchall(z.unknown()),
+  JsonColumnShape.omit({ id: true })
+    .catchall(z.unknown())
+    .transform(transformColumn),
 ); // map form — key becomes `id`
-
+export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Display / sidebar ────────────────────────────────────────────────

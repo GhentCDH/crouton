@@ -8,10 +8,10 @@
  */
 
 import type { JsonResourceOperations } from './data-source/Operations.schema';
-import type { RelationType } from './relation.types';
-import { type JsonAction } from './resource';
+import { type JsonAction, JsonColumnsMap } from './resource';
 import { type CalculatedColumn } from './resource/CalculatedColumn.schema';
 import { type JsonIncludeEntry } from './resource/include.schema';
+import { JsonColumn } from './resource/Column';
 
 export type JsonDisplay = {
   mode?: 'page' | 'modal';
@@ -58,127 +58,6 @@ export type RelationFieldInputOptions = {
   [k: string]: unknown;
 };
 
-export type FieldInput = {
-  type: string;
-  customRender?: string;
-  /**
-   * Render format hint for the frontend (e.g. `"relation"` for sub-resource
-   * relations). When `format` is `"relation"`, `resource` must also be set.
-   */
-  format?: string;
-  /**
-   * Relative path to the child resource definition, e.g. `"./author.resource"`.
-   * Only used when `format` is `"relation"`. Resolved at load time to inject
-   * sub-resource URIs into `options`.
-   */
-  resource?: string;
-  /**
-   * Cardinality of the relation. Used by the frontend to determine the correct
-   * renderer and behaviour (e.g. single-select vs multi-select).
-   * - `manyToOne` / `oneToOne`   — single FK reference (autocomplete / relation control)
-   * - `oneToMany` / `manyToMany` — collection (sub-resource table / multi-select)
-   */
-  relationType?: RelationType;
-  /** Override the display order in form views. Lower values come first. */
-  position?: number;
-  options?: RelationFieldInputOptions | unknown;
-  /** Nested array detail layout (renders via `detailFixed`). */
-  detail?: DetailConfig;
-};
-
-export type JsonColumn = {
-  id: string;
-  column?: string;
-  label?: string;
-  hiddenInTable?: boolean;
-  hiddenInForm?: boolean;
-  hiddenInView?: boolean;
-  sortable?: boolean;
-  defaultSort?: boolean;
-  searchable?: boolean;
-  filterable?: boolean;
-  createable?: boolean;
-  updateable?: boolean;
-  /** Hide the label for this control in form views. */
-  hideLabel?: boolean;
-  /**
-   * Show this field only when another field matches a value.
-   * e.g. `{ "field": "source", "eq": "existing" }`
-   * Translates to a JSON Forms `SHOW` rule.
-   */
-  showWhen?: {
-    field: string;
-    eq?: unknown;
-    neq?: unknown;
-    exists?: boolean;
-    notExists?: boolean;
-  };
-  /**
-   * Hide this field when another field matches a value.
-   * e.g. `{ "field": "source", "eq": "new" }`
-   * Translates to a JSON Forms `HIDE` rule.
-   */
-  hideWhen?: {
-    field: string;
-    eq?: unknown;
-    neq?: unknown;
-    exists?: boolean;
-    notExists?: boolean;
-  };
-  /**
-   * Disable this field when another field has no value (or matches a condition).
-   * e.g. `{ "field": "author_origin", "notExists": true }` — disabled when author_origin is empty.
-   * Translates to a JSON Forms `DISABLE` rule.
-   */
-  disabledWhen?: {
-    field: string;
-    eq?: unknown;
-    neq?: unknown;
-    exists?: boolean;
-    notExists?: boolean;
-  };
-  /** Display a nested key (e.g. `"name"` for `speech.name`). Maps to `TextCellBuilder.key()`. */
-  displayKey?: string;
-  /** Override the sort column (e.g. `"speech.name"`). Maps to `TextCellBuilder.setSortId()`. */
-  sortId?: string;
-  /**
-   * Name of a shared enum in the project enum registry (`crouton.enums.json`).
-   * At load time the loader injects that enum's `{ value, label }[]` into
-   * `fieldInput.options.values`, so columns don't duplicate the option list.
-   */
-  enum?: string;
-  /** Mark as the primary key column for lookup resolution. */
-  idField?: boolean;
-  /** Include this column as a display label in the resource lookup descriptor. */
-  showInLookup?: boolean;
-  /**
-   * JSON schema type for this column when no Zod schema is available.
-   * Defaults to `"string"`. Used by `buildViewsFromColumns`.
-   */
-  columnType?: string;
-  fieldInput?: FieldInput;
-  /**
-   * Path to another `resource.json` whose columns are expanded as nested sub-columns
-   * under this column's object key.
-   *
-   * Example: `"extend": "../internalAuthor/resource.json"` on a column `author`
-   * auto-generates virtual sub-columns like `author_name` (column: "author", displayKey: "name").
-   *
-   * Visibility (`hiddenInTable/Form/View`) on this column is inherited by all sub-columns as a
-   * default; the referenced resource's own column visibility further restricts it.
-   */
-  extend?: string;
-  /**
-   * Per-sub-column overrides when using `extend`.
-   * Key: the virtual column id (`"{extendId}_{refColId}"`) or just the referenced column id.
-   * Value: any `JsonColumn` fields to merge over the generated virtual column.
-   */
-  columns?: Record<string, Partial<Omit<JsonColumn, 'id'>>>;
-  [k: string]: unknown;
-};
-
-export type JsonColumnsMap = Record<string, Omit<JsonColumn, 'id'>>;
-
 /** @deprecated use ResourceJson
  *
  */
@@ -208,7 +87,7 @@ export type JsonResourceConfig = {
   };
   display?: JsonDisplay;
   operations: JsonResourceOperations;
-  columns?: JsonColumn[] | JsonColumnsMap;
+  columns?: JsonColumnsMap;
   calculatedColumns?: CalculatedColumn[];
   actions?: JsonAction[];
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
