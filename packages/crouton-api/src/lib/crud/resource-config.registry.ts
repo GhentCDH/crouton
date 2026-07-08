@@ -1,28 +1,28 @@
 import { Injectable } from '@nestjs/common';
 
-import type { ResourceConfig } from './crud.config';
 import { IS_DEV } from './dev-mode';
 import type { ResourceConfigLoader } from './loader/resource-config.loader';
+import { type Resource } from './resource/ResourceConfig.schema';
 
 @Injectable()
 export class ResourceConfigRegistry {
-  private configs: ResourceConfig[];
+  private configs: Resource[];
 
   constructor(
     private readonly loader: ResourceConfigLoader,
-    initialConfigs: ResourceConfig[],
+    initialConfigs: Resource[],
   ) {
     this.configs = initialConfigs;
   }
 
-  async getAll(): Promise<ResourceConfig[]> {
+  async getAll(): Promise<Resource[]> {
     if (IS_DEV) {
       this.configs = await this.loader.loadAll();
     }
     return this.configs;
   }
 
-  async getByRoute(route: string): Promise<ResourceConfig | undefined> {
+  async getByRoute(route: string): Promise<Resource | undefined> {
     if (IS_DEV) {
       return this.loader.loadByRoute(route);
     }

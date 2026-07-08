@@ -3,8 +3,8 @@
  * one `{ value, label }[]` per Prisma enum, referenced from columns by name.
  */
 
+import type { DbModel } from './db-model';
 import { labelFromId } from './naming';
-import type { DbModel } from './types';
 
 export interface EnumOption {
   value: string;

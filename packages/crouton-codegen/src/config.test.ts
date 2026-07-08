@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
+import type { DataSource } from '@ghentcdh/crouton-core';
+
 import {
   type CroutonConfig,
-  type ResolvedDatasource,
   loadConfig,
   loadDatasources,
   makeSchemaExportName,
   resolveDatasource,
-  scaffoldConfigFromProject,
   validateConfig,
 } from './config';
+import { scaffoldConfigFromProject } from './scaffold';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -20,7 +21,7 @@ const base: CroutonConfig = {
   enumsFile: 'crouton.enums.json',
 };
 
-const ds = (over: Partial<ResolvedDatasource> & { name: string }): ResolvedDatasource => ({
+const ds = (over: Partial<DataSource> & { name: string }): DataSource => ({
   default: false,
   prismaSchema: `prisma/${over.name}/schema.prisma`,
   generatedTypesImport: `@np/generated/${over.name}`,
@@ -101,7 +102,7 @@ describe('loadConfig + loadDatasources', () => {
     await mkdir(join(root, 'ds', 'analyticsdb'), { recursive: true });
     await writeFile(
       join(root, 'ds', 'analyticsdb', 'data-source.json'),
-      JSON.stringify({ prismaSchema: 'prisma/analyticsdb/schema.prisma', generatedTypesImport: '@np/generated/analyticsdb' }),
+      JSON.stringify({ prismaSchema: 'prisma/analyticsdb/schema.prisma', generatedTypesImport: '@np/generated/analyticsdb', urlEnv: 'DATABASE_ANALYTICSDB_URL' }),
     );
     const loaded = await loadConfig(root);
     const [only] = await loadDatasources(loaded);

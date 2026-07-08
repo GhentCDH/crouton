@@ -21,12 +21,15 @@ import { customRenderers } from './renderers';
 import type { FormEventPayload } from '../composables/useFormEvents';
 import { provideFormEvents } from '../composables/useFormEvents';
 import { provideHttpClient } from '../composables/useHttpClient';
+
 registerZodErrorMap();
 
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
-const patched = enforceRequiredStringMinLength(dropNullableFromRequired(properties.schema));
+const patched = enforceRequiredStringMinLength(
+  dropNullableFromRequired(properties.schema),
+);
 const validationSchema = fromJSONSchema(patched as any);
 
 const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({

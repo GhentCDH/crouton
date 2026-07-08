@@ -1,10 +1,10 @@
 import {
-  type ResourceConfig,
   isOperationEnabled,
   resolveDefinition,
   schemaFor,
   upsertOnFor,
 } from '../crud.config';
+import { type Resource } from '../resource/ResourceConfig.schema';
 import { toJsonSchema } from '../schema.utils';
 
 // ── Internal helpers ──────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ export const buildResourceOperations = (
 
 /** Build the payload for `GET /definition` — enabled operations and their JSON Schemas. */
 export const buildDefinitionPayload = (
-  config: ResourceConfig,
+  config: Resource,
 ): Record<string, unknown> => {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
@@ -126,7 +126,7 @@ export const buildDefinitionPayload = (
 
 /** Build the payload for `GET /resource.json` — URI, enabled operations, and optional form schema. */
 export const buildResourceJsonPayload = (
-  config: ResourceConfig,
+  config: Resource,
   baseUrl?: string,
 ): Record<string, unknown> => {
   const { name, route } = config;
@@ -150,7 +150,7 @@ export const buildResourceJsonPayload = (
  * Returns `undefined` when the resource has no views configured.
  */
 export const buildViewsPayload = (
-  config: ResourceConfig,
+  config: Resource,
   baseUrl?: string,
 ): Record<string, unknown> | undefined => {
   if (!config.views || !Object.keys(config.views).length) return undefined;
@@ -193,6 +193,8 @@ export const buildViewsPayload = (
               id: a.id,
               label: a.label,
               href: resolveEnvPlaceholders(a.href),
+              ...(a.icon && { icon: a.icon }),
+              ...(a.tooltip && { tooltip: a.tooltip }),
               ...(a.condition && { condition: a.condition }),
             }
           : {
@@ -201,6 +203,8 @@ export const buildViewsPayload = (
               uri: `${baseUrl}/${config.route}/procedure/${a.id}/{id}`,
               method: a.method ?? 'post',
               ...(a.data && { data: a.data }),
+              ...(a.icon && { icon: a.icon }),
+              ...(a.tooltip && { tooltip: a.tooltip }),
               ...(a.condition && { condition: a.condition }),
             },
       ),
@@ -215,6 +219,7 @@ export const buildViewsPayload = (
               icon: a.icon,
               tooltip: a.tooltip,
               href: resolveEnvPlaceholders(a.href),
+              ...(a.condition && { condition: a.condition }),
             }
           : {
               id: a.id,
@@ -224,6 +229,7 @@ export const buildViewsPayload = (
               uri: `${baseUrl}/${config.route}/table-action/${a.id}`,
               method: a.method ?? 'post',
               ...(a.data && { data: a.data }),
+              ...(a.condition && { condition: a.condition }),
             },
       ),
     }),

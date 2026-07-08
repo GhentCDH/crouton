@@ -8,7 +8,10 @@
  * and a backend dev-mode endpoint.
  */
 
-export * from './types';
+export * from './db-model';
+export * from './draft';
+export * from './decision';
+export * from './write-plan';
 export * from './naming';
 export * from './introspect';
 export * from './classify';
@@ -18,6 +21,7 @@ export * from './serialize';
 export * from './apply';
 export * from './commit';
 export * from './config';
+export * from './scaffold';
 export * from './datasource-scaffold';
 export * from './project';
 export * from './plan';

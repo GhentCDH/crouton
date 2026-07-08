@@ -5,7 +5,7 @@
  * auto-policy or request-driven resolver.
  */
 
-import type { Decision, ResolvedDiff, ResourceDiff } from './types';
+import type { Decision, ResolvedDiff, ResourceDiff } from './decision';
 
 export interface DecisionResolver {
   /**

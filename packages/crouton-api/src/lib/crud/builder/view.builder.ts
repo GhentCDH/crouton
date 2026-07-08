@@ -1,11 +1,15 @@
 import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
-import type { CalculatedColumn, JsonColumn } from './json-config.types';
-import type { ViewColumnConfig, ViewConfig } from '../crud.config';
+import type { JsonColumn } from '@ghentcdh/crouton-core';
+
 import { jsonSchemaOpts } from '../schema.utils';
+import { isRelation } from './column-predicates';
+import { sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
-import { allowAdditionalProperties, dropNullableFromRequired, enforceRequiredMinLength } from './schema-transforms';
-import { buildTableUiSchema, resolveDefaultSort } from './table-schema.builder';
+import { applySchemaTransforms } from './schema-transforms';
+import { resolveDefaultSort } from './sort.helpers';
+import { buildTableUiSchema } from './table-schema.builder';
+import type { ViewConfig } from '../resource/view.schema';
 
 // ── Filter schema enrichment ──────────────────────────────────────────────
 
@@ -17,7 +21,7 @@ import { buildTableUiSchema, resolveDefaultSort } from './table-schema.builder';
  * Called after `buildView` for the filter view, where `columns` are the
  * filterable columns (already enum-injected by `injectEnumValues`).
  */
-const patchFilterProperties = (
+export const patchFilterProperties = (
   jsonSchema: Record<string, any>,
   columns: JsonColumn[] | undefined,
 ): void => {
@@ -33,7 +37,8 @@ const patchFilterProperties = (
     // reads these straight from `properties` and emits `key:value:operator`.
     if (col.fieldInput?.format === 'date-range') {
       delete properties[col.id];
-      const opts = (col.fieldInput?.options as Record<string, unknown> | undefined) ?? {};
+      const opts =
+        (col.fieldInput?.options as Record<string, unknown> | undefined) ?? {};
       const base = col.label ?? col.id;
       const fromField = (opts['fromField'] as string) ?? 'from';
       const toField = (opts['toField'] as string) ?? 'to';
@@ -43,8 +48,12 @@ const patchFilterProperties = (
         title,
         'x-field-type': 'date',
       });
-      properties[`${col.id}->${fromField}`] = dateProp((opts['fromLabel'] as string) ?? `${base} (from)`);
-      properties[`${col.id}->${toField}`] = dateProp((opts['toLabel'] as string) ?? `${base} (to)`);
+      properties[`${col.id}->${fromField}`] = dateProp(
+        (opts['fromLabel'] as string) ?? `${base} (from)`,
+      );
+      properties[`${col.id}->${toField}`] = dateProp(
+        (opts['toLabel'] as string) ?? `${base} (to)`,
+      );
       continue;
     }
 
@@ -55,7 +64,9 @@ const patchFilterProperties = (
     prop.title = col.label ?? col.id;
 
     // Inject enum values so the UI can render a select box.
-    const values = (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values'];
+    const values = (
+      col.fieldInput?.options as Record<string, unknown> | undefined
+    )?.['values'];
     if (values) {
       prop['x-values'] = values;
     }
@@ -64,7 +75,11 @@ const patchFilterProperties = (
     const ft = col.fieldInput?.type;
     if (ft === 'select' || col.enum) {
       prop['x-field-type'] = 'enum';
-    } else if (ft === 'number' || prop.type === 'number' || prop.type === 'integer') {
+    } else if (
+      ft === 'number' ||
+      prop.type === 'number' ||
+      prop.type === 'integer'
+    ) {
       prop['x-field-type'] = 'number';
     } else if (prop.format === 'date-time' || prop.format === 'date') {
       prop['x-field-type'] = 'date';
@@ -74,27 +89,6 @@ const patchFilterProperties = (
     // string / default: no hint needed — frontend defaults to 'string'
   }
 };
-
-// ── Column sorting ────────────────────────────────────────────────────────
-
-/** Resolve the sort position for a column: `fieldInput.position`, then natural index. */
-const colPosition = (col: JsonColumn, i: number): number =>
-  col.fieldInput?.position ?? i;
-
-/** Sort columns by position; columns without an explicit position keep array order. */
-const sortByPosition = (cols: JsonColumn[]): JsonColumn[] =>
-  cols
-    .map((col, i) => ({ col, i }))
-    .sort((a, b) => colPosition(a.col, a.i) - colPosition(b.col, b.i))
-    .map(({ col }) => col);
-
-const toViewColumn = (col: JsonColumn): ViewColumnConfig => ({
-  id: col.id,
-  ...(col.label && { label: col.label }),
-  ...(col.sortable != null && { sortable: col.sortable }),
-  ...(col.searchable != null && { searchable: col.searchable }),
-  ...(col.fieldInput && { fieldInput: col.fieldInput }),
-});
 
 // ── View building ─────────────────────────────────────────────────────────
 
@@ -112,9 +106,14 @@ const buildView = (
     : columns.filter(visible);
   if (!visibleCols.length) return undefined;
 
-  const schemaCols = schemaVisible
+  // Relation columns are managed via sub-resource endpoints — exclude from
+  // the schema pick so their complex Zod definitions (z.lazy arrays) don't
+  // produce validation constraints on the parent. With additionalProperties
+  // enabled, relation data in the payload still passes validation.
+  const schemaCols = (schemaVisible
     ? columns.filter((c) => visible(c) || schemaVisible(c))
-    : visibleCols;
+    : visibleCols
+  ).filter((c) => !isRelation(c));
 
   const schemaIds = schemaCols.map((c) => c.id);
   const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
@@ -123,16 +122,14 @@ const buildView = (
     target: 'draft-07',
     ...jsonSchemaOpts,
   }) as Record<string, unknown>;
-  allowAdditionalProperties(jsonSchema);
-  dropNullableFromRequired(jsonSchema);
-  enforceRequiredMinLength(jsonSchema);
+  applySchemaTransforms(jsonSchema);
 
-  // Drop explicitly non-editable fields (createable=false AND updateable=false)
-  // from `required` so visible-but-readonly relation fields don't cause validation failures.
+  // Drop idField and explicitly non-editable fields from `required` so
+  // hidden-but-schema-included fields don't cause validation failures.
   if (schemaVisible) {
     const nonEditableIds = new Set(
       schemaCols
-        .filter((c) => c.createable === false && c.updateable === false)
+        .filter((c) => c.idField || (c.createable === false && c.updateable === false))
         .map((c) => c.id),
     );
     const required = jsonSchema['required'] as string[] | undefined;
@@ -147,110 +144,6 @@ const buildView = (
     columns: visibleCols.map(toViewColumn),
   };
 };
-
-// ── Calculated column injection ───────────────────────────────────────────
-
-type InjectionMode = 'table' | 'view';
-
-const isVisibleInMode = (c: CalculatedColumn, mode: InjectionMode): boolean =>
-  mode === 'table' ? !c.hiddenInTable : !c.hiddenInView;
-
-const buildCalculatedElement = (c: CalculatedColumn, mode: InjectionMode) =>
-  mode === 'table'
-    ? {
-        type: c.type === 'boolean' ? 'BooleanCell' : 'TextCell',
-        scope: `#/properties/${c.id}`,
-        options: {
-          label: c.label ?? c.id,
-        },
-      }
-    : {
-        type: 'Control',
-        scope: `#/properties/${c.id}`,
-        options: {
-          // Spread fieldInput.options first (e.g. colspan), then layer type-derived options on top.
-          ...(c.fieldInput?.options ?? {}),
-          label: c.label ?? c.id,
-          ...(c.type === 'boolean' && { format: 'boolean' }),
-        },
-      };
-
-/**
- * Effective insertion position for a calculated column.
- * `fieldInput.position` takes precedence over top-level `position`.
- * `undefined` means append to the end.
- */
-const calcPosition = (c: CalculatedColumn): number | undefined =>
-  c.fieldInput?.position ?? c.position;
-
-const injectCalculatedColumnsIntoView = (
-  viewConfig: ViewConfig,
-  calculated: CalculatedColumn[],
-  mode: InjectionMode,
-): ViewConfig => {
-  if (!calculated.length) return viewConfig;
-
-  const visible = calculated.filter((c) => isVisibleInMode(c, mode));
-  if (!visible.length) return viewConfig;
-
-  const jsonSchema = { ...(viewConfig.json_schema as any) };
-  jsonSchema.properties = { ...jsonSchema.properties };
-  for (const c of visible) {
-    jsonSchema.properties[c.id] = {
-      type: c.type === 'boolean' ? 'boolean' : 'string',
-      title: c.label ?? c.id,
-    };
-  }
-
-  const uiSchema = { ...(viewConfig.ui_schema as any) };
-  const existing: any[] = [...(uiSchema.elements ?? [])];
-
-  // Merge-sort existing elements (implicit position = index + 0.5) with calculated
-  // elements (explicit position). Using i + 0.5 means `position: N` slots a calculated
-  // column before the regular column currently at index N.
-  const tagged: Array<{ el: any; pos: number }> = [
-    ...existing.map((el, i) => ({ el, pos: i + 0.5 })),
-    ...visible.map((c) => ({
-      el: buildCalculatedElement(c, mode),
-      pos: calcPosition(c) ?? Infinity,
-    })),
-  ];
-  tagged.sort((a, b) => a.pos - b.pos);
-  uiSchema.elements = tagged.map((t) => t.el);
-
-  // Insert new ViewColumnConfig entries at the same relative position.
-  const columns = [...viewConfig.columns];
-  for (const c of visible) {
-    const pos = calcPosition(c);
-    const entry: ViewColumnConfig = { id: c.id, label: c.label };
-    if (pos !== undefined) {
-      columns.splice(pos, 0, entry);
-    } else {
-      columns.push(entry);
-    }
-  }
-
-  return {
-    ...viewConfig,
-    json_schema: jsonSchema,
-    ui_schema: uiSchema,
-    columns,
-  };
-};
-
-/** Inject calculated columns into a table ViewConfig (TextCell/BooleanCell elements). */
-export const injectCalculatedColumns = (
-  tableView: ViewConfig,
-  calculated: CalculatedColumn[],
-): ViewConfig =>
-  injectCalculatedColumnsIntoView(tableView, calculated, 'table');
-
-/** Inject calculated columns into a form/view ViewConfig (Control elements). */
-export const injectCalculatedColumnsToView = (
-  viewConfig: ViewConfig,
-  calculated: CalculatedColumn[],
-): ViewConfig =>
-  injectCalculatedColumnsIntoView(viewConfig, calculated, 'view');
 
 // ── Public view builders ──────────────────────────────────────────────────
 
@@ -295,7 +188,7 @@ export const buildViews = (
     (c) => !c.hiddenInForm,
     buildFormUiSchema,
     true,
-    (c) => c.createable === true || c.updateable === true,
+    (c) => !c.idField && (c.createable === true || c.updateable === true),
   );
   if (form) views.form = form;
 
@@ -307,7 +200,10 @@ export const buildViews = (
     true,
   );
   if (filter) {
-    patchFilterProperties(filter.json_schema as Record<string, any>, columns?.filter((c) => !!c.filterable));
+    patchFilterProperties(
+      filter.json_schema as Record<string, any>,
+      columns?.filter((c) => !!c.filterable),
+    );
     views.filter = filter;
   }
 
@@ -340,7 +236,6 @@ export const buildViewsFromColumns = (
         if (!properties[c.column]) {
           properties[c.column] = {
             type: 'object',
-            additionalProperties: true,
             properties: {},
           };
         }
@@ -351,7 +246,10 @@ export const buildViewsFromColumns = (
         for (let i = 0; i < keyPath.length - 1; i++) {
           const segment = keyPath[i];
           if (!target[segment]) {
-            target[segment] = { type: 'object', additionalProperties: true, properties: {} };
+            target[segment] = {
+              type: 'object',
+              properties: {},
+            };
           }
           target = target[segment].properties;
         }
@@ -360,17 +258,19 @@ export const buildViewsFromColumns = (
           title: c.label ?? c.id,
         };
       } else {
-        const opts = c.fieldInput?.options as Record<string, unknown> | undefined;
+        const opts = c.fieldInput?.options as
+          Record<string, unknown> | undefined;
         const isObject =
-          opts?.emitObject === true ||
-          c.fieldInput?.type === 'autocomplete';
+          opts?.emitObject === true || c.fieldInput?.type === 'autocomplete';
         properties[c.id] = {
           ...(isObject ? {} : { type: c.columnType ?? 'string' }),
           title: c.label ?? c.id,
         };
       }
     }
-    return { type: 'object', additionalProperties: true, properties };
+    const schema: Record<string, unknown> = { type: 'object', properties };
+    applySchemaTransforms(schema);
+    return schema;
   };
 
   /** Rewrite scopes for nested columns to match the grouped JSON schema. */

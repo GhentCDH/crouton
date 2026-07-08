@@ -2,7 +2,7 @@ import { Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudRepository } from '../crud-repository.factory';
-import type { ResourceProcedureAction, ResourceTableProcedureAction } from '../crud.config';
+import { isRowProcedureAction, isTableProcedureAction } from '../crud.config';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 
@@ -13,9 +13,7 @@ import type { OperationContext } from './operation-context';
 export const registerActionRoutes = (ctx: OperationContext): void => {
   const { cls, config } = ctx;
   const { name } = config;
-  const procedureActions = (config.actions ?? []).filter(
-    (a): a is ResourceProcedureAction => a.type !== 'link',
-  );
+  const procedureActions = (config.actions ?? []).filter(isRowProcedureAction);
 
   for (const action of procedureActions) {
     const methodName = `procedure_${action.id}`;
@@ -38,9 +36,7 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
 export const registerTableActionRoutes = (ctx: OperationContext): void => {
   const { cls, config } = ctx;
   const { name } = config;
-  const procedureActions = (config.tableActions ?? []).filter(
-    (a): a is ResourceTableProcedureAction => a.type !== 'link',
-  );
+  const procedureActions = (config.tableActions ?? []).filter(isTableProcedureAction);
 
   for (const action of procedureActions) {
     const methodName = `tableAction_${action.id}`;

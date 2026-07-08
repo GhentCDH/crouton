@@ -1,8 +1,8 @@
-
-import type { ResourceConfig, SubResourceConfig } from './crud.config';
 import { resolveDefinition, schemaFor } from './crud.config';
 import { ReadRepository } from './read.repository';
 import type { RequestDto } from './request.dto';
+import { type Resource } from './resource/ResourceConfig.schema';
+import { type SubResourceConfig } from './resource/SubResource.schema';
 import { toSelectFields } from './schema.utils';
 import { WriteRepository } from './write.repository';
 
@@ -13,11 +13,31 @@ export interface CrudRepository<T = any> {
   findAll(params: RequestDto): Promise<T[]>;
   count(filter: string[]): Promise<number>;
   findOne(id: number | string): Promise<T>;
-  findAllByParent(parentId: string | number, childRoute: string, params: RequestDto): Promise<{ data: T[]; count: number }>;
-  findOneChild(sub: SubResourceConfig, childId: string | number, parentId?: string | number): Promise<T>;
-  createChild(parentId: string | number, sub: SubResourceConfig, data: unknown): Promise<T>;
-  updateChild(sub: SubResourceConfig, childId: string | number, data: unknown): Promise<T>;
-  deleteChild(sub: SubResourceConfig, childId: string | number, parentId?: string | number): Promise<T>;
+  findAllByParent(
+    parentId: string | number,
+    childRoute: string,
+    params: RequestDto,
+  ): Promise<{ data: T[]; count: number }>;
+  findOneChild(
+    sub: SubResourceConfig,
+    childId: string | number,
+    parentId?: string | number,
+  ): Promise<T>;
+  createChild(
+    parentId: string | number,
+    sub: SubResourceConfig,
+    data: unknown,
+  ): Promise<T>;
+  updateChild(
+    sub: SubResourceConfig,
+    childId: string | number,
+    data: unknown,
+  ): Promise<T>;
+  deleteChild(
+    sub: SubResourceConfig,
+    childId: string | number,
+    parentId?: string | number,
+  ): Promise<T>;
   create(data: unknown): Promise<T>;
   update(id: number | string, data: unknown): Promise<T>;
   upsert(data: unknown): Promise<T>;
@@ -37,7 +57,7 @@ export interface CrudRepository<T = any> {
  */
 export function createCrudRepository<T = any>(
   prisma: any,
-  config: ResourceConfig,
+  config: Resource,
 ): CrudRepository<T> {
   const model = prisma[config.model];
   if (!model) {
@@ -53,7 +73,13 @@ export function createCrudRepository<T = any>(
   const listSelect = listSchema ? toSelectFields(listSchema) : undefined;
   const oneSelect = oneSchema ? toSelectFields(oneSchema) : listSelect;
 
-  const reader = new ReadRepository<T>(model, prisma, config, listSelect, oneSelect);
+  const reader = new ReadRepository<T>(
+    model,
+    prisma,
+    config,
+    listSelect,
+    oneSelect,
+  );
   const writer = new WriteRepository<T>(model, prisma, config);
 
   return {

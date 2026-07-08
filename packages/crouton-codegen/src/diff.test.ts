@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { classify } from './classify';
+import type { DbModel } from './db-model';
 import { diff } from './diff';
-import type { DbModel } from './types';
 
 const model: DbModel = {
   prismaName: 'Language',

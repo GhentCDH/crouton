@@ -5,8 +5,6 @@ export * from './lib/zod.types';
 export * from './lib/create-schema';
 export * from './lib/schema.utils';
 export * from './lib/from-json.builder';
-export * from './lib/relation.types';
-export * from './lib/json-config.types';
 export * from './lib/value-label';
 export * from './lib/layout/layout.builder';
 export * from './lib/layout/control.builder';
@@ -15,3 +13,8 @@ export * from './lib/layout/group.builder';
 export * from './lib/layout/base.builder';
 export * from './lib/table/table.builder';
 export * from './lib/table/table.utils';
+
+export * from './lib/data-source';
+export * from './lib/resource';
+export * from './lib/config';
+export * from './lib/schema/label.helper';

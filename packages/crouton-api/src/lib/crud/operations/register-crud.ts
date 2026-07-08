@@ -19,6 +19,46 @@ import type { OperationContext } from './operation-context';
 /** Swagger's SchemaObject is not exported from the package root — derive it from ApiBodyOptions. */
 type SchemaObject = NonNullable<Extract<ApiBodyOptions, { schema?: unknown }>['schema']>;
 
+// ── CRUD handlers ─────────────────────────────────────────────────────────
+
+const findAll = async (repo: CrudRepository, params: any, q: string | undefined, lookupLabel: string | undefined) => {
+  const effectiveParams = { ...params };
+  if (q && lookupLabel) {
+    effectiveParams.filter = [...(params.filter ?? []), `${lookupLabel}:${q}`];
+  }
+  const [data, count] = await Promise.all([
+    repo.findAll(effectiveParams),
+    repo.count(effectiveParams.filter),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
+  return {
+    data,
+    request: { count, page: params.page, pageSize: params.pageSize, totalPages, sort: params.sort, sortDir: params.sortDir, filter: params.filter },
+  };
+};
+
+const findOne = async (repo: CrudRepository, id: string) => {
+  return repo.findOne(id);
+};
+
+const create = async (repo: CrudRepository, body: any) => {
+  return repo.create(body);
+};
+
+const update = async (repo: CrudRepository, id: string, body: any) => {
+  return repo.update(id, body);
+};
+
+const upsert = async (repo: CrudRepository, body: any) => {
+  return repo.upsert(body);
+};
+
+const del = async (repo: CrudRepository, id: string) => {
+  return repo.delete(id);
+};
+
+// ── CRUD registration ─────────────────────────────────────────────────────
+
 /**
  * Register `GET /` with pagination, sorting, filtering, and optional `?q=` lookup search.
  * No-ops when `findAll` is disabled in the resource config.
@@ -30,19 +70,7 @@ export const registerFindAll = (ctx: OperationContext): void => {
   const lookupLabel = config.lookup?.label;
 
   def(cls, 'findAll', async function (this: { repo: CrudRepository }, params: any, q?: string) {
-    const effectiveParams = { ...params };
-    if (q && lookupLabel) {
-      effectiveParams.filter = [...(params.filter ?? []), `${lookupLabel}:${q}`];
-    }
-    const [data, count] = await Promise.all([
-      this.repo.findAll(effectiveParams),
-      this.repo.count(effectiveParams.filter),
-    ]);
-    const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
-    return {
-      data,
-      request: { count, page: params.page, pageSize: params.pageSize, totalPages, sort: params.sort, sortDir: params.sortDir, filter: params.filter },
-    };
+    return findAll(this.repo, params, q, lookupLabel);
   });
   const d = desc(cls, 'findAll');
   Get()(cls.prototype, 'findAll', d);
@@ -63,7 +91,7 @@ export const registerFindOne = (ctx: OperationContext): void => {
   const { name } = config;
 
   def(cls, 'findOne', function (this: { repo: CrudRepository }, id: string) {
-    return this.repo.findOne(id);
+    return findOne(this.repo, id);
   });
   const d = desc(cls, 'findOne');
   Get(':id')(cls.prototype, 'findOne', d);
@@ -85,7 +113,7 @@ export const registerCreate = (ctx: OperationContext): void => {
   const { name } = config;
 
   def(cls, 'create', function (this: { repo: CrudRepository }, body: any) {
-    return this.repo.create(body);
+    return create(this.repo, body);
   });
   const d = desc(cls, 'create');
   Post()(cls.prototype, 'create', d);
@@ -102,7 +130,7 @@ export const registerUpdate = (ctx: OperationContext): void => {
   const { name } = config;
 
   def(cls, 'update', function (this: { repo: CrudRepository }, id: string, body: any) {
-    return this.repo.update(id, body);
+    return update(this.repo, id, body);
   });
   const d = desc(cls, 'update');
   Patch(':id')(cls.prototype, 'update', d);
@@ -122,7 +150,7 @@ export const registerUpsert = (ctx: OperationContext): void => {
   const { name } = config;
 
   def(cls, 'upsert', function (this: { repo: CrudRepository }, body: any) {
-    return this.repo.upsert(body);
+    return upsert(this.repo, body);
   });
   const d = desc(cls, 'upsert');
   Put()(cls.prototype, 'upsert', d);
@@ -139,7 +167,7 @@ export const registerDelete = (ctx: OperationContext): void => {
   const { name } = config;
 
   def(cls, 'delete', function (this: { repo: CrudRepository }, id: string) {
-    return this.repo.delete(id);
+    return del(this.repo, id);
   });
   const d = desc(cls, 'delete');
   Delete(':id')(cls.prototype, 'delete', d);

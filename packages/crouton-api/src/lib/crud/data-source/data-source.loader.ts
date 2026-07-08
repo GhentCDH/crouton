@@ -1,7 +1,8 @@
-import type { DataSourceEntry, DataSourceJsonConfig } from './data-source.types';
+import { DataSourceSchema } from '@ghentcdh/crouton-core';
+
+import type { DataSourceEntry } from './data-source.types';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-
 
 /**
  * Scan a directory for data-source subdirectories and load their configs + clients.
@@ -25,11 +26,17 @@ export const loadDataSourcesFromDir = async (
 
     if (!existsSync(jsonFile)) continue;
 
-    const config: DataSourceJsonConfig = JSON.parse(
-      readFileSync(jsonFile, 'utf-8'),
-    );
+    const _config = JSON.parse(readFileSync(jsonFile, 'utf-8'));
+    const datasource = DataSourceSchema.safeParse(_config);
+
+    if (!datasource.success) {
+      console.error(datasource.error);
+      throw new Error(`Invalid datasource schema: ${jsonFile}`);
+    }
+    const config = datasource.data;
 
     const indexFile = findModule(basePath, 'index');
+
     if (!indexFile) continue;
 
     const mod = await import(indexFile);

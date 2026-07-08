@@ -131,8 +131,10 @@ export const getResourceSchema = async (
 ) => {
   return http.get(resourceUri).then((response) => {
     const resource = ResourceSchema.safeParse(response.data);
-    if (!resource.success)
-      throw new Error(`Invalid resource schema: ${resource.error}`);
+    if (!resource.success) {
+      console.error(resource.error);
+      throw new Error(`Invalid resource schema: ${resourceUri}`);
+    }
     return resource.data;
   });
 };

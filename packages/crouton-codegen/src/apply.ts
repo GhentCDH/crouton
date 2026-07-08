@@ -6,9 +6,12 @@
  * sub-resources, …). `commit` performs the actual writes.
  */
 
+import type { JsonColumnInput } from '@ghentcdh/crouton-core';
+
+import type { ResolvedDiff } from './decision';
 import { serializeResourceJson, serializeSchemaTs } from './serialize';
-import type { JsonColumn, ResolvedDiff, WritePlan } from './types';
 import { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
+import type { WritePlan } from './write-plan';
 
 const joinPath = (...parts: string[]): string =>
   parts.join('/').replace(/\/+/g, '/');
@@ -22,7 +25,7 @@ export interface ApplyContext {
   schemaExportName?: (prismaName: string) => string;
 }
 
-type Column = Omit<JsonColumn, 'id'>;
+type Column = Omit<JsonColumnInput, 'id'>;
 
 export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
   const { diff, resolutions } = resolved;

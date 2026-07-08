@@ -8,7 +8,8 @@
     "docs:build": "nx run docs:build",
     "docs:serve": "nx run docs:serve",
     "prepare": "husky",
-    "typecheck": "nx run-many -t typecheck"
+    "typecheck": "nx run-many -t typecheck",
+    "dev": "nx run-many -t dev --parallel"
   },
   "private": true,
   "packageManager": "pnpm@11.9.0",

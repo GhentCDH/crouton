@@ -1,9 +1,17 @@
-import { ZodObject, type ZodRawShape, type ZodType, toJSONSchema, z } from 'zod';
+import {
+  ZodObject,
+  type ZodRawShape,
+  type ZodType,
+  toJSONSchema,
+  z,
+} from 'zod';
 
-import { type JsonSchemaInput, type SchemaInput } from './crud.config';
+import { type JsonSchemaInput, type SchemaInput } from './resource/json.schema';
 
 type ToJSONSchemaParams = NonNullable<Parameters<typeof toJSONSchema>[1]>;
-type OverrideContext = Parameters<NonNullable<ToJSONSchemaParams['override']>>[0];
+type OverrideContext = Parameters<
+  NonNullable<ToJSONSchemaParams['override']>
+>[0];
 
 /** Post-process override: patch date schemas to `{ type: "string", format: "date-time" }`. */
 const dateOverride = ({ zodSchema, jsonSchema }: OverrideContext) => {
@@ -49,7 +57,9 @@ export function toJsonSchema(schema: SchemaInput): JsonSchemaInput {
       target: 'openApi3',
       ...jsonSchemaOpts,
     }) as Record<string, any>;
+
     dropNullableFromRequired(jsonSchema);
+
     return jsonSchema as JsonSchemaInput;
   }
   return schema;

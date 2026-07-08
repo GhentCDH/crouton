@@ -1,6 +1,5 @@
 import { buildSort } from '@ghentcdh/crouton-core';
-
-import type { CalculatedColumn, JsonIncludeEntry } from './loader/json-config.types';
+import type { CalculatedColumn, JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 // ── SQL expression helpers ────────────────────────────────────────────────
 

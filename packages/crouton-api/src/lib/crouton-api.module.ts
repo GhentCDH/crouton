@@ -1,44 +1,45 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 
-import type { SidebarGroupConfig } from '@ghentcdh/crouton-core';
+import { type CroutonConfig } from '@ghentcdh/crouton-core';
 
-import { createAppLayoutController } from './crud/app-layout.controller';
+import { createAppLayoutController } from './crud/app-layout';
+import { loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
-import { type ResourceConfig } from './crud/crud.config';
 import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
+import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
 
-type CroutonConfig = {
+type CroutonAppConfig = {
   baseUrl: string;
   /**
    * Explicit path to the project enum registry (`crouton.enums.json`).
    * When omitted, the loader walks up from the resources dir to find it.
    */
-  enumsFile?: string;
+  // enumsFile?: string;
   /**
    * Sidebar group definitions, keyed by group slug.
    * Matches `sidebarGroups` in `crouton.json`.
    * Resources reference a group via `sidebar.group` in their `resource.json`.
    */
-  sidebarGroups?: Record<string, SidebarGroupConfig>;
+  // sidebarGroups?: Record<string, SidebarGroupConfig>;
   /**
    * Application title served to the frontend via `GET /_app/layout`.
    * Displayed in the admin sidebar header.
    */
-  title?: string;
+  // title?: string;
   /**
    * Whether form fields are saved automatically as the user edits them.
    * Served to the frontend via `GET /_app/layout`. Defaults to `true`.
    * Set to `false` to restore explicit Save/Cancel buttons across the app.
    * Matches `autoSave` in `crouton.json`.
    */
-  autoSave?: boolean;
+  // autoSave?: boolean;
 };
 @Module({
   controllers: [],
@@ -46,17 +47,24 @@ type CroutonConfig = {
   exports: [],
 })
 export class CroutonApiModule {
-  static forResources(
-    configs: ResourceConfig[],
+  private static forResources(
+    configs: Resource[],
     dataSources: DataSourceEntry[],
     loader: ResourceConfigLoader,
+    { baseUrl }: CroutonAppConfig,
     config: CroutonConfig,
   ): DynamicModule {
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
     const configRegistry = new ResourceConfigRegistry(loader, configs);
+
     const controllers = [
-      ...configs.map((c) => createCrudController(c, config.baseUrl)),
-      createAppLayoutController(configs, config.sidebarGroups, config.title, config.autoSave ?? true),
+      ...configs.map((c) => createCrudController(c, baseUrl)),
+      createAppLayoutController(
+        configs,
+        config.sidebarGroups,
+        config.title,
+        config.autoSave ?? true,
+      ),
     ];
 
     return {
@@ -73,28 +81,45 @@ export class CroutonApiModule {
   static async forResourceDir(
     dirPath: string,
     dataSourcesPath: string,
-    config: CroutonConfig,
+    { baseUrl }: CroutonAppConfig,
   ): Promise<DynamicModule> {
+    const config = await loadConfig();
     const loader = new FileSystemResourceConfigLoader(
       dirPath,
-      config.baseUrl,
+      baseUrl,
       config.enumsFile,
     );
     const configs = await loadResourceConfigsFromDir(
       dirPath,
-      config.baseUrl,
+      baseUrl,
       config.enumsFile,
     );
     const dataSources = await loadDataSourcesFromDir(dataSourcesPath);
-    return CroutonApiModule.forResources(configs, dataSources, loader, config);
+
+    return CroutonApiModule.forResources(
+      configs,
+      dataSources,
+      loader,
+      {
+        baseUrl,
+      },
+      config,
+    );
   }
 
-  static forLoader(
+  static async forLoader(
     loader: ResourceConfigLoader,
-    configs: ResourceConfig[],
+    configs: Resource[],
     dataSources: DataSourceEntry[],
-    config: CroutonConfig,
-  ): DynamicModule {
-    return CroutonApiModule.forResources(configs, dataSources, loader, config);
+    appConfig: CroutonAppConfig,
+  ): Promise<DynamicModule> {
+    const config = await loadConfig();
+    return CroutonApiModule.forResources(
+      configs,
+      dataSources,
+      loader,
+      appConfig,
+      config,
+    );
   }
 }

@@ -22,53 +22,57 @@
 
 import type { ZodObject, ZodRawShape } from 'zod';
 
-
-import { loadActions, loadTableActions } from './action.loader';
-import { loadEnumRegistry } from './enum-registry';
-import { fromJson } from './json-adapter';
-import type { JsonResourceConfig } from './json-config.types';
+import { loadActions } from '../action';
+import { fromJson } from '../adapter';
+import { loadEnumRegistry } from '../enum-registry';
 import { findModule, importDefault } from './module.loader';
-import type { ResourceConfig, ResourceHooks, SubResourceConfig } from '../crud.config';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
+import { readResourceJson } from '../resource/ReadResourceJson';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-
-const loadSubResourceHooks = async (
-  subResources: SubResourceConfig[],
-  basePath: string,
-): Promise<void> => {
-  for (const sub of subResources) {
-    const file = sub.name ? findModule(join(basePath, 'hooks'), sub.name) : undefined;
-    if (!file) continue;
-    const hooks = await importDefault<ResourceHooks>(file);
-    if (hooks) (sub as any).hooks = hooks;
-  }
-};
 
 export const loadResourceConfigsFromDir = async (
   dirPath: string,
   baseUrl?: string,
   enumsFile?: string,
-): Promise<ResourceConfig[]> => {
+): Promise<Resource[]> => {
   const enums = loadEnumRegistry(dirPath, enumsFile);
   const entries = readdirSync(dirPath, { withFileTypes: true });
-  const dirs = entries.filter((e: { isDirectory(): boolean }) => e.isDirectory()).map((e: { name: string }) => e.name);
-  const configs: ResourceConfig[] = [];
+  const dirs = entries
+    .filter((e: { isDirectory(): boolean }) => e.isDirectory())
+    .map((e: { name: string }) => e.name);
+  const configs: Resource[] = [];
 
   for (const dir of dirs) {
     const basePath = join(dirPath, dir);
 
     const schemaFile = findModule(basePath, 'schema');
-    const schema = schemaFile ? await importDefault<ZodObject<ZodRawShape>>(schemaFile) : undefined;
+    const schema = schemaFile
+      ? await importDefault<ZodObject<ZodRawShape>>(schemaFile)
+      : undefined;
 
-    const hooksFile = findModule(basePath, 'hooks');
-    const hooks = hooksFile ? await importDefault<ResourceHooks>(hooksFile) : undefined;
+    const hooks = await loadResourceHooks(basePath);
 
     const jsonFile = join(basePath, 'resource.json');
     if (existsSync(jsonFile)) {
-      const json: JsonResourceConfig = JSON.parse(readFileSync(jsonFile, 'utf-8'));
-      const actions = await loadActions(json.actions ?? [], basePath);
-      const tableActions = await loadTableActions(json.tableActions ?? [], basePath);
-      const config = fromJson(json, schema, hooks, basePath, baseUrl, actions, tableActions, enums);
+      const json = readResourceJson(jsonFile).json;
+      const actions = await loadActions(json.actions ?? [], basePath, 'row');
+      const tableActions = await loadActions(
+        json.tableActions ?? [],
+        basePath,
+        'table',
+      );
+      const config = fromJson(
+        json,
+        schema,
+        hooks,
+        basePath,
+        baseUrl,
+        actions,
+        tableActions,
+        enums,
+      );
       await loadSubResourceHooks(config.subResources ?? [], basePath);
       configs.push(config);
       continue;
@@ -76,7 +80,7 @@ export const loadResourceConfigsFromDir = async (
 
     const tsFile = findModule(basePath, 'resource');
     if (tsFile) {
-      const config = await importDefault<ResourceConfig>(tsFile);
+      const config = await importDefault<Resource>(tsFile);
       if (config) configs.push(hooks ? { ...config, hooks } : config);
     }
   }

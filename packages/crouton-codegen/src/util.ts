@@ -1,6 +1,18 @@
 /** Small framework-free helpers shared by the engine stages. */
 
-import type { JsonColumn, JsonResourceConfig } from './types';
+import type { JsonColumnInput, ResourceJsonInput } from '@ghentcdh/crouton-core';
+
+import { access } from 'node:fs/promises';
+
+/** Check whether a file exists (async). */
+export const fileExists = async (p: string): Promise<boolean> => {
+  try {
+    await access(p);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 /** Deep clone that preserves object key insertion order (JSON-safe configs). */
 export const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -11,7 +23,8 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
   if (typeof a !== typeof b) return false;
   if (a === null || b === null) return a === b;
   if (Array.isArray(a) || Array.isArray(b)) {
-    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length)
+      return false;
     return a.every((v, i) => deepEqual(v, b[i]));
   }
   if (typeof a === 'object') {
@@ -30,8 +43,8 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
  * `[id, columnWithoutId][]` entries. Preserves declaration order.
  */
 export const columnEntries = (
-  columns: JsonResourceConfig['columns'],
-): [string, Omit<JsonColumn, 'id'>][] => {
+  columns: ResourceJsonInput['columns'],
+): [string, Omit<JsonColumnInput, 'id'>][] => {
   if (!columns) return [];
   if (Array.isArray(columns)) {
     return columns.map(({ id, ...rest }) => [id, rest]);
@@ -41,9 +54,9 @@ export const columnEntries = (
 
 /** Build a `columns` map object from ordered entries (stable order). */
 export const columnsMapFromEntries = (
-  entries: [string, Omit<JsonColumn, 'id'>][],
-): Record<string, Omit<JsonColumn, 'id'>> => {
-  const out: Record<string, Omit<JsonColumn, 'id'>> = {};
+  entries: [string, Omit<JsonColumnInput, 'id'>][],
+): Record<string, Omit<JsonColumnInput, 'id'>> => {
+  const out: Record<string, Omit<JsonColumnInput, 'id'>> = {};
   for (const [id, col] of entries) out[id] = col;
   return out;
 };

@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
+import type { ResourceJsonInputInput } from '@ghentcdh/crouton-core';
+
 import { apply } from './apply';
 import { classify } from './classify';
+import type { DbModel } from './db-model';
 import { diff } from './diff';
 import { recommendedResolver, resolve } from './resolve';
-import type { DbModel, JsonResourceConfig } from './types';
+
 
 const model: DbModel = {
   prismaName: 'Language',
@@ -14,9 +17,42 @@ const model: DbModel = {
   idType: 'string',
   hasCompositeId: false,
   fields: [
-    { name: 'id', kind: 'id', type: 'String', isList: false, isRequired: true, isId: true, isUnique: false, isUpdatedAt: false, hasDefault: true, isTimestamp: false },
-    { name: 'name', kind: 'scalar', type: 'String', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false },
-    { name: 'created_at', kind: 'scalar', type: 'DateTime', isList: false, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: true, isTimestamp: true },
+    {
+      name: 'id',
+      kind: 'id',
+      type: 'String',
+      isList: false,
+      isRequired: true,
+      isId: true,
+      isUnique: false,
+      isUpdatedAt: false,
+      hasDefault: true,
+      isTimestamp: false,
+    },
+    {
+      name: 'name',
+      kind: 'scalar',
+      type: 'String',
+      isList: false,
+      isRequired: true,
+      isId: false,
+      isUnique: false,
+      isUpdatedAt: false,
+      hasDefault: false,
+      isTimestamp: false,
+    },
+    {
+      name: 'created_at',
+      kind: 'scalar',
+      type: 'DateTime',
+      isList: false,
+      isRequired: false,
+      isId: false,
+      isUnique: false,
+      isUpdatedAt: false,
+      hasDefault: true,
+      isTimestamp: true,
+    },
   ],
 };
 
@@ -25,7 +61,7 @@ const ctx = {
   generatedTypesImport: '@np/generated/types',
 };
 
-const run = async (existing?: JsonResourceConfig, hasSchemaFile = false) => {
+const run = async (existing?: ResourceJsonInput, hasSchemaFile = false) => {
   const draft = classify(model, { database: 'docsdb' });
   const d = diff({ draft, existing, hasSchemaFile });
   const resolved = await resolve(d, recommendedResolver);
@@ -36,15 +72,21 @@ describe('apply — new resource', () => {
   it('writes resource.json + schema.ts and honors the sidebar choice', async () => {
     const plan = await run();
     const paths = plan.files.map((f) => f.path);
-    expect(paths).toContain('apps/backend/src/app/resources/language/resource.json');
-    expect(paths).toContain('apps/backend/src/app/resources/language/schema.ts');
+    expect(paths).toContain(
+      'apps/backend/src/app/resources/language/resource.json',
+    );
+    expect(paths).toContain(
+      'apps/backend/src/app/resources/language/schema.ts',
+    );
 
     const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
     // Language has no relations → plain LanguageSchema (no WithRelations export).
     expect(schema.contents).toBe(
       'import { LanguageSchema } from \'@np/generated/types\';\n\nexport default LanguageSchema;\n',
     );
-    const res = JSON.parse(plan.files.find((f) => f.path.endsWith('resource.json'))!.contents);
+    const res = JSON.parse(
+      plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
+    );
     expect(res.sidebar).toEqual({ hide: false }); // recommended = yes
     expect(res.model).toBe('language');
   });
@@ -62,10 +104,25 @@ describe('apply — new resource', () => {
       tableName: 'work',
       fields: [
         ...model.fields,
-        { name: 'sections', kind: 'relation', type: 'Section', isList: true, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, relationModel: 'Section' },
+        {
+          name: 'sections',
+          kind: 'relation',
+          type: 'Section',
+          isList: true,
+          isRequired: false,
+          isId: false,
+          isUnique: false,
+          isUpdatedAt: false,
+          hasDefault: false,
+          isTimestamp: false,
+          relationModel: 'Section',
+        },
       ],
     };
-    const d = diff({ draft: classify(withRel, { database: 'docsdb' }), hasSchemaFile: false });
+    const d = diff({
+      draft: classify(withRel, { database: 'docsdb' }),
+      hasSchemaFile: false,
+    });
     const plan = apply(await resolve(d, recommendedResolver), ctx);
     const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
     expect(schema.contents).toContain('WorkWithRelationsSchema');
@@ -75,8 +132,10 @@ describe('apply — new resource', () => {
 describe('apply — idempotency', () => {
   it('re-running against its own output yields no decisions and writes no files', async () => {
     const first = await run();
-    const resourceJson = first.files.find((f) => f.path.endsWith('resource.json'))!.contents;
-    const existing = JSON.parse(resourceJson) as JsonResourceConfig;
+    const resourceJson = first.files.find((f) =>
+      f.path.endsWith('resource.json'),
+    )!.contents;
+    const existing = JSON.parse(resourceJson) as ResourceJsonInput;
 
     const draft = classify(model, { database: 'docsdb' });
     const d2 = diff({ draft, existing, hasSchemaFile: true });
@@ -90,13 +149,32 @@ describe('apply — idempotency', () => {
 });
 
 describe('apply — update merges and preserves hand edits', () => {
-  const existing: JsonResourceConfig = {
-    name: 'language', route: 'language', model: 'language', tag: 'Language', title: 'Language',
-    idType: 'string', database: 'docsdb', sidebar: { hide: true },
-    operations: { findAll: true, findOne: true, create: true, update: true, delete: true },
-    actions: [{ type: 'link', id: 'preview', label: 'Preview', href: '/p/{id}' }],
+  const existing: ResourceJsonInput = {
+    name: 'language',
+    route: 'language',
+    model: 'language',
+    tag: 'Language',
+    title: 'Language',
+    idType: 'string',
+    database: 'docsdb',
+    sidebar: { hide: true },
+    operations: {
+      findAll: true,
+      findOne: true,
+      create: true,
+      update: true,
+      delete: true,
+    },
+    actions: [
+      { type: 'link', id: 'preview', label: 'Preview', href: '/p/{id}' },
+    ],
     columns: {
-      id: { idField: true, hiddenInTable: true, hiddenInForm: true, hiddenInView: true },
+      id: {
+        idField: true,
+        hiddenInTable: true,
+        hiddenInForm: true,
+        hiddenInView: true,
+      },
       name: { fieldInput: { type: 'markdown', position: 0 } }, // hand-edited
       legacy: { fieldInput: { type: 'text' } }, // not in DB
     },
@@ -106,13 +184,15 @@ describe('apply — update merges and preserves hand edits', () => {
     const draft = classify(model, { database: 'docsdb' });
     const d = diff({ draft, existing, hasSchemaFile: true });
     const plan = apply(await resolve(d, recommendedResolver), ctx);
-    const res = JSON.parse(plan.files.find((f) => f.path.endsWith('resource.json'))!.contents);
+    const res = JSON.parse(
+      plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
+    );
 
-    expect(res.columns.created_at).toBeDefined();        // added from DB
+    expect(res.columns.created_at).toBeDefined(); // added from DB
     expect(res.columns.name.fieldInput.type).toBe('markdown'); // kept (recommended=keep)
-    expect(res.columns.legacy).toBeDefined();            // kept (recommended=keep)
-    expect(res.sidebar).toEqual({ hide: true });         // preserved
-    expect(res.actions).toHaveLength(1);                 // preserved
+    expect(res.columns.legacy).toBeDefined(); // kept (recommended=keep)
+    expect(res.sidebar).toEqual({ hide: true }); // preserved
+    expect(res.actions).toHaveLength(1); // preserved
     expect(plan.files[0].action).toBe('update');
   });
 
@@ -120,12 +200,18 @@ describe('apply — update merges and preserves hand edits', () => {
     const draft = classify(model, { database: 'docsdb' });
     const d = diff({ draft, existing, hasSchemaFile: true });
     const resolved = await resolve(d, {
-      resolve: () => ({ 'reconcile:name': 'overwrite', 'remove:legacy': 'remove', 'add:created_at': 'add' }),
+      resolve: () => ({
+        'reconcile:name': 'overwrite',
+        'remove:legacy': 'remove',
+        'add:created_at': 'add',
+      }),
     });
     const plan = apply(resolved, ctx);
-    const res = JSON.parse(plan.files.find((f) => f.path.endsWith('resource.json'))!.contents);
+    const res = JSON.parse(
+      plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
+    );
     expect(res.columns.name.fieldInput.type).toBe('text'); // overwritten with generated default
-    expect(res.columns.legacy).toBeUndefined();            // removed
+    expect(res.columns.legacy).toBeUndefined(); // removed
     expect(res.columns.created_at).toBeDefined();
   });
 });

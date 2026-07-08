@@ -1,30 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-
 import { type SidebarGroupConfig, labelFromId } from '@ghentcdh/crouton-core';
 
-import { type ResourceConfig } from './crud.config';
-import { IS_DEV } from './dev-mode';
-import { ResourceConfigRegistry } from './resource-config.registry';
-
-// ─── Sidebar node types ───────────────────────────────────────────────────────
-
-export type SidebarLeaf = {
-  kind: 'item';
-  id: string;
-  label: string;
-  position?: number;
-};
-
-export type SidebarGroup = {
-  kind: 'group';
-  id: string;
-  label: string;
-  position?: number;
-  children: SidebarLeaf[];
-};
-
-export type SidebarNode = SidebarLeaf | SidebarGroup;
+import { type SidebarGroup, type SidebarLeaf, SidebarLeafSchema, type SidebarNode } from './app-layout.types';
+import { type Resource } from '../resource/ResourceConfig.schema'; // ─── Sort helper ─────────────────────────────────────────────────────────────
 
 // ─── Sort helper ─────────────────────────────────────────────────────────────
 
@@ -40,8 +17,8 @@ const byPosition = (
 
 // ─── Builder ──────────────────────────────────────────────────────────────────
 
-const buildLayoutPayload = (
-  configs: ResourceConfig[],
+export const buildLayoutPayload = (
+  configs: Resource[],
   sidebarGroups: Record<string, SidebarGroupConfig> = {},
   title?: string,
   autoSave = true,
@@ -67,12 +44,11 @@ const buildLayoutPayload = (
   );
 
   for (const c of visible) {
-    const leaf: SidebarLeaf = {
-      kind: 'item',
+    const leaf = SidebarLeafSchema.parse({
       id: c.name,
       label: c.sidebar?.label ?? c.title ?? c.tag,
       position: c.sidebar?.position,
-    };
+    });
 
     const groupSlug = c.sidebar?.group;
     if (groupSlug) {
@@ -105,38 +81,4 @@ const buildLayoutPayload = (
   const sidebar: SidebarNode[] = [...topLevel, ...groups].sort(byPosition);
 
   return { sidebar, title, autoSave };
-};
-
-export const createAppLayoutController = (
-  configs: ResourceConfig[],
-  sidebarGroups: Record<string, SidebarGroupConfig> = {},
-  title?: string,
-  autoSave = true,
-) => {
-  const layoutPayload = buildLayoutPayload(configs, sidebarGroups, title, autoSave);
-
-  @Controller('_app')
-  @ApiTags('App')
-  class AppLayoutController {
-    constructor(public readonly configRegistry: ResourceConfigRegistry) {}
-
-    @Get('layout')
-    @ApiOperation({ summary: 'Get the application layout (sidebar, …)' })
-    @ApiResponse({ status: 200, description: 'Application layout metadata' })
-    async getLayout() {
-      if (IS_DEV) {
-        const fresh = await this.configRegistry.getAll();
-        return buildLayoutPayload(fresh, sidebarGroups, title, autoSave);
-      }
-      return layoutPayload;
-    }
-  }
-
-  Reflect.defineMetadata(
-    'design:paramtypes',
-    [ResourceConfigRegistry],
-    AppLayoutController,
-  );
-
-  return AppLayoutController;
 };

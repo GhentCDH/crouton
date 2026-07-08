@@ -2,12 +2,39 @@ import { Body, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudRepository } from '../crud-repository.factory';
-import type { SubResourceConfig } from '../crud.config';
 import { RequestDtoNoOffset } from '../request.dto';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import { buildSubResourceOperations, resolveEnvPlaceholders } from './payload-builders';
+
+// ── Sub-resource handlers ─────────────────────────────────────────────────
+
+const findAllByParent = async (repo: CrudRepository, id: string, childRoute: string, params: any) => {
+  const { data, count } = await repo.findAllByParent(id, childRoute, params);
+  const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
+  return {
+    data,
+    request: { count, page: params.page, pageSize: params.pageSize, totalPages, sort: params.sort, sortDir: params.sortDir, filter: params.filter },
+  };
+};
+
+const createChild = async (repo: CrudRepository, id: string, sub: SubResourceConfig, body: any) => {
+  return repo.createChild(id, sub, body);
+};
+
+const findOneChild = async (repo: CrudRepository, sub: SubResourceConfig, childId: string, parentId: string) => {
+  return repo.findOneChild(sub, childId, parentId);
+};
+
+const updateChild = async (repo: CrudRepository, sub: SubResourceConfig, childId: string, body: any) => {
+  return repo.updateChild(sub, childId, body);
+};
+
+const deleteChild = async (repo: CrudRepository, sub: SubResourceConfig, childId: string, parentId: string) => {
+  return repo.deleteChild(sub, childId, parentId);
+};
 
 // ── Sub-resource schemas endpoint ─────────────────────────────────────────
 
@@ -66,6 +93,7 @@ const registerSubResourceSchemas = (
 
 // ── Sub-resource CRUD routes ──────────────────────────────────────────────
 
+/** Register `GET /:id/<child>` — paginated list of child resources. */
 const registerSubResourceFindAll = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (sub.operations?.findAll === false) return;
   const { cls, config } = ctx;
@@ -74,12 +102,7 @@ const registerSubResourceFindAll = (ctx: OperationContext, sub: SubResourceConfi
   const methodName = `findAllBy_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, id: string, params: any) {
-    const { data, count } = await this.repo.findAllByParent(id, sub.childRoute, params);
-    const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
-    return {
-      data,
-      request: { count, page: params.page, pageSize: params.pageSize, totalPages, sort: params.sort, sortDir: params.sortDir, filter: params.filter },
-    };
+    return findAllByParent(this.repo, id, sub.childRoute, params);
   });
   const d = desc(cls, methodName);
   Get(`:id/${sub.childRoute}`)(cls.prototype, methodName, d);
@@ -90,6 +113,7 @@ const registerSubResourceFindAll = (ctx: OperationContext, sub: SubResourceConfi
   ApiResponse({ status: 200, description: `${sub.childRoute} list` })(cls.prototype, methodName, d);
 };
 
+/** Register `POST /:id/<child>` — create a child resource. */
 const registerSubResourceCreate = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.create) return;
   const { cls, config } = ctx;
@@ -97,7 +121,7 @@ const registerSubResourceCreate = (ctx: OperationContext, sub: SubResourceConfig
   const methodName = `createChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, id: string, body: any) {
-    return this.repo.createChild(id, sub, body);
+    return createChild(this.repo, id, sub, body);
   });
   const d = desc(cls, methodName);
   Post(`:id/${sub.childRoute}`)(cls.prototype, methodName, d);
@@ -108,13 +132,14 @@ const registerSubResourceCreate = (ctx: OperationContext, sub: SubResourceConfig
   ApiResponse({ status: 201, description: `${sub.childRoute} created` })(cls.prototype, methodName, d);
 };
 
+/** Register `GET /:id/<child>/:childId` — fetch single child resource. */
 const registerSubResourceFindOne = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.findOne) return;
   const { cls } = ctx;
   const methodName = `findOneChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, parentId: string, childId: string) {
-    return this.repo.findOneChild(sub, childId, parentId);
+    return findOneChild(this.repo, sub, childId, parentId);
   });
   const d = desc(cls, methodName);
   Get(`:id/${sub.childRoute}/:childId`)(cls.prototype, methodName, d);
@@ -125,13 +150,14 @@ const registerSubResourceFindOne = (ctx: OperationContext, sub: SubResourceConfi
   ApiResponse({ status: 200, description: `${sub.childRoute} record` })(cls.prototype, methodName, d);
 };
 
+/** Register `PATCH /:id/<child>/:childId` — update a child resource. */
 const registerSubResourceUpdate = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.update) return;
   const { cls } = ctx;
   const methodName = `updateChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, _id: string, childId: string, body: any) {
-    return this.repo.updateChild(sub, childId, body);
+    return updateChild(this.repo, sub, childId, body);
   });
   const d = desc(cls, methodName);
   Patch(`:id/${sub.childRoute}/:childId`)(cls.prototype, methodName, d);
@@ -143,13 +169,14 @@ const registerSubResourceUpdate = (ctx: OperationContext, sub: SubResourceConfig
   ApiResponse({ status: 200, description: `${sub.childRoute} updated` })(cls.prototype, methodName, d);
 };
 
+/** Register `DELETE /:id/<child>/:childId` — delete a child resource. */
 const registerSubResourceDelete = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.delete) return;
   const { cls } = ctx;
   const methodName = `deleteChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, parentId: string, childId: string) {
-    return this.repo.deleteChild(sub, childId, parentId);
+    return deleteChild(this.repo, sub, childId, parentId);
   });
   const d = desc(cls, methodName);
   Delete(`:id/${sub.childRoute}/:childId`)(cls.prototype, methodName, d);

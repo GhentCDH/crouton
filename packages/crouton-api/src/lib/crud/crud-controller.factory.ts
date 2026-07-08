@@ -1,21 +1,26 @@
-import { Controller, type Type } from '@nestjs/common';
-import { Body } from '@nestjs/common';
+import { Body, Controller, type Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
-import {
-  type ResourceConfig,
-  isOperationEnabled,
-  resolveDefinition,
-  schemaFor,
-  upsertOnFor,
-} from './crud.config';
+import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
 import { registerActionRoutes, registerTableActionRoutes } from './operations/register-actions';
-import { registerCreate, registerDelete, registerFindAll, registerFindOne, registerUpdate, registerUpsert } from './operations/register-crud';
-import { registerDefinitionEndpoint, registerResourceJsonEndpoint, registerSchemasEndpoint } from './operations/register-schema-endpoints';
+import {
+  registerCreate,
+  registerDelete,
+  registerFindAll,
+  registerFindOne,
+  registerUpdate,
+  registerUpsert
+} from './operations/register-crud';
+import {
+  registerDefinitionEndpoint,
+  registerResourceJsonEndpoint,
+  registerSchemasEndpoint
+} from './operations/register-schema-endpoints';
 import { registerSubResourceRoutes } from './operations/register-sub-resources';
+import { type Resource } from './resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
 import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
@@ -33,7 +38,7 @@ import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validati
  * @throws {Error} When `upsert` is enabled but no `upsertOn` key is configured.
  */
 export function createCrudController(
-  config: ResourceConfig,
+  config: Resource,
   baseUrl?: string,
 ): Type<any> {
   const { route, name, tag, idType = 'string' } = config;
@@ -53,14 +58,18 @@ export function createCrudController(
     options?: ZodValidationPipeOptions,
   ): ParameterDecorator => {
     if (!schema) return Body();
-    if (isZodSchema(schema)) return Body(new ZodValidationPipe(schema, options));
+    if (isZodSchema(schema))
+      return Body(new ZodValidationPipe(schema, options));
     return Body();
   };
 
   class CrudControllerBase {
     protected readonly repo: CrudRepository;
     protected readonly configRegistry: ResourceConfigRegistry;
-    constructor(registry: DataSourceRegistry, configRegistry: ResourceConfigRegistry) {
+    constructor(
+      registry: DataSourceRegistry,
+      configRegistry: ResourceConfigRegistry,
+    ) {
       const prisma = registry.resolve(config.database);
       this.repo = createCrudRepository(prisma, config);
       this.configRegistry = configRegistry;
@@ -76,7 +85,10 @@ export function createCrudController(
     createSchema,
     updateSchema,
     upsertSchema,
-    idParamMeta: { name: 'id', type: idType === 'number' ? 'number' : 'string' },
+    idParamMeta: {
+      name: 'id',
+      type: idType === 'number' ? 'number' : 'string',
+    },
     bodyDecorator,
     baseUrl,
   };
