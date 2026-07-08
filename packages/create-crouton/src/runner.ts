@@ -96,6 +96,15 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     const skipPaths = !frontend ? ['apps/frontend'] : [];
     const files: FileEntry[] = await loadAndRenderTemplates(templateDir, '', tokens, targetDir, skipPaths);
 
+    // 4b. Docker templates
+    if (opts.docker !== false) {
+      const dockerTokens = { ...tokens };
+      if (layout === 'regular') dockerTokens['regular'] = 'true';
+      const dockerDir = resolve(templateRoot, 'docker');
+      const dockerFiles = await loadAndRenderTemplates(dockerDir, '', dockerTokens, targetDir);
+      files.push(...dockerFiles);
+    }
+
     // 5. Generate datasource files via buildDatasourceFiles()
     const dataSourcesDir = layout === 'nx' ? 'apps/backend/src/app/data-sources' : 'src/data-sources';
     const generatedImport = layout === 'nx'
