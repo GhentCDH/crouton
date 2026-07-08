@@ -1,0 +1,19 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { CroutonApiModule } from '@ghentcdh/crouton-api';
+import { resolve } from 'node:path';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.local', '.env'] }),
+    CroutonApiModule.forResourceDir(
+      resolve(__dirname, 'resources'),
+      resolve(__dirname, 'data-sources'),
+      {
+        title: '{{Name}}',
+        enumsFile: resolve(__dirname, '..', '..', '..', '..', 'crouton.enums.json'),
+      },
+    ),
+  ],
+})
+export class AppModule {}

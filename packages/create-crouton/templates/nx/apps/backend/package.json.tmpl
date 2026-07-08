@@ -1,0 +1,37 @@
+{
+  "name": "@{{name}}/backend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "prisma:migrate": "npx prisma migrate dev --config prisma/default/prisma.config.ts",
+    "crouton": "crouton"
+  },
+  "dependencies": {
+    "@anatine/zod-nestjs": "^2.0.0",
+    "@ghentcdh/crouton-api": "latest",
+    "@ghentcdh/crouton-core": "latest",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "dotenv": "^16.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@ghentcdh/crouton-cli": "latest",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@types/node": "^22.0.0",
+    "prisma": "^7.0.0",
+    "typescript": "~5.9.0",
+    "zod-prisma-types": "^3.0.0"
+  }
+}

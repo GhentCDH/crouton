@@ -1,16 +1,18 @@
 import * as clack from '@clack/prompts';
 import pc from 'picocolors';
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
-import { readdir } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 
 import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
-import { render } from './lib/render';
-import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
-import { assertNotCancel, CancelledError } from './lib/prompts';
 import type { PackageManager } from './lib/detect';
+import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
+import { CancelledError, assertNotCancel } from './lib/prompts';
+import { render } from './lib/render';
+import { existsSync } from 'node:fs';
+import { readdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+
 
 export interface CreateOptions {
   nx: boolean;
@@ -91,7 +93,8 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
       ? resolve(templateRoot, 'nx')
       : resolve(templateRoot, 'regular');
 
-    const files: FileEntry[] = await loadAndRenderTemplates(templateDir, '', tokens, targetDir);
+    const skipPaths = !frontend ? ['apps/frontend'] : [];
+    const files: FileEntry[] = await loadAndRenderTemplates(templateDir, '', tokens, targetDir, skipPaths);
 
     // 5. Generate datasource files via buildDatasourceFiles()
     const dataSourcesDir = layout === 'nx' ? 'apps/backend/src/app/data-sources' : 'src/data-sources';
@@ -181,6 +184,7 @@ const loadAndRenderTemplates = async (
   subPath: string,
   tokens: Record<string, string>,
   targetDir: string,
+  skipPaths: string[] = [],
 ): Promise<FileEntry[]> => {
   const files: FileEntry[] = [];
   const dir = subPath ? resolve(templateDir, subPath) : templateDir;
@@ -192,8 +196,10 @@ const loadAndRenderTemplates = async (
   for (const entry of entries) {
     const relPath = subPath ? `${subPath}/${entry.name}` : entry.name;
 
+    if (skipPaths.some((sp) => relPath.startsWith(sp))) continue;
+
     if (entry.isDirectory()) {
-      const nested = await loadAndRenderTemplates(templateDir, relPath, tokens, targetDir);
+      const nested = await loadAndRenderTemplates(templateDir, relPath, tokens, targetDir, skipPaths);
       files.push(...nested);
     } else if (entry.name.endsWith('.tmpl')) {
       const raw = await loadTemplate(templateDir, relPath);
