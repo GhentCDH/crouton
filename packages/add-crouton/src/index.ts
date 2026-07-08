@@ -1,5 +1,7 @@
 import { Command } from 'commander';
 
+import { runAdd } from './runner';
+
 const program = new Command('add-crouton')
   .description('Add crouton to an existing project')
   .version('0.0.1')
@@ -11,8 +13,13 @@ const program = new Command('add-crouton')
   .option('--no-install', 'skip dependency installation')
   .option('--no-docker', 'skip Docker file generation')
   .option('-y, --yes', 'accept all defaults (non-interactive)')
-  .action(() => {
-    console.warn('TODO: add-crouton');
+  .action(async (opts) => {
+    try {
+      await runAdd(opts);
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : err);
+      process.exitCode = 1;
+    }
   });
 
 program.parse();

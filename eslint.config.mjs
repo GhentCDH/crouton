@@ -29,10 +29,10 @@ export default [
               sourceTag: 'type:ui',
               onlyDependOnLibsWithTags: ['type:util', 'type:ui'],
             },
-            // cli: util only — no vue, no nest
+            // cli: util + other cli — no vue, no nest
             {
               sourceTag: 'type:cli',
-              onlyDependOnLibsWithTags: ['type:util'],
+              onlyDependOnLibsWithTags: ['type:util', 'type:cli'],
             },
           ],
         },
