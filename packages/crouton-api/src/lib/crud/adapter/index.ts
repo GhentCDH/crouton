@@ -1,0 +1,1 @@
+export { fromJson } from './json-adapter';

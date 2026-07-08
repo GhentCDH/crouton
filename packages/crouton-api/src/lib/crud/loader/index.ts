@@ -24,7 +24,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 
 import { loadActions } from '../action';
 import { loadEnumRegistry } from '../enum-registry';
-import { fromJson } from './json-adapter';
+import { fromJson } from '../adapter';
 import { findModule, importDefault } from './module.loader';
 import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
 import { readResourceJson } from '../resource/ReadResourceJson';

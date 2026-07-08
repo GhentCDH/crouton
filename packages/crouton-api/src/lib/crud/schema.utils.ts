@@ -6,7 +6,7 @@ import {
   z,
 } from 'zod';
 
-import { type JsonSchemaInput, type SchemaInput } from './crud.config';
+import { type JsonSchemaInput, type SchemaInput } from './resource/json.schema';
 
 type ToJSONSchemaParams = NonNullable<Parameters<typeof toJSONSchema>[1]>;
 type OverrideContext = Parameters<

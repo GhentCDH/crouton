@@ -12,12 +12,16 @@
 import {
   CONFIG_FILES,
   type CroutonConfig,
+  CroutonConfigSchema,
   type DataSource,
   DataSourceSchema,
+  DataSourceShape,
+  transformDataSource,
 } from '@ghentcdh/crouton-core';
 
-import { access, readFile, readdir } from 'node:fs/promises';
+import { access, readdir, readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { z } from 'zod';
 
 export interface LoadedConfig {
   config: CroutonConfig;
@@ -119,16 +123,11 @@ export const loadDatasources = async (
           'generatedTypesImport, zodOutput and prismaConfig (see `crouton create-datasource`).',
       );
     }
-    const ds = DataSourceSchema.parse(ds_json);
     datasources.push(
       DataSourceSchema.parse({
+        ...ds_json,
         name,
-        default: ds.default === true,
-        prismaSchema: ds.prismaSchema,
-        urlEnv: ds.urlEnv,
-        generatedTypesImport: ds.generatedTypesImport,
-        zodOutput: ds.zodOutput,
-        prismaConfig: ds.prismaConfig ?? defaultPrismaConfig(name),
+        prismaConfig: ds_json.prismaConfig ?? defaultPrismaConfig(name),
       }),
     );
   }
@@ -191,11 +190,13 @@ export const resolveFromRoot = (root: string, p: string): string =>
   isAbsolute(p) ? p : join(root, p);
 
 // ─── scaffolding ─────────────────────────────────────────────────────────────
+export const ScallfoldDatasourceSchema = DataSourceShape.extend({
+  /** Folder name under `dataSourcesDir`. */ folder: z
+    .string()
+    .default('default'),
+}).transform(transformDataSource);
 
-export interface ScaffoldDatasource extends DataSource {
-  /** Folder name under `dataSourcesDir`. */
-  folder: string;
-}
+export type ScaffoldDatasource = z.infer<typeof ScallfoldDatasourceSchema>;
 
 export interface ScaffoldResult {
   config: CroutonConfig;
@@ -286,34 +287,30 @@ export const scaffoldConfigFromProject = async (
         ? JSON.parse(await readFile(existing, 'utf-8'))
         : {};
       const name = prev.name ?? e.name;
-      datasources.push({
-        folder: e.name,
-        type: prev.type ?? 'postgres',
-        name,
-        ...(prev.default ? { default: true } : {}),
-        prismaSchema: prev.prismaSchema ?? `prisma/${name}/schema.prisma`,
-        urlEnv: prev.urlEnv ?? urlEnv,
-        generatedTypesImport:
-          prev.generatedTypesImport ??
-          detectedImport ??
-          `@your-scope/generated/${name}`,
-        zodOutput: prev.zodOutput ?? `generated/${name}/src`,
-        prismaConfig: prev.prismaConfig ?? defaultPrismaConfig(name),
-      });
+      datasources.push(
+        ScallfoldDatasourceSchema.parse({
+          folder: e.name,
+          type: prev.type,
+          name,
+          default: prev.default,
+          prismaSchema: prev.prismaSchema,
+          urlEnv: prev.urlEnv ?? urlEnv ?? '',
+          generatedTypesImport: prev.generatedTypesImport ?? detectedImport,
+          zodOutput: prev.zodOutput,
+          prismaConfig: prev.prismaConfig,
+        }),
+      );
     }
   }
   if (datasources.length === 0) {
-    datasources.push({
-      folder: 'default',
-      type: 'postgres',
-      name: 'default',
-      default: true,
-      prismaSchema: 'prisma/default/schema.prisma',
-      urlEnv,
-      generatedTypesImport: detectedImport ?? '@your-scope/generated/default',
-      zodOutput: 'generated/default/src',
-      prismaConfig: defaultPrismaConfig('default'),
-    });
+    datasources.push(
+      ScallfoldDatasourceSchema.parse({
+        name: 'default',
+        default: true,
+        urlEnv,
+        generatedTypesImport: detectedImport ?? '@your-scope/generated/default',
+      }),
+    );
     notes.push(
       'No data-sources found; proposed a single "default" datasource.',
     );
@@ -322,12 +319,11 @@ export const scaffoldConfigFromProject = async (
   }
 
   return {
-    config: {
+    config: CroutonConfigSchema.parse({
+      title: 'Crouton',
       resourcesDir,
       dataSourcesDir,
-      schemaExportName: '{Model}WithRelationsSchema',
-      enumsFile: 'crouton.enums.json',
-    },
+    }),
     datasources,
     notes,
   };

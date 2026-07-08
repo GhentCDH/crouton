@@ -1,5 +1,6 @@
-import type { ViewColumnConfig, ViewConfig } from '../crud.config';
-import type { CalculatedColumn } from '../loader/json-config.types';
+import type { CalculatedColumn } from '@ghentcdh/crouton-core';
+
+import type { ViewColumnConfig, ViewConfig } from '../resource/view.schema';
 
 // ── Calculated column injection ───────────────────────────────────────────
 

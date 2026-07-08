@@ -42,7 +42,7 @@ export const CroutonConfigSchema = z.object({
    * Defaults to `{Model}WithRelationsSchema` (the relations-aware schema
    * emitted by zod-prisma-types when `createRelationValuesTypes` is on).
    */
-  schemaExportName: z.string().optional(),
+  schemaExportName: z.string().default('{Model}WithRelationsSchema'),
   /** Path to the shared enum registry, relative to project root. Default `crouton.enums.json`. */
   enumsFile: z.string().default('croutons.enums.json'),
   /** Optional overrides of the default visibility ruleset. */
@@ -51,7 +51,7 @@ export const CroutonConfigSchema = z.object({
    * Sidebar group definitions, keyed by group slug (e.g. `"metadata"`).
    * Resources reference a group via `sidebar.group` in their `resource.json`.
    */
-  sidebarGroups: z.record(z.string(), SidebarGroupSchema).optional(),
+  sidebarGroups: z.record(z.string(), SidebarGroupSchema).default({}),
   /**
    * Whether form fields are saved automatically as the user edits them.
    * @default true

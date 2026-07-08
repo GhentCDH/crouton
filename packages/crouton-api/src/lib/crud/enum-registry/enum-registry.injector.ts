@@ -1,4 +1,4 @@
-import type { JsonColumn } from '../json-config.types';
+import type { JsonColumn } from '@ghentcdh/crouton-core';
 import { type EnumRegistry } from './enum-registry.types';
 
 export const injectEnumValues = (

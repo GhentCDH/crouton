@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { JsonActionCondition } from '../loader/json-config.types';
+import type { JsonActionCondition } from '@ghentcdh/crouton-core';
 
 // ── Shared metadata ────────────────────────────────────────────────────────
 

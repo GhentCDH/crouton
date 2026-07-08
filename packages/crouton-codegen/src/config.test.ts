@@ -101,7 +101,7 @@ describe('loadConfig + loadDatasources', () => {
     await mkdir(join(root, 'ds', 'analyticsdb'), { recursive: true });
     await writeFile(
       join(root, 'ds', 'analyticsdb', 'data-source.json'),
-      JSON.stringify({ prismaSchema: 'prisma/analyticsdb/schema.prisma', generatedTypesImport: '@np/generated/analyticsdb' }),
+      JSON.stringify({ prismaSchema: 'prisma/analyticsdb/schema.prisma', generatedTypesImport: '@np/generated/analyticsdb', urlEnv: 'DATABASE_ANALYTICSDB_URL' }),
     );
     const loaded = await loadConfig(root);
     const [only] = await loadDatasources(loaded);

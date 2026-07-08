@@ -1,5 +1,6 @@
-import type { ViewColumnConfig } from '../crud.config';
-import type { JsonColumn } from '../loader/json-config.types';
+import type { JsonColumn } from '@ghentcdh/crouton-core';
+
+import type { ViewColumnConfig } from '../resource/view.schema';
 
 /** Resolve the sort position for a column: `fieldInput.position`, then natural index. */
 export const colPosition = (col: JsonColumn, i: number): number =>

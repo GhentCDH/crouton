@@ -1,4 +1,4 @@
-import type { JsonColumn } from '../loader/json-config.types';
+import type { JsonColumn } from '@ghentcdh/crouton-core';
 
 // ── Sort helpers ──────────────────────────────────────────────────────────
 

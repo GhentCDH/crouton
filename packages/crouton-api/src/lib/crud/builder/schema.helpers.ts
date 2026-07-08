@@ -1,7 +1,8 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
+import type { JsonColumn } from '@ghentcdh/crouton-core';
+
 import { isRelation } from './column-predicates';
-import type { JsonColumn } from '../loader/json-config.types';
 import { type OperationDef, type UpsertOperationDef } from '../resource/defintion.schema';
 import { type SchemaInput } from '../resource/json.schema';
 
