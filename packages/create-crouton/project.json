@@ -1,7 +1,7 @@
 {
-  "name": "create-crouton-app",
+  "name": "create-crouton",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/create-crouton-app/src",
+  "sourceRoot": "packages/create-crouton/src",
   "tags": ["scope:crouton", "type:cli", "tech:node"]
 }
