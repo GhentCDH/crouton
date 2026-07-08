@@ -3,14 +3,15 @@ import {
   BACKEND_DEPS,
   CancelledError,
   type DiscoveredApp,
-  type FileEntry,
   FRONTEND_DEPS,
+  type FileEntry,
   type PackageManager,
   assertNotCancel,
   computeMissing,
   detectPackageManager,
   discoverNxApps,
   fileExists,
+  installDeps,
   isNxProject,
   writeFiles,
   writeIfAbsent,
@@ -151,6 +152,29 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
       await writeIfAbsent(envExamplePath, envLine);
       clack.log.success('Created .env.example');
     }
+
+    // 8. Install deps
+    if (opts.install !== false && allMissing.length > 0) {
+      const s = clack.spinner();
+      s.start(`Installing dependencies with ${pm}`);
+      try {
+        await installDeps(pm, cwd);
+        s.stop('Dependencies installed');
+      } catch {
+        s.stop('Install failed — run manually');
+      }
+    }
+
+    // 9. Next steps
+    const pmRun = pm === 'npm' ? 'npm run' : pm;
+    clack.note(
+      [
+        `${pmRun} prisma:migrate          # create initial migration`,
+        `crouton update resources        # generate resource CRUD`,
+        `${pmRun} dev                     # start dev server`,
+      ].join('\n'),
+      'Next steps',
+    );
 
     clack.outro(pc.green('Crouton added to project.'));
   } catch (err) {

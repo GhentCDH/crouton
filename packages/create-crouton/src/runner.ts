@@ -5,8 +5,10 @@ import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
 import type { PackageManager } from './lib/detect';
 import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
+import { installDeps } from './lib/pm';
 import { CancelledError, assertNotCancel } from './lib/prompts';
 import { render } from './lib/render';
+import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -127,6 +129,61 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     // 6. Write all files
     const written = await writeFiles(files, { force: opts.force });
     clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
+
+    // 7. Post-scaffold steps
+    // 7a. git init
+    if (opts.git !== false) {
+      const s = clack.spinner();
+      s.start('Initializing git repository');
+      try {
+        execSync('git init && git add -A && git commit -m "Initial commit"', {
+          cwd: targetDir,
+          stdio: 'pipe',
+        });
+        s.stop('Git repository initialized');
+      } catch {
+        s.stop('Git init failed (non-fatal)');
+      }
+    }
+
+    // 7b. Install deps
+    if (opts.install !== false) {
+      const s = clack.spinner();
+      s.start(`Installing dependencies with ${pm}`);
+      try {
+        await installDeps(pm, targetDir);
+        s.stop('Dependencies installed');
+      } catch {
+        s.stop('Install failed — run manually');
+      }
+
+      // 7c. Prisma generate (best-effort)
+      try {
+        const s2 = clack.spinner();
+        s2.start('Running prisma generate');
+        execSync('npx prisma generate --config prisma/default/prisma.config.ts', {
+          cwd: targetDir,
+          stdio: 'pipe',
+        });
+        s2.stop('Prisma client generated');
+      } catch {
+        clack.log.warn('prisma generate failed — run it manually after setting up your database.');
+      }
+    }
+
+    // 8. Next steps
+    const pmRun = pm === 'npm' ? 'npm run' : pm;
+    clack.note(
+      [
+        opts.docker !== false ? `docker compose up -d          # start postgres` : null,
+        `${pmRun} prisma:migrate          # create initial migration`,
+        `crouton update resources        # generate resource CRUD`,
+        `${pmRun} dev                     # start dev server`,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+      'Next steps',
+    );
 
     clack.outro(pc.green('Project scaffolded.'));
   } catch (err) {
