@@ -15,11 +15,12 @@ export default defineConfig({
   banner: {
     js: [
       '#!/usr/bin/env node',
-      "import { createRequire as __createRequire } from 'module';",
+      'import { createRequire as __createRequire } from \'module\';',
       'const require = __createRequire(import.meta.url);',
     ].join('\n'),
   },
-  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen'],
+  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli'],
+  external: ['@prisma/internals'],
   esbuildOptions(options) {
     options.conditions = ['@ghentcdh/crouton'];
   },

@@ -6,6 +6,16 @@
     "tag": "alpha"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "@ghentcdh/crouton": "./src/index.ts",
+      "import": "./dist/index.js"
+    },
+    "./create-datasource": {
+      "@ghentcdh/crouton": "./src/create-datasource/index.ts",
+      "import": "./dist/create-datasource/index.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/GhentCDH/crouton",
