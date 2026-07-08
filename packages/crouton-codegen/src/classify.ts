@@ -9,34 +9,12 @@
  *    target resource exists, otherwise hidden everywhere
  */
 
+import { type JsonColumnInput, type ResourceJsonInput, type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
 import { resourceNames, scalarFieldInputType } from './naming';
-import type {
-  DbModel,
-  JsonColumn,
-  ResourceDraft,
-  ResourceJson,
-  Ruleset,
-} from './types';
+import type { DbModel } from './db-model';
+import type { ResourceDraft } from './draft';
 
-export const defaultRuleset = (): Ruleset => ({
-  hideIdInTable: true,
-  hideIdInForm: true,
-  hideIdInView: true,
-  hideTimestamps: true,
-  hideForeignKeys: true,
-  includeRelations: false,
-  hideRelationsInTable: true,
-  showRelationsInForm: true,
-  enumValueLabel: true,
-  sharedEnums: true,
-  defaultOperations: {
-    findAll: true,
-    findOne: true,
-    create: true,
-    update: true,
-    delete: true,
-  },
-});
+export const defaultRuleset = (): Ruleset => RulesetSchema.parse({});
 
 export interface ClassifyContext {
   /** Datasource name stamped on `database`. */
@@ -49,7 +27,7 @@ export interface ClassifyContext {
   resolveRelationResource?: (targetModel: string) => string | undefined;
 }
 
-type Column = Partial<Omit<JsonColumn, 'id'>>;
+type Column = Partial<Omit<JsonColumnInput, 'id'>>;
 
 export const classify = (
   model: DbModel,
@@ -141,7 +119,7 @@ export const classify = (
     columnOrder.push(field.name);
   }
 
-  const config: ResourceJson = {
+  const config: ResourceJsonInput = {
     name: names.name,
     route: names.route,
     model: names.model,

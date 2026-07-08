@@ -32,6 +32,7 @@ export const createAppLayoutController = (
     async getLayout() {
       if (IS_DEV) {
         const fresh = await this.configRegistry.getAll();
+
         return buildLayoutPayload(fresh, sidebarGroups, title, autoSave);
       }
       return layoutPayload;

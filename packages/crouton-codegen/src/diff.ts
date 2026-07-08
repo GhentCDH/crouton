@@ -9,17 +9,14 @@
  *  - field in both, identical → no decision (keeps the run idempotent)
  */
 
-import type {
-  Decision,
-  ResourceDiff,
-  ResourceDraft,
-  ResourceJson,
-} from './types';
+import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+import type { Decision, ResourceDiff } from './decision';
+import type { ResourceDraft } from './draft';
 import { columnEntries, deepEqual } from './util';
 
 export interface DiffInput {
   draft: ResourceDraft;
-  existing?: ResourceJson | null;
+  existing?: ResourceJsonInput | null;
   hasSchemaFile?: boolean;
 }
 

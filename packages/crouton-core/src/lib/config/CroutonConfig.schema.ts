@@ -1,15 +1,7 @@
 import { z } from 'zod';
 
+import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SidebarGroupSchema } from '../resource';
-
-const OperationsSchema = z.object({
-  create: z.boolean().default(true),
-  read: z.boolean().default(true),
-  update: z.boolean().default(true),
-  delete: z.boolean().default(true),
-});
-
-export type JsonOperations = z.infer<typeof OperationsSchema>;
 
 export const RulesetSchema = z.object({
   hideIdInTable: z.boolean().default(true),
@@ -22,7 +14,7 @@ export const RulesetSchema = z.object({
   showRelationsInForm: z.boolean().default(true),
   enumValueLabel: z.boolean().default(true),
   sharedEnums: z.boolean().default(true),
-  defaultOperations: OperationsSchema.default({} as any),
+  defaultOperations: JsonOperationsSchema.default(JsonOperationsSchema.parse({})),
 });
 
 export type Ruleset = z.infer<typeof RulesetSchema>;
@@ -46,7 +38,7 @@ export const CroutonConfigSchema = z.object({
   /** Path to the shared enum registry, relative to project root. Default `crouton.enums.json`. */
   enumsFile: z.string().default('croutons.enums.json'),
   /** Optional overrides of the default visibility ruleset. */
-  rules: RulesetSchema.default({} as any),
+  rules: RulesetSchema.default(RulesetSchema.parse({})),
   /**
    * Sidebar group definitions, keyed by group slug (e.g. `"metadata"`).
    * Resources reference a group via `sidebar.group` in their `resource.json`.

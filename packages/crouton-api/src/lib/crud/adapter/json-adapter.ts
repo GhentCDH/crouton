@@ -10,13 +10,25 @@ import type { ResourceRowAction, ResourceTableAction } from '../action';
 import {
   buildViews,
   injectCalculatedColumns,
-  injectCalculatedColumnsToView
+  injectCalculatedColumnsToView,
 } from '../builder';
-import { opWithSchema, pickByColumns, upsertOp } from '../builder/schema.helpers';
+import {
+  opWithSchema,
+  pickByColumns,
+  upsertOp,
+} from '../builder/schema.helpers';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
-import { enrichActionColumns, enrichIncludeWithSort, enrichResourceRefColumns } from './column-enrichment';
-import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
+import {
+  enrichActionColumns,
+  enrichIncludeWithSort,
+  enrichResourceRefColumns,
+} from './column-enrichment';
+import {
+  applyRelationFormatDefault,
+  buildValueLabelColumns,
+  expandExtendColumns,
+} from './column-transforms';
 import { enrichRelationTypes } from './relation-type';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
@@ -109,17 +121,14 @@ export const fromJson = (
     ...(json.operations.delete !== false && { delete: true }),
   };
 
-  const display = {
-    mode: json.display?.mode === 'page' ? 'page' : 'modal',
-    customComponent: json.display?.customComponent ?? null,
-  };
-
   return {
+    ...json,
     name: json.name,
     route: json.route,
     model: json.model,
     tag: json.tag,
-    display,
+    sidebar: json.sidebar,
+    display: json.display,
     ...(json.idType && { idType: json.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
     ...(json.database && { database: json.database }),

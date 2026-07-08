@@ -13,7 +13,11 @@ export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
   }
 
   async loadAll(): Promise<Resource[]> {
-    return loadResourceConfigsFromDir(this.dirPath, this.baseUrl, this.enumsFile);
+    return loadResourceConfigsFromDir(
+      this.dirPath,
+      this.baseUrl,
+      this.enumsFile,
+    );
   }
 
   async loadByRoute(route: string): Promise<Resource | undefined> {

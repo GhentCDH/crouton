@@ -4,7 +4,7 @@
  */
 
 import { labelFromId } from './naming';
-import type { DbModel } from './types';
+import type { DbModel } from './db-model';
 
 export interface EnumOption {
   value: string;

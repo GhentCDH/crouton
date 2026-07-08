@@ -50,10 +50,10 @@ export const ResourceJsonShape = z.object({
   title: z.string().optional(), // no computed default — used as UI display title
   table: z.string().optional(), // default: same as `model`
   database: z.string().optional(), // default: project's default data source
-  sidebar: SidebarSchema.default({} as any), // default: shown, alphabetically ordered, ungrouped
-  display: JsonDisplaySchema.default({} as any), // default: { mode: 'modal', customComponent: null }
+  sidebar: SidebarSchema.default(SidebarSchema.parse({})), // default: shown, alphabetically ordered, ungrouped
+  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }
   operations: JsonOperationsSchema, // required key — but every sub-field defaults to enabled
-  columns: ColumnsSchema.default({}), //  id-keyed map; omit for a columnless resource
+  columns: ColumnsSchema.default(ColumnsSchema.parse({})), //  id-keyed map; omit for a columnless resource
   calculatedColumns: z.array(CalculatedColumnSchema).default([]),
   actions: z.array(JsonActionSchema).default([]),
   /** Global table-level actions (no record id). Shown as toolbar buttons. */

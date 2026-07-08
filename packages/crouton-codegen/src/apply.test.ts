@@ -4,7 +4,9 @@ import { apply } from './apply';
 import { classify } from './classify';
 import { diff } from './diff';
 import { recommendedResolver, resolve } from './resolve';
-import type { DbModel, ResourceJson } from './types';
+
+import type { ResourceJsonInputInput } from '@ghentcdh/crouton-core';
+import type { DbModel } from './db-model';
 
 const model: DbModel = {
   prismaName: 'Language',
@@ -58,7 +60,7 @@ const ctx = {
   generatedTypesImport: '@np/generated/types',
 };
 
-const run = async (existing?: ResourceJson, hasSchemaFile = false) => {
+const run = async (existing?: ResourceJsonInput, hasSchemaFile = false) => {
   const draft = classify(model, { database: 'docsdb' });
   const d = diff({ draft, existing, hasSchemaFile });
   const resolved = await resolve(d, recommendedResolver);
@@ -132,7 +134,7 @@ describe('apply — idempotency', () => {
     const resourceJson = first.files.find((f) =>
       f.path.endsWith('resource.json'),
     )!.contents;
-    const existing = JSON.parse(resourceJson) as ResourceJson;
+    const existing = JSON.parse(resourceJson) as ResourceJsonInput;
 
     const draft = classify(model, { database: 'docsdb' });
     const d2 = diff({ draft, existing, hasSchemaFile: true });
@@ -146,7 +148,7 @@ describe('apply — idempotency', () => {
 });
 
 describe('apply — update merges and preserves hand edits', () => {
-  const existing: ResourceJson = {
+  const existing: ResourceJsonInput = {
     name: 'language',
     route: 'language',
     model: 'language',

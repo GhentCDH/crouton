@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildEnumRegistry, mergeEnumRegistry } from './enum-registry';
-import type { DbModel } from './types';
+import type { DbModel } from './db-model';
 
 const model = (fields: any[]): DbModel => ({
   prismaName: 'X', clientAccessor: 'x', hasCompositeId: false, fields,

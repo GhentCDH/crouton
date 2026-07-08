@@ -51,5 +51,6 @@ export const loadConfig = async () => {
     } & CroutonConfig;
     config = mod.default ?? mod;
   }
+
   return CroutonConfigSchema.parse(config);
 };

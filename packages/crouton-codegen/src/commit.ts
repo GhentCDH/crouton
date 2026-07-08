@@ -6,8 +6,9 @@
  * computes the result without touching disk.
  */
 
-import type { WritePlan } from './types';
-import { access, mkdir, writeFile } from 'node:fs/promises';
+import type { WritePlan } from './write-plan';
+import { fileExists } from './util';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
 
@@ -20,15 +21,6 @@ export interface CommitResult {
   skipped: string[];
 }
 
-const exists = async (path: string): Promise<boolean> => {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
 export const commit = async (
   plan: WritePlan,
   opts: CommitOptions = {},
@@ -37,7 +29,7 @@ export const commit = async (
   const skipped: string[] = [];
 
   for (const file of plan.files) {
-    if (file.action === 'create' && (await exists(file.path))) {
+    if (file.action === 'create' && (await fileExists(file.path))) {
       skipped.push(file.path);
       continue;
     }

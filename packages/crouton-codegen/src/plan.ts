@@ -5,13 +5,14 @@
  * are injected so this composes cleanly and stays unit-testable without disk.
  */
 
-import { type CroutonConfig } from '@ghentcdh/crouton-core';
+import { type CroutonConfig, type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
 
-import { classify, defaultRuleset } from './classify';
+import { classify } from './classify';
+import type { DbModel } from './db-model';
+import type { ResourceDiff } from './decision';
 import { diff } from './diff';
 import { resourceNames } from './naming';
 import type { ExistingResource } from './project';
-import type { DbModel, ResourceDiff, Ruleset } from './types';
 
 export interface BuildDiffsDeps {
   /** Datasource name stamped on generated resources. */
@@ -25,10 +26,7 @@ export interface BuildDiffsDeps {
 /** Merge a config's rule overrides over the defaults. */
 export const resolveRuleset = (
   config?: Pick<CroutonConfig, 'rules'>,
-): Ruleset => ({
-  ...defaultRuleset(),
-  ...(config?.rules ?? {}),
-});
+): Ruleset => RulesetSchema.parse(config?.rules ?? {});
 
 /** Build the `ResourceDiff` for a single model. */
 export const buildResourceDiff = async (

@@ -6,25 +6,17 @@
 
 import { type LoadedConfig, resolveFromRoot } from './config';
 import { clientAccessor } from './naming';
-import type { ResourceJson } from './types';
-import { access, readFile, readdir } from 'node:fs/promises';
+import { fileExists } from './util';
+import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-
-const fileExists = async (p: string): Promise<boolean> => {
-  try {
-    await access(p);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 /** Absolute path to a resource directory. */
 export const resourceDir = (loaded: LoadedConfig, name: string): string =>
   join(resolveFromRoot(loaded.root, loaded.config.resourcesDir), name);
 
 export interface ExistingResource {
-  config: ResourceJson | null;
+  config: ResourceJsonInput | null;
   hasSchemaFile: boolean;
 }
 
@@ -36,7 +28,7 @@ export const readExistingResource = async (
   const dir = resourceDir(loaded, name);
   const jsonPath = join(dir, 'resource.json');
   const config = (await fileExists(jsonPath))
-    ? (JSON.parse(await readFile(jsonPath, 'utf-8')) as ResourceJson)
+    ? (JSON.parse(await readFile(jsonPath, 'utf-8')) as ResourceJsonInput)
     : null;
   const hasSchemaFile =
     (await fileExists(join(dir, 'schema.ts'))) ||

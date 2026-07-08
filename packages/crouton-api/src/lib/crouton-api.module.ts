@@ -56,6 +56,7 @@ export class CroutonApiModule {
   ): DynamicModule {
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
     const configRegistry = new ResourceConfigRegistry(loader, configs);
+
     const controllers = [
       ...configs.map((c) => createCrudController(c, baseUrl)),
       createAppLayoutController(

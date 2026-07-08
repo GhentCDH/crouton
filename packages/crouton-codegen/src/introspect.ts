@@ -6,8 +6,9 @@
  * touches `loadDmmf`.
  */
 
+import type { RelationType } from '@ghentcdh/crouton-core';
 import { idTypeFor, isTimestampField } from './naming';
-import type { DbField, DbFieldKind, DbModel, RelationType } from './types';
+import type { DbField, DbFieldKind, DbModel } from './db-model';
 
 // ─── Minimal DMMF shapes (only what we consume) ──────────────────────────────
 

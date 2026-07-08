@@ -10,7 +10,6 @@ export const readResourceJson = (jsonPath: string): ResolveResource => {
   const fileContent = JSON.parse(readFileSync(jsonPath, 'utf-8'));
 
   const resource = ResourceJsonSchema.safeParse(fileContent);
-
   if (resource.error) {
     console.error(resource.error);
 

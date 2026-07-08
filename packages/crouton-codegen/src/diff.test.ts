@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { classify } from './classify';
 import { diff } from './diff';
-import type { DbModel } from './types';
+import type { DbModel } from './db-model';
 
 const model: DbModel = {
   prismaName: 'Language',

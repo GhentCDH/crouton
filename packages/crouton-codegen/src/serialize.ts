@@ -6,9 +6,9 @@
  * order when updating), so re-runs produce minimal git diffs and are idempotent.
  */
 
-import type { ResourceJson } from './types';
+import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
 
-export const serializeResourceJson = (config: ResourceJson): string =>
+export const serializeResourceJson = (config: ResourceJsonInput): string =>
   `${JSON.stringify(config, null, 2)}\n`;
 
 /**

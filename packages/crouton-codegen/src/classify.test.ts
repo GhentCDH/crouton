@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { classify, defaultRuleset } from './classify';
-import type { DbModel, JsonColumn } from './types';
+import type { JsonColumnInput } from '@ghentcdh/crouton-core';
+import type { DbModel } from './db-model';
 
 const model: DbModel = {
   prismaName: 'Text',
@@ -22,7 +23,7 @@ const model: DbModel = {
 };
 
 const col = (d: ReturnType<typeof classify>, id: string) =>
-  (d.config.columns as Record<string, Omit<JsonColumn, 'id'>>)[id];
+  (d.config.columns as Record<string, Omit<JsonColumnInput, 'id'>>)[id];
 
 describe('classify', () => {
   it('derives identity + operations + database + sidebar', () => {
