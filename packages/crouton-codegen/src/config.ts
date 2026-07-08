@@ -9,6 +9,8 @@
  * import, zod output, and Prisma config (for multi-datasource projects).
  */
 
+import { z } from 'zod';
+
 import {
   CONFIG_FILES,
   type CroutonConfig,
@@ -19,9 +21,8 @@ import {
   transformDataSource,
 } from '@ghentcdh/crouton-core';
 
-import { access, readdir, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
-import { z } from 'zod';
 
 export interface LoadedConfig {
   config: CroutonConfig;

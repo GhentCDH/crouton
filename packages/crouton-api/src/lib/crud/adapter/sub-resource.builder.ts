@@ -6,10 +6,10 @@ import {
   injectCalculatedColumnsToView
 } from '../builder';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
 import { resolveChildResource } from './resource-resolver';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 /**
  * Build `SubResourceConfig` entries for columns with `fieldInput.format === "action"`.

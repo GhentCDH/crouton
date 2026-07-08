@@ -1,6 +1,7 @@
 import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import type { JsonColumn } from '@ghentcdh/crouton-core';
+
 import { jsonSchemaOpts } from '../schema.utils';
 import { isRelation } from './column-predicates';
 import { sortByPosition, toViewColumn } from './column.utils';

@@ -1,15 +1,14 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { fromValueLabel } from '@ghentcdh/crouton-core';
-
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import { resolveDefinition, upsertOnFor } from './crud.config';
 import type { WriteOp } from './hooks';
+import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import type { ValueLabelColumn } from './resource/valueLabel';
-import { type Resource } from './resource/ResourceConfig.schema';
 
 /** Unwrap `{ value, label }` fields back to their scalar before persistence. */
 const normalizeValueLabels = (

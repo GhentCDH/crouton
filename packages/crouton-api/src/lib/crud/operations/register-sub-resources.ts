@@ -2,8 +2,8 @@ import { Body, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudRepository } from '../crud-repository.factory';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { RequestDtoNoOffset } from '../request.dto';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';

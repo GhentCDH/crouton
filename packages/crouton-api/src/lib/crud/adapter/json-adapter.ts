@@ -15,13 +15,13 @@ import {
 import { opWithSchema, pickByColumns, upsertOp } from '../builder/schema.helpers';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
-import type { ResourceDefinition } from '../resource/defintion.schema';
-import type { LookupConfig } from '../resource/lookup.schema';
-import { type Resource } from '../resource/ResourceConfig.schema';
 import { enrichActionColumns, enrichIncludeWithSort, enrichResourceRefColumns } from './column-enrichment';
 import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
 import { enrichRelationTypes } from './relation-type';
 import { buildSubResources } from './sub-resource.builder';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import type { ResourceDefinition } from '../resource/defintion.schema';
+import type { LookupConfig } from '../resource/lookup.schema';
 
 export const fromJson = (
   json: ResourceJson,

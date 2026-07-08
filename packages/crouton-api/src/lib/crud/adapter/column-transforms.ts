@@ -1,7 +1,7 @@
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
-import type { ValueLabelColumn } from '../resource/valueLabel';
 import { resolveChildResource } from './resource-resolver';
+import type { ValueLabelColumn } from '../resource/valueLabel';
 
 /**
  * Expand columns that declare `extend` into virtual sub-columns derived from the

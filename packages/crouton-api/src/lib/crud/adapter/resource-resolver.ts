@@ -1,7 +1,7 @@
+import { type ResolveResource, readResourceJson } from '../resource/ReadResourceJson';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-import { type ResolveResource, readResourceJson } from '../resource/ReadResourceJson';
 
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the
