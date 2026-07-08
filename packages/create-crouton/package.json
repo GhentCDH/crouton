@@ -2,6 +2,16 @@
   "name": "create-crouton",
   "version": "0.0.1",
   "type": "module",
+  "exports": {
+    ".": {
+      "@ghentcdh/crouton": "./src/index.ts",
+      "import": "../../dist/create-crouton/index.js"
+    },
+    "./lib": {
+      "@ghentcdh/crouton": "./src/lib/index.ts",
+      "import": "../../dist/create-crouton/lib/index.js"
+    }
+  },
   "bin": {
     "create-crouton": "../../dist/create-crouton/index.js"
   },

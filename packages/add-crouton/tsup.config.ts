@@ -19,7 +19,7 @@ export default defineConfig({
       'const require = __createRequire(import.meta.url);',
     ].join('\n'),
   },
-  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen'],
+  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', 'create-crouton'],
   esbuildOptions(options) {
     options.conditions = ['@ghentcdh/crouton'];
   },
