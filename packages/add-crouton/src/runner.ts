@@ -1,10 +1,13 @@
 import * as clack from '@clack/prompts';
 import {
+  BACKEND_DEPS,
   CancelledError,
   type DiscoveredApp,
   type FileEntry,
+  FRONTEND_DEPS,
   type PackageManager,
   assertNotCancel,
+  computeMissing,
   detectPackageManager,
   discoverNxApps,
   fileExists,
@@ -81,6 +84,21 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
     // 3. Detect package manager
     const pm = await resolvePm(cwd, opts);
     clack.log.info(`Package manager: ${pc.cyan(pm)}`);
+
+    // 3b. Scan missing deps
+    const backendPkgPath = nx && dataSourcesDir.startsWith('apps/')
+      ? resolve(cwd, 'apps', dataSourcesDir.split('/')[1], 'package.json')
+      : resolve(cwd, 'package.json');
+
+    const missingBackend = await computeMissing(backendPkgPath, BACKEND_DEPS);
+    const allMissing = [...missingBackend.deps, ...missingBackend.devDeps];
+
+    if (allMissing.length > 0) {
+      clack.log.warn(`Missing backend deps: ${allMissing.map((d) => pc.yellow(d)).join(', ')}`);
+      clack.log.info('Install them after this script finishes.');
+    } else {
+      clack.log.success('All backend dependencies present.');
+    }
 
     // 4. Write crouton.json (if absent)
     const croutonJsonPath = resolve(cwd, 'crouton.json');
