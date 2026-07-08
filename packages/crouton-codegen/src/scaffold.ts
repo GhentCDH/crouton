@@ -16,10 +16,10 @@ import {
   transformDataSource,
 } from '@ghentcdh/crouton-core';
 
+import { fileExists } from './util';
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { fileExists } from './util';
 
 export const ScallfoldDatasourceSchema = DataSourceShape.extend({
   /** Folder name under `dataSourcesDir`. */ folder: z

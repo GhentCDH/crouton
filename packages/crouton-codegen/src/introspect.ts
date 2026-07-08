@@ -7,8 +7,9 @@
  */
 
 import type { RelationType } from '@ghentcdh/crouton-core';
-import { idTypeFor, isTimestampField } from './naming';
+
 import type { DbField, DbFieldKind, DbModel } from './db-model';
+import { idTypeFor, isTimestampField } from './naming';
 
 // ─── Minimal DMMF shapes (only what we consume) ──────────────────────────────
 

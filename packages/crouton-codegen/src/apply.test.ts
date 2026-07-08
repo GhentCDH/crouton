@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
+import type { ResourceJsonInputInput } from '@ghentcdh/crouton-core';
+
 import { apply } from './apply';
 import { classify } from './classify';
+import type { DbModel } from './db-model';
 import { diff } from './diff';
 import { recommendedResolver, resolve } from './resolve';
 
-import type { ResourceJsonInputInput } from '@ghentcdh/crouton-core';
-import type { DbModel } from './db-model';
 
 const model: DbModel = {
   prismaName: 'Language',

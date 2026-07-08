@@ -1,6 +1,7 @@
 /** Decision and diff types produced by the `diff` stage. */
 
 import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+
 import type { ResourceDraft } from './draft';
 
 export type DecisionKind =

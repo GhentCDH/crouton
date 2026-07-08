@@ -6,8 +6,8 @@
  * computes the result without touching disk.
  */
 
-import type { WritePlan } from './write-plan';
 import { fileExists } from './util';
+import type { WritePlan } from './write-plan';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 

@@ -16,10 +16,10 @@ import {
   DataSourceSchema,
 } from '@ghentcdh/crouton-core';
 
+import { fileExists } from './util';
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
-import { fileExists } from './util';
 
 export interface LoadedConfig {
   config: CroutonConfig;

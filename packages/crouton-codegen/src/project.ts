@@ -4,10 +4,11 @@
  * targets to sibling resource files.
  */
 
+import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+
 import { type LoadedConfig, resolveFromRoot } from './config';
 import { clientAccessor } from './naming';
 import { fileExists } from './util';
-import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 

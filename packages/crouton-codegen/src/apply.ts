@@ -7,10 +7,11 @@
  */
 
 import type { JsonColumnInput } from '@ghentcdh/crouton-core';
+
 import type { ResolvedDiff } from './decision';
 import { serializeResourceJson, serializeSchemaTs } from './serialize';
-import type { WritePlan } from './write-plan';
 import { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
+import type { WritePlan } from './write-plan';
 
 const joinPath = (...parts: string[]): string =>
   parts.join('/').replace(/\/+/g, '/');

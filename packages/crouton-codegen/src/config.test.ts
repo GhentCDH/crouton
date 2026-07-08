@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import type { DataSource } from '@ghentcdh/crouton-core';
+
 import {
   type CroutonConfig,
   loadConfig,
@@ -8,7 +10,6 @@ import {
   resolveDatasource,
   validateConfig,
 } from './config';
-import type { DataSource } from '@ghentcdh/crouton-core';
 import { scaffoldConfigFromProject } from './scaffold';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';

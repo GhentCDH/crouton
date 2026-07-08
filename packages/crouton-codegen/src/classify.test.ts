@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { classify, defaultRuleset } from './classify';
 import type { JsonColumnInput } from '@ghentcdh/crouton-core';
+
+import { classify, defaultRuleset } from './classify';
 import type { DbModel } from './db-model';
 
 const model: DbModel = {

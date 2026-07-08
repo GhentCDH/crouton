@@ -10,6 +10,7 @@
  */
 
 import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+
 import type { Decision, ResourceDiff } from './decision';
 import type { ResourceDraft } from './draft';
 import { columnEntries, deepEqual } from './util';

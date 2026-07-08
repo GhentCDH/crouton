@@ -10,9 +10,10 @@
  */
 
 import { type JsonColumnInput, type ResourceJsonInput, type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
-import { resourceNames, scalarFieldInputType } from './naming';
+
 import type { DbModel } from './db-model';
 import type { ResourceDraft } from './draft';
+import { resourceNames, scalarFieldInputType } from './naming';
 
 export const defaultRuleset = (): Ruleset => RulesetSchema.parse({});
 
