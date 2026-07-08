@@ -1,5 +1,7 @@
 import { Command } from 'commander';
 
+import { runCreate } from './runner';
+
 const program = new Command('create-crouton')
   .description('Scaffold a new crouton project')
   .version('0.0.1')
@@ -14,8 +16,13 @@ const program = new Command('create-crouton')
   .option('--no-docker', 'skip Docker file generation')
   .option('-y, --yes', 'accept all defaults (non-interactive)')
   .option('--force', 'overwrite existing files')
-  .action((name: string) => {
-    console.warn(`TODO: create-crouton "${name}"`);
+  .action(async (name: string, opts) => {
+    try {
+      await runCreate(name, opts);
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : err);
+      process.exitCode = 1;
+    }
   });
 
 program.parse();
