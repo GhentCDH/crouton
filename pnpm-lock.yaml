@@ -126,11 +126,47 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
-  packages/create-crouton-app:
+  packages/add-crouton:
     devDependencies:
+      '@clack/prompts':
+        specifier: ^0.11.0
+        version: 0.11.0
+      '@ghentcdh/crouton-cli':
+        specifier: workspace:*
+        version: link:../crouton-cli
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../crouton-codegen
       commander:
         specifier: ^14.0.0
         version: 14.0.3
+      create-crouton:
+        specifier: workspace:*
+        version: link:../create-crouton
+      picocolors:
+        specifier: ^1.1.0
+        version: 1.1.1
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@microsoft/api-extractor@7.58.8(@types/node@26.0.1))(@swc/core@1.15.43(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.16)(typescript@5.9.3)(yaml@2.9.0)
+
+  packages/create-crouton:
+    devDependencies:
+      '@clack/prompts':
+        specifier: ^0.11.0
+        version: 0.11.0
+      '@ghentcdh/crouton-cli':
+        specifier: workspace:*
+        version: link:../crouton-cli
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../crouton-codegen
+      commander:
+        specifier: ^14.0.0
+        version: 14.0.3
+      picocolors:
+        specifier: ^1.1.0
+        version: 1.1.1
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@microsoft/api-extractor@7.58.8(@types/node@26.0.1))(@swc/core@1.15.43(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.16)(typescript@5.9.3)(yaml@2.9.0)

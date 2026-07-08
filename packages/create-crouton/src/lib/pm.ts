@@ -1,6 +1,6 @@
+import type { PackageManager } from './detect';
 import { spawn } from 'node:child_process';
 
-import type { PackageManager } from './detect';
 
 /**
  * Run `<pm> install` in the given directory. Returns a promise that resolves

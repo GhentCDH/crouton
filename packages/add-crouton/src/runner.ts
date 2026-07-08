@@ -170,7 +170,7 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
     clack.note(
       [
         `${pmRun} prisma:migrate          # create initial migration`,
-        `crouton update resources        # generate resource CRUD`,
+        'crouton update resources        # generate resource CRUD',
         `${pmRun} dev                     # start dev server`,
       ].join('\n'),
       'Next steps',

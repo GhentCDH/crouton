@@ -175,9 +175,9 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     const pmRun = pm === 'npm' ? 'npm run' : pm;
     clack.note(
       [
-        opts.docker !== false ? `docker compose up -d          # start postgres` : null,
+        opts.docker !== false ? 'docker compose up -d          # start postgres' : null,
         `${pmRun} prisma:migrate          # create initial migration`,
-        `crouton update resources        # generate resource CRUD`,
+        'crouton update resources        # generate resource CRUD',
         `${pmRun} dev                     # start dev server`,
       ]
         .filter(Boolean)

@@ -1,7 +1,7 @@
+import { fileExists } from './files';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { fileExists } from './files';
 
 export type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun';
 
