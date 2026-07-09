@@ -43,7 +43,7 @@
     }
   ],
   "release": {
-    "projects": ["crouton-vue", "crouton-forms-vue", "crouton-api", "crouton-cli", "create-crouton", "add-crouton"],
+    "projects": ["crouton-vue", "crouton-forms-vue", "crouton-api", "crouton-cli", "@ghentcdh/create-crouton", "@ghentcdh/add-crouton"],
     "version": {
       "conventionalCommits": true,
       "preVersionCommand": "npx nx run-many -t build"

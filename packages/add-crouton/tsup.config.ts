@@ -19,7 +19,7 @@ export default defineConfig({
       'const require = __createRequire(import.meta.url);',
     ].join('\n'),
   },
-  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli', 'create-crouton'],
+  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli', '@ghentcdh/create-crouton'],
   external: ['@prisma/internals'],
   esbuildOptions(options) {
     options.conditions = ['@ghentcdh/crouton'];

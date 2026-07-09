@@ -15,7 +15,7 @@ import {
   isNxProject,
   writeFiles,
   writeIfAbsent,
-} from 'create-crouton/lib';
+} from '@ghentcdh/create-crouton/lib';
 import pc from 'picocolors';
 
 import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';

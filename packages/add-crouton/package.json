@@ -1,5 +1,5 @@
 {
-  "name": "add-crouton",
+  "name": "@ghentcdh/add-crouton",
   "version": "0.0.1-alpha.21",
   "type": "module",
   "bin": {
@@ -16,7 +16,7 @@
     "@clack/prompts": "^0.11.0",
     "@ghentcdh/crouton-cli": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
-    "create-crouton": "workspace:*",
+    "@ghentcdh/create-crouton": "workspace:*",
     "commander": "^14.0.0",
     "picocolors": "^1.1.0",
     "tsup": "^8.0.0"

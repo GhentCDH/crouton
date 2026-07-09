@@ -75,7 +75,7 @@ flowchart LR
 
 ## In this guide
 
-- [Getting started](./getting-started.md) — `npx create-crouton` or `npx add-crouton` to set up a new or existing project
+- [Getting started](./getting-started.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set up a new or existing project
 - [CLI & project config](./cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`
 - [Backend setup](./backend.md) — register crouton in your NestJS application
 - [Frontend setup](./frontend.md) — bootstrap crouton in your Vue application

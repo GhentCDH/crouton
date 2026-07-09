@@ -1,5 +1,5 @@
 {
-  "name": "add-crouton",
+  "name": "@ghentcdh/add-crouton",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/add-crouton/src",

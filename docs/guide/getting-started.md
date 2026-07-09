@@ -2,12 +2,14 @@
 
 Two ways to start with crouton: **create a new project** from scratch, or **add crouton** to an existing one.
 
-## create-crouton
+## @ghentcdh/create-crouton
 
 Scaffold a complete crouton project — a NestJS backend with Prisma, pre-configured datasource, Docker Compose, and optionally an Nx monorepo layout with a Vue frontend.
 
 ```sh
-npx create-crouton my-app
+npm create @ghentcdh/crouton my-app
+# or
+npx @ghentcdh/create-crouton my-app
 ```
 
 ### Flags
@@ -94,14 +96,14 @@ crouton update resources      # generate resource CRUD from your schema
 pnpm dev                      # start dev server
 ```
 
-## add-crouton
+## @ghentcdh/add-crouton
 
 Add crouton to an **existing** NestJS project — regular or Nx. This command is additive: it never overwrites existing files.
 
 ```sh
-npx add-crouton
+npx @ghentcdh/add-crouton
 # or from outside the project:
-npx add-crouton --cwd /path/to/project
+npx @ghentcdh/add-crouton --cwd /path/to/project
 ```
 
 ### Flags
@@ -130,4 +132,4 @@ npx add-crouton --cwd /path/to/project
    - `.env.example` — with `DATABASE_URL` placeholder
 6. **Installs dependencies** — runs `<pm> install` if missing deps were detected.
 
-After running `add-crouton`, wire `CroutonApiModule` into your NestJS app module — see [Backend setup](./backend.md).
+After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module — see [Backend setup](./backend.md).

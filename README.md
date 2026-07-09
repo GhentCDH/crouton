@@ -12,7 +12,7 @@
 [![crouton-vue](https://img.shields.io/npm/v/@ghentcdh/crouton-vue.svg?label=crouton-vue)](https://www.npmjs.com/package/@ghentcdh/crouton-vue)
 [![crouton-forms-vue](https://img.shields.io/npm/v/@ghentcdh/crouton-forms-vue.svg?label=crouton-forms-vue)](https://www.npmjs.com/package/@ghentcdh/crouton-forms-vue)
 [![crouton-cli](https://img.shields.io/npm/v/@ghentcdh/crouton-cli.svg?label=crouton-cli)](https://www.npmjs.com/package/@ghentcdh/crouton-cli)
-[![create-crouton-app](https://img.shields.io/npm/v/create-crouton-app.svg?label=create-crouton-app)](https://www.npmjs.com/package/create-crouton-app)
+[![create-crouton](https://img.shields.io/npm/v/@ghentcdh/create-crouton.svg?label=create-crouton)](https://www.npmjs.com/package/@ghentcdh/create-crouton)
 </div>
 
 ---
