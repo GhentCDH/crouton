@@ -47,6 +47,16 @@ type CroutonAppConfig = {
   exports: [],
 })
 export class CroutonApiModule {
+  onModuleInit() {
+    // BigInt has no toJSON — JSON.stringify throws "Do not know how to serialize a BigInt".
+    // Patch once so every response containing BigInt fields (e.g. Prisma Int8 / BigInt columns) works.
+    if (!(BigInt.prototype as any).toJSON) {
+      (BigInt.prototype as any).toJSON = function () {
+        return Number(this);
+      };
+    }
+  }
+
   private static forResources(
     configs: Resource[],
     dataSources: DataSourceEntry[],
