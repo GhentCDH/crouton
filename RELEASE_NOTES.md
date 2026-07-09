@@ -1,3 +1,18 @@
+## 0.0.1-alpha.21 (2026-07-09)
+
+### 🚀 Features
+
+- add create-crouton and add-crouton    CLI tools ([#36](https://github.com/GhentCDH/crouton/pull/36))
+
+### 🩹 Fixes
+
+- add BigInt ([#37](https://github.com/GhentCDH/crouton/pull/37))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.20 (2026-06-30)
 
 ### 🩹 Fixes
