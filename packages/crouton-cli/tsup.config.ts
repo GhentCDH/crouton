@@ -6,7 +6,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 const outDir = './dist';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/create-datasource/index.ts'],
   outDir,
   format: ['esm'],
   dts: false,
