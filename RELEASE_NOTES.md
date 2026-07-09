@@ -1,3 +1,15 @@
+## 0.0.1-alpha.22 (2026-07-09)
+
+### 🩹 Fixes
+
+- scope create-crouton and add-crouton under @ghentcdh ([d41a9a3](https://github.com/GhentCDH/crouton/commit/d41a9a3))
+- styling ([ed56c0e](https://github.com/GhentCDH/crouton/commit/ed56c0e))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.21 (2026-07-09)
 
 ### 🚀 Features
