@@ -13,6 +13,8 @@
 [![crouton-forms-vue](https://img.shields.io/npm/v/@ghentcdh/crouton-forms-vue.svg?label=crouton-forms-vue)](https://www.npmjs.com/package/@ghentcdh/crouton-forms-vue)
 [![crouton-cli](https://img.shields.io/npm/v/@ghentcdh/crouton-cli.svg?label=crouton-cli)](https://www.npmjs.com/package/@ghentcdh/crouton-cli)
 [![create-crouton](https://img.shields.io/npm/v/@ghentcdh/create-crouton.svg?label=create-crouton)](https://www.npmjs.com/package/@ghentcdh/create-crouton)
+
+[Documentation](https://ghentcdh.github.io/crouton/)
 </div>
 
 ---
