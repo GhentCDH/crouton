@@ -133,7 +133,7 @@ importers:
         version: 0.11.0
       '@ghentcdh/create-crouton':
         specifier: workspace:*
-        version: link:../create-crouton
+        version: link:../../dist/create-crouton
       '@ghentcdh/crouton-cli':
         specifier: workspace:*
         version: link:../crouton-cli
@@ -149,6 +149,7 @@ importers:
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@microsoft/api-extractor@7.58.8(@types/node@26.0.1))(@swc/core@1.15.43(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.16)(typescript@5.9.3)(yaml@2.9.0)
+    publishDirectory: ../../dist/add-crouton
 
   packages/create-crouton:
     devDependencies:
@@ -170,6 +171,7 @@ importers:
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@microsoft/api-extractor@7.58.8(@types/node@26.0.1))(@swc/core@1.15.43(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.16)(typescript@5.9.3)(yaml@2.9.0)
+    publishDirectory: ../../dist/create-crouton
 
   packages/crouton-api:
     dependencies:
