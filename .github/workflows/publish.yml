@@ -24,7 +24,7 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: npx nx run-many -t build -p crouton-vue crouton-forms-vue crouton-api
+        run: npx nx run-many -t build
 
       - name: Publish package on NPM
         run: npx nx release publish --access public --verbose
