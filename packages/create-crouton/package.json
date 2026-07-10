@@ -3,25 +3,24 @@
   "version": "0.0.1-alpha.22",
   "publishConfig": {
     "access": "public",
-    "tag": "alpha",
-    "directory": "../../dist/create-crouton"
+    "tag": "alpha"
   },
   "type": "module",
   "exports": {
     ".": {
       "@ghentcdh/crouton": "./src/index.ts",
-      "import": "../../dist/create-crouton/index.js"
+      "import": "./dist/index.js"
     },
     "./lib": {
       "@ghentcdh/crouton": "./src/lib/index.ts",
-      "import": "../../dist/create-crouton/lib/index.js"
+      "import": "./dist/lib/index.js"
     }
   },
   "bin": {
-    "create-crouton": "../../dist/create-crouton/index.js"
+    "create-crouton": "./dist/index.js"
   },
   "files": [
-    "../../dist/create-crouton"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",

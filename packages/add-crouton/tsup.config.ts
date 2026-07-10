@@ -1,8 +1,6 @@
 import { defineConfig } from 'tsup';
 
-import { readFile, writeFile } from 'node:fs/promises';
-
-const outDir = '../../dist/add-crouton';
+const outDir = './dist';
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -23,21 +21,5 @@ export default defineConfig({
   external: ['@prisma/internals'],
   esbuildOptions(options) {
     options.conditions = ['@ghentcdh/crouton'];
-  },
-  async onSuccess() {
-    const pkg = JSON.parse(await readFile('./package.json', 'utf8'));
-    const distPkg = {
-      name: pkg.name,
-      version: pkg.version,
-      description: 'Add crouton to an existing project',
-      type: 'module',
-      bin: Object.fromEntries(
-        Object.keys(pkg.bin ?? {}).map((name) => [name, './index.js']),
-      ),
-    };
-    await writeFile(
-      `${outDir}/package.json`,
-      `${JSON.stringify(distPkg, null, 2)}\n`,
-    );
   },
 });

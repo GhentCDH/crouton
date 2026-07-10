@@ -1,50 +1,59 @@
 import { defineConfig } from 'tsup';
 
-import { cp, readFile, writeFile } from 'node:fs/promises';
+import { cp } from 'node:fs/promises';
 
-const outDir = '../../dist/create-crouton';
+const outDir = './dist';
 
-export default defineConfig({
-  entry: ['src/index.ts'],
-  outDir,
-  format: ['esm'],
-  dts: false,
-  splitting: false,
-  sourcemap: true,
-  clean: true,
-  banner: {
-    js: [
-      '#!/usr/bin/env node',
-      'import { createRequire as __createRequire } from \'module\';',
-      'const require = __createRequire(import.meta.url);',
-    ].join('\n'),
+export default defineConfig([
+  // CLI entry (with shebang)
+  {
+    entry: ['src/index.ts'],
+    outDir,
+    format: ['esm'],
+    dts: false,
+    splitting: false,
+    sourcemap: true,
+    clean: true,
+    banner: {
+      js: [
+        '#!/usr/bin/env node',
+        'import { createRequire as __createRequire } from \'module\';',
+        'const require = __createRequire(import.meta.url);',
+      ].join('\n'),
+    },
+    noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli'],
+    external: ['@prisma/internals'],
+    esbuildOptions(options) {
+      options.conditions = ['@ghentcdh/crouton'];
+    },
+    async onSuccess() {
+      // Copy templates into dist so they're available at runtime
+      await cp('./templates', `${outDir}/templates`, { recursive: true }).catch(
+        () => {
+          /* no templates yet */
+        },
+      );
+    },
   },
-  noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli'],
-  external: ['@prisma/internals'],
-  esbuildOptions(options) {
-    options.conditions = ['@ghentcdh/crouton'];
+  // Library entry (shared utilities used by add-crouton)
+  {
+    entry: { 'lib/index': 'src/lib/index.ts' },
+    outDir,
+    format: ['esm'],
+    dts: false,
+    splitting: false,
+    sourcemap: true,
+    clean: false,
+    banner: {
+      js: [
+        'import { createRequire as __createRequire } from \'module\';',
+        'const require = __createRequire(import.meta.url);',
+      ].join('\n'),
+    },
+    noExternal: ['@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli'],
+    external: ['@prisma/internals'],
+    esbuildOptions(options) {
+      options.conditions = ['@ghentcdh/crouton'];
+    },
   },
-  async onSuccess() {
-    const pkg = JSON.parse(await readFile('./package.json', 'utf8'));
-    const distPkg = {
-      name: pkg.name,
-      version: pkg.version,
-      description: 'Scaffold a new crouton project',
-      type: 'module',
-      bin: Object.fromEntries(
-        Object.keys(pkg.bin ?? {}).map((name) => [name, './index.js']),
-      ),
-    };
-    await writeFile(
-      `${outDir}/package.json`,
-      `${JSON.stringify(distPkg, null, 2)}\n`,
-    );
-
-    // Copy templates into dist so they're available at runtime
-    await cp('./templates', `${outDir}/templates`, { recursive: true }).catch(
-      () => {
-        /* no templates yet */
-      },
-    );
-  },
-});
+]);
