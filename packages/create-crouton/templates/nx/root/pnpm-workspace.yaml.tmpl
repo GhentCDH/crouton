@@ -1,0 +1,6 @@
+packages:
+{{#if prefix}}  - {{prefix}}/apps/*
+  - {{prefix}}/generated/*
+{{/if}}{{#if noPrefix}}  - apps/*
+  - generated/*
+{{/if}}  - libs/*

@@ -27,6 +27,7 @@ export interface CreateOptions {
   yes?: boolean;
   force?: boolean;
   dbUrl?: string;
+  prefix?: string;
 }
 
 /**
@@ -70,6 +71,7 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     // 2. Prompts
     const layout = await resolveLayout(opts);
     const frontend = await resolveFrontend(opts, layout);
+    const prefix = layout === 'nx' ? await resolvePrefix(opts) : undefined;
     const pm = await resolvePm(opts);
     const dbUrl = await resolveDbUrl(opts);
 
@@ -88,6 +90,18 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
       tokens['nx'] = 'true';
       tokens['backendApp'] = 'backend';
       tokens['frontendApp'] = 'frontend';
+
+      if (prefix) {
+        tokens['prefix'] = prefix;
+        tokens['appsRoot'] = `${prefix}/apps`;
+        tokens['schemaPath'] = '../../../node_modules/nx/schemas/project-schema.json';
+        tokens['generatedTypesPath'] = `${prefix}/generated/types/src`;
+      } else {
+        tokens['noPrefix'] = 'true';
+        tokens['appsRoot'] = 'apps';
+        tokens['schemaPath'] = '../../node_modules/nx/schemas/project-schema.json';
+        tokens['generatedTypesPath'] = 'generated/types/src';
+      }
     }
     if (frontend) {
       tokens['frontend'] = 'true';
@@ -95,88 +109,86 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
 
     // 4. Read + render templates
     const templateRoot = resolveTemplateDir();
-    const templateDir = layout === 'nx'
-      ? resolve(templateRoot, 'nx')
-      : resolve(templateRoot, 'regular');
-
     const skipPaths = !frontend ? ['apps/frontend'] : [];
-    const files: FileEntry[] = await loadAndRenderTemplates(templateDir, '', tokens, targetDir, skipPaths);
 
-    // 4b. Docker templates
-    if (opts.docker !== false) {
-      const dockerTokens = { ...tokens };
-      if (layout === 'regular') dockerTokens['regular'] = 'true';
-      const dockerDir = resolve(templateRoot, 'docker');
-      const dockerFiles = await loadAndRenderTemplates(dockerDir, '', dockerTokens, targetDir);
-      files.push(...dockerFiles);
-    }
+    if (layout === 'nx') {
+      // Root templates → targetDir
+      const rootTemplateDir = resolve(templateRoot, 'nx', 'root');
+      const rootFiles = await loadAndRenderTemplates(rootTemplateDir, '', tokens, targetDir);
+      const files: FileEntry[] = [...rootFiles];
 
-    // 5. Generate datasource files via buildDatasourceFiles()
-    const dataSourcesDir = layout === 'nx' ? 'apps/backend/src/app/data-sources' : 'src/data-sources';
-    const generatedImport = layout === 'nx'
-      ? `@${name}/generated/default`
-      : '@app/generated/default';
+      // Workspace templates → targetDir/<prefix>/ or targetDir/
+      const workspaceTemplateDir = resolve(templateRoot, 'nx', 'workspace');
+      const workspaceTarget = prefix ? resolve(targetDir, prefix) : targetDir;
+      const workspaceFiles = await loadAndRenderTemplates(workspaceTemplateDir, '', tokens, workspaceTarget, skipPaths);
+      files.push(...workspaceFiles);
 
-    const { files: dsFiles } = buildDatasourceFiles({
-      name: 'default',
-      dataSourcesDir,
-      urlEnv: 'DATABASE_URL',
-      generatedTypesImport: generatedImport,
-      type: 'postgres',
-      default: true,
-    });
-
-    for (const f of dsFiles) {
-      files.push({ path: resolve(targetDir, f.path), contents: f.contents });
-    }
-
-    // 6. Write all files
-    const written = await writeFiles(files, { force: opts.force });
-    clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
-
-    // 7. Post-scaffold steps
-    // 7a. git init
-    if (opts.git !== false) {
-      const s = clack.spinner();
-      s.start('Initializing git repository');
-      try {
-        execSync('git init && git add -A && git commit -m "Initial commit"', {
-          cwd: targetDir,
-          stdio: 'pipe',
-        });
-        s.stop('Git repository initialized');
-      } catch {
-        s.stop('Git init failed (non-fatal)');
-      }
-    }
-
-    // 7b. Install deps
-    if (opts.install !== false) {
-      const s = clack.spinner();
-      s.start(`Installing dependencies with ${pm}`);
-      try {
-        await installDeps(pm, targetDir);
-        s.stop('Dependencies installed');
-      } catch {
-        s.stop('Install failed — run manually');
+      // 4b. Docker templates
+      if (opts.docker !== false) {
+        const dockerDir = resolve(templateRoot, 'docker');
+        const dockerFiles = await loadAndRenderTemplates(dockerDir, '', tokens, targetDir);
+        files.push(...dockerFiles);
       }
 
-      // 7c. Prisma generate (best-effort, skip when no DB URL provided)
-      if (dbUrl) {
-        try {
-          const s2 = clack.spinner();
-          s2.start('Running prisma generate');
-          execSync('npx prisma generate --config prisma/default/prisma.config.ts', {
-            cwd: targetDir,
-            stdio: 'pipe',
-          });
-          s2.stop('Prisma client generated');
-        } catch {
-          clack.log.warn('prisma generate failed — run it manually after setting up your database.');
-        }
-      } else {
-        clack.log.info('Skipping prisma generate — no database URL provided.');
+      // 5. Generate datasource files
+      const dataSourcesDir = 'apps/backend/src/app/data-sources';
+      const generatedImport = `@${name}/generated/default`;
+
+      const { files: dsFiles } = buildDatasourceFiles({
+        name: 'default',
+        dataSourcesDir,
+        urlEnv: 'DATABASE_URL',
+        generatedTypesImport: generatedImport,
+        type: 'postgres',
+        default: true,
+      });
+
+      for (const f of dsFiles) {
+        files.push({ path: resolve(workspaceTarget, f.path), contents: f.contents });
       }
+
+      // 6. Write all files
+      const written = await writeFiles(files, { force: opts.force });
+      clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
+
+      // 7. Post-scaffold steps
+      await postScaffold(opts, targetDir, pm, dbUrl, prefix);
+    } else {
+      // Regular layout — no prefix support
+      const templateDir = resolve(templateRoot, 'regular');
+      const files: FileEntry[] = await loadAndRenderTemplates(templateDir, '', tokens, targetDir, skipPaths);
+
+      // Docker templates
+      if (opts.docker !== false) {
+        const dockerTokens = { ...tokens, regular: 'true' };
+        const dockerDir = resolve(templateRoot, 'docker');
+        const dockerFiles = await loadAndRenderTemplates(dockerDir, '', dockerTokens, targetDir);
+        files.push(...dockerFiles);
+      }
+
+      // Generate datasource files
+      const dataSourcesDir = 'src/data-sources';
+      const generatedImport = '@app/generated/default';
+
+      const { files: dsFiles } = buildDatasourceFiles({
+        name: 'default',
+        dataSourcesDir,
+        urlEnv: 'DATABASE_URL',
+        generatedTypesImport: generatedImport,
+        type: 'postgres',
+        default: true,
+      });
+
+      for (const f of dsFiles) {
+        files.push({ path: resolve(targetDir, f.path), contents: f.contents });
+      }
+
+      // Write all files
+      const written = await writeFiles(files, { force: opts.force });
+      clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
+
+      // Post-scaffold steps
+      await postScaffold(opts, targetDir, pm, dbUrl);
     }
 
     // 8. Next steps
@@ -200,6 +212,61 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
       return;
     }
     throw err;
+  }
+};
+
+const postScaffold = async (
+  opts: CreateOptions,
+  targetDir: string,
+  pm: PackageManager,
+  dbUrl: string,
+  prefix?: string,
+): Promise<void> => {
+  // git init
+  if (opts.git !== false) {
+    const s = clack.spinner();
+    s.start('Initializing git repository');
+    try {
+      execSync('git init && git add -A && git commit -m "Initial commit"', {
+        cwd: targetDir,
+        stdio: 'pipe',
+      });
+      s.stop('Git repository initialized');
+    } catch {
+      s.stop('Git init failed (non-fatal)');
+    }
+  }
+
+  // Install deps
+  if (opts.install !== false) {
+    const s = clack.spinner();
+    s.start(`Installing dependencies with ${pm}`);
+    try {
+      await installDeps(pm, targetDir);
+      s.stop('Dependencies installed');
+    } catch {
+      s.stop('Install failed — run manually');
+    }
+
+    // Prisma generate (best-effort, skip when no DB URL provided)
+    if (dbUrl) {
+      try {
+        const s2 = clack.spinner();
+        s2.start('Running prisma generate');
+        const prismaConfigPath = prefix
+          ? `${prefix}/prisma/default/prisma.config.ts`
+          : 'prisma/default/prisma.config.ts';
+        execSync(`npx prisma generate --config ${prismaConfigPath}`, {
+          cwd: targetDir,
+          stdio: 'pipe',
+        });
+        s2.stop('Prisma client generated');
+      } catch {
+        clack.log.warn('prisma generate failed — run it manually after setting up your database.');
+      }
+    } else {
+      clack.log.info('Skipping prisma generate — no database URL provided.');
+    }
   }
 };
 
@@ -230,6 +297,20 @@ const resolveFrontend = async (opts: CreateOptions, layout: string): Promise<boo
       initialValue: true,
     }),
   ) as boolean;
+};
+
+const resolvePrefix = async (opts: CreateOptions): Promise<string | undefined> => {
+  if (opts.prefix) return opts.prefix;
+  if (opts.yes) return undefined;
+
+  const prefix = assertNotCancel(
+    await clack.text({
+      message: 'Subfolder prefix for apps/config (leave empty for flat layout)',
+      placeholder: 'e.g. split',
+      defaultValue: '',
+    }),
+  ) as string;
+  return prefix.trim() || undefined;
 };
 
 const resolvePm = async (opts: CreateOptions): Promise<PackageManager> => {
