@@ -1,3 +1,19 @@
+## 0.0.1-alpha.26 (2026-07-10)
+
+### 🚀 Features
+
+- **create-crouton:** add --prefix option for Nx subfolder layout ([9c49ef6](https://github.com/GhentCDH/crouton/commit/9c49ef6))
+
+### 🩹 Fixes
+
+- warning on displayvalue ([f8a8162](https://github.com/GhentCDH/crouton/commit/f8a8162))
+- **create-crouton:** remove crouton-core dep, add database URL prompt ([fab1ea8](https://github.com/GhentCDH/crouton/commit/fab1ea8))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.25 (2026-07-10)
 
 This was a version bump only, there were no code changes.
