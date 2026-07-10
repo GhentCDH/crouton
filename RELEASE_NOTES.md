@@ -1,3 +1,14 @@
+## 0.0.1-alpha.23 (2026-07-10)
+
+### 🩹 Fixes
+
+- publish CLI packages from dist directory ([1dad20f](https://github.com/GhentCDH/crouton/commit/1dad20f))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.22 (2026-07-09)
 
 ### 🩹 Fixes
