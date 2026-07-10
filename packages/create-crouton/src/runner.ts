@@ -26,6 +26,7 @@ export interface CreateOptions {
   docker: boolean;
   yes?: boolean;
   force?: boolean;
+  dbUrl?: string;
 }
 
 /**
@@ -70,15 +71,18 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     const layout = await resolveLayout(opts);
     const frontend = await resolveFrontend(opts, layout);
     const pm = await resolvePm(opts);
+    const dbUrl = await resolveDbUrl(opts);
 
     // 3. Resolve tokens
+    const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
     const tokens: Record<string, string> = {
       name,
       Name: toTitle(name),
       year: String(new Date().getFullYear()),
       pmRun: pm === 'npm' ? 'npm run' : pm,
       urlEnv: 'DATABASE_URL',
-      dbName: name.replace(/[^a-zA-Z0-9]/g, '_'),
+      dbUrl: dbUrl || `postgresql://crouton:crouton@localhost:5432/${dbName}?schema=public`,
+      dbName,
     };
     if (layout === 'nx') {
       tokens['nx'] = 'true';
@@ -157,17 +161,21 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
         s.stop('Install failed — run manually');
       }
 
-      // 7c. Prisma generate (best-effort)
-      try {
-        const s2 = clack.spinner();
-        s2.start('Running prisma generate');
-        execSync('npx prisma generate --config prisma/default/prisma.config.ts', {
-          cwd: targetDir,
-          stdio: 'pipe',
-        });
-        s2.stop('Prisma client generated');
-      } catch {
-        clack.log.warn('prisma generate failed — run it manually after setting up your database.');
+      // 7c. Prisma generate (best-effort, skip when no DB URL provided)
+      if (dbUrl) {
+        try {
+          const s2 = clack.spinner();
+          s2.start('Running prisma generate');
+          execSync('npx prisma generate --config prisma/default/prisma.config.ts', {
+            cwd: targetDir,
+            stdio: 'pipe',
+          });
+          s2.stop('Prisma client generated');
+        } catch {
+          clack.log.warn('prisma generate failed — run it manually after setting up your database.');
+        }
+      } else {
+        clack.log.info('Skipping prisma generate — no database URL provided.');
       }
     }
 
@@ -239,6 +247,20 @@ const resolvePm = async (opts: CreateOptions): Promise<PackageManager> => {
       ],
     }),
   ) as PackageManager;
+};
+
+const resolveDbUrl = async (opts: CreateOptions): Promise<string> => {
+  if (opts.dbUrl) return opts.dbUrl;
+  if (opts.yes) return '';
+
+  const url = assertNotCancel(
+    await clack.text({
+      message: 'Database URL (leave empty to skip prisma setup)',
+      placeholder: 'postgresql://user:pass@localhost:5432/mydb?schema=public',
+      defaultValue: '',
+    }),
+  ) as string;
+  return url.trim();
 };
 
 /**

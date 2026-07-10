@@ -16,6 +16,7 @@ const program = new Command('create-crouton')
   .option('--no-docker', 'skip Docker file generation')
   .option('-y, --yes', 'accept all defaults (non-interactive)')
   .option('--force', 'overwrite existing files')
+  .option('--db-url <url>', 'database connection URL (e.g. postgresql://user:pass@localhost:5432/db)')
   .action(async (name: string, opts) => {
     try {
       await runCreate(name, opts);
