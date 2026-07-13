@@ -1,6 +1,28 @@
 import type { PackageManager } from './detect';
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 
+const MIN_PNPM_MAJOR = 11;
+
+/**
+ * Check that the installed pnpm version meets the minimum requirement.
+ * Returns the detected version string, or throws with an actionable message.
+ */
+export const checkPnpmVersion = (): string => {
+  let raw: string;
+  try {
+    raw = execSync('pnpm --version', { stdio: 'pipe' }).toString().trim();
+  } catch {
+    throw new Error('pnpm is not installed. Install it with: npm i -g pnpm@latest');
+  }
+  const major = parseInt(raw.split('.')[0], 10);
+  if (isNaN(major) || major < MIN_PNPM_MAJOR) {
+    throw new Error(
+      `pnpm ${raw} detected, but version ${MIN_PNPM_MAJOR}+ is required.\n` +
+        `Upgrade with: npm i -g pnpm@latest`,
+    );
+  }
+  return raw;
+};
 
 /**
  * Run `<pm> install` in the given directory. Returns a promise that resolves

@@ -14,7 +14,9 @@ export const RulesetSchema = z.object({
   showRelationsInForm: z.boolean().default(true),
   enumValueLabel: z.boolean().default(true),
   sharedEnums: z.boolean().default(true),
-  defaultOperations: JsonOperationsSchema.default(JsonOperationsSchema.parse({})),
+  defaultOperations: JsonOperationsSchema.default(
+    JsonOperationsSchema.parse({}),
+  ),
 });
 
 export type Ruleset = z.infer<typeof RulesetSchema>;
@@ -36,7 +38,7 @@ export const CroutonConfigSchema = z.object({
    */
   schemaExportName: z.string().default('{Model}WithRelationsSchema'),
   /** Path to the shared enum registry, relative to project root. Default `crouton.enums.json`. */
-  enumsFile: z.string().default('croutons.enums.json'),
+  enumsFile: z.string().default('crouton.enums.json'),
   /** Optional overrides of the default visibility ruleset. */
   rules: RulesetSchema.default(RulesetSchema.parse({})),
   /**

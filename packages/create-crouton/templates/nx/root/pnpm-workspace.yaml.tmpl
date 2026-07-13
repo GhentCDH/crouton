@@ -1,6 +1,20 @@
 packages:
 {{#if prefix}}  - {{prefix}}/apps/*
-  - {{prefix}}/generated/*
+  - {{prefix}}/generated/default/*
 {{/if}}{{#if noPrefix}}  - apps/*
-  - generated/*
+  - generated/default/*
 {{/if}}  - libs/*
+
+allowBuilds:
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  esbuild: true
+  nx: true
+  prisma: true
+
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - esbuild
+  - nx
+  - prisma

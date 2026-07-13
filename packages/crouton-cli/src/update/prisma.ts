@@ -4,7 +4,8 @@
  */
 
 import { spawn } from 'node:child_process';
-import { copyFile } from 'node:fs/promises';
+import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 const run = (
   cmd: string,
@@ -50,4 +51,34 @@ export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<P
 export const prismaGenerate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const { code, stdout, stderr } = await run('npx', ['prisma', 'generate', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
+};
+
+/**
+ * zod-prisma-types sometimes omits `import { z } from 'zod'` in generated
+ * schema files. Scan the output directory and inject the import where missing.
+ */
+export const fixZodImports = async (zodOutputDir: string): Promise<number> => {
+  let fixed = 0;
+  const walk = async (dir: string): Promise<void> => {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(full);
+      } else if (entry.name.endsWith('.ts')) {
+        const src = await readFile(full, 'utf-8');
+        if (src.includes('z.') && !src.includes("from 'zod'") && !src.includes('from "zod"')) {
+          await writeFile(full, `import { z } from 'zod';\n${src}`, 'utf-8');
+          fixed++;
+        }
+      }
+    }
+  };
+  await walk(zodOutputDir);
+  return fixed;
 };

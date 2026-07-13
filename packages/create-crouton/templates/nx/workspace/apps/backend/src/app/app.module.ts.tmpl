@@ -10,6 +10,7 @@ import { resolve } from 'node:path';
       resolve(__dirname, 'resources'),
       resolve(__dirname, 'data-sources'),
       {
+        baseUrl: '/api',
         title: '{{Name}}',
         enumsFile: resolve(__dirname, '..', '..', '..', '..', 'crouton.enums.json'),
       },

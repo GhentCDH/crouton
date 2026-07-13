@@ -12,6 +12,26 @@ npm create @ghentcdh/crouton my-app
 npx @ghentcdh/create-crouton my-app
 ```
 
+### Local development
+
+To test a locally built version of the CLI:
+
+```sh
+# Build and link globally
+pnpm nx build create-crouton
+pnpm link ./packages/create-crouton --global
+
+# Now use it anywhere
+create-crouton my-test-app --prefix split
+```
+
+Or run directly without linking:
+
+```sh
+pnpm nx build create-crouton
+node packages/create-crouton/dist/index.js my-test-app
+```
+
 ### Flags
 
 | Flag | Default | Description |

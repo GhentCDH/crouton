@@ -5,7 +5,7 @@ import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
 import type { PackageManager } from './lib/detect';
 import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
-import { installDeps } from './lib/pm';
+import { checkPnpmVersion, installDeps } from './lib/pm';
 import { CancelledError, assertNotCancel } from './lib/prompts';
 import { render } from './lib/render';
 import { execSync } from 'node:child_process';
@@ -73,6 +73,13 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     const frontend = await resolveFrontend(opts, layout);
     const prefix = layout === 'nx' ? await resolvePrefix(opts) : undefined;
     const pm = await resolvePm(opts);
+
+    // Verify pnpm version early — before writing any files
+    if (pm === 'pnpm') {
+      const pnpmVersion = checkPnpmVersion();
+      clack.log.info(`Using pnpm ${pnpmVersion}`);
+    }
+
     const dbUrl = await resolveDbUrl(opts);
 
     // 3. Resolve tokens
@@ -95,12 +102,16 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
         tokens['prefix'] = prefix;
         tokens['appsRoot'] = `${prefix}/apps`;
         tokens['schemaPath'] = '../../../node_modules/nx/schemas/project-schema.json';
-        tokens['generatedTypesPath'] = `${prefix}/generated/types/src`;
+        tokens['tsconfigBase'] = '../../../tsconfig.base.json';
+        tokens['generatedTypesPath'] = `${prefix}/generated/default/types/src`;
+        tokens['generatedClientPath'] = `${prefix}/generated/default/client/src`;
       } else {
         tokens['noPrefix'] = 'true';
         tokens['appsRoot'] = 'apps';
         tokens['schemaPath'] = '../../node_modules/nx/schemas/project-schema.json';
-        tokens['generatedTypesPath'] = 'generated/types/src';
+        tokens['tsconfigBase'] = '../../tsconfig.base.json';
+        tokens['generatedTypesPath'] = 'generated/default/types/src';
+        tokens['generatedClientPath'] = 'generated/default/client/src';
       }
     }
     if (frontend) {
@@ -132,15 +143,19 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
 
       // 5. Generate datasource files
       const dataSourcesDir = 'apps/backend/src/app/data-sources';
-      const generatedImport = `@${name}/generated/default`;
+      const generatedImport = `@${name}/generated/default/types`;
+      const generatedClientImport = `@${name}/generated/default/client`;
 
       const { files: dsFiles } = buildDatasourceFiles({
         name: 'default',
         dataSourcesDir,
         urlEnv: 'DATABASE_URL',
         generatedTypesImport: generatedImport,
+        generatedClientImport,
         type: 'postgres',
         default: true,
+        zodOutput: 'generated/default/types/src',
+        clientOutput: 'generated/default/client/src',
       });
 
       for (const f of dsFiles) {
@@ -168,15 +183,19 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
 
       // Generate datasource files
       const dataSourcesDir = 'src/data-sources';
-      const generatedImport = '@app/generated/default';
+      const generatedImport = '@app/generated/default/types';
+      const generatedClientImport = '@app/generated/default/client';
 
       const { files: dsFiles } = buildDatasourceFiles({
         name: 'default',
         dataSourcesDir,
         urlEnv: 'DATABASE_URL',
         generatedTypesImport: generatedImport,
+        generatedClientImport,
         type: 'postgres',
         default: true,
+        zodOutput: 'generated/default/types/src',
+        clientOutput: 'generated/default/client/src',
       });
 
       for (const f of dsFiles) {
@@ -193,11 +212,12 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
 
     // 8. Next steps
     const pmRun = pm === 'npm' ? 'npm run' : pm;
+    const prefixFlag = prefix ? ` --prefix ${prefix}` : '';
     clack.note(
       [
         opts.docker !== false ? 'docker compose up -d          # start postgres' : null,
         `${pmRun} prisma:migrate          # create initial migration`,
-        'crouton update resources        # generate resource CRUD',
+        `crouton update resources${prefixFlag}        # generate resource CRUD`,
         `${pmRun} dev                     # start dev server`,
       ]
         .filter(Boolean)
@@ -248,29 +268,33 @@ const postScaffold = async (
       s.stop('Install failed — run manually');
     }
 
-    // Prisma generate (best-effort, skip when no DB URL provided)
+    // Run crouton update resources (best-effort, requires DB to be running)
     if (dbUrl) {
       try {
         const s2 = clack.spinner();
-        s2.start('Running prisma generate');
-        const prismaConfigPath = prefix
-          ? `${prefix}/prisma/default/prisma.config.ts`
-          : 'prisma/default/prisma.config.ts';
-        execSync(`npx prisma generate --config ${prismaConfigPath}`, {
-          cwd: targetDir,
+        s2.start('Running crouton update resources');
+        const croutonCwd = prefix ? resolve(targetDir, prefix) : targetDir;
+        execSync('npx crouton update resources --yes', {
+          cwd: croutonCwd,
           stdio: 'pipe',
+          env: { ...process.env, DATABASE_URL: dbUrl },
         });
-        s2.stop('Prisma client generated');
-      } catch {
-        clack.log.warn('prisma generate failed — run it manually after setting up your database.');
+        s2.stop('Resources updated');
+      } catch (err) {
+        const stderr = err instanceof Error && 'stderr' in err
+          ? String((err as { stderr: unknown }).stderr).trim()
+          : '';
+        clack.log.warn(
+          `crouton update resources failed — run it manually after setting up your database.` +
+            (stderr ? `\n${pc.dim(stderr)}` : ''),
+        );
       }
-    } else {
-      clack.log.info('Skipping prisma generate — no database URL provided.');
     }
   }
 };
 
 const resolveLayout = async (opts: CreateOptions): Promise<'nx' | 'regular'> => {
+  if (opts.prefix) return 'nx'; // --prefix implies Nx layout
   if (opts.yes) return opts.nx ? 'nx' : 'regular';
   if (opts.nx) return 'nx';
 

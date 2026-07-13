@@ -2,7 +2,7 @@ packages:
   - packages/*
 
 overrides:
-  vue: 3.5.39
+  '@ghentcdh/create-crouton': link:packages/create-crouton
 
 allowBuilds:
   '@parcel/watcher': true
