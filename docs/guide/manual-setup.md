@@ -229,7 +229,26 @@ This creates the initial migration, generates the Prisma client, and runs zod-pr
 npx crouton update resources
 ```
 
+For Nx workspaces with a prefix subfolder:
+
+```sh
+npx crouton update resources --prefix split
+```
+
 This introspects your database, lets you pick which models to expose, and generates `resource.json` + `schema.ts` files per resource.
+
+### CLI flags
+
+| Flag | Description |
+| --- | --- |
+| `-d, --datasource <name>` | Datasource to use (from crouton.config). |
+| `-m, --models <list>` | Comma-separated models to limit to. |
+| `--cwd <dir>` | Project directory (defaults to cwd). |
+| `--prefix <name>` | Subfolder prefix (resolves cwd to `<cwd>/<prefix>`). |
+| `--dry-run` | Show planned changes without writing files. |
+| `-y, --yes` | Accept all defaults (non-interactive). |
+| `--skip-pull` | Do not run `prisma db pull`. |
+| `--skip-generate` | Do not run `prisma generate` after pulling. |
 
 ## 9. Frontend app (Vue 3)
 
@@ -398,7 +417,6 @@ Backend app tsconfigs should extend the base:
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "sourceMap": true,
     "incremental": true,
     "skipLibCheck": true
@@ -418,7 +436,10 @@ Each generated output needs a `package.json` for workspace resolution:
   "name": "@my-app/generated-default-types",
   "version": "0.0.1",
   "private": true,
-  "main": "./src/index.ts"
+  "main": "./src/index.ts",
+  "dependencies": {
+    "zod": "^4.0.0"
+  }
 }
 ```
 

@@ -103,13 +103,34 @@ my-app/
 └── package.json
 ```
 
+#### Nx monorepo with prefix
+
+When using `--prefix split`, apps and generated code live under a subfolder. This is useful when the Nx workspace also contains non-crouton projects.
+
+```
+my-app/
+├── split/
+│   ├── apps/
+│   │   ├── backend/
+│   │   └── frontend/
+│   ├── generated/default/
+│   │   ├── types/
+│   │   └── client/
+│   ├── prisma/default/
+│   └── crouton.json
+├── nx.json
+├── tsconfig.base.json
+├── pnpm-workspace.yaml
+└── package.json
+```
+
 ### What happens after scaffolding
 
 The CLI runs these steps automatically (unless skipped via flags):
 
 1. **`git init`** — initialises a repository with an initial commit.
 2. **`<pm> install`** — installs all dependencies.
-3. **`prisma generate`** — generates the Prisma client (best-effort; warns on failure).
+3. **`crouton update resources`** — introspects the database and generates resource CRUD (best-effort; warns on failure if DB is not running).
 
 Then follow the printed next-steps:
 
@@ -118,6 +139,12 @@ docker compose up -d          # start postgres
 pnpm prisma:migrate           # create initial migration
 crouton update resources      # generate resource CRUD from your schema
 pnpm dev                      # start dev server
+```
+
+When using a prefix, add the `--prefix` flag:
+
+```sh
+crouton update resources --prefix split
 ```
 
 ## @ghentcdh/add-crouton
