@@ -72,7 +72,7 @@ export const fixZodImports = async (zodOutputDir: string): Promise<number> => {
         await walk(full);
       } else if (entry.name.endsWith('.ts')) {
         const src = await readFile(full, 'utf-8');
-        if (src.includes('z.') && !src.includes("from 'zod'") && !src.includes('from "zod"')) {
+        if (src.includes('z.') && !src.includes('from \'zod\'') && !src.includes('from "zod"')) {
           await writeFile(full, `import { z } from 'zod';\n${src}`, 'utf-8');
           fixed++;
         }

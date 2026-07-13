@@ -285,7 +285,7 @@ const postScaffold = async (
           ? String((err as { stderr: unknown }).stderr).trim()
           : '';
         clack.log.warn(
-          `crouton update resources failed — run it manually after setting up your database.` +
+          'crouton update resources failed — run it manually after setting up your database.' +
             (stderr ? `\n${pc.dim(stderr)}` : ''),
         );
       }

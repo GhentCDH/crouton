@@ -18,7 +18,7 @@ export const checkPnpmVersion = (): string => {
   if (isNaN(major) || major < MIN_PNPM_MAJOR) {
     throw new Error(
       `pnpm ${raw} detected, but version ${MIN_PNPM_MAJOR}+ is required.\n` +
-        `Upgrade with: npm i -g pnpm@latest`,
+        'Upgrade with: npm i -g pnpm@latest',
     );
   }
   return raw;

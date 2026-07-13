@@ -43,6 +43,8 @@ node packages/create-crouton/dist/index.js my-test-app
 | `--no-install` | — | Skip dependency installation. |
 | `--no-git` | — | Skip `git init`. |
 | `--no-docker` | — | Skip Docker files (Dockerfile, compose.yml). |
+| `--prefix <name>` | prompt | Subfolder prefix for apps/config (e.g. `split`). Implies Nx layout. |
+| `--db-url <url>` | prompt | Database connection URL. |
 | `-y, --yes` | — | Accept all defaults (non-interactive). |
 | `--force` | — | Overwrite existing files. |
 
@@ -91,7 +93,9 @@ my-app/
 │       │   ├── main.ts
 │       │   └── App.vue
 │       └── package.json
-├── generated/types/         # zod-prisma-types output
+├── generated/default/
+│   ├── types/               # zod-prisma-types output
+│   └── client/              # Prisma client output
 ├── prisma/default/
 ├── crouton.json
 ├── nx.json

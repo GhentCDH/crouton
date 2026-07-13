@@ -1,7 +1,8 @@
 import type { Command } from 'commander';
-import { resolve } from 'node:path';
 
 import { runUpdateResources } from '../update/runner';
+import { resolve } from 'node:path';
+
 
 export const registerUpdateCommand = (program: Command) => {
   const update = program
