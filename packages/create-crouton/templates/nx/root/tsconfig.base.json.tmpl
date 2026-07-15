@@ -16,8 +16,10 @@
     "target": "es2022",
     "baseUrl": ".",
     "paths": {
-      "@{{name}}/generated/default/types": ["./{{generatedTypesPath}}"],
-      "@{{name}}/generated/default/client": ["./{{generatedClientPath}}"]
+      "@{{name}}/generated-default-types": ["./{{generatedTypesPath}}"],
+      "@{{name}}/generated-default-types/*": ["./{{generatedTypesPath}}/*"],
+      "@{{name}}/generated-default-client": ["./{{generatedClientPath}}"],
+      "@{{name}}/generated-default-client/*": ["./{{generatedClientPath}}/*"]
     }
   }
 }

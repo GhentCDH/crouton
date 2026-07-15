@@ -48,6 +48,7 @@ import {
   prismaGenerate,
 } from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';
 
@@ -60,6 +61,46 @@ export interface UpdateResourcesOptions {
   skipPull?: boolean;
   skipGenerate?: boolean;
 }
+
+/**
+ * Ensure the generated types/client directories contain a `package.json` so
+ * they can be resolved as workspace packages. Created only when absent.
+ */
+const ensureGeneratedScaffold = async (
+  root: string,
+  ds: DataSource,
+  projectName: string,
+): Promise<number> => {
+  let created = 0;
+
+  const scaffoldPkg = async (dir: string, name: string, opts: { isClient?: boolean; addZod?: boolean } = {}) => {
+    const pkgPath = join(dir, 'package.json');
+    if (existsSync(pkgPath)) return;
+    await mkdir(dir, { recursive: true });
+    const entry = opts.isClient ? './index.js' : './src/index.ts';
+    const wildcard = opts.isClient ? './*' : './src/*';
+    const pkg: Record<string, unknown> = {
+      name,
+      version: '0.0.1',
+      private: true,
+      main: entry,
+      exports: { '.': entry, './*': wildcard },
+      ...(opts.addZod ? { dependencies: { tslib: '^2.8.0', zod: '^4.0.0' } } : {}),
+    };
+    await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf-8');
+    created++;
+  };
+
+  if (ds.zodOutput) {
+    const typesDir = resolveFromRoot(root, dirname(ds.zodOutput));
+    await scaffoldPkg(typesDir, `@${projectName}/generated-${ds.name}-types`, { addZod: true });
+  }
+  if (ds.clientOutput) {
+    const clientDir = resolveFromRoot(root, ds.clientOutput);
+    await scaffoldPkg(clientDir, `@${projectName}/generated-${ds.name}-client`, { isClient: true });
+  }
+  return created;
+};
 
 const assertNotCancel = <T>(value: T | symbol): T => {
   if (clack.isCancel(value)) throw new CancelledError();
@@ -219,6 +260,13 @@ export const runUpdateResources = async (
         if (patched > 0) {
           clack.log.info(`Patched ${patched} file(s) with missing zod import`);
         }
+      }
+
+      // Scaffold package.json for generated types/client dirs when absent.
+      const projectName = loaded.config.title?.toLowerCase().replace(/\s+/g, '-') ?? 'app';
+      const scaffolded = await ensureGeneratedScaffold(loaded.root, ds, projectName);
+      if (scaffolded > 0) {
+        clack.log.info(`Created ${scaffolded} scaffold file(s) in generated dirs`);
       }
     }
 

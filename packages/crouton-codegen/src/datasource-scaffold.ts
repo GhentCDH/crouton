@@ -98,6 +98,7 @@ export const buildDatasourceFiles = (opts: DatasourceScaffoldOptions): Datasourc
     urlEnv: opts.urlEnv,
     generatedTypesImport: opts.generatedTypesImport,
     zodOutput,
+    clientOutput,
     prismaConfig,
   };
 

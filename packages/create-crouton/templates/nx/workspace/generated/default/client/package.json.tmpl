@@ -2,5 +2,9 @@
   "name": "@{{name}}/generated-default-client",
   "version": "0.0.1",
   "private": true,
-  "main": "./src/index.ts"
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./*": "./*"
+  }
 }

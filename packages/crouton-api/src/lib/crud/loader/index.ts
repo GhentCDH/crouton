@@ -37,6 +37,8 @@ export const loadResourceConfigsFromDir = async (
   baseUrl?: string,
   enumsFile?: string,
 ): Promise<Resource[]> => {
+  if (!existsSync(dirPath)) return [];
+
   const enums = loadEnumRegistry(dirPath, enumsFile);
   const entries = readdirSync(dirPath, { withFileTypes: true });
   const dirs = entries
