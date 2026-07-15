@@ -12,6 +12,26 @@ npm create @ghentcdh/crouton my-app
 npx @ghentcdh/create-crouton my-app
 ```
 
+### Local development
+
+To test a locally built version of the CLI:
+
+```sh
+# Build and link globally
+pnpm nx build create-crouton
+pnpm link ./packages/create-crouton --global
+
+# Now use it anywhere
+create-crouton my-test-app --prefix split
+```
+
+Or run directly without linking:
+
+```sh
+pnpm nx build create-crouton
+node packages/create-crouton/dist/index.js my-test-app
+```
+
 ### Flags
 
 | Flag | Default | Description |
@@ -23,6 +43,8 @@ npx @ghentcdh/create-crouton my-app
 | `--no-install` | — | Skip dependency installation. |
 | `--no-git` | — | Skip `git init`. |
 | `--no-docker` | — | Skip Docker files (Dockerfile, compose.yml). |
+| `--prefix <name>` | prompt | Subfolder prefix for apps/config (e.g. `split`). Implies Nx layout. |
+| `--db-url <url>` | prompt | Database connection URL. |
 | `-y, --yes` | — | Accept all defaults (non-interactive). |
 | `--force` | — | Overwrite existing files. |
 
@@ -71,10 +93,33 @@ my-app/
 │       │   ├── main.ts
 │       │   └── App.vue
 │       └── package.json
-├── generated/types/         # zod-prisma-types output
+├── generated/default/
+│   ├── types/               # zod-prisma-types output
+│   └── client/              # Prisma client output
 ├── prisma/default/
 ├── crouton.json
 ├── nx.json
+├── pnpm-workspace.yaml
+└── package.json
+```
+
+#### Nx monorepo with prefix
+
+When using `--prefix split`, apps and generated code live under a subfolder. This is useful when the Nx workspace also contains non-crouton projects.
+
+```
+my-app/
+├── split/
+│   ├── apps/
+│   │   ├── backend/
+│   │   └── frontend/
+│   ├── generated/default/
+│   │   ├── types/
+│   │   └── client/
+│   ├── prisma/default/
+│   └── crouton.json
+├── nx.json
+├── tsconfig.base.json
 ├── pnpm-workspace.yaml
 └── package.json
 ```
@@ -85,7 +130,7 @@ The CLI runs these steps automatically (unless skipped via flags):
 
 1. **`git init`** — initialises a repository with an initial commit.
 2. **`<pm> install`** — installs all dependencies.
-3. **`prisma generate`** — generates the Prisma client (best-effort; warns on failure).
+3. **`crouton update resources`** — introspects the database and generates resource CRUD (best-effort; warns on failure if DB is not running).
 
 Then follow the printed next-steps:
 
@@ -94,6 +139,12 @@ docker compose up -d          # start postgres
 pnpm prisma:migrate           # create initial migration
 crouton update resources      # generate resource CRUD from your schema
 pnpm dev                      # start dev server
+```
+
+When using a prefix, add the `--prefix` flag:
+
+```sh
+crouton update resources --prefix split
 ```
 
 ## @ghentcdh/add-crouton

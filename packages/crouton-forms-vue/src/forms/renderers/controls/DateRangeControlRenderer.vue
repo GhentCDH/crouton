@@ -6,6 +6,9 @@
         <input
           type="date"
           class="input w-36"
+          autocomplete="off"
+          data-lpignore="true"
+          data-bwignore="true"
           :value="value?.[fromField] ?? ''"
           :max="value?.[toField] || undefined"
           @input="update(fromField, ($event.target as HTMLInputElement).value)"
@@ -18,6 +21,9 @@
         <input
           type="date"
           class="input w-36"
+          autocomplete="off"
+          data-lpignore="true"
+          data-bwignore="true"
           :value="value?.[toField] ?? ''"
           :min="value?.[fromField] || undefined"
           @input="update(toField, ($event.target as HTMLInputElement).value)"

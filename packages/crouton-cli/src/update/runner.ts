@@ -42,6 +42,7 @@ import { type DataSource } from '@ghentcdh/crouton-core';
 import { formatResourceChange } from './preview';
 import {
   backupSchema,
+  fixZodImports,
   isGitDirty,
   prismaDbPull,
   prismaGenerate,
@@ -210,6 +211,15 @@ export const runUpdateResources = async (
       const gen = await prismaGenerate(loaded.root, configAbs);
       spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
       if (!gen.ok) clack.log.warn(gen.output);
+
+      // zod-prisma-types may omit `import { z } from 'zod'` — patch it.
+      if (gen.ok && ds.zodOutput) {
+        const zodDir = resolveFromRoot(loaded.root, ds.zodOutput);
+        const patched = await fixZodImports(zodDir);
+        if (patched > 0) {
+          clack.log.info(`Patched ${patched} file(s) with missing zod import`);
+        }
+      }
     }
 
     const allModels = await introspect({ schemaPath: schemaAbs });

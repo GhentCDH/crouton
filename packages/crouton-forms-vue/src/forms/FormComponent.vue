@@ -1,5 +1,5 @@
 <template>
-  <form :id="id" @submit.prevent="onSubmit">
+  <form :id="id" @submit.prevent="onSubmit" autocomplete="off" data-1p-ignore data-form-type="other">
     <Dispatch :uischema="uiSchema" :schema="schema" />
   </form>
 </template>
