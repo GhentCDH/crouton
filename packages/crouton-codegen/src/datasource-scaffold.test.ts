@@ -65,8 +65,8 @@ describe('buildDatasourceFiles', () => {
 
   it('binds the urlEnv in prisma.config.ts', () => {
     const cfg = file('prisma.config.ts').contents;
-    expect(cfg).toContain('schema: \'prisma/analyticsdb/schema.prisma\'');
-    expect(cfg).toContain('path: \'prisma/analyticsdb/migrations\'');
+    expect(cfg).toContain('schema: \'./schema.prisma\'');
+    expect(cfg).toContain('path: \'./migrations\'');
     expect(cfg).toContain('url: env(\'ANALYTICS_DATABASE_URL\')');
   });
 
