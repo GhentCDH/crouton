@@ -6,6 +6,7 @@ packages:
 {{/if}}  - libs/*
 
 allowBuilds:
+  '@swc/core': true
   '@prisma/engines': true
   '@scarf/scarf': true
   esbuild: true
@@ -13,6 +14,7 @@ allowBuilds:
   prisma: true
 
 onlyBuiltDependencies:
+  - '@swc/core'
   - '@prisma/engines'
   - '@scarf/scarf'
   - esbuild

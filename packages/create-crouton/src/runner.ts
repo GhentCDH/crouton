@@ -14,8 +14,6 @@ import { readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-
-
 export interface CreateOptions {
   nx: boolean;
   frontend: boolean;
@@ -36,25 +34,26 @@ export interface CreateOptions {
  * via ts-node or similar, they are at ../templates/ relative to src/.
  */
 const resolveTemplateDir = (): string => {
-  const thisDir = typeof __dirname !== 'undefined'
-    ? __dirname
-    : fileURLToPath(new URL('.', import.meta.url));
+  const thisDir =
+    typeof __dirname !== 'undefined'
+      ? __dirname
+      : fileURLToPath(new URL('.', import.meta.url));
   // In dist: dist/templates/  In dev: ../templates/
   const distPath = resolve(thisDir, 'templates');
   if (existsSync(distPath)) return distPath;
   return resolve(thisDir, '..', 'templates');
 };
 
-const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+const capitalize = (s: string): string =>
+  s.charAt(0).toUpperCase() + s.slice(1);
 
 const toTitle = (name: string): string =>
-  name
-    .replace(/[-_]+/g, ' ')
-    .split(' ')
-    .map(capitalize)
-    .join(' ');
+  name.replace(/[-_]+/g, ' ').split(' ').map(capitalize).join(' ');
 
-export const runCreate = async (name: string, opts: CreateOptions): Promise<void> => {
+export const runCreate = async (
+  name: string,
+  opts: CreateOptions,
+): Promise<void> => {
   clack.intro(pc.bold(`create-crouton ${pc.cyan(name)}`));
 
   try {
@@ -63,7 +62,9 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     if (existsSync(targetDir) && !opts.force) {
       const entries = await readdir(targetDir);
       if (entries.length > 0) {
-        clack.log.error(`Directory "${name}" already exists and is not empty. Use --force to overwrite.`);
+        clack.log.error(
+          `Directory "${name}" already exists and is not empty. Use --force to overwrite.`,
+        );
         throw new CancelledError();
       }
     }
@@ -90,7 +91,9 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
       year: String(new Date().getFullYear()),
       pmRun: pm === 'npm' ? 'npm run' : pm,
       urlEnv: 'DATABASE_URL',
-      dbUrl: dbUrl || `postgresql://crouton:crouton@localhost:5432/${dbName}?schema=public`,
+      dbUrl:
+        dbUrl ||
+        `postgresql://crouton:crouton@localhost:5432/${dbName}?schema=public`,
       dbName,
     };
     if (layout === 'nx') {
@@ -101,17 +104,19 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
       if (prefix) {
         tokens['prefix'] = prefix;
         tokens['appsRoot'] = `${prefix}/apps`;
-        tokens['schemaPath'] = '../../../node_modules/nx/schemas/project-schema.json';
+        tokens['schemaPath'] =
+          '../../../node_modules/nx/schemas/project-schema.json';
         tokens['tsconfigBase'] = '../../../tsconfig.base.json';
         tokens['generatedTypesPath'] = `${prefix}/generated/default/types/src`;
-        tokens['generatedClientPath'] = `${prefix}/generated/default/client/src`;
+        tokens['generatedClientPath'] = `${prefix}/generated/default/client`;
       } else {
         tokens['noPrefix'] = 'true';
         tokens['appsRoot'] = 'apps';
-        tokens['schemaPath'] = '../../node_modules/nx/schemas/project-schema.json';
+        tokens['schemaPath'] =
+          '../../node_modules/nx/schemas/project-schema.json';
         tokens['tsconfigBase'] = '../../tsconfig.base.json';
         tokens['generatedTypesPath'] = 'generated/default/types/src';
-        tokens['generatedClientPath'] = 'generated/default/client/src';
+        tokens['generatedClientPath'] = 'generated/default/client';
       }
     }
     if (frontend) {
@@ -125,26 +130,42 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     if (layout === 'nx') {
       // Root templates → targetDir
       const rootTemplateDir = resolve(templateRoot, 'nx', 'root');
-      const rootFiles = await loadAndRenderTemplates(rootTemplateDir, '', tokens, targetDir);
+      const rootFiles = await loadAndRenderTemplates(
+        rootTemplateDir,
+        '',
+        tokens,
+        targetDir,
+      );
       const files: FileEntry[] = [...rootFiles];
 
       // Workspace templates → targetDir/<prefix>/ or targetDir/
       const workspaceTemplateDir = resolve(templateRoot, 'nx', 'workspace');
       const workspaceTarget = prefix ? resolve(targetDir, prefix) : targetDir;
-      const workspaceFiles = await loadAndRenderTemplates(workspaceTemplateDir, '', tokens, workspaceTarget, skipPaths);
+      const workspaceFiles = await loadAndRenderTemplates(
+        workspaceTemplateDir,
+        '',
+        tokens,
+        workspaceTarget,
+        skipPaths,
+      );
       files.push(...workspaceFiles);
 
       // 4b. Docker templates
       if (opts.docker !== false) {
         const dockerDir = resolve(templateRoot, 'docker');
-        const dockerFiles = await loadAndRenderTemplates(dockerDir, '', tokens, targetDir);
+        const dockerFiles = await loadAndRenderTemplates(
+          dockerDir,
+          '',
+          tokens,
+          targetDir,
+        );
         files.push(...dockerFiles);
       }
 
       // 5. Generate datasource files
       const dataSourcesDir = 'apps/backend/src/app/data-sources';
-      const generatedImport = `@${name}/generated/default/types`;
-      const generatedClientImport = `@${name}/generated/default/client`;
+      const generatedImport = `@${name}/generated-default-types`;
+      const generatedClientImport = `@${name}/generated-default-client`;
 
       const { files: dsFiles } = buildDatasourceFiles({
         name: 'default',
@@ -155,11 +176,14 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
         type: 'postgres',
         default: true,
         zodOutput: 'generated/default/types/src',
-        clientOutput: 'generated/default/client/src',
+        clientOutput: 'generated/default/client',
       });
 
       for (const f of dsFiles) {
-        files.push({ path: resolve(workspaceTarget, f.path), contents: f.contents });
+        files.push({
+          path: resolve(workspaceTarget, f.path),
+          contents: f.contents,
+        });
       }
 
       // 6. Write all files
@@ -171,13 +195,24 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     } else {
       // Regular layout — no prefix support
       const templateDir = resolve(templateRoot, 'regular');
-      const files: FileEntry[] = await loadAndRenderTemplates(templateDir, '', tokens, targetDir, skipPaths);
+      const files: FileEntry[] = await loadAndRenderTemplates(
+        templateDir,
+        '',
+        tokens,
+        targetDir,
+        skipPaths,
+      );
 
       // Docker templates
       if (opts.docker !== false) {
         const dockerTokens = { ...tokens, regular: 'true' };
         const dockerDir = resolve(templateRoot, 'docker');
-        const dockerFiles = await loadAndRenderTemplates(dockerDir, '', dockerTokens, targetDir);
+        const dockerFiles = await loadAndRenderTemplates(
+          dockerDir,
+          '',
+          dockerTokens,
+          targetDir,
+        );
         files.push(...dockerFiles);
       }
 
@@ -195,7 +230,7 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
         type: 'postgres',
         default: true,
         zodOutput: 'generated/default/types/src',
-        clientOutput: 'generated/default/client/src',
+        clientOutput: 'generated/default/client',
       });
 
       for (const f of dsFiles) {
@@ -215,7 +250,9 @@ export const runCreate = async (name: string, opts: CreateOptions): Promise<void
     const prefixFlag = prefix ? ` --prefix ${prefix}` : '';
     clack.note(
       [
-        opts.docker !== false ? 'docker compose up -d          # start postgres' : null,
+        opts.docker !== false
+          ? 'docker compose up -d          # start postgres'
+          : null,
         `${pmRun} prisma:migrate          # create initial migration`,
         `crouton update resources${prefixFlag}        # generate resource CRUD`,
         `${pmRun} dev                     # start dev server`,
@@ -281,9 +318,10 @@ const postScaffold = async (
         });
         s2.stop('Resources updated');
       } catch (err) {
-        const stderr = err instanceof Error && 'stderr' in err
-          ? String((err as { stderr: unknown }).stderr).trim()
-          : '';
+        const stderr =
+          err instanceof Error && 'stderr' in err
+            ? String((err as { stderr: unknown }).stderr).trim()
+            : '';
         clack.log.warn(
           'crouton update resources failed — run it manually after setting up your database.' +
             (stderr ? `\n${pc.dim(stderr)}` : ''),
@@ -293,7 +331,9 @@ const postScaffold = async (
   }
 };
 
-const resolveLayout = async (opts: CreateOptions): Promise<'nx' | 'regular'> => {
+const resolveLayout = async (
+  opts: CreateOptions,
+): Promise<'nx' | 'regular'> => {
   if (opts.prefix) return 'nx'; // --prefix implies Nx layout
   if (opts.yes) return opts.nx ? 'nx' : 'regular';
   if (opts.nx) return 'nx';
@@ -303,14 +343,20 @@ const resolveLayout = async (opts: CreateOptions): Promise<'nx' | 'regular'> => 
       message: 'Project layout',
       options: [
         { value: 'regular', label: 'Regular (single NestJS app)' },
-        { value: 'nx', label: 'Nx monorepo (backend + frontend + shared libs)' },
+        {
+          value: 'nx',
+          label: 'Nx monorepo (backend + frontend + shared libs)',
+        },
       ],
     }),
   ) as string;
   return layout as 'nx' | 'regular';
 };
 
-const resolveFrontend = async (opts: CreateOptions, layout: string): Promise<boolean> => {
+const resolveFrontend = async (
+  opts: CreateOptions,
+  layout: string,
+): Promise<boolean> => {
   if (layout === 'regular') return false; // regular layout = backend only
   if (opts.yes) return opts.frontend;
   if (!opts.frontend) return false;
@@ -323,7 +369,9 @@ const resolveFrontend = async (opts: CreateOptions, layout: string): Promise<boo
   ) as boolean;
 };
 
-const resolvePrefix = async (opts: CreateOptions): Promise<string | undefined> => {
+const resolvePrefix = async (
+  opts: CreateOptions,
+): Promise<string | undefined> => {
   if (opts.prefix) return opts.prefix;
   if (opts.yes) return undefined;
 
@@ -392,7 +440,13 @@ const loadAndRenderTemplates = async (
     if (skipPaths.some((sp) => relPath.startsWith(sp))) continue;
 
     if (entry.isDirectory()) {
-      const nested = await loadAndRenderTemplates(templateDir, relPath, tokens, targetDir, skipPaths);
+      const nested = await loadAndRenderTemplates(
+        templateDir,
+        relPath,
+        tokens,
+        targetDir,
+        skipPaths,
+      );
       files.push(...nested);
     } else if (entry.name.endsWith('.tmpl')) {
       const raw = await loadTemplate(templateDir, relPath);

@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "nest start --watch",
-    "build": "nest build",
-    "start": "node dist/main.js",
     "prisma:migrate": "npx prisma migrate dev --config prisma/default/prisma.config.ts",
     "crouton": "crouton"
   },
@@ -20,14 +17,16 @@
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
     "dotenv": "^16.0.0",
+    "pg": "^8.18.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.0.0",
     "tslib": "^2.8.0",
-    "zod": "^4.0.0"
+    "zod": "^4.0.0",
+    "@{{name}}/generated-default-types": "workspace:*",
+    "@{{name}}/generated-default-client": "workspace:*"
   },
   "devDependencies": {
     "@ghentcdh/crouton-cli": "latest",
-    "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@types/node": "^22.0.0",
     "prisma": "^7.0.0",

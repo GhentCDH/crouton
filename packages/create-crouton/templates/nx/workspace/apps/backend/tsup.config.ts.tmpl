@@ -1,0 +1,31 @@
+import { defineConfig } from 'tsup';
+import { swcPlugin } from 'esbuild-plugin-swc';
+
+export default defineConfig({
+  entry: ['src/main.ts'],
+  format: ['cjs'],
+  outDir: '../../dist/apps/backend',
+  clean: true,
+  sourcemap: true,
+  platform: 'node',
+  target: 'node22',
+  keepNames: true, // NestJS DI requires class names to be preserved
+  esbuildPlugins: [
+    swcPlugin({
+      jsc: {
+        parser: { syntax: 'typescript', decorators: true },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+        },
+        jsc: {
+          target: 'es2022',
+          keepClassNames: true,
+        },
+      },
+    }),
+  ],
+  // All node_modules are automatically externalized for node platform
+  // Bundle workspace packages since they ship as raw .ts source
+  noExternal: [/@{{name}}\/.*/],
+});

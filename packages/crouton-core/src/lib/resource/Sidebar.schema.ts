@@ -8,7 +8,7 @@ export const SidebarGroupSchema = z.object({
   /** Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug. */
   label: z.string().optional(),
   /** Controls the order of this group among top-level sidebar items. */
-  position: z.string().optional(),
+  position: z.number().optional(),
 });
 
 export type SidebarGroupConfig = z.infer<typeof SidebarGroupSchema>;
