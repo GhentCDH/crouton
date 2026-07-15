@@ -8,6 +8,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
+  shims: true,
   noExternal: ['@ghentcdh/crouton-core'],
   external: [
     '@nestjs/common',
