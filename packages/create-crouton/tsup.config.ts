@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
-import { cp } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { cp } from 'node:fs/promises';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 

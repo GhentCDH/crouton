@@ -112,6 +112,7 @@ export const buildDefinitionPayload = (
     tag,
     operations,
     upsertOn: upsertOnFor(definition),
+    display: config.display,
     schemas: {
       ...(listSchema && { findAll: toJsonSchema(listSchema) }),
       ...(oneSchema && { findOne: toJsonSchema(oneSchema) }),
