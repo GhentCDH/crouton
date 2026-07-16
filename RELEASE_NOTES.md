@@ -1,3 +1,18 @@
+## 0.0.1-alpha.32 (2026-07-16)
+
+### 🚀 Features
+
+- add separate PUT /:id and PATCH /:id support for CRUD resources ([#40](https://github.com/GhentCDH/crouton/pull/40))
+
+### 🩹 Fixes
+
+- **crouton-api:** exclude manyToOne relations from _count in findAll ([31d0c32](https://github.com/GhentCDH/crouton/commit/31d0c32))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.31 (2026-07-16)
 
 ### 🚀 Features
