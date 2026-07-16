@@ -1,3 +1,13 @@
+## 0.0.1-alpha.33 (2026-07-16)
+
+### 🩹 Fixes
+
+- resource table and display ([1a40029](https://github.com/GhentCDH/crouton/commit/1a40029))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.32 (2026-07-16)
 
 ### 🚀 Features

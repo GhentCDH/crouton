@@ -1,6 +1,6 @@
 {
   "name": "@ghentcdh/create-crouton",
-  "version": "0.0.1-alpha.32",
+  "version": "0.0.1-alpha.33",
   "publishConfig": {
     "access": "public",
     "tag": "alpha"
