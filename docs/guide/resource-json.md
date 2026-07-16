@@ -67,7 +67,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `database`          | `string`                       | Name of the [data source](./datasource.md) to use                    |
 | `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
 | `display`           | object                         | `mode` (`'page'` \| `'modal'`, default `'modal'`) and `customComponent`, see [Display](#display) |
-| `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `upsert`, `delete`  |
+| `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `patch`, `upsert`, `delete` |
 | `columns`           | map or array                   | Column definitions, see below                                        |
 | `calculatedColumns` | array                          | SQL-computed read-only columns, see below                            |
 | `actions`           | array                          | Row-level [actions](./actions.md)                                    |
@@ -77,8 +77,18 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 
 ## Operations
 
-All five operations default to **enabled** — omitting the `operations` object, or a specific key, still exposes that
+All CRUD operations default to **enabled** — omitting the `operations` object, or a specific key, still exposes that
 endpoint. Set a key to `false` to disable it.
+
+| Operation  | HTTP Method | Route     | Description                                      |
+|------------|-------------|-----------|--------------------------------------------------|
+| `findAll`  | `GET`       | `/`       | List all records (paginated)                     |
+| `findOne`  | `GET`       | `/:id`    | Get one record by id                             |
+| `create`   | `POST`      | `/`       | Create a new record                              |
+| `update`   | `PUT`       | `/:id`    | Full replace — all fields required per schema    |
+| `patch`    | `PATCH`     | `/:id`    | Partial update — fields optional (auto `.partial()`) |
+| `upsert`   | `PUT`       | `/`       | Create or update based on `upsertOn` key(s)      |
+| `delete`   | `DELETE`    | `/:id`    | Delete a record                                  |
 
 `upsert` is the exception: it defaults to **disabled** and must be an object with `upsertOn`, not `true`:
 
@@ -93,6 +103,19 @@ endpoint. Set a key to `false` to disable it.
 
 Passing `"upsert": true` throws at load time — `upsertOn` (a column name or array of column names used to detect an
 existing record) is required.
+
+### PUT vs PATCH
+
+Both `update` and `patch` default to `true`. They share the same Prisma `update()` call — the difference is in
+validation:
+
+- **`update` (PUT)** uses the full update schema. All required fields must be present.
+- **`patch` (PATCH)** uses `updateSchema.partial()` by default (all fields optional). You can override it by providing an explicit `patch` schema in the resource definition.
+
+In the frontend, **manual save** sends a `PUT` (full replace) and **autosave** sends a `PATCH` (partial update).
+
+Hooks receive `op: 'update'` for PUT calls and `op: 'patch'` for PATCH calls, so `beforeWrite`/`afterWrite` hooks can
+distinguish between the two.
 
 ## Columns
 
@@ -256,6 +279,47 @@ The `display` object controls how the create/edit form is presented. Both fields
   }
 }
 ```
+
+### Page mode
+
+When `mode` is `'page'`, the form renders inline (replacing the table) instead of opening a modal. This happens
+automatically — no `inline: true` option needed in `useResources`. The table is hidden while the form is open.
+
+Page mode uses `AutoSaveForm` as its component, which enables autosave by default when editing.
+
+### Custom components
+
+Register a custom Vue component in your app setup and reference it by name in `resource.json`:
+
+```json
+{
+  "display": {
+    "mode": "page",
+    "customComponent": "WorkEditor"
+  }
+}
+```
+
+Register the component when creating the Crouton plugin:
+
+```ts
+import { createCrouton, customComponentIs } from '@ghentcdh/crouton-vue';
+import WorkEditor from './components/WorkEditor.vue';
+
+app.use(
+  createCrouton(api, {
+    customComponents: [
+      {
+        tester: customComponentIs('WorkEditor', 1),
+        renderer: WorkEditor,
+      },
+    ],
+  }),
+);
+```
+
+The custom component receives the form configuration as props and is rendered inside the form wrapper.
+See the [demo component](../components/) for a working example.
 
 ## Sidebar
 

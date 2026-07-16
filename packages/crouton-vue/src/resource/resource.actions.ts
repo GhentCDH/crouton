@@ -456,12 +456,11 @@ export const resourceModals = (
       handleEvent: HandleEvent,
     ) =>
     (formData?: any) => {
-      if (!inline) {
+      const mode = formDef.display.mode;
+      if (!inline && mode !== 'page') {
         openEditModal(api, resource, formDef, handleEvent)(formData);
         return;
       }
-
-      const mode = formDef.display.mode;
       const component = mode === 'page' ? AutoSaveForm : FormModal;
 
       const customComponent =
@@ -497,7 +496,9 @@ export const resourceModals = (
     edit: (id: unknown) =>
       openWithData(id, openForm(api, resource, formDef, handleEvent)),
     view: (id: unknown) =>
-      openWithData(id, openViewModal(api, resource, formDef, handleEvent)),
+      formDef.display.mode === 'page'
+        ? openWithData(id, openForm(api, resource, formDef, handleEvent))
+        : openWithData(id, openViewModal(api, resource, formDef, handleEvent)),
     delete: (id: unknown) =>
       openWithData(id, openDeleteModal(api, resource, handleEvent)),
   };

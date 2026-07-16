@@ -44,6 +44,7 @@ watch(
           initialRequestParams: { ...toRaw(props.initialRequestParams) },
           onRequest,
           handleEvent,
+          inline: true,
         })
       : null;
   },

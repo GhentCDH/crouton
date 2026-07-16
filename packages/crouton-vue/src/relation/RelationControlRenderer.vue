@@ -4,6 +4,20 @@
       {{ message }}
     </div>
   </ControlLabel>
+  <div v-else-if="isInline">
+    <template v-if="displayAs == 'autocomplete' && resource">
+      <RelationAutocomplete
+        :label-key="appliedOptions.labelKey"
+        :label="wrapper.label"
+        :value-key="appliedOptions.valueKey"
+        :value="value"
+        :options="options"
+        v-bind="operations"
+        @change="onAutocompleteChange"
+      />
+    </template>
+    <div v-else>Configure autocomplete</div>
+  </div>
   <RelationInline
     v-else-if="displayAs == 'autocomplete' && resource"
     :form-def-key="wrapper.id"
@@ -53,15 +67,18 @@ import { useRelationBinding } from './useRelationBinding';
 import RelationButton from './RelationButton.vue';
 import { ControlLabel, useFormEvents } from '@ghentcdh/crouton-forms-vue';
 import RelationInline from './RelationInline.vue';
+import RelationAutocomplete from './RelationAutocomplete.vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 const {
   value,
+  field,
   wrapper,
   message: _message,
   resource,
   isNew,
+  isInline,
   appliedOptions,
 } = useRelationBinding(props.uischema, props.schema, false);
 
@@ -99,6 +116,11 @@ const operations = computed(() => {
   if (resource.value?.operations.delete) ops['onDelete'] = res.delete;
   return ops;
 });
+
+const onAutocompleteChange = (selected: unknown) => {
+  field.setValue(selected);
+  field.setTouched(true);
+};
 
 const displayAs = computed(() => {
   if (appliedOptions.value.display === 'autocomplete') return 'autocomplete';
