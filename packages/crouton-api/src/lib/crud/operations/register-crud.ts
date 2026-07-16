@@ -49,6 +49,10 @@ const update = async (repo: CrudRepository, id: string, body: any) => {
   return repo.update(id, body);
 };
 
+const patch = async (repo: CrudRepository, id: string, body: any) => {
+  return repo.patch(id, body);
+};
+
 const upsert = async (repo: CrudRepository, body: any) => {
   return repo.upsert(body);
 };
@@ -123,7 +127,7 @@ export const registerCreate = (ctx: OperationContext): void => {
   ApiResponse({ status: 201, description: `${name} created` })(cls.prototype, 'create', d);
 };
 
-/** Register `PATCH /:id`. Applies Zod body validation when the update schema is a Zod schema. No-ops when `update` is disabled. */
+/** Register `PUT /:id`. Applies Zod body validation when the update schema is a Zod schema. No-ops when `update` is disabled. */
 export const registerUpdate = (ctx: OperationContext): void => {
   if (!isOperationEnabled(ctx.definition, 'update')) return;
   const { cls, config, updateSchema, idParamMeta, bodyDecorator } = ctx;
@@ -133,14 +137,34 @@ export const registerUpdate = (ctx: OperationContext): void => {
     return update(this.repo, id, body);
   });
   const d = desc(cls, 'update');
-  Patch(':id')(cls.prototype, 'update', d);
+  Put(':id')(cls.prototype, 'update', d);
   Param('id')(cls.prototype, 'update', 0);
   bodyDecorator(updateSchema)(cls.prototype, 'update', 1);
-  ApiOperation({ summary: `Update a ${name}` })(cls.prototype, 'update', d);
+  ApiOperation({ summary: `Replace a ${name}` })(cls.prototype, 'update', d);
   ApiParam(idParamMeta)(cls.prototype, 'update', d);
   if (updateSchema) ApiBody({ schema: toJsonSchema(updateSchema) as SchemaObject })(cls.prototype, 'update', d);
-  ApiResponse({ status: 200, description: `${name} updated` })(cls.prototype, 'update', d);
+  ApiResponse({ status: 200, description: `${name} replaced` })(cls.prototype, 'update', d);
   ApiNotFoundResponse({ description: 'Not found' })(cls.prototype, 'update', d);
+};
+
+/** Register `PATCH /:id`. Applies Zod body validation when the patch schema is a Zod schema. No-ops when `patch` is disabled. */
+export const registerPatch = (ctx: OperationContext): void => {
+  if (!isOperationEnabled(ctx.definition, 'patch')) return;
+  const { cls, config, patchSchema, idParamMeta, bodyDecorator } = ctx;
+  const { name } = config;
+
+  def(cls, 'patch', function (this: { repo: CrudRepository }, id: string, body: any) {
+    return patch(this.repo, id, body);
+  });
+  const d = desc(cls, 'patch');
+  Patch(':id')(cls.prototype, 'patch', d);
+  Param('id')(cls.prototype, 'patch', 0);
+  bodyDecorator(patchSchema)(cls.prototype, 'patch', 1);
+  ApiOperation({ summary: `Update a ${name}` })(cls.prototype, 'patch', d);
+  ApiParam(idParamMeta)(cls.prototype, 'patch', d);
+  if (patchSchema) ApiBody({ schema: toJsonSchema(patchSchema) as SchemaObject })(cls.prototype, 'patch', d);
+  ApiResponse({ status: 200, description: `${name} updated` })(cls.prototype, 'patch', d);
+  ApiNotFoundResponse({ description: 'Not found' })(cls.prototype, 'patch', d);
 };
 
 /** Register `PUT /` for create-or-update. The `upsertOn` key(s) from the config determine the uniqueness constraint. No-ops when `upsert` is disabled. */

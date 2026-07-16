@@ -33,6 +33,7 @@ const Operations = z.object({
   findAll: BooleanOperationSchema,
   findOne: BooleanOperationSchema,
   update: BooleanOperationSchema,
+  patch: BooleanOperationSchema,
 });
 
 export type Operation = z.infer<typeof OperationSchema>;
@@ -42,7 +43,8 @@ const OperationMap: Record<OperationKey, Method> = {
   delete: 'delete',
   findAll: 'get',
   findOne: 'get',
-  update: 'patch',
+  update: 'put',
+  patch: 'patch',
 };
 const OperationSuffixMap: Record<OperationKey, string> = {
   create: '',
@@ -50,6 +52,7 @@ const OperationSuffixMap: Record<OperationKey, string> = {
   findAll: '',
   findOne: '/{id}',
   update: '/{id}',
+  patch: '/{id}',
 };
 export const ViewSchemaZ = z.object({
   data: z.any(),

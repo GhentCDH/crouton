@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const WriteOpSchema = z.enum(['create', 'update', 'upsert', 'delete']);
+export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'upsert', 'delete']);
 export type WriteOp = z.infer<typeof WriteOpSchema>;
 
 export const ReadOpSchema = z.enum(['findAll', 'findOne']);

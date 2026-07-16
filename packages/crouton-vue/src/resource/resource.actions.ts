@@ -84,7 +84,7 @@ const openViewModal =
         ...relationReadonlyRenderers,
         ...useCrouton().readonlyRenderers,
       ],
-      onEdit: op.update
+      onEdit: (op.update || op.patch)
         ? (data: any) =>
             openEditModal(
               api,
@@ -151,7 +151,7 @@ const getEditParams = (
     formParams = {
       ...formParams,
       autoSave: true,
-      onAutoSave: (data: any) => api.save(recordId, data),
+      onAutoSave: (data: any) => api.patch(recordId, data),
       onClose: () => {
         resource.reload();
         handleEvent('close', {});
@@ -242,7 +242,7 @@ const createEditForm =
       return {
         ...sharedProps,
         autoSave: true,
-        onAutoSave: (data: any) => api.save(recordId, data),
+        onAutoSave: (data: any) => api.patch(recordId, data),
         onClose: () => {
           resource.reload();
           handleEvent('close', {});
@@ -341,7 +341,7 @@ export const actions = (
       tooltip: 'View',
       icon: 'View',
     },
-    !readonly && op.update
+    !readonly && (op.update || op.patch)
       ? {
           action: _modals.edit,
           tooltip: 'Edit',

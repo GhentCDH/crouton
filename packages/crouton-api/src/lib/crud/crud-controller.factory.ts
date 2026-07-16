@@ -11,6 +11,7 @@ import {
   registerDelete,
   registerFindAll,
   registerFindOne,
+  registerPatch,
   registerUpdate,
   registerUpsert
 } from './operations/register-crud';
@@ -47,6 +48,10 @@ export function createCrudController(
   const oneSchema = schemaFor(definition, 'findOne') ?? listSchema;
   const createSchema = schemaFor(definition, 'create');
   const updateSchema = schemaFor(definition, 'update');
+  const explicitPatchSchema = schemaFor(definition, 'patch');
+  const patchSchema = explicitPatchSchema
+    ?? (updateSchema && isZodSchema(updateSchema) ? (updateSchema as any).partial() : undefined)
+    ?? updateSchema;
   const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
 
   if (isOperationEnabled(definition, 'upsert') && !upsertOnFor(definition)) {
@@ -84,6 +89,7 @@ export function createCrudController(
     oneSchema,
     createSchema,
     updateSchema,
+    patchSchema,
     upsertSchema,
     idParamMeta: {
       name: 'id',
@@ -104,6 +110,7 @@ export function createCrudController(
   registerFindOne(ctx);
   registerCreate(ctx);
   registerUpdate(ctx);
+  registerPatch(ctx);
   registerUpsert(ctx);
   registerDelete(ctx);
 

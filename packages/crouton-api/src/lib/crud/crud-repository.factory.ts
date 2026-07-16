@@ -40,6 +40,7 @@ export interface CrudRepository<T = any> {
   ): Promise<T>;
   create(data: unknown): Promise<T>;
   update(id: number | string, data: unknown): Promise<T>;
+  patch(id: number | string, data: unknown): Promise<T>;
   upsert(data: unknown): Promise<T>;
   upsertMany(rows: unknown[]): Promise<T[]>;
   delete(id: number | string): Promise<T>;
@@ -91,6 +92,7 @@ export function createCrudRepository<T = any>(
     findOneChild: reader.findOneChild.bind(reader),
     create: writer.create.bind(writer),
     update: writer.update.bind(writer),
+    patch: writer.patch.bind(writer),
     upsert: writer.upsert.bind(writer),
     upsertMany: writer.upsertMany.bind(writer),
     delete: writer.delete.bind(writer),

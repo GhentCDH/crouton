@@ -5,7 +5,7 @@ import { type SchemaInput } from './resource/json.schema';
 export { isRowProcedureAction, isTableProcedureAction } from './action';
 
 export type CrudOperation =
-  'findAll' | 'findOne' | 'create' | 'update' | 'upsert' | 'delete';
+  'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'upsert' | 'delete';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 

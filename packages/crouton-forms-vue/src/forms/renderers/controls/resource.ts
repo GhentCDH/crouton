@@ -35,6 +35,7 @@ const Operations = z.object({
   findOne: BooleanOperationSchema,
   create: BooleanOperationSchema,
   update: BooleanOperationSchema,
+  patch: BooleanOperationSchema,
   delete: BooleanOperationSchema,
   lookup: OperationsSchema.optional(),
 });
@@ -46,7 +47,8 @@ const OperationMap: Record<OperationKey, Method> = {
   findAll: 'get',
   findOne: 'get',
   lookup: 'get',
-  update: 'patch',
+  update: 'put',
+  patch: 'patch',
 };
 
 const schemaDef = z.object({

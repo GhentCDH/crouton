@@ -26,7 +26,7 @@ export const resolveEnvPlaceholders = (value: string): string =>
 export const buildSubResourceOperations = (
   ops:
     | Partial<
-        Record<'findAll' | 'findOne' | 'create' | 'update' | 'delete', boolean>
+        Record<'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete', boolean>
       >
     | undefined,
   baseUri: string,
@@ -41,7 +41,10 @@ export const buildSubResourceOperations = (
     }),
     ...(ops.create && { create: { uri: baseUri, method: 'post' } }),
     ...(ops.update && {
-      update: { uri: `${baseUri}/${idPlaceholder}`, method: 'patch' },
+      update: { uri: `${baseUri}/${idPlaceholder}`, method: 'put' },
+    }),
+    ...(ops.patch && {
+      patch: { uri: `${baseUri}/${idPlaceholder}`, method: 'patch' },
     }),
     ...(ops.delete && {
       delete: { uri: `${baseUri}/${idPlaceholder}`, method: 'delete' },
@@ -54,6 +57,7 @@ const RESOURCE_OPS = [
   'findOne',
   'create',
   'update',
+  'patch',
   'delete',
 ] as const;
 type ResourceOp = (typeof RESOURCE_OPS)[number];
@@ -62,7 +66,8 @@ const OP_METHOD: Record<ResourceOp, string> = {
   findAll: 'get',
   findOne: 'get',
   create: 'post',
-  update: 'patch',
+  update: 'put',
+  patch: 'patch',
   delete: 'delete',
 };
 const OP_SUFFIX: Record<ResourceOp, string> = {
@@ -70,6 +75,7 @@ const OP_SUFFIX: Record<ResourceOp, string> = {
   findOne: '/{id}',
   create: '',
   update: '/{id}',
+  patch: '/{id}',
   delete: '/{id}',
 };
 
@@ -99,10 +105,11 @@ export const buildDefinitionPayload = (
   const oneSchema = schemaFor(definition, 'findOne') ?? listSchema;
   const createSchema = schemaFor(definition, 'create');
   const updateSchema = schemaFor(definition, 'update');
+  const patchSchema = schemaFor(definition, 'patch');
   const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
 
   const operations = (
-    ['findAll', 'findOne', 'create', 'update', 'upsert', 'delete'] as const
+    ['findAll', 'findOne', 'create', 'update', 'patch', 'upsert', 'delete'] as const
   ).filter((op) => isOperationEnabled(definition, op));
 
   return {
@@ -118,6 +125,7 @@ export const buildDefinitionPayload = (
       ...(oneSchema && { findOne: toJsonSchema(oneSchema) }),
       ...(createSchema && { create: toJsonSchema(createSchema) }),
       ...(updateSchema && { update: toJsonSchema(updateSchema) }),
+      ...(patchSchema && { patch: toJsonSchema(patchSchema) }),
       ...(isOperationEnabled(definition, 'upsert') && upsertSchema
         ? { upsert: toJsonSchema(upsertSchema) }
         : {}),

@@ -143,6 +143,24 @@ export class WriteRepository<T = any> {
     }
   }
 
+  async patch(id: number | string, data: unknown): Promise<T> {
+    const idField = this.config.idField ?? 'id';
+    try {
+      const result = await this.prismaModel.update({
+        where: { [idField]: this.toId(id) },
+        data: await this.prepare(
+          this.stripSubResourceKeys(data),
+          'patch',
+          this.toId(id),
+        ),
+      });
+      return this.postWrite(result, 'patch', this.toId(id));
+    } catch (e: any) {
+      if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+      throw e;
+    }
+  }
+
   async upsert(data: unknown): Promise<T> {
     const where = this.upsertWhere(data);
     const existing = await this.prismaModel.findFirst({ where });

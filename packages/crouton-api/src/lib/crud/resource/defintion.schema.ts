@@ -23,6 +23,7 @@ export const ResourceDefinitionSchema = z.object({
   findOne: OperationDefSchema.optional(),
   create: OperationDefSchema.optional(),
   update: OperationDefSchema.optional(),
+  patch: OperationDefSchema.optional(),
   upsert: UpsertOperationDefSchema.optional(),
   delete: OperationDefSchema.optional(),
 });
