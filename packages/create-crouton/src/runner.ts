@@ -14,6 +14,8 @@ import { readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+declare const __CROUTON_VERSION__: string;
+
 export interface CreateOptions {
   nx: boolean;
   frontend: boolean;
@@ -88,6 +90,7 @@ export const runCreate = async (
     const tokens: Record<string, string> = {
       name,
       Name: toTitle(name),
+      version: typeof __CROUTON_VERSION__ !== 'undefined' ? __CROUTON_VERSION__ : 'latest',
       year: String(new Date().getFullYear()),
       pmRun: pm === 'npm' ? 'npm run' : pm,
       urlEnv: 'DATABASE_URL',
