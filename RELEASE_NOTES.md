@@ -1,3 +1,17 @@
+## 0.0.1-alpha.31 (2026-07-16)
+
+### 🚀 Features
+
+- **crouton-cli:** use right package versions ([8146f3a](https://github.com/GhentCDH/crouton/commit/8146f3a))
+
+### 🩹 Fixes
+
+- **crouton-api:** fix display mode ([8c78375](https://github.com/GhentCDH/crouton/commit/8c78375))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.30 (2026-07-16)
 
 ### 🚀 Features
