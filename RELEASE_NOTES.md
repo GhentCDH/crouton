@@ -1,3 +1,18 @@
+## 0.0.1-alpha.29 (2026-07-16)
+
+### 🚀 Features
+
+- config.json ([4e71d4c](https://github.com/GhentCDH/crouton/commit/4e71d4c))
+- **crouton-cli:** init db dev ([edbe5e8](https://github.com/GhentCDH/crouton/commit/edbe5e8))
+
+### 🩹 Fixes
+
+- building crouton-api ([0f7a0ad](https://github.com/GhentCDH/crouton/commit/0f7a0ad))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.28 (2026-07-15)
 
 This was a version bump only, there were no code changes.
