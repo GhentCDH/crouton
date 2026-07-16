@@ -2,14 +2,13 @@ services:
   db:
     image: postgres:17
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: crouton
-      POSTGRES_PASSWORD: crouton
-      POSTGRES_DB: {{name}}
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./var/pgdata:/var/lib/postgresql/data
+      - ./docker/init-data:/docker-entrypoint-initdb.d
 
   app:
     build:
@@ -20,11 +19,9 @@ services:
       - db
     ports:
       - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://crouton:crouton@db:5432/{{name}}?schema=public
+    env_file:
+      - .env
     volumes:
       - .:/app
       - /app/node_modules
 
-volumes:
-  pgdata:
