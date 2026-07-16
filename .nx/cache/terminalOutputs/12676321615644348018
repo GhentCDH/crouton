@@ -1,0 +1,5 @@
+Error: ERROR: Something went wrong in run-commands - ENOENT: no such file or directory, open '.env'
+    at runCommands (/Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/.pnpm/nx@23.1.0_@swc+core@1.15.43_@swc+helpers@0.5.23_/node_modules/nx/dist/src/executors/run-commands/run-commands.impl.js:78:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async TaskOrchestrator.runTask (/Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/.pnpm/nx@23.1.0_@swc+core@1.15.43_@swc+helpers@0.5.23_/node_modules/nx/dist/src/tasks-runner/task-orchestrator.js:776:37)
+    at async TaskOrchestrator.runTaskDirectly (/Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/.pnpm/nx@23.1.0_@swc+core@1.15.43_@swc+helpers@0.5.23_/node_modules/nx/dist/src/tasks-runner/task-orchestrator.js:725:30)

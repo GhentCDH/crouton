@@ -1,0 +1,58 @@
+{
+  "name": "annotation_annotation_selector",
+  "route": "annotation_annotation_selector",
+  "model": "annotation_annotation_selector",
+  "tag": "annotation_annotation_selector",
+  "title": "Annotation annotation selector",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": true
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "source_annotation_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "end": {
+      "fieldInput": {
+        "type": "number",
+        "position": 0
+      }
+    },
+    "start": {
+      "fieldInput": {
+        "type": "number",
+        "position": 1
+      }
+    }
+  }
+}

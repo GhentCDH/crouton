@@ -1,0 +1,129 @@
+> nx run mela-frontend:dev
+
+> pnpm run dev
+
+[2m$ vite[22m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J
+  [32m[1mVITE[22m v6.4.3[39m  [2mready in [0m[1m262[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4200[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m10:05:09 AM[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m10:05:09 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because vite config has changed
+[2m10:05:09 AM[22m [36m[1m[vite][22m[39m server restarted.
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mNo matching export in "../../../../../../node_modules/.pnpm/@ghentcdh+ui@0.8.5_@ghentcdh+tools-vue@0.8.5_axios@1.13.2_vue@3.5.33_typescript@5.9.3___725fa31c48bec55a62b33d2008f31b0f/node_modules/@ghentcdh/ui/index.mjs" for import "BooleanCell"[0m
+
+    ../../node_modules/.pnpm/@ghentcdh+crouton-forms-vue@0.0.1-alpha.30_@ghentcdh+ui@3.0.4_@ghentcdh+json-forms-core_1031240cc56e0f3258c4a650648c5d76/node_modules/@ghentcdh/crouton-forms-vue/dist/index.js:4:29:
+[37m      4 │ import { Autocomplete as se, [32mBooleanCell[37m as ce, Btn as I, Checkbox as le, Collapse as ue, Color as L, ControlWrapperProperties as de, Icon as fe, IconEnum as R, Input as pe, InputNumber as me, Markdown as he, Modal as g...
+        ╵                              [32m~~~~~~~~~~~[0m
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mNo matching export in "../../../../../../node_modules/.pnpm/@ghentcdh+ui@0.8.5_@ghentcdh+tools-vue@0.8.5_axios@1.13.2_vue@3.5.33_typescript@5.9.3___725fa31c48bec55a62b33d2008f31b0f/node_modules/@ghentcdh/ui/index.mjs" for import "ControlWrapperProperties"[0m
+
+    ../../node_modules/.pnpm/@ghentcdh+crouton-forms-vue@0.0.1-alpha.30_@ghentcdh+ui@3.0.4_@ghentcdh+json-forms-core_1031240cc56e0f3258c4a650648c5d76/node_modules/@ghentcdh/crouton-forms-vue/dist/index.js:4:102:
+[37m      4 │ ... { Autocomplete as se, BooleanCell as ce, Btn as I, Checkbox as le, Collapse as ue, Color as L, [32mControlWrapperProperties[37m as de, Icon as fe, IconEnum as R, Input as pe, InputNumber as me, Markdown as he, Modal as ge, ...
+        ╵                                                                                                    [32m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+/Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467
+  let error = new Error(text);
+              ^
+
+Error: Build failed with 2 errors:
+../../node_modules/.pnpm/@ghentcdh+crouton-forms-vue@0.0.1-alpha.30_@ghentcdh+ui@3.0.4_@ghentcdh+json-forms-core_1031240cc56e0f3258c4a650648c5d76/node_modules/@ghentcdh/crouton-forms-vue/dist/index.js:4:29: ERROR: No matching export in "../../../../../../node_modules/.pnpm/@ghentcdh+ui@0.8.5_@ghentcdh+tools-vue@0.8.5_axios@1.13.2_vue@3.5.33_typescript@5.9.3___725fa31c48bec55a62b33d2008f31b0f/node_modules/@ghentcdh/ui/index.mjs" for import "BooleanCell"
+../../node_modules/.pnpm/@ghentcdh+crouton-forms-vue@0.0.1-alpha.30_@ghentcdh+ui@3.0.4_@ghentcdh+json-forms-core_1031240cc56e0f3258c4a650648c5d76/node_modules/@ghentcdh/crouton-forms-vue/dist/index.js:4:102: ERROR: No matching export in "../../../../../../node_modules/.pnpm/@ghentcdh+ui@0.8.5_@ghentcdh+tools-vue@0.8.5_axios@1.13.2_vue@3.5.33_typescript@5.9.3___725fa31c48bec55a62b33d2008f31b0f/node_modules/@ghentcdh/ui/index.mjs" for import "ControlWrapperProperties"
+    at failureErrorWithLog (/Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/[4m.pnpm[24m/esbuild@0.25.12/node_modules/[4mesbuild[24m/lib/main.js:1467:15)
+    at /Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/[4m.pnpm[24m/esbuild@0.25.12/node_modules/[4mesbuild[24m/lib/main.js:926:25
+    at /Users/bovandersteene/project/ugent/testing-crouton/mela/node_modules/[4m.pnpm[24m/esbuild@0.25.12/node_modules/[4mesbuild[24m/lib/main.js:1345:9
+[90m    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)[39m {
+  errors: [36m[Getter/Setter][39m,
+  warnings: [36m[Getter/Setter][39m
+}
+
+Node.js v24.13.1
+[0J[41m[31m[[39m[49m[41m[30mELIFECYCLE[39m[49m[41m[31m][39m[49m [31mCommand failed with exit code 1.[39m

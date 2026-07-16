@@ -1,0 +1,6 @@
+/* App Tailwind build (processed by @tailwindcss/vite). */
+@import 'tailwindcss';
+
+@import '@ghentcdh/crouton-vue/styles.css';
+
+@source './';

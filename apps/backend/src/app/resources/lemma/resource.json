@@ -1,0 +1,96 @@
+{
+  "name": "lemma",
+  "route": "lemma",
+  "model": "lemma",
+  "tag": "lemma",
+  "title": "Lemma",
+  "idType": "string",
+  "database": "default",
+  "modalSize": "lg",
+  "sidebar": {
+    "hide": false,
+    "group": "metadata"
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "word": {
+      "fieldInput": {
+        "type": "text",
+        "position": 0
+      }
+    },
+    "link": {
+      "hiddenInTable": true,
+      "fieldInput": {
+        "type": "text",
+        "position": 1
+      }
+    },
+    "grammatical": {
+      "hiddenInTable": true,
+      "fieldInput": {
+        "type": "boolean",
+        "position": 2
+      }
+    },
+    "comparative": {
+      "hiddenInTable": true,
+      "fieldInput": {
+        "type": "boolean",
+        "position": 3
+      }
+    },
+    "superlative": {
+      "hiddenInTable": true,
+      "fieldInput": {
+        "type": "boolean",
+        "position": 4
+      }
+    },
+    "participle": {
+      "hiddenInTable": true,
+      "fieldInput": {
+        "type": "boolean",
+        "position": 5
+      }
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "speech": {
+      "displayKey": "name",
+      "sortId": "speech.name",
+      "fieldInput": {
+        "type": "autocomplete",
+        "options": {
+          "resourceUri": "../speech/resource.json",
+          "displayKey": "name",
+          "labelKey": "name",
+          "valueKey": "id"
+        }
+      }
+    }
+  }
+}

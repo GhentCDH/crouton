@@ -1,0 +1,44 @@
+:9000 {
+    # Root directory for static files
+    root * /srv
+
+    # Enable gzip compression
+    encode gzip
+
+    # Health check endpoint
+    handle /health {
+        rewrite * /health.json
+        root * /srv
+        file_server
+    }
+
+    handle /* {
+        try_files {path} {path} / /index.html
+        file_server
+
+        # Cache static assets
+        @static {
+            path *.js *.css *.png *.jpg *.jpeg *.gif *.svg *.ico *.woff *.woff2 *.ttf *.eot *.webp *.avif
+        }
+        header @static Cache-Control "public, max-age=31536000, immutable"
+
+        # Don't cache HTML
+        @html {
+            path *.html
+        }
+        header @html Cache-Control "public, max-age=0, must-revalidate"
+
+        # Cache JSON data briefly
+        @json {
+            path *.json
+        }
+        header @json Cache-Control "public, max-age=3600, must-revalidate"
+    }
+
+    # Logging
+    log {
+        output stdout
+        format console
+        level INFO
+    }
+}

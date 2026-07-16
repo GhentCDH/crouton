@@ -1,0 +1,5 @@
+{
+  "API_URL": "http://localhost:3000/",
+  "ENVIRONMENT": "local",
+  "APP_VERSION": "dev"
+}

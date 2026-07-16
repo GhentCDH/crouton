@@ -1,0 +1,76 @@
+{
+  "name": "annotation_text_selector",
+  "route": "annotation_text_selector",
+  "model": "annotation_text_selector",
+  "tag": "annotation_text_selector",
+  "title": "Annotation text selector",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": true
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "start": {
+      "fieldInput": {
+        "type": "number",
+        "position": 0
+      }
+    },
+    "end": {
+      "fieldInput": {
+        "type": "number",
+        "position": 1
+      }
+    },
+    "exact": {
+      "fieldInput": {
+        "type": "text",
+        "position": 2
+      }
+    },
+    "prefix": {
+      "fieldInput": {
+        "type": "text",
+        "position": 3
+      }
+    },
+    "suffix": {
+      "fieldInput": {
+        "type": "text",
+        "position": 4
+      }
+    },
+    "section_text_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "name": "annotation",
+  "route": "annotation",
+  "model": "annotation",
+  "tag": "annotation",
+  "title": "Annotation",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": true
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "type": {
+      "fieldInput": {
+        "type": "text",
+        "position": 0
+      }
+    },
+    "value": {
+      "fieldInput": {
+        "type": "json",
+        "position": 1
+      }
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "text_selector_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "anotation_selector_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    }
+  }
+}

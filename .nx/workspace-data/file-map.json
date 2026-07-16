@@ -1,0 +1,445 @@
+{
+  "version": "6.0",
+  "nxVersion": "23.1.0",
+  "pathMappings": {
+    "@mela/generated-default-types": [
+      "./generated/default/types/src"
+    ],
+    "@mela/generated-default-types/*": [
+      "./generated/default/types/src/*"
+    ],
+    "@mela/generated-default-client": [
+      "./generated/default/client"
+    ],
+    "@mela/generated-default-client/*": [
+      "./generated/default/client/*"
+    ]
+  },
+  "nxJsonPlugins": [
+    {
+      "name": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "name": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    }
+  ],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".nvmrc",
+        "hash": "541564060168964990"
+      },
+      {
+        "file": "crouton.enums.json",
+        "hash": "5123695336433072352"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "5037841846519601487"
+      },
+      {
+        "file": "compose.yml",
+        "hash": "674162130325248897"
+      },
+      {
+        "file": ".dockerignore",
+        "hash": "13830051778033436527"
+      },
+      {
+        "file": "Dockerfile.dev",
+        "hash": "3978179592058592374"
+      },
+      {
+        "file": ".env.example",
+        "hash": "967145739223293706"
+      },
+      {
+        "file": "prisma/default/schema.prisma.bak",
+        "hash": "14402717418914346926"
+      },
+      {
+        "file": "nx.json",
+        "hash": "12058746831997985664"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "16540401330773598068"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "2560239222507119234"
+      },
+      {
+        "file": "crouton.json",
+        "hash": "5697393962142353619"
+      },
+      {
+        "file": "Dockerfile.prod",
+        "hash": "10280088937538242541"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "2748922174672140633"
+      },
+      {
+        "file": "prisma/default/schema.prisma",
+        "hash": "14402717418914346926"
+      },
+      {
+        "file": "prisma/default/prisma.config.ts",
+        "hash": "13391645409922317454"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "15009837130026236192"
+      },
+      {
+        "file": "package.json",
+        "hash": "10129965765270366925"
+      }
+    ],
+    "projectFileMap": {
+      "mela-backend": [
+        {
+          "file": "apps/backend/eslint.config.mjs",
+          "hash": "12226031308454240687"
+        },
+        {
+          "file": "apps/backend/nodemon.json",
+          "hash": "3008361660515409357"
+        },
+        {
+          "file": "apps/backend/package.json",
+          "hash": "4227870035202160715",
+          "deps": [
+            "npm:@ghentcdh/crouton-cli@0.0.1-alpha.30",
+            "npm:@nestjs/schematics",
+            "npm:@types/node",
+            "npm:prisma",
+            "npm:typescript",
+            "npm:zod-prisma-types",
+            "npm:@anatine/zod-nestjs",
+            "npm:@ghentcdh/crouton-api",
+            "npm:@nestjs/common",
+            "npm:@nestjs/config",
+            "npm:@nestjs/core",
+            "npm:@nestjs/platform-express",
+            "npm:@nestjs/swagger",
+            "npm:@prisma/adapter-pg",
+            "npm:@prisma/client",
+            "npm:dotenv",
+            "npm:pg",
+            "npm:reflect-metadata",
+            "npm:rxjs@7.8.2",
+            "npm:tslib",
+            "npm:zod"
+          ]
+        },
+        {
+          "file": "apps/backend/project.json",
+          "hash": "5395865099917776157"
+        },
+        {
+          "file": "apps/backend/src/app/app.module.ts",
+          "hash": "2253095167450146546",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/config",
+            "npm:@ghentcdh/crouton-api"
+          ]
+        },
+        {
+          "file": "apps/backend/src/app/data-sources/default/data-source.json",
+          "hash": "8930624919593324988"
+        },
+        {
+          "file": "apps/backend/src/app/data-sources/default/index.ts",
+          "hash": "1098784276749888030",
+          "deps": [
+            "npm:@prisma/adapter-pg"
+          ]
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation/resource.json",
+          "hash": "5104265905773675511"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation/schema.ts",
+          "hash": "11112526559575335399"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation_annotation_selector/resource.json",
+          "hash": "2325515688934248481"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation_annotation_selector/schema.ts",
+          "hash": "5374303320945007080"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation_relation/resource.json",
+          "hash": "1087564356835956601"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation_relation/schema.ts",
+          "hash": "6988576811028556202"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation_text_selector/resource.json",
+          "hash": "12895423632668287517"
+        },
+        {
+          "file": "apps/backend/src/app/resources/annotation_text_selector/schema.ts",
+          "hash": "4348504276590204125"
+        },
+        {
+          "file": "apps/backend/src/app/resources/author/resource.json",
+          "hash": "13266346174442284787"
+        },
+        {
+          "file": "apps/backend/src/app/resources/author/schema.ts",
+          "hash": "16462984642764111744"
+        },
+        {
+          "file": "apps/backend/src/app/resources/lemma/resource.json",
+          "hash": "283226845296376477"
+        },
+        {
+          "file": "apps/backend/src/app/resources/lemma/schema.ts",
+          "hash": "16886912417326966387"
+        },
+        {
+          "file": "apps/backend/src/app/resources/register/resource.json",
+          "hash": "12109404445069925706"
+        },
+        {
+          "file": "apps/backend/src/app/resources/register/schema.ts",
+          "hash": "5231768561720217656"
+        },
+        {
+          "file": "apps/backend/src/app/resources/section/resource.json",
+          "hash": "14437026151877328332"
+        },
+        {
+          "file": "apps/backend/src/app/resources/section/schema.ts",
+          "hash": "17789546815821956426"
+        },
+        {
+          "file": "apps/backend/src/app/resources/section_text/resource.json",
+          "hash": "15927735350889216732"
+        },
+        {
+          "file": "apps/backend/src/app/resources/section_text/schema.ts",
+          "hash": "13999155096605717899"
+        },
+        {
+          "file": "apps/backend/src/app/resources/speech/resource.json",
+          "hash": "5539946643418380948"
+        },
+        {
+          "file": "apps/backend/src/app/resources/speech/schema.ts",
+          "hash": "16016512283680282452"
+        },
+        {
+          "file": "apps/backend/src/app/resources/work/resource.json",
+          "hash": "3575756097286033548"
+        },
+        {
+          "file": "apps/backend/src/app/resources/work/schema.ts",
+          "hash": "13211751793540167933"
+        },
+        {
+          "file": "apps/backend/src/main.ts",
+          "hash": "16192537652129104937",
+          "deps": [
+            "npm:dotenv",
+            "npm:@nestjs/common",
+            "npm:@nestjs/core",
+            "npm:@nestjs/swagger"
+          ]
+        },
+        {
+          "file": "apps/backend/tsconfig.json",
+          "hash": "1836284725184351406"
+        },
+        {
+          "file": "apps/backend/tsup.config.ts",
+          "hash": "13874864580043816734",
+          "deps": [
+            "npm:tsup",
+            "npm:esbuild-plugin-swc"
+          ]
+        }
+      ],
+      "mela-frontend": [
+        {
+          "file": "apps/frontend/Caddyfile",
+          "hash": "11242787862444711694"
+        },
+        {
+          "file": "apps/frontend/Dockerfile",
+          "hash": "10811803757801426246"
+        },
+        {
+          "file": "apps/frontend/docker-entrypoint.sh",
+          "hash": "5763427122997651"
+        },
+        {
+          "file": "apps/frontend/eslint.config.mjs",
+          "hash": "12226031308454240687"
+        },
+        {
+          "file": "apps/frontend/index.html",
+          "hash": "5392514803044890128"
+        },
+        {
+          "file": "apps/frontend/package.json",
+          "hash": "11039023132793916320",
+          "deps": [
+            "npm:@tailwindcss/vite",
+            "npm:@types/node",
+            "npm:@vitejs/plugin-vue",
+            "npm:daisyui",
+            "npm:tailwindcss",
+            "npm:typescript",
+            "npm:vite",
+            "npm:@ghentcdh/crouton-forms-vue",
+            "npm:@ghentcdh/crouton-vue",
+            "npm:@ghentcdh/ui",
+            "npm:@tiptap/pm",
+            "npm:@tiptap/starter-kit",
+            "npm:@tiptap/vue-3",
+            "npm:axios@1.18.1",
+            "npm:tiptap-markdown",
+            "npm:vue",
+            "npm:vue-router"
+          ]
+        },
+        {
+          "file": "apps/frontend/project.json",
+          "hash": "6869143518800073610"
+        },
+        {
+          "file": "apps/frontend/public/config.json",
+          "hash": "4775847088000380767"
+        },
+        {
+          "file": "apps/frontend/src/App.vue",
+          "hash": "3792924278895353837",
+          "deps": [
+            "npm:@ghentcdh/ui",
+            "npm:@ghentcdh/crouton-vue",
+            "npm:vue"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/api.ts",
+          "hash": "4773031371422074607",
+          "deps": [
+            "npm:axios@1.18.1"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/components/SectionView.vue",
+          "hash": "14998665815478250435",
+          "deps": [
+            "npm:vue",
+            "npm:@ghentcdh/ui",
+            "npm:@ghentcdh/crouton-vue"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/components/index.ts",
+          "hash": "2306274623179521343",
+          "deps": [
+            "npm:@ghentcdh/crouton-vue"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/composables/useDragSort.ts",
+          "hash": "12356547835477740931",
+          "deps": [
+            "npm:vue"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/main.ts",
+          "hash": "9168279259661569839",
+          "deps": [
+            "npm:vue",
+            "npm:@ghentcdh/crouton-vue"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/router.ts",
+          "hash": "15504540469665298142",
+          "deps": [
+            "npm:vue-router",
+            "npm:@ghentcdh/crouton-vue"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/style.css",
+          "hash": "11760585223765118466"
+        },
+        {
+          "file": "apps/frontend/src/utils/compute-breadcrumb.ts",
+          "hash": "4799520363496956702"
+        },
+        {
+          "file": "apps/frontend/src/utils/compute-menu.ts",
+          "hash": "10843360007270126264",
+          "deps": [
+            "npm:@ghentcdh/ui"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/utils/create-section.ts",
+          "hash": "15806051322100752292"
+        },
+        {
+          "file": "apps/frontend/src/utils/useRouteParams.ts",
+          "hash": "11263424166651980333",
+          "deps": [
+            "npm:vue",
+            "npm:vue-router"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/utils/work.utils.ts",
+          "hash": "9846369929404781955",
+          "deps": [
+            "npm:vue-router"
+          ]
+        },
+        {
+          "file": "apps/frontend/tsconfig.json",
+          "hash": "17796073046766723957"
+        },
+        {
+          "file": "apps/frontend/vite.config.ts",
+          "hash": "7330047023386660638",
+          "deps": [
+            "npm:@tailwindcss/vite",
+            "npm:vite",
+            "npm:@vitejs/plugin-vue"
+          ]
+        }
+      ]
+    }
+  },
+  "externalNodesHash": "15568827785718619154"
+}

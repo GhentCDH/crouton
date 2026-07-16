@@ -1,0 +1,21 @@
+{
+  "run": {
+    "command": "nx run mela-backend:serve",
+    "startTime": "2026-07-16T09:25:57.238Z",
+    "endTime": "2026-07-16T09:25:57.272Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "mela-backend:serve",
+      "target": "serve",
+      "projectName": "mela-backend",
+      "hash": "12676321615644348018",
+      "startTime": "2026-07-16T09:25:57.269Z",
+      "endTime": "2026-07-16T09:25:57.272Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 1
+    }
+  ]
+}

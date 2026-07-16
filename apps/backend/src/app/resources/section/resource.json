@@ -1,0 +1,65 @@
+{
+  "name": "section",
+  "route": "section",
+  "model": "section",
+  "tag": "section",
+  "title": "Section",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": false,
+    "group": "metadata"
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "section_number": {
+      "fieldInput": {
+        "type": "text",
+        "position": 0
+      }
+    },
+    "title": {
+      "fieldInput": {
+        "type": "text",
+        "position": 2
+      }
+    },
+    "section_order": {
+      "fieldInput": {
+        "type": "number",
+        "position": 1
+      }
+    },
+    "work_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    }
+  }
+}

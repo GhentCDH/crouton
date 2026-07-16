@@ -1,0 +1,32 @@
+{
+  "name": "@mela/frontend",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ghentcdh/crouton-forms-vue": "0.0.1-alpha.31",
+    "@ghentcdh/crouton-vue": "0.0.1-alpha.31",
+    "@ghentcdh/ui": "^3.0.5",
+    "@tiptap/pm": "^3.28.0",
+    "@tiptap/starter-kit": "^3.28.0",
+    "@tiptap/vue-3": "^3.28.0",
+    "axios": "^1.7.0",
+    "tiptap-markdown": "^0.9.0",
+    "vue": "^3.5.0",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "daisyui": "^5.6.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~5.9.0",
+    "vite": "^6.0.0"
+  }
+}

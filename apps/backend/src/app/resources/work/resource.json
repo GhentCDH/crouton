@@ -1,0 +1,98 @@
+{
+  "name": "work",
+  "route": "work",
+  "model": "work",
+  "tag": "work",
+  "title": "Work",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": false,
+    "position": 0
+  },
+  "display": {
+    "mode": "page",
+    "customComponent": "section-view"
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "title": {
+      "fieldInput": {
+        "type": "text",
+        "position": 0
+      }
+    },
+    "year": {
+      "fieldInput": {
+        "type": "number",
+        "position": 1
+      }
+    },
+    "author": {
+      "column": "author",
+      "label": "Author",
+      "hiddenInTable": false,
+      "hiddenInForm": false,
+      "filterable": false,
+      "sortable": true,
+      "searchable": false,
+      "displayKey": "name",
+      "sortId": "author.name",
+      "fieldInput": {
+        "position": 1,
+        "format": "relation",
+        "resource": "../author/resource.json",
+        "options": {
+          "display": "autocomplete",
+          "displayKey": "name",
+          "autocompleteResource": "/author/schemas",
+          "labelKey": "name",
+          "valueKey": "id"
+        }
+      }
+    },
+    "section": {
+      "label": "Sections",
+      "hiddenInTable": false,
+      "hiddenInForm": true,
+      "filterable": false,
+      "sortable": false,
+      "searchable": false,
+      "createable": false,
+      "updateable": false,
+      "fieldInput": {
+        "format": "relation",
+        "resource": "../section/resource.json",
+        "options": {
+          "sortDir": "section_number",
+          "displayKey": "title"
+        }
+      }
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    }
+  }
+}

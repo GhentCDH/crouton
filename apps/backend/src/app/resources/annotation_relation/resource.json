@@ -1,0 +1,44 @@
+{
+  "name": "annotation_relation",
+  "route": "annotation_relation",
+  "model": "annotation_relation",
+  "tag": "annotation_relation",
+  "title": "Annotation relation",
+  "database": "default",
+  "sidebar": {
+    "hide": true
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "annotation_from_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "annotation_to_id": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "type": {
+      "displayKey": "label",
+      "enum": "AnnotationRelationType",
+      "fieldInput": {
+        "type": "select",
+        "position": 0,
+        "options": {
+          "emitObject": true
+        }
+      }
+    }
+  }
+}

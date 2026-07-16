@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/default/client"
+}
+
+generator zod {
+  provider                         = "zod-prisma-types"
+  output                           = "../../generated/default/types/src"
+  addInputTypeValidation           = "false"
+  createInputTypes                 = "false"
+  createModelTypes                 = "true"
+  createOptionalDefaultValuesTypes = "false"
+  createRelationValuesTypes        = "true"
+  useMultipleFiles                 = "true"
+  writeBarrelFiles                 = "true"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model annotation {
+  id                                                                                              String                           @id
+  type                                                                                            String
+  value                                                                                           Json
+  created_at                                                                                      DateTime                         @default(now())
+  updated_at                                                                                      DateTime                         @default(now())
+  text_selector_id                                                                                String?                          @unique
+  anotation_selector_id                                                                           String?                          @unique
+  annotation_annotation_selector_annotation_anotation_selector_idToannotation_annotation_selector annotation_annotation_selector?  @relation("annotation_anotation_selector_idToannotation_annotation_selector", fields: [anotation_selector_id], references: [id])
+  annotation_text_selector                                                                        annotation_text_selector?        @relation(fields: [text_selector_id], references: [id])
+  annotation_annotation_selector_annotation_annotation_selector_source_annotation_idToannotation  annotation_annotation_selector[] @relation("annotation_annotation_selector_source_annotation_idToannotation")
+  annotation_relation_annotation_relation_annotation_from_idToannotation                          annotation_relation[]            @relation("annotation_relation_annotation_from_idToannotation")
+  annotation_relation_annotation_relation_annotation_to_idToannotation                            annotation_relation[]            @relation("annotation_relation_annotation_to_idToannotation")
+}
+
+model annotation_annotation_selector {
+  id                                                                          String      @id
+  source_annotation_id                                                        String
+  created_at                                                                  DateTime    @default(now())
+  updated_at                                                                  DateTime    @default(now())
+  end                                                                         Int
+  start                                                                       Int
+  annotation_annotation_anotation_selector_idToannotation_annotation_selector annotation? @relation("annotation_anotation_selector_idToannotation_annotation_selector")
+  annotation_annotation_annotation_selector_source_annotation_idToannotation  annotation  @relation("annotation_annotation_selector_source_annotation_idToannotation", fields: [source_annotation_id], references: [id])
+}
+
+model annotation_relation {
+  annotation_from_id                                            String
+  annotation_to_id                                              String
+  type                                                          AnnotationRelationType @default(TAG)
+  annotation_annotation_relation_annotation_from_idToannotation annotation             @relation("annotation_relation_annotation_from_idToannotation", fields: [annotation_from_id], references: [id])
+  annotation_annotation_relation_annotation_to_idToannotation   annotation             @relation("annotation_relation_annotation_to_idToannotation", fields: [annotation_to_id], references: [id])
+
+  @@id([annotation_from_id, annotation_to_id])
+}
+
+model annotation_text_selector {
+  id              String        @id
+  start           Int
+  end             Int
+  exact           String?
+  prefix          String
+  suffix          String
+  section_text_id String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @default(now())
+  annotation      annotation?
+  section_text    section_text? @relation(fields: [section_text_id], references: [id])
+}
+
+model author {
+  id         String   @id
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  work       work[]
+}
+
+model lemma {
+  id          String   @id
+  word        String   @unique
+  link        String
+  grammatical Boolean? @default(false)
+  comparative Boolean? @default(false)
+  superlative Boolean? @default(false)
+  participle  Boolean? @default(false)
+  speech_id   String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  speech      speech   @relation(fields: [speech_id], references: [id])
+}
+
+model register {
+  id         String   @id
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model section {
+  id             String         @id
+  section_number String?
+  section_order  Int?
+  title          String?
+  work_id        String
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @default(now())
+  work           work           @relation(fields: [work_id], references: [id])
+  section_text   section_text[]
+}
+
+model section_text {
+  id                       String                     @id
+  section_id               String
+  text_type                TextType
+  language                 String
+  content                  String
+  created_at               DateTime                   @default(now())
+  updated_at               DateTime                   @default(now())
+  annotation_text_selector annotation_text_selector[]
+  section                  section                    @relation(fields: [section_id], references: [id])
+}
+
+model speech {
+  id         String   @id
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  lemma      lemma[]
+}
+
+model work {
+  id         String    @id
+  title      String
+  author_id  String
+  year       Int
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  section    section[]
+  author     author    @relation(fields: [author_id], references: [id])
+}
+
+enum AnnotationRelationType {
+  TAG
+  LINK
+}
+
+enum TextType {
+  SOURCE
+  TRANSLATION
+}

@@ -1,0 +1,22 @@
+{
+  "AnnotationRelationType": [
+    {
+      "value": "TAG",
+      "label": "Tag"
+    },
+    {
+      "value": "LINK",
+      "label": "Link"
+    }
+  ],
+  "TextType": [
+    {
+      "value": "SOURCE",
+      "label": "Source"
+    },
+    {
+      "value": "TRANSLATION",
+      "label": "Translation"
+    }
+  ]
+}

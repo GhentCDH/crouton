@@ -1,0 +1,48 @@
+{
+  "name": "speech",
+  "route": "speech",
+  "model": "speech",
+  "tag": "speech",
+  "title": "Speech",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": false,
+    "position": 3,
+    "group": "metadata"
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "name": {
+      "fieldInput": {
+        "type": "text",
+        "position": 0
+      }
+    },
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    }
+  }
+}

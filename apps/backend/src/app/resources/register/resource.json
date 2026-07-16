@@ -1,0 +1,47 @@
+{
+  "name": "register",
+  "route": "register",
+  "model": "register",
+  "tag": "register",
+  "title": "Register",
+  "idType": "string",
+  "database": "default",
+  "sidebar": {
+    "hide": false,
+    "group": "metadata"
+  },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "upsert": false,
+    "delete": true
+  },
+  "columns": {
+    "id": {
+      "idField": true,
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "hiddenInView": true
+    },
+    "name": {
+      "fieldInput": {
+        "type": "text",
+        "position": 0
+      }
+    },
+    "created_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    },
+    "updated_at": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "createable": false,
+      "updateable": false
+    }
+  }
+}
