@@ -9,6 +9,7 @@ COPY apps/backend/package.json ./apps/backend/
 {{/if}}{{#if regular}}COPY package.json pnpm-lock.yaml ./
 {{/if}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
+ENV CI=true
 RUN pnpm install --frozen-lockfile
 
 COPY . .

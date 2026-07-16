@@ -1,25 +1,26 @@
 import './style.css';
 import { createApp } from 'vue';
-import { createRouter, createWebHistory } from 'vue-router';
-import { useCrouton, CroutonRouter } from '@ghentcdh/crouton-vue';
+import {
+  useCrouton,
+  loadRuntimeConfig,
+  getRuntimeConfig,
+} from '@ghentcdh/crouton-vue';
 import { api } from './api';
+import { router } from './router';
 import App from './App.vue';
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      name: 'admin',
-      children: [...CroutonRouter],
-    },
-  ],
-});
+loadRuntimeConfig().then(() => {
+  const env = getRuntimeConfig();
+  const VERSION =
+    env.env === 'PRD'
+      ? env.APP_VERSION
+      : `${env.APP_VERSION} (${env.env})`;
 
-useCrouton()
-  .init(api, { title: '{{Name}}' })
-  .then(() => {
-    const app = createApp(App);
-    app.use(router);
-    app.mount('#app');
-  });
+  useCrouton()
+    .init(api, { VERSION, title: '{{Name}}' })
+    .then(() => {
+      const app = createApp(App);
+      app.use(router);
+      app.mount('#app');
+    });
+});

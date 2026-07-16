@@ -75,8 +75,20 @@ const ensureGeneratedScaffold = async (
 
   const scaffoldPkg = async (dir: string, name: string, opts: { isClient?: boolean; addZod?: boolean } = {}) => {
     const pkgPath = join(dir, 'package.json');
-    if (existsSync(pkgPath)) return;
     await mkdir(dir, { recursive: true });
+
+    if (existsSync(pkgPath)) {
+      // Prisma may have written its own package.json — ensure name + private are set
+      const existing = JSON.parse(await readFile(pkgPath, 'utf-8'));
+      if (existing.name !== name) {
+        existing.name = name;
+        existing.private = true;
+        await writeFile(pkgPath, `${JSON.stringify(existing, null, 2)}\n`, 'utf-8');
+        created++;
+      }
+      return;
+    }
+
     const entry = opts.isClient ? './index.js' : './src/index.ts';
     const wildcard = opts.isClient ? './*' : './src/*';
     const pkg: Record<string, unknown> = {

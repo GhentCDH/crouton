@@ -12,3 +12,4 @@ export { default as RelationInline } from './relation/RelationInline.vue';
 export * from './utils/computedAsync';
 export * from './utils/custom-component';
 export * from './utils/PageService';
+export * from './runtime.config';
