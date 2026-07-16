@@ -1,3 +1,13 @@
+## 0.0.1-alpha.30 (2026-07-16)
+
+### 🚀 Features
+
+- default height for app.vue ([e34b27c](https://github.com/GhentCDH/crouton/commit/e34b27c))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+
 ## 0.0.1-alpha.29 (2026-07-16)
 
 ### 🚀 Features
