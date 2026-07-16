@@ -11,6 +11,7 @@ export const JsonOperationsSchema = z.object({
   findOne: z.boolean().default(true), // default: true
   create: z.boolean().default(true), // default: true
   update: z.boolean().default(true), // default: true
+  patch: z.boolean().default(true), // default: true
   upsert: BoolOrUpsertSchema.default(false), // default: disabled; `true` throws at load time — must be `{ upsertOn }`
   delete: z.boolean().default(true), // default: true
 });

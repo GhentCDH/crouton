@@ -11,6 +11,7 @@ export type OperationContext = {
   oneSchema: ReturnType<typeof schemaFor>;
   createSchema: ReturnType<typeof schemaFor>;
   updateSchema: ReturnType<typeof schemaFor>;
+  patchSchema: ReturnType<typeof schemaFor>;
   upsertSchema: ReturnType<typeof schemaFor>;
   /** `{ name: 'id', type: 'string' | 'number' }` for Swagger @ApiParam. */
   idParamMeta: { name: string; type: string };

@@ -1,4 +1,4 @@
-import { Body, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudRepository } from '../crud-repository.factory';
@@ -150,11 +150,30 @@ const registerSubResourceFindOne = (ctx: OperationContext, sub: SubResourceConfi
   ApiResponse({ status: 200, description: `${sub.childRoute} record` })(cls.prototype, methodName, d);
 };
 
-/** Register `PATCH /:id/<child>/:childId` — update a child resource. */
+/** Register `PUT /:id/<child>/:childId` — replace a child resource. */
 const registerSubResourceUpdate = (ctx: OperationContext, sub: SubResourceConfig): void => {
   if (!sub.operations?.update) return;
   const { cls } = ctx;
   const methodName = `updateChild_${sub.childRoute}`;
+
+  def(cls, methodName, async function (this: { repo: CrudRepository }, _id: string, childId: string, body: any) {
+    return updateChild(this.repo, sub, childId, body);
+  });
+  const d = desc(cls, methodName);
+  Put(`:id/${sub.childRoute}/:childId`)(cls.prototype, methodName, d);
+  Param('id')(cls.prototype, methodName, 0);
+  Param('childId')(cls.prototype, methodName, 1);
+  Body()(cls.prototype, methodName, 2);
+  ApiOperation({ summary: `Replace a ${sub.childRoute} record` })(cls.prototype, methodName, d);
+  ApiParam(ctx.idParamMeta)(cls.prototype, methodName, d);
+  ApiResponse({ status: 200, description: `${sub.childRoute} replaced` })(cls.prototype, methodName, d);
+};
+
+/** Register `PATCH /:id/<child>/:childId` — partial update a child resource. */
+const registerSubResourcePatch = (ctx: OperationContext, sub: SubResourceConfig): void => {
+  if (!sub.operations?.patch) return;
+  const { cls } = ctx;
+  const methodName = `patchChild_${sub.childRoute}`;
 
   def(cls, methodName, async function (this: { repo: CrudRepository }, _id: string, childId: string, body: any) {
     return updateChild(this.repo, sub, childId, body);
@@ -195,6 +214,7 @@ export const registerSubResourceRoutes = (ctx: OperationContext): void => {
     registerSubResourceCreate(ctx, sub);
     registerSubResourceFindOne(ctx, sub);
     registerSubResourceUpdate(ctx, sub);
+    registerSubResourcePatch(ctx, sub);
     registerSubResourceDelete(ctx, sub);
   }
 };

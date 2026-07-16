@@ -93,6 +93,17 @@ export const resourceApi = (
         return null;
       });
 
+  const patchData = (id: string, data: any) =>
+    apiCall(formDef, 'patch', { ...defaultUriParams, id, [idField]: id }, data)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        NotificationService.error('Error saving data');
+        return null;
+      });
+
   const create = (data: any) =>
     apiCall(formDef, 'create', defaultUriParams, data)
       .then((response) => {
@@ -127,6 +138,7 @@ export const resourceApi = (
     loadData,
     getOneById,
     save,
+    patch: patchData,
     create,
     delete: deleteData,
   };
