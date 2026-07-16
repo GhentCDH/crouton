@@ -18,7 +18,7 @@
       "options": {
         "command": "nodemon",
         "cwd": "{{appsRoot}}/backend",
-        "envFile": "{{appsRoot}}/.env"
+        "envFile": "{{#if prefix}}{{prefix}}/.env{{/if}}{{#if noPrefix}}.env{{/if}}"
       }
     }
   }
