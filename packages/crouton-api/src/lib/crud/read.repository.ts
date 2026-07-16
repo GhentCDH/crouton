@@ -304,9 +304,13 @@ export class ReadRepository<T = any> {
       ),
     };
 
-    if (subResources.length) {
+    const countableSubResources = subResources.filter(
+      (s) => s.relationType !== 'manyToOne',
+    );
+
+    if (countableSubResources.length) {
       const countClause = {
-        select: Object.fromEntries(subResources.map((s) => [s.relation, true])),
+        select: Object.fromEntries(countableSubResources.map((s) => [s.relation, true])),
       };
       if (projection.select) {
         query.select = { ...projection.select, _count: countClause };
@@ -319,12 +323,12 @@ export class ReadRepository<T = any> {
 
     const rows = await this.prismaModel.findMany(query);
 
-    const mapped = subResources.length
+    const mapped = countableSubResources.length
       ? rows.map((row: any) => {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
-            subResources.map((s) => [s.column, _count[s.relation] ?? 0]),
+            countableSubResources.map((s) => [s.column, _count[s.relation] ?? 0]),
           );
           return { ...rest, ...counts };
         })

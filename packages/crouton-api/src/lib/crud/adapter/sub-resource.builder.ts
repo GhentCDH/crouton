@@ -8,6 +8,7 @@ import {
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
+import { deriveRelationTypeFromColumns } from './relation-type';
 import { resolveChildResource } from './resource-resolver';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
@@ -110,6 +111,7 @@ export const buildSubResources = (
         ...(buildValueLabelColumns(childColumns).length && {
           valueLabelColumns: buildValueLabelColumns(childColumns),
         }),
+        relationType: c.fieldInput?.relationType ?? deriveRelationTypeFromColumns(c, columns!),
       } satisfies SubResourceConfig;
     });
 };
