@@ -5,7 +5,7 @@ import {
   loadRuntimeConfig,
   getRuntimeConfig,
 } from '@ghentcdh/crouton-vue';
-import { api } from './api';
+import { useApi } from './api';
 import { router } from './router';
 import App from './App.vue';
 
@@ -16,6 +16,7 @@ loadRuntimeConfig().then(() => {
       ? env.APP_VERSION
       : `${env.APP_VERSION} (${env.env})`;
 
+  const api = useApi();
   useCrouton()
     .init(api, { VERSION, title: '{{Name}}' })
     .then(() => {
