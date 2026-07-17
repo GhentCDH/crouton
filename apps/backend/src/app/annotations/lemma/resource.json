@@ -1,0 +1,42 @@
+{
+  "id": "lemma",
+  "name": "Lemma",
+  "color": "#7a8800",
+  "isRoot": false,
+  "allowedChildren": [],
+  "allowedLinks": ["link_bucket"],
+  "icon": "svg string",
+  "columns": [
+    {
+      "id": "name",
+      "label": "name",
+      "fieldInput": {
+        "colspan": 12,
+        "type": "string"
+      }
+    },
+    {
+      "id": "lemma",
+      "label": "Lemma",
+      "hiddenInMetadata": false,
+      "hiddenInForm": false,
+      "displayKey": "name",
+      "type": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "word": { "type": "string" }
+        }
+      },
+      "fieldInput": {
+        "type": "autocomplete",
+        "options": {
+          "colspan": 12,
+          "resource": "lemma/resource.json",
+          "valueKey": "id",
+          "labelKey": "word"
+        }
+      }
+    }
+  ]
+}

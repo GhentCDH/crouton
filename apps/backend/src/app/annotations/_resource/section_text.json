@@ -1,0 +1,8 @@
+{
+  "type": "section_text",
+  "table": "section_text",
+  "columns": [
+    { "column": "id", "label": "Id", "displayAs": "id" },
+    { "column": "content", "label": "Content", "displayAs": "label" }
+  ]
+}

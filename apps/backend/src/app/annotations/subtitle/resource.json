@@ -1,0 +1,8 @@
+{
+  "id": "subtitle",
+  "name": "Subtitle",
+  "color": "#FFB74D",
+  "isRoot": false,
+  "allowedChildren": ["example"],
+  "allowedLinks": ["translation"]
+}

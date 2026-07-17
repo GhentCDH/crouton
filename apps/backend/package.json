@@ -8,7 +8,13 @@
   },
   "dependencies": {
     "@anatine/zod-nestjs": "^2.0.0",
+    "@ghentcdh/annotated-text": "^1.0.10",
+    "@ghentcdh/annotation-api": "0.0.1-alpha.10",
     "@ghentcdh/crouton-api": "0.0.1-alpha.33",
+    "@ghentcdh/w3c-utils": "^1.0.10",
+    "@mela/generated-default-client": "workspace:*",
+    "@mela/generated-default-types": "workspace:*",
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
@@ -21,9 +27,7 @@
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.0.0",
     "tslib": "^2.8.0",
-    "zod": "^4.0.0",
-    "@mela/generated-default-types": "workspace:*",
-    "@mela/generated-default-client": "workspace:*"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@ghentcdh/crouton-cli": "0.0.1-alpha.30",

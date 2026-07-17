@@ -1,0 +1,32 @@
+{
+  "id": "example",
+  "name": "Example",
+  "color": "#4fff66",
+  "isRoot": false,
+  "allowedChildren": ["lemma"],
+  "allowedLinks": [],
+  "columns": [
+    {
+      "id": "register",
+      "label": "Register",
+      "hiddenInMetadata": false,
+      "hiddenInForm": false,
+      "displayKey": "name",
+      "type": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      },
+      "fieldInput": {
+        "type": "autocomplete",
+        "options": {
+          "resource": "/register/resource.json",
+          "valueKey": "id",
+          "labelKey": "name"
+        }
+      }
+    }
+  ]
+}

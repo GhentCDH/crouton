@@ -1,0 +1,10 @@
+{
+  "id": "translation",
+  "name": "Translation",
+  "color": "#4fff66",
+  "type": "link",
+  "isRoot": false,
+  "icon": "Language",
+  "allowedChildren": [],
+  "allowedLinks": []
+}

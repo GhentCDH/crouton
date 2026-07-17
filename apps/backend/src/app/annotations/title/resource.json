@@ -1,0 +1,8 @@
+{
+  "id": "title",
+  "name": "Title",
+  "color": "#dd7777",
+  "isRoot": false,
+  "allowedChildren": ["example"],
+  "allowedLinks": ["translation"]
+}

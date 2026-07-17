@@ -1,0 +1,9 @@
+{
+  "id": "paragraph",
+  "name": "Paragraph",
+  "color": "#4d88ff",
+  "target": "gutter",
+  "isRoot": true,
+  "allowedChildren": ["phrase", "title", "subtitle"],
+  "allowedLinks": ["translation"]
+}

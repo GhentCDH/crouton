@@ -1,0 +1,8 @@
+{
+  "id": "phrase",
+  "name": "Phrase",
+  "color": "#9d1bd8",
+  "isRoot": false,
+  "allowedChildren": ["example"],
+  "allowedLinks": ["translation"]
+}

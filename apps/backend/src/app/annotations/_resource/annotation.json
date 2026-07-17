@@ -1,0 +1,8 @@
+{
+  "type": "annotation",
+  "table": "annotation",
+  "columns": [
+    { "column": "id", "label": "Id", "displayAs": "id" },
+    { "column": "type", "label": "Type", "displayAs": "label" }
+  ]
+}

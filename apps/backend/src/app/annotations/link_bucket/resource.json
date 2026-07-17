@@ -1,0 +1,9 @@
+{
+  "id": "link_bucket",
+  "name": "Linked Buckets",
+  "color": "#4fff66",
+  "type": "link",
+  "isRoot": false,
+  "allowedChildren": [],
+  "allowedLinks": []
+}

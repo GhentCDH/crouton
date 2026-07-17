@@ -43,6 +43,23 @@
         "position": 1
       }
     },
+    "section_text": {
+      "hiddenInTable": false,
+      "hiddenInForm": true,
+      "filterable": false,
+      "sortable": false,
+      "searchable": false,
+      "createable": false,
+      "updateable": false,
+      "fieldInput": {
+        "format": "relation",
+        "resource": "../section_text/resource.json",
+        "options": {
+          "sortDir": "text_type",
+          "displayKey": "title"
+        }
+      }
+    },
     "work_id": {
       "hiddenInTable": true,
       "hiddenInForm": true,
