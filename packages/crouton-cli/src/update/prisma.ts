@@ -47,6 +47,12 @@ export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<P
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
+/** `prisma-case-format` — PascalCase models + camelCase fields with @@map/@map annotations. */
+export const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise<PrismaRunResult> => {
+  const { code, stdout, stderr } = await run('npx', ['prisma-case-format', '--file', schemaPath], cwd);
+  return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
+};
+
 /** `prisma generate` (refreshes zod-prisma-types output) for a datasource's config. */
 export const prismaGenerate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const { code, stdout, stderr } = await run('npx', ['prisma', 'generate', '--config', prismaConfig], cwd);

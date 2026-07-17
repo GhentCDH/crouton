@@ -60,10 +60,12 @@ After scaffolding: add the `urlEnv` to your `.env`, map the `generatedTypesImpor
 The command walks through:
 
 1. **Pick a datasource** — discovered by scanning `dataSourcesDir`. Skipped when there's a single or `default` datasource, or pass `--datasource <name>`.
-2. **`prisma db pull` + `generate`** — refreshes the datasource's schema and generated Zod types using its `prismaConfig`. The current schema is backed up first; the CLI warns if it has uncommitted changes.
-3. **Pick models** — choose which Prisma models to generate or update (existing ones are marked).
-4. **Resolve changes** — for each new column or change, choose per resource how to apply it: keep existing, overwrite, merge, or decide per field. New resources can be added to the sidebar.
-5. **Preview & confirm** — only changed files are listed; nothing is written until you confirm.
+2. **`prisma db pull`** — refreshes the datasource's schema using its `prismaConfig`. The current schema is backed up first; the CLI warns if it has uncommitted changes.
+3. **`prisma-case-format`** — automatically converts model names to PascalCase and field names to camelCase, adding `@@map` / `@map` annotations to preserve the original database names. This means your Prisma client uses idiomatic TypeScript casing (`Work`, `createdAt`) while the database keeps its original naming (`work`, `created_at`).
+4. **`prisma generate`** — regenerates Zod types from the formatted schema.
+5. **Pick models** — choose which Prisma models to generate or update (existing ones are marked).
+6. **Resolve changes** — for each new column or change, choose per resource how to apply it: keep existing, overwrite, merge, or decide per field. New resources can be added to the sidebar.
+7. **Preview & confirm** — only changed files are listed; nothing is written until you confirm.
 
 Useful flags:
 

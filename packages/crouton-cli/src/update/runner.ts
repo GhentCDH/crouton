@@ -44,6 +44,7 @@ import {
   backupSchema,
   fixZodImports,
   isGitDirty,
+  prismaCaseFormat,
   prismaDbPull,
   prismaGenerate,
 } from './prisma';
@@ -255,6 +256,12 @@ export const runUpdateResources = async (
         clack.log.error(pull.output);
         throw new CancelledError();
       }
+
+      const fmtSpin = clack.spinner();
+      fmtSpin.start('prisma-case-format (PascalCase models)');
+      const fmt = await prismaCaseFormat(loaded.root, schemaAbs);
+      fmtSpin.stop(fmt.ok ? 'Schema formatted' : 'case-format failed (continuing)');
+      if (!fmt.ok) clack.log.warn(fmt.output);
     }
 
     // Always refresh generated types (independent of pull) unless skipped.
