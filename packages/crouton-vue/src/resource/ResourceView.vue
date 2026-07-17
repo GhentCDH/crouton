@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { computedAsync } from '../utils/computedAsync';
 import { useCrouton } from '../composables/useCrouton';
@@ -31,13 +31,21 @@ const onRequest = (requestData: Request) => {
   });
 };
 
-const initialLoad = (resource: UseResource) => {
+const resourceRef = ref<UseResource | null>(null);
+
+const applyQueryEvent = (resource: UseResource) => {
   const id = route.query['id'] as string | undefined;
   const event = route.query['event'] as string | undefined;
 
-  if (!event) return;
+  if (!event) {
+    resource.closeForm(null);
+    return;
+  }
 
-  if (event === 'create') resource.create();
+  if (event === 'create') {
+    resource.create();
+    return;
+  }
   if (!id) return;
 
   switch (event) {
@@ -52,6 +60,18 @@ const initialLoad = (resource: UseResource) => {
       break;
   }
 };
+
+const initialLoad = (resource: UseResource) => {
+  resourceRef.value = resource;
+  applyQueryEvent(resource);
+};
+
+watch(
+  () => ({ id: route.query['id'], event: route.query['event'] }),
+  () => {
+    if (resourceRef.value) applyQueryEvent(resourceRef.value);
+  },
+);
 </script>
 
 <template>
