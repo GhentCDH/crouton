@@ -1981,7 +1981,7 @@
   },
   {
     "source": "npm:@eslint/eslintrc",
-    "target": "npm:js-yaml",
+    "target": "npm:js-yaml@4.3.0",
     "type": "static"
   },
   {
@@ -2020,6 +2020,51 @@
     "type": "static"
   },
   {
+    "source": "npm:@ghentcdh/annotated-text",
+    "target": "npm:@ghentcdh/w3c-utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotated-text",
+    "target": "npm:d3",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotated-text",
+    "target": "npm:lodash-es",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotated-text",
+    "target": "npm:memoizee",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotated-text",
+    "target": "npm:tokenizr",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotation-vue",
+    "target": "npm:@ghentcdh/annotated-text",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotation-vue",
+    "target": "npm:@ghentcdh/w3c-utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotation-vue",
+    "target": "npm:vue",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/annotation-vue",
+    "target": "npm:vue-router",
+    "type": "static"
+  },
+  {
     "source": "npm:@ghentcdh/crouton-api",
     "target": "npm:@anatine/zod-nestjs",
     "type": "static"
@@ -2055,7 +2100,7 @@
     "type": "static"
   },
   {
-    "source": "npm:@ghentcdh/crouton-cli@0.0.1-alpha.31",
+    "source": "npm:@ghentcdh/crouton-cli",
     "target": "npm:@prisma/internals",
     "type": "static"
   },
@@ -2131,11 +2176,6 @@
   },
   {
     "source": "npm:@ghentcdh/ui",
-    "target": "npm:@ghentcdh/json-forms-core",
-    "type": "static"
-  },
-  {
-    "source": "npm:@ghentcdh/ui",
     "target": "npm:vue",
     "type": "static"
   },
@@ -2162,6 +2202,16 @@
   {
     "source": "npm:@ghentcdh/ui",
     "target": "npm:tiptap-markdown",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/w3c-utils",
+    "target": "npm:vitest",
+    "type": "static"
+  },
+  {
+    "source": "npm:@ghentcdh/w3c-utils",
+    "target": "npm:zod@4.3.6",
     "type": "static"
   },
   {
@@ -2461,7 +2511,7 @@
   },
   {
     "source": "npm:@nestjs/swagger",
-    "target": "npm:js-yaml",
+    "target": "npm:js-yaml@5.2.1",
     "type": "static"
   },
   {
@@ -3915,6 +3965,16 @@
     "type": "static"
   },
   {
+    "source": "npm:@types/chai",
+    "target": "npm:@types/deep-eql",
+    "type": "static"
+  },
+  {
+    "source": "npm:@types/chai",
+    "target": "npm:assertion-error",
+    "type": "static"
+  },
+  {
     "source": "npm:@types/esquery",
     "target": "npm:@types/estree",
     "type": "static"
@@ -4230,6 +4290,96 @@
     "type": "static"
   },
   {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@standard-schema/spec",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@types/chai",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@vitest/spy",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:chai",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/expect",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker",
+    "target": "npm:@vitest/spy",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker",
+    "target": "npm:estree-walker@3.0.3",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker",
+    "target": "npm:magic-string@0.30.21",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/mocker",
+    "target": "npm:vite",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/pretty-format",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/runner",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/runner",
+    "target": "npm:pathe",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:@vitest/pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:magic-string@0.30.21",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/snapshot",
+    "target": "npm:pathe",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/utils",
+    "target": "npm:@vitest/pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:@vitest/utils",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
     "source": "npm:@vue/compiler-core",
     "target": "npm:@babel/parser",
     "type": "static"
@@ -4246,7 +4396,7 @@
   },
   {
     "source": "npm:@vue/compiler-core",
-    "target": "npm:estree-walker",
+    "target": "npm:estree-walker@2.0.2",
     "type": "static"
   },
   {
@@ -4291,7 +4441,7 @@
   },
   {
     "source": "npm:@vue/compiler-sfc",
-    "target": "npm:estree-walker",
+    "target": "npm:estree-walker@2.0.2",
     "type": "static"
   },
   {
@@ -4711,7 +4861,7 @@
   },
   {
     "source": "npm:body-parser",
-    "target": "npm:iconv-lite",
+    "target": "npm:iconv-lite@0.7.3",
     "type": "static"
   },
   {
@@ -5085,6 +5235,371 @@
     "type": "static"
   },
   {
+    "source": "npm:d3-array",
+    "target": "npm:internmap",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-brush",
+    "target": "npm:d3-dispatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-brush",
+    "target": "npm:d3-drag",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-brush",
+    "target": "npm:d3-interpolate",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-brush",
+    "target": "npm:d3-selection",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-brush",
+    "target": "npm:d3-transition",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-chord",
+    "target": "npm:d3-path",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-contour",
+    "target": "npm:d3-array",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-delaunay",
+    "target": "npm:delaunator",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-drag",
+    "target": "npm:d3-dispatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-drag",
+    "target": "npm:d3-selection",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-dsv",
+    "target": "npm:commander@7.2.0",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-dsv",
+    "target": "npm:iconv-lite@0.6.3",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-dsv",
+    "target": "npm:rw",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-fetch",
+    "target": "npm:d3-dsv",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-force",
+    "target": "npm:d3-dispatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-force",
+    "target": "npm:d3-quadtree",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-force",
+    "target": "npm:d3-timer",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-geo",
+    "target": "npm:d3-array",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-interpolate",
+    "target": "npm:d3-color",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale-chromatic",
+    "target": "npm:d3-color",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale-chromatic",
+    "target": "npm:d3-interpolate",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale",
+    "target": "npm:d3-array",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale",
+    "target": "npm:d3-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale",
+    "target": "npm:d3-interpolate",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale",
+    "target": "npm:d3-time",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-scale",
+    "target": "npm:d3-time-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-shape",
+    "target": "npm:d3-path",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-time-format",
+    "target": "npm:d3-time",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-time",
+    "target": "npm:d3-array",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-transition",
+    "target": "npm:d3-color",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-transition",
+    "target": "npm:d3-dispatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-transition",
+    "target": "npm:d3-ease",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-transition",
+    "target": "npm:d3-interpolate",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-transition",
+    "target": "npm:d3-selection",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-transition",
+    "target": "npm:d3-timer",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-zoom",
+    "target": "npm:d3-dispatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-zoom",
+    "target": "npm:d3-drag",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-zoom",
+    "target": "npm:d3-interpolate",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-zoom",
+    "target": "npm:d3-selection",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3-zoom",
+    "target": "npm:d3-transition",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-array",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-axis",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-brush",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-chord",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-color",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-contour",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-delaunay",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-dispatch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-drag",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-dsv",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-ease",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-fetch",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-force",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-geo",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-hierarchy",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-interpolate",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-path",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-polygon",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-quadtree",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-random",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-scale",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-scale-chromatic",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-selection",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-shape",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-time",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-time-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-timer",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-transition",
+    "type": "static"
+  },
+  {
+    "source": "npm:d3",
+    "target": "npm:d3-zoom",
+    "type": "static"
+  },
+  {
+    "source": "npm:d",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:d",
+    "target": "npm:type",
+    "type": "static"
+  },
+  {
     "source": "npm:debug",
     "target": "npm:ms",
     "type": "static"
@@ -5107,6 +5622,11 @@
   {
     "source": "npm:defaults",
     "target": "npm:clone",
+    "type": "static"
+  },
+  {
+    "source": "npm:delaunator",
+    "target": "npm:robust-predicates",
     "type": "static"
   },
   {
@@ -5192,6 +5712,71 @@
   {
     "source": "npm:es-set-tostringtag",
     "target": "npm:hasown",
+    "type": "static"
+  },
+  {
+    "source": "npm:es5-ext",
+    "target": "npm:es6-iterator",
+    "type": "static"
+  },
+  {
+    "source": "npm:es5-ext",
+    "target": "npm:es6-symbol",
+    "type": "static"
+  },
+  {
+    "source": "npm:es5-ext",
+    "target": "npm:esniff",
+    "type": "static"
+  },
+  {
+    "source": "npm:es5-ext",
+    "target": "npm:next-tick",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-iterator",
+    "target": "npm:d",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-iterator",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-iterator",
+    "target": "npm:es6-symbol",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-symbol",
+    "target": "npm:d",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-symbol",
+    "target": "npm:ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-weak-map",
+    "target": "npm:d",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-weak-map",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-weak-map",
+    "target": "npm:es6-iterator",
+    "type": "static"
+  },
+  {
+    "source": "npm:es6-weak-map",
+    "target": "npm:es6-symbol",
     "type": "static"
   },
   {
@@ -5780,6 +6365,26 @@
     "type": "static"
   },
   {
+    "source": "npm:esniff",
+    "target": "npm:d",
+    "type": "static"
+  },
+  {
+    "source": "npm:esniff",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:esniff",
+    "target": "npm:event-emitter",
+    "type": "static"
+  },
+  {
+    "source": "npm:esniff",
+    "target": "npm:type",
+    "type": "static"
+  },
+  {
     "source": "npm:espree@10.4.0",
     "target": "npm:acorn",
     "type": "static"
@@ -5817,6 +6422,21 @@
   {
     "source": "npm:esrecurse",
     "target": "npm:estraverse",
+    "type": "static"
+  },
+  {
+    "source": "npm:estree-walker@3.0.3",
+    "target": "npm:@types/estree",
+    "type": "static"
+  },
+  {
+    "source": "npm:event-emitter",
+    "target": "npm:d",
+    "type": "static"
+  },
+  {
+    "source": "npm:event-emitter",
+    "target": "npm:es5-ext",
     "type": "static"
   },
   {
@@ -5957,6 +6577,11 @@
   {
     "source": "npm:express",
     "target": "npm:vary",
+    "type": "static"
+  },
+  {
+    "source": "npm:ext",
+    "target": "npm:type",
     "type": "static"
   },
   {
@@ -6250,7 +6875,12 @@
     "type": "static"
   },
   {
-    "source": "npm:iconv-lite",
+    "source": "npm:iconv-lite@0.6.3",
+    "target": "npm:safer-buffer",
+    "type": "static"
+  },
+  {
+    "source": "npm:iconv-lite@0.7.3",
     "target": "npm:safer-buffer",
     "type": "static"
   },
@@ -6285,7 +6915,12 @@
     "type": "static"
   },
   {
-    "source": "npm:js-yaml",
+    "source": "npm:js-yaml@4.3.0",
+    "target": "npm:argparse",
+    "type": "static"
+  },
+  {
+    "source": "npm:js-yaml@5.2.1",
     "target": "npm:argparse",
     "type": "static"
   },
@@ -6420,6 +7055,11 @@
     "type": "static"
   },
   {
+    "source": "npm:lru-queue",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
     "source": "npm:magic-string@0.30.17",
     "target": "npm:@jridgewell/sourcemap-codec",
     "type": "static"
@@ -6457,6 +7097,46 @@
   {
     "source": "npm:markdown-it",
     "target": "npm:uc.micro",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:d",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:es6-weak-map",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:event-emitter",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:is-promise@2.2.2",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:lru-queue",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:next-tick",
+    "type": "static"
+  },
+  {
+    "source": "npm:memoizee",
+    "target": "npm:timers-ext",
     "type": "static"
   },
   {
@@ -6536,7 +7216,7 @@
   },
   {
     "source": "npm:mysql2",
-    "target": "npm:iconv-lite",
+    "target": "npm:iconv-lite@0.7.3",
     "type": "static"
   },
   {
@@ -7836,7 +8516,7 @@
   },
   {
     "source": "npm:raw-body",
-    "target": "npm:iconv-lite",
+    "target": "npm:iconv-lite@0.7.3",
     "type": "static"
   },
   {
@@ -8101,7 +8781,7 @@
   },
   {
     "source": "npm:router",
-    "target": "npm:is-promise",
+    "target": "npm:is-promise@4.0.0",
     "type": "static"
   },
   {
@@ -8336,7 +9016,7 @@
   },
   {
     "source": "npm:sucrase",
-    "target": "npm:commander",
+    "target": "npm:commander@4.1.1",
     "type": "static"
   },
   {
@@ -8417,6 +9097,16 @@
   {
     "source": "npm:thenify",
     "target": "npm:any-promise",
+    "type": "static"
+  },
+  {
+    "source": "npm:timers-ext",
+    "target": "npm:es5-ext",
+    "type": "static"
+  },
+  {
+    "source": "npm:timers-ext",
+    "target": "npm:next-tick",
     "type": "static"
   },
   {
@@ -8790,6 +9480,111 @@
     "type": "static"
   },
   {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/expect",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/mocker",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/pretty-format",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/runner",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/snapshot",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/spy",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@vitest/utils",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:debug",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:es-module-lexer",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:expect-type",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:magic-string@0.30.21",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:pathe",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:picomatch@4.0.5",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:std-env",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinybench",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinyexec",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinyglobby",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:tinyrainbow",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:vite",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:why-is-node-running",
+    "type": "static"
+  },
+  {
+    "source": "npm:vitest",
+    "target": "npm:@types/node",
+    "type": "static"
+  },
+  {
     "source": "npm:vue-router",
     "target": "npm:@vue/devtools-api@6.6.4",
     "type": "static"
@@ -8842,6 +9637,16 @@
   {
     "source": "npm:which@3.0.1",
     "target": "npm:isexe",
+    "type": "static"
+  },
+  {
+    "source": "npm:why-is-node-running",
+    "target": "npm:siginfo",
+    "type": "static"
+  },
+  {
+    "source": "npm:why-is-node-running",
+    "target": "npm:stackback",
     "type": "static"
   },
   {

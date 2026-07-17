@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ghentcdh/crouton-forms-vue": "0.0.1-alpha.31",
-    "@ghentcdh/crouton-vue": "0.0.1-alpha.31",
+    "@ghentcdh/annotation-editor": "0.0.1-alpha.10",
+    "@ghentcdh/annotation-preview": "0.0.1-alpha.10",
+    "@ghentcdh/annotation-vue": "0.0.1-alpha.10",
+    "@ghentcdh/crouton-forms-vue": "0.0.1-alpha.33",
+    "@ghentcdh/crouton-vue": "0.0.1-alpha.33",
     "@ghentcdh/ui": "^3.0.5",
     "@tiptap/pm": "^3.28.0",
     "@tiptap/starter-kit": "^3.28.0",

@@ -57,7 +57,7 @@
             />
             <Btn
               :icon="IconEnum.Text"
-              :disabled="section.section_text.length < 1"
+              :disabled="section.section_text?.length < 1"
               :outline="true"
               tooltip="Edit annotations"
               size="xs"
@@ -68,7 +68,7 @@
               :outline="true"
               tooltip="Delete section"
               size="xs"
-              @click="sectionStore.delete(section)"
+              @click="sectionStore.delete(work, section)"
             />
           </div>
         </CollapseRow>

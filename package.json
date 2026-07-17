@@ -10,9 +10,9 @@
     "typecheck": "nx run-many -t typecheck"
   },
   "devDependencies": {
+    "@ghentcdh/crouton-cli": "0.0.1-alpha.33",
     "@nx/eslint": "^23.0.0",
     "@nx/eslint-plugin": "^23.0.0",
-    "@ghentcdh/crouton-cli": "0.0.1-alpha.31",
     "@nx/js": "^23.0.0",
     "@prisma/client": "^7.0.0",
     "@swc/core": "^1.15.0",
@@ -20,15 +20,18 @@
     "dotenv": "^16.0.0",
     "esbuild-plugin-swc": "^1.0.0",
     "eslint": "^9.0.0",
-    "typescript-eslint": "^8.0.0",
     "nodemon": "^3.1.0",
     "nx": "^23.0.0",
-    "prisma": "^7.0.0",
     "prettier": "^3.0.0",
-    "tsx": "^4.0.0",
+    "prisma": "^7.0.0",
     "tsup": "^8.5.0",
+    "tsx": "^4.0.0",
     "typescript": "~5.9.0",
+    "typescript-eslint": "^8.0.0",
     "zod": "^4.0.0",
     "zod-prisma-types": "^3.0.0"
+  },
+  "dependencies": {
+    "uuid": "^14.0.1"
   }
 }
