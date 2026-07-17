@@ -1,3 +1,19 @@
+## 0.0.1-alpha.34 (2026-07-17)
+
+### 🚀 Features
+
+- relation autocomplete as normal autocomplete ([e9cd67c](https://github.com/GhentCDH/crouton/commit/e9cd67c))
+- **cli:** run prisma-case-format after db pull for PascalCase models ([0d0ac8f](https://github.com/GhentCDH/crouton/commit/0d0ac8f))
+
+### 🩹 Fixes
+
+- **crouton-vue:** react to query param changes in page display mode ([1df4b00](https://github.com/GhentCDH/crouton/commit/1df4b00))
+
+### ❤️ Thank You
+
+- Bo Vandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.33 (2026-07-16)
 
 ### 🩹 Fixes
