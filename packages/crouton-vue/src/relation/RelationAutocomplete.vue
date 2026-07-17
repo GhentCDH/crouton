@@ -1,26 +1,22 @@
 <template>
-  <ReadonlyLabel :label="label" class="h-full">
-    <div class="flex flex-gap-2 items-center">
-      <Autocomplete
-        v-if="fetchOptions"
-        :model-value="value"
-        :hide-label="true"
-        :hide-errors="true"
-        :clearable="true"
-        :fetch-options="fetchOptions.fetchOptions"
-        :label-key="options.labelKey"
-        :value-key="options.valueKey"
-        :enable-create="fetchOptions.enableCreate"
-        @change="onChange"
-        @blur="onBlur"
-        @clear="onClear"
-        @create="onCreate"
-      />
-    </div>
-  </ReadonlyLabel>
+  <Autocomplete
+    :label="label"
+    v-if="fetchOptions"
+    :model-value="value"
+    :hide-label="true"
+    :clearable="true"
+    :fetch-options="fetchOptions.fetchOptions"
+    :label-key="options.labelKey"
+    :value-key="options.valueKey"
+    :enable-create="fetchOptions.enableCreate"
+    @change="onChange"
+    @blur="onBlur"
+    @clear="onClear"
+    @create="onCreate"
+  />
 </template>
 <script setup lang="ts">
-import { JsonFormModalService, ReadonlyLabel, useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
+import { JsonFormModalService, useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
 import { Autocomplete } from '@ghentcdh/ui';
 import { computedAsync } from '../utils/computedAsync';
 import { RelationAutocompleteProperties } from './RelationAutocomplete.properties';
