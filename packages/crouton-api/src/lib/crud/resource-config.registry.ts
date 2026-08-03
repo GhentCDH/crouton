@@ -28,4 +28,14 @@ export class ResourceConfigRegistry {
     }
     return this.configs.find((c) => c.route === route);
   }
+
+  /**
+   * On-disk directory containing `route`'s `resource.json`, if known.
+   * Only meaningful after a load has populated the loader's internal map —
+   * callers in dev mode should call `getByRoute`/`getAll` first in the same
+   * request to guarantee freshness.
+   */
+  getResourceDir(route: string): string | undefined {
+    return this.loader.getResourceDir(route);
+  }
 }

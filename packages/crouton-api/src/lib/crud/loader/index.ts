@@ -37,6 +37,7 @@ export const loadResourceConfigsFromDir = async (
   dirPath: string,
   baseUrl?: string,
   enumsFile?: string,
+  onResourceDir?: (route: string, dir: string) => void,
 ): Promise<Resource[]> => {
   if (!existsSync(dirPath)) return [];
 
@@ -90,6 +91,7 @@ export const loadResourceConfigsFromDir = async (
         enums,
       );
       await loadSubResourceHooks(config.subResources ?? [], basePath);
+      onResourceDir?.(config.route, basePath);
       configs.push(config);
       continue;
     }

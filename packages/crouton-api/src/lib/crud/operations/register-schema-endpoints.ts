@@ -1,8 +1,28 @@
-import { Get } from '@nestjs/common';
+import { join } from 'node:path';
+
+import {
+  Body,
+  BadRequestException,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Patch,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { IS_DEV } from '../dev-mode';
+import {
+  PatchResourceJsonSchema,
+  type PatchResourceJson,
+} from '../resource/PatchResourceJson.schema';
+import {
+  applyColumnPatch,
+  readRawResourceJson,
+  validateResourceJson,
+  writeRawResourceJson,
+} from '../resource/WriteResourceJson';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
+import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import {
@@ -20,17 +40,28 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
   const { route, name } = config;
   const definitionPayload = buildDefinitionPayload(config);
 
-  def(cls, 'getDefinition', async function (this: { configRegistry: ResourceConfigRegistry }) {
-    if (IS_DEV) {
-      const fresh = await this.configRegistry.getByRoute(route);
-      if (fresh) return buildDefinitionPayload(fresh);
-    }
-    return definitionPayload;
-  });
+  def(
+    cls,
+    'getDefinition',
+    async function (this: { configRegistry: ResourceConfigRegistry }) {
+      if (IS_DEV) {
+        const fresh = await this.configRegistry.getByRoute(route);
+        if (fresh) return buildDefinitionPayload(fresh);
+      }
+      return definitionPayload;
+    },
+  );
   const d = desc(cls, 'getDefinition');
   Get('definition')(cls.prototype, 'getDefinition', d);
-  ApiOperation({ summary: `Get the resource definition for ${name}` })(cls.prototype, 'getDefinition', d);
-  ApiResponse({ status: 200, description: `Definition (operations + schemas) for ${name}` })(cls.prototype, 'getDefinition', d);
+  ApiOperation({ summary: `Get the resource definition for ${name}` })(
+    cls.prototype,
+    'getDefinition',
+    d,
+  );
+  ApiResponse({
+    status: 200,
+    description: `Definition (operations + schemas) for ${name}`,
+  })(cls.prototype, 'getDefinition', d);
 };
 
 /**
@@ -42,17 +73,29 @@ export const registerSchemasEndpoint = (ctx: OperationContext): void => {
   const { route, name } = config;
   const viewsPayload = buildViewsPayload(config, baseUrl);
 
-  def(cls, 'getSchemas', async function (this: { configRegistry: ResourceConfigRegistry }) {
-    if (IS_DEV) {
-      const fresh = await this.configRegistry.getByRoute(route);
-      if (fresh) return buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
-    }
-    return viewsPayload;
-  });
+  def(
+    cls,
+    'getSchemas',
+    async function (this: { configRegistry: ResourceConfigRegistry }) {
+      if (IS_DEV) {
+        const fresh = await this.configRegistry.getByRoute(route);
+        if (fresh) return buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
+      }
+      return viewsPayload;
+    },
+  );
   const d = desc(cls, 'getSchemas');
   Get('schemas')(cls.prototype, 'getSchemas', d);
-  ApiOperation({ summary: `Get view schemas (table/form) for ${name}` })(cls.prototype, 'getSchemas', d);
-  ApiResponse({ status: 200, description: `View schemas for ${name}` })(cls.prototype, 'getSchemas', d);
+  ApiOperation({ summary: `Get view schemas (table/form) for ${name}` })(
+    cls.prototype,
+    'getSchemas',
+    d,
+  );
+  ApiResponse({ status: 200, description: `View schemas for ${name}` })(
+    cls.prototype,
+    'getSchemas',
+    d,
+  );
 };
 
 /**
@@ -64,15 +107,98 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
   const { route, name } = config;
   const resourceJsonPayload = buildResourceJsonPayload(config, baseUrl);
 
-  def(cls, 'getResourceJson', async function (this: { configRegistry: ResourceConfigRegistry }) {
-    if (IS_DEV) {
-      const fresh = await this.configRegistry.getByRoute(route);
-      if (fresh) return buildResourceJsonPayload(fresh, baseUrl);
-    }
-    return resourceJsonPayload;
-  });
+  def(
+    cls,
+    'getResourceJson',
+    async function (this: { configRegistry: ResourceConfigRegistry }) {
+      if (IS_DEV) {
+        const fresh = await this.configRegistry.getByRoute(route);
+        if (fresh) return buildResourceJsonPayload(fresh, baseUrl);
+      }
+      return resourceJsonPayload;
+    },
+  );
   const d = desc(cls, 'getResourceJson');
   Get('resource.json')(cls.prototype, 'getResourceJson', d);
-  ApiOperation({ summary: `Get resource descriptor for ${name}` })(cls.prototype, 'getResourceJson', d);
-  ApiResponse({ status: 200, description: `Resource descriptor (operations + JSON Schema) for ${name}` })(cls.prototype, 'getResourceJson', d);
+  ApiOperation({ summary: `Get resource descriptor for ${name}` })(
+    cls.prototype,
+    'getResourceJson',
+    d,
+  );
+  ApiResponse({
+    status: 200,
+    description: `Resource descriptor (operations + JSON Schema) for ${name}`,
+  })(cls.prototype, 'getResourceJson', d);
+};
+
+/**
+ * Register `PATCH /resource.json` — dev-only endpoint backing the visual
+ * resource builder. Patches column display attributes (label, column,
+ * hiddenInTable, hiddenInForm, hiddenInView, position, colspan) on the
+ * resource's on-disk `resource.json` and returns the freshly reloaded
+ * resource descriptor.
+ *
+ * Hard-gated to `IS_DEV`: refuses with 403 in any non-dev environment, since
+ * writing to source files must never happen against a production deployment.
+ */
+export const registerResourceJsonPatchEndpoint = (
+  ctx: OperationContext,
+): void => {
+  const { cls, config, baseUrl } = ctx;
+  const { route, name } = config;
+
+  def(
+    cls,
+    'patchResourceJson',
+    async function (
+      this: { configRegistry: ResourceConfigRegistry },
+      body: PatchResourceJson,
+    ) {
+      if (!IS_DEV) {
+        throw new ForbiddenException(
+          'Editing resource.json is only available when the backend is running in local dev mode.',
+        );
+      }
+
+      // Refresh the registry first so `getResourceDir` reflects the current on-disk layout.
+      await this.configRegistry.getByRoute(route);
+      const dir = this.configRegistry.getResourceDir(route);
+      if (!dir) {
+        throw new NotFoundException(
+          `No resource.json on disk for "${name}" (route "${route}").`,
+        );
+      }
+
+      const jsonPath = join(dir, 'resource.json');
+      const raw = readRawResourceJson(jsonPath);
+      if (!raw) {
+        throw new NotFoundException(`resource.json not found at ${jsonPath}`);
+      }
+
+      const merged = applyColumnPatch(raw, body);
+      const validated = validateResourceJson(merged);
+      if (!validated.success) {
+        throw new BadRequestException(validated.error.issues);
+      }
+
+      writeRawResourceJson(jsonPath, merged);
+
+      const fresh = await this.configRegistry.getByRoute(route);
+      return fresh ? buildResourceJsonPayload(fresh, baseUrl) : undefined;
+    },
+  );
+  const d = desc(cls, 'patchResourceJson');
+  Patch('resource.json')(cls.prototype, 'patchResourceJson', d);
+  Body(new ZodValidationPipe(PatchResourceJsonSchema))(
+    cls.prototype,
+    'patchResourceJson',
+    0,
+  );
+  ApiOperation({
+    summary: `Dev-only: patch column layout in resource.json for ${name}`,
+  })(cls.prototype, 'patchResourceJson', d);
+  ApiResponse({
+    status: 200,
+    description: `Updated resource descriptor for ${name}`,
+  })(cls.prototype, 'patchResourceJson', d);
 };
