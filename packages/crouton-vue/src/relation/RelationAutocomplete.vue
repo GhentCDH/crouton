@@ -13,7 +13,6 @@
     @clear="onClear"
     @create="onCreate"
   />
-  {{ label }}
 </template>
 <script setup lang="ts">
 import {
