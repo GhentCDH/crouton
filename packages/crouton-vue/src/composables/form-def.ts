@@ -83,4 +83,15 @@ export class FormDefCache {
     this.cache.set(uri, promise);
     return promise;
   }
+
+  /**
+   * Drops the cached `FormDef` for `formId` (and its `/schemas` URI) so the
+   * next `getFormDef` call refetches from the backend. Used by the resource
+   * schema editor after a successful save — table/form layout (colspan,
+   * position, hiddenIn*) is only picked up by `ResourceTable` once its
+   * cached `config` is refetched.
+   */
+  invalidate(formId: string): void {
+    this.cache.delete(`${formId}/schemas`);
+  }
 }

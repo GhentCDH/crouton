@@ -61,6 +61,7 @@ export const useCrouton = (): {
   readonly cellRenderers: CellRendererEntry[];
   getFormDef: (formId: string) => Promise<FormDef>;
   getFormByUri: (uri: string) => Promise<FormDef>;
+  invalidateFormDef: (formId: string) => void;
 } => {
   const init = (
     api: AxiosInstance,
@@ -117,6 +118,7 @@ export const useCrouton = (): {
     },
     getFormDef: (formId: string) => formDefCache.getFormDef(formId),
     getFormByUri: (uri: string) => formDefCache.getFormDefByUri(uri),
+    invalidateFormDef: (formId: string) => formDefCache.invalidate(formId),
   };
 };
 

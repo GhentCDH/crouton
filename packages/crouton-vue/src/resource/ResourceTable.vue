@@ -19,7 +19,17 @@ const props = defineProps({
 
 const id = computed(() => `${props.formId}_${Date.now()}`);
 
-const config = computedAsync(() => crouton.getFormDef(props.formId as string));
+/**
+ * Bumped after a schema edit is saved so `config` below refetches — its
+ * `crouton.getFormDef` call has no other reactive dependency that would
+ * change on its own once the FormDefCache entry is invalidated.
+ */
+const schemaVersion = ref(0);
+
+const config = computedAsync(() => {
+  void schemaVersion.value;
+  return crouton.getFormDef(props.formId as string);
+});
 
 const emits = defineEmits(['handleEvent', 'onRequest', 'initialLoad']);
 const handleEvent = (event: string, data: any) => {
@@ -127,6 +137,7 @@ const showSchemaEditor = ref(false);
       v-if="showSchemaEditor"
       :form-id="props.formId as string"
       @close-modal="showSchemaEditor = false"
+      @saved="schemaVersion++"
     />
   </div>
 </template>
