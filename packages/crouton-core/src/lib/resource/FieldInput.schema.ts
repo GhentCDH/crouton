@@ -33,6 +33,7 @@ export type DetailConfig = z.infer<typeof DetailConfigSchema>;
  */
 export const RelationFieldInputOptionsSchema = z
   .object({
+    colspan: z.number().optional().default(12),
     /** Field to sort related records by, e.g. `"title"` or `"author.name"`. */
     sort: z.string().optional(),
     /** Sort direction. Defaults to `"asc"` when omitted. */
