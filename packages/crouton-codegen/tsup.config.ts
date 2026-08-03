@@ -11,5 +11,7 @@ export default defineConfig({
   // `@prisma/internals` is large and ships with the consumer's Prisma install;
   // never bundle it. It is imported lazily by the introspect stage.
   external: ['@prisma/internals'],
-  // Types from crouton-core are type-only imports (erased at build); nothing to bundle.
+  esbuildOptions(options) {
+    options.conditions = ['@ghentcdh/crouton'];
+  },
 });
