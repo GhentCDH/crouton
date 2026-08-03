@@ -19,6 +19,7 @@ export interface StatusSummary {
 
 export interface CroutonStatus {
   version: string;
+  croutonVersion: string;
   environment: string;
   summary: StatusSummary;
   databases: DatabaseStatus[];

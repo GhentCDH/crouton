@@ -4,6 +4,7 @@ import {
   buildStatus,
   buildSummary,
   checkDatabases,
+  getCroutonVersion,
   getEnvironment,
   getResourceStatus,
   getVersion,
@@ -26,6 +27,13 @@ describe('status.service', () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+  });
+
+  describe('getCroutonVersion', () => {
+    it('should resolve crouton-api package version', () => {
+      const version = getCroutonVersion();
+      expect(version).toMatch(/^\d+\.\d+\.\d+/);
+    });
   });
 
   describe('getVersion', () => {
@@ -205,6 +213,7 @@ describe('status.service', () => {
       ]);
 
       expect(status.version).toBe('2.0.0');
+      expect(status.croutonVersion).toMatch(/^\d+\.\d+\.\d+/);
       expect(status.environment).toBe('test');
       expect(status.databases).toHaveLength(1);
       expect(status.databases[0].connected).toBe(true);

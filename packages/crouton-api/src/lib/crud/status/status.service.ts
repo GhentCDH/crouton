@@ -7,6 +7,9 @@ import type {
 } from './status.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const DB_CHECK_TIMEOUT_MS = 3_000;
 
@@ -15,6 +18,28 @@ const CONNECTION_STRING_PATTERN =
 
 const stripConnectionStrings = (message: string): string =>
   message.replace(CONNECTION_STRING_PATTERN, '[REDACTED]');
+
+export const getCroutonVersion = (): string => {
+  try {
+    const startDir =
+      typeof __dirname !== 'undefined'
+        ? __dirname
+        : dirname(fileURLToPath(import.meta.url));
+
+    let dir = startDir;
+    while (dir !== dirname(dir)) {
+      const pkgPath = join(dir, 'package.json');
+      if (existsSync(pkgPath)) {
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+        if (pkg.name === '@ghentcdh/crouton-api') return pkg.version;
+      }
+      dir = dirname(dir);
+    }
+  } catch {
+    // ignore
+  }
+  return 'unknown';
+};
 
 export const getVersion = (): string =>
   process.env['APP_VERSION'] ?? 'unknown';
@@ -97,6 +122,7 @@ export const buildStatus = async (
 
   return {
     version: getVersion(),
+    croutonVersion: getCroutonVersion(),
     environment: getEnvironment(),
     summary,
     databases,

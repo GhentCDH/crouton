@@ -42,9 +42,12 @@
     </div>
 
     <!-- Version + environment badges -->
-    <div v-if="status" class="flex gap-2">
+    <div v-if="status" class="flex gap-2 flex-wrap">
       <span class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">
-        v{{ status.version }}
+        app v{{ status.version }}
+      </span>
+      <span class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">
+        crouton v{{ status.croutonVersion }}
       </span>
       <span class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">
         {{ status.environment }}

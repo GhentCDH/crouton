@@ -21,4 +21,8 @@ export const CroutonRouter = [
       },
     ],
   },
+  {
+    path: 'status',
+    component: () => import('./status/StatusView.vue'),
+  },
 ];
