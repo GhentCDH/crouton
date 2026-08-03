@@ -1,5 +1,5 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { computed, type ComputedRef, type Ref } from 'vue';
+import { type ComputedRef, type Ref, computed } from 'vue';
 
 import {
   type FormEvents,
