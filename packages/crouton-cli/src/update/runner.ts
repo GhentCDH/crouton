@@ -50,7 +50,7 @@ import {
 } from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';
 
 export interface UpdateResourcesOptions {
@@ -113,6 +113,59 @@ const ensureGeneratedScaffold = async (
     await scaffoldPkg(clientDir, `@${projectName}/generated-${ds.name}-client`, { isClient: true });
   }
   return created;
+};
+
+/**
+ * Ensure every app `package.json` under `apps/` lists workspace deps for the
+ * generated types (and client for backend apps). Adds missing entries only.
+ */
+const ensureAppWorkspaceDeps = async (
+  root: string,
+  ds: DataSource,
+  projectName: string,
+): Promise<number> => {
+  const appsDir = join(root, 'apps');
+  if (!existsSync(appsDir)) return 0;
+
+  let patched = 0;
+  const entries = await readdir(appsDir, { withFileTypes: true });
+
+  const typesName = `@${projectName}/generated-${ds.name}-types`;
+  const clientName = `@${projectName}/generated-${ds.name}-client`;
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const pkgPath = join(appsDir, entry.name, 'package.json');
+    if (!existsSync(pkgPath)) continue;
+
+    const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
+    const deps: Record<string, string> = pkg.dependencies ?? {};
+    const allDeps = { ...deps, ...(pkg.devDependencies ?? {}) };
+    let changed = false;
+
+    // Types dep — needed by both frontend and backend
+    if (ds.zodOutput && !allDeps[typesName]) {
+      deps[typesName] = 'workspace:*';
+      changed = true;
+    }
+
+    // Client dep — only for backend apps (has @nestjs/core or @prisma/client)
+    const isBackend = '@nestjs/core' in allDeps || '@prisma/client' in allDeps;
+    if (ds.clientOutput && isBackend && !allDeps[clientName]) {
+      deps[clientName] = 'workspace:*';
+      changed = true;
+    }
+
+    if (changed) {
+      pkg.dependencies = Object.fromEntries(
+        Object.entries(deps).sort(([a], [b]) => a.localeCompare(b)),
+      );
+      await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf-8');
+      patched++;
+    }
+  }
+
+  return patched;
 };
 
 const assertNotCancel = <T>(value: T | symbol): T => {
@@ -286,6 +339,12 @@ export const runUpdateResources = async (
       const scaffolded = await ensureGeneratedScaffold(loaded.root, ds, projectName);
       if (scaffolded > 0) {
         clack.log.info(`Created ${scaffolded} scaffold file(s) in generated dirs`);
+      }
+
+      // Ensure app package.json files list generated workspace deps.
+      const depsPatched = await ensureAppWorkspaceDeps(loaded.root, ds, projectName);
+      if (depsPatched > 0) {
+        clack.log.info(`Added generated workspace deps to ${depsPatched} app(s)`);
       }
     }
 
