@@ -308,17 +308,32 @@ export class ReadRepository<T = any> {
       (s) => s.relationType !== 'manyToOne',
     );
 
-    if (countableSubResources.length) {
-      const countClause = {
-        select: Object.fromEntries(countableSubResources.map((s) => [s.relation, true])),
+    // Include manyToOne relations (e.g. author) so they appear in list view.
+    const manyToOneIncludes = subResources
+      .filter((s) => s.relationType === 'manyToOne')
+      .map((s) => s.relation);
+    const flatIncludes = manyToOneIncludes.length
+      ? Object.fromEntries(manyToOneIncludes.map((r) => [r, true]))
+      : undefined;
+    const configInclude = buildIncludeClause(this.config.include);
+    const mergedInclude =
+      flatIncludes || configInclude
+        ? { ...flatIncludes, ...configInclude }
+        : undefined;
+
+    const countClause = countableSubResources.length
+      ? { select: Object.fromEntries(countableSubResources.map((s) => [s.relation, true])) }
+      : undefined;
+
+    if (projection.select) {
+      query.select = {
+        ...projection.select,
+        ...(countClause && { _count: countClause }),
+        ...mergedInclude,
       };
-      if (projection.select) {
-        query.select = { ...projection.select, _count: countClause };
-      } else {
-        query = { ...query, _count: countClause };
-      }
     } else {
-      Object.assign(query, projection);
+      if (countClause) query._count = countClause;
+      if (mergedInclude) query.include = mergedInclude;
     }
 
     const rows = await this.prismaModel.findMany(query);
