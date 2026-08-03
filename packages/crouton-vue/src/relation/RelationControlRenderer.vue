@@ -1,5 +1,4 @@
 <template>
-  the rlation control renderer {{ isInline }}
   <ControlLabel v-bind="wrapper" v-if="message">
     <div class="text-sm text-gray-500 italic py-2">
       {{ message }}

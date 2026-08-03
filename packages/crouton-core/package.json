@@ -1,20 +1,40 @@
 {
   "name": "@ghentcdh/crouton-core",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.0.1-alpha.35",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhentCDH/crouton",
+    "directory": "packages/crouton-core"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
   "type": "module",
   "exports": {
     ".": {
       "@ghentcdh/crouton": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
     }
   },
-  "main": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "peerDependencies": {
     "zod": "^4.0.0",
     "@jsonforms/core": "^3.0.0"
   },
+  "devDependencies": {
+    "tsup": "^8.0.0"
+  },
   "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
     "typecheck": "tsc --noEmit -p tsconfig.lib.json"
   }
 }
