@@ -3,7 +3,6 @@
     :label="label"
     v-if="fetchOptions"
     :model-value="value"
-    :hide-label="true"
     :clearable="true"
     :fetch-options="fetchOptions.fetchOptions"
     :label-key="options.labelKey"
@@ -14,9 +13,14 @@
     @clear="onClear"
     @create="onCreate"
   />
+  {{ label }}
 </template>
 <script setup lang="ts">
-import { JsonFormModalService, useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
+import {
+  JsonFormModalService,
+  useFetchOptions,
+  useHttpClient,
+} from '@ghentcdh/crouton-forms-vue';
 import { Autocomplete } from '@ghentcdh/ui';
 import { computedAsync } from '../utils/computedAsync';
 import { RelationAutocompleteProperties } from './RelationAutocomplete.properties';

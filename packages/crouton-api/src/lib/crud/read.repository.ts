@@ -294,7 +294,7 @@ export class ReadRepository<T = any> {
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
-    let query: Record<string, any> = {
+    const query: Record<string, any> = {
       where: this.buildWhere(params.filter),
       take: params.pageSize,
       skip: (params as any).offset ?? (params.page - 1) * params.pageSize,
