@@ -3,5 +3,14 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/crouton-core/src",
-  "tags": ["scope:crouton", "type:util"]
+  "tags": ["scope:crouton", "type:util"],
+  "targets": {
+    "nx-release-publish": {
+      "dependsOn": ["build"],
+      "command": "npm publish --access public",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
 }
