@@ -16,7 +16,11 @@
   />
 </template>
 <script setup lang="ts">
-import { JsonFormModalService, useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
+import {
+  JsonFormModalService,
+  useFetchOptions,
+  useHttpClient,
+} from '@ghentcdh/crouton-forms-vue';
 import { Autocomplete } from '@ghentcdh/ui';
 import { computedAsync } from '../utils/computedAsync';
 import { RelationAutocompleteProperties } from './RelationAutocomplete.properties';

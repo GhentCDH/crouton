@@ -1,13 +1,15 @@
-## 0.0.1-alpha.34 (2026-07-17)
+## 0.0.1-alpha.35 (2026-07-17)
 
 ### 🚀 Features
 
 - relation autocomplete as normal autocomplete ([e9cd67c](https://github.com/GhentCDH/crouton/commit/e9cd67c))
-- **cli:** run prisma-case-format after db pull for PascalCase models ([0d0ac8f](https://github.com/GhentCDH/crouton/commit/0d0ac8f))
+- **cli:** run prisma-case-format after db pull for PascalCase
+  models ([0d0ac8f](https://github.com/GhentCDH/crouton/commit/0d0ac8f))
 
 ### 🩹 Fixes
 
-- **crouton-vue:** react to query param changes in page display mode ([1df4b00](https://github.com/GhentCDH/crouton/commit/1df4b00))
+- **crouton-vue:** react to query param changes in page display
+  mode ([1df4b00](https://github.com/GhentCDH/crouton/commit/1df4b00))
 
 ### ❤️ Thank You
 
@@ -32,7 +34,8 @@
 
 ### 🩹 Fixes
 
-- **crouton-api:** exclude manyToOne relations from _count in findAll ([31d0c32](https://github.com/GhentCDH/crouton/commit/31d0c32))
+- **crouton-api:** exclude manyToOne relations from _count in
+  findAll ([31d0c32](https://github.com/GhentCDH/crouton/commit/31d0c32))
 
 ### ❤️ Thank You
 
@@ -90,12 +93,14 @@ This was a version bump only, there were no code changes.
 
 ### 🚀 Features
 
-- **create-crouton:** add --prefix option for Nx subfolder layout ([9c49ef6](https://github.com/GhentCDH/crouton/commit/9c49ef6))
+- **create-crouton:** add --prefix option for Nx subfolder
+  layout ([9c49ef6](https://github.com/GhentCDH/crouton/commit/9c49ef6))
 
 ### 🩹 Fixes
 
 - warning on displayvalue ([f8a8162](https://github.com/GhentCDH/crouton/commit/f8a8162))
-- **create-crouton:** remove crouton-core dep, add database URL prompt ([fab1ea8](https://github.com/GhentCDH/crouton/commit/fab1ea8))
+- **create-crouton:** remove crouton-core dep, add database URL
+  prompt ([fab1ea8](https://github.com/GhentCDH/crouton/commit/fab1ea8))
 
 ### ❤️ Thank You
 
@@ -137,7 +142,7 @@ This was a version bump only, there were no code changes.
 
 ### 🚀 Features
 
-- add create-crouton and add-crouton    CLI tools ([#36](https://github.com/GhentCDH/crouton/pull/36))
+- add create-crouton and add-crouton CLI tools ([#36](https://github.com/GhentCDH/crouton/pull/36))
 
 ### 🩹 Fixes
 
