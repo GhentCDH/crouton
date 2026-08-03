@@ -66,12 +66,18 @@ const config = computedAsync(() => {
 
   return useCrouton().getFormByUri(resource);
 });
-const resource = computed(() => {
-  return config.value ? useResources(config?.value, { readonly: true }) : null;
-});
 
 const openDetailsManyToOne = () => {
-  resource.value?.view(value);
+  const resource = computed(() => {
+    return config.value
+      ? useResources(config?.value, {
+          readonly: true,
+          initialLoad: false,
+          defaultUriParams: { parent: props.data },
+        })
+      : null;
+  });
+  resource.value?.view(value.value);
 };
 
 const openDetailsManyToMany = () => {

@@ -1,5 +1,5 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { type ComputedRef, type Ref, computed } from 'vue';
+import { computed, type ComputedRef, type Ref } from 'vue';
 
 import {
   type FormEvents,
@@ -41,7 +41,6 @@ const getRelationResource = async (
       data,
     });
   };
-
   return useResources(config, {
     defaultUriParams: { parent: formValues },
     readonly,
@@ -85,7 +84,14 @@ export const useRelationBinding = (
     isNew,
     message: getMessage(isNew.value, resource),
     resource: computedAsync(() =>
-      getRelationResource(resource, bindings.formValues, readonly, formEvents, sort, sortDir),
+      getRelationResource(
+        resource,
+        bindings.formValues,
+        readonly,
+        formEvents,
+        sort,
+        sortDir,
+      ),
     ),
   };
 };
