@@ -27,6 +27,7 @@ import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import {
   buildDefinitionPayload,
+  buildEditableColumnsPayload,
   buildResourceJsonPayload,
   buildViewsPayload,
 } from './payload-builders';
@@ -132,6 +133,43 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
 };
 
 /**
+ * Register `GET /resource-columns` — dev-only endpoint backing the visual
+ * resource builder's editor UI. Returns the raw, editable column list (see
+ * `buildEditableColumnsPayload`), rebuilt from the live config registry on
+ * every request so it reflects any on-disk edits (including ones made by
+ * this same builder, or by hand, or by `crouton update resources`).
+ */
+export const registerResourceColumnsEndpoint = (
+  ctx: OperationContext,
+): void => {
+  const { cls, config } = ctx;
+  const { route, name } = config;
+
+  def(
+    cls,
+    'getResourceColumns',
+    async function (this: { configRegistry: ResourceConfigRegistry }) {
+      if (!IS_DEV) {
+        throw new ForbiddenException(
+          'The resource schema editor is only available when the backend is running in local dev mode.',
+        );
+      }
+      const fresh = await this.configRegistry.getByRoute(route);
+      return buildEditableColumnsPayload(fresh ?? config);
+    },
+  );
+  const d = desc(cls, 'getResourceColumns');
+  Get('resource-columns')(cls.prototype, 'getResourceColumns', d);
+  ApiOperation({
+    summary: `Dev-only: get the editable column list for ${name}`,
+  })(cls.prototype, 'getResourceColumns', d);
+  ApiResponse({
+    status: 200,
+    description: `Editable column list for ${name}`,
+  })(cls.prototype, 'getResourceColumns', d);
+};
+
+/**
  * Register `PATCH /resource.json` — dev-only endpoint backing the visual
  * resource builder. Patches column display attributes (label, column,
  * hiddenInTable, hiddenInForm, hiddenInView, position, colspan) on the
@@ -144,7 +182,7 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
 export const registerResourceJsonPatchEndpoint = (
   ctx: OperationContext,
 ): void => {
-  const { cls, config, baseUrl } = ctx;
+  const { cls, config } = ctx;
   const { route, name } = config;
 
   def(
@@ -184,7 +222,7 @@ export const registerResourceJsonPatchEndpoint = (
       writeRawResourceJson(jsonPath, merged);
 
       const fresh = await this.configRegistry.getByRoute(route);
-      return fresh ? buildResourceJsonPayload(fresh, baseUrl) : undefined;
+      return buildEditableColumnsPayload(fresh ?? config);
     },
   );
   const d = desc(cls, 'patchResourceJson');

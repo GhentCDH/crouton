@@ -28,6 +28,7 @@ import {
 } from './operations/register-crud';
 import {
   registerDefinitionEndpoint,
+  registerResourceColumnsEndpoint,
   registerResourceJsonEndpoint,
   registerResourceJsonPatchEndpoint,
   registerSchemasEndpoint,
@@ -122,6 +123,7 @@ export function createCrudController(
   registerDefinitionEndpoint(ctx);
   registerSchemasEndpoint(ctx);
   registerResourceJsonEndpoint(ctx);
+  registerResourceColumnsEndpoint(ctx);
   registerResourceJsonPatchEndpoint(ctx);
   registerActionRoutes(ctx);
   registerTableActionRoutes(ctx);

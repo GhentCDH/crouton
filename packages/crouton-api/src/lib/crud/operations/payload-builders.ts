@@ -1,3 +1,5 @@
+import { type JsonColumn } from '@ghentcdh/crouton-core';
+
 import {
   isOperationEnabled,
   resolveDefinition,
@@ -26,7 +28,10 @@ export const resolveEnvPlaceholders = (value: string): string =>
 export const buildSubResourceOperations = (
   ops:
     | Partial<
-        Record<'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete', boolean>
+        Record<
+          'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete',
+          boolean
+        >
       >
     | undefined,
   baseUri: string,
@@ -109,7 +114,15 @@ export const buildDefinitionPayload = (
   const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
 
   const operations = (
-    ['findAll', 'findOne', 'create', 'update', 'patch', 'upsert', 'delete'] as const
+    [
+      'findAll',
+      'findOne',
+      'create',
+      'update',
+      'patch',
+      'upsert',
+      'delete',
+    ] as const
   ).filter((op) => isOperationEnabled(definition, op));
 
   return {
@@ -242,5 +255,52 @@ export const buildViewsPayload = (
             },
       ),
     }),
+  };
+};
+
+/**
+ * Build the payload for `GET /resource-columns` — the raw, editable column
+ * list backing the visual resource builder (dev-mode only). Unlike
+ * `buildResourceJsonPayload`/`buildViewsPayload`, which expose columns only
+ * as compiled JSON Schema + JSONForms UI Schema, this returns the plain
+ * per-column attributes the editor lets a developer change directly.
+ *
+ * `config.columns` is typed as the pre-normalization map form on `Resource`
+ * (inherited from `ResourceJsonShape`), but at runtime it always holds the
+ * post-`ResourceJsonSchema`-transform array form (`JsonColumn[]`) — the same
+ * assumption other adapter code in this package already relies on.
+ */
+export const buildEditableColumnsPayload = (
+  config: Resource,
+): {
+  id: string;
+  route: string;
+  columns: Array<{
+    id: string;
+    label?: string;
+    column: string;
+    hiddenInTable: boolean;
+    hiddenInForm: boolean;
+    hiddenInView: boolean;
+    position?: number;
+    colspan?: number;
+  }>;
+} => {
+  const columns = (config.columns as unknown as JsonColumn[] | undefined) ?? [];
+
+  return {
+    id: config.name,
+    route: config.route,
+    columns: columns.map((c) => ({
+      id: c.id,
+      label: c.label,
+      column: c.column ?? c.id,
+      hiddenInTable: c.hiddenInTable,
+      hiddenInForm: c.hiddenInForm,
+      hiddenInView: c.hiddenInView,
+      position: c.fieldInput?.position,
+      colspan: (c.fieldInput?.options as { colspan?: number } | undefined)
+        ?.colspan,
+    })),
   };
 };
