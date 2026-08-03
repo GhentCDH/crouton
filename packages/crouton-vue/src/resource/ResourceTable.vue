@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, toRaw, watch } from 'vue';
+import { computed, ref, shallowRef, toRaw, watch } from 'vue';
 
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
@@ -8,6 +8,7 @@ import { useCrouton } from '../composables/useCrouton';
 import { Btn, IconEnum } from '@ghentcdh/ui';
 import { useResources } from './useResources';
 import { Request } from '../utils/request';
+import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
 
 const crouton = useCrouton();
 
@@ -61,6 +62,9 @@ watch(
 );
 
 const form = computed(() => resource.value?.form);
+
+/** Dev-only visual resource.json builder — see VISUAL_RESOURCE_BUILDER_PLAN.md. */
+const showSchemaEditor = ref(false);
 </script>
 
 <template>
@@ -99,6 +103,15 @@ const form = computed(() => resource.value?.form);
       </template>
       <template #right>
         <Btn
+          v-if="crouton.isDev"
+          :icon="IconEnum.Edit"
+          color="secondary"
+          :outline="true"
+          @click="showSchemaEditor = true"
+        >
+          <span class="whitespace-nowrap">Edit fields</span>
+        </Btn>
+        <Btn
           v-if="config.operations.create"
           :icon="IconEnum.Plus"
           @click="resource.create"
@@ -109,5 +122,11 @@ const form = computed(() => resource.value?.form);
     </TableToolbar>
 
     <TableComponent :id="`form_table_${id}`" v-bind="resource" />
+
+    <ResourceSchemaEditor
+      v-if="showSchemaEditor"
+      :form-id="props.formId as string"
+      @close-modal="showSchemaEditor = false"
+    />
   </div>
 </template>
