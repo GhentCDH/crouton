@@ -30,7 +30,10 @@ export const enrichActionColumns = (
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
           ...(sub.views && {
-            resource: `${base}/${parentRoute}/${sub.childRoute}/schemas`,
+            resource:
+              sub.relationType === 'manyToOne'
+                ? `${base}/${sub.childRoute}/schemas`
+                : `${base}/${parentRoute}/${sub.childRoute}/schemas`,
           }),
         },
       },

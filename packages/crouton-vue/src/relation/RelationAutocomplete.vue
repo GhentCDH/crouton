@@ -8,6 +8,7 @@
     :label-key="options.labelKey"
     :value-key="options.valueKey"
     :enable-create="fetchOptions.enableCreate"
+    width="w-full"
     @change="onChange"
     @blur="onBlur"
     @clear="onClear"
