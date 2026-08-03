@@ -1,6 +1,11 @@
 import { type SidebarGroupConfig, labelFromId } from '@ghentcdh/crouton-core';
 
-import { type SidebarGroup, type SidebarLeaf, SidebarLeafSchema, type SidebarNode } from './app-layout.types';
+import {
+  type SidebarGroup,
+  type SidebarLeaf,
+  SidebarLeafSchema,
+  type SidebarNode,
+} from './app-layout.types';
 import { type Resource } from '../resource/ResourceConfig.schema'; // ─── Sort helper ─────────────────────────────────────────────────────────────
 
 // ─── Sort helper ─────────────────────────────────────────────────────────────
@@ -22,6 +27,7 @@ export const buildLayoutPayload = (
   sidebarGroups: Record<string, SidebarGroupConfig> = {},
   title?: string,
   autoSave = true,
+  isDev = false,
 ) => {
   const visible = configs.filter(
     (c) => c.sidebar?.hide !== true && c.views?.['table'],
@@ -80,5 +86,5 @@ export const buildLayoutPayload = (
   // Merge top-level items and groups, sort together.
   const sidebar: SidebarNode[] = [...topLevel, ...groups].sort(byPosition);
 
-  return { sidebar, title, autoSave };
+  return { sidebar, title, autoSave, isDev };
 };

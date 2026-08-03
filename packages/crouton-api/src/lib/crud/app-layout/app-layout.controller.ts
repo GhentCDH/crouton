@@ -19,6 +19,7 @@ export const createAppLayoutController = (
     sidebarGroups,
     title,
     autoSave,
+    IS_DEV,
   );
 
   @Controller('_app')
@@ -33,7 +34,13 @@ export const createAppLayoutController = (
       if (IS_DEV) {
         const fresh = await this.configRegistry.getAll();
 
-        return buildLayoutPayload(fresh, sidebarGroups, title, autoSave);
+        return buildLayoutPayload(
+          fresh,
+          sidebarGroups,
+          title,
+          autoSave,
+          IS_DEV,
+        );
       }
       return layoutPayload;
     }

@@ -24,6 +24,12 @@ export const AppConfig = {
    * restore explicit Save/Cancel buttons across the whole application.
    */
   autoSave: true,
+  /**
+   * Whether the connected backend is running in local dev mode (`NODE_ENV !== 'production'`).
+   * Served by the backend via `GET /_app/layout`. Gates dev-only UI such as the resource
+   * schema editor. Defaults to `false` so dev-only affordances stay hidden until confirmed.
+   */
+  isDev: false,
   /** Extra control renderers merged on top of the built-in crouton renderers in form/edit modals. */
   renderers: [] as JsonFormsRendererRegistryEntry[],
   /** Extra renderers merged on top of the built-in crouton renderers in view (readonly) modals. */
@@ -40,11 +46,15 @@ const config = ref({ ...AppConfig });
 export type UseCrouton = ReturnType<typeof useCrouton>;
 
 export const useCrouton = (): {
-  init: (api: AxiosInstance, _config?: Partial<typeof AppConfig>) => Promise<void>;
+  init: (
+    api: AxiosInstance,
+    _config?: Partial<typeof AppConfig>,
+  ) => Promise<void>;
   readonly sidebar: SidebarNode[];
   version: ComputedRef<string>;
   title: ComputedRef<string>;
   autoSave: ComputedRef<boolean>;
+  isDev: ComputedRef<boolean>;
   readonly renderers: JsonFormsRendererRegistryEntry[];
   readonly customComponents: CustomComponentEntry[];
   readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
@@ -70,6 +80,10 @@ export const useCrouton = (): {
         if (res.data.autoSave !== undefined && _config.autoSave === undefined) {
           config.value = { ...config.value, autoSave: res.data.autoSave };
         }
+        // isDev always reflects the connected backend — never consumer-overridable.
+        if (res.data.isDev !== undefined) {
+          config.value = { ...config.value, isDev: res.data.isDev };
+        }
       })
       .catch(() => {
         console.error('no layout');
@@ -85,6 +99,7 @@ export const useCrouton = (): {
     version: computed(() => config.value.VERSION),
     title: computed(() => config.value.title),
     autoSave: computed(() => config.value.autoSave),
+    isDev: computed(() => config.value.isDev),
     /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
     get renderers() {
       return config.value.renderers;
