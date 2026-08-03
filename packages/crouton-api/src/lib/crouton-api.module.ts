@@ -14,6 +14,7 @@ import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
 import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
+import { createStatusController } from './crud/status';
 
 type CroutonAppConfig = {
   baseUrl: string;
@@ -75,6 +76,7 @@ export class CroutonApiModule {
         config.title,
         config.autoSave ?? true,
       ),
+      createStatusController(),
     ];
 
     return {
