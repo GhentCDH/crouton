@@ -428,16 +428,17 @@ const onSave = async () => {
             </tr>
             <tr v-if="expandedId === col.id">
               <td colspan="6" class="bg-base-200">
-                <div class="p-3 flex flex-col gap-3" v-if="drafts[col.id]">
+                <div class="p-4 flex flex-col gap-3" v-if="drafts[col.id]">
                   <p v-if="!visibleTabs(col).length" class="text-sm opacity-60">
                     This column is hidden in every context (table, form, and
                     view) — nothing to edit here.
                   </p>
                   <template v-else>
-                    <div class="tabs tabs-boxed w-fit">
+                    <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
                       <a
                         v-for="tab in visibleTabs(col)"
                         :key="tab.key"
+                        role="tab"
                         class="tab"
                         :class="{ 'tab-active': activeTab === tab.key }"
                         @click="activeTab = tab.key"
@@ -445,16 +446,16 @@ const onSave = async () => {
                         {{ tab.label }}
                         <span
                           v-if="tab.key === 'view' && col.view.hasOverride"
-                          class="badge badge-xs ml-1"
+                          class="badge badge-primary badge-xs ml-1.5"
                         />
                         <span
                           v-if="tab.key === 'table' && col.table.hasOverride"
-                          class="badge badge-xs ml-1"
+                          class="badge badge-primary badge-xs ml-1.5"
                         />
                       </a>
                     </div>
 
-                    <p class="text-xs opacity-60">
+                    <p class="text-sm opacity-70">
                       <template v-if="activeTab === 'form'">
                         Base config used to render the create/edit form. View
                         and Table fall back to this unless they override it.
