@@ -1,3 +1,24 @@
+## 0.0.1-alpha.36 (2026-08-04)
+
+### 🚀 Features
+
+- status page ([#45](https://github.com/GhentCDH/crouton/pull/45))
+- add fieldView/fieldTable column variants ([#46](https://github.com/GhentCDH/crouton/pull/46))
+- **crouton-core:** configure package for npm publishing ([#43](https://github.com/GhentCDH/crouton/pull/43))
+
+### 🩹 Fixes
+
+- patch request ([697ea16](https://github.com/GhentCDH/crouton/commit/697ea16))
+- **cli:** add generated workspace deps to frontend and backend apps ([#41](https://github.com/GhentCDH/crouton/pull/41))
+- **create-crouton:** use getRuntimeConfig for API_URL in frontend template ([e1fd0d9](https://github.com/GhentCDH/crouton/commit/e1fd0d9))
+- **crouton-api:** include manyToOne relations and config.include ([#42](https://github.com/GhentCDH/crouton/pull/42))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+- Claude Opus 4.8
+
 ## 0.0.1-alpha.35 (2026-07-17)
 
 ### 🚀 Features
