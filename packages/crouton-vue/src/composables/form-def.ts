@@ -94,4 +94,13 @@ export class FormDefCache {
   invalidate(formId: string): void {
     this.cache.delete(`${formId}/schemas`);
   }
+
+  /**
+   * Drops every cached `FormDef`. Used after a multi-resource database sync
+   * (Phase 4/5 dev tools) where many resources — including brand new ones
+   * with no prior cache entry to target by id — may have changed at once.
+   */
+  invalidateAll(): void {
+    this.cache.clear();
+  }
 }

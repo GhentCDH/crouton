@@ -64,23 +64,23 @@ export const useCrouton = (): {
   getFormDef: (formId: string) => Promise<FormDef>;
   getFormByUri: (uri: string) => Promise<FormDef>;
   invalidateFormDef: (formId: string) => void;
+  invalidateAllFormDefs: () => void;
+  refreshLayout: () => Promise<void>;
 } => {
-  const init = (
-    api: AxiosInstance,
-    _config: Partial<typeof AppConfig> = {},
-  ) => {
-    configureApi(api);
-    config.value = { ...AppConfig, ..._config };
-    return useApi()
+  const fetchLayout = (overrides: Partial<typeof AppConfig> = {}) =>
+    useApi()
       .get('/_app/layout')
       .then((res) => {
         sidebar.value = res.data.sidebar as SidebarNode[];
         // Title from the backend wins unless the consumer passed an explicit override.
-        if (res.data.title && !_config.title) {
+        if (res.data.title && !overrides.title) {
           config.value = { ...config.value, title: res.data.title };
         }
         // autoSave from the backend wins unless the consumer passed an explicit override.
-        if (res.data.autoSave !== undefined && _config.autoSave === undefined) {
+        if (
+          res.data.autoSave !== undefined &&
+          overrides.autoSave === undefined
+        ) {
           config.value = { ...config.value, autoSave: res.data.autoSave };
         }
         // isDev always reflects the connected backend — never consumer-overridable.
@@ -91,6 +91,14 @@ export const useCrouton = (): {
       .catch(() => {
         console.error('no layout');
       });
+
+  const init = (
+    api: AxiosInstance,
+    _config: Partial<typeof AppConfig> = {},
+  ) => {
+    configureApi(api);
+    config.value = { ...AppConfig, ..._config };
+    return fetchLayout(_config);
   };
 
   return {
@@ -121,6 +129,14 @@ export const useCrouton = (): {
     getFormDef: (formId: string) => formDefCache.getFormDef(formId),
     getFormByUri: (uri: string) => formDefCache.getFormDefByUri(uri),
     invalidateFormDef: (formId: string) => formDefCache.invalidate(formId),
+    invalidateAllFormDefs: () => formDefCache.invalidateAll(),
+    /**
+     * Re-fetches `/_app/layout` (sidebar, isDev, autoSave, title) without
+     * needing the axios instance again. Used by the dev tools panel after a
+     * database sync, since new/changed resources affect the sidebar and any
+     * open ResourceTable's cached config.
+     */
+    refreshLayout: () => fetchLayout(),
   };
 };
 
