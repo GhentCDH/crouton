@@ -1,12 +1,24 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 
-import { Btn, IconEnum, Modal } from '@ghentcdh/ui';
+import { Btn, Checkbox, IconEnum, Input, Modal } from '@ghentcdh/ui';
 
 import { computedAsync } from '../utils/computedAsync';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import ResourceFieldVariantEditor from './ResourceFieldVariantEditor.vue';
 import { ResourceSchemaEditorProperties } from './ResourceSchemaEditor.properties';
+import {
+  type ColumnPatch,
+  type EditableColumn,
+  type FieldVariant,
+  type FieldVariantPatch,
+  TABS,
+  type Tab,
+  toDraft,
+  type VariantDraft,
+  visibleTabs,
+} from './resource-schema-editor.types';
 
 const props = defineProps(ResourceSchemaEditorProperties);
 
@@ -15,83 +27,6 @@ const emits = defineEmits<{
   /** Emitted after a successful save, so ResourceTable can refetch its config. */
   saved: [];
 }>();
-
-/** Mirrors crouton-core's `FieldInput` shape closely enough for editing. */
-type FieldVariant = {
-  type?: string;
-  format?: string;
-  resource?: string;
-  relationType?: string;
-  position?: number;
-  options?: Record<string, unknown>;
-};
-
-/**
- * Mirrors the backend's `EditableFieldVariant`/`EditableColumn` response
- * shapes — see `payload-builders.ts`'s `buildEditableColumnsPayload`.
- */
-type EditableFieldVariant = {
-  resolved?: FieldVariant;
-  hasOverride: boolean;
-};
-
-type EditableColumn = {
-  id: string;
-  label?: string;
-  column: string;
-  hiddenInTable: boolean;
-  hiddenInForm: boolean;
-  hiddenInView: boolean;
-  form?: FieldVariant;
-  view: EditableFieldVariant;
-  table: EditableFieldVariant;
-};
-
-/** Body shape for one variant patch — see `PatchResourceJson.schema.ts`. */
-type FieldVariantPatch = Partial<{
-  position: number | null;
-  options: Record<string, unknown | null>;
-}>;
-
-/** Body shape for `PATCH <route>/resource.json` — see `PatchResourceJson.schema.ts`. */
-type ColumnPatch = Partial<{
-  label: string;
-  column: string;
-  hiddenInTable: boolean;
-  hiddenInForm: boolean;
-  hiddenInView: boolean;
-  fieldInput: FieldVariantPatch;
-  fieldView: FieldVariantPatch;
-  fieldTable: FieldVariantPatch;
-}>;
-
-type Tab = 'form' | 'view' | 'table';
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'form', label: 'Form' },
-  { key: 'view', label: 'View' },
-  { key: 'table', label: 'Table' },
-];
-
-/** Which flat visibility flag hides each tab's context entirely. */
-const HIDDEN_FLAG: Record<
-  Tab,
-  'hiddenInForm' | 'hiddenInView' | 'hiddenInTable'
-> = {
-  form: 'hiddenInForm',
-  view: 'hiddenInView',
-  table: 'hiddenInTable',
-};
-
-/**
- * A hidden context has nothing to render, so there's nothing useful to edit
- * there — its tab is hidden rather than shown empty/disabled.
- */
-const visibleTabs = (col: EditableColumn): { key: Tab; label: string }[] =>
-  TABS.filter((t) => !col[HIDDEN_FLAG[t.key]]);
-
-/** `0`–`11` show as-is; `12` (the schema default) reads as "Full" width. */
-const COLSPAN_OPTIONS = Array.from({ length: 13 }, (_, i) => i);
-const colspanLabel = (n: number): string => (n === 12 ? 'Full' : String(n));
 
 const crouton = useCrouton();
 
@@ -135,42 +70,7 @@ watch(
 
 // ── Per-column, per-context drafts ─────────────────────────────────────────
 
-/**
- * `displayKey`/`colspan`/`position` get dedicated inputs since they're the
- * options every relation/layout control already understands; anything else
- * in `options` (e.g. a `display` mode, `sort`, custom renderer options) is
- * edited as raw JSON so the editor never silently drops an option it
- * doesn't have a first-class control for.
- */
-type VariantDraft = {
-  position?: number;
-  displayKey: string;
-  colspan?: number;
-  rawOptionsJson: string;
-  rawOptionsError: string | null;
-};
-
 const drafts = reactive<Record<string, Record<Tab, VariantDraft>>>({});
-
-const FIRST_CLASS_OPTION_KEYS = ['displayKey', 'colspan'];
-
-const toDraft = (variant: FieldVariant | undefined): VariantDraft => {
-  const options = (variant?.options ?? {}) as Record<string, unknown>;
-  const rest = Object.fromEntries(
-    Object.entries(options).filter(
-      ([k]) => !FIRST_CLASS_OPTION_KEYS.includes(k),
-    ),
-  );
-  return {
-    position: variant?.position,
-    displayKey: (options['displayKey'] as string | undefined) ?? '',
-    colspan: options['colspan'] as number | undefined,
-    rawOptionsJson: Object.keys(rest).length
-      ? JSON.stringify(rest, null, 2)
-      : '',
-    rawOptionsError: null,
-  };
-};
 
 watch(
   remote,
@@ -187,30 +87,6 @@ watch(
   },
   { immediate: true },
 );
-
-const validateRawJson = (draft: VariantDraft) => {
-  try {
-    if (draft.rawOptionsJson.trim()) JSON.parse(draft.rawOptionsJson);
-    draft.rawOptionsError = null;
-  } catch {
-    draft.rawOptionsError = 'Invalid JSON — fix or clear this before saving.';
-  }
-};
-
-/**
- * Clears a first-class field back to "no local value". Combined with the
- * diffing in `buildVariantPatch`, this is what sends `null` for that key —
- * on the Form tab that clears a previously-set override outright; on
- * View/Table it's a "reset to inherited" (the value falls back to the level
- * below again instead of staying pinned here).
- */
-const resetField = (
-  draft: VariantDraft,
-  field: 'position' | 'displayKey' | 'colspan',
-) => {
-  if (field === 'displayKey') draft.displayKey = '';
-  else draft[field] = undefined;
-};
 
 const saving = ref(false);
 const saveError = ref<string | null>(null);
@@ -400,212 +276,29 @@ const onSave = async () => {
                   />
                 </td>
                 <td>
-                  <input
-                    v-model="col.label"
-                    type="text"
-                    class="input input-bordered input-sm w-full"
-                  />
+                  <Input v-model="col.label" size="sm" />
                 </td>
                 <td>
-                  <input
-                    v-model="col.column"
-                    type="text"
-                    class="input input-bordered input-sm w-full"
-                  />
+                  <Input v-model="col.column" size="sm" />
                 </td>
                 <td class="text-center">
-                  <input
-                    v-model="col.hiddenInTable"
-                    type="checkbox"
-                    class="checkbox checkbox-sm"
-                  />
+                  <Checkbox v-model="col.hiddenInTable" />
                 </td>
                 <td class="text-center">
-                  <input
-                    v-model="col.hiddenInForm"
-                    type="checkbox"
-                    class="checkbox checkbox-sm"
-                  />
+                  <Checkbox v-model="col.hiddenInForm" />
                 </td>
                 <td class="text-center">
-                  <input
-                    v-model="col.hiddenInView"
-                    type="checkbox"
-                    class="checkbox checkbox-sm"
-                  />
+                  <Checkbox v-model="col.hiddenInView" />
                 </td>
               </tr>
               <tr v-if="expandedId === col.id">
                 <td colspan="6" class="bg-base-200">
-                  <div class="p-4 flex flex-col gap-3" v-if="drafts[col.id]">
-                    <p
-                      v-if="!visibleTabs(col).length"
-                      class="text-sm opacity-60"
-                    >
-                      This column is hidden in every context (table, form, and
-                      view) — nothing to edit here.
-                    </p>
-                    <template v-else>
-                      <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
-                        <a
-                          v-for="tab in visibleTabs(col)"
-                          :key="tab.key"
-                          role="tab"
-                          class="tab"
-                          :class="{ 'tab-active': activeTab === tab.key }"
-                          @click="activeTab = tab.key"
-                        >
-                          {{ tab.label }}
-                          <span
-                            v-if="tab.key === 'view' && col.view.hasOverride"
-                            class="badge badge-primary badge-xs ml-1.5"
-                          />
-                          <span
-                            v-if="tab.key === 'table' && col.table.hasOverride"
-                            class="badge badge-primary badge-xs ml-1.5"
-                          />
-                        </a>
-                      </div>
-
-                      <p class="text-sm opacity-70">
-                        <template v-if="activeTab === 'form'">
-                          Base config used to render the create/edit form. View
-                          and Table fall back to this unless they override it.
-                        </template>
-                        <template v-else-if="activeTab === 'view'">
-                          Read-only detail view.
-                          {{
-                            col.view.hasOverride
-                              ? 'This column has its own view override.'
-                              : 'Currently inherited from Form — values shown below are the resolved (effective) ones.'
-                          }}
-                        </template>
-                        <template v-else>
-                          Table cell rendering.
-                          {{
-                            col.table.hasOverride
-                              ? 'This column has its own table override.'
-                              : 'Currently inherited from View/Form — values shown below are the resolved (effective) ones.'
-                          }}
-                        </template>
-                      </p>
-
-                      <div class="grid grid-cols-3 gap-3 max-w-2xl">
-                        <label class="form-control">
-                          <span class="label-text text-xs">Display key</span>
-                          <div class="flex gap-1">
-                            <input
-                              v-model="drafts[col.id][activeTab].displayKey"
-                              type="text"
-                              placeholder="e.g. name"
-                              class="input input-bordered input-sm w-full"
-                            />
-                            <Btn
-                              v-if="activeTab !== 'form'"
-                              color="secondary"
-                              :outline="true"
-                              size="sm"
-                              title="Reset to inherited"
-                              @click="
-                                resetField(
-                                  drafts[col.id][activeTab],
-                                  'displayKey',
-                                )
-                              "
-                            >
-                              ×
-                            </Btn>
-                          </div>
-                        </label>
-
-                        <label class="form-control">
-                          <span class="label-text text-xs">Position</span>
-                          <div class="flex gap-1">
-                            <input
-                              v-model.number="
-                                drafts[col.id][activeTab].position
-                              "
-                              type="number"
-                              class="input input-bordered input-sm w-full"
-                            />
-                            <Btn
-                              v-if="activeTab !== 'form'"
-                              color="secondary"
-                              :outline="true"
-                              size="sm"
-                              title="Reset to inherited"
-                              @click="
-                                resetField(
-                                  drafts[col.id][activeTab],
-                                  'position',
-                                )
-                              "
-                            >
-                              ×
-                            </Btn>
-                          </div>
-                        </label>
-
-                        <label
-                          v-if="activeTab !== 'table'"
-                          class="form-control"
-                        >
-                          <span class="label-text text-xs">Colspan</span>
-                          <div class="flex gap-1">
-                            <select
-                              :value="drafts[col.id][activeTab].colspan ?? 12"
-                              class="select select-bordered select-sm w-full"
-                              @change="
-                                drafts[col.id][activeTab].colspan = Number(
-                                  ($event.target as HTMLSelectElement).value,
-                                )
-                              "
-                            >
-                              <option
-                                v-for="n in COLSPAN_OPTIONS"
-                                :key="n"
-                                :value="n"
-                              >
-                                {{ colspanLabel(n) }}
-                              </option>
-                            </select>
-                            <Btn
-                              v-if="activeTab !== 'form'"
-                              color="secondary"
-                              :outline="true"
-                              size="sm"
-                              title="Reset to inherited"
-                              @click="
-                                resetField(drafts[col.id][activeTab], 'colspan')
-                              "
-                            >
-                              ×
-                            </Btn>
-                          </div>
-                        </label>
-                      </div>
-
-                      <label class="form-control max-w-2xl">
-                        <span class="label-text text-xs">
-                          Other options (raw JSON — e.g. <code>display</code>,
-                          <code>sort</code>). Set a key to <code>null</code> to
-                          reset it back to the inherited value.
-                        </span>
-                        <textarea
-                          v-model="drafts[col.id][activeTab].rawOptionsJson"
-                          rows="4"
-                          class="textarea textarea-bordered textarea-sm font-mono text-xs w-full"
-                          @blur="validateRawJson(drafts[col.id][activeTab])"
-                        />
-                        <span
-                          v-if="drafts[col.id][activeTab].rawOptionsError"
-                          class="text-error text-xs mt-1"
-                        >
-                          {{ drafts[col.id][activeTab].rawOptionsError }}
-                        </span>
-                      </label>
-                    </template>
-                  </div>
+                  <ResourceFieldVariantEditor
+                    v-if="drafts[col.id]"
+                    :col="col"
+                    :drafts="drafts[col.id]"
+                    v-model:active-tab="activeTab"
+                  />
                 </td>
               </tr>
             </template>
