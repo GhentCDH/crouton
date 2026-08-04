@@ -34,8 +34,19 @@
               </RouterLink>
             </li>
           </template>
-        </ul>
 
+          <!-- Dev-only: visual resource builder's database sync tools. -->
+        </ul>
+        <ul class="menu w-full">
+          <li v-if="app.isDev">
+            <RouterLink
+              :to="{ name: CROUTON_DEV_RESOURCES }"
+              active-class="bg-white font-bold"
+            >
+              Dev tools
+            </RouterLink>
+          </li>
+        </ul>
         <div class="bg-base-200 p-4 text-gray-500 text-sm">
           version: {{ app.version }}
         </div>
@@ -47,7 +58,7 @@
 import { Drawer } from '@ghentcdh/ui';
 import { RouterLink } from 'vue-router';
 
-import { CROUTON_FORM } from '../router';
+import { CROUTON_DEV_RESOURCES, CROUTON_FORM } from '../router';
 import { isSidebarGroup } from '../composables/sidebar';
 import { useCrouton } from '../composables/useCrouton';
 

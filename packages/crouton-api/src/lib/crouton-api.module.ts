@@ -9,6 +9,8 @@ import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filt
 import { createCrudController } from './crud/crud-controller.factory';
 import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
+import { IS_DEV } from './crud/dev-mode';
+import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
@@ -104,6 +106,9 @@ export class CroutonApiModule {
         config.title,
         config.autoSave ?? true,
       ),
+      // Only registered (and thus only visible in Swagger/routing) when the
+      // visual resource builder is enabled — see dev-resources.controller.ts.
+      ...(IS_DEV ? [DevResourcesController] : []),
       createStatusController(),
     ];
 

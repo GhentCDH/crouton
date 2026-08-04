@@ -1,11 +1,22 @@
 import { Body, Controller, type Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
-import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud.config';
+import {
+  type CrudRepository,
+  createCrudRepository,
+} from './crud-repository.factory';
+import {
+  isOperationEnabled,
+  resolveDefinition,
+  schemaFor,
+  upsertOnFor,
+} from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
-import { registerActionRoutes, registerTableActionRoutes } from './operations/register-actions';
+import {
+  registerActionRoutes,
+  registerTableActionRoutes,
+} from './operations/register-actions';
 import {
   registerCreate,
   registerDelete,
@@ -13,18 +24,23 @@ import {
   registerFindOne,
   registerPatch,
   registerUpdate,
-  registerUpsert
+  registerUpsert,
 } from './operations/register-crud';
 import {
   registerDefinitionEndpoint,
+  registerResourceColumnsEndpoint,
   registerResourceJsonEndpoint,
-  registerSchemasEndpoint
+  registerResourceJsonPatchEndpoint,
+  registerSchemasEndpoint,
 } from './operations/register-schema-endpoints';
 import { registerSubResourceRoutes } from './operations/register-sub-resources';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
-import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
+import {
+  ZodValidationPipe,
+  type ZodValidationPipeOptions,
+} from './zod-validation.pipe';
 
 /**
  * Dynamically build a NestJS controller class for the given resource config.
@@ -49,9 +65,12 @@ export function createCrudController(
   const createSchema = schemaFor(definition, 'create');
   const updateSchema = schemaFor(definition, 'update');
   const explicitPatchSchema = schemaFor(definition, 'patch');
-  const patchSchema = explicitPatchSchema
-    ?? (updateSchema && isZodSchema(updateSchema) ? (updateSchema as any).partial() : undefined)
-    ?? updateSchema;
+  const patchSchema =
+    explicitPatchSchema ??
+    (updateSchema && isZodSchema(updateSchema)
+      ? (updateSchema as any).partial()
+      : undefined) ??
+    updateSchema;
   const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
 
   if (isOperationEnabled(definition, 'upsert') && !upsertOnFor(definition)) {
@@ -104,6 +123,8 @@ export function createCrudController(
   registerDefinitionEndpoint(ctx);
   registerSchemasEndpoint(ctx);
   registerResourceJsonEndpoint(ctx);
+  registerResourceColumnsEndpoint(ctx);
+  registerResourceJsonPatchEndpoint(ctx);
   registerActionRoutes(ctx);
   registerTableActionRoutes(ctx);
   registerSubResourceRoutes(ctx);
