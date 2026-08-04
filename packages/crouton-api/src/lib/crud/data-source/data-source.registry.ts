@@ -39,6 +39,13 @@ export class DataSourceRegistry implements OnModuleDestroy {
     return database ? this.get(database) : this.getDefault();
   }
 
+  entries(): { name: string; client: any }[] {
+    return [...this.clients.entries()].map(([name, client]) => ({
+      name,
+      client,
+    }));
+  }
+
   async onModuleDestroy() {
     for (const client of this.clients.values()) {
       if (typeof client.$disconnect === 'function') {

@@ -5,20 +5,37 @@ import { dirname, resolve } from 'node:path';
 
 export type ResolveResource = { json: ResourceJson; dir: string };
 
-export const readResourceJson = (jsonPath: string): ResolveResource => {
+export type ReadResourceJsonResult =
+  | { success: true; data: ResolveResource }
+  | { success: false; error: string };
+
+export const readResourceJson = (jsonPath: string): ReadResourceJsonResult | undefined => {
   if (!existsSync(jsonPath)) return undefined;
-  const fileContent = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+
+  let fileContent: unknown;
+  try {
+    fileContent = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+  } catch (err) {
+    return {
+      success: false,
+      error: `Invalid JSON in ${jsonPath}: ${(err as Error).message}`,
+    };
+  }
 
   const resource = ResourceJsonSchema.safeParse(fileContent);
   if (resource.error) {
-    console.error(resource.error);
-
-    throw new Error(`Resource cannot be parsed ${jsonPath}`);
+    return {
+      success: false,
+      error: `Resource cannot be parsed ${jsonPath}: ${resource.error.message}`,
+    };
   }
 
   return {
-    json: resource.data,
-    dir: dirname(jsonPath),
+    success: true,
+    data: {
+      json: resource.data,
+      dir: dirname(jsonPath),
+    },
   };
 };
 

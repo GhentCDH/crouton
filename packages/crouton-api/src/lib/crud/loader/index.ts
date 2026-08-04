@@ -29,6 +29,7 @@ import { findModule, importDefault } from './module.loader';
 import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
 import { readResourceJson } from '../resource/ReadResourceJson';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -38,6 +39,8 @@ export const loadResourceConfigsFromDir = async (
   enumsFile?: string,
 ): Promise<Resource[]> => {
   if (!existsSync(dirPath)) return [];
+
+  resourceLoadErrorsRegistry.clear();
 
   const enums = loadEnumRegistry(dirPath, enumsFile);
   const entries = readdirSync(dirPath, { withFileTypes: true });
@@ -58,7 +61,18 @@ export const loadResourceConfigsFromDir = async (
 
     const jsonFile = join(basePath, 'resource.json');
     if (existsSync(jsonFile)) {
-      const json = readResourceJson(jsonFile).json;
+      const result = readResourceJson(jsonFile);
+
+      if (!result || !result.success) {
+        resourceLoadErrorsRegistry.record({
+          name: dir,
+          path: jsonFile,
+          error: result?.error ?? `Failed to read ${jsonFile}`,
+        });
+        continue;
+      }
+
+      const json = result.data.json;
       const actions = await loadActions(json.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
         json.tableActions ?? [],

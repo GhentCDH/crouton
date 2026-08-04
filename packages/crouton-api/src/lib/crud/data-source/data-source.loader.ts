@@ -1,6 +1,7 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
 import type { DataSourceEntry } from './data-source.types';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -26,12 +27,27 @@ export const loadDataSourcesFromDir = async (
 
     if (!existsSync(jsonFile)) continue;
 
-    const _config = JSON.parse(readFileSync(jsonFile, 'utf-8'));
+    let _config: unknown;
+    try {
+      _config = JSON.parse(readFileSync(jsonFile, 'utf-8'));
+    } catch (err) {
+      resourceLoadErrorsRegistry.record({
+        name: dir,
+        path: jsonFile,
+        error: `Invalid JSON in ${jsonFile}: ${(err as Error).message}`,
+      });
+      continue;
+    }
+
     const datasource = DataSourceSchema.safeParse(_config);
 
     if (!datasource.success) {
-      console.error(datasource.error);
-      throw new Error(`Invalid datasource schema: ${jsonFile}`);
+      resourceLoadErrorsRegistry.record({
+        name: dir,
+        path: jsonFile,
+        error: `Invalid datasource schema: ${jsonFile}: ${datasource.error.message}`,
+      });
+      continue;
     }
     const config = datasource.data;
 

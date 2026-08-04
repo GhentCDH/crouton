@@ -1,0 +1,150 @@
+<template>
+  <div class="max-w-3xl mx-auto p-6 space-y-6">
+    <h1 class="text-2xl font-bold">Crouton Status</h1>
+
+    <!-- Backend connectivity -->
+    <div
+      class="rounded-lg border p-4"
+      :class="backendUp ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'"
+    >
+      <div class="flex items-center gap-2">
+        <span
+          class="inline-block w-3 h-3 rounded-full"
+          :class="backendUp ? 'bg-green-500' : 'bg-red-500'"
+        />
+        <span class="font-semibold">
+          Backend: {{ backendUp ? 'Running' : 'Down' }}
+        </span>
+      </div>
+      <p v-if="fetchError" class="mt-1 text-sm text-red-700">
+        {{ fetchError }}
+      </p>
+    </div>
+
+    <!-- Summary banner -->
+    <div
+      v-if="status"
+      class="rounded-lg border p-4"
+      :class="status.summary.ok ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'"
+    >
+      <span v-if="status.summary.ok" class="font-semibold text-green-800">
+        All systems operational
+      </span>
+      <span v-else class="font-semibold text-red-800">
+        {{ totalErrors }} issue(s) detected
+        <span v-if="status.summary.databaseErrors" class="font-normal">
+          &mdash; {{ status.summary.databaseErrors }} database
+        </span>
+        <span v-if="status.summary.resourceErrors" class="font-normal">
+          &mdash; {{ status.summary.resourceErrors }} resource
+        </span>
+      </span>
+    </div>
+
+    <!-- Version + environment badges -->
+    <div v-if="status" class="flex gap-2 flex-wrap">
+      <span class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">
+        app v{{ status.version }}
+      </span>
+      <span class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">
+        crouton v{{ status.croutonVersion }}
+      </span>
+      <span class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">
+        {{ status.environment }}
+      </span>
+    </div>
+
+    <!-- Databases -->
+    <section v-if="status">
+      <h2 class="text-lg font-semibold mb-2">Databases</h2>
+      <ul class="space-y-1">
+        <li
+          v-for="db in status.databases"
+          :key="db.name"
+          class="flex items-start gap-2"
+        >
+          <span
+            class="inline-block w-2.5 h-2.5 rounded-full mt-1.5 shrink-0"
+            :class="db.connected ? 'bg-green-500' : 'bg-red-500'"
+          />
+          <div>
+            <span class="font-medium">{{ db.name }}</span>
+            <p v-if="db.error" class="text-sm text-red-600">{{ db.error }}</p>
+          </div>
+        </li>
+      </ul>
+      <p
+        v-if="status.databases.length === 0"
+        class="text-sm text-gray-500"
+      >
+        No databases configured.
+      </p>
+    </section>
+
+    <!-- Resources -->
+    <section v-if="status">
+      <h2 class="text-lg font-semibold mb-2">Resources</h2>
+      <ul class="space-y-1">
+        <li
+          v-for="res in status.resources"
+          :key="res.name"
+          class="flex items-start gap-2"
+        >
+          <span
+            class="inline-block w-2.5 h-2.5 rounded-full mt-1.5 shrink-0"
+            :class="res.valid ? 'bg-green-500' : 'bg-red-500'"
+          />
+          <div>
+            <span class="font-medium">{{ res.name }}</span>
+            <span class="text-sm text-gray-500 ml-1">({{ res.path }})</span>
+            <p v-if="res.error" class="text-sm text-red-600">
+              {{ res.error }}
+            </p>
+          </div>
+        </li>
+      </ul>
+      <p
+        v-if="status.resources.length === 0"
+        class="text-sm text-gray-500"
+      >
+        No resources loaded.
+      </p>
+    </section>
+
+    <!-- Loading state -->
+    <div v-if="loading" class="text-gray-500">Loading status...</div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue';
+
+import { useApi } from '../composables/useApi';
+import type { CroutonStatus } from './status.types';
+
+const status = ref<CroutonStatus | null>(null);
+const loading = ref(true);
+const backendUp = ref(false);
+const fetchError = ref<string | null>(null);
+
+const totalErrors = computed(() => {
+  if (!status.value) return 0;
+  return (
+    status.value.summary.databaseErrors + status.value.summary.resourceErrors
+  );
+});
+
+onMounted(async () => {
+  try {
+    const api = useApi();
+    const response = await api.get('/crouton/status.json');
+    status.value = response.data;
+    backendUp.value = true;
+  } catch (err) {
+    backendUp.value = false;
+    fetchError.value = (err as Error).message ?? 'Could not reach backend';
+  } finally {
+    loading.value = false;
+  }
+});
+</script>

@@ -85,3 +85,4 @@ flowchart LR
 - [Actions](./actions.md) — custom row and table actions
 - [Hooks](./hooks.md) — lifecycle hooks around reads and writes
 - [Custom styling](./styling.md) — theming with Tailwind and daisyUI
+- [Status page](./status.md) — built-in health checks and diagnostics at `/crouton/status.json`
