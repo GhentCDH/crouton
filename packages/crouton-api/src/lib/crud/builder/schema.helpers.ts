@@ -17,7 +17,8 @@ export const pickByColumns = (
   // Relation columns are managed via sub-resource endpoints — always exclude from write schemas.
   const baseFilter = (c: JsonColumn) =>
     !isRelation(c) && (filter ? filter(c) : true);
-  const filtered = columns.filter(baseFilter);
+  const schemaKeys = new Set(Object.keys(schema.shape));
+  const filtered = columns.filter((c) => baseFilter(c) && schemaKeys.has(c.id));
   if (!filtered.length) return undefined;
   const mask = Object.fromEntries(filtered.map((c) => [c.id, true as const]));
   return schema.pick(mask as any) as SchemaInput;

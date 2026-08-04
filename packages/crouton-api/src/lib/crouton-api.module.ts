@@ -13,6 +13,7 @@ import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
 import { type Resource } from './crud/resource/ResourceConfig.schema';
+import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
 import { createStatusController } from './crud/status';
 
@@ -66,10 +67,37 @@ export class CroutonApiModule {
     config: CroutonConfig,
   ): DynamicModule {
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
-    const configRegistry = new ResourceConfigRegistry(loader, configs);
+
+    // Validate that each resource's model exists on its Prisma client.
+    // Resources with missing models are skipped and recorded as load errors
+    // so they appear on the status page instead of crashing the server.
+    const validConfigs: Resource[] = [];
+    for (const c of configs) {
+      try {
+        const prisma = dataSourceRegistry.resolve(c.database);
+        if (!prisma[c.model]) {
+          resourceLoadErrorsRegistry.record({
+            name: c.name,
+            path: c.route,
+            error: `Model "${c.model}" not found on the provided PrismaClient. Check the resource config for "${c.name}".`,
+          });
+          continue;
+        }
+      } catch (e: any) {
+        resourceLoadErrorsRegistry.record({
+          name: c.name,
+          path: c.route,
+          error: e.message ?? String(e),
+        });
+        continue;
+      }
+      validConfigs.push(c);
+    }
+
+    const configRegistry = new ResourceConfigRegistry(loader, validConfigs);
 
     const controllers = [
-      ...configs.map((c) => createCrudController(c, baseUrl)),
+      ...validConfigs.map((c) => createCrudController(c, baseUrl)),
       createAppLayoutController(
         configs,
         config.sidebarGroups,

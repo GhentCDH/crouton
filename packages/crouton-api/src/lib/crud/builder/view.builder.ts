@@ -115,7 +115,9 @@ const buildView = (
     : visibleCols
   ).filter((c) => !isRelation(c));
 
-  const schemaIds = schemaCols.map((c) => c.id);
+  const schemaKeys = new Set(Object.keys(schema.shape));
+  const schemaIds = schemaCols.map((c) => c.id).filter((id) => schemaKeys.has(id));
+  if (!schemaIds.length) return undefined;
   const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
   const picked = schema.pick(mask as any);
   const jsonSchema = toJSONSchema(picked, {
