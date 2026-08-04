@@ -4,7 +4,7 @@ import type { JsonColumn } from '@ghentcdh/crouton-core';
 
 import { jsonSchemaOpts } from '../schema.utils';
 import { isRelation } from './column-predicates';
-import { sortByPosition, toViewColumn } from './column.utils';
+import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
 import { applySchemaTransforms } from './schema-transforms';
 import { resolveDefaultSort } from './sort.helpers';
@@ -170,7 +170,7 @@ export const buildViews = (
 
   const table = buildView(
     schema,
-    columns,
+    columns?.map((c) => columnForContext(c, 'table')),
     (c) => !c.hiddenInTable,
     buildTableUiSchema,
   );
@@ -211,7 +211,7 @@ export const buildViews = (
 
   const view = buildView(
     schema,
-    columns,
+    columns?.map((c) => columnForContext(c, 'view')),
     (c) => !c.hiddenInView,
     buildFormUiSchema,
     true,
@@ -318,7 +318,9 @@ export const buildViewsFromColumns = (
 
   const views: Record<string, ViewConfig> = {};
 
-  const tableCols = sortByPosition(columns.filter((c) => !c.hiddenInTable));
+  const tableCols = sortByPosition(
+    columns.filter((c) => !c.hiddenInTable).map((c) => columnForContext(c, 'table')),
+  );
   const table = makeView(tableCols, buildTableUiSchema);
   if (table) {
     table.defaultSort = resolveDefaultSort(tableCols, columns);
@@ -331,7 +333,9 @@ export const buildViewsFromColumns = (
   const form = makeView(formCols, buildFormUiSchema);
   if (form) views.form = form;
 
-  const viewCols = sortByPosition(columns.filter((c) => !c.hiddenInView));
+  const viewCols = sortByPosition(
+    columns.filter((c) => !c.hiddenInView).map((c) => columnForContext(c, 'view')),
+  );
   const viewView = makeView(viewCols, buildFormUiSchema);
   if (viewView) views.view = viewView;
 

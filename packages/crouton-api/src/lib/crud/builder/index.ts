@@ -1,5 +1,6 @@
 export { isAutocomplete, isBoolean, isDateRange, isRecordCell, isRelation } from './column-predicates';
-export { colPosition, sortByPosition, toViewColumn } from './column.utils';
+export { colPosition, columnForContext, sortByPosition, toViewColumn } from './column.utils';
+export type { FieldContext } from './column.utils';
 export { deriveSortId, resolveDefaultSort } from './sort.helpers';
 export { allowAdditionalProperties, applySchemaTransforms, dropNullableFromRequired, enforceRequiredMinLength } from './schema-transforms';
 export { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';

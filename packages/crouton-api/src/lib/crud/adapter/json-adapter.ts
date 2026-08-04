@@ -28,6 +28,7 @@ import {
   applyRelationFormatDefault,
   buildValueLabelColumns,
   expandExtendColumns,
+  resolveColumnFieldVariants,
 } from './column-transforms';
 import { enrichRelationTypes } from './relation-type';
 import { buildSubResources } from './sub-resource.builder';
@@ -65,12 +66,15 @@ export const fromJson = (
     enums,
     baseUrl,
   );
-  const enrichedColumns =
+  // Resolve fieldView/fieldTable variants LAST, after URI/relation enrichment,
+  // so the resolved variants inherit the injected relation/resource options.
+  const enrichedColumns = resolveColumnFieldVariants(
     enrichResourceRefColumns(
       enrichActionColumns(columns, json.route, subResources, baseUrl),
       dirPath,
       baseUrl,
-    ) ?? columns;
+    ) ?? columns,
+  )!;
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
