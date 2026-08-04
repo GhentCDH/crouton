@@ -26,7 +26,6 @@ const apiCall = (
   signal?: AbortSignal,
 ) => {
   const request = formDef.operations[operation] as Operation;
-
   if (!request) {
     throw new Error(
       `FormDef ${formDef.id} does not have a ${operation} operation`,

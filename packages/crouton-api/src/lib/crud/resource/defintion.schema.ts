@@ -17,6 +17,7 @@ const UpsertOperationDefSchema = z.object({
 });
 
 export type UpsertOperationDef = z.infer<typeof UpsertOperationDefSchema>;
+export type PatchOperationDef = z.infer<typeof OperationDefSchema>;
 
 export const ResourceDefinitionSchema = z.object({
   findAll: OperationDefSchema.optional(),
@@ -38,5 +39,7 @@ const DefinitionCallbackSchema = z.function({
 
 export type DefinitionCallback = () => ResourceDefinition;
 
-
-export const DefinitionSchema = z.union([ResourceDefinitionSchema, DefinitionCallbackSchema])
+export const DefinitionSchema = z.union([
+  ResourceDefinitionSchema,
+  DefinitionCallbackSchema,
+]);

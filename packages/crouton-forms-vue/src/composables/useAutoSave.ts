@@ -73,7 +73,8 @@ export const useAutoSave = ({
     try {
       await onSave(data);
       status.value = 'saved';
-    } catch {
+    } catch (error) {
+      console.error(error);
       status.value = 'error';
     }
   };
