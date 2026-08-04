@@ -28,6 +28,12 @@ export type {
   UseAutoSaveOptions,
   UseAutoSaveReturn,
 } from './composables/useAutoSave';
+export {
+  CROUTON_EDITABLE_RENDERERS,
+  CROUTON_READONLY_RENDERERS,
+  provideRenderers,
+  useDefaultRenderers,
+} from './composables/useRendererProvider';
 
 // Components
 export { default as JsonForm } from './forms/FormComponent.vue';

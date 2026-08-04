@@ -3,11 +3,13 @@ import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
+import { CROUTON_EDITABLE_RENDERERS, CROUTON_READONLY_RENDERERS } from '@ghentcdh/crouton-forms-vue';
 
 import { FormDefCache } from './form-def';
 import type { FormDef } from './form-def.types';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
+import { customControlRenderers, relationReadonlyRenderers } from '../resource/renderers';
 import { type CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
@@ -146,5 +148,13 @@ export const createCrouton = (
 ) => ({
   install(app: App) {
     useCrouton().init(api, options);
+    app.provide(CROUTON_EDITABLE_RENDERERS, [
+      ...customControlRenderers,
+      ...(options.renderers ?? []),
+    ]);
+    app.provide(CROUTON_READONLY_RENDERERS, [
+      ...relationReadonlyRenderers,
+      ...(options.readonlyRenderers ?? []),
+    ]);
   },
 });
