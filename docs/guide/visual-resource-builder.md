@@ -31,9 +31,15 @@ fallback chain between them).
 
 Each tab shows `displayKey`, `position`, and (Form/View only) `colspan` as dedicated inputs, plus a raw-JSON field
 for anything else in `options` (a relation's `sort`/`sortDir`, a custom render's own options, etc.) — the visual
-builder doesn't try to build a dedicated control for every possible option. On View/Table, the values shown are
-the _resolved_ ones (what will actually render, falling back through the chain), and each dedicated input has a
-reset (`×`) button that clears it back to inherited rather than pinning a copy of the resolved value at that level.
+builder doesn't try to build a dedicated control for every possible option. `colspan` is a 0–12 select (`12` reads
+as "Full", and is the default — matching the schema's own default) rather than a free-typed number. On View/Table,
+the values shown are the _resolved_ ones (what will actually render, falling back through the chain), and each
+dedicated input has a reset (`×`) button that clears it back to inherited rather than pinning a copy of the
+resolved value at that level.
+
+A tab is hidden entirely when that context's own `hiddenInTable`/`hiddenInForm`/`hiddenInView` checkbox is on —
+there's nothing to render there, so nothing to edit. If a column is hidden everywhere, the row expands to a note
+saying so instead of an empty tab bar.
 
 Saving sends a `PATCH` to `<route>/resource.json` with only the fields that changed, at whichever level they were
 changed — untouched keys are never rewritten, so they keep falling back through `fieldInput → fieldView →
