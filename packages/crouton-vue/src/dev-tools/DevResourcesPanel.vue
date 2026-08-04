@@ -146,11 +146,18 @@ const dismissPlan = () => {
   planResult.value = null;
 };
 
-loadModels();
+// Only hit the backend when it has actually confirmed the visual builder is
+// enabled — otherwise every call below 403s and the panel just looks broken.
+if (crouton.isDev) loadModels();
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 p-4">
+  <div v-if="!crouton.isDev" class="alert alert-warning m-4 text-sm">
+    The database sync tools aren't enabled on the connected backend. Set
+    <code>CROUTON_SCHEMA_EDITOR=true</code> in its <code>.env</code> file and
+    restart it.
+  </div>
+  <div v-else class="flex flex-col gap-6 p-4">
     <section>
       <h3 class="text-lg font-bold mb-2">Generate from database</h3>
       <p class="text-sm opacity-70 mb-2">
