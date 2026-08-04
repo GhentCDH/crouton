@@ -148,6 +148,8 @@ Both forms support the same options:
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                        |
 | `showInLookup`                                    | Shown in autocomplete lookups of this resource                      |
 | `fieldInput`                                      | Form control configuration, see below                               |
+| `fieldView`                                       | Optional per-context override for the read-only view, see below      |
+| `fieldTable`                                      | Optional per-context override for the table cell, see below          |
 
 ### Field inputs
 
@@ -165,6 +167,53 @@ Both forms support the same options:
   }
 }
 ```
+
+### Field variants — `fieldView` / `fieldTable`
+
+By default a single `fieldInput` drives the form, the read-only view, and the
+table cell. A column may additionally declare `fieldView` and/or `fieldTable` to
+render differently per context. Both are optional and have the exact same shape
+as `fieldInput` (every key optional), so a variant overrides only what it needs.
+
+The config that drives each context is resolved through a fallback chain:
+
+- **form** (and filter) ← `fieldInput`
+- **view** ← `fieldView`, falling back to `fieldInput`
+- **table** ← `fieldTable`, falling back to `fieldView`, then `fieldInput`
+
+Resolution is a **deep merge, one level into `options`**: a variant layers over
+the level below it, so you can tweak a single `options` key without repeating
+`format`, `resource`, `relationType`, etc. A value of `null` in a variant
+deletes that inherited key.
+
+```json
+{
+  "column": "author",
+  "label": "Author",
+  "displayKey": "name",
+  "fieldInput": {
+    "format": "relation",
+    "resource": "./author/resource.json",
+    "options": { "display": "autocomplete", "displayKey": "name" }
+  },
+  "fieldView": {
+    "options": { "display": "link" }
+  },
+  "fieldTable": {
+    "options": { "displayKey": "shortName" }
+  }
+}
+```
+
+Here the edit form renders an autocomplete, the read-only view renders a link
+(inheriting `displayKey: "name"` from `fieldInput`), and the table cell renders a
+link (inherited from `fieldView`) keyed by `shortName`.
+
+Resolution runs once inside the JSON transformer at resource-read time, **after**
+relation/URI enrichment, so the resolved `fieldView`/`fieldTable` inherit the
+injected relation options. Columns without any variant produce output identical
+to today's single-`fieldInput` behaviour. `position` may also be overridden per
+variant, giving free per-context ordering.
 
 ## Relations (sub-resources)
 

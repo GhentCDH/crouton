@@ -5,3 +5,4 @@ export * from './TableAction.schema';
 export * from './CalculatedColumn.schema';
 export * from './FieldInput.schema';
 export * from './Column';
+export * from './fieldVariants';

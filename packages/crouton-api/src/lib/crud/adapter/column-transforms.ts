@@ -1,4 +1,8 @@
-import type { JsonColumn } from '@ghentcdh/crouton-core';
+import {
+  type JsonColumn,
+  resolveTableField,
+  resolveViewField,
+} from '@ghentcdh/crouton-core';
 
 import { resolveChildResource } from './resource-resolver';
 import type { ValueLabelColumn } from '../resource/valueLabel';
@@ -127,4 +131,27 @@ export const applyRelationFormatDefault = (
       return { ...col, fieldInput: { ...fi, format: 'relation' } };
     }
     return col;
+  });
+
+/**
+ * Prefill each column's `fieldView`/`fieldTable` with the fully-resolved variant
+ * (the `fieldInput → fieldView → fieldTable` cascade). After this runs, every
+ * consumer sees resolved variants without re-implementing the fallback.
+ *
+ * MUST run AFTER URI/relation enrichment (the last column transform in
+ * `fromJson`), so the resolved view/table variants inherit the injected
+ * `uri`/`resourceUri`/`resource`/`schemasUri` options and derived `relationType`
+ * that enrichment only lands on `fieldInput`. Do not move it earlier.
+ */
+export const resolveColumnFieldVariants = (
+  cols: JsonColumn[] | undefined,
+): JsonColumn[] | undefined =>
+  cols?.map((col) => {
+    const fieldView = resolveViewField(col);
+    const fieldTable = resolveTableField(col);
+    return {
+      ...col,
+      ...(fieldView && { fieldView }),
+      ...(fieldTable && { fieldTable }),
+    };
   });

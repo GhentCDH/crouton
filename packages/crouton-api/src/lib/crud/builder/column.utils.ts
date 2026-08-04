@@ -13,6 +13,26 @@ export const sortByPosition = (cols: JsonColumn[]): JsonColumn[] =>
     .sort((a, b) => colPosition(a.col, a.i) - colPosition(b.col, b.i))
     .map(({ col }) => col);
 
+export type FieldContext = 'form' | 'view' | 'table';
+
+/**
+ * Return a copy of the column whose `fieldInput` is the resolved variant for the
+ * given rendering context, so downstream builders (which all read `fieldInput`)
+ * render the right config without any signature change.
+ *
+ * After the transformer's `resolveColumnFieldVariants` prefill, `fieldView` and
+ * `fieldTable` are already the fully-resolved variants; the `?? col.fieldInput`
+ * guard covers TS-authored `resource.ts` resources that bypass the transformer.
+ */
+export const columnForContext = (
+  col: JsonColumn,
+  ctx: FieldContext,
+): JsonColumn => {
+  if (ctx === 'view') return { ...col, fieldInput: col.fieldView ?? col.fieldInput };
+  if (ctx === 'table') return { ...col, fieldInput: col.fieldTable ?? col.fieldInput };
+  return col; // form / filter → base fieldInput
+};
+
 export const toViewColumn = (col: JsonColumn): ViewColumnConfig => ({
   id: col.id,
   ...(col.label && { label: col.label }),

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { FieldInputSchema } from './FieldInput.schema';
+import { FieldInputSchema, FieldVariantSchema } from './FieldInput.schema';
 
 // Used by showWhen / hideWhen / disabledWhen
 export const WhenConditionSchema = z.object({
@@ -43,6 +43,18 @@ export const JsonColumnSchema = z.object({
   showInLookup: z.boolean().default(false), // default: false
   columnType: z.string().default('string'), // default: 'string'
   fieldInput: FieldInputSchema.optional(),
+  /**
+   * Optional per-context override for the read-only VIEW ui. Same shape as
+   * `fieldInput`; every key optional. Falls back to `fieldInput` (deep-merged
+   * one level into `options`). Resolved at read time by the transformer.
+   */
+  fieldView: FieldVariantSchema.optional(),
+  /**
+   * Optional per-context override for the TABLE ui. Same shape as `fieldInput`;
+   * every key optional. Falls back to `fieldView`, then `fieldInput`.
+   * Resolved at read time by the transformer.
+   */
+  fieldTable: FieldVariantSchema.optional(),
   /**
    * Path to another `resource.json` whose columns are expanded as nested sub-columns
    * under this column's object key.
