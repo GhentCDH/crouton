@@ -9,13 +9,19 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   shims: true,
-  noExternal: ['@ghentcdh/crouton-core'],
+  noExternal: ['@ghentcdh/crouton-core', '@ghentcdh/crouton-codegen'],
   external: [
     '@nestjs/common',
     '@nestjs/core',
     '@nestjs/swagger',
     '@anatine/zod-nestjs',
     '@prisma/client',
+    // Only ever imported lazily by crouton-codegen's introspect() (bundled
+    // in via noExternal above), and only exercised when the dev-only
+    // resource-sync endpoints are actually called. Kept external so it
+    // resolves from the consuming app's own node_modules (alongside their
+    // `prisma` dev dependency) rather than being bundled here.
+    '@prisma/internals',
     'zod',
   ],
   esbuildOptions(options) {

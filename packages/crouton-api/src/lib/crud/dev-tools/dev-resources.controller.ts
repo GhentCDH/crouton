@@ -1,0 +1,298 @@
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Post,
+} from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { type DataSource } from '@ghentcdh/crouton-core';
+import {
+  type ApplyContext,
+  type DbModel,
+  type LoadedConfig,
+  apply as applyDiff,
+  buildResourceDiff,
+  buildResourceDiffs,
+  commit,
+  introspect,
+  listResourceNames,
+  loadConfig,
+  loadDatasources,
+  makeRelationResolver,
+  makeSchemaExportName,
+  readExistingResource,
+  recommendedResolver,
+  resolve as resolveDiff,
+  resolveDatasource,
+  resolveFromRoot,
+  resolveRuleset,
+} from '@ghentcdh/crouton-codegen';
+
+import { IS_DEV } from '../dev-mode';
+
+/**
+ * Dev-only endpoints that reuse the `@ghentcdh/crouton-codegen` engine
+ * (already built for the `crouton update resources` CLI command) directly
+ * from a running backend request, so the visual resource builder can
+ * generate a resource.json for a new DB table, or preview/apply a full
+ * database sync, without shelling out to the CLI.
+ *
+ * Hard-gated to `IS_DEV` (`CROUTON_SCHEMA_EDITOR` env var) both at the
+ * controller-registration level (see `crouton-api.module.ts`) and again on
+ * every handler here, mirroring the pattern used by the schema editor's
+ * PATCH/GET endpoints in `register-schema-endpoints.ts`.
+ *
+ * Deliberately does NOT run `prisma db pull` or `prisma generate` — only the
+ * *current* `schema.prisma` on disk is introspected. Pulling the live DB
+ * schema is destructive to the Prisma schema file and credential-sensitive;
+ * that stays a CLI-only, explicitly-confirmed operation for now (see
+ * VISUAL_RESOURCE_BUILDER_PLAN.md, optional phases).
+ */
+@Controller('_app/resources')
+@ApiTags('Dev tools')
+export class DevResourcesController {
+  private assertDev(): void {
+    if (!IS_DEV) {
+      throw new ForbiddenException(
+        'The database sync tools are only available when CROUTON_SCHEMA_EDITOR is enabled.',
+      );
+    }
+  }
+
+  /** Loads project config + resolves the datasource + Prisma schema path. Throws 404/400 with a clear message on misconfiguration. */
+  private async loadProject(
+    datasourceName?: string,
+  ): Promise<{ loaded: LoadedConfig; ds: DataSource; schemaPath: string }> {
+    let loaded: LoadedConfig;
+    try {
+      loaded = await loadConfig(process.cwd());
+    } catch (e) {
+      throw new NotFoundException(
+        (e as Error).message ?? 'No crouton.json config found.',
+      );
+    }
+
+    const datasources = await loadDatasources(loaded);
+    let ds: DataSource;
+    try {
+      ds = resolveDatasource(datasources, datasourceName);
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
+    }
+
+    const schemaPath = resolveFromRoot(loaded.root, ds.prismaSchema);
+    return { loaded, ds, schemaPath };
+  }
+
+  private async introspectModels(schemaPath: string): Promise<DbModel[]> {
+    try {
+      return await introspect({ schemaPath });
+    } catch (e) {
+      throw new BadRequestException(
+        `Failed to read Prisma schema at ${schemaPath}: ${(e as Error).message}`,
+      );
+    }
+  }
+
+  private buildApplyContext(
+    loaded: LoadedConfig,
+    ds: DataSource,
+  ): ApplyContext {
+    return {
+      resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
+      generatedTypesImport: ds.generatedTypesImport,
+      schemaExportName: makeSchemaExportName(loaded.config),
+    };
+  }
+
+  @Get('models')
+  @ApiOperation({
+    summary:
+      'Dev-only: list DB models from the Prisma schema, flagging which already have a resource.json',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'DB models and their resource status',
+  })
+  async listModels(): Promise<{
+    models: {
+      prismaName: string;
+      clientAccessor: string;
+      hasResource: boolean;
+    }[];
+  }> {
+    this.assertDev();
+    const { loaded, schemaPath } = await this.loadProject();
+    const models = await this.introspectModels(schemaPath);
+    const existing = new Set(await listResourceNames(loaded));
+
+    return {
+      models: models.map((m) => ({
+        prismaName: m.prismaName,
+        clientAccessor: m.clientAccessor,
+        hasResource: existing.has(m.clientAccessor),
+      })),
+    };
+  }
+
+  @Post('sync')
+  @ApiOperation({
+    summary:
+      'Dev-only: generate or update a single resource.json from its DB model, using recommended defaults (non-interactive)',
+  })
+  @ApiResponse({ status: 200, description: 'Files written for this resource' })
+  async sync(
+    @Body() body: { model: string; datasource?: string },
+  ): Promise<{
+    resource: string;
+    isNew: boolean;
+    written: string[];
+    skipped: string[];
+  }> {
+    this.assertDev();
+    if (!body?.model) {
+      throw new BadRequestException('"model" is required.');
+    }
+
+    const { loaded, ds, schemaPath } = await this.loadProject(body.datasource);
+    const models = await this.introspectModels(schemaPath);
+    const model = models.find(
+      (m) => m.prismaName === body.model || m.clientAccessor === body.model,
+    );
+    if (!model) {
+      throw new NotFoundException(
+        `Model "${body.model}" not found in ${schemaPath}.`,
+      );
+    }
+
+    const resolveRelationResource = await makeRelationResolver(loaded);
+    const diff = await buildResourceDiff(model, {
+      database: ds.name,
+      ruleset: resolveRuleset(loaded.config),
+      resolveRelationResource,
+      readExisting: (name) => readExistingResource(loaded, name),
+    });
+    const resolved = await resolveDiff(diff, recommendedResolver);
+    const plan = applyDiff(resolved, this.buildApplyContext(loaded, ds));
+    const result = await commit(plan);
+
+    return { resource: diff.name, isNew: diff.isNew, ...result };
+  }
+
+  @Post('plan')
+  @ApiOperation({
+    summary:
+      'Dev-only: dry-run introspect + diff across all (or selected) DB models using recommended defaults — computes what would change, writes nothing',
+  })
+  @ApiResponse({ status: 200, description: 'Proposed per-resource changes' })
+  async plan(
+    @Body() body: { models?: string[]; datasource?: string } = {},
+  ): Promise<{
+    resources: {
+      resource: string;
+      model: string;
+      isNew: boolean;
+      decisions: unknown[];
+      files: { path: string; action: string }[];
+      notes: string[];
+    }[];
+  }> {
+    this.assertDev();
+    const { loaded, ds, schemaPath } = await this.loadProject(body.datasource);
+    const allModels = await this.introspectModels(schemaPath);
+    const models = body.models?.length
+      ? allModels.filter(
+          (m) =>
+            body.models!.includes(m.prismaName) ||
+            body.models!.includes(m.clientAccessor),
+        )
+      : allModels;
+
+    const resolveRelationResource = await makeRelationResolver(loaded);
+    const diffs = await buildResourceDiffs(models, {
+      database: ds.name,
+      ruleset: resolveRuleset(loaded.config),
+      resolveRelationResource,
+      readExisting: (name) => readExistingResource(loaded, name),
+    });
+    const applyCtx = this.buildApplyContext(loaded, ds);
+
+    const resources: {
+      resource: string;
+      model: string;
+      isNew: boolean;
+      decisions: unknown[];
+      files: { path: string; action: string }[];
+      notes: string[];
+    }[] = [];
+
+    for (const diff of diffs) {
+      const resolved = await resolveDiff(diff, recommendedResolver);
+      const writePlan = applyDiff(resolved, applyCtx);
+      // No-op diffs (nothing to write, nothing to warn about) are omitted —
+      // re-running against an unchanged DB schema should show an empty list.
+      if (writePlan.files.length === 0 && writePlan.notes.length === 0)
+        continue;
+
+      resources.push({
+        resource: diff.name,
+        model: diff.model,
+        isNew: diff.isNew,
+        decisions: diff.decisions,
+        files: writePlan.files.map((f) => ({ path: f.path, action: f.action })),
+        notes: writePlan.notes,
+      });
+    }
+
+    return { resources };
+  }
+
+  @Post('apply')
+  @ApiOperation({
+    summary:
+      'Dev-only: commit resource.json/schema.ts changes to disk for the given resources (or all, if omitted), using recommended defaults',
+  })
+  @ApiResponse({ status: 200, description: 'Per-resource commit results' })
+  async apply(
+    @Body() body: { resources?: string[]; datasource?: string } = {},
+  ): Promise<{
+    results: { resource: string; written: string[]; skipped: string[] }[];
+  }> {
+    this.assertDev();
+    const { loaded, ds, schemaPath } = await this.loadProject(body.datasource);
+    const allModels = await this.introspectModels(schemaPath);
+    // `resources` filters by resource/directory name (== clientAccessor for
+    // new resources) — matches what /plan returns as `resource`.
+    const models = body.resources?.length
+      ? allModels.filter((m) => body.resources!.includes(m.clientAccessor))
+      : allModels;
+
+    const resolveRelationResource = await makeRelationResolver(loaded);
+    const diffs = await buildResourceDiffs(models, {
+      database: ds.name,
+      ruleset: resolveRuleset(loaded.config),
+      resolveRelationResource,
+      readExisting: (name) => readExistingResource(loaded, name),
+    });
+    const applyCtx = this.buildApplyContext(loaded, ds);
+
+    const results: {
+      resource: string;
+      written: string[];
+      skipped: string[];
+    }[] = [];
+    for (const diff of diffs) {
+      const resolved = await resolveDiff(diff, recommendedResolver);
+      const writePlan = applyDiff(resolved, applyCtx);
+      if (writePlan.files.length === 0) continue;
+      const result = await commit(writePlan);
+      results.push({ resource: diff.name, ...result });
+    }
+
+    return { results };
+  }
+}
