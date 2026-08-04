@@ -25,9 +25,11 @@ export const AppConfig = {
    */
   autoSave: true,
   /**
-   * Whether the connected backend is running in local dev mode (`NODE_ENV !== 'production'`).
-   * Served by the backend via `GET /_app/layout`. Gates dev-only UI such as the resource
-   * schema editor. Defaults to `false` so dev-only affordances stay hidden until confirmed.
+   * Whether the connected backend has the visual resource builder enabled
+   * (backend env var `CROUTON_SCHEMA_EDITOR`, defaults to `false` when unset).
+   * Served by the backend via `GET /_app/layout`. Gates dev-only UI such as the
+   * resource schema editor. Defaults to `false` here too, so dev-only
+   * affordances stay hidden until the backend confirms it's enabled.
    */
   isDev: false,
   /** Extra control renderers merged on top of the built-in crouton renderers in form/edit modals. */
