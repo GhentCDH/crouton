@@ -47,6 +47,16 @@ export class DataSourceRegistry implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
+    await this.disconnectAll();
+  }
+
+  /**
+   * Disconnect every datasource's Prisma client. Exposed publicly (in
+   * addition to `onModuleDestroy`) for the dev-only "restart backend"
+   * action, which calls this deliberately before `process.exit()` so the
+   * next process boot doesn't inherit dangling DB connections.
+   */
+  async disconnectAll(): Promise<void> {
     for (const client of this.clients.values()) {
       if (typeof client.$disconnect === 'function') {
         await client.$disconnect();

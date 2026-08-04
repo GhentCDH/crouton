@@ -71,6 +71,14 @@ and a banner appears at the top of Dev tools after a pull (or whenever any known
 client) telling you to restart. Generating a `resource.json` for such a model still works — only _using_ that
 resource (viewing/creating/editing records through it) needs the restart first.
 
+The banner includes a **Restart backend now** button. It calls `POST /_app/resources/restart`, which disconnects
+every datasource's Prisma client and then exits the process (`process.exit(1)`) shortly after responding. That
+only actually restarts anything if this process is supervised by something that reacts to it exiting — `nodemon`,
+`nest start --watch`, `pm2`, a Docker restart policy, or similar. Without one, clicking it just stops the backend;
+if that happens, restart it by hand the way you normally would. When there is a supervisor, the panel polls
+`GET /_app/resources/models` every second for up to 30s and clears the banner automatically once the backend
+answers again.
+
 ### Generate from database
 
 Lists Prisma models that don't have a resource yet. Clicking **Generate** for a model runs introspection and writes
@@ -106,6 +114,7 @@ All of the following return `403` unless `CROUTON_SCHEMA_EDITOR` is enabled.
 | `<route>/resource.json`    | `PATCH` | Merge a column patch into that resource's `resource.json`.                                                  |
 | `/_app/resources/models`   | `GET`   | Prisma models, whether each has a resource, and whether the running backend's Prisma client can use it yet. |
 | `/_app/resources/pull`     | `POST`  | `db pull` + case-format + `generate` for a datasource; needs DB credentials.                                |
+| `/_app/resources/restart`  | `POST`  | Disconnects datasources and exits the process; needs an external supervisor to actually restart it.         |
 | `/_app/resources/sync`     | `POST`  | Generate a `resource.json` for a single model.                                                              |
 | `/_app/resources/plan`     | `POST`  | Diff resources (all or selected) against the database; dry run.                                             |
 | `/_app/resources/apply`    | `POST`  | Write the resources chosen from a `plan` response.                                                          |

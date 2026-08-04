@@ -94,6 +94,44 @@ const cancelPull = () => {
   pullDirtyFile.value = null;
 };
 
+// ── "Restart backend now" — exits this process for a supervisor to restart ─
+
+type RestartState = 'idle' | 'requesting' | 'waiting' | 'timedOut';
+const restartState = ref<RestartState>('idle');
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Polls GET models until it responds again (the restarted process is back up) or a timeout is hit. */
+const waitForBackend = async () => {
+  restartState.value = 'waiting';
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    await sleep(1000);
+    try {
+      await useApi().get('/_app/resources/models');
+      restartState.value = 'idle';
+      restartRequired.value = false;
+      await Promise.all([loadModels(), refreshAfterSync()]);
+      return;
+    } catch {
+      // Still down (or restarting) — keep polling until the deadline.
+    }
+  }
+  restartState.value = 'timedOut';
+};
+
+const restartBackend = async () => {
+  restartState.value = 'requesting';
+  try {
+    await useApi().post('/_app/resources/restart', {});
+  } catch {
+    // The process may exit mid-response, which axios can surface as a
+    // network error even though the restart was triggered successfully —
+    // that's expected here, so fall through to polling either way.
+  }
+  await waitForBackend();
+};
+
 // ── "Generate from database" — one table at a time ────────────────────────
 
 const models = ref<DbModelSummary[]>([]);
@@ -214,12 +252,41 @@ if (crouton.isDev) loadModels();
   </div>
   <div v-else class="flex flex-col gap-6 p-4">
     <div
-      v-if="restartRequired || anyModelNeedsRestart"
-      class="alert alert-warning text-sm font-semibold"
+      v-if="
+        (restartRequired || anyModelNeedsRestart) && restartState === 'idle'
+      "
+      class="alert alert-warning text-sm"
     >
-      Restart the backend now. Its Prisma client was built at process start and
-      won't see newly pulled/changed models until it restarts — using one before
-      then throws "Model ... not found on the provided PrismaClient".
+      <div class="flex items-center justify-between gap-4">
+        <p class="font-semibold">
+          Restart the backend now. Its Prisma client was built at process start
+          and won't see newly pulled/changed models until it restarts — using
+          one before then throws "Model ... not found on the provided
+          PrismaClient".
+        </p>
+        <Btn @click="restartBackend">Restart backend now</Btn>
+      </div>
+      <p class="text-xs opacity-70 mt-1">
+        Only works if this process is supervised by something that restarts it
+        on exit (nodemon, <code>nest start --watch</code>, pm2, a Docker restart
+        policy, ...) — otherwise it just stops the backend.
+      </p>
+    </div>
+
+    <div
+      v-if="restartState === 'requesting' || restartState === 'waiting'"
+      class="alert alert-info text-sm"
+    >
+      Restarting… waiting for the backend to come back
+      <span class="loading loading-dots loading-xs ml-1" />
+    </div>
+    <div v-if="restartState === 'timedOut'" class="alert alert-error text-sm">
+      <p>
+        The backend hasn't come back after 30s. Either it's still starting, or
+        nothing is configured to restart it automatically — check your terminal,
+        or restart it by hand.
+      </p>
+      <Btn class="mt-2" @click="waitForBackend">Keep waiting</Btn>
     </div>
 
     <section>

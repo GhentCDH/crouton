@@ -55,11 +55,11 @@ import {
  * every handler here, mirroring the pattern used by the schema editor's
  * PATCH/GET endpoints in `register-schema-endpoints.ts`.
  *
- * `pull` (below) is the one handler that *does* touch the live database and
- * the Prisma schema file — it needs real DB credentials and mutates
- * `schema.prisma` in place (backed up first, mirroring the CLI). Every other
- * handler here only reads the Prisma client/Zod types already generated on
- * disk.
+ * `pull` and `restart` (below) are the two handlers that go beyond reading
+ * files: `pull` touches the live database and the Prisma schema file (needs
+ * real DB credentials, mutates `schema.prisma` in place, backed up first,
+ * mirroring the CLI); `restart` exits this very process. Every other handler
+ * here only reads the Prisma client/Zod types already generated on disk.
  *
  * Note that `pull` regenerating the Prisma client on disk does not affect
  * *this* running process — `DataSourceRegistry` holds a client instance
@@ -177,6 +177,33 @@ export class DevResourcesController {
         availableOnClient: this.isAvailableOnClient(ds, m.clientAccessor),
       })),
     };
+  }
+
+  @Post('restart')
+  @ApiOperation({
+    summary:
+      "Dev-only: exit this process so a dev watcher/process manager (nodemon, `nest start --watch`, pm2, a Docker restart policy, ...) restarts it with a fresh Prisma client. Does nothing useful if this process isn't supervised by one of those.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Restart scheduled — the connection will drop shortly after',
+  })
+  restart(): { restarting: true } {
+    this.assertDev();
+    // Give Nest/Express time to flush this response over the socket before
+    // the process disappears — the frontend needs to see `{ restarting:
+    // true }` to know the exit was intentional, not a crash mid-request.
+    // A non-zero exit code is used deliberately: pm2, Docker restart
+    // policies, and most "restart on crash" nodemon configs treat that as
+    // "needs a restart" more reliably than a clean (0) exit, which several
+    // tools instead read as "stopped on purpose, leave it stopped".
+    setTimeout(() => {
+      this.dataSourceRegistry
+        .disconnectAll()
+        .catch(() => undefined)
+        .finally(() => process.exit(1));
+    }, 250);
+    return { restarting: true };
   }
 
   @Post('pull')
