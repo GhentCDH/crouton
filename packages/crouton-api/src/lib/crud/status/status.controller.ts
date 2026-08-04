@@ -10,8 +10,8 @@ export const createStatusController = () => {
   @ApiTags('Status')
   class StatusController {
     constructor(
-      private readonly dataSourceRegistry: DataSourceRegistry,
-      private readonly configRegistry: ResourceConfigRegistry,
+      public readonly dataSourceRegistry: DataSourceRegistry,
+      public readonly configRegistry: ResourceConfigRegistry,
     ) {}
 
     @Get('status.json')
