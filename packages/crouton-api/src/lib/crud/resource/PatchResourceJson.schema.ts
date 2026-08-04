@@ -1,13 +1,39 @@
 import { z } from 'zod';
 
 /**
+ * A per-context field-variant patch (`fieldInput`/`fieldView`/`fieldTable`).
+ * Mirrors crouton-core's `FieldVariantSchema` shape loosely — `options` is a
+ * catchall since a column's real option set depends on its `format`/`type`
+ * (relation vs. plain vs. custom render) and the visual builder can't know
+ * that ahead of time.
+ *
+ * Every key accepts `null`, matching `mergeFieldVariant`'s (crouton-core)
+ * "a `null` value deletes an inherited key" convention — this is how the
+ * editor's "reset to inherited" action works: it sends `null` for a key so
+ * the column falls back to whatever the level below it (`fieldView` →
+ * `fieldInput`, or `fieldTable` → `fieldView` → `fieldInput`) resolves to,
+ * rather than pinning a copy of the resolved value at this level.
+ */
+const FieldVariantPatchSchema = z
+  .object({
+    type: z.string().nullable().optional(),
+    format: z.string().nullable().optional(),
+    resource: z.string().nullable().optional(),
+    position: z.number().nullable().optional(),
+    options: z.record(z.string(), z.unknown().nullable()).optional(),
+  })
+  .partial();
+
+export type FieldVariantPatch = z.infer<typeof FieldVariantPatchSchema>;
+
+/**
  * Request body for `PATCH <route>/resource.json` — the visual resource
  * builder's edit endpoint (dev-mode only, see `dev-mode.ts`).
  *
- * Deliberately narrow for the MVP: only the display attributes the visual
- * builder exposes can be patched (label/column/visibility/position/colspan).
- * Adding/removing columns, changing `fieldInput.type`, or editing relations
- * is out of scope — see `VISUAL_RESOURCE_BUILDER_PLAN.md`.
+ * Covers the display attributes the visual builder exposes: label/column,
+ * visibility (`hiddenInTable/Form/View`), and the three field-variant
+ * patches. Adding/removing columns is still out of scope — see
+ * `FIELD_VARIANTS_EDITOR_PLAN.md`.
  */
 export const PatchColumnSchema = z
   .object({
@@ -16,18 +42,9 @@ export const PatchColumnSchema = z
     hiddenInTable: z.boolean().optional(),
     hiddenInForm: z.boolean().optional(),
     hiddenInView: z.boolean().optional(),
-    fieldInput: z
-      .object({
-        position: z.number().optional(),
-        options: z
-          .object({
-            colspan: z.number().min(1).max(4).optional(),
-          })
-          .partial()
-          .optional(),
-      })
-      .partial()
-      .optional(),
+    fieldInput: FieldVariantPatchSchema.optional(),
+    fieldView: FieldVariantPatchSchema.optional(),
+    fieldTable: FieldVariantPatchSchema.optional(),
   })
   .partial();
 

@@ -1,6 +1,11 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
-import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
+import {
+  type FieldInput,
+  type FieldVariant,
+  mergeFieldVariant,
+  ResourceJsonSchema,
+} from '@ghentcdh/crouton-core';
 
 import type {
   PatchColumn,
@@ -30,35 +35,38 @@ export const readRawResourceJson = (
   return JSON.parse(readFileSync(jsonPath, 'utf-8'));
 };
 
-const deepMergeFieldInput = (
-  existing: Record<string, unknown> | undefined,
-  patch: NonNullable<PatchColumn['fieldInput']>,
-): Record<string, unknown> => {
-  const merged: Record<string, unknown> = { ...(existing ?? {}), ...patch };
-  if (patch.options) {
-    merged['options'] = {
-      ...((existing?.['options'] as Record<string, unknown>) ?? {}),
-      ...patch.options,
-    };
-  }
-  return merged;
-};
+const FIELD_VARIANT_KEYS = ['fieldInput', 'fieldView', 'fieldTable'] as const;
+type FieldVariantKey = (typeof FIELD_VARIANT_KEYS)[number];
 
+/**
+ * Merges each of `fieldInput`/`fieldView`/`fieldTable` present on the patch
+ * into the column's existing raw value for that key, via crouton-core's
+ * `mergeFieldVariant` — the same function that resolves the
+ * `fieldInput → fieldView → fieldTable` fallback chain elsewhere, so a patch
+ * follows identical "deep-merge one level into `options`, `null` deletes an
+ * inherited key" semantics instead of a second bespoke implementation.
+ */
 const mergeColumn = (
   existing: Record<string, unknown>,
   patch: PatchColumn,
 ): Record<string, unknown> => {
-  const { fieldInput: patchFieldInput, ...rest } = patch;
-  return {
-    ...existing,
-    ...rest,
-    ...(patchFieldInput && {
-      fieldInput: deepMergeFieldInput(
-        existing['fieldInput'] as Record<string, unknown> | undefined,
-        patchFieldInput,
-      ),
-    }),
+  const { fieldInput, fieldView, fieldTable, ...rest } = patch;
+  const variantPatches: Partial<Record<FieldVariantKey, unknown>> = {
+    fieldInput,
+    fieldView,
+    fieldTable,
   };
+
+  const merged: Record<string, unknown> = { ...existing, ...rest };
+  for (const key of FIELD_VARIANT_KEYS) {
+    const variantPatch = variantPatches[key];
+    if (!variantPatch) continue;
+    merged[key] = mergeFieldVariant(
+      existing[key] as FieldInput | undefined,
+      variantPatch as FieldVariant,
+    );
+  }
+  return merged;
 };
 
 /**

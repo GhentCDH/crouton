@@ -24,16 +24,24 @@ render when the connected backend reports `isDev: true`.
 ## Editing fields
 
 Every resource table gets an **Edit fields** button next to **Add record** when dev mode is on. It opens a modal
-listing each column with:
+listing each column with `label`, `column`, and `hiddenInTable`/`hiddenInForm`/`hiddenInView` checkboxes, plus an
+expandable row per column with a **Form** / **View** / **Table** tab for editing that context's field config —
+`fieldInput`, `fieldView`, and `fieldTable` respectively (see [resource.json](./resource-json.md) for the
+fallback chain between them).
 
-- `label` and `column`
-- `fieldInput.position` and `fieldInput.options.colspan`
-- `hiddenInTable`, `hiddenInForm`, `hiddenInView` checkboxes
+Each tab shows `displayKey`, `position`, and (Form/View only) `colspan` as dedicated inputs, plus a raw-JSON field
+for anything else in `options` (a relation's `sort`/`sortDir`, a custom render's own options, etc.) — the visual
+builder doesn't try to build a dedicated control for every possible option. On View/Table, the values shown are
+the _resolved_ ones (what will actually render, falling back through the chain), and each dedicated input has a
+reset (`×`) button that clears it back to inherited rather than pinning a copy of the resolved value at that level.
 
-Saving sends a `PATCH` to `<route>/resource.json` with only the fields that changed, which are merged into the
-existing file and written back with a stable `JSON.stringify(config, null, 2)` — untouched fields and formatting
-elsewhere in the file are left alone. The frontend then invalidates that resource's cached form definition, so the
-table and form reflect the change immediately without a reload.
+Saving sends a `PATCH` to `<route>/resource.json` with only the fields that changed, at whichever level they were
+changed — untouched keys are never rewritten, so they keep falling back through `fieldInput → fieldView →
+fieldTable` on their own. The merge (including "a `null` value clears an inherited key") reuses the same
+`mergeFieldVariant` that resolves the fallback chain everywhere else, so a patch behaves identically to a
+hand-edited `resource.json`. The file is written back with a stable `JSON.stringify(config, null, 2)` — untouched
+fields and formatting elsewhere in the file are left alone. The frontend then invalidates that resource's cached
+form definition, so the table, form, and view reflect the change immediately without a reload.
 
 There's no locking: if two people edit the same resource at once, the last save wins. This is an accepted MVP
 trade-off, not a bug.
