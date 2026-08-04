@@ -1,5 +1,6 @@
-import { JsonColumnSchema } from '@ghentcdh/crouton-core';
 import { describe, expect, it } from 'vitest';
+
+import { JsonColumnSchema } from '@ghentcdh/crouton-core';
 
 import { resolveColumnFieldVariants } from './column-transforms';
 

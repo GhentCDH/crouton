@@ -1,9 +1,10 @@
-import { JsonColumnSchema } from '@ghentcdh/crouton-core';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { resolveColumnFieldVariants } from '../adapter/column-transforms';
+import { JsonColumnSchema } from '@ghentcdh/crouton-core';
+
 import { buildViews } from './view.builder';
+import { resolveColumnFieldVariants } from '../adapter/column-transforms';
 
 const schema = z.object({ id: z.string(), name: z.string() });
 
