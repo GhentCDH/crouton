@@ -1,8 +1,7 @@
-import { join } from 'node:path';
 
 import {
-  Body,
   BadRequestException,
+  Body,
   ForbiddenException,
   Get,
   NotFoundException,
@@ -12,8 +11,8 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { IS_DEV } from '../dev-mode';
 import {
-  PatchResourceJsonSchema,
   type PatchResourceJson,
+  PatchResourceJsonSchema,
 } from '../resource/PatchResourceJson.schema';
 import {
   applyColumnPatch,
@@ -31,6 +30,7 @@ import {
   buildResourceJsonPayload,
   buildViewsPayload,
 } from './payload-builders';
+import { join } from 'node:path';
 
 /**
  * Register `GET /definition` — returns the resource's enabled operations and JSON Schemas.

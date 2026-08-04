@@ -36,6 +36,8 @@
           </template>
 
           <!-- Dev-only: visual resource builder's database sync tools. -->
+        </ul>
+        <ul class="menu w-full">
           <li v-if="app.isDev">
             <RouterLink
               :to="{ name: CROUTON_DEV_RESOURCES }"
@@ -45,7 +47,6 @@
             </RouterLink>
           </li>
         </ul>
-
         <div class="bg-base-200 p-4 text-gray-500 text-sm">
           version: {{ app.version }}
         </div>

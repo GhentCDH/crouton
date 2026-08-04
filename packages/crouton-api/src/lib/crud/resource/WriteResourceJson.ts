@@ -1,16 +1,16 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 import {
   type FieldInput,
   type FieldVariant,
-  mergeFieldVariant,
   ResourceJsonSchema,
+  mergeFieldVariant,
 } from '@ghentcdh/crouton-core';
 
 import type {
   PatchColumn,
   PatchResourceJson,
 } from './PatchResourceJson.schema';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 /**
  * Backs the visual resource builder's `PATCH <route>/resource.json` endpoint.

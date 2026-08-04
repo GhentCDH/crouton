@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { type DataSource } from '@ghentcdh/crouton-core';
 import {
   type ApplyContext,
   type DbModel,
@@ -31,8 +30,9 @@ import {
   resolveFromRoot,
   resolveRuleset,
 } from '@ghentcdh/crouton-codegen';
+import { type DataSource } from '@ghentcdh/crouton-core';
 
-import { DataSourceRegistry } from '../data-source';
+import { type DataSourceRegistry } from '../data-source';
 import { IS_DEV } from '../dev-mode';
 import {
   backupSchema,
@@ -182,7 +182,7 @@ export class DevResourcesController {
   @Post('restart')
   @ApiOperation({
     summary:
-      "Dev-only: exit this process so a dev watcher/process manager (nodemon, `nest start --watch`, pm2, a Docker restart policy, ...) restarts it with a fresh Prisma client. Does nothing useful if this process isn't supervised by one of those.",
+      'Dev-only: exit this process so a dev watcher/process manager (nodemon, `nest start --watch`, pm2, a Docker restart policy, ...) restarts it with a fresh Prisma client. Does nothing useful if this process isn\'t supervised by one of those.',
   })
   @ApiResponse({
     status: 200,
