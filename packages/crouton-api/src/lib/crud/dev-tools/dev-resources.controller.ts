@@ -32,6 +32,7 @@ import {
   resolveRuleset,
 } from '@ghentcdh/crouton-codegen';
 
+import { DataSourceRegistry } from '../data-source';
 import { IS_DEV } from '../dev-mode';
 import {
   backupSchema,
@@ -59,10 +60,19 @@ import {
  * `schema.prisma` in place (backed up first, mirroring the CLI). Every other
  * handler here only reads the Prisma client/Zod types already generated on
  * disk.
+ *
+ * Note that `pull` regenerating the Prisma client on disk does not affect
+ * *this* running process — `DataSourceRegistry` holds a client instance
+ * built once at boot, so brand-new models exist in `schema.prisma` (and thus
+ * in `GET models`) before they're actually usable here. See
+ * `isAvailableOnClient` below; the backend needs an actual restart before a
+ * newly pulled model can be generated/synced without throwing.
  */
 @Controller('_app/resources')
 @ApiTags('Dev tools')
 export class DevResourcesController {
+  constructor(private readonly dataSourceRegistry: DataSourceRegistry) {}
+
   private assertDev(): void {
     if (!IS_DEV) {
       throw new ForbiddenException(
@@ -117,24 +127,45 @@ export class DevResourcesController {
     };
   }
 
+  /**
+   * True when `clientAccessor` exists on the *currently running* Prisma
+   * client for this datasource. `DataSourceRegistry` holds a client instance
+   * built once at process boot (see `data-source.registry.ts`); `prisma
+   * generate` rewrites the generated client code on disk, but can't change
+   * the shape of an already-instantiated object in a running Node process.
+   * A model added by `pull` therefore exists in `schema.prisma` (and shows up
+   * here via `introspect`, which reads that file directly) before it exists
+   * on this live client — using it before a restart throws "Model ... not
+   * found on the provided PrismaClient" from `createCrudRepository`.
+   */
+  private isAvailableOnClient(ds: DataSource, clientAccessor: string): boolean {
+    try {
+      const client = this.dataSourceRegistry.resolve(ds.name);
+      return typeof client?.[clientAccessor] !== 'undefined';
+    } catch {
+      return false;
+    }
+  }
+
   @Get('models')
   @ApiOperation({
     summary:
-      'Dev-only: list DB models from the Prisma schema, flagging which already have a resource.json',
+      'Dev-only: list DB models from the Prisma schema, flagging which already have a resource.json and whether the running backend can actually use them yet',
   })
   @ApiResponse({
     status: 200,
-    description: 'DB models and their resource status',
+    description: 'DB models and their resource/client status',
   })
   async listModels(): Promise<{
     models: {
       prismaName: string;
       clientAccessor: string;
       hasResource: boolean;
+      availableOnClient: boolean;
     }[];
   }> {
     this.assertDev();
-    const { loaded, schemaPath } = await this.loadProject();
+    const { loaded, ds, schemaPath } = await this.loadProject();
     const models = await this.introspectModels(schemaPath);
     const existing = new Set(await listResourceNames(loaded));
 
@@ -143,6 +174,7 @@ export class DevResourcesController {
         prismaName: m.prismaName,
         clientAccessor: m.clientAccessor,
         hasResource: existing.has(m.clientAccessor),
+        availableOnClient: this.isAvailableOnClient(ds, m.clientAccessor),
       })),
     };
   }
@@ -163,6 +195,12 @@ export class DevResourcesController {
     requiresConfirmation?: boolean;
     dirtyFile?: string;
     ok?: boolean;
+    /**
+     * Always true on success: this process's Prisma client was built at boot
+     * and can't pick up model changes from a fresh `prisma generate` without
+     * restarting — see `isAvailableOnClient` above.
+     */
+    restartRequired?: boolean;
     backupPath?: string;
     dbPull?: { ok: boolean; output: string };
     caseFormat?: { ok: boolean; output: string };
@@ -201,6 +239,7 @@ export class DevResourcesController {
 
     return {
       ok: true,
+      restartRequired: true,
       backupPath,
       dbPull,
       caseFormat,

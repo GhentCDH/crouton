@@ -58,6 +58,19 @@ pulled schema is still usable even if one of those later steps fails.
 This step only refreshes `schema.prisma` and the generated Prisma client/Zod types — it doesn't write any
 `resource.json` files. Run **Generate from database** or **Reload from database** afterwards for that.
 
+#### Restart the backend after pulling
+
+`prisma generate` rewrites the generated client code on disk, but the **running** backend process already has a
+Prisma client instance built from whatever that code looked like at boot — Node doesn't hot-swap the shape of an
+already-instantiated object. A model added or renamed by `pull` exists in `schema.prisma` immediately (so it shows
+up in **Generate from database**, since that list comes from introspecting the file directly), but using it
+before the backend restarts throws `Model "..." not found on the provided PrismaClient`.
+
+The panel tracks this: models not yet available on the running client are flagged with a **needs restart** badge,
+and a banner appears at the top of Dev tools after a pull (or whenever any known model is missing from the live
+client) telling you to restart. Generating a `resource.json` for such a model still works — only _using_ that
+resource (viewing/creating/editing records through it) needs the restart first.
+
 ### Generate from database
 
 Lists Prisma models that don't have a resource yet. Clicking **Generate** for a model runs introspection and writes
@@ -87,12 +100,12 @@ the running backend.
 
 All of the following return `403` unless `CROUTON_SCHEMA_EDITOR` is enabled.
 
-| Endpoint                   | Method  | Description                                                                  |
-| -------------------------- | ------- | ---------------------------------------------------------------------------- |
-| `<route>/resource-columns` | `GET`   | Editable column list for one resource.                                       |
-| `<route>/resource.json`    | `PATCH` | Merge a column patch into that resource's `resource.json`.                   |
-| `/_app/resources/models`   | `GET`   | Prisma models and whether each already has a resource.                       |
-| `/_app/resources/pull`     | `POST`  | `db pull` + case-format + `generate` for a datasource; needs DB credentials. |
-| `/_app/resources/sync`     | `POST`  | Generate a `resource.json` for a single model.                               |
-| `/_app/resources/plan`     | `POST`  | Diff resources (all or selected) against the database; dry run.              |
-| `/_app/resources/apply`    | `POST`  | Write the resources chosen from a `plan` response.                           |
+| Endpoint                   | Method  | Description                                                                                                 |
+| -------------------------- | ------- | ----------------------------------------------------------------------------------------------------------- |
+| `<route>/resource-columns` | `GET`   | Editable column list for one resource.                                                                      |
+| `<route>/resource.json`    | `PATCH` | Merge a column patch into that resource's `resource.json`.                                                  |
+| `/_app/resources/models`   | `GET`   | Prisma models, whether each has a resource, and whether the running backend's Prisma client can use it yet. |
+| `/_app/resources/pull`     | `POST`  | `db pull` + case-format + `generate` for a datasource; needs DB credentials.                                |
+| `/_app/resources/sync`     | `POST`  | Generate a `resource.json` for a single model.                                                              |
+| `/_app/resources/plan`     | `POST`  | Diff resources (all or selected) against the database; dry run.                                             |
+| `/_app/resources/apply`    | `POST`  | Write the resources chosen from a `plan` response.                                                          |

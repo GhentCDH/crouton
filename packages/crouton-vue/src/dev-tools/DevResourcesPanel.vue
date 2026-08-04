@@ -16,6 +16,7 @@ type DbModelSummary = {
   prismaName: string;
   clientAccessor: string;
   hasResource: boolean;
+  availableOnClient: boolean;
 };
 
 type Decision = {
@@ -53,12 +54,20 @@ const errorMessage = (e: unknown): string =>
 const pulling = ref(false);
 const pullError = ref<string | null>(null);
 const pullResult = ref<{
+  restartRequired?: boolean;
   dbPull: { ok: boolean; output: string };
   caseFormat: { ok: boolean; output: string };
   generate: { ok: boolean; output: string };
   zodImportsFixed?: number;
 } | null>(null);
 const pullDirtyFile = ref<string | null>(null);
+/**
+ * Sticky across the whole panel (not just the pull section) once a pull has
+ * happened this session: models/resources generated below may silently 500
+ * ("Model ... not found on the provided PrismaClient") until the backend
+ * process actually restarts and re-imports its Prisma client.
+ */
+const restartRequired = ref(false);
 
 const runPull = async (confirm = false) => {
   pulling.value = true;
@@ -72,6 +81,7 @@ const runPull = async (confirm = false) => {
       return;
     }
     pullResult.value = res.data;
+    if (res.data.restartRequired) restartRequired.value = true;
     await loadModels();
   } catch (e) {
     pullError.value = errorMessage(e);
@@ -93,6 +103,15 @@ const syncingModel = ref<string | null>(null);
 
 const modelsWithoutResource = computed(() =>
   models.value.filter((m) => !m.hasResource),
+);
+
+/**
+ * True whenever any known model isn't available on the running backend's
+ * Prisma client yet — a live, persisted signal (unlike `restartRequired`,
+ * which only reflects a pull triggered in this browser session).
+ */
+const anyModelNeedsRestart = computed(() =>
+  models.value.some((m) => !m.availableOnClient),
 );
 
 const loadModels = async () => {
@@ -194,6 +213,15 @@ if (crouton.isDev) loadModels();
     restart it.
   </div>
   <div v-else class="flex flex-col gap-6 p-4">
+    <div
+      v-if="restartRequired || anyModelNeedsRestart"
+      class="alert alert-warning text-sm font-semibold"
+    >
+      Restart the backend now. Its Prisma client was built at process start and
+      won't see newly pulled/changed models until it restarts — using one before
+      then throws "Model ... not found on the provided PrismaClient".
+    </div>
+
     <section>
       <h3 class="text-lg font-bold mb-2">Pull schema from database</h3>
       <p class="text-sm opacity-70 mb-2">
@@ -273,8 +301,15 @@ if (crouton.isDev) loadModels();
           >
             <span
               >{{ m.prismaName }}
-              <span class="opacity-50">({{ m.clientAccessor }})</span></span
-            >
+              <span class="opacity-50">({{ m.clientAccessor }})</span>
+              <span
+                v-if="!m.availableOnClient"
+                class="badge badge-warning badge-sm ml-1"
+                title="This model isn't on the running backend's Prisma client yet — generate works, but requests to it will fail until the backend restarts."
+              >
+                needs restart
+              </span>
+            </span>
             <Btn
               :icon="IconEnum.Plus"
               :disabled="syncingModel === m.clientAccessor"
