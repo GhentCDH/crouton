@@ -33,6 +33,14 @@ import {
 } from '@ghentcdh/crouton-codegen';
 
 import { IS_DEV } from '../dev-mode';
+import {
+  backupSchema,
+  fixZodImports,
+  isGitDirty,
+  prismaCaseFormat,
+  prismaDbPull,
+  prismaGenerate,
+} from './prisma-shell';
 
 /**
  * Dev-only endpoints that reuse the `@ghentcdh/crouton-codegen` engine
@@ -46,11 +54,11 @@ import { IS_DEV } from '../dev-mode';
  * every handler here, mirroring the pattern used by the schema editor's
  * PATCH/GET endpoints in `register-schema-endpoints.ts`.
  *
- * Deliberately does NOT run `prisma db pull` or `prisma generate` — only the
- * *current* `schema.prisma` on disk is introspected. Pulling the live DB
- * schema is destructive to the Prisma schema file and credential-sensitive;
- * that stays a CLI-only, explicitly-confirmed operation for now (see
- * VISUAL_RESOURCE_BUILDER_PLAN.md, optional phases).
+ * `pull` (below) is the one handler that *does* touch the live database and
+ * the Prisma schema file — it needs real DB credentials and mutates
+ * `schema.prisma` in place (backed up first, mirroring the CLI). Every other
+ * handler here only reads the Prisma client/Zod types already generated on
+ * disk.
  */
 @Controller('_app/resources')
 @ApiTags('Dev tools')
@@ -139,15 +147,75 @@ export class DevResourcesController {
     };
   }
 
+  @Post('pull')
+  @ApiOperation({
+    summary:
+      'Dev-only: run `prisma db pull` + case-format + `prisma generate` for a datasource, refreshing schema.prisma and the generated Prisma client/Zod types from the live database',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Result of each step, or requiresConfirmation if schema.prisma has uncommitted changes',
+  })
+  async pull(
+    @Body() body: { datasource?: string; confirm?: boolean } = {},
+  ): Promise<{
+    requiresConfirmation?: boolean;
+    dirtyFile?: string;
+    ok?: boolean;
+    backupPath?: string;
+    dbPull?: { ok: boolean; output: string };
+    caseFormat?: { ok: boolean; output: string };
+    generate?: { ok: boolean; output: string };
+    zodImportsFixed?: number;
+  }> {
+    this.assertDev();
+    const { loaded, ds, schemaPath } = await this.loadProject(body.datasource);
+    const prismaConfigPath = resolveFromRoot(loaded.root, ds.prismaConfig);
+
+    // `db pull` overwrites schema.prisma — same uncommitted-changes guard the
+    // CLI shows as an interactive confirm, surfaced here as a flag so the
+    // frontend can show its own confirmation before retrying with confirm: true.
+    if (!body.confirm && (await isGitDirty(loaded.root, schemaPath))) {
+      return { requiresConfirmation: true, dirtyFile: ds.prismaSchema };
+    }
+
+    const backupPath = await backupSchema(schemaPath);
+
+    const dbPull = await prismaDbPull(loaded.root, prismaConfigPath);
+    if (!dbPull.ok) {
+      throw new BadRequestException(`prisma db pull failed:\n${dbPull.output}`);
+    }
+
+    // Case-format and generate failures are surfaced but non-fatal, matching
+    // the CLI: the pulled schema is still usable even if these steps fail.
+    const caseFormat = await prismaCaseFormat(loaded.root, schemaPath);
+    const generate = await prismaGenerate(loaded.root, prismaConfigPath);
+
+    let zodImportsFixed = 0;
+    if (generate.ok && ds.zodOutput) {
+      zodImportsFixed = await fixZodImports(
+        resolveFromRoot(loaded.root, ds.zodOutput),
+      );
+    }
+
+    return {
+      ok: true,
+      backupPath,
+      dbPull,
+      caseFormat,
+      generate,
+      zodImportsFixed,
+    };
+  }
+
   @Post('sync')
   @ApiOperation({
     summary:
       'Dev-only: generate or update a single resource.json from its DB model, using recommended defaults (non-interactive)',
   })
   @ApiResponse({ status: 200, description: 'Files written for this resource' })
-  async sync(
-    @Body() body: { model: string; datasource?: string },
-  ): Promise<{
+  async sync(@Body() body: { model: string; datasource?: string }): Promise<{
     resource: string;
     isNew: boolean;
     written: string[];

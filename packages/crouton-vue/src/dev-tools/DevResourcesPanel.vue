@@ -48,6 +48,42 @@ const errorMessage = (e: unknown): string =>
   (e as Error)?.message ??
   'Something went wrong.';
 
+// ── "Pull schema from database" — prisma db pull + generate ───────────────
+
+const pulling = ref(false);
+const pullError = ref<string | null>(null);
+const pullResult = ref<{
+  dbPull: { ok: boolean; output: string };
+  caseFormat: { ok: boolean; output: string };
+  generate: { ok: boolean; output: string };
+  zodImportsFixed?: number;
+} | null>(null);
+const pullDirtyFile = ref<string | null>(null);
+
+const runPull = async (confirm = false) => {
+  pulling.value = true;
+  pullError.value = null;
+  pullResult.value = null;
+  if (confirm) pullDirtyFile.value = null;
+  try {
+    const res = await useApi().post('/_app/resources/pull', { confirm });
+    if (res.data.requiresConfirmation) {
+      pullDirtyFile.value = res.data.dirtyFile;
+      return;
+    }
+    pullResult.value = res.data;
+    await loadModels();
+  } catch (e) {
+    pullError.value = errorMessage(e);
+  } finally {
+    pulling.value = false;
+  }
+};
+
+const cancelPull = () => {
+  pullDirtyFile.value = null;
+};
+
 // ── "Generate from database" — one table at a time ────────────────────────
 
 const models = ref<DbModelSummary[]>([]);
@@ -158,6 +194,62 @@ if (crouton.isDev) loadModels();
     restart it.
   </div>
   <div v-else class="flex flex-col gap-6 p-4">
+    <section>
+      <h3 class="text-lg font-bold mb-2">Pull schema from database</h3>
+      <p class="text-sm opacity-70 mb-2">
+        Runs <code>prisma db pull</code> + case-format +
+        <code>prisma generate</code> against the live database, refreshing
+        <code>schema.prisma</code> and the generated client/Zod types. Needs
+        real DB credentials on this backend and overwrites
+        <code>schema.prisma</code> (backed up to <code>.bak</code> first).
+        Resource files aren't touched here — use the sections below for those,
+        once the schema is up to date.
+      </p>
+      <div v-if="pullError" class="alert alert-error mb-2 text-sm">
+        {{ pullError }}
+      </div>
+
+      <div v-if="pullDirtyFile" class="alert alert-warning mb-2 text-sm">
+        <p>
+          <code>{{ pullDirtyFile }}</code> has uncommitted changes —
+          <code>db pull</code> will overwrite them (a <code>.bak</code> copy is
+          kept). Continue?
+        </p>
+        <div class="flex gap-2 mt-2">
+          <Btn :disabled="pulling" @click="runPull(true)">
+            {{ pulling ? 'Pulling…' : 'Overwrite and pull' }}
+          </Btn>
+          <Btn
+            color="secondary"
+            :outline="true"
+            :disabled="pulling"
+            @click="cancelPull"
+          >
+            Cancel
+          </Btn>
+        </div>
+      </div>
+      <Btn v-else :disabled="pulling" @click="runPull()">
+        {{ pulling ? 'Pulling…' : 'Pull schema' }}
+      </Btn>
+
+      <div v-if="pullResult" class="text-sm mt-2 flex flex-col gap-1">
+        <p :class="pullResult.dbPull.ok ? 'text-success' : 'text-error'">
+          db pull: {{ pullResult.dbPull.ok ? 'ok' : 'failed' }}
+        </p>
+        <p :class="pullResult.caseFormat.ok ? 'text-success' : 'text-warning'">
+          case-format: {{ pullResult.caseFormat.ok ? 'ok' : 'failed' }}
+        </p>
+        <p :class="pullResult.generate.ok ? 'text-success' : 'text-warning'">
+          generate: {{ pullResult.generate.ok ? 'ok' : 'failed' }}
+        </p>
+        <p v-if="pullResult.zodImportsFixed" class="opacity-70">
+          Patched {{ pullResult.zodImportsFixed }} file(s) with a missing zod
+          import.
+        </p>
+      </div>
+    </section>
+
     <section>
       <h3 class="text-lg font-bold mb-2">Generate from database</h3>
       <p class="text-sm opacity-70 mb-2">
