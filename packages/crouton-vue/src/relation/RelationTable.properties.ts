@@ -1,4 +1,5 @@
 import type { PropType } from 'vue';
+
 import type { UseResource } from '../resource';
 
 export const RelationTableProperties = {
