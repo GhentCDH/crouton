@@ -1,10 +1,10 @@
 {
-  "name": "@ghentcdh/crouton-vue",
+  "name": "@ghentcdh/crouton-editor-vue",
   "version": "0.0.1-alpha.36",
   "repository": {
     "type": "git",
     "url": "https://github.com/GhentCDH/crouton",
-    "directory": "packages/crouton-vue"
+    "directory": "packages/crouton-editor-vue"
   },
   "publishConfig": {
     "access": "public",
@@ -13,38 +13,27 @@
   "type": "module",
   "exports": {
     ".": {
+      "@ghentcdh/crouton": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./styles.css": "./dist/styles.css"
+    }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "styles.css"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
   },
-  "dependencies": {
-    "lodash-es": "^4.17.21"
-  },
   "peerDependencies": {
-    "@ghentcdh/crouton-editor-vue": "workspace:^",
     "@ghentcdh/crouton-forms-vue": "workspace:^",
     "@ghentcdh/ui": "*",
-    "@jsonforms/core": ">=3.0.0",
-    "axios": ">=1.0.0",
     "vue": ">=3.0.0",
-    "vue-router": ">=4.0.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@ghentcdh/crouton-core": "workspace:*",
-    "@ghentcdh/crouton-editor-vue": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*"
   }
 }

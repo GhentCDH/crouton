@@ -28,6 +28,12 @@ export default defineUserConfig({
               import.meta.url,
             ),
           ),
+          '@ghentcdh/crouton-editor-vue': fileURLToPath(
+            new URL(
+              '../../packages/crouton-editor-vue/src/index.ts',
+              import.meta.url,
+            ),
+          ),
           '@ghentcdh/crouton-core': fileURLToPath(
             new URL(
               '../../packages/crouton-core/src/index.ts',

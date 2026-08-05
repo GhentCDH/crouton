@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   Get,
   NotFoundException,
-  Patch,
+  Patch, Put 
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -239,4 +239,109 @@ export const registerResourceJsonPatchEndpoint = (
     status: 200,
     description: `Updated resource descriptor for ${name}`,
   })(cls.prototype, 'patchResourceJson', d);
+};
+
+/**
+ * Register `GET /resource-json-raw` — dev-only endpoint returning the raw,
+ * untransformed resource.json as-is (no schema defaults applied). Backs the
+ * standalone resource.json editor component's initial load.
+ */
+export const registerResourceJsonRawGetEndpoint = (
+  ctx: OperationContext,
+): void => {
+  const { cls, config } = ctx;
+  const { route, name } = config;
+
+  def(
+    cls,
+    'getResourceJsonRaw',
+    async function (this: { configRegistry: ResourceConfigRegistry }) {
+      if (!IS_DEV) {
+        throw new ForbiddenException(
+          'The resource JSON editor is only available when the backend is running in local dev mode.',
+        );
+      }
+
+      await this.configRegistry.getByRoute(route);
+      const dir = this.configRegistry.getResourceDir(route);
+      if (!dir) {
+        throw new NotFoundException(
+          `No resource.json on disk for "${name}" (route "${route}").`,
+        );
+      }
+
+      const jsonPath = join(dir, 'resource.json');
+      const raw = readRawResourceJson(jsonPath);
+      if (!raw) {
+        throw new NotFoundException(`resource.json not found at ${jsonPath}`);
+      }
+
+      return raw;
+    },
+  );
+  const d = desc(cls, 'getResourceJsonRaw');
+  Get('resource-json-raw')(cls.prototype, 'getResourceJsonRaw', d);
+  ApiOperation({
+    summary: `Dev-only: get the raw resource.json for ${name}`,
+  })(cls.prototype, 'getResourceJsonRaw', d);
+  ApiResponse({
+    status: 200,
+    description: `Raw resource.json for ${name}`,
+  })(cls.prototype, 'getResourceJsonRaw', d);
+};
+
+/**
+ * Register `PUT /resource-json-raw` — dev-only endpoint that replaces the
+ * entire resource.json with the provided body. Validates through
+ * `ResourceJsonSchema` before writing. Backs the standalone resource.json
+ * editor component's save action.
+ */
+export const registerResourceJsonRawPutEndpoint = (
+  ctx: OperationContext,
+): void => {
+  const { cls, config } = ctx;
+  const { route, name } = config;
+
+  def(
+    cls,
+    'putResourceJsonRaw',
+    async function (
+      this: { configRegistry: ResourceConfigRegistry },
+      body: Record<string, unknown>,
+    ) {
+      if (!IS_DEV) {
+        throw new ForbiddenException(
+          'Editing resource.json is only available when the backend is running in local dev mode.',
+        );
+      }
+
+      await this.configRegistry.getByRoute(route);
+      const dir = this.configRegistry.getResourceDir(route);
+      if (!dir) {
+        throw new NotFoundException(
+          `No resource.json on disk for "${name}" (route "${route}").`,
+        );
+      }
+
+      const validated = validateResourceJson(body);
+      if (!validated.success) {
+        throw new BadRequestException(validated.error.issues);
+      }
+
+      const jsonPath = join(dir, 'resource.json');
+      writeRawResourceJson(jsonPath, body);
+
+      return body;
+    },
+  );
+  const d = desc(cls, 'putResourceJsonRaw');
+  Put('resource-json-raw')(cls.prototype, 'putResourceJsonRaw', d);
+  Body()(cls.prototype, 'putResourceJsonRaw', 0);
+  ApiOperation({
+    summary: `Dev-only: replace the full resource.json for ${name}`,
+  })(cls.prototype, 'putResourceJsonRaw', d);
+  ApiResponse({
+    status: 200,
+    description: `Updated raw resource.json for ${name}`,
+  })(cls.prototype, 'putResourceJsonRaw', d);
 };

@@ -10,7 +10,7 @@ import * as path from 'path';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/crouton-vue',
+  cacheDir: '../../node_modules/.vite/packages/crouton-editor-vue',
   plugins: [
     vue(),
     tailwindcss(),
@@ -19,6 +19,7 @@ export default defineConfig({
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+      rollupTypes: true,
     }),
   ],
   build: {
@@ -29,27 +30,22 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     lib: {
-      entry: 'src/index.ts',
-      name: 'crouton-vue',
-      fileName: 'index',
+      entry: {
+        index: 'src/index.ts',
+      },
+      name: 'crouton-editor-vue',
+      fileName: (_format, entryName) => `${entryName}.js`,
       formats: ['es'],
     },
     rolldownOptions: {
       external: [
-        '@ghentcdh/crouton-editor-vue',
         '@ghentcdh/crouton-forms-vue',
         '@ghentcdh/ui',
-        '@jsonforms/core',
-        'axios',
-        'lodash-es',
         'vue',
-        'vue-router',
         'zod',
       ],
       output: {
         globals: { vue: 'Vue' },
-        // Emit the compiled CSS as styles.css (matches the package export)
-        assetFileNames: 'styles[extname]',
       },
     },
   },
