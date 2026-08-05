@@ -22,7 +22,7 @@
           :schema="schema"
           :readonly="true"
           :ui-schema="uiSchema"
-          :renderers="properties.renderers"
+          :renderers="renderers"
           @events="handleEvent"
         />
       </div>
@@ -59,13 +59,13 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
-import { Btn, Color, IconEnum, Modal, myStyles } from '@ghentcdh/ui';
+import { Btn, Color, IconEnum, Modal } from '@ghentcdh/ui';
 
 import { ViewModalEmits, ViewModalProperties } from './ViewModal.properties';
 import FormComponent from '../../forms/FormComponent.vue';
-import { customRenderers } from '../../forms/renderers/index';
+import { useDefaultRenderers } from '../../composables/useRendererProvider';
 
 const properties = defineProps(ViewModalProperties);
 const id = `view_${Math.floor(Math.random() * 1000)}`;
@@ -77,15 +77,8 @@ const emits = defineEmits(ViewModalEmits);
 if (properties.data) {
   formData.value = properties.data;
 }
-provide(
-  'renderers',
-  properties.renderers?.length
-    ? [...customRenderers, ...properties.renderers]
-    : customRenderers,
-);
-provide('readonlyRenderers', properties.renderers ?? []);
-provide('rootSchema', properties.schema);
-provide('styles', myStyles);
+
+const renderers = useDefaultRenderers(properties.renderers, true);
 
 const onCancel = () => {
   formData.value = {};

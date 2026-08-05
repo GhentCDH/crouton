@@ -3,7 +3,6 @@ import { type Component, type Ref, markRaw, ref } from 'vue';
 import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
 import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
 
-import { customControlRenderers, relationReadonlyRenderers } from './renderers';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
@@ -80,10 +79,7 @@ const openViewModal =
       modalSize: formDef.modalSize ?? 'lg',
       data: formData,
       modalTitle: formDef.title ?? '',
-      renderers: [
-        ...relationReadonlyRenderers,
-        ...useCrouton().readonlyRenderers,
-      ],
+      renderers: undefined,
       onEdit: (op.update || op.patch)
         ? (data: any) =>
             openEditModal(
@@ -133,14 +129,12 @@ const getEditParams = (
 
   const crouton = useCrouton();
   const autoSaveEnabled = crouton.autoSave.value;
-  const renderers = [...customControlRenderers, ...crouton.renderers];
   let formParams = {
     schema: form.data,
     uiSchema: form.ui,
     initialData: formData ?? form.parseValue({}),
     modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
     http: useApi(),
-    renderers,
     // Re-fetch the parent record when a relation changes so the form stays in
     // sync. onRefreshData cancels any pending auto-save debounce first to
     // prevent the stale captured data from overwriting the server state.
@@ -217,7 +211,6 @@ const createEditForm =
 
     const crouton = useCrouton();
     const autoSaveEnabled = crouton.autoSave.value;
-    const renderers = [...customControlRenderers, ...crouton.renderers];
 
     const sharedProps = {
       schema: form.data,
@@ -227,7 +220,6 @@ const createEditForm =
       data: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
-      renderers,
       onEvents: (event: any) => {
         // Other renderer events (e.g. 'create', 'view') can be handled here.
       },

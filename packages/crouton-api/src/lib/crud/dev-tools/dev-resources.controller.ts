@@ -32,7 +32,8 @@ import {
 } from '@ghentcdh/crouton-codegen';
 import { type DataSource } from '@ghentcdh/crouton-core';
 
-import { type DataSourceRegistry } from '../data-source';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { DataSourceRegistry } from '../data-source';
 import { IS_DEV } from '../dev-mode';
 import {
   backupSchema,
