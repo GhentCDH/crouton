@@ -41,6 +41,7 @@ It configures the API, sets up renderer injection via `app.provide`, and fetches
 | `renderers` | `JsonFormsRendererRegistryEntry[]` | `[]` | Extra control renderers merged on top of the built-ins in form/edit modals. |
 | `readonlyRenderers` | `JsonFormsRendererRegistryEntry[]` | `[]` | Extra renderers merged on top of the built-ins in view (readonly) modals. |
 | `cellRenderers` | `CellRendererEntry[]` | `[]` | Extra cell renderers merged on top of the built-ins in tables. |
+| `customComponents` | `CustomComponentEntry[]` | `[]` | Custom Vue components for page-level display and custom format fields. |
 
 ### Title precedence
 
@@ -49,6 +50,38 @@ It configures the API, sets up renderer injection via `app.provide`, and fetches
 3. Default `'Crouton'` fallback.
 
 In most cases you should set the title in the backend config and leave it out of the plugin options.
+
+## Custom component fields
+
+Add `customComponent` to any `fieldInput.options` to override the default renderer for that field with a custom Vue
+component. Works with any format (`relation`, `date-range`, etc.):
+
+```json
+{
+  "fieldInput": {
+    "format": "relation",
+    "resource": "../section/resource.json",
+    "options": { "customComponent": "work-sections" }
+  }
+}
+```
+
+```ts
+import { CroutonPlugin, customComponentIs } from '@ghentcdh/crouton-vue';
+import { markRaw } from 'vue';
+import WorkSectionsEditor from './components/WorkSectionsEditor.vue';
+
+app.use(
+  CroutonPlugin(useApi(), {
+    VERSION,
+    customComponents: [
+      { tester: customComponentIs('work-sections', 1), renderer: markRaw(WorkSectionsEditor) },
+    ],
+  }),
+);
+```
+
+The same `customComponents` registry is used for both page-level custom components (`display.customComponent`) and field-level custom component overrides.
 
 ## Custom renderers
 
