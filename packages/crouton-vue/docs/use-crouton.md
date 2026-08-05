@@ -81,7 +81,8 @@ app.use(
 );
 ```
 
-The same `customComponents` registry is used for both page-level custom components (`display.customComponent`) and field-level custom component overrides.
+The same `customComponents` registry is used for page-level custom components (`display.customComponent`), field-level
+custom component overrides, and table cell custom components (`tableView.options.customComponent`).
 
 ## Custom renderers
 

@@ -7,6 +7,7 @@ import {
   optionIsIgnoreCase,
 } from '@ghentcdh/crouton-forms-vue';
 
+import CustomCellRenderer from './CustomCellRenderer.vue';
 import CustomFormatRenderer from './CustomFormatRenderer.vue';
 import RelationCell from '../relation/RelationCell.vue';
 import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
@@ -50,9 +51,14 @@ export const relationReadonlyRenderers = [
   },
 ];
 
+/** Matches any cell element that has `options.customComponent` set. */
+const cellHasCustomComponent = (element: { options?: Record<string, unknown> }) =>
+  element.options?.customComponent ? 21 : -1;
+
 export const customCellRenderers: CellRendererEntry[] = [
   // 'RecordCell' is the legacy wire name emitted by older crouton-api versions;
   // 'RelationCell' is the unified name. Both are accepted for compatibility.
   { tester: cellTypeIs('RecordCell', 20), renderer: markRaw(RelationCell) },
   { tester: cellTypeIs('RelationCell', 20), renderer: markRaw(RelationCell) },
+  { tester: cellHasCustomComponent, renderer: markRaw(CustomCellRenderer) },
 ];

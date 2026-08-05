@@ -75,6 +75,23 @@ When `customComponent` is present in options, it takes priority (rank 17) over b
 The custom component receives `wrapper`, `value` (v-model), `appliedOptions`, `schema`, and `uischema` as props.
 All `fieldInput.options` are available via `appliedOptions`.
 
+### Table cells
+
+`customComponent` also works in `tableView.options` to override table cell rendering:
+
+```json
+{
+  "column": "section_number",
+  "tableView": {
+    "options": {
+      "customComponent": "moveUpDown"
+    }
+  }
+}
+```
+
+The custom cell component receives `data` (full row), `value` (cell value), `column`, and `options` as props.
+
 ## Adding consumer renderers
 
 For more control, pass extra JSON Forms renderers via `CroutonPlugin`. Crouton merges consumer renderers _after_ its
