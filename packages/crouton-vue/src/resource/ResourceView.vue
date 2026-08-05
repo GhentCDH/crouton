@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { computedAsync } from '../utils/computedAsync';
-import { useCrouton } from '../composables/useCrouton';
 import ResourceTable from './ResourceTable.vue';
 import { UseResource } from './useResources';
 
 const route = useRoute();
 const router = useRouter();
 const formId = computed(() => route.params['formId'] as string);
-const crouton = useCrouton();
-
-const id = computed(() => `${formId.value}_${Date.now()}`);
-const config = computedAsync(() => crouton.getFormDef(formId.value as string));
 
 const handleEvent = ({ event, data }: { event: string; data: any }) => {
   let querydata: Record<string, string | undefined> = { id: data?.id, event };
@@ -36,7 +30,9 @@ const resourceRef = ref<UseResource | null>(null);
 const applyQueryEvent = (resource: UseResource) => {
   const id = route.query['id'] as string | undefined;
   const event = route.query['event'] as string | undefined;
-
+  if (formId.value !== resource.id) {
+    return;
+  }
   if (!event) {
     resource.closeForm(null);
     return;
@@ -67,10 +63,14 @@ const initialLoad = (resource: UseResource) => {
 };
 
 watch(
-  () => ({ id: route.query['id'], event: route.query['event'] }),
-  () => {
+  () => ({
+    id: route.query['id'],
+    event: route.query['event'],
+  }),
+  (newValues) => {
     if (resourceRef.value) applyQueryEvent(resourceRef.value);
   },
+  { immediate: true, once: true },
 );
 </script>
 
