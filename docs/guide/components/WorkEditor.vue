@@ -5,9 +5,9 @@
  * Register this component in your app setup:
  *
  *   import WorkEditor from './components/WorkEditor.vue';
- *   import { createCrouton, customComponentIs } from '@ghentcdh/crouton-vue';
+ *   import { CroutonPlugin, customComponentIs } from '@ghentcdh/crouton-vue';
  *
- *   app.use(createCrouton(api, {
+ *   app.use(CroutonPlugin(api, {
  *     customComponents: [
  *       { tester: customComponentIs('WorkEditor', 1), renderer: WorkEditor },
  *     ],

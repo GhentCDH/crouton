@@ -1,4 +1,5 @@
 import './styles.css';
+export { isCustomFormat } from './resource/renderers';
 
 export { croutonApiCall } from './resource/resource.api';
 
@@ -22,3 +23,5 @@ export * from './utils/custom-component';
 export * from './utils/PageService';
 export * from './runtime.config';
 export * from './status';
+
+export { rankWith } from '@jsonforms/core';

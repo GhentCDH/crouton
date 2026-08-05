@@ -370,11 +370,11 @@ Register a custom Vue component in your app setup and reference it by name in `r
 Register the component when creating the Crouton plugin:
 
 ```ts
-import { createCrouton, customComponentIs } from '@ghentcdh/crouton-vue';
+import { CroutonPlugin, customComponentIs } from '@ghentcdh/crouton-vue';
 import WorkEditor from './components/WorkEditor.vue';
 
 app.use(
-  createCrouton(api, {
+  CroutonPlugin(api, {
     customComponents: [
       {
         tester: customComponentIs('WorkEditor', 1),

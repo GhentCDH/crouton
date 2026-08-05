@@ -1,15 +1,21 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
-import { type App, type ComputedRef, computed, ref } from 'vue';
+import { type App, computed, type ComputedRef, ref } from 'vue';
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
-import { CROUTON_EDITABLE_RENDERERS, CROUTON_READONLY_RENDERERS } from '@ghentcdh/crouton-forms-vue';
+import {
+  CROUTON_EDITABLE_RENDERERS,
+  CROUTON_READONLY_RENDERERS,
+} from '@ghentcdh/crouton-forms-vue';
 
 import { FormDefCache } from './form-def';
 import type { FormDef } from './form-def.types';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
-import { customControlRenderers, relationReadonlyRenderers } from '../resource/renderers';
+import {
+  customControlRenderers,
+  relationReadonlyRenderers,
+} from '../resource/renderers';
 import { type CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
@@ -47,7 +53,7 @@ const sidebar = ref<SidebarNode[]>([]);
 const formDefCache = new FormDefCache();
 const config = ref({ ...AppConfig });
 
-export type UseCrouton = ReturnType<typeof useCrouton>;
+export type UseCrouton = Omit<ReturnType<typeof useCrouton>, 'init'>;
 
 export const useCrouton = (): {
   init: (
@@ -142,19 +148,19 @@ export const useCrouton = (): {
   };
 };
 
-export const createCrouton = (
+export const CroutonPlugin = (
   api: AxiosInstance,
   options: Partial<typeof AppConfig> = {},
 ) => ({
   install(app: App) {
     useCrouton().init(api, options);
-    app.provide(CROUTON_EDITABLE_RENDERERS, [
-      ...customControlRenderers,
-      ...(options.renderers ?? []),
-    ]);
-    app.provide(CROUTON_READONLY_RENDERERS, [
-      ...relationReadonlyRenderers,
-      ...(options.readonlyRenderers ?? []),
-    ]);
+    app.provide(
+      CROUTON_EDITABLE_RENDERERS,
+      [customControlRenderers, options.renderers ?? []].flat(),
+    );
+    app.provide(
+      CROUTON_READONLY_RENDERERS,
+      [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
+    );
   },
 });

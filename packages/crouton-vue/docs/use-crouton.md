@@ -8,21 +8,29 @@ import { useCrouton } from '@ghentcdh/crouton-vue';
 
 ## Initialisation
 
-Call `init()` once at application startup, before mounting the Vue app:
+Register `CroutonPlugin` as a Vue plugin at application startup:
 
 ```ts
-useCrouton().init(useApi(), {
-  VERSION: env.VERSION,
-})
+import { createApp } from 'vue';
+import { CroutonPlugin } from '@ghentcdh/crouton-vue';
+
+const app = createApp(App);
+
+app.use(
+  CroutonPlugin(useApi(), {
+    VERSION,
+    customComponents: customComponents,
+  }),
+);
 ```
 
-`init()` signature:
+`CroutonPlugin` signature:
 
 ```ts
-init(api: AxiosInstance, config?: Partial<AppConfig>): Promise<void>
+CroutonPlugin(api: AxiosInstance, options?: Partial<AppConfig>): Plugin
 ```
 
-It fetches `GET /_app/layout` from the backend, which populates the sidebar and the application title.
+It configures the API, sets up renderer injection via `app.provide`, and fetches `GET /_app/layout` from the backend to populate the sidebar and application title.
 
 ## AppConfig fields
 
@@ -36,35 +44,38 @@ It fetches `GET /_app/layout` from the backend, which populates the sidebar and 
 
 ### Title precedence
 
-1. Explicit `title` in the `init()` config — highest priority (frontend override).
+1. Explicit `title` in `CroutonPlugin` options — highest priority (frontend override).
 2. `title` returned by `GET /_app/layout` from the backend — set via `CroutonConfig.title` in `CroutonApiModule`.
 3. Default `'Crouton'` fallback.
 
-In most cases you should set the title in the backend config and leave it out of `init()`.
+In most cases you should set the title in the backend config and leave it out of the plugin options.
 
 ## Custom renderers
 
-Pass consumer-specific JSON Forms renderers through `init()`. Crouton merges them _after_ its own built-ins, so a higher tester rank will win:
+Pass consumer-specific JSON Forms renderers through `CroutonPlugin`. Crouton merges them _after_ its own built-ins, so a higher tester rank will win:
 
 ```ts
-import { rankWith, and } from '@jsonforms/core';
-import { optionIsIgnoreCase } from '@ghentcdh/crouton-forms-vue';
+import { rankWith, isCustomFormat, CroutonPlugin } from '@ghentcdh/crouton-vue';
 import { markRaw } from 'vue';
 import MyCustomRenderer from './MyCustomRenderer.vue';
 import MyCustomCell from './MyCustomCell.vue';
 
-useCrouton().init(useApi(), {
-  VERSION: env.VERSION,
-  renderers: [
-    {
-      tester: rankWith(20, and(optionIsIgnoreCase('format', 'my-format'))),
-      renderer: markRaw(MyCustomRenderer),
-    },
-  ],
-  cellRenderers: [
-    { tester: cellTypeIs('MyCell', 20), renderer: markRaw(MyCustomCell) },
-  ],
-})
+const app = createApp(App);
+
+app.use(
+  CroutonPlugin(useApi(), {
+    VERSION,
+    renderers: [
+      {
+        tester: rankWith(20, isCustomFormat('my-format')),
+        renderer: markRaw(MyCustomRenderer),
+      },
+    ],
+    cellRenderers: [
+      { tester: cellTypeIs('MyCell', 20), renderer: markRaw(MyCustomCell) },
+    ],
+  }),
+);
 ```
 
 The three renderer arrays map to these modal contexts:
