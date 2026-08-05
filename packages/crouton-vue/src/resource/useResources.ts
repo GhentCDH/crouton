@@ -29,6 +29,7 @@ export interface UseResourcesProperties {
 }
 
 export interface UseResource {
+  id: string;
   operations: Record<string, unknown>;
   uiSchema: any;
   schema: any;
@@ -123,6 +124,7 @@ export const useResources = (
   );
 
   return reactive({
+    id: formDef.id,
     operations: _formDef.operations ?? {},
     uiSchema: _formDef.schemas.table.ui,
     schema: _formDef.schemas.table.data,

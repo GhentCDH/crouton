@@ -78,7 +78,7 @@ const showSchemaEditor = ref(false);
 </script>
 
 <template>
-  <div v-if="form">
+  <div v-if="form && resource">
     <component
       :is="form.component"
       v-bind="form.config"

@@ -1,15 +1,30 @@
-import { type Component, type Ref, markRaw, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
-import { AutoSaveForm, FormModal, type FormModalResult, JsonFormModalService } from '@ghentcdh/crouton-forms-vue';
-import { ModalService, NotificationService, type TableAction } from '@ghentcdh/ui';
+import {
+  AutoSaveForm,
+  FormModal,
+  type FormModalResult,
+  JsonFormModalService,
+} from '@ghentcdh/crouton-forms-vue';
+import {
+  ModalService,
+  NotificationService,
+  type TableAction,
+} from '@ghentcdh/ui';
 
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
-import { type Action, type TableAction as TableActionDef } from '../composables/form-def.schema';
-import type { FormDef, FormDefActionCondition } from '../composables/form-def.types';
+import {
+  type Action,
+  type TableAction as TableActionDef,
+} from '../composables/form-def.schema';
+import type {
+  FormDef,
+  FormDefActionCondition,
+} from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { findCustomComponent } from '../utils/custom-component';
@@ -80,15 +95,16 @@ const openViewModal =
       data: formData,
       modalTitle: formDef.title ?? '',
       renderers: undefined,
-      onEdit: (op.update || op.patch)
-        ? (data: any) =>
-            openEditModal(
-              api,
-              resource,
-              formDef,
-              handleEvent,
-            )(data ?? formData) as any
-        : undefined,
+      onEdit:
+        op.update || op.patch
+          ? (data: any) =>
+              openEditModal(
+                api,
+                resource,
+                formDef,
+                handleEvent,
+              )(data ?? formData) as any
+          : undefined,
       onDelete: op.delete
         ? (data: any) =>
             openDeleteModal(api, resource, handleEvent)(data ?? formData)
