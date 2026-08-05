@@ -38,7 +38,10 @@ export const buildSubResources = (
       const childDir = childResolved?.dir;
       const childRoute =
         childJson?.route ??
-        c.fieldInput!.resource!.replace(/^\.\//, '').replace(/\.resource$/, '');
+        c.fieldInput!.resource!
+          .replace(/^\.\.?\//, '')
+          .replace(/\/resource\.json$/, '')
+          .replace(/\.resource$/, '');
 
       const rawChildColumns = childJson?.columns;
       const expandedChildColumns = rawChildColumns
@@ -84,7 +87,7 @@ export const buildSubResources = (
         relation: c.id,
         childRoute,
         childModel: c.id,
-        foreignKey: `${parentModel}_id`,
+        foreignKey: c.fieldInput?.foreignKey ?? `${parentModel}Id`,
         name: childJson?.name ?? childRoute,
         title: childJson?.title ?? childJson?.tag ?? childRoute,
         idField: childLookupKey,

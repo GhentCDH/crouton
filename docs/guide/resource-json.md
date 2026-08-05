@@ -237,6 +237,24 @@ directory:
 The frontend picks the matching control automatically — an autocomplete for `manyToOne`, an editable nested table for
 `oneToMany`, and so on.
 
+### Foreign key
+
+By default, the foreign key on the child model is derived as `${parentModel}Id` (camelCase), matching the standard Prisma convention. If the FK field in your Prisma schema uses a different name, set `foreignKey` on `fieldInput`:
+
+```json
+{
+  "column": "section",
+  "fieldInput": {
+    "format": "relation",
+    "relationType": "oneToMany",
+    "resource": "../section/resource.json",
+    "foreignKey": "work_id"
+  }
+}
+```
+
+When omitted, a parent model named `work` produces `foreignKey: "workId"`.
+
 ### Relation options
 
 `fieldInput.options` accepts the following fields for relation columns:

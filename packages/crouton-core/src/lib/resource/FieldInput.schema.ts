@@ -72,6 +72,8 @@ export const FieldInputSchema = z.object({
    * - `oneToMany` / `manyToMany` — collection (sub-resource table / multi-select)
    */
   relationType: RelationType.optional(), // auto-derived from the Zod model/sibling FK column if omitted
+  /** FK field on the child model pointing back to the parent, e.g. `"workId"`. Defaults to `${parentModel}Id`. */
+  foreignKey: z.string().optional(),
   /** Override the display order in form views. Lower values come first. */
   position: z.number().optional(), // default: source order
   options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),
