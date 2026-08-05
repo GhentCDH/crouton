@@ -72,6 +72,15 @@ watch(
   },
   { immediate: true, once: true },
 );
+
+watch(
+  () => route.query['event'],
+  (newEvent, oldEvent) => {
+    if (newEvent !== oldEvent && !newEvent) {
+      resourceRef.value?.closeForm(null);
+    }
+  },
+);
 </script>
 
 <template>
