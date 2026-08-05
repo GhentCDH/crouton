@@ -42,6 +42,7 @@ export const useFormLogic = (
       ? useAutoSave({
           onSave: properties.onAutoSave,
           isValid: () => valid.value,
+          initialData: properties.data ?? undefined,
         })
       : null;
 
@@ -115,6 +116,7 @@ export const useFormLogic = (
         .onRefreshData()
         .then((fresh) => {
           if (fresh) {
+            autoSaver?.resetBaseline(fresh);
             nextTick(() => {
               formData.value = fresh;
             });

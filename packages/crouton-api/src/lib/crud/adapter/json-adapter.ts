@@ -122,9 +122,7 @@ export const fromJson = (
     ...(upsertOp(json.operations.upsert, createSchema) && {
       upsert: upsertOp(json.operations.upsert, createSchema)!,
     }),
-    ...(opWithSchema(json.operations.patch, createSchema) && {
-      patch: opWithSchema(json.operations.patch, createSchema)!,
-    }),
+    ...(json.operations.patch !== false && { patch: true }),
     ...(json.operations.delete !== false && { delete: true }),
   };
 

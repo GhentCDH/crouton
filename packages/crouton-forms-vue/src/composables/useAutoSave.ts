@@ -4,9 +4,9 @@ export type AutoSaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
 
 export type UseAutoSaveOptions = {
   /**
-   * Called with the current form data when the debounce fires and the form is
-   * valid. Should return a promise that resolves on success and rejects on
-   * failure.
+   * Called with the **changed fields only** (delta) when the debounce fires
+   * and the form is valid. Should return a promise that resolves on success
+   * and rejects on failure.
    */
   onSave: (data: any) => Promise<any>;
   /**
@@ -21,6 +21,11 @@ export type UseAutoSaveOptions = {
    * Defaults to 800.
    */
   debounceMs?: number;
+  /**
+   * Initial form data used as the baseline for computing deltas.
+   * If omitted, the first `trigger` call will save all fields.
+   */
+  initialData?: Record<string, unknown>;
 };
 
 export type UseAutoSaveReturn = {
@@ -43,15 +48,50 @@ export type UseAutoSaveReturn = {
    * change) to prevent stale captured data from being written to the server.
    */
   cancel: () => void;
+  /**
+   * Update the baseline snapshot (e.g. after a server refresh replaces the
+   * form data). Subsequent saves will only include fields that differ from
+   * this new baseline.
+   */
+  resetBaseline: (data: Record<string, unknown>) => void;
+};
+
+/**
+ * Compute the top-level keys whose values differ between `current` and
+ * `baseline`. Returns only the changed entries, or `null` when nothing changed.
+ */
+const computeDelta = (
+  current: Record<string, unknown>,
+  baseline: Record<string, unknown> | null,
+): Record<string, unknown> | null => {
+  if (!baseline) return current;
+
+  const delta: Record<string, unknown> = {};
+  let hasChange = false;
+
+  for (const key of Object.keys(current)) {
+    if (
+      JSON.stringify(current[key]) !== JSON.stringify(baseline[key])
+    ) {
+      delta[key] = current[key];
+      hasChange = true;
+    }
+  }
+
+  return hasChange ? delta : null;
 };
 
 export const useAutoSave = ({
   onSave,
   isValid,
   debounceMs = 800,
+  initialData,
 }: UseAutoSaveOptions): UseAutoSaveReturn => {
   const status = ref<AutoSaveStatus>('idle');
   let timerId: ReturnType<typeof setTimeout> | null = null;
+  let baseline: Record<string, unknown> | null = initialData
+    ? JSON.parse(JSON.stringify(initialData))
+    : null;
 
   const clearTimer = () => {
     if (timerId !== null) {
@@ -68,10 +108,21 @@ export const useAutoSave = ({
       status.value = 'pending';
       return;
     }
+
+    const delta = computeDelta(data, baseline);
+    if (!delta) {
+      // Nothing changed — skip the network call.
+      status.value = baseline ? 'saved' : 'idle';
+      return;
+    }
+
     clearTimer();
     status.value = 'saving';
     try {
-      await onSave(data);
+      await onSave(delta);
+      // Successful save: advance the baseline so the next save only includes
+      // fields changed after this point.
+      baseline = JSON.parse(JSON.stringify(data));
       status.value = 'saved';
     } catch (error) {
       console.error(error);
@@ -104,5 +155,9 @@ export const useAutoSave = ({
     status.value = 'saved';
   };
 
-  return { status, trigger, saveNow, cancel };
+  const resetBaseline = (data: Record<string, unknown>) => {
+    baseline = JSON.parse(JSON.stringify(data));
+  };
+
+  return { status, trigger, saveNow, cancel, resetBaseline };
 };
