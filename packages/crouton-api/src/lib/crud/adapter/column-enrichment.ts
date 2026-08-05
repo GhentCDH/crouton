@@ -29,12 +29,10 @@ export const enrichActionColumns = (
           ...(col.fieldInput.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
-          ...(sub.views && {
-            resource:
-              sub.relationType === 'manyToOne'
-                ? `${base}/${sub.childRoute}/schemas`
-                : `${base}/${parentRoute}/${sub.childRoute}/schemas`,
-          }),
+          resource:
+            sub.relationType === 'manyToOne'
+              ? `${base}/${sub.childRoute}/schemas`
+              : `${base}/${parentRoute}/${sub.childRoute}/schemas`,
         },
       },
     };
@@ -63,7 +61,10 @@ export const enrichResourceRefColumns = (
     );
     const childRoute =
       childResolved?.json?.route ??
-      col.fieldInput.resource.replace(/^\.\//, '').replace(/\.resource$/, '');
+      col.fieldInput.resource
+        .replace(/^\.\.?\//, '')
+        .replace(/\/resource\.json$/, '')
+        .replace(/\.resource$/, '');
     return {
       ...col,
       fieldInput: {

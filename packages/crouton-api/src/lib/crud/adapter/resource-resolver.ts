@@ -2,6 +2,16 @@ import { type ResolveResource, readResourceJson } from '../resource/ReadResource
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
+/**
+ * Unwrap a successful `readResourceJson` result into `ResolveResource`,
+ * returning `undefined` for failures or missing files.
+ */
+const unwrap = (
+  result: ReturnType<typeof readResourceJson>,
+): ResolveResource | undefined => {
+  if (result?.success) return result.data;
+  return undefined;
+};
 
 /**
  * Resolve `fieldInput.resource` (e.g. `"./author.resource"`) relative to the
@@ -18,7 +28,7 @@ export const resolveChildResource = (
   const directPath = resolve(parentDir, resourcePath);
   try {
     if (resourcePath.endsWith('.json') && existsSync(directPath)) {
-      return readResourceJson(directPath);
+      return unwrap(readResourceJson(directPath));
     }
 
     // Directory convention: "./author.resource" → sibling dir "author/resource.json"
@@ -31,7 +41,7 @@ export const resolveChildResource = (
       'resource.json',
     );
 
-    return readResourceJson(childJsonPath);
+    return unwrap(readResourceJson(childJsonPath));
   } catch {
     return undefined;
   }
