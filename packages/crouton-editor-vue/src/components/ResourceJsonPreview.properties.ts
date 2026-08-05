@@ -7,4 +7,9 @@ export const ResourceJsonPreviewProperties = {
     type: Object as PropType<ResourceJsonInput>,
     required: true as const,
   },
+  /** When true, the preview is shown expanded without the toggle button. */
+  expanded: {
+    type: Boolean,
+    default: false,
+  },
 };

@@ -41,6 +41,11 @@ const hasRawJsonErrors = computed(() =>
   ),
 );
 
+// ── Active section (tabs) ────────────────────────────────────────────
+
+type Section = 'settings' | 'columns' | 'json';
+const activeSection = ref<Section>('settings');
+
 /**
  * Converts raw columns from the resource.json input into EditableColumn[].
  * Handles both map form (id-keyed object) and array form.
@@ -304,26 +309,59 @@ defineExpose({ hasRawJsonErrors });
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-3">
     <div class="alert alert-warning text-sm">
       Edits here write directly to <code>resource.json</code>. If
       <code>crouton update resources</code> runs from the CLI at the same time,
       whichever save happens last wins — there's no conflict detection yet.
     </div>
 
-    <!-- Phase 4: Resource-level fields -->
-    <ResourceFieldsPanel
-      :model-value="resourceFields"
-      @update:model-value="onFieldsUpdate"
-    />
+    <!-- Tab bar -->
+    <div role="tablist" class="tabs tabs-box tabs-sm">
+      <a
+        role="tab"
+        class="tab"
+        :class="{ 'tab-active': activeSection === 'settings' }"
+        @click="activeSection = 'settings'"
+      >
+        Settings
+      </a>
+      <a
+        v-if="columns.length"
+        role="tab"
+        class="tab"
+        :class="{ 'tab-active': activeSection === 'columns' }"
+        @click="activeSection = 'columns'"
+      >
+        Columns
+        <span class="badge badge-sm ml-1.5">{{ columns.length }}</span>
+      </a>
+      <a
+        role="tab"
+        class="tab"
+        :class="{ 'tab-active': activeSection === 'json' }"
+        @click="activeSection = 'json'"
+      >
+        JSON
+      </a>
+    </div>
 
-    <!-- Columns editor (moved from crouton-vue) -->
-    <div v-if="columns.length" class="border-t pt-3 mt-1">
-      <h3 class="text-sm font-semibold mb-2">Columns</h3>
+    <!-- Settings tab -->
+    <div v-show="activeSection === 'settings'">
+      <ResourceFieldsPanel
+        :model-value="resourceFields"
+        @update:model-value="onFieldsUpdate"
+      />
+    </div>
+
+    <!-- Columns tab -->
+    <div v-show="activeSection === 'columns'" v-if="columns.length">
       <ResourceColumnsEditor :columns="columns" :drafts="drafts" />
     </div>
 
-    <!-- Phase 5: Raw JSON preview -->
-    <ResourceJsonPreview :model-value="currentDraft" />
+    <!-- JSON tab -->
+    <div v-show="activeSection === 'json'">
+      <ResourceJsonPreview :model-value="currentDraft" :expanded="true" />
+    </div>
   </div>
 </template>
