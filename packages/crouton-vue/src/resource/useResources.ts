@@ -56,6 +56,7 @@ export interface UseResource {
   closeForm: (result: any) => void;
   form: ResourceModals['form'];
   api: ResourceApiInstance;
+  reload: () => void;
 }
 
 export const useResourcesByUri = (
@@ -163,6 +164,7 @@ export const useResources = (
     delete: resourceModal.delete,
     closeForm: resourceModal.closeForm,
     form: resourceModal.form,
+    reload: () => resource.reload(),
     api,
   }) as unknown as UseResource;
 };
