@@ -425,6 +425,27 @@ When `customComponent` is present, it takes priority over the default renderer f
 The custom field component receives `wrapper`, `value` (v-model), `appliedOptions`, `schema`, and `uischema` as props.
 All `fieldInput.options` are available via `appliedOptions`.
 
+#### Table cells
+
+Add `customComponent` to `tableView.options` (or `fieldTable.options`) to override the table cell renderer:
+
+```json
+{
+  "column": "section_number",
+  "fieldInput": {
+    "type": "number",
+    "position": 0
+  },
+  "tableView": {
+    "options": {
+      "customComponent": "moveUpDown"
+    }
+  }
+}
+```
+
+The custom cell component receives `data` (full row object), `value` (cell value), `column`, and `options` as props.
+
 ## Sidebar
 
 The `sidebar` object controls how (and whether) a resource appears in the admin navigation. All fields are optional.

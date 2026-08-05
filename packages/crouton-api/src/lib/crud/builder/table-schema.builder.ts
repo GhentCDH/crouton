@@ -13,7 +13,7 @@ import { deriveSortId } from './sort.helpers';
  * - `values` / `storeValue` — select options
  * - `uri` / `resourceUri` / `schemasUri` — injected resource references
  */
-const SHARED_CELL_OPTION_KEYS = ['values', 'storeValue', 'uri', 'resourceUri', 'schemasUri'] as const;
+const SHARED_CELL_OPTION_KEYS = ['values', 'storeValue', 'uri', 'resourceUri', 'schemasUri', 'customComponent'] as const;
 
 /** Pick the shared (form ↔ table) option keys from a column's `fieldInput.options`. */
 export const pickSharedCellOptions = (col: JsonColumn): Record<string, unknown> => {
