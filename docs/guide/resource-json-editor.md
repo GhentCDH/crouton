@@ -2,6 +2,10 @@
 
 The `ResourceJsonEditor` component from `@ghentcdh/crouton-editor-vue` is a standalone, "dumb" editor for `resource.json` files. It takes the raw resource object as input and emits updated versions — no backend calls, no router, no app context required.
 
+## Live preview
+
+<ResourceJsonEditorDemo />
+
 ## Props & Emits
 
 | Prop | Type | Description |
