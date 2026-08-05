@@ -11,8 +11,9 @@ import RelationCell from '../relation/RelationCell.vue';
 import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
 import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 
-export const isRelationControl = and(optionIsIgnoreCase('format', 'relation'));
-
+export const isCustomFormat = (format: string) =>
+  and(optionIsIgnoreCase('format', format));
+export const isRelationControl = isCustomFormat('relation');
 /**
  * Additional renderers to pass as the `renderers` prop.
  * These are merged ON TOP of the base renderers inside FormComponent —

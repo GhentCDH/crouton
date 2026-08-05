@@ -34,7 +34,6 @@ export const useFormLogic = (
     properties.renderers as JsonFormsRendererRegistryEntry[] | null,
     false,
   );
-
   // ─── Auto-save ──────────────────────────────────────────────────────────────
 
   const autoSaver =

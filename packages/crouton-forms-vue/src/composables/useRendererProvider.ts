@@ -10,7 +10,7 @@ export const CROUTON_READONLY_RENDERERS: InjectionKey<
 > = Symbol('crouton-readonly-renderers');
 
 /**
- * App-level provider — call inside `app.use(createCrouton(...))` to make
+ * App-level provider — call inside `app.use(CroutonPlugin(...))` to make
  * default renderer sets available to all form components via inject.
  */
 export const provideRenderers = (
