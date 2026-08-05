@@ -388,6 +388,43 @@ app.use(
 The custom component receives the form configuration as props and is rendered inside the form wrapper.
 See the [demo component](../components/) for a working example.
 
+### Custom component fields
+
+For field-level customisation (rendering a single field with a custom component rather than replacing the entire form),
+add `customComponent` to `fieldInput.options`. This works with any format — including `relation`:
+
+```json
+{
+  "column": "section",
+  "label": "Sections",
+  "fieldInput": {
+    "format": "relation",
+    "resource": "../section/resource.json",
+    "options": {
+      "customComponent": "work-sections",
+      "sortDir": "section_number",
+      "displayKey": "title"
+    }
+  }
+}
+```
+
+The component is resolved from the same `customComponents` registry:
+
+```ts
+app.use(
+  CroutonPlugin(api, {
+    customComponents: [
+      { tester: customComponentIs('work-sections', 1), renderer: markRaw(WorkSectionsEditor) },
+    ],
+  }),
+);
+```
+
+When `customComponent` is present, it takes priority over the default renderer for that format.
+The custom field component receives `wrapper`, `value` (v-model), `appliedOptions`, `schema`, and `uischema` as props.
+All `fieldInput.options` are available via `appliedOptions`.
+
 ## Sidebar
 
 The `sidebar` object controls how (and whether) a resource appears in the admin navigation. All fields are optional.

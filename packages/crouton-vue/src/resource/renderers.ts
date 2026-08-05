@@ -7,6 +7,7 @@ import {
   optionIsIgnoreCase,
 } from '@ghentcdh/crouton-forms-vue';
 
+import CustomFormatRenderer from './CustomFormatRenderer.vue';
 import RelationCell from '../relation/RelationCell.vue';
 import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
 import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
@@ -14,6 +15,10 @@ import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 export const isCustomFormat = (format: string) =>
   and(optionIsIgnoreCase('format', format));
 export const isRelationControl = isCustomFormat('relation');
+
+/** Matches any control that has `options.customComponent` set. */
+const hasCustomComponent = (uischema: { options?: Record<string, unknown> }) =>
+  !!(uischema as any).options?.customComponent;
 /**
  * Additional renderers to pass as the `renderers` prop.
  * These are merged ON TOP of the base renderers inside FormComponent —
@@ -30,7 +35,13 @@ export const relationRenderers = [
  * All custom control renderers to pass as the `renderers` prop.
  * Merged ON TOP of the base renderers inside the form modal.
  */
-export const customControlRenderers = [...relationRenderers];
+export const customControlRenderers = [
+  ...relationRenderers,
+  {
+    tester: rankWith(17, hasCustomComponent),
+    renderer: markRaw(CustomFormatRenderer),
+  },
+];
 
 export const relationReadonlyRenderers = [
   {
