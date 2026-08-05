@@ -1,16 +1,16 @@
 import { cloneDeep } from 'lodash-es';
-import { type Ref, reactive, shallowRef } from 'vue';
+import { reactive, type Ref, shallowRef } from 'vue';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
-  type ResourceModals,
   actions,
   backendAction,
+  type ResourceModals,
   resourceModals,
   tableActions,
 } from './resource.actions';
-import { type ResourceApiInstance, resourceApi } from './resource.api';
+import { resourceApi, type ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { type Action } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
@@ -56,6 +56,7 @@ export interface UseResource {
   closeForm: (result: any) => void;
   form: ResourceModals['form'];
   api: ResourceApiInstance;
+  reload: () => void;
 }
 
 export const useResourcesByUri = (
@@ -163,6 +164,7 @@ export const useResources = (
     delete: resourceModal.delete,
     closeForm: resourceModal.closeForm,
     form: resourceModal.form,
+    reload: () => resource.reload(),
     api,
   }) as unknown as UseResource;
 };

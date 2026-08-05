@@ -1,5 +1,7 @@
 import './styles.css';
 
+export { Table } from '@ghentcdh/ui';
+
 export { isCustomFormat } from './resource/renderers';
 
 export { croutonApiCall } from './resource/resource.api';
@@ -26,3 +28,5 @@ export * from './runtime.config';
 export * from './status';
 
 export { rankWith } from '@jsonforms/core';
+export * from './relation';
+export { TableComponent } from '@ghentcdh/crouton-forms-vue';

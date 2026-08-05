@@ -28,6 +28,9 @@
     :options="options"
     v-bind="operations"
   />
+  <div v-else-if="displayAs == 'table' && resource">
+    <RelationTable :resource="resource" :values="value" v-bind="wrapper" />
+  </div>
   <ControlLabel v-bind="wrapper" v-else>
     <div v-if="resource">
       <div
@@ -68,6 +71,7 @@ import RelationButton from './RelationButton.vue';
 import { ControlLabel, useFormEvents } from '@ghentcdh/crouton-forms-vue';
 import RelationInline from './RelationInline.vue';
 import RelationAutocomplete from './RelationAutocomplete.vue';
+import RelationTable from './RelationTable.vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
@@ -124,6 +128,7 @@ const onAutocompleteChange = (selected: unknown) => {
 
 const displayAs = computed(() => {
   if (appliedOptions.value.display === 'autocomplete') return 'autocomplete';
+  if (appliedOptions.value.display === 'table') return 'table';
 
   return null;
 });
