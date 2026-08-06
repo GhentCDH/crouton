@@ -1,3 +1,5 @@
+import './styles.css';
+
 export { default as ResourceJsonEditor } from './components/ResourceJsonEditor.vue';
 export { ResourceJsonEditorProperties } from './components/ResourceJsonEditor.properties';
 export {

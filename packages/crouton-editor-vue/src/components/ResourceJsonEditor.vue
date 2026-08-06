@@ -11,11 +11,12 @@ import {
   type EditableColumn,
   type FieldVariant,
   type FieldVariantPatch,
-  TABS,
   type Tab,
+  TABS,
   toDraft,
   type VariantDraft,
 } from '../types/resource-schema-editor.types';
+import { Alert } from '@ghentcdh/ui';
 
 const props = defineProps(ResourceJsonEditorProperties);
 
@@ -55,10 +56,7 @@ const parseColumns = (raw: ResourceJsonInput): EditableColumn[] => {
   if (!rawCols) return [];
 
   const entries: [string, Record<string, unknown>][] = Array.isArray(rawCols)
-    ? (rawCols as Record<string, unknown>[]).map((c) => [
-        c['id'] as string,
-        c,
-      ])
+    ? (rawCols as Record<string, unknown>[]).map((c) => [c['id'] as string, c])
     : Object.entries(rawCols as Record<string, Record<string, unknown>>);
 
   return entries.map(([id, col]) => ({
@@ -71,14 +69,12 @@ const parseColumns = (raw: ResourceJsonInput): EditableColumn[] => {
     form: col['fieldInput'] as FieldVariant | undefined,
     view: {
       resolved: (col['fieldView'] ?? col['fieldInput']) as
-        | FieldVariant
-        | undefined,
+        FieldVariant | undefined,
       hasOverride: !!col['fieldView'],
     },
     table: {
-      resolved: (col['fieldTable'] ??
-        col['fieldView'] ??
-        col['fieldInput']) as FieldVariant | undefined,
+      resolved: (col['fieldTable'] ?? col['fieldView'] ?? col['fieldInput']) as
+        FieldVariant | undefined,
       hasOverride: !!col['fieldTable'],
     },
   }));
@@ -209,7 +205,10 @@ const buildOutput = (): ResourceJsonInput => {
     );
     // Cast: raw JSON may use array form even though the Zod input type
     // only declares map form — the runtime value is passed through as-is.
-    return { ...base, columns: updated as unknown as ResourceJsonInput['columns'] };
+    return {
+      ...base,
+      columns: updated as unknown as ResourceJsonInput['columns'],
+    };
   }
 
   // Map form
@@ -234,10 +233,7 @@ const buildOutput = (): ResourceJsonInput => {
     if (d) {
       const formPatch = buildVariantPatch(d.form, editedCol.form);
       const viewPatch = buildVariantPatch(d.view, editedCol.view.resolved);
-      const tablePatch = buildVariantPatch(
-        d.table,
-        editedCol.table.resolved,
-      );
+      const tablePatch = buildVariantPatch(d.table, editedCol.table.resolved);
       if (formPatch) {
         merged['fieldInput'] = applyVariantPatch(
           origCol['fieldInput'] as Record<string, unknown> | undefined,
@@ -310,11 +306,14 @@ defineExpose({ hasRawJsonErrors });
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="alert alert-warning text-sm">
-      Edits here write directly to <code>resource.json</code>. If
-      <code>crouton update resources</code> runs from the CLI at the same time,
-      whichever save happens last wins — there's no conflict detection yet.
-    </div>
+    <Alert type="warning">
+      <span class="text-gray-800 text-sm">
+        Edits here write directly to <code>resource.json</code>. If
+        <code>crouton update resources</code> runs from the CLI at the same
+        time, whichever save happens last wins — there's no conflict detection
+        yet.
+      </span>
+    </Alert>
 
     <!-- Tab bar -->
     <div role="tablist" class="tabs tabs-box tabs-sm">

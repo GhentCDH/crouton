@@ -64,25 +64,25 @@ const validateRawJson = () => {
       to edit here.
     </p>
     <template v-else>
-      <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
-        <a
+      <div role="tablist" class="flex gap-1 rounded-lg bg-base-200 p-1 text-sm w-fit">
+        <button
           v-for="tab in tabs"
           :key="tab.key"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': activeTab === tab.key }"
+          class="rounded-md px-3 py-1.5 font-medium transition-colors"
+          :class="activeTab === tab.key ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
           @click="emits('update:activeTab', tab.key)"
         >
           {{ tab.label }}
           <span
             v-if="tab.key === 'view' && col.view.hasOverride"
-            class="badge badge-primary badge-xs ml-1.5"
+            class="ml-1.5 inline-block h-2 w-2 rounded-full bg-primary"
           />
           <span
             v-if="tab.key === 'table' && col.table.hasOverride"
-            class="badge badge-primary badge-xs ml-1.5"
+            class="ml-1.5 inline-block h-2 w-2 rounded-full bg-primary"
           />
-        </a>
+        </button>
       </div>
 
       <p class="text-sm opacity-70">

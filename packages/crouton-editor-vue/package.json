@@ -16,11 +16,15 @@
       "@ghentcdh/crouton": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./styles.css"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "styles.css"
+  ],
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",

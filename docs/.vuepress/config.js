@@ -39,6 +39,12 @@ export default defineUserConfig({
               import.meta.url,
             ),
           ),
+          '@ghentcdh/crouton-editor-vue/styles.css': fileURLToPath(
+            new URL(
+              '../../packages/crouton-editor-vue/src/styles.css',
+              import.meta.url,
+            ),
+          ),
           '@ghentcdh/crouton-editor-vue': fileURLToPath(
             new URL(
               '../../packages/crouton-editor-vue/src/index.ts',

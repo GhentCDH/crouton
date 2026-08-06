@@ -77,9 +77,7 @@ export interface AutocompleteResourceOptions extends Omit<
 }
 
 export type AutocompleteAllOptions =
-  | AutocompleteOptions
-  | AutocompleteRemoteOptions
-  | AutocompleteResourceOptions;
+  AutocompleteOptions | AutocompleteRemoteOptions | AutocompleteResourceOptions;
 
 export type ArrayActionType = 'edit';
 export type ArrayAction = {
@@ -117,6 +115,7 @@ export interface ControlOption {
   /** date-range: JSON object key for the end date. Defaults to "to". */
   toField?: string;
   customRender?: any;
+  colspan?: number;
 }
 
 export type ControlTypes = {
@@ -281,6 +280,10 @@ export class ControlBuilder<
         },
       },
     });
+  }
+
+  colspan(colspan: number) {
+    return this.addOptions({ colspan });
   }
 
   customLabel(label: string) {

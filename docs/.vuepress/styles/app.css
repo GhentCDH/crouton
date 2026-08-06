@@ -3,10 +3,31 @@
 @source '../components';
 
 @import '@ghentcdh/ui/index.css';
-@import '@ghentcdh/crouton-forms-vue/styles.css';
 @import '@ghentcdh/crouton-vue/styles.css';
 
+/* daisyUI light-theme fallbacks (docs has no daisyUI runtime) */
 :root {
+    --color-base-100: oklch(100% 0 0);
+    --color-base-200: oklch(96.1% 0 0);
+    --color-base-300: oklch(92.4% 0 0);
+    --color-base-content: oklch(21% 0.006 285.885);
+    --color-primary: oklch(62.3% 0.214 259.815);
+    --color-primary-content: oklch(97.1% 0.014 254.604);
+    --color-secondary: oklch(71.5% 0.143 215.221);
+    --color-secondary-content: oklch(98.7% 0.007 247.896);
+    --color-accent: oklch(76.7% 0.166 130.85);
+    --color-accent-content: oklch(16.4% 0.036 131.517);
+    --color-neutral: oklch(31.4% 0.022 264.182);
+    --color-neutral-content: oklch(98.5% 0.002 247.839);
+    --color-info: oklch(72.3% 0.15 232.661);
+    --color-info-content: oklch(98.7% 0.007 247.896);
+    --color-success: oklch(76.5% 0.177 163.223);
+    --color-success-content: oklch(16.4% 0.036 163.223);
+    --color-warning: oklch(82.8% 0.189 84.429);
+    --color-warning-content: oklch(16.4% 0.036 84.429);
+    --color-error: oklch(63.7% 0.237 25.331);
+    --color-error-content: oklch(97.1% 0.014 25.331);
+
     --sidebar-width: 22rem;
     --sidebar-mobile-width: 22rem;
 }
