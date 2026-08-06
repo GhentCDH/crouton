@@ -1,11 +1,35 @@
 @import 'tailwindcss';
 
-@source '../../demo';
-@source '../../../packages/annotation-editor/src';
-@source '../../../packages/annotation-preview/src';
-@source '../../../packages/annotation-vue/src';
-@source '../../../packages/annotation-ui/src';
+@source '../components';
 
 @import '@ghentcdh/ui/index.css';
 @import '@ghentcdh/crouton-forms-vue/styles.css';
 @import '@ghentcdh/crouton-vue/styles.css';
+
+:root {
+    --sidebar-width: 22rem;
+    --sidebar-mobile-width: 22rem;
+}
+
+// At large viewports the theme grows --sidebar-space via clamp(), which
+// translates to a huge padding-inline-start on .vp-sidebar that pushes
+// all content off-screen. Pin the sidebar to a fixed width and zero padding.
+   .vp-sidebar {
+       width: 22rem !important;
+       padding-inline-start: 0 !important;
+   }
+
+@media (min-width: 1440px) {
+    .vp-sidebar {
+        --sidebar-space: 22rem;
+    }
+}
+
+.vp-sidebar-link,
+.vp-sidebar-title,
+.vp-sidebar-header {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
