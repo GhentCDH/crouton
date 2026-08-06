@@ -271,6 +271,25 @@ importers:
         specifier: ^8.0.0
         version: 8.5.1(@microsoft/api-extractor@7.58.8(@types/node@26.0.1))(@swc/core@1.15.43(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.16)(typescript@5.9.3)(yaml@2.9.0)
 
+  packages/crouton-editor-vue:
+    dependencies:
+      '@ghentcdh/ui':
+        specifier: '*'
+        version: 3.0.2(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.8.0)(zod@4.4.3))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
+      vue:
+        specifier: '>=3.0.0'
+        version: 3.5.39(typescript@5.9.3)
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
+    devDependencies:
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
+      '@ghentcdh/crouton-forms-vue':
+        specifier: workspace:*
+        version: link:../crouton-forms-vue
+
   packages/crouton-forms-vue:
     dependencies:
       '@ghentcdh/ui':
@@ -323,6 +342,9 @@ importers:
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../crouton-core
+      '@ghentcdh/crouton-editor-vue':
+        specifier: workspace:*
+        version: link:../crouton-editor-vue
       '@ghentcdh/crouton-forms-vue':
         specifier: workspace:*
         version: link:../crouton-forms-vue

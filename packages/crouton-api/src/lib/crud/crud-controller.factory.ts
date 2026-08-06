@@ -31,6 +31,8 @@ import {
   registerResourceColumnsEndpoint,
   registerResourceJsonEndpoint,
   registerResourceJsonPatchEndpoint,
+  registerResourceJsonRawGetEndpoint,
+  registerResourceJsonRawPutEndpoint,
   registerSchemasEndpoint,
 } from './operations/register-schema-endpoints';
 import { registerSubResourceRoutes } from './operations/register-sub-resources';
@@ -125,6 +127,8 @@ export function createCrudController(
   registerResourceJsonEndpoint(ctx);
   registerResourceColumnsEndpoint(ctx);
   registerResourceJsonPatchEndpoint(ctx);
+  registerResourceJsonRawGetEndpoint(ctx);
+  registerResourceJsonRawPutEndpoint(ctx);
   registerActionRoutes(ctx);
   registerTableActionRoutes(ctx);
   registerSubResourceRoutes(ctx);

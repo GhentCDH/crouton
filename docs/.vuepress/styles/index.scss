@@ -12,8 +12,10 @@
 }
 
 @media (min-width: 1440px) {
-  :root {
-    --sidebar-space: 22rem;
+  .vp-sidebar {
+    background-color: orange;
+    --sidebar-space: 0rem;
+    padding-inline-start: initial !important;
   }
 }
 
@@ -25,4 +27,3 @@
   text-overflow: ellipsis;
 }
 
-@import '@ghentcdh/ui/index.css';
