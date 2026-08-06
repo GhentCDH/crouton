@@ -3,7 +3,6 @@ import { viteBundler } from '@vuepress/bundler-vite';
 import { defineUserConfig } from 'vuepress';
 import { hopeTheme } from 'vuepress-theme-hope';
 
-
 import guideSideBar from '../guide/typedoc_sidebar.json' with { type: 'json' };
 import { fileURLToPath } from 'node:url';
 
@@ -19,8 +18,20 @@ export default defineUserConfig({
       plugins: [tailwindcss()],
       resolve: {
         alias: {
+          '@ghentcdh/crouton-vue/styles.css': fileURLToPath(
+            new URL(
+              '../../packages/crouton-vue/src/styles.css',
+              import.meta.url,
+            ),
+          ),
           '@ghentcdh/crouton-vue': fileURLToPath(
             new URL('../../packages/crouton-vue/src/index.ts', import.meta.url),
+          ),
+          '@ghentcdh/crouton-forms-vue/styles.css': fileURLToPath(
+            new URL(
+              '../../packages/crouton-forms-vue/src/styles.ts',
+              import.meta.url,
+            ),
           ),
           '@ghentcdh/crouton-forms-vue': fileURLToPath(
             new URL(
