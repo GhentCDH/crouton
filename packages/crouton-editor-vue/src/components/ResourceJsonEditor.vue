@@ -16,7 +16,6 @@ import {
   toDraft,
   type VariantDraft,
 } from '../types/resource-schema-editor.types';
-import { Alert } from '@ghentcdh/ui';
 
 const props = defineProps(ResourceJsonEditorProperties);
 
@@ -137,6 +136,9 @@ const buildVariantPatch = (
   const patch: FieldVariantPatch = {};
   if (draft.position !== original?.position) {
     patch.position = draft.position ?? null;
+  }
+  if (draft.type !== original?.type) {
+    patch.type = draft.type ?? null;
   }
   if (Object.keys(optionsPatch).length) patch.options = optionsPatch;
 
@@ -272,6 +274,10 @@ const applyVariantPatch = (
     if (patch.position === null) delete base['position'];
     else base['position'] = patch.position;
   }
+  if (patch.type !== undefined) {
+    if (patch.type === null) delete base['type'];
+    else base['type'] = patch.type;
+  }
   if (patch.options) {
     const opts = (base['options'] ?? {}) as Record<string, unknown>;
     for (const [k, v] of Object.entries(patch.options)) {
@@ -306,14 +312,14 @@ defineExpose({ hasRawJsonErrors });
 
 <template>
   <div class="flex flex-col gap-3">
-    <Alert type="warning">
-      <span class="text-gray-800 text-sm">
+    <div class="alert alert-warning text-sm">
+      <span>
         Edits here write directly to <code>resource.json</code>. If
         <code>crouton update resources</code> runs from the CLI at the same
         time, whichever save happens last wins — there's no conflict detection
         yet.
       </span>
-    </Alert>
+    </div>
 
     <!-- Tab bar -->
     <div role="tablist" class="tabs tabs-box tabs-sm">

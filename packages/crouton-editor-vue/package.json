@@ -36,6 +36,9 @@
     "vue": ">=3.0.0",
     "zod": "^4.0.0"
   },
+  "dependencies": {
+    "vuedraggable": "^4.1.0"
+  },
   "devDependencies": {
     "@ghentcdh/crouton-core": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*"
