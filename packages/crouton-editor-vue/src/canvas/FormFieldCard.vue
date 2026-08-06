@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 import {
   Btn,
@@ -49,37 +49,11 @@ const previewValue = ref<unknown>(
   })(),
 );
 
-const menuOpen = ref(false);
-const menuRoot = ref<HTMLElement | null>(null);
-
-// The dropdown is now shown via an explicit `dropdown-open` class rather
-// than daisyUI's native :focus-within trick (see the class binding below),
-// so nothing closes it automatically anymore — a click anywhere outside
-// the menu must do that job instead.
-const onDocumentClick = (event: MouseEvent) => {
-  if (!menuOpen.value) return;
-  const target = event.target as Node | null;
-  if (menuRoot.value && target && !menuRoot.value.contains(target)) {
-    menuOpen.value = false;
-  }
-};
-
-watch(menuOpen, (open) => {
-  if (open) document.addEventListener('click', onDocumentClick);
-  else document.removeEventListener('click', onDocumentClick);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', onDocumentClick);
-});
-
 const onSelectType = (type: string) => {
-  menuOpen.value = false;
   emits('change-type', type);
 };
 
 const onRemove = () => {
-  menuOpen.value = false;
   emits('remove');
 };
 
@@ -104,7 +78,7 @@ const typeLabel = computed(
       layer above the handle fixes that without shrinking the handle's
       grabbable area.
     -->
-    <div class="flex items-start gap-1 p-2 pb-0 relative z-10">
+    <div class="flex items-start gap-1 p-2 pb-0 relative">
       <span
         class="drag-handle cursor-grab active:cursor-grabbing select-none px-1 text-base-content/40 hover:text-base-content/70"
         title="Drag to reorder"
@@ -117,25 +91,19 @@ const typeLabel = computed(
           {{ typeLabel }}
         </div>
       </div>
-      <div
-        ref="menuRoot"
-        class="dropdown dropdown-end"
-        :class="{ 'dropdown-open': menuOpen }"
-      >
+      <div ref="menuRoot" class="dropdown dropdown-end">
         <Btn
           tabindex="0"
           color="secondary"
           :outline="true"
           size="xs"
           title="Field options"
-          @click="menuOpen = !menuOpen"
         >
           ⋯
         </Btn>
         <ul
-          v-if="menuOpen"
           tabindex="0"
-          class="dropdown-content menu menu-sm bg-base-100 rounded-box shadow-md border border-base-300 z-10 w-48 p-1"
+          class="dropdown-content menu menu-sm bg-base-100 rounded-box shadow-md border border-base-300 w-48 p-1"
         >
           <li v-if="typeOptions.length" class="menu-title text-[10px]">
             Change display type

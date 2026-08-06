@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import draggable from 'vuedraggable';
 
 import { Btn } from '@ghentcdh/ui';
 
 import { FormCanvasEditorProperties } from './FormCanvasEditor.properties';
-import { type CanvasField, buildCanvasLayout } from './canvas-layout';
+import { buildCanvasLayout, type CanvasField } from './canvas-layout';
 import { swapOptionsFor } from './type-swaps';
 import type { CanvasSelectOption } from './FormFieldCard.properties';
 import FormFieldCard from './FormFieldCard.vue';
@@ -69,33 +69,7 @@ const undoRemove = () => {
   lastRemoved.value = null;
 };
 
-const showAddMenu = ref(false);
-const addMenuRoot = ref<HTMLElement | null>(null);
-
-// Same daisyUI 5 quirk as FormFieldCard's "..." menu: `.dropdown-content`
-// only shows via a `dropdown-open` class or native :focus-within, so a
-// manual v-if with no class binding can leave the menu invisible, and once
-// shown via the class it no longer auto-closes on blur — a document click
-// listener has to do that instead.
-const onDocumentClick = (event: MouseEvent) => {
-  if (!showAddMenu.value) return;
-  const target = event.target as Node | null;
-  if (addMenuRoot.value && target && !addMenuRoot.value.contains(target)) {
-    showAddMenu.value = false;
-  }
-};
-
-watch(showAddMenu, (open) => {
-  if (open) document.addEventListener('click', onDocumentClick);
-  else document.removeEventListener('click', onDocumentClick);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', onDocumentClick);
-});
-
 const onAddField = (fieldId: string) => {
-  showAddMenu.value = false;
   const col = props.columns.find((c) => c.id === fieldId);
   if (!col) return;
   col.hiddenInForm = false;
@@ -175,23 +149,18 @@ const selectOptionsFor = (fieldId: string): CanvasSelectOption[] => {
       Visual mode doesn't support yet) — edit them in Table view.
     </p>
 
-    <div
-      ref="addMenuRoot"
-      class="dropdown"
-      :class="{ 'dropdown-open': showAddMenu }"
-    >
+    <div ref="addMenuRoot" class="dropdown">
       <Btn
         tabindex="0"
         color="secondary"
         :outline="true"
         size="sm"
         :disabled="!layout.hiddenFields.length"
-        @click="showAddMenu = !showAddMenu"
       >
         + Add field
       </Btn>
+
       <ul
-        v-if="showAddMenu && layout.hiddenFields.length"
         tabindex="0"
         class="dropdown-content menu menu-sm bg-base-100 rounded-box shadow-md border border-base-300 z-10 w-56 p-1"
       >

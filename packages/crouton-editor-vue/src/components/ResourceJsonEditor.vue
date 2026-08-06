@@ -322,7 +322,7 @@ defineExpose({ hasRawJsonErrors });
     </div>
 
     <!-- Tab bar -->
-    <div role="tablist" class="tabs tabs-box tabs-sm">
+    <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
       <a
         role="tab"
         class="tab"

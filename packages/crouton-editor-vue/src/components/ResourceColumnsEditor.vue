@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { defineAsyncComponent, ref, watch } from 'vue';
 
 import { Btn, Checkbox, IconEnum, Input } from '@ghentcdh/ui';
 
-import FormCanvasEditor from '../canvas/FormCanvasEditor.vue';
+const FormCanvasEditor = defineAsyncComponent(
+  () => import('../canvas/FormCanvasEditor.vue'),
+);
 import { ResourceColumnsEditorProperties } from './ResourceColumnsEditor.properties';
 import ResourceFieldVariantEditor from './ResourceFieldVariantEditor.vue';
 import {
@@ -56,24 +58,24 @@ watch(
 
 <template>
   <div class="flex flex-col gap-3">
-    <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
-      <a
+    <div role="tablist" class="flex gap-1 rounded-lg bg-base-200 p-1 text-sm w-fit">
+      <button
         role="tab"
-        class="tab"
-        :class="{ 'tab-active': viewMode === 'table' }"
+        class="rounded-md px-3 py-1.5 font-medium transition-colors"
+        :class="viewMode === 'table' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
         @click="viewMode = 'table'"
       >
         Table
-      </a>
-      <a
+      </button>
+      <button
         role="tab"
-        class="tab"
-        :class="{ 'tab-active': viewMode === 'visual' }"
+        class="rounded-md px-3 py-1.5 font-medium transition-colors"
+        :class="viewMode === 'visual' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
         @click="viewMode = 'visual'"
       >
-        Visual
-        <span class="badge badge-warning badge-xs ml-1.5">beta</span>
-      </a>
+        Form
+        <span class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content">beta</span>
+      </button>
     </div>
 
     <FormCanvasEditor

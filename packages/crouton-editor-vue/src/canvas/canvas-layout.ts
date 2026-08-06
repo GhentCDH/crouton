@@ -16,12 +16,12 @@
  * network call.
  */
 
+import { isCanvasSupportedType, normalizeCanvasType } from './type-swaps';
 import type {
   EditableColumn,
   Tab,
   VariantDraft,
 } from '../types/resource-schema-editor.types';
-import { isCanvasSupportedType, normalizeCanvasType } from './type-swaps';
 
 /** One field as the canvas will render it. */
 export type CanvasField = {
