@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 import {
   Btn,
@@ -50,6 +50,28 @@ const previewValue = ref<unknown>(
 );
 
 const menuOpen = ref(false);
+const menuRoot = ref<HTMLElement | null>(null);
+
+// The dropdown is now shown via an explicit `dropdown-open` class rather
+// than daisyUI's native :focus-within trick (see the class binding below),
+// so nothing closes it automatically anymore — a click anywhere outside
+// the menu must do that job instead.
+const onDocumentClick = (event: MouseEvent) => {
+  if (!menuOpen.value) return;
+  const target = event.target as Node | null;
+  if (menuRoot.value && target && !menuRoot.value.contains(target)) {
+    menuOpen.value = false;
+  }
+};
+
+watch(menuOpen, (open) => {
+  if (open) document.addEventListener('click', onDocumentClick);
+  else document.removeEventListener('click', onDocumentClick);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onDocumentClick);
+});
 
 const onSelectType = (type: string) => {
   menuOpen.value = false;
@@ -73,7 +95,16 @@ const typeLabel = computed(
     class="card bg-base-100 border border-base-300 shadow-sm relative group"
     :class="{ 'ring-2 ring-primary': resizing }"
   >
-    <div class="flex items-start gap-1 p-2 pb-0">
+    <!--
+      relative z-10: the absolutely-positioned resize handle below (top-0
+      right-0 h-full) paints above static content by default regardless of
+      DOM order, so without this the "..." menu button — which sits at the
+      card's right edge, right where the resize strip is — silently ate
+      every click meant for it. Lifting the header into its own stacked
+      layer above the handle fixes that without shrinking the handle's
+      grabbable area.
+    -->
+    <div class="flex items-start gap-1 p-2 pb-0 relative z-10">
       <span
         class="drag-handle cursor-grab active:cursor-grabbing select-none px-1 text-base-content/40 hover:text-base-content/70"
         title="Drag to reorder"
@@ -86,7 +117,11 @@ const typeLabel = computed(
           {{ typeLabel }}
         </div>
       </div>
-      <div class="dropdown dropdown-end">
+      <div
+        ref="menuRoot"
+        class="dropdown dropdown-end"
+        :class="{ 'dropdown-open': menuOpen }"
+      >
         <Btn
           tabindex="0"
           color="secondary"
