@@ -25,10 +25,6 @@ export const buildConditionSchema = (
 /**
  * Build a JSON Forms rule object for a column's visibility/disabled condition.
  * Returns `undefined` when the column has no conditional rules.
- *
- * Kept for backwards compatibility (re-exported from `crud/builder`). The form builder
- * now applies rules through `ControlBuilder.showWhen/hideWhen/disableWhen` instead —
- * see `applyColumnRule`.
  */
 export const buildRule = (
   col: JsonColumn,
@@ -52,23 +48,6 @@ export const buildRule = (
       schema: buildConditionSchema(when),
     },
   };
-};
-
-/** Apply a column's conditional rule to a control builder, in the builder chain. */
-const applyColumnRule = (control: ControlBuilder<any>, col: JsonColumn): void => {
-  if (col.disabledWhen) {
-    control.disableWhen(
-      `#/properties/${col.disabledWhen.field}`,
-      buildConditionSchema(col.disabledWhen),
-    );
-    return;
-  }
-  const when = col.showWhen ?? col.hideWhen;
-  if (!when) return;
-  const scope = `#/properties/${when.field}`;
-  const schema = buildConditionSchema(when);
-  if (col.showWhen) control.showWhen(scope, schema);
-  else control.hideWhen(scope, schema);
 };
 
 // ── Form control builders ─────────────────────────────────────────────────
@@ -97,7 +76,7 @@ const buildDetailLayout = (detail: DetailConfig) => {
   return inner;
 };
 
-const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
+const buildFormControl = (col: JsonColumn) => {
   const control = ControlBuilder.properties<any>(col.id as keyof any);
   const fieldInput = col.fieldInput;
 
@@ -132,12 +111,9 @@ const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
     control.control(type, options).width('full');
   }
 
-  if (fieldInput?.customRender) control.setCustomRender(fieldInput?.customRender);
+  if (fieldInput?.customRender)
+    control.setCustomRender(fieldInput?.customRender);
   if (col.hideLabel) control.hideLabel();
-  // Label and conditional rules are expressed in the builder chain — no post-build mutation.
-  if (col.label) control.label(col.label);
-  applyColumnRule(control, col);
-
   return control;
 };
 
@@ -145,7 +121,22 @@ const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
 export const buildFormUiSchema = (
   cols: JsonColumn[],
 ): Record<string, unknown> => {
-  const layout = LayoutBuilder.grid<any>();
-  for (const col of cols) layout.addControl(buildFormControl(col));
-  return layout.build() as unknown as Record<string, unknown>;
+  const layout = LayoutBuilder.grid<any>()
+    .addControls(...cols.map(buildFormControl))
+    .build() as any;
+
+  const colMap = Object.fromEntries(cols.map((c) => [c.id, c]));
+  layout.elements = (layout.elements as any[]).map((el: any) => {
+    const id = el.scope?.replace('#/properties/', '');
+    const col = id ? colMap[id] : undefined;
+    if (!col) return el;
+    const rule = buildRule(col);
+    return {
+      ...el,
+      options: { ...(el.options ?? {}), label: col.label },
+      ...(rule && { rule }),
+    };
+  });
+
+  return layout as Record<string, unknown>;
 };
