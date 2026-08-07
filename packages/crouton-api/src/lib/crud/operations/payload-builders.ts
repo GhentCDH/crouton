@@ -5,6 +5,7 @@ import {
   resolveViewField,
 } from '@ghentcdh/crouton-core';
 
+import { type ResourceRowAction } from '../action';
 import {
   isOperationEnabled,
   resolveDefinition,
@@ -172,6 +173,40 @@ export const buildResourceJsonPayload = (
   return { id: name, uri, operations, schema };
 };
 
+const _resolveActions = (
+  baseUrl: string[],
+  actions: ResourceRowAction[] | undefined,
+) => {
+  if (!actions?.length) return [];
+  const resolved = actions.map((a) =>
+    a.type === 'link'
+      ? {
+          ...a,
+          href: resolveEnvPlaceholders(a.href),
+        }
+      : {
+          ...a,
+          uri: baseUrl.map((b) => (b === '{actionId}' ? a.id : b)).join('/'),
+          method: a.method ?? 'post',
+        },
+  );
+  return resolved;
+};
+
+export const resolveActions = (
+  baseUrl: string,
+  actions: ResourceRowAction[] | undefined,
+) => {
+  return _resolveActions([baseUrl, 'procedure', '{actionId}', '{id}'], actions);
+};
+
+export const resolveTableActions = (
+  baseUrl: string,
+  actions: ResourceRowAction[] | undefined,
+) => {
+  return _resolveActions([baseUrl, 'table-action', '{actionId}'], actions);
+};
+
 /**
  * Build the payload for `GET /schemas` — view schemas (table/form), operations, and actions.
  * Returns `undefined` when the resource has no views configured.
@@ -200,6 +235,7 @@ export const buildViewsPayload = (
       },
     ]),
   );
+  const baseAction = `${baseUri}${config.route}`;
   return {
     id: config.name,
     name: config.name,
@@ -212,54 +248,8 @@ export const buildViewsPayload = (
     operations,
     display: config.display,
     schemas,
-    ...(config.actions?.length && {
-      actions: config.actions.map((a) =>
-        a.type === 'link'
-          ? {
-              type: 'link',
-              id: a.id,
-              label: a.label,
-              href: resolveEnvPlaceholders(a.href),
-              ...(a.icon && { icon: a.icon }),
-              ...(a.tooltip && { tooltip: a.tooltip }),
-              ...(a.condition && { condition: a.condition }),
-            }
-          : {
-              id: a.id,
-              label: a.label,
-              uri: `${baseUrl}/${config.route}/procedure/${a.id}/{id}`,
-              method: a.method ?? 'post',
-              ...(a.data && { data: a.data }),
-              ...(a.icon && { icon: a.icon }),
-              ...(a.tooltip && { tooltip: a.tooltip }),
-              ...(a.condition && { condition: a.condition }),
-            },
-      ),
-    }),
-    ...(config.tableActions?.length && {
-      tableActions: config.tableActions.map((a) =>
-        a.type === 'link'
-          ? {
-              type: 'link',
-              id: a.id,
-              label: a.label,
-              icon: a.icon,
-              tooltip: a.tooltip,
-              href: resolveEnvPlaceholders(a.href),
-              ...(a.condition && { condition: a.condition }),
-            }
-          : {
-              id: a.id,
-              label: a.label,
-              icon: a.icon,
-              tooltip: a.tooltip,
-              uri: `${baseUrl}/${config.route}/table-action/${a.id}`,
-              method: a.method ?? 'post',
-              ...(a.data && { data: a.data }),
-              ...(a.condition && { condition: a.condition }),
-            },
-      ),
-    }),
+    actions: resolveActions(baseAction, config.actions),
+    tableActions: resolveActions(baseAction, config.tableActions),
   };
 };
 

@@ -26,15 +26,7 @@ export const loadActions = async <S extends 'row' | 'table'>(
 
   for (const action of jsonActions) {
     if (action.type === 'link') {
-      results.push({
-        type: 'link',
-        id: action.id,
-        label: action.label,
-        href: action.href,
-        ...(action.icon && { icon: action.icon }),
-        ...(action.tooltip && { tooltip: action.tooltip }),
-        ...(action.condition && { condition: action.condition }),
-      });
+      results.push(action);
       continue;
     }
 
@@ -51,16 +43,8 @@ export const loadActions = async <S extends 'row' | 'table'>(
       continue;
     }
 
-    results.push({
-      id: action.id,
-      label: action.label,
-      method: action.method,
-      data: action.data,
-      ...(action.icon && { icon: action.icon }),
-      ...(action.tooltip && { tooltip: action.tooltip }),
-      ...(action.condition && { condition: action.condition }),
-      procedure: mod,
-    } as ResourceRowAction | ResourceTableAction);
+    results.push({ ...action, procedure: mod } as
+      ResourceRowAction | ResourceTableAction);
   }
 
   return results as any;

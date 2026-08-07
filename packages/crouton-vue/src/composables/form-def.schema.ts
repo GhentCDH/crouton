@@ -74,6 +74,8 @@ export const ActionSchema = z.union([
     id: z.string(),
     label: z.string(),
     href: z.string(),
+    blank: z.boolean(),
+    icon: z.string(),
     condition: ActionConditionSchema.optional(),
   }),
   z.object({
@@ -83,6 +85,7 @@ export const ActionSchema = z.union([
     uri: z.string(),
     method: MethodSchema.optional().default('post'),
     data: z.any().optional(),
+    icon: z.string(),
     condition: ActionConditionSchema.optional(),
   }),
 ]);

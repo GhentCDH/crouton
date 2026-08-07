@@ -52,7 +52,8 @@ export const JsonLinkActionSchema = ActionSchema.extend({
   /** Optional condition evaluated per row. Button is hidden when the condition is false. */
   type: z.literal('link').default('link'), // required
   /** URL to open. May contain `{env.VAR}` placeholders. */
-  href: z.string(), // required
+  href: z.string(), // required,
+  blank: z.boolean().optional().default(true),
 });
 
 const transformAction = <A extends Action>(action: A) => {

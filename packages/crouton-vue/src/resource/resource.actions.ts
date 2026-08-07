@@ -128,74 +128,6 @@ const openViewModal =
     });
   };
 
-const getEditParams = (
-  api: ResourceApiInstance,
-  resource: Resource,
-  formDef: FormDef,
-  handleEvent: HandleEvent,
-  formData?: any,
-) => {
-  const form = formDef.schemas.form;
-  if (!form) return;
-
-  const recordId = formData?.[formDef.idField];
-  const isUpdate = !!recordId;
-
-  handleEvent(isUpdate ? 'update' : 'create', { id: recordId });
-
-  const crouton = useCrouton();
-  const autoSaveEnabled = crouton.autoSave.value;
-  let formParams = {
-    schema: form.data,
-    uiSchema: form.ui,
-    initialData: formData ?? form.parseValue({}),
-    modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
-    http: useApi(),
-    // Re-fetch the parent record when a relation changes so the form stays in
-    // sync. onRefreshData cancels any pending auto-save debounce first to
-    // prevent the stale captured data from overwriting the server state.
-    onRefreshData: isUpdate ? () => api.getOneById(recordId) : undefined,
-  };
-
-  if (autoSaveEnabled && isUpdate) {
-    formParams = {
-      ...formParams,
-      autoSave: true,
-      onAutoSave: (data: any) => api.patch(recordId, data),
-      onClose: () => {
-        resource.reload();
-        handleEvent('close', {});
-      },
-    };
-  } else {
-    formParams = {
-      saveLabel: isUpdate ? 'Save' : 'Create',
-      onClose: (result: FormModalResult) => {
-        if (result && result.valid) {
-          const data = result.data;
-          const promise = isUpdate
-            ? api.save(recordId, data)
-            : api.create(data);
-
-          promise.then((response) => {
-            handleEvent('close', response);
-            if (response) resource.reload();
-          });
-        } else {
-          handleEvent('close', {});
-        }
-      },
-    };
-  }
-
-  return {
-    autoSaveEnabled,
-    recordId,
-    isUpdate,
-    formParams,
-  };
-};
-
 const openEditModal =
   (
     api: ResourceApiInstance,
@@ -295,7 +227,8 @@ export const backendAction = (
         ...defaultUriParams,
         ...formData,
       });
-      window.open(href, '_blank');
+      if (action.blank) window.open(href, '_blank');
+      else window.location.href = href;
       return;
     }
 
@@ -338,27 +271,28 @@ export const actions = (
       return {
         action: backendAction(resource, formDef, defaultUriParams, action),
         tooltip: action.label,
-        label: action.label,
+        icon: action.icon,
+        label: action.icon ? null : action.label,
         ...(action.condition && {
           visible: (row: any) => evaluateCondition(action.condition, row),
         }),
       };
     }),
     {
-      action: _modals.view,
+      action: (id: unknown) => _modals.view(id),
       tooltip: 'View',
       icon: 'View',
     },
     !readonly && (op.update || op.patch)
       ? {
-          action: _modals.edit,
+          action: (id: unknown) => _modals.edit(id),
           tooltip: 'Edit',
           icon: 'Edit',
         }
       : undefined,
     !readonly && op.delete
       ? {
-          action: _modals.delete,
+          action: (id: unknown) => _modals.delete(id),
           tooltip: 'Delete',
           icon: 'Delete',
         }
