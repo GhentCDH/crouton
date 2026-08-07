@@ -8,7 +8,6 @@ const props = defineProps(RelationTableProperties);
 props.resource.reload();
 
 const reload = () => {
-  console.log('reload');
   props.resource.reload();
 };
 </script>
