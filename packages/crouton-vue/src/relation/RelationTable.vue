@@ -6,6 +6,11 @@ import { Btn, IconEnum } from '@ghentcdh/ui';
 const props = defineProps(RelationTableProperties);
 
 props.resource.reload();
+
+const reload = () => {
+  console.log('reload');
+  props.resource.reload();
+};
 </script>
 <template>
   <fieldset class="fieldset">
@@ -13,7 +18,7 @@ props.resource.reload();
       {{ label }}
     </legend>
     <div>
-      <TableComponent v-bind="resource" :data="values" />
+      <TableComponent v-bind="resource" @refresh="reload" />
       <div class="mt-2">
         <Btn
           v-if="resource.operations.create"
