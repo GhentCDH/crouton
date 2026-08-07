@@ -74,12 +74,17 @@ export const colspanLabel = (n: number): string =>
  * options every relation/layout control already understands; anything else
  * in `options` (e.g. a `display` mode, `sort`, custom renderer options) is
  * edited as raw JSON so the editor never silently drops an option it
- * doesn't have a first-class control for.
+ * doesn't have a first-class control for. `type` is the top-level
+ * `fieldInput.type` key (not inside `options`) — the value that actually
+ * drives which control renders for a standard (non-relation) field; edited
+ * by the visual form canvas's "change display type" menu
+ * (`LIVE_FORM_EDITOR_PLAN.md` Phase 4).
  */
 export type VariantDraft = {
   position?: number;
   displayKey: string;
   colspan?: number;
+  type?: string;
   rawOptionsJson: string;
   rawOptionsError: string | null;
 };
@@ -97,6 +102,7 @@ export const toDraft = (variant: FieldVariant | undefined): VariantDraft => {
     position: variant?.position,
     displayKey: (options['displayKey'] as string | undefined) ?? '',
     colspan: options['colspan'] as number | undefined,
+    type: variant?.type,
     rawOptionsJson: Object.keys(rest).length
       ? JSON.stringify(rest, null, 2)
       : '',
@@ -107,6 +113,7 @@ export const toDraft = (variant: FieldVariant | undefined): VariantDraft => {
 /** Body shape for one variant patch — see `PatchResourceJson.schema.ts`. */
 export type FieldVariantPatch = Partial<{
   position: number | null;
+  type: string | null;
   options: Record<string, unknown | null>;
 }>;
 

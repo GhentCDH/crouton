@@ -53,3 +53,6 @@ _tmp_*
 *_PLAN.md
 
 .nx/migrate-runs
+
+# local pnpm store (sandbox/CI envs without a shared global store)
+.pnpm-store/

@@ -52,3 +52,7 @@
     --color-error: var(--color-error);
     --color-error-content: var(--color-error-content);
 }
+
+@plugin "daisyui" {
+    themes: ugent --default;
+}
