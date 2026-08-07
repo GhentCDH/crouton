@@ -1,4 +1,4 @@
-import { type Component, type Ref, markRaw, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
 import {
   AutoSaveForm,
@@ -279,20 +279,20 @@ export const actions = (
       };
     }),
     {
-      action: _modals.view,
+      action: (id: unknown) => _modals.view(id),
       tooltip: 'View',
       icon: 'View',
     },
     !readonly && (op.update || op.patch)
       ? {
-          action: _modals.edit,
+          action: (id: unknown) => _modals.edit(id),
           tooltip: 'Edit',
           icon: 'Edit',
         }
       : undefined,
     !readonly && op.delete
       ? {
-          action: _modals.delete,
+          action: (id: unknown) => _modals.delete(id),
           tooltip: 'Delete',
           icon: 'Delete',
         }
