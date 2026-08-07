@@ -53,3 +53,4 @@ _tmp_*
 *_PLAN.md
 
 .nx/migrate-runs
+.pnpm-store
