@@ -35,11 +35,6 @@ const emits = defineEmits<{
     <!-- Main content slot (draggable grid/strip) -->
     <slot />
 
-    <p v-if="excludedCount" class="text-xs opacity-60">
-      {{ excludedCount }} relation field(s) not shown here — edit them
-      in Table view.
-    </p>
-
     <AddFieldMenu
       :hidden-fields="hiddenFields"
       :disabled="!hiddenFields.length"

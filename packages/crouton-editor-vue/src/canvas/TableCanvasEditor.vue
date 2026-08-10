@@ -26,7 +26,7 @@ const {
   <CanvasShell
     :last-removed="lastRemoved"
     :hidden-fields="layout.hiddenFields"
-    :excluded-count="layout.excludedCount"
+
     :has-fields="!!orderedFields.length"
     warning-text="Table visual mode is new and less proven than Form/View — drag to reorder columns, use the menu to change type or hide. Switch back to Table if something looks wrong."
     empty-text="No columns to lay out — add one below, or edit columns in the Table view."

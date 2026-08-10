@@ -9,7 +9,6 @@ export const CanvasShellProperties = {
     type: Array as PropType<{ id: string; label: string }[]>,
     required: true as const,
   },
-  excludedCount: { type: Number, default: 0 },
   hasFields: { type: Boolean, required: true as const },
   warningText: {
     type: String,

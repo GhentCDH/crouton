@@ -40,7 +40,7 @@ const removeLabel = computed(() =>
   <CanvasShell
     :last-removed="lastRemoved"
     :hidden-fields="layout.hiddenFields"
-    :excluded-count="layout.excludedCount"
+
     :has-fields="!!orderedFields.length"
     @undo="undoRemove"
     @add="onAddField"

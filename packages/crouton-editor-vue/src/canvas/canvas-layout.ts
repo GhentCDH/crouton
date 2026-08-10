@@ -62,8 +62,6 @@ export type CanvasLayout = {
   fields: CanvasField[];
   /** Non-relation, canvas-supported columns currently hidden (candidates for "+ Add field"). */
   hiddenFields: { id: string; label: string }[];
-  /** Columns excluded because they're relations (managed via sub-resource endpoints). */
-  excludedCount: number;
 };
 
 /**
@@ -81,13 +79,8 @@ export const buildCanvasLayout = (
   const hiddenFlag = HIDDEN_FLAG[ctx];
   const fields: CanvasField[] = [];
   const hiddenFields: { id: string; label: string }[] = [];
-  let excludedCount = 0;
 
   columns.forEach((col, index) => {
-    if (isRelationColumn(col, ctx)) {
-      excludedCount++;
-      return;
-    }
     const d = drafts[col.id];
     const type = normalizeCanvasType(draftType(d, ctx));
 
@@ -107,5 +100,5 @@ export const buildCanvasLayout = (
 
   fields.sort((a, b) => a.position - b.position);
 
-  return { fields, hiddenFields, excludedCount };
+  return { fields, hiddenFields };
 };
