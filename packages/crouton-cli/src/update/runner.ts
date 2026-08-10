@@ -21,12 +21,16 @@ import {
   buildEnumRegistry,
   buildResourceDiffs,
   commit,
+  fixZodImports,
   introspect,
+  isGitDirty,
   loadConfig,
   loadDatasources,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
+  prismaGenerate,
+  pullAndGenerate,
   readExistingResource,
   recommendedResolver,
   resolve as resolveDiff,
@@ -40,15 +44,6 @@ import {
 import { type DataSource } from '@ghentcdh/crouton-core';
 
 import { formatResourceChange } from './preview';
-import {
-  backupSchema,
-  fixZodImports,
-  isGitDirty,
-  normalizeSchema,
-  prismaCaseFormat,
-  prismaDbPull,
-  prismaGenerate,
-} from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
@@ -303,37 +298,44 @@ export const runUpdateResources = async (
             );
         if (!cont) throw new CancelledError();
       }
-      await backupSchema(schemaAbs);
+
       const spin = clack.spinner();
-      spin.start(`prisma db pull (${ds.name})`);
-      const pull = await prismaDbPull(loaded.root, configAbs);
-      spin.stop(pull.ok ? 'Schema pulled' : 'db pull failed');
-      if (!pull.ok) {
-        clack.log.error(pull.output);
+      spin.start(`prisma db pull + generate (${ds.name})`);
+      const zodDir = ds.zodOutput ? resolveFromRoot(loaded.root, ds.zodOutput) : undefined;
+      const result = await pullAndGenerate({
+        root: loaded.root,
+        prismaConfigPath: configAbs,
+        schemaPath: schemaAbs,
+        zodOutputDir: zodDir,
+      });
+      spin.stop(result.ok ? 'Pull + generate complete' : 'db pull failed');
+
+      if (!result.ok) {
+        clack.log.error(result.dbPull.output);
         throw new CancelledError();
       }
-
-      const fmtSpin = clack.spinner();
-      fmtSpin.start('prisma-case-format (PascalCase models)');
-      const fmt = await prismaCaseFormat(loaded.root, schemaAbs);
-      fmtSpin.stop(fmt.ok ? 'Schema formatted' : 'case-format failed (continuing)');
-      if (!fmt.ok) clack.log.warn(fmt.output);
-
-      const { renamed } = await normalizeSchema(schemaAbs);
-      if (renamed > 0) {
-        clack.log.info(`Normalized ${renamed} relation field name(s)`);
+      if (result.caseFormat && !result.caseFormat.ok) {
+        clack.log.warn(result.caseFormat.output);
+      }
+      if (result.normalizeSchema && result.normalizeSchema.renamed > 0) {
+        clack.log.info(`Normalized ${result.normalizeSchema.renamed} relation field name(s)`);
+      }
+      if (result.generate && !result.generate.ok) {
+        clack.log.warn(result.generate.output);
+      }
+      if (result.zodImportsFixed && result.zodImportsFixed > 0) {
+        clack.log.info(`Patched ${result.zodImportsFixed} file(s) with missing zod import`);
       }
     }
 
-    // Always refresh generated types (independent of pull) unless skipped.
-    if (!opts.skipGenerate) {
+    // Generate-only path (pull was skipped but generate wasn't).
+    if (!opts.skipGenerate && opts.skipPull) {
       const spin = clack.spinner();
       spin.start('prisma generate');
       const gen = await prismaGenerate(loaded.root, configAbs);
       spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
       if (!gen.ok) clack.log.warn(gen.output);
 
-      // zod-prisma-types may omit `import { z } from 'zod'` — patch it.
       if (gen.ok && ds.zodOutput) {
         const zodDir = resolveFromRoot(loaded.root, ds.zodOutput);
         const patched = await fixZodImports(zodDir);
@@ -341,15 +343,15 @@ export const runUpdateResources = async (
           clack.log.info(`Patched ${patched} file(s) with missing zod import`);
         }
       }
+    }
 
-      // Scaffold package.json for generated types/client dirs when absent.
+    // CLI-only scaffold steps (independent of pull vs generate-only).
+    if (!opts.skipGenerate) {
       const projectName = loaded.config.title?.toLowerCase().replace(/\s+/g, '-') ?? 'app';
       const scaffolded = await ensureGeneratedScaffold(loaded.root, ds, projectName);
       if (scaffolded > 0) {
         clack.log.info(`Created ${scaffolded} scaffold file(s) in generated dirs`);
       }
-
-      // Ensure app package.json files list generated workspace deps.
       const depsPatched = await ensureAppWorkspaceDeps(loaded.root, ds, projectName);
       if (depsPatched > 0) {
         clack.log.info(`Added generated workspace deps to ${depsPatched} app(s)`);

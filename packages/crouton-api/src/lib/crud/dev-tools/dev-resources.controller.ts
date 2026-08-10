@@ -18,11 +18,13 @@ import {
   buildResourceDiffs,
   commit,
   introspect,
+  isGitDirty,
   listResourceNames,
   loadConfig,
   loadDatasources,
   makeRelationResolver,
   makeSchemaExportName,
+  pullAndGenerate,
   readExistingResource,
   recommendedResolver,
   resolve as resolveDiff,
@@ -35,14 +37,6 @@ import { type DataSource } from '@ghentcdh/crouton-core';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { DataSourceRegistry } from '../data-source';
 import { IS_DEV } from '../dev-mode';
-import {
-  backupSchema,
-  fixZodImports,
-  isGitDirty,
-  prismaCaseFormat,
-  prismaDbPull,
-  prismaGenerate,
-} from './prisma-shell';
 
 /**
  * Dev-only endpoints that reuse the `@ghentcdh/crouton-codegen` engine
@@ -232,6 +226,7 @@ export class DevResourcesController {
     backupPath?: string;
     dbPull?: { ok: boolean; output: string };
     caseFormat?: { ok: boolean; output: string };
+    normalizeSchema?: { ok: boolean; renamed: number };
     generate?: { ok: boolean; output: string };
     zodImportsFixed?: number;
   }> {
@@ -246,33 +241,27 @@ export class DevResourcesController {
       return { requiresConfirmation: true, dirtyFile: ds.prismaSchema };
     }
 
-    const backupPath = await backupSchema(schemaPath);
+    const zodDir = ds.zodOutput ? resolveFromRoot(loaded.root, ds.zodOutput) : undefined;
+    const result = await pullAndGenerate({
+      root: loaded.root,
+      prismaConfigPath,
+      schemaPath,
+      zodOutputDir: zodDir,
+    });
 
-    const dbPull = await prismaDbPull(loaded.root, prismaConfigPath);
-    if (!dbPull.ok) {
-      throw new BadRequestException(`prisma db pull failed:\n${dbPull.output}`);
-    }
-
-    // Case-format and generate failures are surfaced but non-fatal, matching
-    // the CLI: the pulled schema is still usable even if these steps fail.
-    const caseFormat = await prismaCaseFormat(loaded.root, schemaPath);
-    const generate = await prismaGenerate(loaded.root, prismaConfigPath);
-
-    let zodImportsFixed = 0;
-    if (generate.ok && ds.zodOutput) {
-      zodImportsFixed = await fixZodImports(
-        resolveFromRoot(loaded.root, ds.zodOutput),
-      );
+    if (!result.ok) {
+      throw new BadRequestException(`prisma db pull failed:\n${result.dbPull.output}`);
     }
 
     return {
       ok: true,
       restartRequired: true,
-      backupPath,
-      dbPull,
-      caseFormat,
-      generate,
-      zodImportsFixed,
+      backupPath: result.backupPath,
+      dbPull: result.dbPull,
+      caseFormat: result.caseFormat,
+      normalizeSchema: result.normalizeSchema,
+      generate: result.generate,
+      zodImportsFixed: result.zodImportsFixed,
     };
   }
 
