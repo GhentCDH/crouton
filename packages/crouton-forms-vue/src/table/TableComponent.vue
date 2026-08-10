@@ -50,7 +50,8 @@ const displayColumns = computed(() =>
       label: e.options?.label ?? def.id,
       type,
       component,
-    } as ColumnDef & { component: any };
+      onRefresh: () => emits('refresh'),
+    } as ColumnDef & { component: any } & { onRefresh: () => void };
   }),
 );
 </script>

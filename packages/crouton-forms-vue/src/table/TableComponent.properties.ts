@@ -9,14 +9,13 @@ export const TableComponentProperties = {
   id: { type: String, required: true as const },
   uiSchema: { type: Object as PropType<Layout>, required: true as const },
   schema: { type: Object as PropType<JsonSchema>, required: true as const },
-  reload: { type: Number },
   loading: { type: Boolean, default: false as const },
   multiselect: { type: Boolean, default: false as const },
-  actions: { type: Array as PropType<TableAction[]> },
+  actions: { type: Array as PropType<TableAction[]>, default: [] },
   data: { type: Array as PropType<any[]> },
   page: { type: Object as PropType<TablePage> },
   sort: { type: Object as PropType<TableSort> },
-  cellRenderers: { type: Array as PropType<CellRendererEntry[]> },
+  cellRenderers: { type: Array as PropType<CellRendererEntry[]>, default: [] },
   hidePagination: { type: Boolean, default: false as const },
 };
 
@@ -25,4 +24,5 @@ export const TableComponentEmits = [
   'updatePageSize',
   'sort',
   'selectionChange',
+  'refresh',
 ];
