@@ -1,3 +1,5 @@
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import type { DataSourceRegistry } from '../data-source';
 import type {
   CroutonStatus,
@@ -7,6 +9,7 @@ import type {
 } from './status.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -84,6 +87,7 @@ export const getResourceStatus = (
     name: c.name,
     path: c.route,
     valid: true,
+    version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
   }));
 
   const failed: ResourceStatus[] = resourceLoadErrorsRegistry
@@ -93,9 +97,22 @@ export const getResourceStatus = (
       path: e.path,
       valid: false,
       error: e.error,
+      version: e.version,
+      expectedVersion: e.expectedVersion,
     }));
 
-  return [...valid, ...failed];
+  // Drafts are present-but-not-served — informational, not errors (valid: true).
+  const draft: ResourceStatus[] = resourceLoadReportRegistry
+    .getByState('draft')
+    .map((d) => ({
+      name: d.name,
+      path: d.path,
+      valid: true,
+      draft: true,
+      version: d.version,
+    }));
+
+  return [...valid, ...failed, ...draft];
 };
 
 export const buildSummary = (

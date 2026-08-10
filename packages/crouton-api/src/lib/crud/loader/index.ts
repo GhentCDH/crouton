@@ -24,12 +24,15 @@ import type { ZodObject, ZodRawShape } from 'zod';
 
 import { loadActions } from '../action';
 import { fromJson } from '../adapter';
+import { IS_DEV } from '../dev-mode';
 import { loadEnumRegistry } from '../enum-registry';
 import { findModule, importDefault } from './module.loader';
 import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
+import { migrateResourceJsonFile } from '../resource/MigrateResourceJson';
 import { readResourceJson } from '../resource/ReadResourceJson';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -42,6 +45,7 @@ export const loadResourceConfigsFromDir = async (
   if (!existsSync(dirPath)) return [];
 
   resourceLoadErrorsRegistry.clear();
+  resourceLoadReportRegistry.clear();
 
   const enums = loadEnumRegistry(dirPath, enumsFile);
   const entries = readdirSync(dirPath, { withFileTypes: true });
@@ -62,6 +66,33 @@ export const loadResourceConfigsFromDir = async (
 
     const jsonFile = join(basePath, 'resource.json');
     if (existsSync(jsonFile)) {
+      // Bring the file to the current schema version first. In dev this rewrites it on
+      // disk; elsewhere an out-of-date file is reported as a failure (not migrated).
+      const migration = migrateResourceJsonFile(jsonFile, { isDev: IS_DEV });
+      if (migration.status === 'failed') {
+        resourceLoadErrorsRegistry.record({
+          name: dir,
+          path: jsonFile,
+          error: migration.error,
+          version: migration.version,
+          expectedVersion: migration.expected,
+        });
+        continue;
+      }
+      if (migration.status === 'migrated') {
+        resourceLoadReportRegistry.record({
+          state: 'migrated',
+          name: dir,
+          path: jsonFile,
+          from: migration.from,
+          to: migration.to,
+        });
+        // eslint-disable-next-line no-console
+        console.info(
+          `[crouton] migrated ${jsonFile}: v${migration.from} → v${migration.to}`,
+        );
+      }
+
       const result = readResourceJson(jsonFile);
 
       if (!result || !result.success) {
@@ -74,6 +105,18 @@ export const loadResourceConfigsFromDir = async (
       }
 
       const json = result.data.json;
+
+      // Draft resources live in the repo but are not loaded/served. They are still
+      // migrated above (in dev) so they stay current until the flag is flipped.
+      if (json.draft) {
+        resourceLoadReportRegistry.record({
+          state: 'draft',
+          name: dir,
+          path: jsonFile,
+          version: json.schemaVersion,
+        });
+        continue;
+      }
       const actions = await loadActions(json.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
         json.tableActions ?? [],
@@ -99,7 +142,17 @@ export const loadResourceConfigsFromDir = async (
     const tsFile = findModule(basePath, 'resource');
     if (tsFile) {
       const config = await importDefault<Resource>(tsFile);
-      if (config) configs.push(hooks ? { ...config, hooks } : config);
+      if (!config) continue;
+      if (config.draft) {
+        resourceLoadReportRegistry.record({
+          state: 'draft',
+          name: dir,
+          path: tsFile,
+          version: config.schemaVersion,
+        });
+        continue;
+      }
+      configs.push(hooks ? { ...config, hooks } : config);
     }
   }
 

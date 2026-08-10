@@ -1,9 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { loadResourceConfigsFromDir } from './index';
 
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -89,5 +98,45 @@ describe('loadResourceConfigsFromDir', () => {
       join(tempDir, 'nope'),
     );
     expect(configs).toHaveLength(0);
+  });
+
+  it('should exclude draft resources and record a draft notice', async () => {
+    const draftDir = join(tempDir, 'wip');
+    mkdirSync(draftDir);
+    writeFileSync(
+      join(draftDir, 'resource.json'),
+      JSON.stringify({ ...validResource, name: 'wip', route: 'wip', draft: true }),
+    );
+
+    const configs = await loadResourceConfigsFromDir(tempDir);
+
+    expect(configs).toHaveLength(0); // not served
+    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0); // not an error
+    const drafts = resourceLoadReportRegistry.getByState('draft');
+    expect(drafts).toHaveLength(1);
+    expect(drafts[0].name).toBe('wip');
+  });
+
+  it('records a failure (no on-disk rewrite) for an out-of-date file outside dev', async () => {
+    // IS_DEV is false under vitest (CROUTON_SCHEMA_EDITOR unset), so no migration runs.
+    const dir = join(tempDir, 'stale');
+    mkdirSync(dir);
+    const file = join(dir, 'resource.json');
+    const stale = JSON.stringify({
+      ...validResource,
+      name: 'stale',
+      route: 'stale',
+      schemaVersion: CURRENT_RESOURCE_VERSION + 1, // pretend it's ahead of what we can migrate
+    });
+    writeFileSync(file, stale);
+
+    const configs = await loadResourceConfigsFromDir(tempDir);
+
+    expect(configs).toHaveLength(0);
+    expect(readFileSync(file, 'utf-8')).toBe(stale); // untouched on disk
+    const errors = resourceLoadErrorsRegistry.getAll();
+    expect(errors).toHaveLength(1);
+    expect(errors[0].name).toBe('stale');
+    expect(errors[0].expectedVersion).toBe(CURRENT_RESOURCE_VERSION);
   });
 });

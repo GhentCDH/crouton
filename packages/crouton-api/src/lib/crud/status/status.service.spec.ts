@@ -12,6 +12,7 @@ import {
 import type { DataSourceRegistry } from '../data-source';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 
 const mockRegistry = (
   entries: { name: string; client: any }[],
@@ -23,6 +24,7 @@ const mockRegistry = (
 describe('status.service', () => {
   beforeEach(() => {
     resourceLoadErrorsRegistry.clear();
+    resourceLoadReportRegistry.clear();
   });
 
   afterEach(() => {
@@ -148,6 +150,7 @@ describe('status.service', () => {
         name: 'people',
         path: 'people',
         valid: true,
+        version: 1,
       });
       expect(result[1]).toEqual({
         name: 'broken_res',
@@ -155,6 +158,43 @@ describe('status.service', () => {
         valid: false,
         error: 'Invalid JSON',
       });
+    });
+
+    it('surfaces drafts as valid-but-not-served (not errors)', () => {
+      resourceLoadReportRegistry.record({
+        state: 'draft',
+        name: 'wip',
+        path: '/resources/wip/resource.json',
+        version: 1,
+      });
+
+      const result = getResourceStatus([]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        name: 'wip',
+        path: '/resources/wip/resource.json',
+        valid: true,
+        draft: true,
+        version: 1,
+      });
+      // A draft must not count as a resource error.
+      expect(buildSummary([], result).resourceErrors).toBe(0);
+    });
+
+    it('carries version/expectedVersion on a schema-version failure', () => {
+      resourceLoadErrorsRegistry.record({
+        name: 'old',
+        path: '/resources/old/resource.json',
+        error: 'needs migration',
+        version: 1,
+        expectedVersion: 2,
+      });
+
+      const [row] = getResourceStatus([]);
+      expect(row.valid).toBe(false);
+      expect(row.version).toBe(1);
+      expect(row.expectedVersion).toBe(2);
     });
   });
 

@@ -9,7 +9,11 @@
 import type { JsonColumnInput } from '@ghentcdh/crouton-core';
 
 import type { ResolvedDiff } from './decision';
-import { serializeResourceJson, serializeSchemaTs } from './serialize';
+import {
+  serializeResourceJson,
+  serializeSchemaTs,
+  withResourceHeader,
+} from './serialize';
 import { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
 import type { WritePlan } from './write-plan';
 
@@ -23,6 +27,11 @@ export interface ApplyContext {
   generatedTypesImport: string;
   /** Export name for a model's Zod schema. Default `<PrismaName>WithRelationsSchema`. */
   schemaExportName?: (prismaName: string) => string;
+  /**
+   * Whether a newly-scaffolded resource is written with `draft: true` (so it isn't served
+   * until reviewed). Defaults to `true`; set `false` via the CLI's `--no-draft`.
+   */
+  draft?: boolean;
 }
 
 type Column = Omit<JsonColumnInput, 'id'>;
@@ -40,7 +49,12 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
     const config = clone(diff.draft.config);
     const addToSidebar = (resolutions.get('sidebar') ?? 'yes') !== 'no';
     config.sidebar = { hide: !addToSidebar };
-    files.push({ path: joinPath(dir, 'resource.json'), contents: serializeResourceJson(config), action: 'create' });
+    const draft = ctx.draft ?? true; // new resources are drafts unless --no-draft
+    files.push({
+      path: joinPath(dir, 'resource.json'),
+      contents: serializeResourceJson(withResourceHeader(config, { draft })),
+      action: 'create',
+    });
   } else {
     const existing = clone(diff.existing!);
     const draftMap = new Map<string, Column>(columnEntries(diff.draft.config.columns));
@@ -74,8 +88,14 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
 
     const config = { ...existing, columns: columnsMapFromEntries(entries) };
     // Only write when something actually changed — keep "adjusted files only".
+    // The header (re-stamped $schema/schemaVersion) is applied at serialize time only, so
+    // it doesn't by itself trigger a rewrite; an existing `draft` value is preserved.
     if (!deepEqual(config, diff.existing)) {
-      files.push({ path: joinPath(dir, 'resource.json'), contents: serializeResourceJson(config), action: 'update' });
+      files.push({
+        path: joinPath(dir, 'resource.json'),
+        contents: serializeResourceJson(withResourceHeader(config)),
+        action: 'update',
+      });
     }
   }
 

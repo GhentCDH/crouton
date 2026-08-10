@@ -76,13 +76,17 @@ Useful flags:
 | `--dry-run` | Show the plan without writing. |
 | `--yes` | Non-interactive; accept recommended choices. |
 | `--skip-pull` / `--skip-generate` | Skip the Prisma steps. |
+| `--no-draft` | Write new resources without `draft: true` (served immediately). |
 
 ### What gets generated
 
 For each model, the CLI writes a `resource.json` (columns as a map, sensible defaults applied) and, when absent, a sibling `schema.ts` that re-exports the generated Zod schema from the datasource's `generatedTypesImport`. A hand-written `schema.ts` is never overwritten.
 
+Every generated `resource.json` is stamped with a `$schema` URL and the current `schemaVersion` (see [Versioning](./resource-versioning.md)), so it validates and autocompletes in your editor and starts at the current version.
+
 Defaults applied during generation:
 
+- new resources are written with **`draft: true`** so a generated-but-unreviewed resource isn't served by accident — flip it to `false` (or remove it) when ready, or pass `--no-draft` to skip it. See [Draft resources](./resource-versioning.md#draft-resources);
 - relations are **ignored** (not added as columns) unless explicitly enabled;
 - `id`, and create/update timestamps are hidden in the table;
 - `description`-style string fields default to a `textarea` input;

@@ -1,0 +1,8 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["**/resource.json"],
+      "url": "./node_modules/@ghentcdh/crouton-core/dist/resource.schema.json"
+    }
+  ]
+}

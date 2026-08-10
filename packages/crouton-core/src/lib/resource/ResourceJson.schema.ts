@@ -5,6 +5,7 @@ import { type JsonColumn, JsonColumnSchema } from './Column';
 import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
 import { JsonIncludeEntrySchema } from './include.schema';
+import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { labelFromId } from '../schema/label.helper';
 
@@ -43,6 +44,19 @@ const normalizeColumns = (
 // ── Top-level resource.json ──────────────────────────────────────────
 
 export const ResourceJsonShape = z.object({
+  /**
+   * URL of the generated JSON Schema, for editor autocomplete/validation. Declared so the
+   * key is *allowed* (not stripped, and not flagged by the very schema it points at).
+   * Ignored at runtime.
+   */
+  $schema: z.string().optional(),
+  /**
+   * resource.json shape version. Missing ⇒ baseline (see `./version`). Auto-migrated
+   * toward `CURRENT_RESOURCE_VERSION` on load in the dev environment.
+   */
+  schemaVersion: z.number().int().positive().optional(),
+  /** When `true`, the resource lives in the repo but is NOT loaded/served (work in progress). */
+  draft: z.boolean().optional().default(false),
   name: z.string(), // required — unique id, used as the frontend form id
   route: z.string(), // required — URL segment for generated endpoints
   model: z.string(), // required — Prisma model name
@@ -72,8 +86,14 @@ export const ResourceJsonShape = z.object({
 
 export const ResourceJsonSchema = ResourceJsonShape.transform((obj) => {
   const title = obj.title ?? labelFromId(obj.name);
+  const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
 
-  return { title, ...obj, columns: normalizeColumns(obj.columns) };
+  return {
+    title,
+    ...obj,
+    schemaVersion,
+    columns: normalizeColumns(obj.columns),
+  };
 });
 
 export type ResourceJson = z.infer<typeof ResourceJsonSchema>;

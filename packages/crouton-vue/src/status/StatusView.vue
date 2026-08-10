@@ -92,12 +92,31 @@
         >
           <span
             class="inline-block w-2.5 h-2.5 rounded-full mt-1.5 shrink-0"
-            :class="res.valid ? 'bg-green-500' : 'bg-red-500'"
+            :class="res.draft ? 'bg-gray-400' : res.valid ? 'bg-green-500' : 'bg-red-500'"
           />
           <div>
             <span class="font-medium">{{ res.name }}</span>
             <span class="text-sm text-gray-500 ml-1">({{ res.path }})</span>
-            <p v-if="res.error" class="text-sm text-red-600">
+            <span
+              v-if="res.version != null"
+              class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono"
+            >
+              v{{ res.version }}
+            </span>
+            <span
+              v-if="res.draft"
+              class="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600"
+            >
+              draft — not loaded
+            </span>
+            <!-- Out-of-date file that just needs migration: amber, distinct from a hard error. -->
+            <p
+              v-if="res.expectedVersion != null && res.expectedVersion !== res.version"
+              class="text-sm text-amber-600"
+            >
+              needs migration to v{{ res.expectedVersion }}<span v-if="res.error"> — {{ res.error }}</span>
+            </p>
+            <p v-else-if="res.error" class="text-sm text-red-600">
               {{ res.error }}
             </p>
           </div>

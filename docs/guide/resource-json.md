@@ -57,6 +57,9 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 
 | Field               | Type                           | Description                                                          |
 |---------------------|--------------------------------|----------------------------------------------------------------------|
+| `$schema`           | `string`                       | URL of the generated JSON Schema, for editor autocomplete — see [Versioning](./resource-versioning.md#schema-and-stamping) |
+| `schemaVersion`     | `number`                       | resource.json shape version; auto-migrated in dev — see [Versioning](./resource-versioning.md) |
+| `draft`             | `boolean`                      | When `true`, kept in the repo but not loaded/served — see [Draft resources](./resource-versioning.md#draft-resources) |
 | `name`              | `string`                       | Unique resource name (used as form id in the frontend)               |
 | `route`             | `string`                       | URL segment for the generated endpoints                              |
 | `model`             | `string`                       | Prisma model name                                                    |

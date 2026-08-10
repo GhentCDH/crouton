@@ -61,6 +61,8 @@ export interface UpdateResourcesOptions {
   yes?: boolean;
   skipPull?: boolean;
   skipGenerate?: boolean;
+  /** Write newly-scaffolded resources with `draft: true` (default `true`; `--no-draft` sets false). */
+  draft?: boolean;
 }
 
 /**
@@ -387,6 +389,7 @@ export const runUpdateResources = async (
       resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
       generatedTypesImport: ds.generatedTypesImport,
       schemaExportName: makeSchemaExportName(loaded.config),
+      draft: opts.draft ?? true,
     };
     const resolver = opts.yes ? recommendedResolver : interactiveResolver;
 
