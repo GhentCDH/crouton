@@ -6,6 +6,9 @@ import { Btn, Checkbox, IconEnum, Input } from '@ghentcdh/ui';
 const FormCanvasEditor = defineAsyncComponent(
   () => import('../canvas/FormCanvasEditor.vue'),
 );
+const TableCanvasEditor = defineAsyncComponent(
+  () => import('../canvas/TableCanvasEditor.vue'),
+);
 import { ResourceColumnsEditorProperties } from './ResourceColumnsEditor.properties';
 import ResourceFieldVariantEditor from './ResourceFieldVariantEditor.vue';
 import {
@@ -21,7 +24,7 @@ const props = defineProps(ResourceColumnsEditorProperties);
  * as a fallback. The visual modes are the drag-and-drop canvases for Form,
  * View, and (Phase 4) Table contexts.
  */
-type ViewMode = 'table' | 'visual-form' | 'visual-view';
+type ViewMode = 'table' | 'visual-form' | 'visual-view' | 'visual-table';
 const viewMode = ref<ViewMode>('table');
 
 const expandedId = ref<string | null>(null);
@@ -84,6 +87,15 @@ watch(
         View
         <span class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content">beta</span>
       </button>
+      <button
+        role="tab"
+        class="rounded-md px-3 py-1.5 font-medium transition-colors"
+        :class="viewMode === 'visual-table' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
+        @click="viewMode = 'visual-table'"
+      >
+        Columns
+        <span class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content">beta</span>
+      </button>
     </div>
 
     <FormCanvasEditor
@@ -98,6 +110,12 @@ watch(
       :columns="columns"
       :drafts="drafts"
       context="view"
+    />
+
+    <TableCanvasEditor
+      v-else-if="viewMode === 'visual-table'"
+      :columns="columns"
+      :drafts="drafts"
     />
 
     <table v-else class="table w-full">
