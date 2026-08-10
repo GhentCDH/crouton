@@ -8,8 +8,8 @@
  */
 
 import { spawn } from 'node:child_process';
-import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 const run = (
@@ -92,6 +92,66 @@ export const fixZodImports = async (zodOutputDir: string): Promise<number> => {
   };
   await walk(zodOutputDir);
   return fixed;
+};
+
+export interface PullAndGenerateInput {
+  root: string;
+  prismaConfigPath: string;
+  schemaPath: string;
+  zodOutputDir: string | undefined;
+}
+
+export interface PullAndGenerateResult {
+  ok: boolean;
+  backupPath: string;
+  dbPull: PrismaRunResult;
+  caseFormat?: PrismaRunResult;
+  normalizeSchema?: { ok: boolean; renamed: number };
+  generate?: PrismaRunResult;
+  zodImportsFixed?: number;
+}
+
+/**
+ * Full pull-and-generate pipeline: backup → dbPull → caseFormat →
+ * normalizeSchema → generate → fixZodImports.
+ *
+ * Returns a structured result; callers handle UI / error presentation.
+ * `dbPull` failure is fatal (returns early with `ok: false`); subsequent
+ * step failures are recorded but non-fatal.
+ */
+export const pullAndGenerate = async (
+  input: PullAndGenerateInput,
+): Promise<PullAndGenerateResult> => {
+  const { root, prismaConfigPath, schemaPath, zodOutputDir } = input;
+
+  const backupPath = await backupSchema(schemaPath);
+
+  const dbPull = await prismaDbPull(root, prismaConfigPath);
+  if (!dbPull.ok) {
+    return { ok: false, backupPath, dbPull };
+  }
+
+  const caseFormat = await prismaCaseFormat(root, schemaPath);
+
+  const normalized = await normalizeSchema(schemaPath);
+  const normalizeResult = { ok: true, renamed: normalized.renamed };
+
+  const generate = await prismaGenerate(root, prismaConfigPath);
+
+  let zodImportsFixed: number | undefined;
+  if (generate.ok && zodOutputDir) {
+    zodImportsFixed = await fixZodImports(zodOutputDir);
+  }
+
+  return {
+    ok: true,
+    backupPath,
+    dbPull,
+    caseFormat,
+    normalizeSchema: normalizeResult,
+    generate,
+    zodImportsFixed,
+  };
 };
 
 interface NormalizeConfig {
