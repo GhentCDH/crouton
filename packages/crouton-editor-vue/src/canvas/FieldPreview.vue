@@ -89,4 +89,7 @@ const previewValue = ref<unknown>(
     "
     :enabled="false"
   />
+  <div v-else class="text-xs opacity-40 italic py-1">
+    No preview for "{{ type }}"
+  </div>
 </template>

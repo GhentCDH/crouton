@@ -7,7 +7,7 @@
  * flag, but the computation is identical.
  */
 
-import { isCanvasSupportedType, normalizeCanvasType } from './type-swaps';
+import { normalizeCanvasType } from './type-swaps';
 import {
   type EditableColumn,
   HIDDEN_FLAG,
@@ -62,7 +62,7 @@ export type CanvasLayout = {
   fields: CanvasField[];
   /** Non-relation, canvas-supported columns currently hidden (candidates for "+ Add field"). */
   hiddenFields: { id: string; label: string }[];
-  /** Columns excluded because they're relations or a type the canvas doesn't render. */
+  /** Columns excluded because they're relations (managed via sub-resource endpoints). */
   excludedCount: number;
 };
 
@@ -90,10 +90,6 @@ export const buildCanvasLayout = (
     }
     const d = drafts[col.id];
     const type = normalizeCanvasType(draftType(d, ctx));
-    if (!isCanvasSupportedType(type)) {
-      excludedCount++;
-      return;
-    }
 
     if (col[hiddenFlag]) {
       hiddenFields.push({ id: col.id, label: col.label || col.column });

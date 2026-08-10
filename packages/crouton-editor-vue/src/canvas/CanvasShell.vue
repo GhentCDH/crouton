@@ -36,8 +36,8 @@ const emits = defineEmits<{
     <slot />
 
     <p v-if="excludedCount" class="text-xs opacity-60">
-      {{ excludedCount }} field(s) not shown here (relations or a type
-      Visual mode doesn't support yet) — edit them in Table view.
+      {{ excludedCount }} relation field(s) not shown here — edit them
+      in Table view.
     </p>
 
     <AddFieldMenu
