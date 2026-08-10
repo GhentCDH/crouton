@@ -4,8 +4,8 @@
  */
 
 import { spawn } from 'node:child_process';
-import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 const run = (
