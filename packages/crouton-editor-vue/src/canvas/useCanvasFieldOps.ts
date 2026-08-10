@@ -1,11 +1,11 @@
 import { computed, ref, watch } from 'vue';
 
-import { buildCanvasLayout, type CanvasField } from './canvas-layout';
-import { swapOptionsFor } from './type-swaps';
 import type { CanvasSelectOption } from './FieldPreview.properties';
+import { type CanvasField, buildCanvasLayout } from './canvas-layout';
+import { swapOptionsFor } from './type-swaps';
 import {
-  HIDDEN_FLAG,
   type EditableColumn,
+  HIDDEN_FLAG,
   type Tab,
   type VariantDraft,
 } from '../types/resource-schema-editor.types';
