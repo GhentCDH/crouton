@@ -1,3 +1,32 @@
+## 0.0.1-alpha.37 (2026-08-10)
+
+### 🚀 Features
+
+- update CroutonPlugin for initialization ([#53](https://github.com/GhentCDH/crouton/pull/53))
+- add custom format renderer for field-level custom components ([#54](https://github.com/GhentCDH/crouton/pull/54))
+- relation table renderer ([#55](https://github.com/GhentCDH/crouton/pull/55))
+- support custom components in table cells ([#56](https://github.com/GhentCDH/crouton/pull/56))
+- resource json editor component ([#57](https://github.com/GhentCDH/crouton/pull/57))
+- relation table ([#59](https://github.com/GhentCDH/crouton/pull/59))
+- expose buildviews ([867934b](https://github.com/GhentCDH/crouton/commit/867934b))
+- table view canvas ([#64](https://github.com/GhentCDH/crouton/pull/64))
+- **cli:** normalize schema naming ([#61](https://github.com/GhentCDH/crouton/pull/61))
+- **crouton-editor-vue:** live drag-and-drop form canvas ([#58](https://github.com/GhentCDH/crouton/pull/58))
+- **resource:** version resource.json with auto-migration, JSON schema & draft flag ([#60](https://github.com/GhentCDH/crouton/pull/60))
+
+### 🩹 Fixes
+
+- multiple http request on edit ([#49](https://github.com/GhentCDH/crouton/pull/49))
+- auto-save PATCH sends only changed fields instead of full form ([#50](https://github.com/GhentCDH/crouton/pull/50))
+- resolve broken relation control mapping for sub-resources ([#51](https://github.com/GhentCDH/crouton/pull/51))
+- redirect to main route ([#52](https://github.com/GhentCDH/crouton/pull/52))
+- order sections by sectionOrder to work findOne ([eed0148](https://github.com/GhentCDH/crouton/commit/eed0148))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.36 (2026-08-04)
 
 ### 🚀 Features
