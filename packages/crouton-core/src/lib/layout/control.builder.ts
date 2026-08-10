@@ -1,4 +1,6 @@
-import { Builder } from './base.builder';
+import type { UISchemaElement } from '@jsonforms/core';
+
+import { ElementBuilder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
 
 export const ControlType = {
@@ -127,12 +129,7 @@ export type ControlTypes = {
 export class ControlBuilder<
   TYPE,
   KEY = keyof TYPE,
-> extends Builder<ControlTypes> {
-  private options: ControlOption = {
-    format: 'Control',
-    styles: {},
-  };
-
+> extends ElementBuilder<UISchemaElement, ControlOption> {
   private _detail?: LayoutBuilder<any>;
 
   private constructor(
@@ -140,6 +137,7 @@ export class ControlBuilder<
     type = 'Control',
   ) {
     super(type);
+    this.opt({ format: 'Control', styles: {} });
   }
 
   static asObject<TYPE>(property: keyof TYPE): ControlBuilder<TYPE> {
@@ -161,7 +159,7 @@ export class ControlBuilder<
       `#/properties/${property as string}`,
     );
 
-    builder.addOptions({
+    builder.opt({
       format: ControlType.custom,
       type,
     } as unknown as Partial<ControlOption>);
@@ -170,14 +168,14 @@ export class ControlBuilder<
   }
 
   setCustomRender(customRender: string) {
-    this.addOptions({ customRender });
+    this.opt({ customRender });
 
     return this;
   }
 
   detail<TYPE>(layoutBuilder: LayoutBuilder<TYPE>, label?: string) {
     this._detail = layoutBuilder;
-    this.addOptions({
+    this.opt({
       format: ControlType.array,
       elementLabelProp: label,
     });
@@ -187,7 +185,7 @@ export class ControlBuilder<
   addAction(action: ArrayAction) {
     const actions = this.options?.actions ?? [];
     actions.push(action);
-    return this.addOptions({ actions });
+    return this.opt({ actions });
   }
 
   detailFixed<TYPE>(
@@ -198,7 +196,7 @@ export class ControlBuilder<
     } = {},
   ) {
     this._detail = layoutBuilder;
-    return this.addOptions({
+    return this.opt({
       hideActions: true,
       format: ControlType.array,
       layout: options.layout ?? 'column',
@@ -207,31 +205,31 @@ export class ControlBuilder<
   }
 
   labelKey(labelKey: string) {
-    return this.addOptions({ labelKey });
+    return this.opt({ labelKey });
   }
 
   readonly(): ControlBuilder<TYPE> {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.string,
       readonly: true,
     });
   }
 
   link(): ControlBuilder<TYPE> {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.link,
     });
   }
 
   markdown(options?: Omit<MarkdownOptions, 'format'>): ControlBuilder<TYPE> {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.markdown,
       ...(options ?? {}),
     });
   }
 
   textArea(options?: Omit<TextAreaOptions, 'format'>) {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.textArea,
       ...(options ?? {}),
     });
@@ -242,7 +240,7 @@ export class ControlBuilder<
       | Omit<AutocompleteOptions, 'format'>
       | Omit<AutocompleteRemoteOptions, 'format'>,
   ) {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.autocomplete,
       dataField: 'data',
       ...(options ?? {}),
@@ -250,28 +248,28 @@ export class ControlBuilder<
   }
 
   control(format: string, options?: Partial<ControlOption>) {
-    return this.addOptions({
+    return this.opt({
       format,
       ...options,
     });
   }
 
   select(options: Omit<SelectOptions, 'format'>) {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.select,
       ...options,
     });
   }
 
   mutliSelect(options: Omit<SelectOptions, 'format'>) {
-    return this.addOptions({
+    return this.opt({
       format: ControlType.mutliSelect,
       ...options,
     });
   }
 
   width(width: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full') {
-    return this.addOptions({
+    return this.opt({
       styles: {
         ...this.options?.styles,
         width,
@@ -282,38 +280,29 @@ export class ControlBuilder<
     });
   }
 
-  colspan(colspan: number) {
-    return this.addOptions({ colspan });
-  }
-
   customLabel(label: string) {
-    return this.addOptions({ label });
+    return this.opt({ label });
   }
 
   placeHolder(placeholder: string) {
-    return this.addOptions({ placeholder });
+    return this.opt({ placeholder });
   }
 
   hideLabel() {
-    return this.addOptions({ hideLabel: true });
-  }
-
-  private addOptions(options: Partial<ControlOption>) {
-    this.options = {
-      ...this.options,
-      ...options,
-    };
-    return this;
+    return this.opt({ hideLabel: true });
   }
 
   override build(): ControlTypes {
+    const detail = this._detail ? this._detail.build() : undefined;
+    const options = {
+      ...this.options,
+      ...(detail ? { detail } : {}),
+    };
     return {
       type: this.type,
       scope: this.scope,
-      options: {
-        ...this.options,
-        detail: this._detail ? this._detail?.build() : undefined,
-      },
-    } as ControlTypes;
+      options,
+      ...(this._rule ? { rule: this._rule } : {}),
+    } as unknown as ControlTypes;
   }
 }

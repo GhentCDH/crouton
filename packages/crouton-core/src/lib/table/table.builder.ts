@@ -1,5 +1,9 @@
-import { Builder } from '../layout/base.builder';
-import { LayoutBuilder } from '../layout/layout.builder';
+import type { Layout } from '@jsonforms/core';
+
+import { Builder, ContainerBuilder } from '../layout/base.builder';
+import type { Buildable } from '../layout/base.builder';
+import { LayoutType } from '../layout/layout.options';
+import type { CroutonLayoutOptions } from '../layout/layout.options';
 
 export interface TextCellOption {
   format: 'TextCell';
@@ -64,28 +68,33 @@ export class BooleanCellBuilder extends TextCellBuilder<boolean> {
     return new BooleanCellBuilder(`#/properties/${property as string}`);
   }
 }
-export class TableBuilder<TYPE> {
-  private builder: LayoutBuilder<TYPE>;
 
+/**
+ * Builds a `HorizontalLayout` of table cells. Shares the overloaded
+ * `addControl` / `addControls` surface with `LayoutBuilder`; its shortcut form
+ * resolves to a `TextCellBuilder` instead of a form control.
+ */
+export class TableBuilder<TYPE = Record<string, unknown>> extends ContainerBuilder<
+  Layout,
+  CroutonLayoutOptions
+> {
   private constructor() {
-    this.builder = LayoutBuilder.horizontal();
+    super(LayoutType.Horizontal);
   }
 
-  static init<TYPE>() {
+  static init<TYPE = Record<string, unknown>>(): TableBuilder<TYPE> {
     return new TableBuilder<TYPE>();
   }
 
-  addControl(control: TextCellBuilder<TYPE>) {
-    this.builder.addControls(control);
-    return this;
+  protected resolveShortcut(name: string): Buildable {
+    return TextCellBuilder.properties<TYPE>(name as keyof TYPE);
   }
 
-  addControls(...controls: Array<TextCellBuilder<TYPE>>) {
-    this.builder.addControls(...controls);
-    return this;
-  }
-
-  build() {
-    return this.builder.build();
+  override build(): Layout {
+    return {
+      type: this.type,
+      elements: this.buildElements(),
+      ...this.baseFields(),
+    };
   }
 }
