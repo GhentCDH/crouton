@@ -32,7 +32,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v5
       - run: npx nx run-many -t build -c production --parallel --max-parallel=6
       - name: Verify generated resource.schema.json is up to date
-        run: git diff --exit-code -- 'packages/crouton-core/src/lib/resource/resource.schema*.json'
+        run: git diff --exit-code -- 'packages/crouton-core/src/lib/resource/resource.schema*.json' docs/.vuepress/public/schema
 
   test:
     runs-on: ubuntu-latest

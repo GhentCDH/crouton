@@ -7,7 +7,7 @@
 // Generate from ResourceJsonShape (the z.object), NOT ResourceJsonSchema (which has a
 // .transform() that z.toJSONSchema rejects). The input shape is what a file author writes.
 import { z } from 'zod';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -47,6 +47,22 @@ for (const dir of [distDir, committedDir]) {
   writeFileSync(join(dir, versionedName), out);
 }
 
+// Publish to the docs site so it's served at the versioned Pages URL the `$id`/`$schema`
+// point to: <base>/schema/v<N>/resource.schema.json. VuePress copies everything under
+// `docs/.vuepress/public` to the site root verbatim. Committed + drift-checked like the others.
+// Guarded so an isolated package build (no docs dir) still succeeds.
+const repoRoot = join(pkgRoot, '..', '..');
+const vuepressDir = join(repoRoot, 'docs', '.vuepress');
+const inRepoWithDocs = existsSync(vuepressDir);
+if (inRepoWithDocs) {
+  const schemaDir = join(vuepressDir, 'public', 'schema');
+  const versionedDir = join(schemaDir, `v${CURRENT_RESOURCE_VERSION}`);
+  mkdirSync(versionedDir, { recursive: true });
+  writeFileSync(join(versionedDir, 'resource.schema.json'), out); // canonical, matches $schema URL
+  writeFileSync(join(schemaDir, 'resource.schema.json'), out); // /schema/... "latest"
+}
+
 console.info(
-  `[crouton-core] wrote resource.schema.json + ${versionedName}`,
+  `[crouton-core] wrote resource.schema.json + ${versionedName}` +
+    (inRepoWithDocs ? ' (+ docs public)' : ''),
 );
