@@ -1,26 +1,18 @@
 /**
- * Client-side, network-free layout resolution for the visual form canvas
- * (`LIVE_FORM_EDITOR_PLAN.md` Phase 1 / `RESOURCE_JSON_EDITOR_COMPONENT_PLAN.md`
- * Phase 6's first real consumer).
+ * Client-side, network-free layout resolution for the visual canvas
+ * (`LIVE_FORM_EDITOR_PLAN.md` Phase 1 / `TABLE_VIEW_CANVAS_PLAN.md` Phase 1).
  *
- * This is a deliberately lightweight projection, not a full port of
- * `crouton-api`'s `buildFormUiSchema`/`LayoutBuilder`/`ControlBuilder`. Those
- * build a complete JsonForms `GridLayout` (with visibility rules, relation
- * options, custom renderers, etc.) for full JsonForms dispatch — but the
- * canvas explicitly does NOT go through JsonForms dispatch (see
- * `FormCanvasEditor.vue`'s comment for why: dispatch has no hook for
- * wrapping drag/resize/menu chrome around each control). All the canvas
- * actually needs from "the layout" is: which columns are visible-in-form and
- * non-relation, what order they're in, and each one's effective colspan/type
- * — so that's all this module computes, purely from in-memory state, with no
- * network call.
+ * Parameterized by `ctx: Tab` so Form, View, and Table canvases all share
+ * the same layout logic — each context reads its own draft slot and hidden
+ * flag, but the computation is identical.
  */
 
 import { isCanvasSupportedType, normalizeCanvasType } from './type-swaps';
-import type {
-  EditableColumn,
-  Tab,
-  VariantDraft,
+import {
+  HIDDEN_FLAG,
+  type EditableColumn,
+  type Tab,
+  type VariantDraft,
 } from '../types/resource-schema-editor.types';
 
 /** One field as the canvas will render it. */
@@ -29,74 +21,81 @@ export type CanvasField = {
   label: string;
   /** Normalized type (`normalizeCanvasType` — 'text'/undefined collapse to 'string'). */
   type: string;
+  /** Grid colspan (form/view). Omitted for table context (flat array, no grid). */
   colspan: number;
   /** Effective sort key — the draft's explicit position, or its position in `columns`. */
   position: number;
 };
 
 /**
- * A column is a relation if its original (never-drafted — relation-ness
- * isn't editable here) form config says so. Mirrors `buildFormControl`'s own
- * relation test (`fieldInput?.format === 'relation'`) plus the two other
- * tells a relation column carries even if `format` itself is missing.
+ * A column is a relation if its config for the given context says so.
+ * For `form` we read `col.form`; for `view`/`table` we read `col[ctx].resolved`.
+ * Mirrors `buildFormControl`'s own relation test (`fieldInput?.format === 'relation'`)
+ * plus the two other tells a relation column carries.
  */
-export const isRelationColumn = (col: EditableColumn): boolean => {
-  const f = col.form;
+export const isRelationColumn = (col: EditableColumn, ctx: Tab = 'form'): boolean => {
+  const f = ctx === 'form' ? col.form : col[ctx]?.resolved;
   return !!(f?.format === 'relation' || f?.resource || f?.relationType);
 };
 
-/** Reads the live-edited type for a column's Form context out of its draft. */
+/** Reads the live-edited type for a column in the given context out of its draft. */
 export const draftType = (
   drafts: Record<Tab, VariantDraft> | undefined,
-): string | undefined => drafts?.form.type;
+  ctx: Tab = 'form',
+): string | undefined => drafts?.[ctx].type;
 
-/** Reads the live-edited colspan for a column's Form context, defaulting to 12 (schema default). */
+/** Reads the live-edited colspan for a column in the given context, defaulting to 12. */
 export const draftColspan = (
   drafts: Record<Tab, VariantDraft> | undefined,
-): number => drafts?.form.colspan ?? 12;
+  ctx: Tab = 'form',
+): number => drafts?.[ctx].colspan ?? 12;
 
-/** Reads the live-edited position, falling back to `fallbackIndex` — mirrors `sortByPosition`'s `position ?? arrayIndex`. */
+/** Reads the live-edited position, falling back to `fallbackIndex`. */
 export const draftPosition = (
   drafts: Record<Tab, VariantDraft> | undefined,
   fallbackIndex: number,
-): number => drafts?.form.position ?? fallbackIndex;
+  ctx: Tab = 'form',
+): number => drafts?.[ctx].position ?? fallbackIndex;
 
 export type CanvasLayout = {
   /** Visible, non-relation, canvas-supported fields, in effective order. */
   fields: CanvasField[];
-  /** Non-relation, canvas-supported columns currently hidden from the form (candidates for "+ Add field"). */
+  /** Non-relation, canvas-supported columns currently hidden (candidates for "+ Add field"). */
   hiddenFields: { id: string; label: string }[];
-  /** Columns excluded because they're relations or a type the canvas doesn't render (date, custom, etc.). */
+  /** Columns excluded because they're relations or a type the canvas doesn't render. */
   excludedCount: number;
 };
 
 /**
  * Builds the canvas's view of the current draft state — pure, synchronous,
- * safe to call on every render/drag tick (no network call, no memoization
- * needed for correctness, only worth it for render-perf on a very large
- * resource).
+ * safe to call on every render/drag tick.
+ *
+ * @param ctx Which context to resolve for — reads `drafts[id][ctx]` and
+ *   the matching `hiddenIn*` flag.
  */
 export const buildCanvasLayout = (
   columns: EditableColumn[],
   drafts: Record<string, Record<Tab, VariantDraft>>,
+  ctx: Tab = 'form',
 ): CanvasLayout => {
+  const hiddenFlag = HIDDEN_FLAG[ctx];
   const fields: CanvasField[] = [];
   const hiddenFields: { id: string; label: string }[] = [];
   let excludedCount = 0;
 
   columns.forEach((col, index) => {
-    if (isRelationColumn(col)) {
+    if (isRelationColumn(col, ctx)) {
       excludedCount++;
       return;
     }
     const d = drafts[col.id];
-    const type = normalizeCanvasType(draftType(d));
+    const type = normalizeCanvasType(draftType(d, ctx));
     if (!isCanvasSupportedType(type)) {
       excludedCount++;
       return;
     }
 
-    if (col.hiddenInForm) {
+    if (col[hiddenFlag]) {
       hiddenFields.push({ id: col.id, label: col.label || col.column });
       return;
     }
@@ -105,8 +104,8 @@ export const buildCanvasLayout = (
       id: col.id,
       label: col.label || col.column,
       type,
-      colspan: draftColspan(d),
-      position: draftPosition(d, index),
+      colspan: ctx === 'table' ? 1 : draftColspan(d, ctx),
+      position: draftPosition(d, index, ctx),
     });
   });
 
