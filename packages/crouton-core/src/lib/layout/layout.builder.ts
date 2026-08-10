@@ -1,74 +1,75 @@
-import { BuilderWithElements } from './base.builder';
-import type { CategoryBuilder } from './category.builder';
-import type { ControlBuilder, ControlTypes } from './control.builder';
-import type { GroupBuilder } from './group.builder';
-import type { TextCellBuilder } from '../table/table.builder';
+import type { Layout } from '@jsonforms/core';
 
-export type ElementBuilder<TYPE> =
-  | ControlBuilder<TYPE>
-  | LayoutBuilder<TYPE>
-  | CategoryBuilder<TYPE>
-  | GroupBuilder<TYPE>
-  | TextCellBuilder<TYPE>;
+import type { Buildable, ControlShortcut } from './base.builder';
+import { ContainerBuilder } from './base.builder';
+import { ControlBuilder } from './control.builder';
+import type { ControlOption } from './control.builder';
+import { LayoutType } from './layout.options';
+import type { CroutonLayoutOptions } from './layout.options';
 
-export const LayoutTypes = {
-  HorizontalLayout: 'HorizontalLayout',
-  VerticalLayout: 'VerticalLayout',
-  CollapseLayout: 'CollapseLayout',
-  GridLayout: 'GridLayout',
-} as const;
+/**
+ * Property name for the `addControl` shortcut. Known keys of `TYPE` get autocomplete and
+ * typo-checking; any string is still accepted so the shortcut works without a generic.
+ */
+type Name<TYPE> = (keyof TYPE & string) | (string & {});
 
-type _LayoutTypes = (typeof LayoutTypes)[keyof typeof LayoutTypes];
-
-export type LayoutType = {
-  type: 'LayoutTypes';
-  elements: Array<ControlTypes | LayoutType>;
-};
-
-export class LayoutBuilder<TYPE> extends BuilderWithElements<LayoutType, TYPE> {
-  private options: any;
-
-  protected constructor(type: _LayoutTypes, options = {}) {
+export class LayoutBuilder<TYPE = Record<string, unknown>> extends ContainerBuilder<
+  Layout,
+  CroutonLayoutOptions
+> {
+  private constructor(type: string) {
     super(type);
-    this.options = options;
   }
 
-  static horizontal<TYPE>(): LayoutBuilder<TYPE> {
-    return new LayoutBuilder<TYPE>(LayoutTypes.HorizontalLayout);
-  }
-  static collapse<TYPE>(): LayoutBuilder<TYPE> {
-    return new LayoutBuilder<TYPE>(LayoutTypes.CollapseLayout);
+  static horizontal<TYPE = Record<string, unknown>>(): LayoutBuilder<TYPE> {
+    return new LayoutBuilder<TYPE>(LayoutType.Horizontal);
   }
 
-  static vertical<TYPE>(): LayoutBuilder<TYPE> {
-    return new LayoutBuilder<TYPE>(LayoutTypes.VerticalLayout);
+  static vertical<TYPE = Record<string, unknown>>(): LayoutBuilder<TYPE> {
+    return new LayoutBuilder<TYPE>(LayoutType.Vertical);
   }
 
-  static grid<TYPE>(): LayoutBuilder<TYPE> {
-    return new LayoutBuilder<TYPE>(LayoutTypes.GridLayout);
+  static grid<TYPE = Record<string, unknown>>(columns?: number): LayoutBuilder<TYPE> {
+    const layout = new LayoutBuilder<TYPE>(LayoutType.Grid);
+    return columns === undefined ? layout : layout.opt({ columns });
   }
 
-  titleKey(titleKey: string) {
-    return this.addOptions({ titleKey });
+  static collapse<TYPE = Record<string, unknown>>(): LayoutBuilder<TYPE> {
+    return new LayoutBuilder<TYPE>(LayoutType.Collapse);
   }
 
-  title(title: string) {
-    return this.addOptions({ title });
+  /** Collapse layout title. */
+  title(title: string): this {
+    return this.opt({ title });
   }
 
-  private addOptions(options: Partial<any>) {
-    this.options = {
-      ...this.options,
-      ...options,
-    };
-    return this;
+  /** Collapse layout: resolve the title from a field value at render time. */
+  titleKey(titleKey: string): this {
+    return this.opt({ titleKey });
   }
 
-  override build(): LayoutType {
+  // Narrow the shortcut name to TYPE's keys (still accepts any string).
+  override addControl(builder: Buildable): this;
+  override addControl(name: Name<TYPE>, options?: ControlShortcut): this;
+  override addControl(arg: string | Buildable, options?: ControlShortcut): this {
+    return super.addControl(arg as string, options);
+  }
+
+  protected resolveShortcut(name: string, options?: ControlShortcut): Buildable {
+    const control = ControlBuilder.properties<TYPE>(name as keyof TYPE);
+    if (options) {
+      const { type, ...rest } = options;
+      if (type) control.control(type, rest);
+      else if (Object.keys(rest).length) control.opt(rest as Partial<ControlOption>);
+    }
+    return control;
+  }
+
+  override build(): Layout {
     return {
       type: this.type,
       elements: this.buildElements(),
-      options: this.options,
-    } as LayoutType;
+      ...this.baseFields(),
+    };
   }
 }

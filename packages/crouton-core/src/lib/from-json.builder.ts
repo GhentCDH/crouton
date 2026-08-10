@@ -1,14 +1,12 @@
-import type { JsonSchema } from '@jsonforms/core';
+import type { JsonSchema, Layout } from '@jsonforms/core';
 
-import { ControlBuilder } from './layout/control.builder';
-import type { LayoutType } from './layout/layout.builder';
 import { LayoutBuilder } from './layout/layout.builder';
 
-export const uiFromJsonSchema = (jsonSchema: JsonSchema): LayoutType => {
+export const uiFromJsonSchema = (jsonSchema: JsonSchema): Layout => {
   const properties = jsonSchema.properties ?? {};
-  const layout = LayoutBuilder.grid<Record<string, unknown>>();
+  const layout = LayoutBuilder.grid();
   for (const key of Object.keys(properties)) {
-    layout.addControl(ControlBuilder.properties<Record<string, unknown>>(key));
+    layout.addControl(key);
   }
   return layout.build();
 };
