@@ -44,6 +44,7 @@ import {
   backupSchema,
   fixZodImports,
   isGitDirty,
+  normalizeSchema,
   prismaCaseFormat,
   prismaDbPull,
   prismaGenerate,
@@ -317,6 +318,11 @@ export const runUpdateResources = async (
       const fmt = await prismaCaseFormat(loaded.root, schemaAbs);
       fmtSpin.stop(fmt.ok ? 'Schema formatted' : 'case-format failed (continuing)');
       if (!fmt.ok) clack.log.warn(fmt.output);
+
+      const { renamed } = await normalizeSchema(schemaAbs);
+      if (renamed > 0) {
+        clack.log.info(`Normalized ${renamed} relation field name(s)`);
+      }
     }
 
     // Always refresh generated types (independent of pull) unless skipped.

@@ -4,8 +4,9 @@
  */
 
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 const run = (
   cmd: string,
@@ -87,4 +88,54 @@ export const fixZodImports = async (zodOutputDir: string): Promise<number> => {
   };
   await walk(zodOutputDir);
   return fixed;
+};
+
+interface NormalizeConfig {
+  renames: Record<string, Record<string, string>>;
+}
+
+/**
+ * Rename ugly auto-generated relation field names in a Prisma schema using a
+ * `normalize-schema.json` config file placed next to the schema.
+ */
+export const normalizeSchema = async (
+  schemaPath: string,
+  configDir?: string,
+): Promise<{ renamed: number }> => {
+  const dir = configDir ?? dirname(schemaPath);
+  const configPath = join(dir, 'normalize-schema.json');
+
+  if (!existsSync(configPath)) return { renamed: 0 };
+
+  const config: NormalizeConfig = JSON.parse(
+    await readFile(configPath, 'utf-8'),
+  );
+  let schema = await readFile(schemaPath, 'utf-8');
+  let renamed = 0;
+
+  for (const [modelName, fields] of Object.entries(config.renames)) {
+    // Match the model block: `model ModelName { ... }`
+    const modelRe = new RegExp(
+      `(model\\s+${modelName}\\s*\\{)(.*?)(^})`,
+      'ms',
+    );
+    schema = schema.replace(modelRe, (_, head: string, body: string, tail: string) => {
+      for (const [ugly, clean] of Object.entries(fields)) {
+        // Replace field name at start of line (after optional whitespace)
+        const fieldRe = new RegExp(`^(\\s+)${ugly}\\b`, 'gm');
+        const replaced = body.replace(fieldRe, `$1${clean}`);
+        if (replaced !== body) {
+          body = replaced;
+          renamed++;
+        }
+      }
+      return `${head}${body}${tail}`;
+    });
+  }
+
+  if (renamed > 0) {
+    await writeFile(schemaPath, schema, 'utf-8');
+  }
+
+  return { renamed };
 };

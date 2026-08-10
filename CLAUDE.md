@@ -22,6 +22,11 @@
 
 <!-- nx configuration end-->
 
+# Package Boundaries
+
+- `crouton-core` — browser-safe shared code (types, schemas, utilities). No Node-only imports (`child_process`, `fs`, etc.)
+- `crouton-codegen` — all shared Node-only codegen/prisma tooling. Both `crouton-cli` and `crouton-api` depend on it for prisma shell wrappers, introspection, scaffolding, etc. Put shared codegen logic here, not in cli or api
+
 # Code Style Preferences
 
 - Always use arrow function syntax for all functions: `const foo = () => { ... }` (not `function foo() { ... }`)
