@@ -316,9 +316,17 @@ export class ReadRepository<T = any> {
       ? Object.fromEntries(manyToOneIncludes.map((r) => [r, true]))
       : undefined;
     const configInclude = buildIncludeClause(this.config.include);
+    // Exclude countable (oneToMany) sub-resources from configInclude in findAll:
+    // they are already represented by _count, and including full records would be
+    // overwritten by the count mapping below.
+    const countableRelations = new Set(countableSubResources.map((s) => s.relation));
+    const filteredConfigInclude = configInclude
+      ? Object.fromEntries(Object.entries(configInclude).filter(([key]) => !countableRelations.has(key)))
+      : undefined;
+    const safeConfigInclude = filteredConfigInclude && Object.keys(filteredConfigInclude).length ? filteredConfigInclude : undefined;
     const mergedInclude =
-      flatIncludes || configInclude
-        ? { ...flatIncludes, ...configInclude }
+      flatIncludes || safeConfigInclude
+        ? { ...flatIncludes, ...safeConfigInclude }
         : undefined;
 
     const countClause = countableSubResources.length

@@ -916,6 +916,10 @@
               },
               "href": {
                 "type": "string"
+              },
+              "blank": {
+                "default": true,
+                "type": "boolean"
               }
             },
             "required": [
@@ -1046,6 +1050,10 @@
               },
               "href": {
                 "type": "string"
+              },
+              "blank": {
+                "default": true,
+                "type": "boolean"
               }
             },
             "required": [
