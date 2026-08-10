@@ -1,0 +1,2385 @@
+From 90f4a90b3fee2602aac2cf3eb4f310435fdc07f7 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 10 Aug 2026 07:31:11 +0000
+Subject: [PATCH] feat(resource): version resource.json with auto-migration,
+ JSON schema & draft flag
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Adds schema versioning and a migration path for resource.json, editor
+autocomplete via a generated JSON Schema, and a draft flag.
+
+crouton-core
+- `version.ts`: BASELINE/CURRENT_RESOURCE_VERSION (both 1 — no-op until a real
+  shape change bumps CURRENT and adds a step).
+- `migrations/`: pure, testable engine (`runResourceMigrations`) operating on
+  raw JSON with a contiguous single-step chain; path/step error types.
+- `ResourceJsonShape`: add `$schema`, `schemaVersion`, `draft`; stamp
+  schemaVersion in the transform.
+- `scripts/gen-resource-schema.mjs` + tsup `onSuccess`: generate
+  resource.schema.json from the Shape (io:input) into dist (shipped) and a
+  committed copy; CI drift-check in merge-request.yml.
+
+crouton-api
+- `MigrateResourceJson.ts`: dev-only auto-migrate-on-load (rewrites file);
+  out-of-date/newer files outside dev are reported, never rewritten;
+  unparseable files pass through to the existing reader.
+- loader: migrate hook + draft exclusion; `resource-load-report.registry.ts`
+  for migrated/draft notices; errors registry carries version/expectedVersion.
+- status: resources report version; drafts show as valid-but-not-served;
+  migration failures carry expectedVersion.
+
+crouton-vue
+- StatusView: version badge, amber "needs migration", gray "draft" row.
+
+crouton-codegen / cli
+- `withResourceHeader` stamps $schema + schemaVersion (+ draft) on generated
+  files; new resources default to draft:true, `--no-draft` opts out.
+
+Tests: migration engine, loader draft/stale, status draft/version, codegen header.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01LZFFAf7D2d515fgcsXTF1u
+---
+ .github/workflows/merge-request.yml           |    2 +
+ .vscode/settings.json                         |    8 +
+ .../crouton-api/src/lib/crud/loader/index.ts  |   55 +-
+ .../src/lib/crud/loader/loader.spec.ts        |   51 +-
+ .../lib/crud/resource/MigrateResourceJson.ts  |   87 ++
+ .../resource/resource-load-errors.registry.ts |    4 +
+ .../resource/resource-load-report.registry.ts |   50 +
+ .../lib/crud/status/status.controller.spec.ts |    1 +
+ .../lib/crud/status/status.service.spec.ts    |   40 +
+ .../src/lib/crud/status/status.service.ts     |   19 +-
+ .../src/lib/crud/status/status.types.ts       |    6 +
+ packages/crouton-cli/src/commands/update.ts   |    2 +
+ packages/crouton-cli/src/update/runner.ts     |    3 +
+ packages/crouton-codegen/src/apply.ts         |   26 +-
+ .../crouton-codegen/src/serialize.spec.ts     |   57 +
+ packages/crouton-codegen/src/serialize.ts     |   39 +-
+ .../scripts/gen-resource-schema.mjs           |   42 +
+ .../src/lib/resource/ResourceJson.schema.ts   |   22 +-
+ .../crouton-core/src/lib/resource/index.ts    |    2 +
+ .../src/lib/resource/migrations/index.ts      |   82 ++
+ .../resource/migrations/migrations.spec.ts    |   95 ++
+ .../src/lib/resource/migrations/types.ts      |   48 +
+ .../src/lib/resource/resource.schema.json     | 1121 +++++++++++++++++
+ .../crouton-core/src/lib/resource/version.ts  |   23 +
+ packages/crouton-core/tsup.config.ts          |    2 +
+ .../crouton-vue/src/status/StatusView.vue     |   23 +-
+ .../crouton-vue/src/status/status.types.ts    |    6 +
+ 27 files changed, 1904 insertions(+), 12 deletions(-)
+ create mode 100644 .vscode/settings.json
+ create mode 100644 packages/crouton-api/src/lib/crud/resource/MigrateResourceJson.ts
+ create mode 100644 packages/crouton-api/src/lib/crud/resource/resource-load-report.registry.ts
+ create mode 100644 packages/crouton-codegen/src/serialize.spec.ts
+ create mode 100644 packages/crouton-core/scripts/gen-resource-schema.mjs
+ create mode 100644 packages/crouton-core/src/lib/resource/migrations/index.ts
+ create mode 100644 packages/crouton-core/src/lib/resource/migrations/migrations.spec.ts
+ create mode 100644 packages/crouton-core/src/lib/resource/migrations/types.ts
+ create mode 100644 packages/crouton-core/src/lib/resource/resource.schema.json
+ create mode 100644 packages/crouton-core/src/lib/resource/version.ts
+
+diff --git a/.github/workflows/merge-request.yml b/.github/workflows/merge-request.yml
+index 8544436..e9a9f85 100644
+--- a/.github/workflows/merge-request.yml
++++ b/.github/workflows/merge-request.yml
+@@ -31,6 +31,8 @@ jobs:
+         run: pnpm install --frozen-lockfile
+       - uses: nrwl/nx-set-shas@v5
+       - run: npx nx run-many -t build -c production --parallel --max-parallel=6
++      - name: Verify generated resource.schema.json is up to date
++        run: git diff --exit-code -- packages/crouton-core/src/lib/resource/resource.schema.json
+ 
+   test:
+     runs-on: ubuntu-latest
+diff --git a/.vscode/settings.json b/.vscode/settings.json
+new file mode 100644
+index 0000000..f5ffb07
+--- /dev/null
++++ b/.vscode/settings.json
+@@ -0,0 +1,8 @@
++{
++  "json.schemas": [
++    {
++      "fileMatch": ["**/resource.json"],
++      "url": "./node_modules/@ghentcdh/crouton-core/dist/resource.schema.json"
++    }
++  ]
++}
+diff --git a/packages/crouton-api/src/lib/crud/loader/index.ts b/packages/crouton-api/src/lib/crud/loader/index.ts
+index 348e2b5..3b01e92 100644
+--- a/packages/crouton-api/src/lib/crud/loader/index.ts
++++ b/packages/crouton-api/src/lib/crud/loader/index.ts
+@@ -24,12 +24,15 @@ import type { ZodObject, ZodRawShape } from 'zod';
+ 
+ import { loadActions } from '../action';
+ import { fromJson } from '../adapter';
++import { IS_DEV } from '../dev-mode';
+ import { loadEnumRegistry } from '../enum-registry';
+ import { findModule, importDefault } from './module.loader';
+ import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
++import { migrateResourceJsonFile } from '../resource/MigrateResourceJson';
+ import { readResourceJson } from '../resource/ReadResourceJson';
+ import { type Resource } from '../resource/ResourceConfig.schema';
+ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
++import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+ import { existsSync, readdirSync } from 'node:fs';
+ import { join } from 'node:path';
+ 
+@@ -42,6 +45,7 @@ export const loadResourceConfigsFromDir = async (
+   if (!existsSync(dirPath)) return [];
+ 
+   resourceLoadErrorsRegistry.clear();
++  resourceLoadReportRegistry.clear();
+ 
+   const enums = loadEnumRegistry(dirPath, enumsFile);
+   const entries = readdirSync(dirPath, { withFileTypes: true });
+@@ -62,6 +66,33 @@ export const loadResourceConfigsFromDir = async (
+ 
+     const jsonFile = join(basePath, 'resource.json');
+     if (existsSync(jsonFile)) {
++      // Bring the file to the current schema version first. In dev this rewrites it on
++      // disk; elsewhere an out-of-date file is reported as a failure (not migrated).
++      const migration = migrateResourceJsonFile(jsonFile, { isDev: IS_DEV });
++      if (migration.status === 'failed') {
++        resourceLoadErrorsRegistry.record({
++          name: dir,
++          path: jsonFile,
++          error: migration.error,
++          version: migration.version,
++          expectedVersion: migration.expected,
++        });
++        continue;
++      }
++      if (migration.status === 'migrated') {
++        resourceLoadReportRegistry.record({
++          state: 'migrated',
++          name: dir,
++          path: jsonFile,
++          from: migration.from,
++          to: migration.to,
++        });
++        // eslint-disable-next-line no-console
++        console.info(
++          `[crouton] migrated ${jsonFile}: v${migration.from} → v${migration.to}`,
++        );
++      }
++
+       const result = readResourceJson(jsonFile);
+ 
+       if (!result || !result.success) {
+@@ -74,6 +105,18 @@ export const loadResourceConfigsFromDir = async (
+       }
+ 
+       const json = result.data.json;
++
++      // Draft resources live in the repo but are not loaded/served. They are still
++      // migrated above (in dev) so they stay current until the flag is flipped.
++      if (json.draft) {
++        resourceLoadReportRegistry.record({
++          state: 'draft',
++          name: dir,
++          path: jsonFile,
++          version: json.schemaVersion,
++        });
++        continue;
++      }
+       const actions = await loadActions(json.actions ?? [], basePath, 'row');
+       const tableActions = await loadActions(
+         json.tableActions ?? [],
+@@ -99,7 +142,17 @@ export const loadResourceConfigsFromDir = async (
+     const tsFile = findModule(basePath, 'resource');
+     if (tsFile) {
+       const config = await importDefault<Resource>(tsFile);
+-      if (config) configs.push(hooks ? { ...config, hooks } : config);
++      if (!config) continue;
++      if (config.draft) {
++        resourceLoadReportRegistry.record({
++          state: 'draft',
++          name: dir,
++          path: tsFile,
++          version: config.schemaVersion,
++        });
++        continue;
++      }
++      configs.push(hooks ? { ...config, hooks } : config);
+     }
+   }
+ 
+diff --git a/packages/crouton-api/src/lib/crud/loader/loader.spec.ts b/packages/crouton-api/src/lib/crud/loader/loader.spec.ts
+index 712c0fd..7393890 100644
+--- a/packages/crouton-api/src/lib/crud/loader/loader.spec.ts
++++ b/packages/crouton-api/src/lib/crud/loader/loader.spec.ts
+@@ -1,9 +1,18 @@
+ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+ 
++import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
++
+ import { loadResourceConfigsFromDir } from './index';
+ 
+ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
++import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
++import {
++  mkdirSync,
++  mkdtempSync,
++  readFileSync,
++  rmSync,
++  writeFileSync,
++} from 'node:fs';
+ import { tmpdir } from 'node:os';
+ import { join } from 'node:path';
+ 
+@@ -90,4 +99,44 @@ describe('loadResourceConfigsFromDir', () => {
+     );
+     expect(configs).toHaveLength(0);
+   });
++
++  it('should exclude draft resources and record a draft notice', async () => {
++    const draftDir = join(tempDir, 'wip');
++    mkdirSync(draftDir);
++    writeFileSync(
++      join(draftDir, 'resource.json'),
++      JSON.stringify({ ...validResource, name: 'wip', route: 'wip', draft: true }),
++    );
++
++    const configs = await loadResourceConfigsFromDir(tempDir);
++
++    expect(configs).toHaveLength(0); // not served
++    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0); // not an error
++    const drafts = resourceLoadReportRegistry.getByState('draft');
++    expect(drafts).toHaveLength(1);
++    expect(drafts[0].name).toBe('wip');
++  });
++
++  it('records a failure (no on-disk rewrite) for an out-of-date file outside dev', async () => {
++    // IS_DEV is false under vitest (CROUTON_SCHEMA_EDITOR unset), so no migration runs.
++    const dir = join(tempDir, 'stale');
++    mkdirSync(dir);
++    const file = join(dir, 'resource.json');
++    const stale = JSON.stringify({
++      ...validResource,
++      name: 'stale',
++      route: 'stale',
++      schemaVersion: CURRENT_RESOURCE_VERSION + 1, // pretend it's ahead of what we can migrate
++    });
++    writeFileSync(file, stale);
++
++    const configs = await loadResourceConfigsFromDir(tempDir);
++
++    expect(configs).toHaveLength(0);
++    expect(readFileSync(file, 'utf-8')).toBe(stale); // untouched on disk
++    const errors = resourceLoadErrorsRegistry.getAll();
++    expect(errors).toHaveLength(1);
++    expect(errors[0].name).toBe('stale');
++    expect(errors[0].expectedVersion).toBe(CURRENT_RESOURCE_VERSION);
++  });
+ });
+\ No newline at end of file
+diff --git a/packages/crouton-api/src/lib/crud/resource/MigrateResourceJson.ts b/packages/crouton-api/src/lib/crud/resource/MigrateResourceJson.ts
+new file mode 100644
+index 0000000..55f30e8
+--- /dev/null
++++ b/packages/crouton-api/src/lib/crud/resource/MigrateResourceJson.ts
+@@ -0,0 +1,87 @@
++/**
++ * Load-time migration for a single `resource.json`.
++ *
++ * Auto-migration is a DEV-ONLY capability: it rewrites the checked-in file, so it needs a
++ * writable, version-controlled checkout (the diff is meant to be reviewed and committed).
++ * Outside dev, an out-of-date file is reported as a failure rather than silently rewritten
++ * or run against stale config — the normal flow is that dev migrates + commits, so prod only
++ * ever sees files already at `CURRENT_RESOURCE_VERSION`.
++ *
++ * Operates on the RAW object (via `WriteResourceJson`'s raw-preserving helpers) so a rewrite
++ * stays a minimal, byte-stable diff; validation with Zod happens only after migrating.
++ */
++
++import {
++  BASELINE_RESOURCE_VERSION,
++  CURRENT_RESOURCE_VERSION,
++  MigrationPathError,
++  MigrationStepError,
++  resourceVersionOf,
++  runResourceMigrations,
++} from '@ghentcdh/crouton-core';
++
++import {
++  readRawResourceJson,
++  serializeResourceJson,
++  validateResourceJson,
++} from './WriteResourceJson';
++import { writeFileSync } from 'node:fs';
++
++export type MigrateOutcome =
++  | { status: 'current'; version: number }
++  | { status: 'migrated'; from: number; to: number; written: boolean }
++  | { status: 'failed'; version: number; expected: number; error: string };
++
++export const migrateResourceJsonFile = (
++  jsonPath: string,
++  opts: { isDev: boolean },
++): MigrateOutcome => {
++  // If the file is missing or not valid JSON, don't fail here — pass through so the normal
++  // reader (`readResourceJson`) reports the parse error verbatim, exactly as before.
++  let raw: Record<string, unknown> | undefined;
++  try {
++    raw = readRawResourceJson(jsonPath);
++  } catch {
++    return { status: 'current', version: BASELINE_RESOURCE_VERSION };
++  }
++  if (!raw) return { status: 'current', version: BASELINE_RESOURCE_VERSION };
++
++  const from = resourceVersionOf(raw);
++  if (from === CURRENT_RESOURCE_VERSION) {
++    return { status: 'current', version: from };
++  }
++
++  // Out of date (or newer). Migration only runs in the dev environment.
++  if (!opts.isDev) {
++    return {
++      status: 'failed',
++      version: from,
++      expected: CURRENT_RESOURCE_VERSION,
++      error:
++        `resource.json is version ${from} but crouton expects ${CURRENT_RESOURCE_VERSION}; ` +
++        'auto-migration only runs in the dev environment — run crouton in dev to upgrade and commit it',
++    };
++  }
++
++  try {
++    const result = runResourceMigrations(raw);
++    const validation = validateResourceJson(result.raw);
++    if (!validation.success) {
++      return {
++        status: 'failed',
++        version: from,
++        expected: CURRENT_RESOURCE_VERSION,
++        error: `migrated resource.json (v${from}→v${result.to}) is invalid: ${validation.error.message}`,
++      };
++    }
++    writeFileSync(jsonPath, serializeResourceJson(result.raw), 'utf-8');
++    return { status: 'migrated', from: result.from, to: result.to, written: true };
++  } catch (err) {
++    // MigrationPathError / MigrationStepError (or anything unexpected) → surfaced on status page.
++    const error =
++      err instanceof MigrationPathError || err instanceof MigrationStepError
++        ? (err as Error).message
++        : `migration failed: ${(err as Error).message}`;
++    return { status: 'failed', version: from, expected: CURRENT_RESOURCE_VERSION, error };
++  }
++};
+diff --git a/packages/crouton-api/src/lib/crud/resource/resource-load-errors.registry.ts b/packages/crouton-api/src/lib/crud/resource/resource-load-errors.registry.ts
+index 3a25b8c..fed4d94 100644
+--- a/packages/crouton-api/src/lib/crud/resource/resource-load-errors.registry.ts
++++ b/packages/crouton-api/src/lib/crud/resource/resource-load-errors.registry.ts
+@@ -2,6 +2,10 @@ export interface ResourceLoadError {
+   name: string;
+   path: string;
+   error: string;
++  /** Version found on disk (for schema-version / migration failures). */
++  version?: number;
++  /** Version crouton expected (`CURRENT_RESOURCE_VERSION`). */
++  expectedVersion?: number;
+ }
+ 
+ class ResourceLoadErrorsRegistry {
+diff --git a/packages/crouton-api/src/lib/crud/resource/resource-load-report.registry.ts b/packages/crouton-api/src/lib/crud/resource/resource-load-report.registry.ts
+new file mode 100644
+index 0000000..1d2dd62
+--- /dev/null
++++ b/packages/crouton-api/src/lib/crud/resource/resource-load-report.registry.ts
+@@ -0,0 +1,50 @@
++/**
++ * Non-error notices from the resource load pass, complementing `resourceLoadErrorsRegistry`
++ * (which holds failures). Records resources that were auto-migrated on disk (`migrated`) or
++ * are present but intentionally not served (`draft`), so the status page can show them
++ * distinctly from hard errors. Like the errors registry it's a per-load singleton, cleared
++ * at the start of every `loadResourceConfigsFromDir`.
++ */
++
++export interface MigratedResourceNotice {
++  state: 'migrated';
++  name: string;
++  path: string;
++  from: number;
++  to: number;
++}
++
++export interface DraftResourceNotice {
++  state: 'draft';
++  name: string;
++  path: string;
++  version?: number;
++}
++
++export type ResourceLoadNotice = MigratedResourceNotice | DraftResourceNotice;
++
++class ResourceLoadReportRegistry {
++  private notices: ResourceLoadNotice[] = [];
++
++  record(n: ResourceLoadNotice) {
++    this.notices.push(n);
++  }
++
++  getAll() {
++    return [...this.notices];
++  }
++
++  getByState<S extends ResourceLoadNotice['state']>(
++    state: S,
++  ): Extract<ResourceLoadNotice, { state: S }>[] {
++    return this.notices.filter(
++      (n): n is Extract<ResourceLoadNotice, { state: S }> => n.state === state,
++    );
++  }
++
++  clear() {
++    this.notices = [];
++  }
++}
++
++export const resourceLoadReportRegistry = new ResourceLoadReportRegistry();
+diff --git a/packages/crouton-api/src/lib/crud/status/status.controller.spec.ts b/packages/crouton-api/src/lib/crud/status/status.controller.spec.ts
+index efc2403..a8c5c84 100644
+--- a/packages/crouton-api/src/lib/crud/status/status.controller.spec.ts
++++ b/packages/crouton-api/src/lib/crud/status/status.controller.spec.ts
+@@ -77,6 +77,7 @@ describe('createStatusController', () => {
+       name: 'users',
+       path: 'users',
+       valid: true,
++      version: 1,
+     });
+     expect(status.resources[1].valid).toBe(false);
+     expect(status.resources[1].name).toBe('bad_resource');
+diff --git a/packages/crouton-api/src/lib/crud/status/status.service.spec.ts b/packages/crouton-api/src/lib/crud/status/status.service.spec.ts
+index 55368d7..4486474 100644
+--- a/packages/crouton-api/src/lib/crud/status/status.service.spec.ts
++++ b/packages/crouton-api/src/lib/crud/status/status.service.spec.ts
+@@ -12,6 +12,7 @@ import {
+ import type { DataSourceRegistry } from '../data-source';
+ import type { Resource } from '../resource/ResourceConfig.schema';
+ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
++import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+ 
+ const mockRegistry = (
+   entries: { name: string; client: any }[],
+@@ -23,6 +24,7 @@ const mockRegistry = (
+ describe('status.service', () => {
+   beforeEach(() => {
+     resourceLoadErrorsRegistry.clear();
++    resourceLoadReportRegistry.clear();
+   });
+ 
+   afterEach(() => {
+@@ -148,6 +150,7 @@ describe('status.service', () => {
+         name: 'people',
+         path: 'people',
+         valid: true,
++        version: 1,
+       });
+       expect(result[1]).toEqual({
+         name: 'broken_res',
+@@ -156,6 +159,43 @@ describe('status.service', () => {
+         error: 'Invalid JSON',
+       });
+     });
++
++    it('surfaces drafts as valid-but-not-served (not errors)', () => {
++      resourceLoadReportRegistry.record({
++        state: 'draft',
++        name: 'wip',
++        path: '/resources/wip/resource.json',
++        version: 1,
++      });
++
++      const result = getResourceStatus([]);
++
++      expect(result).toHaveLength(1);
++      expect(result[0]).toEqual({
++        name: 'wip',
++        path: '/resources/wip/resource.json',
++        valid: true,
++        draft: true,
++        version: 1,
++      });
++      // A draft must not count as a resource error.
++      expect(buildSummary([], result).resourceErrors).toBe(0);
++    });
++
++    it('carries version/expectedVersion on a schema-version failure', () => {
++      resourceLoadErrorsRegistry.record({
++        name: 'old',
++        path: '/resources/old/resource.json',
++        error: 'needs migration',
++        version: 1,
++        expectedVersion: 2,
++      });
++
++      const [row] = getResourceStatus([]);
++      expect(row.valid).toBe(false);
++      expect(row.version).toBe(1);
++      expect(row.expectedVersion).toBe(2);
++    });
+   });
+ 
+   describe('buildSummary', () => {
+diff --git a/packages/crouton-api/src/lib/crud/status/status.service.ts b/packages/crouton-api/src/lib/crud/status/status.service.ts
+index e9b80f4..e53c5f5 100644
+--- a/packages/crouton-api/src/lib/crud/status/status.service.ts
++++ b/packages/crouton-api/src/lib/crud/status/status.service.ts
+@@ -1,3 +1,5 @@
++import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
++
+ import type { DataSourceRegistry } from '../data-source';
+ import type {
+   CroutonStatus,
+@@ -7,6 +9,7 @@ import type {
+ } from './status.types';
+ import type { Resource } from '../resource/ResourceConfig.schema';
+ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
++import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+ import { existsSync, readFileSync } from 'node:fs';
+ import { dirname, join } from 'node:path';
+ import { fileURLToPath } from 'node:url';
+@@ -84,6 +87,7 @@ export const getResourceStatus = (
+     name: c.name,
+     path: c.route,
+     valid: true,
++    version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
+   }));
+ 
+   const failed: ResourceStatus[] = resourceLoadErrorsRegistry
+@@ -93,9 +97,22 @@ export const getResourceStatus = (
+       path: e.path,
+       valid: false,
+       error: e.error,
++      version: e.version,
++      expectedVersion: e.expectedVersion,
++    }));
++
++  // Drafts are present-but-not-served — informational, not errors (valid: true).
++  const draft: ResourceStatus[] = resourceLoadReportRegistry
++    .getByState('draft')
++    .map((d) => ({
++      name: d.name,
++      path: d.path,
++      valid: true,
++      draft: true,
++      version: d.version,
+     }));
+ 
+-  return [...valid, ...failed];
++  return [...valid, ...failed, ...draft];
+ };
+ 
+ export const buildSummary = (
+diff --git a/packages/crouton-api/src/lib/crud/status/status.types.ts b/packages/crouton-api/src/lib/crud/status/status.types.ts
+index b0614db..7bf54b4 100644
+--- a/packages/crouton-api/src/lib/crud/status/status.types.ts
++++ b/packages/crouton-api/src/lib/crud/status/status.types.ts
+@@ -9,6 +9,12 @@ export interface ResourceStatus {
+   path: string;
+   valid: boolean;
+   error?: string;
++  /** Loaded/expected schema version (present on loaded, migration-failed, and draft rows). */
++  version?: number;
++  /** Version crouton expects, when it differs from `version` (schema-version failures). */
++  expectedVersion?: number;
++  /** Present in the repo but intentionally not loaded/served. Informational, not an error. */
++  draft?: boolean;
+ }
+ 
+ export interface StatusSummary {
+diff --git a/packages/crouton-cli/src/commands/update.ts b/packages/crouton-cli/src/commands/update.ts
+index 8a1c9d2..9d9b723 100644
+--- a/packages/crouton-cli/src/commands/update.ts
++++ b/packages/crouton-cli/src/commands/update.ts
+@@ -20,6 +20,7 @@ export const registerUpdateCommand = (program: Command) => {
+     .option('-y, --yes', 'accept all recommended defaults (non-interactive)')
+     .option('--skip-pull', 'do not run `prisma db pull` (use the current schema)')
+     .option('--skip-generate', 'do not run `prisma generate` after pulling')
++    .option('--no-draft', 'write newly-created resources without `draft: true` (served immediately)')
+     .action(async (opts) => {
+       try {
+         const cwd = opts.prefix
+@@ -33,6 +34,7 @@ export const registerUpdateCommand = (program: Command) => {
+           yes: opts.yes,
+           skipPull: opts.skipPull,
+           skipGenerate: opts.skipGenerate,
++          draft: opts.draft, // commander sets this false when --no-draft is passed
+         });
+       } catch (err) {
+         console.error(err instanceof Error ? err.message : err);
+diff --git a/packages/crouton-cli/src/update/runner.ts b/packages/crouton-cli/src/update/runner.ts
+index ee0f1f5..aae33d2 100644
+--- a/packages/crouton-cli/src/update/runner.ts
++++ b/packages/crouton-cli/src/update/runner.ts
+@@ -61,6 +61,8 @@ export interface UpdateResourcesOptions {
+   yes?: boolean;
+   skipPull?: boolean;
+   skipGenerate?: boolean;
++  /** Write newly-scaffolded resources with `draft: true` (default `true`; `--no-draft` sets false). */
++  draft?: boolean;
+ }
+ 
+ /**
+@@ -387,6 +389,7 @@ export const runUpdateResources = async (
+       resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
+       generatedTypesImport: ds.generatedTypesImport,
+       schemaExportName: makeSchemaExportName(loaded.config),
++      draft: opts.draft ?? true,
+     };
+     const resolver = opts.yes ? recommendedResolver : interactiveResolver;
+ 
+diff --git a/packages/crouton-codegen/src/apply.ts b/packages/crouton-codegen/src/apply.ts
+index e67fdd4..76747be 100644
+--- a/packages/crouton-codegen/src/apply.ts
++++ b/packages/crouton-codegen/src/apply.ts
+@@ -9,7 +9,11 @@
+ import type { JsonColumnInput } from '@ghentcdh/crouton-core';
+ 
+ import type { ResolvedDiff } from './decision';
+-import { serializeResourceJson, serializeSchemaTs } from './serialize';
++import {
++  serializeResourceJson,
++  serializeSchemaTs,
++  withResourceHeader,
++} from './serialize';
+ import { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
+ import type { WritePlan } from './write-plan';
+ 
+@@ -23,6 +27,11 @@ export interface ApplyContext {
+   generatedTypesImport: string;
+   /** Export name for a model's Zod schema. Default `<PrismaName>WithRelationsSchema`. */
+   schemaExportName?: (prismaName: string) => string;
++  /**
++   * Whether a newly-scaffolded resource is written with `draft: true` (so it isn't served
++   * until reviewed). Defaults to `true`; set `false` via the CLI's `--no-draft`.
++   */
++  draft?: boolean;
+ }
+ 
+ type Column = Omit<JsonColumnInput, 'id'>;
+@@ -40,7 +49,12 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
+     const config = clone(diff.draft.config);
+     const addToSidebar = (resolutions.get('sidebar') ?? 'yes') !== 'no';
+     config.sidebar = { hide: !addToSidebar };
+-    files.push({ path: joinPath(dir, 'resource.json'), contents: serializeResourceJson(config), action: 'create' });
++    const draft = ctx.draft ?? true; // new resources are drafts unless --no-draft
++    files.push({
++      path: joinPath(dir, 'resource.json'),
++      contents: serializeResourceJson(withResourceHeader(config, { draft })),
++      action: 'create',
++    });
+   } else {
+     const existing = clone(diff.existing!);
+     const draftMap = new Map<string, Column>(columnEntries(diff.draft.config.columns));
+@@ -74,8 +88,14 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
+ 
+     const config = { ...existing, columns: columnsMapFromEntries(entries) };
+     // Only write when something actually changed — keep "adjusted files only".
++    // The header (re-stamped $schema/schemaVersion) is applied at serialize time only, so
++    // it doesn't by itself trigger a rewrite; an existing `draft` value is preserved.
+     if (!deepEqual(config, diff.existing)) {
+-      files.push({ path: joinPath(dir, 'resource.json'), contents: serializeResourceJson(config), action: 'update' });
++      files.push({
++        path: joinPath(dir, 'resource.json'),
++        contents: serializeResourceJson(withResourceHeader(config)),
++        action: 'update',
++      });
+     }
+   }
+ 
+diff --git a/packages/crouton-codegen/src/serialize.spec.ts b/packages/crouton-codegen/src/serialize.spec.ts
+new file mode 100644
+index 0000000..59c02b6
+--- /dev/null
++++ b/packages/crouton-codegen/src/serialize.spec.ts
+@@ -0,0 +1,57 @@
++import { describe, expect, it } from 'vitest';
++
++import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
++
++import {
++  RESOURCE_SCHEMA_URL,
++  serializeResourceJson,
++  withResourceHeader,
++} from './serialize';
++
++const base = {
++  name: 'author',
++  route: 'author',
++  model: 'Author',
++  tag: 'author',
++  operations: {},
++} as any;
++
++describe('withResourceHeader', () => {
++  it('leads with $schema then schemaVersion (current)', () => {
++    const out = withResourceHeader(base);
++    const keys = Object.keys(out);
++    expect(keys[0]).toBe('$schema');
++    expect(keys[1]).toBe('schemaVersion');
++    expect(out.$schema).toBe(RESOURCE_SCHEMA_URL);
++    expect(out.schemaVersion).toBe(CURRENT_RESOURCE_VERSION);
++  });
++
++  it('re-stamps stale $schema/schemaVersion to current', () => {
++    const out = withResourceHeader({
++      ...base,
++      $schema: 'https://old/v0/resource.schema.json',
++      schemaVersion: 0,
++    } as any);
++    expect(out.$schema).toBe(RESOURCE_SCHEMA_URL);
++    expect(out.schemaVersion).toBe(CURRENT_RESOURCE_VERSION);
++  });
++
++  it('sets draft from opts (new-resource default path)', () => {
++    expect(withResourceHeader(base, { draft: true }).draft).toBe(true);
++    expect(withResourceHeader(base, { draft: false }).draft).toBe(false);
++  });
++
++  it('preserves an existing draft when opts.draft is omitted (update path)', () => {
++    expect(withResourceHeader({ ...base, draft: true } as any).draft).toBe(true);
++    expect('draft' in withResourceHeader(base)).toBe(false); // none present → no key
++  });
++});
++
++describe('serializeResourceJson', () => {
++  it('is 2-space JSON with a trailing newline, $schema first', () => {
++    const text = serializeResourceJson(withResourceHeader(base, { draft: true }));
++    expect(text.endsWith('\n')).toBe(true);
++    expect(text.startsWith('{\n  "$schema"')).toBe(true);
++    expect(JSON.parse(text).schemaVersion).toBe(CURRENT_RESOURCE_VERSION);
++  });
++});
+diff --git a/packages/crouton-codegen/src/serialize.ts b/packages/crouton-codegen/src/serialize.ts
+index 341cc79..7440890 100644
+--- a/packages/crouton-codegen/src/serialize.ts
++++ b/packages/crouton-codegen/src/serialize.ts
+@@ -6,10 +6,43 @@
+  * order when updating), so re-runs produce minimal git diffs and are idempotent.
+  */
+ 
+-import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
++import { CURRENT_RESOURCE_VERSION, type ResourceJsonInput } from '@ghentcdh/crouton-core';
+ 
+-export const serializeResourceJson = (config: ResourceJsonInput): string =>
+-  `${JSON.stringify(config, null, 2)}\n`;
++/** Canonical, versioned JSON Schema URL — matches the path published by the docs site. */
++export const RESOURCE_SCHEMA_URL = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}/resource.schema.json`;
++
++/**
++ * Prepend `$schema` / `schemaVersion` (and, when set, `draft`) so every generated
++ * `resource.json` validates + autocompletes in editors and is born at the current version.
++ *
++ * `$schema` and `schemaVersion` are always (re)stamped to current — any existing values are
++ * dropped and re-added at the front for a stable, diff-friendly key order. `draft` is set from
++ * `opts.draft` when provided (new-resource default), otherwise the config's existing `draft`
++ * value is preserved (so an update never flips it).
++ */
++export const withResourceHeader = (
++  config: ResourceJsonInput,
++  opts: { draft?: boolean } = {},
++): Record<string, unknown> => {
++  const {
++    $schema: _schema,
++    schemaVersion: _version,
++    draft: existingDraft,
++    ...rest
++  } = config as Record<string, unknown>;
++  const draft = opts.draft !== undefined ? opts.draft : (existingDraft as boolean | undefined);
++
++  return {
++    $schema: RESOURCE_SCHEMA_URL,
++    schemaVersion: CURRENT_RESOURCE_VERSION,
++    ...(draft !== undefined ? { draft } : {}),
++    ...rest,
++  };
++};
++
++export const serializeResourceJson = (
++  config: ResourceJsonInput | Record<string, unknown>,
++): string => `${JSON.stringify(config, null, 2)}\n`;
+ 
+ /**
+  * Content for a resource's `schema.ts` — a default re-export of the model's
+diff --git a/packages/crouton-core/scripts/gen-resource-schema.mjs b/packages/crouton-core/scripts/gen-resource-schema.mjs
+new file mode 100644
+index 0000000..49abc14
+--- /dev/null
++++ b/packages/crouton-core/scripts/gen-resource-schema.mjs
+@@ -0,0 +1,42 @@
++// Generate resource.schema.json (JSON Schema) from the Zod definition, for editor
++// autocomplete/validation. Runs from tsup's `onSuccess`, so it imports the freshly
++// built ESM in ./dist. Writes two copies:
++//   - dist/resource.schema.json          → shipped in the npm package (files: ["dist"])
++//   - src/lib/resource/resource.schema.json → committed copy, guarded by a CI drift check
++//
++// Generate from ResourceJsonShape (the z.object), NOT ResourceJsonSchema (which has a
++// .transform() that z.toJSONSchema rejects). The input shape is what a file author writes.
++import { z } from 'zod';
++import { mkdirSync, writeFileSync } from 'node:fs';
++import { dirname, join } from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++import { CURRENT_RESOURCE_VERSION, ResourceJsonShape } from '../dist/index.js';
++
++const here = dirname(fileURLToPath(import.meta.url));
++const pkgRoot = join(here, '..');
++
++// `io: 'input'` represents the *input* side of any nested pipe/transform (what a file author
++// writes), and `unrepresentable: 'any'` degrades anything still not expressible to `{}` (loose,
++// but fine for autocomplete) instead of throwing.
++const schema = z.toJSONSchema(ResourceJsonShape, {
++  target: 'draft-7',
++  io: 'input',
++  unrepresentable: 'any',
++});
++schema.$id = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}/resource.schema.json`;
++schema.title = 'Crouton resource.json';
++schema.description = `Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion ${CURRENT_RESOURCE_VERSION}.`;
++
++const out = `${JSON.stringify(schema, null, 2)}\n`;
++
++const distDir = join(pkgRoot, 'dist');
++const committedDir = join(pkgRoot, 'src', 'lib', 'resource');
++mkdirSync(distDir, { recursive: true });
++mkdirSync(committedDir, { recursive: true });
++writeFileSync(join(distDir, 'resource.schema.json'), out);
++writeFileSync(join(committedDir, 'resource.schema.json'), out);
++
++console.info(
++  `[crouton-core] wrote resource.schema.json (v${CURRENT_RESOURCE_VERSION})`,
++);
+diff --git a/packages/crouton-core/src/lib/resource/ResourceJson.schema.ts b/packages/crouton-core/src/lib/resource/ResourceJson.schema.ts
+index 0a0c93e..2abe549 100644
+--- a/packages/crouton-core/src/lib/resource/ResourceJson.schema.ts
++++ b/packages/crouton-core/src/lib/resource/ResourceJson.schema.ts
+@@ -5,6 +5,7 @@ import { type JsonColumn, JsonColumnSchema } from './Column';
+ import { SidebarSchema } from './Sidebar.schema';
+ import { JsonActionSchema } from './TableAction.schema';
+ import { JsonIncludeEntrySchema } from './include.schema';
++import { BASELINE_RESOURCE_VERSION } from './version';
+ import { JsonOperationsSchema } from '../data-source/Operations.schema';
+ import { labelFromId } from '../schema/label.helper';
+ 
+@@ -43,6 +44,19 @@ const normalizeColumns = (
+ // ── Top-level resource.json ──────────────────────────────────────────
+ 
+ export const ResourceJsonShape = z.object({
++  /**
++   * URL of the generated JSON Schema, for editor autocomplete/validation. Declared so the
++   * key is *allowed* (not stripped, and not flagged by the very schema it points at).
++   * Ignored at runtime.
++   */
++  $schema: z.string().optional(),
++  /**
++   * resource.json shape version. Missing ⇒ baseline (see `./version`). Auto-migrated
++   * toward `CURRENT_RESOURCE_VERSION` on load in the dev environment.
++   */
++  schemaVersion: z.number().int().positive().optional(),
++  /** When `true`, the resource lives in the repo but is NOT loaded/served (work in progress). */
++  draft: z.boolean().optional().default(false),
+   name: z.string(), // required — unique id, used as the frontend form id
+   route: z.string(), // required — URL segment for generated endpoints
+   model: z.string(), // required — Prisma model name
+@@ -72,8 +86,14 @@ export const ResourceJsonShape = z.object({
+ 
+ export const ResourceJsonSchema = ResourceJsonShape.transform((obj) => {
+   const title = obj.title ?? labelFromId(obj.name);
++  const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
+ 
+-  return { title, ...obj, columns: normalizeColumns(obj.columns) };
++  return {
++    title,
++    ...obj,
++    schemaVersion,
++    columns: normalizeColumns(obj.columns),
++  };
+ });
+ 
+ export type ResourceJson = z.infer<typeof ResourceJsonSchema>;
+diff --git a/packages/crouton-core/src/lib/resource/index.ts b/packages/crouton-core/src/lib/resource/index.ts
+index 35994d9..a7f4f82 100644
+--- a/packages/crouton-core/src/lib/resource/index.ts
++++ b/packages/crouton-core/src/lib/resource/index.ts
+@@ -1,4 +1,6 @@
+ export * from './ResourceJson.schema';
++export * from './version';
++export * from './migrations';
+ export * from './Sidebar.schema';
+ export * from './include.schema';
+ export * from './TableAction.schema';
+diff --git a/packages/crouton-core/src/lib/resource/migrations/index.ts b/packages/crouton-core/src/lib/resource/migrations/index.ts
+new file mode 100644
+index 0000000..54717d1
+--- /dev/null
++++ b/packages/crouton-core/src/lib/resource/migrations/index.ts
+@@ -0,0 +1,82 @@
++/**
++ * The resource.json migration engine.
++ *
++ * `MIGRATIONS` is an ordered, contiguous chain of single-version steps. `runResourceMigrations`
++ * upgrades a raw object from its current `schemaVersion` up to a target (default
++ * `CURRENT_RESOURCE_VERSION`), applying each step in turn. It is pure — no fs, no env — so it
++ * can be unit-tested in isolation and reused by both the API loader and the CLI.
++ */
++
++import { BASELINE_RESOURCE_VERSION, CURRENT_RESOURCE_VERSION } from '../version';
++import {
++  MigrationPathError,
++  type MigrationResult,
++  MigrationStepError,
++  type RawResourceJson,
++  type ResourceMigration,
++} from './types';
++
++/**
++ * Ordered, contiguous migration steps. Append one (`from: N, to: N + 1`) every time
++ * `CURRENT_RESOURCE_VERSION` is bumped. A gap is a programming error caught by the spec.
++ */
++export const MIGRATIONS: ResourceMigration[] = [
++  // Example (add when the first real shape change lands and CURRENT_RESOURCE_VERSION becomes 2):
++  // migration_0001to0002,
++];
++
++/** Read a raw object's version, treating a missing/invalid field as the baseline. */
++export const resourceVersionOf = (raw: RawResourceJson): number => {
++  const v = raw['schemaVersion'];
++  return typeof v === 'number' && Number.isInteger(v) ? v : BASELINE_RESOURCE_VERSION;
++};
++
++/**
++ * Upgrade `raw` from its current version up to `target`.
++ *
++ * - Already at `target` → returns it unchanged (no `schemaVersion` rewrite), `applied: []`.
++ * - Newer than `target` → `MigrationPathError` (crouton is too old; never down-migrate).
++ * - A gap with no registered step → `MigrationPathError`.
++ * - A step throws → `MigrationStepError`.
++ *
++ * On success the returned object leads with `schemaVersion: target` for a readable diff.
++ */
++export const runResourceMigrations = (
++  raw: RawResourceJson,
++  target: number = CURRENT_RESOURCE_VERSION,
++  migrations: ResourceMigration[] = MIGRATIONS,
++): MigrationResult => {
++  const from = resourceVersionOf(raw);
++
++  if (from === target) return { raw, from, to: target, applied: [] };
++
++  if (from > target) {
++    throw new MigrationPathError(
++      `resource.json is version ${from} but this crouton only understands up to ${target} — upgrade crouton`,
++    );
++  }
++
++  let current = raw;
++  const applied: string[] = [];
++
++  for (let v = from; v < target; v++) {
++    const step = migrations.find((m) => m.from === v && m.to === v + 1);
++    if (!step) {
++      throw new MigrationPathError(`no migration path from version ${v} to ${v + 1}`);
++    }
++    try {
++      current = step.migrate(current);
++    } catch (err) {
++      throw new MigrationStepError(
++        `migration ${v}→${v + 1} (${step.description}) failed: ${(err as Error).message}`,
++      );
++    }
++    applied.push(step.description);
++  }
++
++  // Lead with schemaVersion so the written file is diff-friendly.
++  const { schemaVersion: _old, ...rest } = current;
++  return { raw: { schemaVersion: target, ...rest }, from, to: target, applied };
++};
++
++export * from './types';
+diff --git a/packages/crouton-core/src/lib/resource/migrations/migrations.spec.ts b/packages/crouton-core/src/lib/resource/migrations/migrations.spec.ts
+new file mode 100644
+index 0000000..9ca990c
+--- /dev/null
++++ b/packages/crouton-core/src/lib/resource/migrations/migrations.spec.ts
+@@ -0,0 +1,95 @@
++import { describe, expect, it } from 'vitest';
++
++import {
++  MIGRATIONS,
++  MigrationPathError,
++  MigrationStepError,
++  type ResourceMigration,
++  resourceVersionOf,
++  runResourceMigrations,
++} from './index';
++
++import { CURRENT_RESOURCE_VERSION } from '../version';
++
++const step = (
++  from: number,
++  migrate: ResourceMigration['migrate'],
++): ResourceMigration => ({ from, to: from + 1, description: `${from}→${from + 1}`, migrate });
++
++describe('resourceVersionOf', () => {
++  it('defaults a missing field to the baseline (1)', () => {
++    expect(resourceVersionOf({})).toBe(1);
++    expect(resourceVersionOf({ schemaVersion: 3 })).toBe(3);
++    expect(resourceVersionOf({ schemaVersion: 'x' as unknown as number })).toBe(1);
++  });
++});
++
++describe('MIGRATIONS registry', () => {
++  it('is a contiguous chain ending at CURRENT_RESOURCE_VERSION', () => {
++    const sorted = [...MIGRATIONS].sort((a, b) => a.from - b.from);
++    sorted.forEach((m, i) => {
++      expect(m.to).toBe(m.from + 1); // each step is single-version
++      if (i > 0) expect(m.from).toBe(sorted[i - 1].to); // no gaps
++    });
++    if (sorted.length) {
++      expect(sorted[0].from).toBe(1); // starts at baseline
++      expect(sorted[sorted.length - 1].to).toBe(CURRENT_RESOURCE_VERSION); // reaches current
++    } else {
++      expect(CURRENT_RESOURCE_VERSION).toBe(1); // empty chain ⇒ current is still baseline
++    }
++  });
++});
++
++describe('runResourceMigrations', () => {
++  it('is a no-op when already at target (no schemaVersion rewrite)', () => {
++    const raw = { schemaVersion: 2, name: 'a' };
++    const r = runResourceMigrations(raw, 2, []);
++    expect(r).toEqual({ raw, from: 2, to: 2, applied: [] });
++    expect(r.raw).toBe(raw); // same reference
++  });
++
++  it('applies steps in order and stamps the target version first', () => {
++    const chain = [
++      step(1, (raw) => ({ ...raw, a: true })),
++      step(2, (raw) => ({ ...raw, b: true })),
++    ];
++    const r = runResourceMigrations({ name: 'x' }, 3, chain); // missing field ⇒ from 1
++    expect(r.from).toBe(1);
++    expect(r.to).toBe(3);
++    expect(r.applied).toEqual(['1→2', '2→3']);
++    expect(r.raw).toEqual({ schemaVersion: 3, name: 'x', a: true, b: true });
++    expect(Object.keys(r.raw)[0]).toBe('schemaVersion'); // leads with version
++  });
++
++  it('throws MigrationPathError on a gap in the chain', () => {
++    const chain = [step(2, (raw) => raw)]; // no 1→2
++    expect(() => runResourceMigrations({ schemaVersion: 1 }, 3, chain)).toThrow(
++      MigrationPathError,
++    );
++  });
++
++  it('throws MigrationPathError when the file is newer than the target', () => {
++    expect(() => runResourceMigrations({ schemaVersion: 5 }, 2, [])).toThrow(
++      MigrationPathError,
++    );
++  });
++
++  it('wraps a throwing step in MigrationStepError', () => {
++    const chain = [
++      step(1, () => {
++        throw new Error('boom');
++      }),
++    ];
++    expect(() => runResourceMigrations({ schemaVersion: 1 }, 2, chain)).toThrow(
++      MigrationStepError,
++    );
++  });
++
++  it('is idempotent — re-running a migrated object is a no-op', () => {
++    const chain = [step(1, (raw) => ({ ...raw, a: 1 }))];
++    const once = runResourceMigrations({ name: 'x' }, 2, chain);
++    const twice = runResourceMigrations(once.raw, 2, chain);
++    expect(twice.applied).toEqual([]);
++    expect(twice.raw).toEqual(once.raw);
++  });
++});
+diff --git a/packages/crouton-core/src/lib/resource/migrations/types.ts b/packages/crouton-core/src/lib/resource/migrations/types.ts
+new file mode 100644
+index 0000000..f21c6f8
+--- /dev/null
++++ b/packages/crouton-core/src/lib/resource/migrations/types.ts
+@@ -0,0 +1,48 @@
++/**
++ * Types for the resource.json migration engine.
++ *
++ * Migrations operate on the **raw** (pre-`ResourceJsonSchema.transform`) object so the
++ * result can be written back byte-stably and validated with Zod afterwards — never on a
++ * transformed config (which would normalize columns map→array and inject defaults, and
++ * so explode diffs). Each step is a pure function returning a new object.
++ */
++
++export type RawResourceJson = Record<string, unknown>;
++
++export interface ResourceMigration {
++  /** Version this step upgrades FROM. */
++  readonly from: number;
++  /** Version this step upgrades TO — must equal `from + 1`. */
++  readonly to: number;
++  /** Human-readable summary, surfaced in logs. */
++  readonly description: string;
++  /** Pure transform: given a raw object at `from`, return a new raw object at `to`. */
++  migrate(raw: RawResourceJson): RawResourceJson;
++}
++
++export interface MigrationResult {
++  /** The migrated object, with `schemaVersion` set to `to`. */
++  raw: RawResourceJson;
++  /** Version the input was at. */
++  from: number;
++  /** Version the output is at (the requested target). */
++  to: number;
++  /** Descriptions of the steps applied, in order (empty when already current). */
++  applied: string[];
++}
++
++/** No registered step bridges some gap in the chain (or the file is newer than crouton). */
++export class MigrationPathError extends Error {
++  constructor(message: string) {
++    super(message);
++    this.name = 'MigrationPathError';
++  }
++}
++
++/** A migration step threw while transforming the object. */
++export class MigrationStepError extends Error {
++  constructor(message: string) {
++    super(message);
++    this.name = 'MigrationStepError';
++  }
++}
+diff --git a/packages/crouton-core/src/lib/resource/resource.schema.json b/packages/crouton-core/src/lib/resource/resource.schema.json
+new file mode 100644
+index 0000000..3245d27
+--- /dev/null
++++ b/packages/crouton-core/src/lib/resource/resource.schema.json
+@@ -0,0 +1,1121 @@
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "type": "object",
++  "properties": {
++    "$schema": {
++      "type": "string"
++    },
++    "schemaVersion": {
++      "type": "integer",
++      "exclusiveMinimum": 0,
++      "maximum": 9007199254740991
++    },
++    "draft": {
++      "default": false,
++      "type": "boolean"
++    },
++    "name": {
++      "type": "string"
++    },
++    "route": {
++      "type": "string"
++    },
++    "model": {
++      "type": "string"
++    },
++    "tag": {
++      "type": "string"
++    },
++    "title": {
++      "type": "string"
++    },
++    "table": {
++      "type": "string"
++    },
++    "database": {
++      "type": "string"
++    },
++    "sidebar": {
++      "default": {
++        "hide": false
++      },
++      "type": "object",
++      "properties": {
++        "hide": {
++          "default": false,
++          "type": "boolean"
++        },
++        "position": {
++          "type": "number"
++        },
++        "label": {
++          "type": "string"
++        },
++        "group": {
++          "type": "string"
++        }
++      }
++    },
++    "display": {
++      "default": {
++        "mode": "modal",
++        "customComponent": null
++      },
++      "type": "object",
++      "properties": {
++        "mode": {
++          "default": "modal",
++          "type": "string",
++          "enum": [
++            "page",
++            "modal"
++          ]
++        },
++        "customComponent": {
++          "default": null,
++          "anyOf": [
++            {
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      }
++    },
++    "operations": {
++      "type": "object",
++      "properties": {
++        "findAll": {
++          "default": true,
++          "type": "boolean"
++        },
++        "findOne": {
++          "default": true,
++          "type": "boolean"
++        },
++        "create": {
++          "default": true,
++          "type": "boolean"
++        },
++        "update": {
++          "default": true,
++          "type": "boolean"
++        },
++        "patch": {
++          "default": true,
++          "type": "boolean"
++        },
++        "upsert": {
++          "default": false,
++          "anyOf": [
++            {
++              "type": "boolean"
++            },
++            {
++              "type": "object",
++              "properties": {
++                "upsertOn": {
++                  "anyOf": [
++                    {
++                      "type": "string"
++                    },
++                    {
++                      "type": "array",
++                      "items": {
++                        "type": "string"
++                      }
++                    }
++                  ]
++                }
++              },
++              "required": [
++                "upsertOn"
++              ]
++            }
++          ]
++        },
++        "delete": {
++          "default": true,
++          "type": "boolean"
++        }
++      }
++    },
++    "columns": {
++      "default": {},
++      "type": "object",
++      "propertyNames": {
++        "type": "string"
++      },
++      "additionalProperties": {
++        "type": "object",
++        "properties": {
++          "column": {
++            "type": "string"
++          },
++          "label": {
++            "type": "string"
++          },
++          "hiddenInTable": {
++            "default": false,
++            "type": "boolean"
++          },
++          "hiddenInForm": {
++            "default": false,
++            "type": "boolean"
++          },
++          "hiddenInView": {
++            "default": false,
++            "type": "boolean"
++          },
++          "sortable": {
++            "default": false,
++            "type": "boolean"
++          },
++          "defaultSort": {
++            "default": false,
++            "type": "boolean"
++          },
++          "searchable": {
++            "default": false,
++            "type": "boolean"
++          },
++          "filterable": {
++            "default": false,
++            "type": "boolean"
++          },
++          "createable": {
++            "default": true,
++            "type": "boolean"
++          },
++          "updateable": {
++            "default": true,
++            "type": "boolean"
++          },
++          "hideLabel": {
++            "default": false,
++            "type": "boolean"
++          },
++          "showWhen": {
++            "type": "object",
++            "properties": {
++              "field": {
++                "type": "string"
++              },
++              "eq": {},
++              "neq": {},
++              "exists": {
++                "type": "boolean"
++              },
++              "notExists": {
++                "type": "boolean"
++              }
++            },
++            "required": [
++              "field"
++            ]
++          },
++          "hideWhen": {
++            "type": "object",
++            "properties": {
++              "field": {
++                "type": "string"
++              },
++              "eq": {},
++              "neq": {},
++              "exists": {
++                "type": "boolean"
++              },
++              "notExists": {
++                "type": "boolean"
++              }
++            },
++            "required": [
++              "field"
++            ]
++          },
++          "disabledWhen": {
++            "type": "object",
++            "properties": {
++              "field": {
++                "type": "string"
++              },
++              "eq": {},
++              "neq": {},
++              "exists": {
++                "type": "boolean"
++              },
++              "notExists": {
++                "type": "boolean"
++              }
++            },
++            "required": [
++              "field"
++            ]
++          },
++          "displayKey": {
++            "type": "string"
++          },
++          "sortId": {
++            "type": "string"
++          },
++          "enum": {
++            "type": "string"
++          },
++          "idField": {
++            "default": false,
++            "type": "boolean"
++          },
++          "showInLookup": {
++            "default": false,
++            "type": "boolean"
++          },
++          "columnType": {
++            "default": "string",
++            "type": "string"
++          },
++          "fieldInput": {
++            "type": "object",
++            "properties": {
++              "type": {
++                "type": "string"
++              },
++              "customRender": {
++                "type": "string"
++              },
++              "format": {
++                "type": "string"
++              },
++              "resource": {
++                "type": "string"
++              },
++              "relationType": {
++                "type": "string",
++                "enum": [
++                  "oneToOne",
++                  "manyToOne",
++                  "oneToMany",
++                  "manyToMany"
++                ]
++              },
++              "foreignKey": {
++                "type": "string"
++              },
++              "position": {
++                "type": "number"
++              },
++              "options": {
++                "anyOf": [
++                  {
++                    "type": "object",
++                    "properties": {
++                      "colspan": {
++                        "default": 12,
++                        "type": "number"
++                      },
++                      "sort": {
++                        "type": "string"
++                      },
++                      "sortDir": {
++                        "type": "string",
++                        "enum": [
++                          "asc",
++                          "desc"
++                        ]
++                      },
++                      "direction": {
++                        "type": "string"
++                      },
++                      "displayKey": {
++                        "type": "string"
++                      },
++                      "resource": {
++                        "type": "string"
++                      }
++                    },
++                    "additionalProperties": {}
++                  },
++                  {}
++                ]
++              },
++              "detail": {
++                "type": "object",
++                "properties": {
++                  "layout": {
++                    "type": "string",
++                    "enum": [
++                      "collapse",
++                      "row"
++                    ]
++                  },
++                  "titleKey": {
++                    "type": "string"
++                  },
++                  "controls": {
++                    "type": "array",
++                    "items": {
++                      "type": "object",
++                      "properties": {
++                        "property": {
++                          "type": "string"
++                        },
++                        "type": {
++                          "type": "string"
++                        },
++                        "options": {
++                          "type": "object",
++                          "propertyNames": {
++                            "type": "string"
++                          },
++                          "additionalProperties": {}
++                        },
++                        "hideLabel": {
++                          "type": "boolean"
++                        },
++                        "width": {
++                          "type": "string"
++                        }
++                      },
++                      "required": [
++                        "property"
++                      ]
++                    }
++                  }
++                },
++                "required": [
++                  "layout",
++                  "controls"
++                ]
++              }
++            }
++          },
++          "fieldView": {
++            "type": "object",
++            "properties": {
++              "type": {
++                "type": "string"
++              },
++              "customRender": {
++                "type": "string"
++              },
++              "format": {
++                "type": "string"
++              },
++              "resource": {
++                "type": "string"
++              },
++              "relationType": {
++                "type": "string",
++                "enum": [
++                  "oneToOne",
++                  "manyToOne",
++                  "oneToMany",
++                  "manyToMany"
++                ]
++              },
++              "foreignKey": {
++                "type": "string"
++              },
++              "position": {
++                "type": "number"
++              },
++              "options": {
++                "anyOf": [
++                  {
++                    "type": "object",
++                    "properties": {
++                      "colspan": {
++                        "default": 12,
++                        "type": "number"
++                      },
++                      "sort": {
++                        "type": "string"
++                      },
++                      "sortDir": {
++                        "type": "string",
++                        "enum": [
++                          "asc",
++                          "desc"
++                        ]
++                      },
++                      "direction": {
++                        "type": "string"
++                      },
++                      "displayKey": {
++                        "type": "string"
++                      },
++                      "resource": {
++                        "type": "string"
++                      }
++                    },
++                    "additionalProperties": {}
++                  },
++                  {}
++                ]
++              },
++              "detail": {
++                "type": "object",
++                "properties": {
++                  "layout": {
++                    "type": "string",
++                    "enum": [
++                      "collapse",
++                      "row"
++                    ]
++                  },
++                  "titleKey": {
++                    "type": "string"
++                  },
++                  "controls": {
++                    "type": "array",
++                    "items": {
++                      "type": "object",
++                      "properties": {
++                        "property": {
++                          "type": "string"
++                        },
++                        "type": {
++                          "type": "string"
++                        },
++                        "options": {
++                          "type": "object",
++                          "propertyNames": {
++                            "type": "string"
++                          },
++                          "additionalProperties": {}
++                        },
++                        "hideLabel": {
++                          "type": "boolean"
++                        },
++                        "width": {
++                          "type": "string"
++                        }
++                      },
++                      "required": [
++                        "property"
++                      ]
++                    }
++                  }
++                },
++                "required": [
++                  "layout",
++                  "controls"
++                ]
++              }
++            }
++          },
++          "fieldTable": {
++            "type": "object",
++            "properties": {
++              "type": {
++                "type": "string"
++              },
++              "customRender": {
++                "type": "string"
++              },
++              "format": {
++                "type": "string"
++              },
++              "resource": {
++                "type": "string"
++              },
++              "relationType": {
++                "type": "string",
++                "enum": [
++                  "oneToOne",
++                  "manyToOne",
++                  "oneToMany",
++                  "manyToMany"
++                ]
++              },
++              "foreignKey": {
++                "type": "string"
++              },
++              "position": {
++                "type": "number"
++              },
++              "options": {
++                "anyOf": [
++                  {
++                    "type": "object",
++                    "properties": {
++                      "colspan": {
++                        "default": 12,
++                        "type": "number"
++                      },
++                      "sort": {
++                        "type": "string"
++                      },
++                      "sortDir": {
++                        "type": "string",
++                        "enum": [
++                          "asc",
++                          "desc"
++                        ]
++                      },
++                      "direction": {
++                        "type": "string"
++                      },
++                      "displayKey": {
++                        "type": "string"
++                      },
++                      "resource": {
++                        "type": "string"
++                      }
++                    },
++                    "additionalProperties": {}
++                  },
++                  {}
++                ]
++              },
++              "detail": {
++                "type": "object",
++                "properties": {
++                  "layout": {
++                    "type": "string",
++                    "enum": [
++                      "collapse",
++                      "row"
++                    ]
++                  },
++                  "titleKey": {
++                    "type": "string"
++                  },
++                  "controls": {
++                    "type": "array",
++                    "items": {
++                      "type": "object",
++                      "properties": {
++                        "property": {
++                          "type": "string"
++                        },
++                        "type": {
++                          "type": "string"
++                        },
++                        "options": {
++                          "type": "object",
++                          "propertyNames": {
++                            "type": "string"
++                          },
++                          "additionalProperties": {}
++                        },
++                        "hideLabel": {
++                          "type": "boolean"
++                        },
++                        "width": {
++                          "type": "string"
++                        }
++                      },
++                      "required": [
++                        "property"
++                      ]
++                    }
++                  }
++                },
++                "required": [
++                  "layout",
++                  "controls"
++                ]
++              }
++            }
++          },
++          "extend": {
++            "type": "string"
++          },
++          "columns": {
++            "type": "object",
++            "propertyNames": {
++              "type": "string"
++            },
++            "additionalProperties": {
++              "type": "object",
++              "propertyNames": {
++                "type": "string"
++              },
++              "additionalProperties": {}
++            }
++          }
++        },
++        "additionalProperties": {}
++      }
++    },
++    "calculatedColumns": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string"
++          },
++          "alias": {
++            "type": "string"
++          },
++          "label": {
++            "type": "string"
++          },
++          "sqlExpression": {
++            "type": "string"
++          },
++          "type": {
++            "type": "string",
++            "enum": [
++              "number",
++              "boolean",
++              "string"
++            ]
++          },
++          "position": {
++            "type": "number"
++          },
++          "hiddenInTable": {
++            "type": "boolean"
++          },
++          "hiddenInView": {
++            "type": "boolean"
++          },
++          "fieldInput": {
++            "type": "object",
++            "properties": {
++              "type": {
++                "type": "string"
++              },
++              "customRender": {
++                "type": "string"
++              },
++              "format": {
++                "type": "string"
++              },
++              "resource": {
++                "type": "string"
++              },
++              "relationType": {
++                "type": "string",
++                "enum": [
++                  "oneToOne",
++                  "manyToOne",
++                  "oneToMany",
++                  "manyToMany"
++                ]
++              },
++              "foreignKey": {
++                "type": "string"
++              },
++              "position": {
++                "type": "number"
++              },
++              "options": {
++                "anyOf": [
++                  {
++                    "type": "object",
++                    "properties": {
++                      "colspan": {
++                        "default": 12,
++                        "type": "number"
++                      },
++                      "sort": {
++                        "type": "string"
++                      },
++                      "sortDir": {
++                        "type": "string",
++                        "enum": [
++                          "asc",
++                          "desc"
++                        ]
++                      },
++                      "direction": {
++                        "type": "string"
++                      },
++                      "displayKey": {
++                        "type": "string"
++                      },
++                      "resource": {
++                        "type": "string"
++                      }
++                    },
++                    "additionalProperties": {}
++                  },
++                  {}
++                ]
++              },
++              "detail": {
++                "type": "object",
++                "properties": {
++                  "layout": {
++                    "type": "string",
++                    "enum": [
++                      "collapse",
++                      "row"
++                    ]
++                  },
++                  "titleKey": {
++                    "type": "string"
++                  },
++                  "controls": {
++                    "type": "array",
++                    "items": {
++                      "type": "object",
++                      "properties": {
++                        "property": {
++                          "type": "string"
++                        },
++                        "type": {
++                          "type": "string"
++                        },
++                        "options": {
++                          "type": "object",
++                          "propertyNames": {
++                            "type": "string"
++                          },
++                          "additionalProperties": {}
++                        },
++                        "hideLabel": {
++                          "type": "boolean"
++                        },
++                        "width": {
++                          "type": "string"
++                        }
++                      },
++                      "required": [
++                        "property"
++                      ]
++                    }
++                  }
++                },
++                "required": [
++                  "layout",
++                  "controls"
++                ]
++              }
++            }
++          }
++        },
++        "required": [
++          "id",
++          "alias",
++          "sqlExpression"
++        ]
++      }
++    },
++    "actions": {
++      "type": "array",
++      "items": {
++        "anyOf": [
++          {
++            "type": "object",
++            "properties": {
++              "type": {
++                "default": "procedure",
++                "type": "string",
++                "const": "procedure"
++              },
++              "id": {
++                "type": "string"
++              },
++              "label": {
++                "type": "string"
++              },
++              "icon": {
++                "type": "string"
++              },
++              "tooltip": {
++                "type": "string"
++              },
++              "condition": {
++                "type": "object",
++                "properties": {
++                  "field": {
++                    "type": "string"
++                  },
++                  "op": {
++                    "default": "eq",
++                    "type": "string",
++                    "enum": [
++                      "eq",
++                      "neq",
++                      "gt",
++                      "gte",
++                      "lt",
++                      "lte",
++                      "exists",
++                      "notExists"
++                    ]
++                  },
++                  "value": {}
++                },
++                "required": [
++                  "field"
++                ]
++              },
++              "procedure": {
++                "type": "string"
++              },
++              "method": {
++                "default": "post",
++                "type": "string"
++              },
++              "data": {
++                "type": "object",
++                "propertyNames": {
++                  "type": "string"
++                },
++                "additionalProperties": {}
++              }
++            },
++            "required": [
++              "id",
++              "label",
++              "procedure"
++            ]
++          },
++          {
++            "type": "object",
++            "properties": {
++              "type": {
++                "default": "link",
++                "type": "string",
++                "const": "link"
++              },
++              "id": {
++                "type": "string"
++              },
++              "label": {
++                "type": "string"
++              },
++              "icon": {
++                "type": "string"
++              },
++              "tooltip": {
++                "type": "string"
++              },
++              "condition": {
++                "type": "object",
++                "properties": {
++                  "field": {
++                    "type": "string"
++                  },
++                  "op": {
++                    "default": "eq",
++                    "type": "string",
++                    "enum": [
++                      "eq",
++                      "neq",
++                      "gt",
++                      "gte",
++                      "lt",
++                      "lte",
++                      "exists",
++                      "notExists"
++                    ]
++                  },
++                  "value": {}
++                },
++                "required": [
++                  "field"
++                ]
++              },
++              "href": {
++                "type": "string"
++              }
++            },
++            "required": [
++              "id",
++              "label",
++              "href"
++            ]
++          }
++        ]
++      }
++    },
++    "tableActions": {
++      "type": "array",
++      "items": {
++        "anyOf": [
++          {
++            "type": "object",
++            "properties": {
++              "type": {
++                "default": "procedure",
++                "type": "string",
++                "const": "procedure"
++              },
++              "id": {
++                "type": "string"
++              },
++              "label": {
++                "type": "string"
++              },
++              "icon": {
++                "type": "string"
++              },
++              "tooltip": {
++                "type": "string"
++              },
++              "condition": {
++                "type": "object",
++                "properties": {
++                  "field": {
++                    "type": "string"
++                  },
++                  "op": {
++                    "default": "eq",
++                    "type": "string",
++                    "enum": [
++                      "eq",
++                      "neq",
++                      "gt",
++                      "gte",
++                      "lt",
++                      "lte",
++                      "exists",
++                      "notExists"
++                    ]
++                  },
++                  "value": {}
++                },
++                "required": [
++                  "field"
++                ]
++              },
++              "procedure": {
++                "type": "string"
++              },
++              "method": {
++                "default": "post",
++                "type": "string"
++              },
++              "data": {
++                "type": "object",
++                "propertyNames": {
++                  "type": "string"
++                },
++                "additionalProperties": {}
++              }
++            },
++            "required": [
++              "id",
++              "label",
++              "procedure"
++            ]
++          },
++          {
++            "type": "object",
++            "properties": {
++              "type": {
++                "default": "link",
++                "type": "string",
++                "const": "link"
++              },
++              "id": {
++                "type": "string"
++              },
++              "label": {
++                "type": "string"
++              },
++              "icon": {
++                "type": "string"
++              },
++              "tooltip": {
++                "type": "string"
++              },
++              "condition": {
++                "type": "object",
++                "properties": {
++                  "field": {
++                    "type": "string"
++                  },
++                  "op": {
++                    "default": "eq",
++                    "type": "string",
++                    "enum": [
++                      "eq",
++                      "neq",
++                      "gt",
++                      "gte",
++                      "lt",
++                      "lte",
++                      "exists",
++                      "notExists"
++                    ]
++                  },
++                  "value": {}
++                },
++                "required": [
++                  "field"
++                ]
++              },
++              "href": {
++                "type": "string"
++              }
++            },
++            "required": [
++              "id",
++              "label",
++              "href"
++            ]
++          }
++        ]
++      }
++    },
++    "modalSize": {
++      "default": "sm",
++      "type": "string",
++      "enum": [
++        "xs",
++        "sm",
++        "lg",
++        "xl"
++      ]
++    },
++    "include": {
++      "default": [],
++      "type": "array",
++      "items": {
++        "$ref": "#/definitions/__schema0"
++      }
++    }
++  },
++  "required": [
++    "name",
++    "route",
++    "model",
++    "tag",
++    "operations"
++  ],
++  "definitions": {
++    "__schema0": {
++      "anyOf": [
++        {
++          "type": "string"
++        },
++        {
++          "type": "object",
++          "properties": {
++            "relation": {
++              "type": "string"
++            },
++            "include": {
++              "type": "array",
++              "items": {
++                "$ref": "#/definitions/__schema0"
++              }
++            },
++            "orderBy": {
++              "type": "object",
++              "propertyNames": {
++                "type": "string"
++              },
++              "additionalProperties": {}
++            }
++          },
++          "required": [
++            "relation"
++          ]
++        }
++      ]
++    }
++  },
++  "$id": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
++  "title": "Crouton resource.json",
++  "description": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 1."
++}
+diff --git a/packages/crouton-core/src/lib/resource/version.ts b/packages/crouton-core/src/lib/resource/version.ts
+new file mode 100644
+index 0000000..0ef035e
+--- /dev/null
++++ b/packages/crouton-core/src/lib/resource/version.ts
+@@ -0,0 +1,23 @@
++/**
++ * resource.json schema versioning.
++ *
++ * `schemaVersion` is a monotonic integer stamped on every `resource.json`. It is
++ * **decoupled from the crouton package semver** on purpose — bump it only when the
++ * resource.json *shape* changes in a way that needs a migration, and ship a matching
++ * step in `./migrations`. This keeps the migration chain one-step-per-bump with no
++ * version-range math.
++ *
++ * Files written before versioning existed carry no field and are treated as the
++ * baseline. Because `CURRENT_RESOURCE_VERSION` starts equal to the baseline, shipping
++ * the versioning machinery is a pure no-op for every existing file until the first
++ * real shape change lands (`CURRENT_RESOURCE_VERSION = 2` + a `1 → 2` migration).
++ */
++
++/** Version assumed for a `resource.json` that has no `schemaVersion` field. */
++export const BASELINE_RESOURCE_VERSION = 1;
++
++/**
++ * The version the running crouton understands. Bump by 1 whenever resource.json's
++ * shape changes, and add a migration step (`from: N, to: N + 1`) in `./migrations`.
++ */
++export const CURRENT_RESOURCE_VERSION = 1;
+diff --git a/packages/crouton-core/tsup.config.ts b/packages/crouton-core/tsup.config.ts
+index a272ae3..c5e1af4 100644
+--- a/packages/crouton-core/tsup.config.ts
++++ b/packages/crouton-core/tsup.config.ts
+@@ -13,4 +13,6 @@ export default defineConfig({
+   esbuildOptions(options) {
+     options.conditions = ['@ghentcdh/crouton'];
+   },
++  // Regenerate the JSON Schema from the freshly built ESM after every build.
++  onSuccess: 'node scripts/gen-resource-schema.mjs',
+ });
+\ No newline at end of file
+diff --git a/packages/crouton-vue/src/status/StatusView.vue b/packages/crouton-vue/src/status/StatusView.vue
+index 1e8f2c2..fb526f4 100644
+--- a/packages/crouton-vue/src/status/StatusView.vue
++++ b/packages/crouton-vue/src/status/StatusView.vue
+@@ -92,12 +92,31 @@
+         >
+           <span
+             class="inline-block w-2.5 h-2.5 rounded-full mt-1.5 shrink-0"
+-            :class="res.valid ? 'bg-green-500' : 'bg-red-500'"
++            :class="res.draft ? 'bg-gray-400' : res.valid ? 'bg-green-500' : 'bg-red-500'"
+           />
+           <div>
+             <span class="font-medium">{{ res.name }}</span>
+             <span class="text-sm text-gray-500 ml-1">({{ res.path }})</span>
+-            <p v-if="res.error" class="text-sm text-red-600">
++            <span
++              v-if="res.version != null"
++              class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono"
++            >
++              v{{ res.version }}
++            </span>
++            <span
++              v-if="res.draft"
++              class="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600"
++            >
++              draft — not loaded
++            </span>
++            <!-- Out-of-date file that just needs migration: amber, distinct from a hard error. -->
++            <p
++              v-if="res.expectedVersion != null && res.expectedVersion !== res.version"
++              class="text-sm text-amber-600"
++            >
++              needs migration to v{{ res.expectedVersion }}<span v-if="res.error"> — {{ res.error }}</span>
++            </p>
++            <p v-else-if="res.error" class="text-sm text-red-600">
+               {{ res.error }}
+             </p>
+           </div>
+diff --git a/packages/crouton-vue/src/status/status.types.ts b/packages/crouton-vue/src/status/status.types.ts
+index b0614db..7bf54b4 100644
+--- a/packages/crouton-vue/src/status/status.types.ts
++++ b/packages/crouton-vue/src/status/status.types.ts
+@@ -9,6 +9,12 @@ export interface ResourceStatus {
+   path: string;
+   valid: boolean;
+   error?: string;
++  /** Loaded/expected schema version (present on loaded, migration-failed, and draft rows). */
++  version?: number;
++  /** Version crouton expects, when it differs from `version` (schema-version failures). */
++  expectedVersion?: number;
++  /** Present in the repo but intentionally not loaded/served. Informational, not an error. */
++  draft?: boolean;
+ }
+ 
+ export interface StatusSummary {
+-- 
+2.43.0
+

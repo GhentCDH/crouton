@@ -89,4 +89,15 @@ export default [
       ],
     },
   },
+  {
+    // Build scripts import from built `dist` artifacts, which import-x can't statically
+    // resolve at lint time (dist may be stale or a bundle). Mirror the import-x rule state
+    // the rest of the repo uses — the .ts/.js block above doesn't match `.mjs`.
+    files: ['**/scripts/**/*.mjs'],
+    rules: {
+      'import-x/default': 'off',
+      'import-x/named': 'off',
+      'import-x/no-unresolved': 'off',
+    },
+  },
 ];

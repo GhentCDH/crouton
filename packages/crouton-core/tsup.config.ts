@@ -13,4 +13,6 @@ export default defineConfig({
   esbuildOptions(options) {
     options.conditions = ['@ghentcdh/crouton'];
   },
+  // Regenerate the JSON Schema from the freshly built ESM after every build.
+  onSuccess: 'node scripts/gen-resource-schema.mjs',
 });

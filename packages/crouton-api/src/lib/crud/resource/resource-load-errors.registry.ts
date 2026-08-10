@@ -2,6 +2,10 @@ export interface ResourceLoadError {
   name: string;
   path: string;
   error: string;
+  /** Version found on disk (for schema-version / migration failures). */
+  version?: number;
+  /** Version crouton expected (`CURRENT_RESOURCE_VERSION`). */
+  expectedVersion?: number;
 }
 
 class ResourceLoadErrorsRegistry {

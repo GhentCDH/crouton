@@ -9,6 +9,12 @@ export interface ResourceStatus {
   path: string;
   valid: boolean;
   error?: string;
+  /** Loaded/expected schema version (present on loaded, migration-failed, and draft rows). */
+  version?: number;
+  /** Version crouton expects, when it differs from `version` (schema-version failures). */
+  expectedVersion?: number;
+  /** Present in the repo but intentionally not loaded/served. Informational, not an error. */
+  draft?: boolean;
 }
 
 export interface StatusSummary {

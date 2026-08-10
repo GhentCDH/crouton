@@ -77,6 +77,7 @@ describe('createStatusController', () => {
       name: 'users',
       path: 'users',
       valid: true,
+      version: 1,
     });
     expect(status.resources[1].valid).toBe(false);
     expect(status.resources[1].name).toBe('bad_resource');
