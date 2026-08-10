@@ -18,15 +18,22 @@ import {
   type ResolvedDiff,
   type WritePlan,
   apply,
+  backupSchema,
   buildEnumRegistry,
   buildResourceDiffs,
   commit,
+  fixZodImports,
   introspect,
+  isGitDirty,
   loadConfig,
   loadDatasources,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
+  normalizeSchema,
+  prismaCaseFormat,
+  prismaDbPull,
+  prismaGenerate,
   readExistingResource,
   recommendedResolver,
   resolve as resolveDiff,
@@ -40,15 +47,6 @@ import {
 import { type DataSource } from '@ghentcdh/crouton-core';
 
 import { formatResourceChange } from './preview';
-import {
-  backupSchema,
-  fixZodImports,
-  isGitDirty,
-  normalizeSchema,
-  prismaCaseFormat,
-  prismaDbPull,
-  prismaGenerate,
-} from './prisma';
 import { CancelledError, interactiveResolver } from './resolver';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';

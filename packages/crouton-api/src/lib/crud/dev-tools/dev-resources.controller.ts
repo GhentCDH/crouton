@@ -29,20 +29,18 @@ import {
   resolveDatasource,
   resolveFromRoot,
   resolveRuleset,
-} from '@ghentcdh/crouton-codegen';
-import { type DataSource } from '@ghentcdh/crouton-core';
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-import { DataSourceRegistry } from '../data-source';
-import { IS_DEV } from '../dev-mode';
-import {
   backupSchema,
   fixZodImports,
   isGitDirty,
   prismaCaseFormat,
   prismaDbPull,
   prismaGenerate,
-} from './prisma-shell';
+} from '@ghentcdh/crouton-codegen';
+import { type DataSource } from '@ghentcdh/crouton-core';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { DataSourceRegistry } from '../data-source';
+import { IS_DEV } from '../dev-mode';
 
 /**
  * Dev-only endpoints that reuse the `@ghentcdh/crouton-codegen` engine

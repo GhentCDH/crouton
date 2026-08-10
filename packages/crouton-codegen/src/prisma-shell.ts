@@ -1,11 +1,15 @@
 /**
  * Thin wrappers around the project's Prisma CLI plus git/backup safety for the
  * destructive `db pull` step.
+ *
+ * Shared by both `crouton-cli` (interactive terminal) and `crouton-api`
+ * (dev-mode endpoint). Only uses `node:child_process` / `node:fs` — no
+ * framework-specific dependencies.
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const run = (
