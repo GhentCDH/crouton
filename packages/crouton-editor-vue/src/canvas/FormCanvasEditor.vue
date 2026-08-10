@@ -24,11 +24,15 @@ const {
   onAddField,
   selectOptionsFor,
   typeOptionsFor,
-} = useCanvasFieldOps(props, 'form');
+} = useCanvasFieldOps(props, props.context);
 
 const gridRoot = ref<InstanceType<typeof draggable> | null>(null);
 const gridEl = computed<HTMLElement | null>(
   () => (gridRoot.value as unknown as { $el?: HTMLElement })?.$el ?? null,
+);
+
+const removeLabel = computed(() =>
+  props.context === 'view' ? 'Remove from view' : 'Remove from form',
 );
 </script>
 
@@ -57,6 +61,7 @@ const gridEl = computed<HTMLElement | null>(
             :type-options="typeOptionsFor(element.type)"
             :select-options="selectOptionsFor(element.id)"
             :grid-el="gridEl"
+            :remove-label="removeLabel"
             @update:colspan="(n) => onColspanUpdate!(element.id, n)"
             @change-type="(t) => onChangeType(element.id, t)"
             @remove="onRemove(element.id)"

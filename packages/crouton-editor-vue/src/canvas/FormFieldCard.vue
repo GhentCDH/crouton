@@ -56,7 +56,7 @@ const typeLabel = computed(
       <FieldOptionsMenu
         :type-options="typeOptions"
         :current-type="field.type"
-        remove-label="Remove from form"
+        :remove-label="removeLabel"
         @change-type="(t) => emits('change-type', t)"
         @remove="emits('remove')"
       />
