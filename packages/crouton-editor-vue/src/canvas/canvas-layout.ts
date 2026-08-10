@@ -9,8 +9,8 @@
 
 import { isCanvasSupportedType, normalizeCanvasType } from './type-swaps';
 import {
-  HIDDEN_FLAG,
   type EditableColumn,
+  HIDDEN_FLAG,
   type Tab,
   type VariantDraft,
 } from '../types/resource-schema-editor.types';

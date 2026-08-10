@@ -1,9 +1,10 @@
 import { type PropType } from 'vue';
 
 import type { CanvasField } from './canvas-layout';
+import type { CanvasSelectOption } from './FieldPreview.properties';
 import type { CanvasTypeOption } from './type-swaps';
 
-export type CanvasSelectOption = { label: string; value: unknown };
+export type { CanvasSelectOption };
 
 export const FormFieldCardProperties = {
   field: { type: Object as PropType<CanvasField>, required: true as const },
