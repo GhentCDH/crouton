@@ -15,12 +15,7 @@ const emits = defineEmits<{
 <template>
   <div class="flex flex-col gap-3">
     <div class="alert alert-warning text-sm">
-      <span>
-        <strong>{{ warningText.split(' — ')[0] }}</strong>
-        <template v-if="warningText.includes(' — ')">
-          — {{ warningText.split(' — ').slice(1).join(' — ') }}
-        </template>
-      </span>
+      <span>{{ warningText }}</span>
     </div>
 
     <div
