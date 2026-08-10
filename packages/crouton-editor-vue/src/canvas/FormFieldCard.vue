@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-
-import {
-  Btn,
-  Checkbox,
-  Input,
-  InputNumber,
-  MultiSelect,
-  SelectComponent,
-  Textarea,
-} from '@ghentcdh/ui';
+import { computed } from 'vue';
 
 import { FormFieldCardProperties } from './FormFieldCard.properties';
+import FieldOptionsMenu from './FieldOptionsMenu.vue';
+import FieldPreview from './FieldPreview.vue';
 import { useColspanResize } from './useColspanResize';
 
 const props = defineProps(FormFieldCardProperties);
@@ -26,36 +18,6 @@ const { resizing, start: startResize } = useColspanResize(
   () => props.field.colspan,
   (n) => emits('update:colspan', n),
 );
-
-// Purely decorative: gives every control something visible to render without
-// implying any of this is real, saved data — nothing here is read by the
-// output builder. A fresh value per field, seeded from its type/label so the
-// canvas doesn't render a wall of identical empty inputs.
-const previewValue = ref<unknown>(
-  (() => {
-    switch (props.field.type) {
-      case 'number':
-      case 'Integer':
-        return 0;
-      case 'boolean':
-        return false;
-      case 'mutliSelect':
-        return [];
-      case 'select':
-        return props.selectOptions[0]?.value ?? '';
-      default:
-        return props.field.label;
-    }
-  })(),
-);
-
-const onSelectType = (type: string) => {
-  emits('change-type', type);
-};
-
-const onRemove = () => {
-  emits('remove');
-};
 
 const typeLabel = computed(
   () =>
@@ -91,92 +53,20 @@ const typeLabel = computed(
           {{ typeLabel }}
         </div>
       </div>
-      <div ref="menuRoot" class="dropdown dropdown-end">
-        <Btn
-          tabindex="0"
-          color="secondary"
-          :outline="true"
-          size="xs"
-          title="Field options"
-        >
-          ⋯
-        </Btn>
-        <ul
-          tabindex="0"
-          class="dropdown-content menu menu-sm bg-base-100 rounded-box shadow-md border border-base-300 w-48 p-1"
-        >
-          <li v-if="typeOptions.length" class="menu-title text-[10px]">
-            Change display type
-          </li>
-          <li v-for="opt in typeOptions" :key="opt.value">
-            <a
-              :class="{ 'font-semibold': opt.value === field.type }"
-              @click="onSelectType(opt.value)"
-            >
-              {{ opt.label }}
-            </a>
-          </li>
-          <li v-if="typeOptions.length"><hr class="my-1" /></li>
-          <li>
-            <a class="text-error" @click="onRemove">Remove from form</a>
-          </li>
-        </ul>
-      </div>
+      <FieldOptionsMenu
+        :type-options="typeOptions"
+        :current-type="field.type"
+        :remove-label="removeLabel"
+        @change-type="(t) => emits('change-type', t)"
+        @remove="emits('remove')"
+      />
     </div>
 
     <div class="p-2 pt-1">
-      <Input
-        v-if="field.type === 'string'"
-        v-model="previewValue as string"
-        size="sm"
-        :enabled="false"
-      />
-      <Textarea
-        v-else-if="field.type === 'textarea' || field.type === 'markdown'"
-        v-model="previewValue as string"
-        size="sm"
-        :rows="field.type === 'markdown' ? 4 : 3"
-        :enabled="false"
-      />
-      <InputNumber
-        v-else-if="field.type === 'number' || field.type === 'Integer'"
-        v-model="previewValue as number"
-        size="sm"
-        :enabled="false"
-      />
-      <Checkbox
-        v-else-if="field.type === 'boolean'"
-        v-model="previewValue as boolean"
-        :enabled="false"
-      />
-      <SelectComponent
-        v-else-if="field.type === 'select'"
-        size="sm"
-        :value="previewValue"
-        :options="
-          selectOptions.length
-            ? selectOptions
-            : [
-                { label: 'Option A', value: 'a' },
-                { label: 'Option B', value: 'b' },
-              ]
-        "
-        :clearable="false"
-        :enabled="false"
-      />
-      <MultiSelect
-        v-else-if="field.type === 'mutliSelect'"
-        v-model="previewValue as unknown[]"
-        size="sm"
-        :options="
-          selectOptions.length
-            ? selectOptions
-            : [
-                { label: 'Option A', value: 'a' },
-                { label: 'Option B', value: 'b' },
-              ]
-        "
-        :enabled="false"
+      <FieldPreview
+        :type="field.type"
+        :value="field.label"
+        :select-options="selectOptions"
       />
     </div>
 

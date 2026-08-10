@@ -22,19 +22,31 @@ The `ResourceJsonEditor` component from `@ghentcdh/crouton-editor-vue` is a stan
 The editor organizes editing into three tabs:
 
 - **Settings** — resource-level fields: title, display mode, modal size, sidebar config, operations, and an expandable "Advanced" section for structural fields (route, model, tag, etc.)
-- **Columns** — the column table with per-column expand panels for Form/View/Table field variant editing (display key, position, colspan, raw JSON options), plus a **Table / Visual** toggle (see below)
+- **Columns** — the column table with per-column expand panels for Form/View/Table field variant editing (display key, position, colspan, raw JSON options), plus **Form / View / Columns** visual mode toggles (see below)
 - **JSON** — live read-only preview of the current draft as formatted JSON
 
-### Visual mode (beta)
+### Visual modes (beta)
 
-The Columns tab's **Visual** toggle replaces the flat position/colspan inputs with a drag-and-drop canvas of the actual create/edit form, scoped to non-relation ("standard") fields only — relation columns stay on the Table view. From the canvas you can:
+The Columns tab has four view modes: **Table** (the original flat editor), **Form**, **View**, and **Columns**. The last three are drag-and-drop visual canvases, each scoped to non-relation ("standard") fields only — relation columns stay on the Table view.
+
+#### Form canvas
+
+Drag-and-drop canvas of the create/edit form layout:
 
 - **Reorder** fields by dragging (rewrites `position`)
 - **Resize** a field by dragging its trailing edge (rewrites `options.colspan`, 1–12)
 - **Change display type** via each field's "⋯" menu — only same-shape swaps are offered (e.g. text ↔ textarea ↔ markdown, number ↔ integer); shape-changing swaps like select ↔ multi-select aren't included yet
 - **Remove** a field from the form (sets `hiddenInForm`, with an undo toast) or **add** one back via the "+ Add field" picker
 
-Everything renders and computes purely client-side — no backend call is made while dragging, resizing, or previewing. Visual mode is new and explicitly marked in-app as still in development; the Table view remains the fallback for anything the canvas doesn't handle yet (relations, unusual raw-JSON options, View/Table context editing).
+#### View canvas
+
+Same grid-based canvas as Form, but editing the **View** (read-only detail page) context instead. Operates on `hiddenInView` and `fieldView` variants. Shares all the same interactions (reorder, resize, change type, remove/add).
+
+#### Columns (Table) canvas
+
+A horizontal strip of column chips for editing the **Table** (list page) context. Reorder-only for now — no column width editing. Operates on `hiddenInTable` and `fieldTable` variants.
+
+All three canvases render and compute purely client-side — no backend call is made while dragging, resizing, or previewing. Visual modes are new and explicitly marked in-app as still in development; the Table view remains the fallback for anything the canvases don't handle yet (relations, unusual raw-JSON options).
 
 ## Usage
 

@@ -1,125 +1,50 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import draggable from 'vuedraggable';
 
-import { Btn } from '@ghentcdh/ui';
+import { COLSPAN } from '@ghentcdh/crouton-forms-vue';
 
 import { FormCanvasEditorProperties } from './FormCanvasEditor.properties';
-import { buildCanvasLayout, type CanvasField } from './canvas-layout';
-import { swapOptionsFor } from './type-swaps';
-import type { CanvasSelectOption } from './FormFieldCard.properties';
+import type { CanvasField } from './canvas-layout';
+import { useCanvasFieldOps } from './useCanvasFieldOps';
+import CanvasShell from './CanvasShell.vue';
 import FormFieldCard from './FormFieldCard.vue';
-import { COLSPAN } from '@ghentcdh/crouton-forms-vue';
 
 const props = defineProps(FormCanvasEditorProperties);
 
-const layout = computed(() => buildCanvasLayout(props.columns, props.drafts));
-
-/**
- * Local, reorderable copy of the visible fields for `vuedraggable`'s
- * v-model. Re-synced whenever the underlying draft state changes (including
- * right after this same component writes new positions on drag-end — that
- * recompute reproduces the same order, so it's a no-op re-sync, not a loop).
- */
-const orderedFields = ref<CanvasField[]>([]);
-watch(
+const {
   layout,
-  (l) => {
-    orderedFields.value = [...l.fields];
-  },
-  { immediate: true },
-);
+  orderedFields,
+  onDragEnd,
+  onColspanUpdate,
+  onChangeType,
+  onRemove,
+  lastRemoved,
+  undoRemove,
+  onAddField,
+  selectOptionsFor,
+  typeOptionsFor,
+} = useCanvasFieldOps(props, props.context);
 
 const gridRoot = ref<InstanceType<typeof draggable> | null>(null);
 const gridEl = computed<HTMLElement | null>(
   () => (gridRoot.value as unknown as { $el?: HTMLElement })?.$el ?? null,
 );
 
-/** Rewrites `position` for every visible field to match the just-dropped order (simple 0..n-1 renumbering). */
-const onDragEnd = () => {
-  orderedFields.value.forEach((field, index) => {
-    const d = props.drafts[field.id];
-    if (d) d.form.position = index;
-  });
-};
-
-const onColspanUpdate = (fieldId: string, colspan: number) => {
-  const d = props.drafts[fieldId];
-  if (d) d.form.colspan = colspan;
-};
-
-const onChangeType = (fieldId: string, type: string) => {
-  const d = props.drafts[fieldId];
-  if (d) d.form.type = type;
-};
-
-const lastRemoved = ref<{ id: string; label: string } | null>(null);
-
-const onRemove = (fieldId: string) => {
-  const col = props.columns.find((c) => c.id === fieldId);
-  if (!col) return;
-  col.hiddenInForm = true;
-  lastRemoved.value = { id: fieldId, label: col.label || col.column };
-};
-
-const undoRemove = () => {
-  if (!lastRemoved.value) return;
-  const col = props.columns.find((c) => c.id === lastRemoved.value?.id);
-  if (col) col.hiddenInForm = false;
-  lastRemoved.value = null;
-};
-
-const onAddField = (fieldId: string) => {
-  const col = props.columns.find((c) => c.id === fieldId);
-  if (!col) return;
-  col.hiddenInForm = false;
-  const maxPosition = layout.value.fields.reduce(
-    (max, f) => Math.max(max, f.position),
-    -1,
-  );
-  const d = props.drafts[fieldId];
-  if (d) d.form.position = maxPosition + 1;
-};
-
-/** `options.options`/`options.values` off the column's original Form config, for select/mutliSelect preview rendering. */
-const selectOptionsFor = (fieldId: string): CanvasSelectOption[] => {
-  const col = props.columns.find((c) => c.id === fieldId);
-  const options = col?.form?.options as Record<string, unknown> | undefined;
-  const raw = options?.['options'] ?? options?.['values'];
-  if (!Array.isArray(raw)) return [];
-  return raw.map((o) =>
-    o && typeof o === 'object' && 'label' in (o as Record<string, unknown>)
-      ? (o as CanvasSelectOption)
-      : { label: String(o), value: o },
-  );
-};
+const removeLabel = computed(() =>
+  props.context === 'view' ? 'Remove from view' : 'Remove from form',
+);
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="alert alert-warning text-sm">
-      <span>
-        <strong>Visual mode is still in development</strong> — drag, resize,
-        change-type, and add/remove are new and less battle-tested than the
-        Table view. Switch back to Table if something looks wrong.
-      </span>
-    </div>
+  <CanvasShell
+    :last-removed="lastRemoved"
+    :hidden-fields="layout.hiddenFields"
 
-    <div
-      v-if="lastRemoved"
-      class="alert flex items-center justify-between text-sm"
-    >
-      <span>Removed “{{ lastRemoved.label }}” from the form.</span>
-      <Btn color="secondary" :outline="true" size="xs" @click="undoRemove">
-        Undo
-      </Btn>
-    </div>
-
-    <p v-if="!orderedFields.length" class="text-sm opacity-60">
-      No standard fields to lay out yet — add one below, or edit relation fields
-      in the Table view.
-    </p>
-
+    :has-fields="!!orderedFields.length"
+    @undo="undoRemove"
+    @add="onAddField"
+  >
     <draggable
       ref="gridRoot"
       v-model="orderedFields"
@@ -133,41 +58,16 @@ const selectOptionsFor = (fieldId: string): CanvasSelectOption[] => {
         <div :class="COLSPAN[element.colspan] ?? COLSPAN[12]">
           <FormFieldCard
             :field="element"
-            :type-options="swapOptionsFor(element.type)"
+            :type-options="typeOptionsFor(element.type)"
             :select-options="selectOptionsFor(element.id)"
             :grid-el="gridEl"
-            @update:colspan="(n) => onColspanUpdate(element.id, n)"
+            :remove-label="removeLabel"
+            @update:colspan="(n) => onColspanUpdate!(element.id, n)"
             @change-type="(t) => onChangeType(element.id, t)"
             @remove="onRemove(element.id)"
           />
         </div>
       </template>
     </draggable>
-
-    <p v-if="layout.excludedCount" class="text-xs opacity-60">
-      {{ layout.excludedCount }} field(s) not shown here (relations or a type
-      Visual mode doesn't support yet) — edit them in Table view.
-    </p>
-
-    <div ref="addMenuRoot" class="dropdown">
-      <Btn
-        tabindex="0"
-        color="secondary"
-        :outline="true"
-        size="sm"
-        :disabled="!layout.hiddenFields.length"
-      >
-        + Add field
-      </Btn>
-
-      <ul
-        tabindex="0"
-        class="dropdown-content menu menu-sm bg-base-100 rounded-box shadow-md border border-base-300 z-10 w-56 p-1"
-      >
-        <li v-for="hidden in layout.hiddenFields" :key="hidden.id">
-          <a @click="onAddField(hidden.id)">{{ hidden.label }}</a>
-        </li>
-      </ul>
-    </div>
-  </div>
+  </CanvasShell>
 </template>
