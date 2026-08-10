@@ -1,3 +1,5 @@
+export { buildViews } from './lib/crud/builder';
+
 export * from './lib/crouton-api.module';
 export * from './lib/crud/loader/index';
 export * from './lib/crud/loader/resource-config.loader';
