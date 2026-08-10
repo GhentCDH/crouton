@@ -46,6 +46,44 @@ describe('buildViews with field variants', () => {
     ).toBe('chip');
   });
 
+  it('table view respects position (sort: true)', () => {
+    const cols = resolveColumnFieldVariants(
+      parse([
+        { id: 'id', idField: true, hiddenInForm: true },
+        {
+          id: 'name',
+          fieldTable: { position: 2 },
+        },
+        {
+          id: 'id',
+          label: 'ID col',
+          hiddenInForm: true,
+          fieldTable: { position: 1 },
+        },
+      ]),
+    )!;
+
+    // Deduplicate — parse may produce two 'id' entries; use only 'name' + a
+    // visible non-id column for a minimal ordering check.
+    const schema2 = z.object({ name: z.string(), code: z.string() });
+    const cols2 = resolveColumnFieldVariants(
+      parse([
+        {
+          id: 'code',
+          fieldTable: { position: 2 },
+        },
+        {
+          id: 'name',
+          fieldTable: { position: 1 },
+        },
+      ]),
+    )!;
+
+    const views = buildViews(schema2, cols2)!;
+    const tableColIds = views.table.columns.map((c: any) => c.id);
+    expect(tableColIds).toEqual(['name', 'code']);
+  });
+
   it('regression: no variants → table/form/view expose identical fieldInput', () => {
     const cols = resolveColumnFieldVariants(
       parse([

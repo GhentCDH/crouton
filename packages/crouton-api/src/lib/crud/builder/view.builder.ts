@@ -173,6 +173,7 @@ export const buildViews = (
     columns?.map((c) => columnForContext(c, 'table')),
     (c) => !c.hiddenInTable,
     buildTableUiSchema,
+    true,
   );
   if (table) {
     table.defaultSort = resolveDefaultSort(
