@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
 vi.mock('./resource-resolver', () => ({
