@@ -76,7 +76,7 @@ export const useResourcesById = (
   params: UseResourcesProperties = {},
 ): Ref<UseResource | null> => {
   const crouton = useCrouton();
-  const config = computedAsync(() => crouton.getFormDef(id as string));
+  const config = computedAsync(() => crouton.getFormDefById(id as string));
   return shallowRef(useResources(config.value, params));
 };
 

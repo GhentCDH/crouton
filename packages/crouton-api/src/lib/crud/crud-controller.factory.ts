@@ -1,48 +1,15 @@
 import { Body, Controller, type Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import {
-  type CrudRepository,
-  createCrudRepository,
-} from './crud-repository.factory';
-import {
-  isOperationEnabled,
-  resolveDefinition,
-  schemaFor,
-  upsertOnFor,
-} from './crud.config';
+import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
+import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
-import {
-  registerActionRoutes,
-  registerTableActionRoutes,
-} from './operations/register-actions';
-import {
-  registerCreate,
-  registerDelete,
-  registerFindAll,
-  registerFindOne,
-  registerPatch,
-  registerUpdate,
-  registerUpsert,
-} from './operations/register-crud';
-import {
-  registerDefinitionEndpoint,
-  registerResourceColumnsEndpoint,
-  registerResourceJsonEndpoint,
-  registerResourceJsonPatchEndpoint,
-  registerResourceJsonRawGetEndpoint,
-  registerResourceJsonRawPutEndpoint,
-  registerSchemasEndpoint,
-} from './operations/register-schema-endpoints';
-import { registerSubResourceRoutes } from './operations/register-sub-resources';
+import { registerEndpoints } from './operations/register-endpoints';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
-import {
-  ZodValidationPipe,
-  type ZodValidationPipeOptions,
-} from './zod-validation.pipe';
+import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
 
 /**
  * Dynamically build a NestJS controller class for the given resource config.
@@ -120,24 +87,7 @@ export function createCrudController(
     baseUrl,
   };
 
-  // ── Register operations (order matters: static routes before :id routes) ──
-  registerFindAll(ctx);
-  registerDefinitionEndpoint(ctx);
-  registerSchemasEndpoint(ctx);
-  registerResourceJsonEndpoint(ctx);
-  registerResourceColumnsEndpoint(ctx);
-  registerResourceJsonPatchEndpoint(ctx);
-  registerResourceJsonRawGetEndpoint(ctx);
-  registerResourceJsonRawPutEndpoint(ctx);
-  registerActionRoutes(ctx);
-  registerTableActionRoutes(ctx);
-  registerSubResourceRoutes(ctx);
-  registerFindOne(ctx);
-  registerCreate(ctx);
-  registerUpdate(ctx);
-  registerPatch(ctx);
-  registerUpsert(ctx);
-  registerDelete(ctx);
+  registerEndpoints(ctx);
 
   // ── Class-level decorators ─────────────────────────────────────────────
   Controller(route)(CrudControllerBase);

@@ -235,7 +235,9 @@ export const buildViewsFromColumns = (
   const buildJsonSchema = (cols: JsonColumn[]): Record<string, unknown> => {
     const properties: Record<string, any> = {};
     for (const c of cols) {
-      if (c.column) {
+      // Only nest when `column` introduces genuine grouping (extend columns).
+      // When column === id the data is flat — nesting would be self-referential.
+      if (c.column && c.column !== c.id) {
         if (!properties[c.column]) {
           properties[c.column] = {
             type: 'object',
@@ -292,7 +294,7 @@ export const buildViewsFromColumns = (
           '',
         );
         const col = id ? colMap[id] : undefined;
-        if (!col?.column) return el;
+        if (!col?.column || col.column === col.id) return el;
         // Support dotted displayKey paths (e.g. "internal_author.name") — each segment
         // becomes a nested /properties/ step in the JSON pointer.
         const keyPath = (col.displayKey ?? col.id).split('.');

@@ -48,7 +48,7 @@ const createFormSchema = (
 export class FormDefCache {
   private cache = new Map<string, Promise<FormDef>>();
 
-  async getFormDef(formId: string): Promise<FormDef> {
+  async getFormDefById(formId: string): Promise<FormDef> {
     return this.getFormDefByUri(`${formId}/schemas`);
   }
 

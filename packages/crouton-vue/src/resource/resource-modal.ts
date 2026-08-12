@@ -30,7 +30,7 @@ export const useFormDefRepository = (formDef: FormDef) => {
 };
 
 export const openFormModal = async (key: string, payload: OpenFormPayload) => {
-  const formDef = await useCrouton().getFormDef(key);
+  const formDef = await useCrouton().getFormDefById(key);
   if (!formDef) throw new Error(`Form "${key}" not found`);
   const formSchema = formDef.schemas.form;
   JsonFormModalService.openModal({

@@ -84,12 +84,14 @@ watch(
 </script>
 
 <template>
-  <ResourceTable
-    #resourceTable
-    :form-id="formId"
-    :initial-request-params="route.query"
-    @handle-event="handleEvent"
-    @on-request="onRequest"
-    @initial-load="initialLoad"
-  />
+  <div class="max-w-screen-xl m-auto p-4">
+    <ResourceTable
+      #resourceTable
+      :form-id="formId"
+      :initial-request-params="route.query"
+      @handle-event="handleEvent"
+      @on-request="onRequest"
+      @initial-load="initialLoad"
+    />
+  </div>
 </template>

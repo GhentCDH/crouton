@@ -91,7 +91,7 @@ const registerSubResourceSchemas = (
   const childUri = `${baseUrl}/${route}/{parent.id}/${sub.childRoute}`;
 
   const schemasPayload = {
-    id: sub.name ?? sub.childRoute,
+    id: `${route}/${sub.childRoute}`,
     name: sub.name ?? sub.childRoute,
     route: sub.childRoute,
     uri: childUri,
@@ -363,12 +363,19 @@ const registerSubResourceDelete = (
 /** Register all routes for all sub-resources (schemas endpoint + CRUD). */
 export const registerSubResourceRoutes = (ctx: OperationContext): void => {
   for (const sub of ctx.config.subResources ?? []) {
-    registerSubResourceSchemas(ctx, sub);
-    registerSubResourceFindAll(ctx, sub);
-    registerSubResourceCreate(ctx, sub);
-    registerSubResourceFindOne(ctx, sub);
-    registerSubResourceUpdate(ctx, sub);
-    registerSubResourcePatch(ctx, sub);
-    registerSubResourceDelete(ctx, sub);
+    registerSubResourceRoute(ctx, sub);
   }
+};
+
+export const registerSubResourceRoute = (
+  ctx: OperationContext,
+  sub: SubResourceConfig,
+): void => {
+  registerSubResourceSchemas(ctx, sub);
+  // registerSubResourceFindAll(ctx, sub);
+  registerSubResourceCreate(ctx, sub);
+  registerSubResourceFindOne(ctx, sub);
+  registerSubResourceUpdate(ctx, sub);
+  registerSubResourcePatch(ctx, sub);
+  // registerSubResourceDelete(ctx, sub);
 };

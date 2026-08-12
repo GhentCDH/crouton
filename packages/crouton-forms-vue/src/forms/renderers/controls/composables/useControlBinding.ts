@@ -10,6 +10,27 @@ import type { UseInputOptions } from './useInput';
 import { useInputProps } from './useInput';
 import { scopeToPath } from '../../../scope';
 
+/**
+ * Safely call `useField`. When the form data shape doesn't match the schema
+ * (e.g. a primitive at a path where an object is expected), vee-validate's
+ * `setInPath` throws. This wrapper catches the error and returns a fallback
+ * field so the component still mounts and the form stays visible.
+ */
+const safeUseField = (path: string): FieldContext<unknown> => {
+  try {
+    return useField<unknown>(() => path);
+  } catch (e) {
+    console.warn(
+      `[useControlBinding] useField("${path}") failed – data/schema mismatch (parent path is a primitive). Field renders with undefined value.`,
+      e,
+    );
+    // Register under a non-colliding flat key so the component can mount.
+    return useField<unknown>(
+      `__broken__${path.replace(/[.[\]]/g, '_')}`,
+    );
+  }
+};
+
 export type useCustomProps = (
   uischema: ControlElement,
   schema: JsonSchema,
@@ -33,7 +54,7 @@ export const useCustomControlBinding = <
     const scopePath = scopeToPath(uischema.scope);
     const path = pathPrefix ? `${pathPrefix}.${scopePath}` : scopePath;
 
-    const field = useField<unknown>(() => path);
+    const field = safeUseField(path);
     setDefaultValue?.(field);
     const wrapper = useInputProps(uischema, schema, field, options);
     const customWrapper = useProps?.(uischema, schema, field, options) ?? {
