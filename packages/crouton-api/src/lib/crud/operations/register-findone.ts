@@ -15,7 +15,7 @@ import { toJsonSchema } from '../schema.utils';
 
 const defaultFindOne = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'findOne')) return null;
-  const { config } = ctx;
+  const { cls, config } = ctx;
   const methodName = 'findOne';
 
   return {
@@ -26,43 +26,44 @@ const defaultFindOne = (ctx: OperationContext) => {
       return this.repo.findOne(id);
     },
     decorators: () => {
-      //
+      Param('id')(cls.prototype, methodName, 0);
     },
   };
 };
 
-export const childFindOne =
-  (sub: SubResourceConfig) => (ctx: OperationContext) => {
-    if (!isOperationEnabled(sub.operations, 'findOne')) return null;
-    const { cls } = ctx;
-    const methodName = `findOneChild_${sub.childRoute}`;
+const childFindOne = (sub: SubResourceConfig) => (ctx: OperationContext) => {
+  if (!isOperationEnabled(sub.operations, 'findOne')) return null;
+  const { cls } = ctx;
+  const methodName = `findOneChild_${sub.childRoute}`;
 
-    const findOneFn = async function (
-      this: { repo: CrudRepository },
-      parentId: string,
-      childId: string,
-    ) {
-      return this.repo.findOneChild(sub, childId, parentId);
-    };
-
-    const decorators = () => {
-      Param('childId')(cls.prototype, methodName, 1);
-    };
-
-    return {
-      route: `:id/${sub.childRoute}/:childId`,
-      methodName,
-      name: sub.childRoute,
-      findOneFn,
-      decorators,
-    };
+  const findOneFn = async function (
+    this: { repo: CrudRepository },
+    parentId: string,
+    childId: string,
+  ) {
+    return this.repo.findOneChild(sub, childId, parentId);
   };
+
+  const decorators = () => {
+    Param('id')(cls.prototype, methodName, 0);
+    Param('childId')(cls.prototype, methodName, 1);
+  };
+
+  return {
+    route: `:id/${sub.childRoute}/:childId`,
+    methodName,
+    name: sub.childRoute,
+    findOneFn,
+    decorators,
+  };
+};
 
 /** Register `GET /:id`. No-ops when `findOne` is disabled. */
 export const registerFindOne = (
   ctx: OperationContext,
-  operationFn = defaultFindOne,
+  sub?: SubResourceConfig,
 ): void => {
+  const operationFn = sub ? childFindOne(sub) : defaultFindOne;
   const properties = operationFn(ctx);
   if (!properties) return;
 
@@ -72,7 +73,6 @@ export const registerFindOne = (
   def(cls, methodName, properties.findOneFn);
   const d = desc(cls, methodName);
   Get(route)(cls.prototype, methodName, d);
-  Param('id')(cls.prototype, methodName, 0);
   ApiOperation({ summary: `Get one ${name} by id` })(
     cls.prototype,
     methodName,

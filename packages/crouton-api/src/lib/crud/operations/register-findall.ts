@@ -9,6 +9,7 @@ import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { toJsonSchema } from '../schema.utils';
 import { ZodValidationPipe } from '../zod-validation.pipe';
+import { childSchemas } from './register-schemas';
 
 const _findAll = async (
   repo: CrudRepository,
@@ -85,35 +86,34 @@ const defaultFindAll = (ctx: OperationContext) => {
   };
 };
 
-export const childFindAll =
-  (sub: SubResourceConfig) => (ctx: OperationContext) => {
-    if (!isOperationEnabled(sub.operations, 'findAll')) return;
+const childFindAll = (sub: SubResourceConfig) => (ctx: OperationContext) => {
+  if (!isOperationEnabled(sub.operations, 'findAll')) return;
 
-    const { cls } = ctx;
-    const methodName = `findAllBy_${sub.childRoute}`;
+  const { cls } = ctx;
+  const methodName = `findAllBy_${sub.childRoute}`;
 
-    const findAll = async function (
-      this: { repo: CrudRepository },
-      params: any,
-      q: string | undefined,
-      id: string,
-    ) {
-      return findAllByParent(this.repo, id, sub.childRoute, params);
-    };
-
-    const decorators = () => {
-      Param('id')(cls.prototype, methodName, 2);
-    };
-
-    return {
-      name: sub.childRoute,
-      methodName,
-      findAll,
-      route: `:id/${sub.childRoute}`,
-      decorators,
-      listSchema: ctx.listSchema,
-    };
+  const findAll = async function (
+    this: { repo: CrudRepository },
+    params: any,
+    q: string | undefined,
+    id: string,
+  ) {
+    return findAllByParent(this.repo, id, sub.childRoute, params);
   };
+
+  const decorators = () => {
+    Param('id')(cls.prototype, methodName, 2);
+  };
+
+  return {
+    name: sub.childRoute,
+    methodName,
+    findAll,
+    route: `:id/${sub.childRoute}`,
+    decorators,
+    listSchema: ctx.listSchema,
+  };
+};
 
 /**
  * Register `GET /` with pagination, sorting, filtering, and optional `?q=` lookup search.
@@ -121,8 +121,9 @@ export const childFindAll =
  */
 export const registerFindAll = (
   ctx: OperationContext,
-  operationFn = defaultFindAll,
+  sub?: SubResourceConfig,
 ): void => {
+  const operationFn = sub ? childFindAll(sub) : defaultFindAll;
   const properties = operationFn(ctx);
   if (!properties) return;
 

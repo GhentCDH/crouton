@@ -55,11 +55,12 @@ export const deleteChild =
 /** Register `DELETE /:id`. No-ops when `delete` is disabled. */
 export const registerDelete = (
   ctx: OperationContext,
-  deleteFn = defaultDelete,
+  sub?: SubResourceConfig,
 ): void => {
+  const operationFn = sub ? deleteChild(sub) : defaultDelete;
   const { cls } = ctx;
 
-  const properties = deleteFn(ctx);
+  const properties = operationFn(ctx);
   if (!properties) return;
   const { methodName, route, name } = properties;
 

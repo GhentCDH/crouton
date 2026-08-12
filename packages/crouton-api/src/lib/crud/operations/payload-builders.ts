@@ -13,6 +13,7 @@ import {
   upsertOnFor,
 } from '../crud.config';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { toJsonSchema } from '../schema.utils';
 
 // ── Internal helpers ──────────────────────────────────────────────────────
@@ -250,6 +251,47 @@ export const buildViewsPayload = (
     schemas,
     actions: resolveActions(baseAction, config.actions),
     tableActions: resolveActions(baseAction, config.tableActions),
+  };
+};
+
+/**
+ * Build the payload for a sub-resource's `GET /<child>/schemas` endpoint.
+ * Returns `undefined` when the sub-resource has no views configured.
+ */
+export const buildSubResourceViewsPayload = (
+  config: Resource,
+  sub: SubResourceConfig,
+  baseUrl?: string,
+): Record<string, unknown> | undefined => {
+  if (!sub.views) return undefined;
+  const { route } = config;
+  const childUri = `${baseUrl}/${route}/{parent.id}/${sub.childRoute}`;
+
+  return {
+    id: `${route}/${sub.childRoute}`,
+    name: sub.name ?? sub.childRoute,
+    route: sub.childRoute,
+    uri: childUri,
+    title: sub.title ?? sub.childRoute,
+    idField: sub.idField ?? 'id',
+    idType: sub.idType ?? 'string',
+    ...(sub.modalSize && { modalSize: sub.modalSize }),
+    operations: buildSubResourceOperations(
+      sub.operations,
+      childUri,
+      sub.idField ?? 'id',
+    ),
+    schemas: Object.fromEntries(
+      Object.entries(sub.views).map(([key, v]) => [
+        key,
+        {
+          data: v.json_schema,
+          ui: v.ui_schema,
+          ...(v.defaultSort !== undefined && { defaultSort: v.defaultSort }),
+        },
+      ]),
+    ),
+    actions: resolveActions(`${baseUrl}/${sub.childRoute}`, sub.actions),
   };
 };
 
