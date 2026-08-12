@@ -44,6 +44,8 @@ export const SubResourceConfigSchema = z.object({
   calculatedColumns: z.array(CalculatedColumnSchema).optional(),
   /** When true, the relation is included in findOne responses (column is visible in form or view). */
   includeInFindOne: z.boolean().optional(),
+  /** Prisma orderBy clause for auto-included relations (from fieldInput.options.sort). */
+  findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
   /** Lifecycle hooks for this sub-resource (beforeWrite, afterRead). */
   hooks: ResourceHooksSchema.optional(),
   /** Columns serialized as `{ value, label }` on read / unwrapped on write. */

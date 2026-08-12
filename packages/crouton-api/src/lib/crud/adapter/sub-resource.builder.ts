@@ -1,4 +1,4 @@
-import type { JsonColumn } from '@ghentcdh/crouton-core';
+import type { JsonColumn, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
 
 import {
   buildViewsFromColumns,
@@ -8,6 +8,7 @@ import {
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
+import { buildChildSortClause } from '../sql.helpers';
 import { deriveRelationTypeFromColumns } from './relation-type';
 import { resolveChildResource } from './resource-resolver';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
@@ -84,7 +85,7 @@ export const buildSubResources = (
 
       return {
         column: c.id,
-        relation: c.id,
+        relation: c.fieldInput?.relation ?? c.id,
         childRoute,
         childModel: c.id,
         foreignKey: c.fieldInput?.foreignKey ?? `${parentModel}Id`,
@@ -110,6 +111,11 @@ export const buildSubResources = (
         }),
         ...((c.hiddenInForm === false || c.hiddenInView === false) && {
           includeInFindOne: true,
+          ...(() => {
+            const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
+            if (opts?.sort) return { findOneOrderBy: buildChildSortClause(opts.sort, opts.sortDir) };
+            return {};
+          })(),
         }),
         ...(buildValueLabelColumns(childColumns).length && {
           valueLabelColumns: buildValueLabelColumns(childColumns),
