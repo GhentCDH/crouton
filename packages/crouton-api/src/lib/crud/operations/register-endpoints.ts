@@ -3,15 +3,11 @@ import {
   registerActionRoutes,
   registerTableActionRoutes,
 } from './register-actions';
-import {
-  registerCreate,
-  registerFindOne,
-  registerPatch,
-  registerUpdate,
-  registerUpsert,
-} from './register-crud';
+import { registerCreate, registerUpsert } from './register-crud';
 import { deleteChild, registerDelete } from './register-delete';
 import { childFindAll, registerFindAll } from './register-findall';
+import { childFindOne, registerFindOne } from './register-findone';
+import { childPatch, registerPatch } from './register-patch';
 import {
   registerDefinitionEndpoint,
   registerResourceColumnsEndpoint,
@@ -22,6 +18,7 @@ import {
   registerSchemasEndpoint,
 } from './register-schema-endpoints';
 import { registerSubResourceRoute } from './register-sub-resources';
+import { childUpdate, registerUpdate } from './register-update';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 export const registerEndpoints = (ctx: OperationContext): void => {
@@ -57,6 +54,9 @@ export const registerSubResourceEndpoints = (
   sub: SubResourceConfig,
 ): void => {
   registerFindAll(ctx, childFindAll(sub));
+  registerFindOne(ctx, childFindOne(sub));
+  registerUpdate(ctx, childUpdate(sub));
+  registerPatch(ctx, childPatch(sub));
   registerDelete(ctx, deleteChild(sub));
   registerSubResourceRoute(ctx, sub);
 };

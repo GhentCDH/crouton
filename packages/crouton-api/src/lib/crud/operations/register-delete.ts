@@ -9,7 +9,7 @@ import { type SubResourceConfig } from '../resource/SubResource.schema';
 
 const defaultDelete = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'delete')) return null;
-  const { cls, config } = ctx;
+  const { config } = ctx;
   const methodName = 'delete';
   const { name } = config;
 
