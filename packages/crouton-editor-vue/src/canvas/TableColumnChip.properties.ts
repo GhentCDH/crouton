@@ -9,4 +9,6 @@ export const TableColumnChipProperties = {
     type: Array as PropType<CanvasTypeOption[]>,
     required: true as const,
   },
+  /** Whether this chip is currently selected for detail editing. */
+  selected: { type: Boolean, default: false },
 };
