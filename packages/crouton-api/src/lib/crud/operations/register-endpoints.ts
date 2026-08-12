@@ -26,14 +26,16 @@ export const registerEndpoints = (ctx: OperationContext): void => {
   registerSubResourceRoutes(ctx);
   //register other routes
   registerFindAll(ctx);
+
   registerResourceJsonRawGetEndpoint(ctx);
   registerResourceJsonRawPutEndpoint(ctx);
+  registerResourceJsonPatchEndpoint(ctx);
+  registerResourceJsonEndpoint(ctx);
+  registerResourceColumnsEndpoint(ctx);
 
   registerDefinitionEndpoint(ctx);
   registerEndpoint(ctx);
-  registerResourceJsonEndpoint(ctx);
-  registerResourceColumnsEndpoint(ctx);
-  registerResourceJsonPatchEndpoint(ctx);
+
   registerActionRoutes(ctx);
   registerTableActionRoutes(ctx);
 };
