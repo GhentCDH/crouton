@@ -28,7 +28,6 @@ import {
   buildDefinitionPayload,
   buildEditableColumnsPayload,
   buildResourceJsonPayload,
-  buildViewsPayload,
 } from './payload-builders';
 import { join } from 'node:path';
 
@@ -63,40 +62,6 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
     status: 200,
     description: `Definition (operations + schemas) for ${name}`,
   })(cls.prototype, 'getDefinition', d);
-};
-
-/**
- * Register `GET /schemas` — returns view schemas (table/form) for the resource.
- * In dev mode the response is rebuilt from the live config registry on every request.
- */
-export const registerSchemasEndpoint = (ctx: OperationContext): void => {
-  const { cls, config, baseUrl } = ctx;
-  const { route, name } = config;
-  const viewsPayload = buildViewsPayload(config, baseUrl);
-
-  def(
-    cls,
-    'getSchemas',
-    async function (this: { configRegistry: ResourceConfigRegistry }) {
-      if (IS_DEV) {
-        const fresh = await this.configRegistry.getByRoute(route);
-        if (fresh) return buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
-      }
-      return viewsPayload;
-    },
-  );
-  const d = desc(cls, 'getSchemas');
-  Get('schemas')(cls.prototype, 'getSchemas', d);
-  ApiOperation({ summary: `Get view schemas (table/form) for ${name}` })(
-    cls.prototype,
-    'getSchemas',
-    d,
-  );
-  ApiResponse({ status: 200, description: `View schemas for ${name}` })(
-    cls.prototype,
-    'getSchemas',
-    d,
-  );
 };
 
 /**

@@ -3,7 +3,8 @@ import {
   registerActionRoutes,
   registerTableActionRoutes,
 } from './register-actions';
-import { registerCreate, registerUpsert } from './register-crud';
+import { childCreate, registerCreate } from './register-create';
+import { registerUpsert } from './register-crud';
 import { deleteChild, registerDelete } from './register-delete';
 import { childFindAll, registerFindAll } from './register-findall';
 import { childFindOne, registerFindOne } from './register-findone';
@@ -15,9 +16,8 @@ import {
   registerResourceJsonPatchEndpoint,
   registerResourceJsonRawGetEndpoint,
   registerResourceJsonRawPutEndpoint,
-  registerSchemasEndpoint,
 } from './register-schema-endpoints';
-import { registerSubResourceRoute } from './register-sub-resources';
+import { childSchemas, registerSchemas } from './register-schemas';
 import { childUpdate, registerUpdate } from './register-update';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
@@ -25,7 +25,7 @@ export const registerEndpoints = (ctx: OperationContext): void => {
   // ── Register operations (order matters: static routes before :id routes) ──
   registerFindAll(ctx);
   registerDefinitionEndpoint(ctx);
-  registerSchemasEndpoint(ctx);
+  registerSchemas(ctx);
   registerResourceJsonEndpoint(ctx);
   registerResourceColumnsEndpoint(ctx);
   registerResourceJsonPatchEndpoint(ctx);
@@ -53,10 +53,11 @@ export const registerSubResourceEndpoints = (
   ctx: OperationContext,
   sub: SubResourceConfig,
 ): void => {
+  registerSchemas(ctx, childSchemas(sub));
   registerFindAll(ctx, childFindAll(sub));
   registerFindOne(ctx, childFindOne(sub));
+  registerCreate(ctx, childCreate(sub));
   registerUpdate(ctx, childUpdate(sub));
   registerPatch(ctx, childPatch(sub));
   registerDelete(ctx, deleteChild(sub));
-  registerSubResourceRoute(ctx, sub);
 };
