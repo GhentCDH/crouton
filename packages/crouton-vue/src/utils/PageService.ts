@@ -93,7 +93,7 @@ export abstract class PageService {
   };
 
   getFormDef(formId) {
-    return this.crouton.getFormDef(formId);
+    return this.crouton.getFormDefById(formId);
   }
 
   async apiCall(

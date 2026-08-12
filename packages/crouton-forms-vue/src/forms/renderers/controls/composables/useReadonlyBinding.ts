@@ -164,7 +164,18 @@ export const useCustomReadonlyControlBinding = <
     const pathPrefix = inject<string>('pathPrefix', '');
     const scopePath = scopeToPath(uischema.scope);
     const path = pathPrefix ? `${pathPrefix}.${scopePath}` : scopePath;
-    const field = useField<unknown>(() => path);
+    let field: FieldContext<unknown>;
+    try {
+      field = useField<unknown>(() => path);
+    } catch (e) {
+      console.warn(
+        `[useReadonlyBinding] useField("${path}") failed – data/schema mismatch. Field renders with undefined value.`,
+        e,
+      );
+      field = useField<unknown>(
+        `__broken__${path.replace(/[.[\]]/g, '_')}`,
+      );
+    }
     const wrapper = useInputProps(uischema, schema, field, options);
     const customWrapper = useProps?.(uischema, schema, field, options) ?? {
       value: {},

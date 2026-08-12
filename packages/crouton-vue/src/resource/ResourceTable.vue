@@ -13,8 +13,11 @@ import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
 const crouton = useCrouton();
 
 const props = defineProps({
+  label: { type: String, required: false },
   formId: { type: String },
   initialRequestParams: { type: Object, default: {} },
+  defaultUriParams: { type: Object, default: {} },
+  hideToolbar: { type: Boolean, default: false },
 });
 
 const id = computed(() => `${props.formId}_${Date.now()}`);
@@ -28,7 +31,7 @@ const schemaVersion = ref(0);
 
 const config = computedAsync(() => {
   void schemaVersion.value;
-  return crouton.getFormDef(props.formId as string);
+  return crouton.getFormDefById(props.formId as string);
 });
 
 const emits = defineEmits(['handleEvent', 'onRequest', 'initialLoad']);
@@ -53,6 +56,7 @@ watch(
     resource.value = newConfig
       ? useResources(config.value, {
           initialRequestParams: { ...toRaw(props.initialRequestParams) },
+          defaultUriParams: toRaw(props.defaultUriParams),
           onRequest,
           handleEvent,
           inline: true,
@@ -72,6 +76,10 @@ watch(
 );
 
 const form = computed(() => resource.value?.form);
+
+const reload = () => {
+  resource.value?.reload();
+};
 
 /** Dev-only visual resource.json builder — see VISUAL_RESOURCE_BUILDER_PLAN.md. */
 const showSchemaEditor = ref(false);
@@ -95,11 +103,37 @@ const showSchemaEditor = ref(false);
       </template>
     </component>
   </div>
-  <div
-    class="max-w-screen-xl m-auto p-4"
-    v-if="config && resource && !form?.hideTable"
-  >
+  <div v-if="config && resource && !form?.hideTable">
+    <template v-if="hideToolbar">
+      <legend
+        class="w-full block flex flex-row space-between"
+        :class="['fieldset-legend']"
+      >
+        <div class="flex-grow">
+          {{ label ?? config.title }}
+        </div>
+        <div>
+          <Btn
+            v-if="crouton.isDev"
+            :icon="IconEnum.Edit"
+            color="secondary"
+            :outline="true"
+            @click="showSchemaEditor = true"
+          >
+            <span class="whitespace-nowrap">Edit fields</span>
+          </Btn>
+          <Btn
+            v-if="config.operations.create"
+            :icon="IconEnum.Plus"
+            @click="resource.create"
+          >
+            <span class="whitespace-nowrap">Add record</span>
+          </Btn>
+        </div>
+      </legend>
+    </template>
     <TableToolbar
+      v-else
       :filter-schema="resource.filterSchema"
       :filters="resource.filter"
       :search="resource.search"
@@ -131,7 +165,11 @@ const showSchemaEditor = ref(false);
       </template>
     </TableToolbar>
 
-    <TableComponent :id="`form_table_${id}`" v-bind="resource" />
+    <TableComponent
+      :id="`form_table_${id}`"
+      v-bind="resource"
+      @refresh="reload"
+    />
 
     <ResourceSchemaEditor
       v-if="showSchemaEditor"

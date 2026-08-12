@@ -69,7 +69,7 @@ export const useCrouton = (): {
   readonly customComponents: CustomComponentEntry[];
   readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
   readonly cellRenderers: CellRendererEntry[];
-  getFormDef: (formId: string) => Promise<FormDef>;
+  getFormDefById: (formId: string) => Promise<FormDef>;
   getFormByUri: (uri: string) => Promise<FormDef>;
   invalidateFormDef: (formId: string) => void;
   invalidateAllFormDefs: () => void;
@@ -134,7 +134,12 @@ export const useCrouton = (): {
     get cellRenderers() {
       return config.value.cellRenderers;
     },
-    getFormDef: (formId: string) => formDefCache.getFormDef(formId),
+    /**
+     * @deprecated use getFormDefById
+     * @param formId
+     */
+    getFormDef: (formId: string) => formDefCache.getFormDefById(formId),
+    getFormDefById: (formId: string) => formDefCache.getFormDefById(formId),
     getFormByUri: (uri: string) => formDefCache.getFormDefByUri(uri),
     invalidateFormDef: (formId: string) => formDefCache.invalidate(formId),
     invalidateAllFormDefs: () => formDefCache.invalidateAll(),

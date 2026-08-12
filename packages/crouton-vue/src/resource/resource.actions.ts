@@ -370,6 +370,7 @@ export const resourceModals = (
       typeof id === 'string'
         ? id
         : String((id as Record<string, unknown>)[formDef.idField]);
+
     api
       .getOneById(_id)
       .then((data) => {

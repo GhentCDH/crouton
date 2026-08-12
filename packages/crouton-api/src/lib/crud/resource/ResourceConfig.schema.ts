@@ -19,7 +19,7 @@ export const ResourceSchema = ResourceJsonShape.extend({
   actions: z.array(ResourceRowActionSchema).default([]),
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
   tableActions: z.array(ResourceTableActionSchema).default([]),
-  subResources: z.array(SubResourceConfigSchema).default([]),
+  subResources: z.lazy(() => z.array(SubResourceConfigSchema)).default([]),
   lookup: LookupSchema.optional(),
   views: z.record(z.string(), ViewConfigSchema),
   definition: DefinitionSchema,

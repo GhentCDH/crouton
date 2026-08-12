@@ -1,3 +1,5 @@
+import { type JsonResourceOperations } from '@ghentcdh/crouton-core';
+
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type ResourceDefinition } from './resource/defintion.schema';
 import { type SchemaInput } from './resource/json.schema';
@@ -15,7 +17,7 @@ export const resolveDefinition = (config: Resource): ResourceDefinition => {
 };
 
 export const isOperationEnabled = (
-  def: ResourceDefinition,
+  def: ResourceDefinition | JsonResourceOperations,
   op: CrudOperation,
 ): boolean => def[op] != null;
 
