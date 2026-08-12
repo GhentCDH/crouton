@@ -64,13 +64,20 @@ const validateRawJson = () => {
       to edit here.
     </p>
     <template v-else>
-      <div role="tablist" class="flex gap-1 rounded-lg bg-base-200 p-1 text-sm w-fit">
+      <div
+        role="tablist"
+        class="flex gap-1 rounded-lg bg-base-200 p-1 text-sm w-fit"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.key"
           role="tab"
           class="rounded-md px-3 py-1.5 font-medium transition-colors"
-          :class="activeTab === tab.key ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
+          :class="
+            activeTab === tab.key
+              ? 'bg-base-100 shadow-sm'
+              : 'hover:bg-base-300/50'
+          "
           @click="emits('update:activeTab', tab.key)"
         >
           {{ tab.label }}
@@ -133,7 +140,7 @@ const validateRawJson = () => {
         <label class="form-control">
           <span class="label-text text-xs">Position</span>
           <div class="flex gap-1 items-center">
-            <InputNumber v-model="draft.position" size="sm" />
+            <InputNumber width="w-4" v-model="draft.position" size="sm" />
             <Btn
               v-if="activeTab !== 'form'"
               color="secondary"
@@ -152,6 +159,7 @@ const validateRawJson = () => {
           <div class="flex gap-1 items-center">
             <SelectComponent
               size="sm"
+              width="!w-4"
               :value="draft.colspan ?? 12"
               :options="colspanOptions"
               :clearable="false"
@@ -161,7 +169,7 @@ const validateRawJson = () => {
               v-if="activeTab !== 'form'"
               color="secondary"
               :outline="true"
-              size="sm"
+              size="!sm"
               title="Reset to inherited"
               @click="resetField('colspan')"
             >
@@ -181,7 +189,8 @@ const validateRawJson = () => {
           v-model="draft.rawOptionsJson"
           size="sm"
           :rows="4"
-          class="font-mono text-xs"
+          width="!full"
+          class="font-mono w-full text-xs"
           @blur="validateRawJson"
         />
         <span v-if="draft.rawOptionsError" class="text-error text-xs mt-1">

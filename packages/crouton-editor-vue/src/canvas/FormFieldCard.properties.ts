@@ -22,4 +22,6 @@ export const FormFieldCardProperties = {
   gridEl: { type: Object as PropType<HTMLElement | null>, default: null },
   /** Label for the remove action in the field menu. */
   removeLabel: { type: String, default: 'Remove from form' },
+  /** Whether this card is currently selected for detail editing. */
+  selected: { type: Boolean, default: false },
 };

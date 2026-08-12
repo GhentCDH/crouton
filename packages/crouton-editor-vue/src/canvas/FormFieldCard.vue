@@ -12,6 +12,7 @@ const emits = defineEmits<{
   'update:colspan': [colspan: number];
   'change-type': [type: string];
   remove: [];
+  select: [];
 }>();
 
 const { resizing, start: startResize } = useColspanResize(
@@ -28,8 +29,9 @@ const typeLabel = computed(
 
 <template>
   <div
-    class="card bg-base-100 border border-base-300 shadow-sm relative group"
-    :class="{ 'ring-2 ring-primary': resizing }"
+    class="card bg-base-100 border border-base-300 shadow-sm relative group cursor-pointer"
+    :class="{ 'ring-2 ring-primary': resizing || selected }"
+    @click="emits('select')"
   >
     <!--
       relative z-10: the absolutely-positioned resize handle below (top-0
@@ -44,6 +46,7 @@ const typeLabel = computed(
       <span
         class="drag-handle cursor-grab active:cursor-grabbing select-none px-1 text-base-content/40 hover:text-base-content/70"
         title="Drag to reorder"
+        @click.stop
       >
         ⠿
       </span>
@@ -53,13 +56,15 @@ const typeLabel = computed(
           {{ typeLabel }}
         </div>
       </div>
-      <FieldOptionsMenu
-        :type-options="typeOptions"
-        :current-type="field.type"
-        :remove-label="removeLabel"
-        @change-type="(t) => emits('change-type', t)"
-        @remove="emits('remove')"
-      />
+      <div @click.stop>
+        <FieldOptionsMenu
+          :type-options="typeOptions"
+          :current-type="field.type"
+          :remove-label="removeLabel"
+          @change-type="(t) => emits('change-type', t)"
+          @remove="emits('remove')"
+        />
+      </div>
     </div>
 
     <div class="p-2 pt-1">
@@ -74,6 +79,7 @@ const typeLabel = computed(
     <div
       class="absolute top-0 right-0 h-full w-2 cursor-ew-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30"
       title="Drag to resize"
+      @click.stop
       @pointerdown="startResize($event, gridEl)"
     />
   </div>
