@@ -302,6 +302,9 @@
               "foreignKey": {
                 "type": "string"
               },
+              "relation": {
+                "type": "string"
+              },
               "position": {
                 "type": "number"
               },
@@ -417,6 +420,9 @@
               "foreignKey": {
                 "type": "string"
               },
+              "relation": {
+                "type": "string"
+              },
               "position": {
                 "type": "number"
               },
@@ -530,6 +536,9 @@
                 ]
               },
               "foreignKey": {
+                "type": "string"
+              },
+              "relation": {
                 "type": "string"
               },
               "position": {
@@ -699,6 +708,9 @@
                 ]
               },
               "foreignKey": {
+                "type": "string"
+              },
+              "relation": {
                 "type": "string"
               },
               "position": {

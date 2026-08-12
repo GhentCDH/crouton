@@ -14,6 +14,7 @@ import { type SubResourceConfig } from './resource/SubResource.schema';
 import { type ValueLabelColumn } from './resource/valueLabel';
 import {
   buildChildSortClause,
+  buildFindOneIncludes,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
 } from './sql.helpers';
@@ -378,10 +379,6 @@ export class ReadRepository<T = any> {
    * @throws {NotFoundException} When no record exists for the given id.
    */
   async findOne(id: number | string): Promise<T> {
-    const formIncludes = (this.config.subResources ?? [])
-      .filter((s) => s.includeInFindOne)
-      .map((s) => s.relation);
-
     const projection = this.projection('findOne');
     const idField = this.config.idField ?? 'id';
     const query: Record<string, any> = {
@@ -389,15 +386,10 @@ export class ReadRepository<T = any> {
       ...projection,
     };
 
-    // Merge flat sub-resource includes (includeInFindOne) with nested config.include
-    const flatIncludes = formIncludes.length
-      ? Object.fromEntries(formIncludes.map((r) => [r, true]))
-      : undefined;
-    const configInclude = buildIncludeClause(this.config.include);
-    const mergedInclude =
-      flatIncludes || configInclude
-        ? { ...flatIncludes, ...configInclude }
-        : undefined;
+    const mergedInclude = buildFindOneIncludes(
+      this.config.subResources ?? [],
+      buildIncludeClause(this.config.include),
+    );
 
     if (mergedInclude) {
       if (projection.select) {

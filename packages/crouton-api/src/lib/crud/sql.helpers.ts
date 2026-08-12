@@ -1,6 +1,8 @@
 import { buildSort } from '@ghentcdh/crouton-core';
 import type { CalculatedColumn, JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
+import type { SubResourceConfig } from './resource/SubResource.schema';
+
 // ── SQL expression helpers ────────────────────────────────────────────────
 
 /** Wrap a column's SQL expression with the appropriate CAST for its type. */
@@ -141,4 +143,29 @@ export const buildChildSortClause = (
     (acc, part, i) => (i === parts.length - 1 ? { [part]: dir } : { [part]: acc }),
     {},
   );
+};
+
+/**
+ * Build the merged Prisma `include` clause for `findOne`.
+ *
+ * Auto-included sub-resources (`includeInFindOne`) are merged with explicit
+ * `configInclude` entries. `configInclude` wins when both specify the same relation.
+ */
+export const buildFindOneIncludes = (
+  subResources: SubResourceConfig[],
+  configInclude: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined => {
+  const autoSubs = subResources.filter((s) => s.includeInFindOne);
+  const flatIncludes = autoSubs.length
+    ? Object.fromEntries(
+        autoSubs.map((s) =>
+          s.findOneOrderBy
+            ? [s.relation, { orderBy: s.findOneOrderBy }]
+            : [s.relation, true],
+        ),
+      )
+    : undefined;
+
+  if (!flatIncludes && !configInclude) return undefined;
+  return { ...flatIncludes, ...configInclude };
 };
