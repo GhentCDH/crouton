@@ -5,6 +5,8 @@ import {
   ForbiddenException,
   Get,
   NotFoundException,
+  Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -37,6 +39,20 @@ import { type DataSource } from '@ghentcdh/crouton-core';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { DataSourceRegistry } from '../data-source';
 import { IS_DEV } from '../dev-mode';
+import {
+  type ResourceFlagPatch,
+  applyResourceFlagPatch,
+  resolveResourcePath,
+} from '../resource/ResourceFlags';
+import {
+  readRawResourceJson,
+  validateResourceJson,
+  writeRawResourceJson,
+} from '../resource/WriteResourceJson';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { ResourceConfigRegistry } from '../resource-config.registry';
 
 /**
  * Dev-only endpoints that reuse the `@ghentcdh/crouton-codegen` engine
@@ -66,7 +82,10 @@ import { IS_DEV } from '../dev-mode';
 @Controller('_app/resources')
 @ApiTags('Dev tools')
 export class DevResourcesController {
-  constructor(private readonly dataSourceRegistry: DataSourceRegistry) {}
+  constructor(
+    private readonly dataSourceRegistry: DataSourceRegistry,
+    private readonly resourceConfigRegistry: ResourceConfigRegistry,
+  ) {}
 
   private assertDev(): void {
     if (!IS_DEV) {
@@ -418,5 +437,198 @@ export class DevResourcesController {
     }
 
     return { results };
+  }
+
+  // ─── Visibility & flag endpoints ────────────────────────────────────
+
+  @Get('visibility')
+  @ApiOperation({
+    summary:
+      'Dev-only: list all resources with their menu visibility state (in-menu, hidden, draft, error)',
+  })
+  @ApiResponse({ status: 200, description: 'Resource visibility list' })
+  async visibility(): Promise<{
+    resources: {
+      name: string;
+      path: string;
+      state: 'in-menu' | 'hidden' | 'draft' | 'error';
+      group?: string;
+      position?: number;
+      editable: boolean;
+    }[];
+  }> {
+    this.assertDev();
+
+    const loaded = await this.resourceConfigRegistry.getAll();
+    const fromLoaded = loaded.map((c) => ({
+      name: c.name,
+      path: c.route,
+      state: (c.sidebar?.hide ? 'hidden' : 'in-menu') as
+        | 'in-menu'
+        | 'hidden',
+      group: c.sidebar?.group,
+      position: c.sidebar?.position,
+      editable: true,
+    }));
+
+    const drafts = resourceLoadReportRegistry.getByState('draft').map((d) => ({
+      name: d.name,
+      path: d.path,
+      state: 'draft' as const,
+      group: undefined,
+      position: undefined,
+      editable: !d.path.endsWith('.ts'),
+    }));
+
+    const errors = resourceLoadErrorsRegistry.getAll().map((e) => ({
+      name: e.name,
+      path: e.path,
+      state: 'error' as const,
+      group: undefined,
+      position: undefined,
+      editable: !e.path.endsWith('.ts'),
+    }));
+
+    return { resources: [...fromLoaded, ...drafts, ...errors] };
+  }
+
+  @Post(':name/publish')
+  @ApiOperation({
+    summary:
+      'Dev-only: publish a draft resource (removes `draft: true` from resource.json)',
+  })
+  @ApiResponse({ status: 200, description: 'Resource published' })
+  async publish(@Param('name') name: string): Promise<{ ok: true }> {
+    this.assertDev();
+    const { loaded } = await this.loadProject();
+    const resourcesDir = resolveFromRoot(
+      loaded.root,
+      loaded.config.resourcesDir,
+    );
+    const jsonPath = resolveResourcePath(resourcesDir, name);
+
+    const raw = readRawResourceJson(jsonPath);
+    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
+    if (jsonPath.endsWith('.ts'))
+      throw new ForbiddenException('TypeScript resources cannot be edited.');
+
+    const patched = applyResourceFlagPatch(raw, { draft: false });
+    const result = validateResourceJson(patched);
+    if (!result.success) {
+      throw new BadRequestException(
+        `Validation failed: ${result.error.message}`,
+      );
+    }
+    writeRawResourceJson(jsonPath, patched);
+    return { ok: true };
+  }
+
+  @Post(':name/remove-from-menu')
+  @ApiOperation({
+    summary:
+      'Dev-only: hide a resource from the sidebar menu (sets `sidebar.hide: true` in resource.json)',
+  })
+  @ApiResponse({ status: 200, description: 'Resource removed from menu' })
+  async removeFromMenu(@Param('name') name: string): Promise<{ ok: true }> {
+    this.assertDev();
+    const { loaded } = await this.loadProject();
+    const resourcesDir = resolveFromRoot(
+      loaded.root,
+      loaded.config.resourcesDir,
+    );
+    const jsonPath = resolveResourcePath(resourcesDir, name);
+
+    const raw = readRawResourceJson(jsonPath);
+    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
+    if (jsonPath.endsWith('.ts'))
+      throw new ForbiddenException('TypeScript resources cannot be edited.');
+
+    const patched = applyResourceFlagPatch(raw, {
+      sidebar: { hide: true },
+    });
+    const result = validateResourceJson(patched);
+    if (!result.success) {
+      throw new BadRequestException(
+        `Validation failed: ${result.error.message}`,
+      );
+    }
+    writeRawResourceJson(jsonPath, patched);
+    return { ok: true };
+  }
+
+  @Post(':name/add-to-menu')
+  @ApiOperation({
+    summary:
+      'Dev-only: publish + un-hide a resource and optionally set sidebar group/position/label',
+  })
+  @ApiResponse({ status: 200, description: 'Resource added to menu' })
+  async addToMenu(
+    @Param('name') name: string,
+    @Body() body: { group?: string; position?: number; label?: string } = {},
+  ): Promise<{ ok: true }> {
+    this.assertDev();
+    const { loaded } = await this.loadProject();
+    const resourcesDir = resolveFromRoot(
+      loaded.root,
+      loaded.config.resourcesDir,
+    );
+    const jsonPath = resolveResourcePath(resourcesDir, name);
+
+    const raw = readRawResourceJson(jsonPath);
+    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
+    if (jsonPath.endsWith('.ts'))
+      throw new ForbiddenException('TypeScript resources cannot be edited.');
+
+    const sidebarPatch: ResourceFlagPatch['sidebar'] = { hide: false };
+    if (body.group !== undefined) sidebarPatch!.group = body.group;
+    if (body.position !== undefined) sidebarPatch!.position = body.position;
+    if (body.label !== undefined) sidebarPatch!.label = body.label;
+
+    const patched = applyResourceFlagPatch(raw, {
+      draft: false,
+      sidebar: sidebarPatch,
+    });
+    const result = validateResourceJson(patched);
+    if (!result.success) {
+      throw new BadRequestException(
+        `Validation failed: ${result.error.message}`,
+      );
+    }
+    writeRawResourceJson(jsonPath, patched);
+    return { ok: true };
+  }
+
+  @Patch(':name/flags')
+  @ApiOperation({
+    summary:
+      'Dev-only: set arbitrary resource flags (draft, sidebar.hide, group, position, label)',
+  })
+  @ApiResponse({ status: 200, description: 'Flags updated' })
+  async updateFlags(
+    @Param('name') name: string,
+    @Body() body: ResourceFlagPatch,
+  ): Promise<{ ok: true }> {
+    this.assertDev();
+    const { loaded } = await this.loadProject();
+    const resourcesDir = resolveFromRoot(
+      loaded.root,
+      loaded.config.resourcesDir,
+    );
+    const jsonPath = resolveResourcePath(resourcesDir, name);
+
+    const raw = readRawResourceJson(jsonPath);
+    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
+    if (jsonPath.endsWith('.ts'))
+      throw new ForbiddenException('TypeScript resources cannot be edited.');
+
+    const patched = applyResourceFlagPatch(raw, body);
+    const result = validateResourceJson(patched);
+    if (!result.success) {
+      throw new BadRequestException(
+        `Validation failed: ${result.error.message}`,
+      );
+    }
+    writeRawResourceJson(jsonPath, patched);
+    return { ok: true };
   }
 }
