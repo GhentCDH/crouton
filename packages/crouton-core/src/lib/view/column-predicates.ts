@@ -1,4 +1,4 @@
-import type { JsonColumn } from '@ghentcdh/crouton-core';
+import type { JsonColumn } from '../resource/Column';
 
 // ── Column type helpers ───────────────────────────────────────────────────
 

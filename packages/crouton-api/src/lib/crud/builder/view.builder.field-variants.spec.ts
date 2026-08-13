@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { JsonColumnSchema } from '@ghentcdh/crouton-core';
 
-import { buildViews } from './view.builder';
+import { buildViews } from '@ghentcdh/crouton-core';
 import { resolveColumnFieldVariants } from '../adapter/column-transforms';
 
 const schema = z.object({ id: z.string(), name: z.string() });

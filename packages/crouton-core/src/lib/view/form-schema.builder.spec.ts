@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { JsonColumnSchema } from '@ghentcdh/crouton-core';
+import { JsonColumnSchema } from '../resource/Column';
 
 import { buildFormUiSchema } from './form-schema.builder';
 

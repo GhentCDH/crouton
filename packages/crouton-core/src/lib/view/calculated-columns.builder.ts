@@ -1,6 +1,6 @@
-import type { CalculatedColumn } from '@ghentcdh/crouton-core';
+import type { CalculatedColumn } from '../resource/CalculatedColumn.schema';
 
-import type { ViewColumnConfig, ViewConfig } from '../resource/view.schema';
+import type { ViewColumnConfig, ViewConfig } from './view.schema';
 
 // ── Calculated column injection ───────────────────────────────────────────
 

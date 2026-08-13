@@ -7,8 +7,9 @@ import {
   JsonOperationsSchema,
 } from '@ghentcdh/crouton-core';
 
+import { ViewConfigSchema } from '@ghentcdh/crouton-core';
+
 import { ValueLabelColumnSchema } from './valueLabel';
-import { ViewConfigSchema } from './view.schema';
 import { ResourceHooksSchema } from '../hooks';
 
 export const SubResourceConfigSchema = z.object({

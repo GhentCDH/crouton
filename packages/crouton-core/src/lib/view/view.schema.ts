@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { FieldInputSchema } from '@ghentcdh/crouton-core';
+import { FieldInputSchema } from '../resource/FieldInput.schema';
 
 export const ViewColumnConfigSchema = z.object({
   id: z.string(),

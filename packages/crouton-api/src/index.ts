@@ -1,4 +1,4 @@
-export { buildViews } from './lib/crud/builder';
+export { buildViews } from '@ghentcdh/crouton-core';
 
 export * from './lib/crouton-api.module';
 export * from './lib/crud/loader/index';
