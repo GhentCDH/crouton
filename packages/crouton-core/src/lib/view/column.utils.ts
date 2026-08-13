@@ -1,6 +1,6 @@
+import type { ViewColumnConfig } from './view.schema';
 import type { JsonColumn } from '../resource/Column';
 
-import type { ViewColumnConfig } from './view.schema';
 
 /** Resolve the sort position for a column: `fieldInput.position`, then natural index. */
 export const colPosition = (col: JsonColumn, i: number): number =>

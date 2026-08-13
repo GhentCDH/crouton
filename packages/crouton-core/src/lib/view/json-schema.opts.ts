@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 type ToJSONSchemaParams = NonNullable<
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   Parameters<typeof import('zod').toJSONSchema>[1]
 >;
 type OverrideContext = Parameters<

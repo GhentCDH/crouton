@@ -1,7 +1,7 @@
 import { ControlBuilder } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
-import type { DetailConfig } from '../resource/FieldInput.schema';
 import type { JsonColumn } from '../resource/Column';
+import type { DetailConfig } from '../resource/FieldInput.schema';
 
 // ── Condition / rule builders ─────────────────────────────────────────────
 

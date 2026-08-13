@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
+import { buildFormUiSchema } from './form-schema.builder';
 import { JsonColumnSchema } from '../resource/Column';
 
-import { buildFormUiSchema } from './form-schema.builder';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));

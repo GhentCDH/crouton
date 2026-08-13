@@ -1,8 +1,8 @@
-import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '../table/table.builder';
-import type { JsonColumn } from '../resource/Column';
 
 import { isBoolean, isDateRange, isRecordCell } from './column-predicates';
 import { deriveSortId } from './sort.helpers';
+import type { JsonColumn } from '../resource/Column';
+import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '../table/table.builder';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 

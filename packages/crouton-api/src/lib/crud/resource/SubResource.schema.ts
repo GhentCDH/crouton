@@ -4,10 +4,9 @@ import {
   CalculatedColumnSchema,
   JsonActionSchema,
   JsonIncludeEntrySchema,
-  JsonOperationsSchema,
+  JsonOperationsSchema, ViewConfigSchema 
 } from '@ghentcdh/crouton-core';
 
-import { ViewConfigSchema } from '@ghentcdh/crouton-core';
 
 import { ValueLabelColumnSchema } from './valueLabel';
 import { ResourceHooksSchema } from '../hooks';
