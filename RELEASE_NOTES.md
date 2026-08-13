@@ -1,3 +1,21 @@
+## 0.0.1-alpha.38 (2026-08-13)
+
+### 🚀 Features
+
+- draft & menu visibility endpoints + frontend controls ([#69](https://github.com/GhentCDH/crouton/pull/69))
+- **api:** honor sort and relation override on auto-included findOne … ([#66](https://github.com/GhentCDH/crouton/pull/66))
+- **canvas:** edit field options from visual canvas via right sidebar ([#65](https://github.com/GhentCDH/crouton/pull/65))
+
+### 🩹 Fixes
+
+- resource schemas ([#67](https://github.com/GhentCDH/crouton/pull/67))
+- deps ([#68](https://github.com/GhentCDH/crouton/pull/68))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.37 (2026-08-10)
 
 ### 🚀 Features
