@@ -88,6 +88,7 @@ export const getResourceStatus = (
     path: c.route,
     valid: true,
     version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
+    ...(c.sidebar?.hide ? { hidden: true } : {}),
   }));
 
   const failed: ResourceStatus[] = resourceLoadErrorsRegistry

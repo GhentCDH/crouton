@@ -109,6 +109,36 @@
             >
               draft — not loaded
             </span>
+            <span
+              v-if="res.hidden"
+              class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700"
+            >
+              hidden
+            </span>
+            <button
+              v-if="isDev && res.draft"
+              class="ml-2 rounded bg-blue-500 px-2 py-0.5 text-xs text-white hover:bg-blue-600"
+              :disabled="actionLoading === res.name"
+              @click="publishResource(res.name)"
+            >
+              {{ actionLoading === res.name ? '...' : 'Publish' }}
+            </button>
+            <button
+              v-if="isDev && (res.hidden || res.draft)"
+              class="ml-1 rounded bg-green-500 px-2 py-0.5 text-xs text-white hover:bg-green-600"
+              :disabled="actionLoading === res.name"
+              @click="addToMenu(res.name)"
+            >
+              {{ actionLoading === res.name ? '...' : 'Add to menu' }}
+            </button>
+            <button
+              v-if="isDev && res.valid && !res.draft && !res.hidden"
+              class="ml-1 rounded bg-gray-400 px-2 py-0.5 text-xs text-white hover:bg-gray-500"
+              :disabled="actionLoading === res.name"
+              @click="removeFromMenu(res.name)"
+            >
+              {{ actionLoading === res.name ? '...' : 'Remove from menu' }}
+            </button>
             <!-- Out-of-date file that just needs migration: amber, distinct from a hard error. -->
             <p
               v-if="res.expectedVersion != null && res.expectedVersion !== res.version"
@@ -139,12 +169,17 @@
 import { computed, onMounted, ref } from 'vue';
 
 import { useApi } from '../composables/useApi';
+import { useCrouton } from '../composables/useCrouton';
 import type { CroutonStatus } from './status.types';
 
 const status = ref<CroutonStatus | null>(null);
 const loading = ref(true);
 const backendUp = ref(false);
 const fetchError = ref<string | null>(null);
+const actionLoading = ref<string | null>(null);
+
+const app = useCrouton();
+const isDev = app.isDev;
 
 const totalErrors = computed(() => {
   if (!status.value) return 0;
@@ -153,12 +188,59 @@ const totalErrors = computed(() => {
   );
 });
 
-onMounted(async () => {
+const fetchStatus = async () => {
+  const api = useApi();
+  const response = await api.get('/crouton/status.json');
+  status.value = response.data;
+  backendUp.value = true;
+};
+
+const publishResource = async (name: string) => {
+  actionLoading.value = name;
   try {
     const api = useApi();
-    const response = await api.get('/crouton/status.json');
-    status.value = response.data;
-    backendUp.value = true;
+    await api.post(`/_app/resources/${encodeURIComponent(name)}/publish`);
+    await fetchStatus();
+  } catch (err) {
+    console.error('Publish failed', err);
+  } finally {
+    actionLoading.value = null;
+  }
+};
+
+const removeFromMenu = async (name: string) => {
+  actionLoading.value = name;
+  try {
+    const api = useApi();
+    await api.post(
+      `/_app/resources/${encodeURIComponent(name)}/remove-from-menu`,
+    );
+    await fetchStatus();
+    await app.refreshLayout();
+  } catch (err) {
+    console.error('Remove from menu failed', err);
+  } finally {
+    actionLoading.value = null;
+  }
+};
+
+const addToMenu = async (name: string) => {
+  actionLoading.value = name;
+  try {
+    const api = useApi();
+    await api.post(`/_app/resources/${encodeURIComponent(name)}/add-to-menu`);
+    await fetchStatus();
+    await app.refreshLayout();
+  } catch (err) {
+    console.error('Add to menu failed', err);
+  } finally {
+    actionLoading.value = null;
+  }
+};
+
+onMounted(async () => {
+  try {
+    await fetchStatus();
   } catch (err) {
     backendUp.value = false;
     fetchError.value = (err as Error).message ?? 'Could not reach backend';

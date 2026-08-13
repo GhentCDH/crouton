@@ -15,6 +15,8 @@ export interface ResourceStatus {
   expectedVersion?: number;
   /** Present in the repo but intentionally not loaded/served. Informational, not an error. */
   draft?: boolean;
+  /** Loaded and served, but hidden from the admin sidebar menu. */
+  hidden?: boolean;
 }
 
 export interface StatusSummary {
