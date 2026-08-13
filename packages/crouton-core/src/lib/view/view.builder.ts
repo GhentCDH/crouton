@@ -1,15 +1,15 @@
 import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
-import type { JsonColumn } from '@ghentcdh/crouton-core';
 
-import { jsonSchemaOpts } from '../schema.utils';
 import { isRelation } from './column-predicates';
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
+import { jsonSchemaOpts } from './json-schema.opts';
 import { applySchemaTransforms } from './schema-transforms';
 import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';
-import type { ViewConfig } from '../resource/view.schema';
+import type { ViewConfig } from './view.schema';
+import type { JsonColumn } from '../resource/Column';
 
 // ── Filter schema enrichment ──────────────────────────────────────────────
 

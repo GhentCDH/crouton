@@ -5,13 +5,13 @@ import type {
   JsonColumn,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
-
-import type { ResourceRowAction, ResourceTableAction } from '../action';
 import {
   buildViews,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
-} from '../builder';
+} from '@ghentcdh/crouton-core';
+
+import type { ResourceRowAction, ResourceTableAction } from '../action';
 import {
   opWithSchema,
   pickByColumns,

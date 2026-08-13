@@ -1,10 +1,10 @@
 import type { JsonColumn, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
-
 import {
   buildViewsFromColumns,
   injectCalculatedColumns,
-  injectCalculatedColumnsToView
-} from '../builder';
+  injectCalculatedColumnsToView,
+} from '@ghentcdh/crouton-core';
+
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';

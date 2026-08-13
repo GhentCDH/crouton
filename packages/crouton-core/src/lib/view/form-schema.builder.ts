@@ -1,5 +1,7 @@
-import { ControlBuilder, LayoutBuilder } from '@ghentcdh/crouton-core';
-import type { DetailConfig, JsonColumn } from '@ghentcdh/crouton-core';
+import { ControlBuilder } from '../layout/control.builder';
+import { LayoutBuilder } from '../layout/layout.builder';
+import type { JsonColumn } from '../resource/Column';
+import type { DetailConfig } from '../resource/FieldInput.schema';
 
 // ── Condition / rule builders ─────────────────────────────────────────────
 

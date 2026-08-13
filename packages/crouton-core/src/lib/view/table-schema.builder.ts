@@ -1,8 +1,8 @@
-import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '@ghentcdh/crouton-core';
-import type { JsonColumn } from '@ghentcdh/crouton-core';
 
 import { isBoolean, isDateRange, isRecordCell } from './column-predicates';
 import { deriveSortId } from './sort.helpers';
+import type { JsonColumn } from '../resource/Column';
+import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '../table/table.builder';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ import { deriveSortId } from './sort.helpers';
  */
 const SHARED_CELL_OPTION_KEYS = ['values', 'storeValue', 'uri', 'resourceUri', 'schemasUri', 'customComponent'] as const;
 
-/** Pick the shared (form ↔ table) option keys from a column's `fieldInput.options`. */
+/** Pick the shared (form <-> table) option keys from a column's `fieldInput.options`. */
 export const pickSharedCellOptions = (col: JsonColumn): Record<string, unknown> => {
   const options = (col.fieldInput?.options ?? {}) as Record<string, unknown>;
   return Object.fromEntries(
