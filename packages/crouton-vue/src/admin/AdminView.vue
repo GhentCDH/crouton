@@ -38,7 +38,7 @@
           <!-- Dev-only: visual resource builder's database sync tools. -->
 
           <!-- Dev-only: add hidden/draft resources to sidebar menu. -->
-          <li v-if="app.isDev" class="relative">
+          <li v-if="app.isDev.value" class="relative">
             <button
               class="text-sm text-gray-500 hover:text-gray-800"
               @click="toggleAddResource"
@@ -65,7 +65,7 @@
           </li>
         </ul>
         <ul class="menu w-full">
-          <li v-if="app.isDev">
+          <li v-if="app.isDev.value">
             <RouterLink
               :to="{ name: CROUTON_DEV_RESOURCES }"
               active-class="bg-white font-bold"

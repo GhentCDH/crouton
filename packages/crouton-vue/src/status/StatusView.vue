@@ -183,7 +183,7 @@ const fetchError = ref<string | null>(null);
 const actionLoading = ref<string | null>(null);
 
 const app = useCrouton();
-const isDev = app.isDev;
+const isDev = computed(() => app.isDev.value);
 
 const totalErrors = computed(() => {
   if (!status.value) return 0;

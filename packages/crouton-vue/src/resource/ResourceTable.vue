@@ -114,7 +114,7 @@ const showSchemaEditor = ref(false);
         </div>
         <div>
           <Btn
-            v-if="crouton.isDev"
+            v-if="crouton.isDev.value"
             :icon="IconEnum.Edit"
             color="secondary"
             :outline="true"
@@ -147,7 +147,7 @@ const showSchemaEditor = ref(false);
       </template>
       <template #right>
         <Btn
-          v-if="crouton.isDev"
+          v-if="crouton.isDev.value"
           :icon="IconEnum.Edit"
           color="secondary"
           :outline="true"
