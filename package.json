@@ -14,7 +14,7 @@
   "private": true,
   "packageManager": "pnpm@11.9.0",
   "devDependencies": {
-    "@ghentcdh/ui": "^3.0.2",
+    "@ghentcdh/ui": "^3.0.6",
     "@jsonforms/core": "^3.8.0",
     "@nx/eslint": "23.0.1",
     "@nx/eslint-plugin": "23.0.1",

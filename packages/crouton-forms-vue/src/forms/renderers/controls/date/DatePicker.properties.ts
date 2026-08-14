@@ -3,14 +3,45 @@ import type { PropType } from 'vue';
 import { ControlWrapperProperties } from '@ghentcdh/ui';
 
 /**
- * Props for {@link DatePicker}. Spreads `ControlWrapperProperties` so the
- * `wrapper` object produced by `useInputProps` binds straight onto it and the
- * label / error / description / required / width behaviour matches `Input` and
- * `InputNumber` exactly.
+ * Local copy of `ControlWrapper`'s prop contract.
+ *
+ * `@ghentcdh/ui` only started exporting `ControlWrapperProperties` in v2 — v1.1.1
+ * exports the `ControlWrapper` *component* but not its properties object. Against
+ * v1 the import is `undefined`, so spreading it alone declared no props at all
+ * and left `enabled` undefined, which rendered the control permanently disabled.
+ *
+ * Defaults mirror the `ControlWrapperProps` docs. Where a value is `undefined`
+ * here, `ControlWrapper`'s own prop default still applies.
+ */
+const CONTROL_WRAPPER_FALLBACK = {
+  id: { type: String, default: undefined },
+  placeholder: { type: String, default: undefined },
+  description: { type: String, default: undefined },
+  errors: { type: String, default: undefined },
+  label: { type: String, default: undefined },
+  size: { type: String, default: undefined },
+  width: { type: String, default: undefined },
+  styles: { type: Object as PropType<any>, default: undefined },
+  visible: { type: Boolean, default: true },
+  required: { type: Boolean, default: false },
+  // The one that matters: without it the input is disabled forever.
+  enabled: { type: Boolean, default: true },
+  isFocused: { type: Boolean, default: false },
+  isTouched: { type: Boolean, default: false },
+  hideLabel: { type: Boolean, default: false },
+  hideErrors: { type: Boolean, default: false },
+};
+
+/**
+ * Props for {@link DatePicker}. Carries the `ControlWrapper` contract so the
+ * `wrapper` object from `useInputProps` binds straight on and the label / error
+ * / description / required / width behaviour matches `Input` and `InputNumber`.
+ *
+ * `ControlWrapperProperties` is layered over the fallback so that ui stays the
+ * source of truth whenever it does export it.
  */
 export const DatePickerProperties = {
-  // Guarded: a spread of undefined would silently yield {}, dropping every
-  // wrapper prop. Explicit so the intent survives a ui version bump.
+  ...CONTROL_WRAPPER_FALLBACK,
   ...(ControlWrapperProperties ?? {}),
   /** ISO 8601 instant, e.g. `2026-08-14T00:00:00.000Z`. */
   modelValue: {
@@ -41,8 +72,8 @@ export const DatePickerProperties = {
  * Keys this component owns, i.e. everything in `DatePickerProperties` that is
  * NOT a `ControlWrapper` prop. Declared explicitly rather than derived from
  * `ControlWrapperProperties` at runtime: deriving it meant a single undefined
- * import (version skew, tree-shaking, module init order) threw
- * `Object.keys(undefined)` from inside a computed and took down the whole app.
+ * import threw `Object.keys(undefined)` from inside a computed and took down
+ * the whole app.
  */
 export const DATE_PICKER_OWN_PROPS = [
   'modelValue',
