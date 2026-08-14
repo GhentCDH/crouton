@@ -20,7 +20,7 @@ export const registerUpdateCommand = (program: Command) => {
     .option('-y, --yes', 'accept all recommended defaults (non-interactive)')
     .option('--skip-pull', 'do not run `prisma db pull` (use the current schema)')
     .option('--skip-generate', 'do not run `prisma generate` after pulling')
-    .option('--no-draft', 'write newly-created resources without `draft: true` (served immediately)')
+    .option('--draft', 'write newly-created resources with `draft: true` (hidden until reviewed); asked interactively if omitted')
     .action(async (opts) => {
       try {
         const cwd = opts.prefix
@@ -34,7 +34,7 @@ export const registerUpdateCommand = (program: Command) => {
           yes: opts.yes,
           skipPull: opts.skipPull,
           skipGenerate: opts.skipGenerate,
-          draft: opts.draft, // commander sets this false when --no-draft is passed
+          draft: opts.draft, // undefined unless --draft was passed; the runner resolves the effective value
         });
       } catch (err) {
         console.error(err instanceof Error ? err.message : err);

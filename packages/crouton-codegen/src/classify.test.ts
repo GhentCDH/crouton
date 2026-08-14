@@ -76,10 +76,12 @@ describe('classify', () => {
       resolveRelationResource: (m) => (m === 'Author' ? './resource.author.json' : undefined),
     });
     // Author resolves → relation control, hidden in table only
-    expect(col(d, 'author')).toMatchObject({
+    expect(col(d, 'author')).toEqual({
       hiddenInTable: true,
       fieldInput: { format: 'relation', resource: './resource.author.json', relationType: 'manyToOne' },
     });
+    // no redundant `type: 'relation'` — every reader keys off `fieldInput.format`
+    expect((col(d, 'author') as any).fieldInput).not.toHaveProperty('type');
     // Source does not resolve → hidden everywhere + recorded as unwired
     expect(col(d, 'sources')).toEqual({ hiddenInTable: true, hiddenInForm: true, hiddenInView: true });
     expect(d.unwiredRelations).toEqual([{ field: 'sources', targetModel: 'Source' }]);
