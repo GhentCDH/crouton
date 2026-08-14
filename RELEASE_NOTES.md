@@ -1,3 +1,20 @@
+## 0.0.1-alpha.39 (2026-08-14)
+
+### 🚀 Features
+
+- support default values ([#71](https://github.com/GhentCDH/crouton/pull/71))
+- show enums on status page ([#73](https://github.com/GhentCDH/crouton/pull/73))
+- **cli:** default new resources to non-draft; drop redundant relation fieldInput.type ([#72](https://github.com/GhentCDH/crouton/pull/72))
+
+### 🩹 Fixes
+
+- **vue:** unwrap isDev ComputedRef in templates ([#74](https://github.com/GhentCDH/crouton/pull/74))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.38 (2026-08-13)
 
 ### 🚀 Features
