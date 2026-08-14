@@ -4,8 +4,9 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DataSourceRegistry } from '../data-source';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildStatus } from './status.service';
+import type { EnumRegistry } from '../enum-registry/enum-registry.types';
 
-export const createStatusController = () => {
+export const createStatusController = (enumRegistry: EnumRegistry) => {
   @Controller('crouton')
   @ApiTags('Status')
   class StatusController {
@@ -19,7 +20,7 @@ export const createStatusController = () => {
     @ApiResponse({ status: 200, description: 'System status' })
     async getStatus() {
       const configs = await this.configRegistry.getAll();
-      return buildStatus(this.dataSourceRegistry, configs);
+      return buildStatus(this.dataSourceRegistry, configs, enumRegistry);
     }
   }
 
