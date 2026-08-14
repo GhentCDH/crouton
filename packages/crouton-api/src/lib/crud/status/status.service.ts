@@ -191,6 +191,7 @@ const getSystemEnums = (): EnumGroup[] => {
  * Groups enums from crouton.enums.json by generic category.
  */
 const getProjectEnums = (enumRegistry: EnumRegistry): EnumGroup[] => {
+  if (!enumRegistry) return [];
   return Object.entries(enumRegistry).map(([name, entries]) => ({
     name,
     category: 'Project',
