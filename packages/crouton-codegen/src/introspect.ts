@@ -23,6 +23,14 @@ export interface DmmfField {
   isUnique: boolean;
   isUpdatedAt: boolean;
   hasDefaultValue: boolean;
+  /**
+   * Raw Prisma DMMF default: a literal (string/number/boolean/array) for
+   * `@default("x")` / `@default(0)` / `@default(true)` / `@default([...])`,
+   * or a `{ name, args }` descriptor for a function call like `autoincrement()`,
+   * `now()`, `uuid()`, `cuid()`, or `dbgenerated(...)`. Only present when
+   * `hasDefaultValue` is true.
+   */
+  default?: unknown;
   relationName?: string;
   relationFromFields?: string[];
   relationToFields?: string[];
@@ -84,6 +92,29 @@ const resolveRelationType = (
   return otherIsList ? 'manyToOne' : 'oneToOne';
 };
 
+// ─── default value normalization ─────────────────────────────────────────────
+
+/**
+ * A Prisma DMMF default is either a literal (representable as-is) or a
+ * `{ name, args }` function-call descriptor (`autoincrement()`, `now()`,
+ * `uuid()`, `cuid()`, `dbgenerated(...)`, `sequence(...)`, ...). Only literals
+ * make sense to echo back into `fieldInput.defaultValue` — a function call has
+ * no fixed value to pre-fill a create form with, and is usually DB/server
+ * generated anyway (ids, timestamps).
+ */
+const literalDefault = (
+  value: unknown,
+): string | number | boolean | (string | number | boolean)[] | undefined => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  if (Array.isArray(value) && value.every((v) => ['string', 'number', 'boolean'].includes(typeof v))) {
+    return value as (string | number | boolean)[];
+  }
+  return undefined; // function-call descriptor ({ name, args }) or unrepresentable
+};
+
 // ─── normalizer ──────────────────────────────────────────────────────────────
 
 /** Pure: DMMF datamodel → normalized `DbModel[]`. */
@@ -125,6 +156,9 @@ export const dmmfToDbModels = (dmmf: Dmmf): DbModel[] => {
         isUnique: f.isUnique,
         isUpdatedAt: f.isUpdatedAt,
         hasDefault: f.hasDefaultValue,
+        ...(f.hasDefaultValue && literalDefault(f.default) !== undefined
+          ? { defaultValue: literalDefault(f.default) }
+          : {}),
         isTimestamp:
           kind === 'scalar' &&
           isTimestampField({ name: f.name, type: f.type, isUpdatedAt: f.isUpdatedAt }),

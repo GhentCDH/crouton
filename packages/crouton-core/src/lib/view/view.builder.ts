@@ -90,6 +90,28 @@ export const patchFilterProperties = (
   }
 };
 
+/**
+ * Copy each column's `fieldInput.defaultValue` (when set) onto the matching
+ * JSON Schema property as `default`. Consumed by the frontend's
+ * `form.parseValue({})` (see `@ghentcdh/crouton-vue`'s `form-def.ts`) to
+ * pre-fill a blank create-form record. Relation columns never reach here —
+ * `buildView` filters them out of the picked schema before this runs.
+ */
+const injectFieldDefaults = (
+  jsonSchema: Record<string, unknown>,
+  columns: JsonColumn[],
+): void => {
+  const properties = jsonSchema.properties as
+    | Record<string, Record<string, unknown>>
+    | undefined;
+  if (!properties) return;
+  for (const col of columns) {
+    if (col.fieldInput?.defaultValue === undefined) continue;
+    const prop = properties[col.id];
+    if (prop) prop.default = col.fieldInput.defaultValue;
+  }
+};
+
 // ── View building ─────────────────────────────────────────────────────────
 
 const buildView = (
@@ -125,6 +147,7 @@ const buildView = (
     ...jsonSchemaOpts,
   }) as Record<string, unknown>;
   applySchemaTransforms(jsonSchema);
+  injectFieldDefaults(jsonSchema, visibleCols);
 
   // Drop idField and explicitly non-editable fields from `required` so
   // hidden-but-schema-included fields don't cause validation failures.
@@ -270,6 +293,9 @@ export const buildViewsFromColumns = (
         properties[c.id] = {
           ...(isObject ? {} : { type: c.columnType ?? 'string' }),
           title: c.label ?? c.id,
+          ...(c.fieldInput?.defaultValue !== undefined
+            ? { default: c.fieldInput.defaultValue }
+            : {}),
         };
       }
     }

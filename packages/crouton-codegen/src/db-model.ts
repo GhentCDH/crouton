@@ -22,6 +22,14 @@ export interface DbField {
   /** `@updatedAt` attribute present. */
   isUpdatedAt: boolean;
   hasDefault: boolean;
+  /**
+   * The literal value of a `@default(...)` when it's a plain scalar/array
+   * (string, number, boolean, or array of those) rather than a function call
+   * like `autoincrement()`, `now()`, `uuid()`, `cuid()`, or `dbgenerated(...)`.
+   * Undefined when there's no default, or the default isn't representable as
+   * a literal. Carried into `fieldInput.defaultValue` by `classify`.
+   */
+  defaultValue?: string | number | boolean | (string | number | boolean)[];
   /** Detected created/updated timestamp (by attribute or name + DateTime type). */
   isTimestamp: boolean;
 

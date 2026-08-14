@@ -78,6 +78,14 @@ export const FieldInputSchema = z.object({
   relation: z.string().optional(),
   /** Override the display order in form views. Lower values come first. */
   position: z.number().optional(), // default: source order
+  /**
+   * Value to pre-fill this field with on the create form. Injected into the
+   * generated form view's JSON Schema as `properties[id].default`, which
+   * `parseValue({})` (see `@ghentcdh/crouton-vue`'s `form-def.ts`) applies when
+   * opening a blank record. Not applicable to `format: "relation"` fields —
+   * relation columns are excluded from the picked data schema entirely.
+   */
+  defaultValue: z.unknown().optional(),
   options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),
   /** Nested array detail layout (renders via `detailFixed`). */
   detail: DetailConfigSchema.optional(),

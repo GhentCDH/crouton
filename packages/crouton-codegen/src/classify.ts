@@ -64,7 +64,15 @@ export const classify = (
             createable: false,
             updateable: false,
           }
-        : { fieldInput: { type: 'date', position: position++ } };
+        : {
+            fieldInput: {
+              type: 'date',
+              position: position++,
+              ...(field.defaultValue !== undefined
+                ? { defaultValue: field.defaultValue }
+                : {}),
+            },
+          };
     } else if (field.kind === 'foreignKey') {
       col = ruleset.hideForeignKeys
         ? {
@@ -73,7 +81,15 @@ export const classify = (
             createable: false,
             updateable: false,
           }
-        : { fieldInput: { type: 'text', position: position++ } };
+        : {
+            fieldInput: {
+              type: 'text',
+              position: position++,
+              ...(field.defaultValue !== undefined
+                ? { defaultValue: field.defaultValue }
+                : {}),
+            },
+          };
     } else if (field.kind === 'relation') {
       const target = ctx.resolveRelationResource?.(field.relationModel ?? '');
       if (ruleset.showRelationsInForm && target) {
@@ -105,13 +121,23 @@ export const classify = (
       col = {
         ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
         ...(ruleset.sharedEnums ? { enum: field.type } : {}),
-        fieldInput: { type: 'select', position: position++, options },
+        fieldInput: {
+          type: 'select',
+          position: position++,
+          options,
+          ...(field.defaultValue !== undefined
+            ? { defaultValue: field.defaultValue }
+            : {}),
+        },
       };
     } else {
       col = {
         fieldInput: {
           type: scalarFieldInputType(field.name, field.type),
           position: position++,
+          ...(field.defaultValue !== undefined
+            ? { defaultValue: field.defaultValue }
+            : {}),
         },
       };
     }

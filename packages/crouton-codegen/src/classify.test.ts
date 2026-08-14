@@ -14,8 +14,8 @@ const model: DbModel = {
   hasCompositeId: false,
   fields: [
     { name: 'id', kind: 'id', type: 'String', isList: false, isRequired: true, isId: true, isUnique: false, isUpdatedAt: false, hasDefault: true, isTimestamp: false },
-    { name: 'title', kind: 'scalar', type: 'String', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false },
-    { name: 'kind', kind: 'enum', type: 'TextKind', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, enumValues: ['a', 'b'] },
+    { name: 'title', kind: 'scalar', type: 'String', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: true, defaultValue: 'Untitled', isTimestamp: false },
+    { name: 'kind', kind: 'enum', type: 'TextKind', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: true, defaultValue: 'a', isTimestamp: false, enumValues: ['a', 'b'] },
     { name: 'author_id', kind: 'foreignKey', type: 'String', isList: false, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false },
     { name: 'author', kind: 'relation', type: 'Author', isList: false, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, relationModel: 'Author', relationType: 'manyToOne' },
     { name: 'sources', kind: 'relation', type: 'Source', isList: true, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, relationModel: 'Source', relationType: 'oneToMany' },
@@ -118,5 +118,20 @@ describe('classify', () => {
   it('gives plain scalars a typed control', () => {
     const d = classify(model);
     expect(col(d, 'title').fieldInput).toMatchObject({ type: 'text' });
+  });
+
+  it('carries a literal DB default into fieldInput.defaultValue (scalar)', () => {
+    const d = classify(model);
+    expect(col(d, 'title').fieldInput).toMatchObject({ defaultValue: 'Untitled' });
+  });
+
+  it('carries a literal DB default into fieldInput.defaultValue (enum)', () => {
+    const d = classify(model);
+    expect(col(d, 'kind').fieldInput).toMatchObject({ defaultValue: 'a' });
+  });
+
+  it('omits defaultValue when the DB field has none', () => {
+    const d = classify(model);
+    expect(col(d, 'author_id').fieldInput).toBeUndefined(); // hidden FK: no fieldInput at all
   });
 });
