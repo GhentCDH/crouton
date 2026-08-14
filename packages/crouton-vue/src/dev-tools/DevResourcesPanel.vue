@@ -241,11 +241,11 @@ const dismissPlan = () => {
 
 // Only hit the backend when it has actually confirmed the visual builder is
 // enabled — otherwise every call below 403s and the panel just looks broken.
-if (crouton.isDev) loadModels();
+if (crouton.isDev.value) loadModels();
 </script>
 
 <template>
-  <div v-if="!crouton.isDev" class="alert alert-warning m-4 text-sm">
+  <div v-if="!crouton.isDev.value" class="alert alert-warning m-4 text-sm">
     The database sync tools aren't enabled on the connected backend. Set
     <code>CROUTON_SCHEMA_EDITOR=true</code> in its <code>.env</code> file and
     restart it.
