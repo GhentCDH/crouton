@@ -9,7 +9,7 @@ export const RulesetSchema = z.object({
   hideIdInView: z.boolean().default(true),
   hideTimestamps: z.boolean().default(true),
   hideForeignKeys: z.boolean().default(true),
-  includeRelations: z.boolean().default(false),
+  includeRelations: z.boolean().default(true),
   hideRelationsInTable: z.boolean().default(true),
   showRelationsInForm: z.boolean().default(true),
   enumValueLabel: z.boolean().default(true),

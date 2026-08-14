@@ -62,29 +62,47 @@ describe('classify', () => {
     expect(col(d, 'author_id')).toMatchObject({ hiddenInTable: true, hiddenInForm: true });
   });
 
-  it('ignores relation fields by default (not added to the config)', () => {
-    const d = classify(model);
+  it('excludes relation fields entirely when includeRelations is disabled', () => {
+    const d = classify(model, { ruleset: { ...defaultRuleset(), includeRelations: false } });
     expect(col(d, 'author')).toBeUndefined();
     expect(col(d, 'sources')).toBeUndefined();
     expect(d.columnOrder).not.toContain('author');
     expect(d.unwiredRelations).toEqual([]);
   });
 
-  it('includes relations when explicitly enabled', () => {
+  it('includes relations by default; the owning (forward) side is a visible inline relation control', () => {
     const d = classify(model, {
-      ruleset: { ...defaultRuleset(), includeRelations: true },
       resolveRelationResource: (m) => (m === 'Author' ? './resource.author.json' : undefined),
     });
-    // Author resolves → relation control, hidden in table only
+    // Author (manyToOne, resolves) → relation control, hidden in table only
     expect(col(d, 'author')).toEqual({
       hiddenInTable: true,
       fieldInput: { format: 'relation', resource: './resource.author.json', relationType: 'manyToOne' },
     });
     // no redundant `type: 'relation'` — every reader keys off `fieldInput.format`
     expect((col(d, 'author') as any).fieldInput).not.toHaveProperty('type');
-    // Source does not resolve → hidden everywhere + recorded as unwired
+    // Source (oneToMany) does not resolve → hidden everywhere + recorded as unwired
     expect(col(d, 'sources')).toEqual({ hiddenInTable: true, hiddenInForm: true, hiddenInView: true });
     expect(d.unwiredRelations).toEqual([{ field: 'sources', targetModel: 'Source' }]);
+  });
+
+  it('wires the collection (reverse) side of a relation but hides it in form+view by default', () => {
+    const d = classify(model, {
+      resolveRelationResource: (m) =>
+        m === 'Author' ? './resource.author.json' : m === 'Source' ? './resource.source.json' : undefined,
+    });
+    // Source (oneToMany, now resolves) → wired, but hidden in form+view like the table
+    expect(col(d, 'sources')).toEqual({
+      hiddenInTable: true,
+      hiddenInForm: true,
+      hiddenInView: true,
+      fieldInput: { format: 'relation', resource: './resource.source.json', relationType: 'oneToMany' },
+    });
+    // no longer unwired — it resolved, it's just hidden by default
+    expect(d.unwiredRelations).toEqual([]);
+    // the forward side is unaffected — still visible
+    expect(col(d, 'author')).toMatchObject({ hiddenInTable: true });
+    expect((col(d, 'author') as any).hiddenInForm).toBeUndefined();
   });
 
   it('renders enums as a shared-enum reference + value/label envelope by default', () => {
