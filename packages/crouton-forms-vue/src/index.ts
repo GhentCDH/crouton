@@ -50,7 +50,11 @@ export { JsonFormModalService } from './forms/modal/FormModalService';
 
 // Renderers & testers
 export * from './forms/renderers';
-export { isCustomControlRender, optionIsIgnoreCase } from './testers/tester';
+export {
+  isCustomControlRender,
+  isDateControl,
+  optionIsIgnoreCase,
+} from './testers/tester';
 // Layout: colspan → Tailwind class maps, reused by the visual form canvas
 // (`crouton-editor-vue`) so it doesn't reimplement the same grid math.
 export { COLSPAN, COLSPAN_READ_ONLY } from './forms/renderers/layout/colspan';
@@ -161,6 +165,7 @@ export type {
   ControlTypes,
   CroutonElementOptions,
   CroutonLayoutOptions,
+  DateOptions,
   DateRangeOptions,
   DetailOptions,
   MarkdownOptions,

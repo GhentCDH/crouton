@@ -57,7 +57,10 @@ export const buildRule = (
 };
 
 /** Apply a column's conditional rule to a control builder, in the builder chain. */
-const applyColumnRule = (control: ControlBuilder<any>, col: JsonColumn): void => {
+const applyColumnRule = (
+  control: ControlBuilder<any>,
+  col: JsonColumn,
+): void => {
   if (col.disabledWhen) {
     control.disableWhen(
       `#/properties/${col.disabledWhen.field}`,
@@ -120,6 +123,17 @@ const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
     control.detailFixed(detailLayout, {
       layout: fieldInput.detail.layout === 'collapse' ? 'row' : undefined,
     });
+  } else if (
+    fieldInput?.format !== 'date-range' &&
+    (fieldInput?.type === 'date' || fieldInput?.format === 'dateTime')
+  ) {
+    // Explicit branch (like date-range below) so the datepicker's date options
+    // — withTime / min / max / locale — survive into the uischema. Without it
+    // these fall through the generic else and are silently dropped.
+    const options: any = { ...(fieldInput.options as object | undefined) };
+    if (!options.colspan) options.colspan = 12;
+    const format = fieldInput.format === 'dateTime' ? 'dateTime' : 'date';
+    control.control(format, options).width('full');
   } else if (fieldInput?.format === 'date-range') {
     // Drive the renderer off the explicit `format` so its option-based tester
     // matches, not `type` (which for this json column is 'object' and has no
@@ -134,7 +148,8 @@ const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
     control.control(type, options).width('full');
   }
 
-  if (fieldInput?.customRender) control.setCustomRender(fieldInput?.customRender);
+  if (fieldInput?.customRender)
+    control.setCustomRender(fieldInput?.customRender);
   if (col.hideLabel) control.hideLabel();
   // Label and conditional rules are expressed in the builder chain — no post-build mutation.
   if (col.label) control.label(col.label);
