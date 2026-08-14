@@ -160,6 +160,9 @@
       </p>
     </section>
 
+    <!-- Enums -->
+    <StatusEnumsSection v-if="status" :enums="status.enums" />
+
     <!-- Loading state -->
     <div v-if="loading" class="text-gray-500">Loading status...</div>
   </div>
@@ -171,6 +174,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import type { CroutonStatus } from './status.types';
+import StatusEnumsSection from './StatusEnumsSection.vue';
 
 const status = ref<CroutonStatus | null>(null);
 const loading = ref(true);

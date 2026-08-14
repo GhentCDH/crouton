@@ -11,6 +11,7 @@ import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { IS_DEV } from './crud/dev-mode';
 import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
+import { loadEnumRegistry } from './crud/enum-registry';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
@@ -18,6 +19,8 @@ import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
 import { createStatusController } from './crud/status';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 type CroutonAppConfig = {
   baseUrl: string;
@@ -70,6 +73,13 @@ export class CroutonApiModule {
   ): DynamicModule {
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
 
+    // Load enum registry
+    const startDir =
+      typeof __dirname !== 'undefined'
+        ? __dirname
+        : dirname(fileURLToPath(import.meta.url));
+    const enumRegistry = loadEnumRegistry(startDir, config.enumsFile);
+
     // Validate that each resource's model exists on its Prisma client.
     // Resources with missing models are skipped and recorded as load errors
     // so they appear on the status page instead of crashing the server.
@@ -109,7 +119,7 @@ export class CroutonApiModule {
       // Only registered (and thus only visible in Swagger/routing) when the
       // visual resource builder is enabled — see dev-resources.controller.ts.
       ...(IS_DEV ? [DevResourcesController] : []),
-      createStatusController(),
+      createStatusController(enumRegistry),
     ];
 
     return {

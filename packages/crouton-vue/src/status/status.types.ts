@@ -25,6 +25,22 @@ export interface StatusSummary {
   resourceErrors: number;
 }
 
+export interface EnumValue {
+  value: string | number | boolean;
+  label: string;
+}
+
+export interface EnumGroup {
+  name: string;
+  category: string;
+  values: EnumValue[];
+}
+
+export interface EnumSections {
+  system: EnumGroup[];
+  project: EnumGroup[];
+}
+
 export interface CroutonStatus {
   version: string;
   croutonVersion: string;
@@ -32,4 +48,5 @@ export interface CroutonStatus {
   summary: StatusSummary;
   databases: DatabaseStatus[];
   resources: ResourceStatus[];
+  enums?: EnumSections;
 }

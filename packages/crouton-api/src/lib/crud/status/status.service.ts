@@ -6,8 +6,11 @@ import type {
   DatabaseStatus,
   ResourceStatus,
   StatusSummary,
+  EnumGroup,
+  EnumSections,
 } from './status.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
+import type { EnumRegistry } from '../enum-registry/enum-registry.types';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { existsSync, readFileSync } from 'node:fs';
@@ -130,9 +133,88 @@ export const buildSummary = (
   };
 };
 
+/**
+ * Extract built-in enums from Zod schema definitions.
+ * These are system-level enums used throughout the framework.
+ */
+const getSystemEnums = (): EnumGroup[] => {
+  return [
+    {
+      name: 'RelationType',
+      category: 'Relationships',
+      values: [
+        { value: 'oneToOne', label: 'One to One' },
+        { value: 'manyToOne', label: 'Many to One' },
+        { value: 'oneToMany', label: 'One to Many' },
+        { value: 'manyToMany', label: 'Many to Many' },
+      ],
+    },
+    {
+      name: 'DetailLayout',
+      category: 'Layout',
+      values: [
+        { value: 'collapse', label: 'Collapse' },
+        { value: 'row', label: 'Row' },
+      ],
+    },
+    {
+      name: 'SortDirection',
+      category: 'Sorting',
+      values: [
+        { value: 'asc', label: 'Ascending' },
+        { value: 'desc', label: 'Descending' },
+      ],
+    },
+    {
+      name: 'DisplayMode',
+      category: 'Display',
+      values: [
+        { value: 'page', label: 'Page' },
+        { value: 'modal', label: 'Modal' },
+      ],
+    },
+    {
+      name: 'ModalSize',
+      category: 'Display',
+      values: [
+        { value: 'xs', label: 'Extra Small' },
+        { value: 'sm', label: 'Small' },
+        { value: 'lg', label: 'Large' },
+        { value: 'xl', label: 'Extra Large' },
+      ],
+    },
+  ];
+};
+
+/**
+ * Convert project enum registry into EnumGroup format.
+ * Groups enums from crouton.enums.json by generic category.
+ */
+const getProjectEnums = (enumRegistry: EnumRegistry): EnumGroup[] => {
+  return Object.entries(enumRegistry).map(([name, entries]) => ({
+    name,
+    category: 'Project',
+    values: entries.map((entry) => ({
+      value: entry.value,
+      label: entry.label,
+    })),
+  }));
+};
+
+/**
+ * Collect all enums (system and project) for display on status page.
+ */
+const getEnums = (enumRegistry: EnumRegistry): EnumSections => {
+  return {
+    system: getSystemEnums(),
+    project: getProjectEnums(enumRegistry),
+  };
+};
+
 export const buildStatus = async (
   registry: DataSourceRegistry,
   loadedConfigs: Resource[],
+  enumRegistry: EnumRegistry,
 ): Promise<CroutonStatus> => {
   const databases = await checkDatabases(registry);
   const resources = getResourceStatus(loadedConfigs);
@@ -145,5 +227,6 @@ export const buildStatus = async (
     summary,
     databases,
     resources,
+    enums: getEnums(enumRegistry),
   };
 };
