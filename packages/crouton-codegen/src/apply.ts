@@ -29,7 +29,10 @@ export interface ApplyContext {
   schemaExportName?: (prismaName: string) => string;
   /**
    * Whether a newly-scaffolded resource is written with `draft: true` (so it isn't served
-   * until reviewed). Defaults to `true`; set `false` via the CLI's `--no-draft`.
+   * until reviewed). Falls back to `true` when the caller omits it — used by the dev-tools
+   * "create resource" endpoint, which has no CLI-style flag/prompt of its own. The `crouton
+   * update resources` CLI always resolves and passes an explicit value (default `false`,
+   * see `resolveDraftOption` in `crouton-cli/src/update/runner.ts`).
    */
   draft?: boolean;
 }

@@ -96,7 +96,6 @@ export const classify = (
         col = {
           hiddenInTable: ruleset.hideRelationsInTable,
           fieldInput: {
-            type: 'relation',
             format: 'relation',
             resource: target,
             relationType: field.relationType,

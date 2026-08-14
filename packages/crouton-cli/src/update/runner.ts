@@ -16,6 +16,7 @@ import {
   type EnumRegistry,
   type LoadedConfig,
   type ResolvedDiff,
+  type ResourceDiff,
   type WritePlan,
   apply,
   buildEnumRegistry,
@@ -57,7 +58,11 @@ export interface UpdateResourcesOptions {
   yes?: boolean;
   skipPull?: boolean;
   skipGenerate?: boolean;
-  /** Write newly-scaffolded resources with `draft: true` (default `true`; `--no-draft` sets false). */
+  /**
+   * Write newly-scaffolded resources with `draft: true`. Set explicitly via `--draft`;
+   * when omitted and this run is creating new resources, the CLI asks interactively
+   * (default answer: no). Non-interactive (`-y`) runs default to `false`.
+   */
   draft?: boolean;
 }
 
@@ -273,6 +278,29 @@ const pickModels = async (
   return models.filter((m) => selected.includes(m.prismaName));
 };
 
+/**
+ * Resolve whether newly-scaffolded resources are written with `draft: true`.
+ *
+ * - An explicit `--draft` always wins.
+ * - No new resources in this run → nothing to ask about, `false`.
+ * - `-y` (non-interactive) → defaults to `false`.
+ * - Otherwise ask interactively, defaulting the answer to "No".
+ */
+const resolveDraftOption = async (
+  opts: Pick<UpdateResourcesOptions, 'draft' | 'yes'>,
+  diffs: ResourceDiff[],
+): Promise<boolean> => {
+  if (opts.draft !== undefined) return opts.draft;
+  if (!diffs.some((d) => d.isNew)) return false;
+  if (opts.yes) return false;
+  return assertNotCancel(
+    await clack.confirm({
+      message: 'Write newly-created resources as draft (hidden until reviewed)?',
+      initialValue: false,
+    }),
+  );
+};
+
 export const runUpdateResources = async (
   opts: UpdateResourcesOptions,
 ): Promise<void> => {
@@ -393,11 +421,13 @@ export const runUpdateResources = async (
       readExisting: (name) => readExistingResource(loaded, name),
     });
 
+    const draft = await resolveDraftOption(opts, diffs);
+
     const applyCtx: ApplyContext = {
       resourcesDir: resolveFromRoot(loaded.root, loaded.config.resourcesDir),
       generatedTypesImport: ds.generatedTypesImport,
       schemaExportName: makeSchemaExportName(loaded.config),
-      draft: opts.draft ?? true,
+      draft,
     };
     const resolver = opts.yes ? recommendedResolver : interactiveResolver;
 
