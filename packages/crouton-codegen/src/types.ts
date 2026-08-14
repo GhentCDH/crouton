@@ -36,6 +36,13 @@ export interface DbField {
   /** `@updatedAt` attribute present. */
   isUpdatedAt: boolean;
   hasDefault: boolean;
+  /**
+   * The literal value of a `@default(...)` when it's a plain scalar/array
+   * rather than a function call (`autoincrement()`, `now()`, `uuid()`, etc.).
+   * See `db-model.ts` (the definition actually used by `introspect`/`classify`;
+   * this copy is kept in sync for type consistency).
+   */
+  defaultValue?: string | number | boolean | (string | number | boolean)[];
   /** Detected created/updated timestamp (by attribute or name + DateTime type). */
   isTimestamp: boolean;
 

@@ -308,6 +308,7 @@
               "position": {
                 "type": "number"
               },
+              "defaultValue": {},
               "options": {
                 "anyOf": [
                   {
@@ -426,6 +427,7 @@
               "position": {
                 "type": "number"
               },
+              "defaultValue": {},
               "options": {
                 "anyOf": [
                   {
@@ -544,6 +546,7 @@
               "position": {
                 "type": "number"
               },
+              "defaultValue": {},
               "options": {
                 "anyOf": [
                   {
@@ -716,6 +719,7 @@
               "position": {
                 "type": "number"
               },
+              "defaultValue": {},
               "options": {
                 "anyOf": [
                   {

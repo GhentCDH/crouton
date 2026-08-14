@@ -33,7 +33,7 @@ const dmmf: Dmmf = {
         dbName: 'text',
         primaryKey: null,
         fields: [
-          f({ name: 'id', type: 'String', isId: true, hasDefaultValue: true }),
+          f({ name: 'id', type: 'String', isId: true, hasDefaultValue: true, default: { name: 'uuid', args: [] } }),
           f({ name: 'title', type: 'String' }),
           f({ name: 'text_type', kind: 'enum', type: 'TextType' }),
           f({ name: 'author_id', type: 'String', isRequired: false }),
@@ -51,12 +51,32 @@ const dmmf: Dmmf = {
             type: 'DateTime',
             isRequired: false,
             hasDefaultValue: true,
+            default: { name: 'now', args: [] },
           }),
           f({
             name: 'updated_at',
             type: 'DateTime',
             isRequired: false,
             isUpdatedAt: true,
+          }),
+          f({
+            name: 'status',
+            type: 'String',
+            hasDefaultValue: true,
+            default: 'draft',
+          }),
+          f({
+            name: 'is_public',
+            type: 'Boolean',
+            hasDefaultValue: true,
+            default: false,
+          }),
+          f({
+            name: 'tags',
+            type: 'String',
+            isList: true,
+            hasDefaultValue: true,
+            default: ['a', 'b'],
           }),
         ],
       },
@@ -120,5 +140,36 @@ describe('dmmfToDbModels', () => {
       'original',
       'translation',
     ]);
+  });
+});
+
+describe('defaultValue normalization', () => {
+  const models = dmmfToDbModels(dmmf);
+  const text = models.find((m) => m.prismaName === 'Text')!;
+  const field = (m: typeof text, name: string) =>
+    m.fields.find((x) => x.name === name)!;
+
+  it('keeps a literal scalar default', () => {
+    expect(field(text, 'status').defaultValue).toBe('draft');
+  });
+
+  it('keeps a literal boolean default', () => {
+    expect(field(text, 'is_public').defaultValue).toBe(false);
+  });
+
+  it('keeps a literal array default', () => {
+    expect(field(text, 'tags').defaultValue).toEqual(['a', 'b']);
+  });
+
+  it('discards a function-call default (e.g. now())', () => {
+    expect(field(text, 'created_at').defaultValue).toBeUndefined();
+  });
+
+  it('discards a function-call default on the id (e.g. autoincrement()/uuid())', () => {
+    expect(field(text, 'id').defaultValue).toBeUndefined();
+  });
+
+  it('leaves defaultValue unset when there is no default at all', () => {
+    expect(field(text, 'title').defaultValue).toBeUndefined();
   });
 });
