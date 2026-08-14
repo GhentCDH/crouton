@@ -157,11 +157,14 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import {
   addClickOutsideEventListener,
   ControlWrapper,
-  ControlWrapperProperties,
   removeClickOutsideEventListener,
 } from '@ghentcdh/ui';
 
-import { DatePickerEmits, DatePickerProperties } from './DatePicker.properties';
+import {
+  DATE_PICKER_OWN_PROPS,
+  DatePickerEmits,
+  DatePickerProperties,
+} from './DatePicker.properties';
 import {
   buildMonthGrid,
   composeIso,
@@ -197,13 +200,17 @@ const initialView = () => {
 /** The month currently on screen. Follows the value, but the user can page away. */
 const view = ref(initialView());
 
-/** Only the wrapper's own props, so nothing leaks onto the fieldset as an attribute. */
+/**
+ * Everything except this component's own props, so the label / error /
+ * description / width behaviour is handled by ControlWrapper and nothing leaks
+ * onto the fieldset as a stray attribute. Filtering by our own key list keeps
+ * this independent of what `@ghentcdh/ui` exports at runtime.
+ */
+const OWN_PROPS = new Set<string>(DATE_PICKER_OWN_PROPS);
+
 const wrapperProps = computed(() =>
   Object.fromEntries(
-    Object.keys(ControlWrapperProperties).map((key) => [
-      key,
-      (props as Record<string, unknown>)[key],
-    ]),
+    Object.entries(props).filter(([key]) => !OWN_PROPS.has(key)),
   ),
 );
 

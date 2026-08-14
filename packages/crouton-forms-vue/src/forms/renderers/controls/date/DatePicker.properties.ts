@@ -9,7 +9,9 @@ import { ControlWrapperProperties } from '@ghentcdh/ui';
  * `InputNumber` exactly.
  */
 export const DatePickerProperties = {
-  ...ControlWrapperProperties,
+  // Guarded: a spread of undefined would silently yield {}, dropping every
+  // wrapper prop. Explicit so the intent survives a ui version bump.
+  ...(ControlWrapperProperties ?? {}),
   /** ISO 8601 instant, e.g. `2026-08-14T00:00:00.000Z`. */
   modelValue: {
     type: String as unknown as PropType<string | null | undefined>,
@@ -34,5 +36,23 @@ export const DatePickerProperties = {
    */
   type: { type: String, default: undefined },
 };
+
+/**
+ * Keys this component owns, i.e. everything in `DatePickerProperties` that is
+ * NOT a `ControlWrapper` prop. Declared explicitly rather than derived from
+ * `ControlWrapperProperties` at runtime: deriving it meant a single undefined
+ * import (version skew, tree-shaking, module init order) threw
+ * `Object.keys(undefined)` from inside a computed and took down the whole app.
+ */
+export const DATE_PICKER_OWN_PROPS = [
+  'modelValue',
+  'withTime',
+  'min',
+  'max',
+  'locale',
+  'firstDayOfWeek',
+  'clearable',
+  'type',
+] as const;
 
 export const DatePickerEmits = ['update:modelValue', 'change', 'blur', 'clear'];
