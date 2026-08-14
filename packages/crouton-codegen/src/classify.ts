@@ -5,8 +5,13 @@
  *  - primary key: hidden in table/form/view, marked `idField`
  *  - created/updated timestamps: hidden in table+form, non-editable
  *  - foreign-key scalars: hidden in table+form, non-editable
- *  - relations: hidden in table always; shown in form/view only when the
- *    target resource exists, otherwise hidden everywhere
+ *  - relations: hidden in table always; unresolved (no sibling resource) hidden
+ *    everywhere. Resolved relations render as an inline relation control on the
+ *    owning (forward) side — `manyToOne` / `oneToOne`, e.g. `groupMembers.group`
+ *    — and are wired but hidden in form+view by default on the collection
+ *    (reverse) side — `oneToMany` / `manyToMany`, e.g. `groups.groupMembers` —
+ *    since that side is normally edited from the child's own resource, not
+ *    inline in the parent's form.
  */
 
 import { type JsonColumnInput, type ResourceJsonInput, type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
@@ -92,9 +97,17 @@ export const classify = (
           };
     } else if (field.kind === 'relation') {
       const target = ctx.resolveRelationResource?.(field.relationModel ?? '');
+      // The collection (reverse) side of a relation — the list of *other* rows
+      // pointing back at this one — is normally edited from that other model's
+      // own resource, not inline here. Keep it wired (so it can be toggled on)
+      // but hidden in form+view by default; only the owning (forward) side
+      // renders as a visible inline relation control.
+      const isCollectionSide =
+        field.relationType === 'oneToMany' || field.relationType === 'manyToMany';
       if (ruleset.showRelationsInForm && target) {
         col = {
           hiddenInTable: ruleset.hideRelationsInTable,
+          ...(isCollectionSide ? { hiddenInForm: true, hiddenInView: true } : {}),
           fieldInput: {
             format: 'relation',
             resource: target,

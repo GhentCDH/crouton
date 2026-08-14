@@ -87,18 +87,20 @@ export interface Ruleset {
   /** Hide FK scalar columns + mark non-editable. Default true. */
   hideForeignKeys: boolean;
   /**
-   * Whether to emit relation (object) fields as columns at all. Default false:
-   * relations are ignored entirely and never written to resource.json (they are
-   * not real DB columns and can't be sorted/queried like scalars). Set true to
-   * generate hidden relation columns.
+   * Whether to emit relation (object) fields as columns at all. Default true.
+   * Set false to ignore relations entirely (never written to resource.json —
+   * they are not real DB columns and can't be sorted/queried like scalars).
    */
   includeRelations: boolean;
   /** Hide relation fields in the table (only relevant when `includeRelations`). Default true. */
   hideRelationsInTable: boolean;
   /**
    * When false, relation fields are also hidden in form/view.
-   * When true (default), relations are shown in form/view only if the target
-   * resource exists; otherwise they are hidden everywhere.
+   * When true (default), a resolved relation is shown in form/view on its
+   * owning (forward) side — `manyToOne`/`oneToOne` — as an inline relation
+   * control; the collection (reverse) side — `oneToMany`/`manyToMany` — is
+   * wired but stays hidden by default (edited from the child's own resource).
+   * An unresolved relation (no sibling resource) is hidden everywhere.
    * (Only relevant when `includeRelations` is true.)
    */
   showRelationsInForm: boolean;
