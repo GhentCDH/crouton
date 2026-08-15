@@ -266,11 +266,15 @@ export class ReadRepository<T = any> {
     return buildSort(sort, sortDir);
   }
 
-  private async decorate(rows: any[], op: ReadOp): Promise<any[]> {
+  private async decorate(
+    rows: any[],
+    op: ReadOp,
+    request?: any,
+  ): Promise<any[]> {
     const hook = this.config.hooks?.afterRead;
     const hooked = hook
       ? await Promise.all(
-          rows.map((row) => hook(row, { prisma: this.prisma, op })),
+          rows.map((row) => hook(row, { prisma: this.prisma, op, request })),
         )
       : rows;
     const cols = this.config.valueLabelColumns;
@@ -279,19 +283,23 @@ export class ReadRepository<T = any> {
       : hooked;
   }
 
-  private async decorateOne(row: any, op: ReadOp): Promise<any> {
+  private async decorateOne(
+    row: any,
+    op: ReadOp,
+    request?: any,
+  ): Promise<any> {
     // Note: the `{ value, label }` envelope is applied on list reads only.
     // findOne feeds the form/detail view, where the select control maps the
     // stored scalar to its label itself and submits the scalar back.
     const hook = this.config.hooks?.afterRead;
-    return hook ? hook(row, { prisma: this.prisma, op }) : row;
+    return hook ? hook(row, { prisma: this.prisma, op, request }) : row;
   }
 
   /**
    * Fetch a paginated, sorted, and filtered list of records.
    * Sub-resource counts are merged onto each row; calculated columns are resolved via raw SQL.
    */
-  async findAll(params: RequestDto): Promise<T[]> {
+  async findAll(params: RequestDto, request?: any): Promise<T[]> {
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
@@ -364,7 +372,7 @@ export class ReadRepository<T = any> {
       this.config.model,
       this.prisma,
     );
-    return this.decorate(withCalc, 'findAll');
+    return this.decorate(withCalc, 'findAll', request);
   }
 
   /** Count records matching the given filter strings. */
@@ -378,7 +386,7 @@ export class ReadRepository<T = any> {
    * `config.include` entries are loaded with full nesting via `buildIncludeClause`.
    * @throws {NotFoundException} When no record exists for the given id.
    */
-  async findOne(id: number | string): Promise<T> {
+  async findOne(id: number | string, request?: any): Promise<T> {
     const projection = this.projection('findOne');
     const idField = this.config.idField ?? 'id';
     const query: Record<string, any> = {
@@ -427,7 +435,7 @@ export class ReadRepository<T = any> {
       enriched = { ...enriched, [sub.relation]: enrichedNested };
     }
 
-    return this.decorateOne(enriched, 'findOne');
+    return this.decorateOne(enriched, 'findOne', request);
   }
 
   /**
@@ -439,6 +447,7 @@ export class ReadRepository<T = any> {
     parentId: string | number,
     childRoute: string,
     params: RequestDto,
+    request?: any,
   ): Promise<{ data: T[]; count: number }> {
     const sub = (this.config.subResources ?? []).find(
       (s) => s.childRoute === childRoute,
@@ -488,7 +497,11 @@ export class ReadRepository<T = any> {
     const decorated = sub.hooks?.afterRead
       ? await Promise.all(
           withCalc.map((row: any) =>
-            sub.hooks!.afterRead!(row, { prisma: this.prisma, op: 'findAll' }),
+            sub.hooks!.afterRead!(row, {
+              prisma: this.prisma,
+              op: 'findAll',
+              request,
+            }),
           ),
         )
       : withCalc;
@@ -509,6 +522,7 @@ export class ReadRepository<T = any> {
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
+    request?: any,
   ): Promise<any> {
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
@@ -544,6 +558,7 @@ export class ReadRepository<T = any> {
       return sub.hooks.afterRead(withCalc, {
         prisma: this.prisma,
         op: 'findOne',
+        request,
       });
     return withCalc;
   }

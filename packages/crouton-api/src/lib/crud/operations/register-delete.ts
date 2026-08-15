@@ -1,4 +1,4 @@
-import { Delete, Param } from '@nestjs/common';
+import { Delete, Param, Req } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
@@ -20,8 +20,8 @@ const defaultDelete = (ctx: OperationContext) => {
     decorators: () => {
       //
     },
-    deleteFn: function (this: { repo: CrudRepository }, id: string) {
-      return this.repo.delete(id);
+    deleteFn: function (this: { repo: CrudRepository }, id: string, req: any) {
+      return this.repo.delete(id, req);
     },
   };
 };
@@ -36,12 +36,14 @@ export const deleteChild =
       this: { repo: CrudRepository },
       childId: string,
       parentId: string,
+      req: any,
     ) {
-      return this.repo.deleteChild(sub, childId, parentId);
+      return this.repo.deleteChild(sub, childId, parentId, req);
     };
 
     const decorators = () => {
       Param('childId')(cls.prototype, methodName, 0);
+      Req()(cls.prototype, methodName, 2);
     };
     return {
       route: `:id/${sub.childRoute}/:childId`,
@@ -76,4 +78,5 @@ export const registerDelete = (
   ApiParam(ctx.idParamMeta)(cls.prototype, methodName, d);
   ApiResponse({ status: 200 })(cls.prototype, methodName, d);
   properties.decorators();
+  if (!sub) Req()(cls.prototype, methodName, 1);
 };

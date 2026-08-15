@@ -1,4 +1,4 @@
-import { Body, Param, Put } from '@nestjs/common';
+import { Body, Param, Put, Req } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOperation,
@@ -20,12 +20,18 @@ const defaultUpdate = (ctx: OperationContext) => {
     route: ':id',
     methodName,
     name: config.name,
-    updateFn: function (this: { repo: CrudRepository }, id: string, body: any) {
-      return this.repo.update(id, body);
+    updateFn: function (
+      this: { repo: CrudRepository },
+      id: string,
+      body: any,
+      req: any,
+    ) {
+      return this.repo.update(id, body, req);
     },
     decorators: () => {
       Param('id')(cls.prototype, methodName, 0);
       bodyDecorator(updateSchema)(cls.prototype, methodName, 1);
+      Req()(cls.prototype, methodName, 2);
     },
   };
 };
@@ -40,14 +46,16 @@ const childUpdate = (sub: SubResourceConfig) => (ctx: OperationContext) => {
     _id: string,
     childId: string,
     body: any,
+    req: any,
   ) {
-    return this.repo.updateChild(sub, childId, body);
+    return this.repo.updateChild(sub, childId, body, req);
   };
 
   const decorators = () => {
     Param('id')(cls.prototype, methodName, 0);
     Param('childId')(cls.prototype, methodName, 1);
     Body()(cls.prototype, methodName, 2);
+    Req()(cls.prototype, methodName, 3);
   };
 
   return {

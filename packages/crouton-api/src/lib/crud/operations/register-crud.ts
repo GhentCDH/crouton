@@ -1,4 +1,4 @@
-import { Put } from '@nestjs/common';
+import { Put, Req } from '@nestjs/common';
 import {
   ApiBody,
   type ApiBodyOptions,
@@ -26,8 +26,8 @@ export const registerUpsert = (ctx: OperationContext): void => {
   def(
     cls,
     'upsert',
-    function (this: { repo: CrudRepository }, body: any) {
-      return this.repo.upsert(body);
+    function (this: { repo: CrudRepository }, body: any, req: any) {
+      return this.repo.upsert(body, req);
     },
   );
   const d = desc(cls, 'upsert');
@@ -37,6 +37,7 @@ export const registerUpsert = (ctx: OperationContext): void => {
     'upsert',
     0,
   );
+  Req()(cls.prototype, 'upsert', 1);
   ApiOperation({ summary: `Upsert a ${name}` })(cls.prototype, 'upsert', d);
   if (upsertSchema)
     ApiBody({ schema: toJsonSchema(upsertSchema) as SchemaObject })(

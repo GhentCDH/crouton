@@ -1,4 +1,4 @@
-import { Get, Param } from '@nestjs/common';
+import { Get, Param, Req } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOperation,
@@ -22,11 +22,12 @@ const defaultFindOne = (ctx: OperationContext) => {
     route: ':id',
     methodName,
     name: config.name,
-    findOneFn: function (this: { repo: CrudRepository }, id: string) {
-      return this.repo.findOne(id);
+    findOneFn: function (this: { repo: CrudRepository }, id: string, req: any) {
+      return this.repo.findOne(id, req);
     },
     decorators: () => {
       Param('id')(cls.prototype, methodName, 0);
+      Req()(cls.prototype, methodName, 1);
     },
   };
 };
@@ -40,13 +41,15 @@ const childFindOne = (sub: SubResourceConfig) => (ctx: OperationContext) => {
     this: { repo: CrudRepository },
     parentId: string,
     childId: string,
+    req: any,
   ) {
-    return this.repo.findOneChild(sub, childId, parentId);
+    return this.repo.findOneChild(sub, childId, parentId, req);
   };
 
   const decorators = () => {
     Param('id')(cls.prototype, methodName, 0);
     Param('childId')(cls.prototype, methodName, 1);
+    Req()(cls.prototype, methodName, 2);
   };
 
   return {
