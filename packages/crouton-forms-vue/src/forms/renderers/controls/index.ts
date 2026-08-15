@@ -2,6 +2,7 @@ import { markRaw } from 'vue';
 
 import AutocompleteControlRenderer from './AutocompleteControlRenderer.vue';
 import BooleanControlRenderer from './BooleanControlRenderer.vue';
+import DateControlRenderer from './DateControlRenderer.vue';
 import DateRangeControlRenderer from './DateRangeControlRenderer.vue';
 import MarkdownControlRenderer from './MarkdownControlRenderer.vue';
 import MultiSelectControlRenderer from './MultiSelectControlRenderer.vue';
@@ -13,6 +14,7 @@ import { rankWith } from '../../../testers/jsonforms-testers';
 import {
   isAutoCompleteControl,
   isBooleanControl,
+  isDateControl,
   isDateRangeControl,
   isIntegerFormat,
   isMarkdownControl,
@@ -24,6 +26,7 @@ import {
 } from '../../../testers/tester';
 
 export { default as AutocompleteControlRenderer } from './AutocompleteControlRenderer.vue';
+export * from './date';
 export { useFetchOptions } from './composables/useFetchOption';
 
 export const controlRenderers = [
@@ -57,5 +60,11 @@ export const controlRenderers = [
   {
     tester: rankWith(12, isDateRangeControl),
     renderer: markRaw(DateRangeControlRenderer),
+  },
+  {
+    // Rank 12 so it wins over isStringFormat (10), which also matches a date
+    // because crouton-core emits `{ type: 'string', format: 'date-time' }`.
+    tester: rankWith(12, isDateControl),
+    renderer: markRaw(DateControlRenderer),
   },
 ];

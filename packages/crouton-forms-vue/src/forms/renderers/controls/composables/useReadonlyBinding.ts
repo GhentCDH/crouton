@@ -7,12 +7,14 @@ import { type ControlOption, ControlType } from '@ghentcdh/crouton-core';
 import { type useCustomProps } from './useControlBinding';
 import { type UseInputOptions, useInputProps } from './useInput';
 import {
+  isDateControl,
   isDateRangeControl,
   isIntegerFormat,
   isMarkdownControl,
   isNumberFormat,
 } from '../../../../testers/tester';
 import { scopeToPath } from '../../../scope';
+import { resolveWithTime } from '../date/useDateModel';
 import BooleanValue from '../readonly/displayValue/BooleanValue.vue';
 import DateRangeValue from '../readonly/displayValue/DateRangeValue.vue';
 import DateValue from '../readonly/displayValue/DateValue.vue';
@@ -116,6 +118,10 @@ const _getComponent = (
   uiSchema: any,
 ) => {
   if (isDateRangeControl(uiSchema, schema)) return DateRangeValue;
+  // Ahead of getDisplayComponent's isDate(value) sniffing, which false-positives
+  // on any string Date can parse (e.g. "2026 edition" -> a date).
+  if (value !== null && value !== undefined && isDateControl(uiSchema, schema))
+    return DateValue;
   if (isNumberFormat(uiSchema, schema)) return NumberValue;
   if (isIntegerFormat(uiSchema, schema)) return NumberValue;
   if (isMarkdownControl(uiSchema, schema)) return MarkdownValue;
@@ -142,7 +148,8 @@ const getComponent = (
         value,
         path,
         displayValue,
-        options,
+        // withTime lets DateValue drop the ", 00:00" for day-only fields.
+        options: { ...options, withTime: resolveWithTime(options, schema) },
         direction: getDirection(options, formValues),
       },
     };
@@ -172,9 +179,7 @@ export const useCustomReadonlyControlBinding = <
         `[useReadonlyBinding] useField("${path}") failed – data/schema mismatch. Field renders with undefined value.`,
         e,
       );
-      field = useField<unknown>(
-        `__broken__${path.replace(/[.[\]]/g, '_')}`,
-      );
+      field = useField<unknown>(`__broken__${path.replace(/[.[\]]/g, '_')}`);
     }
     const wrapper = useInputProps(uischema, schema, field, options);
     const customWrapper = useProps?.(uischema, schema, field, options) ?? {

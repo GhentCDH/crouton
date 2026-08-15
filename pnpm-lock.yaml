@@ -16,8 +16,8 @@ importers:
         version: link:packages/create-crouton
     devDependencies:
       '@ghentcdh/ui':
-        specifier: ^3.0.2
-        version: 3.0.2(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.8.0)(zod@4.4.3))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
+        specifier: ^3.0.6
+        version: 3.0.6(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
       '@jsonforms/core':
         specifier: ^3.8.0
         version: 3.8.0
@@ -1391,6 +1391,28 @@ packages:
     resolution: {integrity: sha512-HUBPee67JpD3osk0/fFf7uwc1KmawGmi2zm5GH18q5jtxTVVv/ySdwgYxPVQPneaissswutbNwRvs/XTM14hIA==}
     peerDependencies:
       '@ghentcdh/json-forms-core': '>=0.0.1'
+      '@playwright/test': '>=1.50.0'
+      '@tiptap/pm': ^3.0.0
+      '@tiptap/starter-kit': ^3.0.0
+      '@tiptap/vue-3': ^3.0.0
+      tiptap-markdown: ^0.9.0
+      vue: ^3.5.0
+      vue-router: ^5.0.0
+    peerDependenciesMeta:
+      '@playwright/test':
+        optional: true
+      '@tiptap/pm':
+        optional: true
+      '@tiptap/starter-kit':
+        optional: true
+      '@tiptap/vue-3':
+        optional: true
+      tiptap-markdown:
+        optional: true
+
+  '@ghentcdh/ui@3.0.6':
+    resolution: {integrity: sha512-+gWPawKPegmZBCqnRiUu8bOqTFOUXu9h36voeT0pp1wdKuhkfhV1vkg6e4r8UTDTyaFU1Hzm2EFcf+RkLcelVg==}
+    peerDependencies:
       '@playwright/test': '>=1.50.0'
       '@tiptap/pm': ^3.0.0
       '@tiptap/starter-kit': ^3.0.0
@@ -7813,6 +7835,16 @@ snapshots:
   '@ghentcdh/ui@3.0.2(@ghentcdh/json-forms-core@1.1.1(@jsonforms/core@3.8.0)(zod@4.4.3))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))':
     dependencies:
       '@ghentcdh/json-forms-core': 1.1.1(@jsonforms/core@3.8.0)(zod@4.4.3)
+      vue: 3.5.39(typescript@5.9.3)
+      vue-router: 5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+    optionalDependencies:
+      '@tiptap/pm': 3.26.0
+      '@tiptap/starter-kit': 3.26.0
+      '@tiptap/vue-3': 3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@5.9.3))
+      tiptap-markdown: 0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))
+
+  '@ghentcdh/ui@3.0.6(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))':
+    dependencies:
       vue: 3.5.39(typescript@5.9.3)
       vue-router: 5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
     optionalDependencies:

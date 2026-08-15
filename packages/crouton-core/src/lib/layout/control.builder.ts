@@ -34,6 +34,24 @@ export interface DateRangeOptions extends ControlOption {
   toField?: string;
 }
 
+export interface DateOptions extends ControlOption {
+  /** `date` renders a day only, `dateTime` adds a time. @default 'date' */
+  format: 'date' | 'dateTime';
+  /**
+   * Force the time on or off, overriding `format`. Useful for a Prisma
+   * `DateTime` column that should be edited as a plain day.
+   */
+  withTime?: boolean;
+  /** Earliest selectable date, ISO or `yyyy-MM-dd`. */
+  min?: string;
+  /** Latest selectable date, ISO or `yyyy-MM-dd`. */
+  max?: string;
+  /** BCP-47 locale for the month heading and weekday labels. @default 'en-GB' */
+  locale?: string;
+  /** 0 = Sunday, 1 = Monday. @default 1 */
+  firstDayOfWeek?: number;
+}
+
 export interface TextAreaOptions extends ControlOption {
   format: 'textarea';
 }
@@ -116,6 +134,16 @@ export interface ControlOption {
   fromField?: string;
   /** date-range: JSON object key for the end date. Defaults to "to". */
   toField?: string;
+  /** date: force the time input on or off, overriding `format`. */
+  withTime?: boolean;
+  /** date: earliest selectable date, ISO or `yyyy-MM-dd`. */
+  min?: string;
+  /** date: latest selectable date, ISO or `yyyy-MM-dd`. */
+  max?: string;
+  /** date: BCP-47 locale for the month heading and weekday labels. */
+  locale?: string;
+  /** date: first day of the week, 0 = Sunday, 1 = Monday. */
+  firstDayOfWeek?: number;
   customRender?: any;
   colspan?: number;
 }
@@ -126,10 +154,10 @@ export type ControlTypes = {
   options?: TextAreaOptions | AutocompleteOptions | DetailOptions;
 };
 
-export class ControlBuilder<
-  TYPE,
-  KEY = keyof TYPE,
-> extends ElementBuilder<UISchemaElement, ControlOption> {
+export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
+  UISchemaElement,
+  ControlOption
+> {
   private _detail?: LayoutBuilder<any>;
 
   private constructor(
@@ -224,6 +252,17 @@ export class ControlBuilder<
   markdown(options?: Omit<MarkdownOptions, 'format'>): ControlBuilder<TYPE> {
     return this.opt({
       format: ControlType.markdown,
+      ...(options ?? {}),
+    });
+  }
+
+  /**
+   * Render a datepicker. Defaults to a day-only picker; pass
+   * `{ format: 'dateTime' }` (or `{ withTime: true }`) to include a time.
+   */
+  date(options?: Partial<DateOptions>) {
+    return this.opt({
+      format: ControlType.date,
       ...(options ?? {}),
     });
   }
