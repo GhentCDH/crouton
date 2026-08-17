@@ -127,16 +127,39 @@ export const ResourceSchema = z
  * @returns Parsed and normalized resource with resolved operations and schemas.
  * @throws If the response does not match {@link ResourceSchema}.
  */
+const resourceSchemaCache = new Map<
+  string,
+  Promise<z.infer<typeof ResourceSchema>>
+>();
+
+/** Drop every cached resource descriptor. Call when a resource definition changes. */
+export const clearResourceSchemaCache = () => {
+  resourceSchemaCache.clear();
+};
+
 export const getResourceSchema = async (
   resourceUri: string,
   http: HttpClient,
 ) => {
-  return http.get(resourceUri).then((response) => {
-    const resource = ResourceSchema.safeParse(response.data);
-    if (!resource.success) {
-      console.error(resource.error);
-      throw new Error(`Invalid resource schema: ${resourceUri}`);
-    }
-    return resource.data;
-  });
+  const cached = resourceSchemaCache.get(resourceUri);
+  if (cached) return cached;
+
+  const request = http
+    .get(resourceUri)
+    .then((response) => {
+      const resource = ResourceSchema.safeParse(response.data);
+      if (!resource.success) {
+        console.error(resource.error);
+        throw new Error(`Invalid resource schema: ${resourceUri}`);
+      }
+      return resource.data;
+    })
+    .catch((error) => {
+      // Do not cache failures – the next call should retry.
+      resourceSchemaCache.delete(resourceUri);
+      throw error;
+    });
+
+  resourceSchemaCache.set(resourceUri, request);
+  return request;
 };
