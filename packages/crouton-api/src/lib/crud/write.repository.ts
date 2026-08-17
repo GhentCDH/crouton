@@ -5,9 +5,9 @@ import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import { resolveDefinition, upsertOnFor } from './crud.config';
 import { type WriteOp, postWrite, prepareWrite } from './hooks';
-import { normalizeValueLabels } from './resource/valueLabel.apply';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
+import { normalizeValueLabels } from './resource/valueLabel.apply';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (

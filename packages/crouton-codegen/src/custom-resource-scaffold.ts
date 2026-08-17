@@ -148,8 +148,8 @@ export const buildCustomResourceFiles = (
     notes: [
       `Implement the operations in ${dir}/repository.ts.`,
       `Describe your data in ${dir}/resource.json — every column needs a "type" (a shorthand like "string", or a JSON Schema fragment for nested objects).`,
-      `Disable any operation you do not implement: "operations": { "delete": false }.`,
-      `Custom resources are not touched by \`crouton update resources\`.`,
+      'Disable any operation you do not implement: "operations": { "delete": false }.',
+      'Custom resources are not touched by `crouton update resources`.',
     ],
   };
 };

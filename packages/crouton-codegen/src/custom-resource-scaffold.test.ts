@@ -103,7 +103,7 @@ describe('buildCustomResourceFiles', () => {
       f.path.endsWith('repository.ts'),
     )!.contents;
     expect(repository).toContain(
-      "import type { CustomRepository } from '@ghentcdh/crouton-api'",
+      'import type { CustomRepository } from \'@ghentcdh/crouton-api\'',
     );
     expect(repository).toContain('export default repository');
     for (const op of ['findAll', 'findOne', 'create', 'update', 'delete']) {

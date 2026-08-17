@@ -21,7 +21,7 @@ export const validateCustomRepository = (
 
   if (!repository) {
     return (
-      `No repository.ts found. A custom resource implements its own data access; ` +
+      'No repository.ts found. A custom resource implements its own data access; ' +
       `create ${config.name}/repository.ts with a default export implementing: ` +
       `${enabled.join(', ') || 'no operations'}.`
     );
@@ -39,7 +39,7 @@ export const validateCustomRepository = (
   if (missing.length) {
     return (
       `repository.ts does not implement ${missing.join(', ')}. ` +
-      `Either implement them or disable the operation in resource.json ` +
+      'Either implement them or disable the operation in resource.json ' +
       `("operations": { "${missing[0]}": false }).`
     );
   }

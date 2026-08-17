@@ -1,10 +1,10 @@
 export {
   CUSTOM_OPS,
-  CustomRepositorySchema,
   type CustomListResult,
   type CustomOp,
   type CustomRepository,
   type CustomRepositoryContext,
+  CustomRepositorySchema,
 } from './custom-repository.types';
 export {
   REPOSITORY_MODULE,

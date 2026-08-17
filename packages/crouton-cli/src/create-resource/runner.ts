@@ -59,7 +59,7 @@ export const runCreateResource = async (
   try {
     if (opts.kind && opts.kind !== 'custom') {
       throw new Error(
-        `Only --kind custom is supported. Prisma-backed resources are generated from the database with \`crouton update resources\`.`,
+        'Only --kind custom is supported. Prisma-backed resources are generated from the database with `crouton update resources`.',
       );
     }
 

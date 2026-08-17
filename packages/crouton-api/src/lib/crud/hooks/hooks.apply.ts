@@ -1,9 +1,9 @@
 import type { ReadOp, ResourceHooks, WriteOp } from './hooks.types';
+import type { ValueLabelColumn } from '../resource/valueLabel';
 import {
   applyValueLabelColumns,
   normalizeValueLabels,
 } from '../resource/valueLabel.apply';
-import type { ValueLabelColumn } from '../resource/valueLabel';
 
 /**
  * Lifecycle-hook application, extracted so every repository implementation

@@ -143,7 +143,7 @@ export const createCustomRepository = <T = any>(
   const notAChildRepository = async (): Promise<never> => {
     throw new NotImplementedException(
       `Resource "${config.name}" is a custom resource; nested sub-resource routes are not supported. ` +
-        `Expose the child collection as its own resource instead.`,
+        'Expose the child collection as its own resource instead.',
     );
   };
 

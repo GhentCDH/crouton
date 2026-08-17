@@ -9,10 +9,10 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { type ReadOp, decorateRow, decorateRows } from './hooks';
-import { applyValueLabelColumns } from './resource/valueLabel.apply';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { type ValueLabelColumn } from './resource/valueLabel';
+import { applyValueLabelColumns } from './resource/valueLabel.apply';
 import {
   buildChildSortClause,
   buildFindOneIncludes,
