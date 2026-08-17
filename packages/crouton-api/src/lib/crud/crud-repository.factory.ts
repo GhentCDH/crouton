@@ -78,6 +78,12 @@ export function createCrudRepository<T = any>(
   prisma: any,
   config: Resource,
 ): CrudRepository<T> {
+  if (!config.model) {
+    throw new Error(
+      `Resource "${config.name}" has no "model". A prisma-backed resource must ` +
+        `name its Prisma model; set "kind": "custom" for a resource with no model.`,
+    );
+  }
   const model = prisma[config.model];
   if (!model) {
     throw new Error(

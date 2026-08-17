@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
+import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
 import { JsonIncludeEntrySchema } from './include.schema';
@@ -57,9 +58,20 @@ export const ResourceJsonShape = z.object({
   schemaVersion: z.number().int().positive().optional(),
   /** When `true`, the resource lives in the repo but is NOT loaded/served (work in progress). */
   draft: z.boolean().optional().default(false),
+  /**
+   * Where the data comes from. `prisma` (the default) is backed by a Prisma
+   * model plus a `schema.ts`; `custom` is configuration only and the developer
+   * supplies a `repository.ts`. See `./ResourceKind`.
+   */
+  kind: ResourceKindSchema,
   name: z.string(), // required — unique id, used as the frontend form id
   route: z.string(), // required — URL segment for generated endpoints
-  model: z.string(), // required — Prisma model name
+  /**
+   * Prisma model name. Required when `kind` is `prisma` (enforced by the
+   * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
+   * `custom` — there is no Prisma delegate to address.
+   */
+  model: z.string().optional(),
   tag: z.string(), // required — OpenAPI tag
   title: z.string().optional(), // no computed default — used as UI display title
   table: z.string().optional(), // default: same as `model`
@@ -89,7 +101,60 @@ export const ResourceJsonShape = z.object({
   include: z.array(JsonIncludeEntrySchema).default([]),
 });
 
-export const ResourceJsonSchema = ResourceJsonShape.transform((obj) => {
+/**
+ * Per-kind rules that a plain `z.object` cannot express.
+ *
+ * Implemented as a refinement rather than a `z.discriminatedUnion` on purpose:
+ * `scripts/gen-resource-schema.mjs` runs `z.toJSONSchema(ResourceJsonShape)`
+ * and needs a `z.object`, and a defaulted discriminator does not survive the
+ * union. The generated JSON Schema is therefore permissive about these rules
+ * while the loader enforces them.
+ */
+const refineByKind = (
+  obj: z.infer<typeof ResourceJsonShape>,
+  ctx: z.RefinementCtx,
+): void => {
+  if (obj.kind === 'custom') {
+    if (obj.model !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['model'],
+        message:
+          'A custom resource has no Prisma model. Remove "model" — data access comes from repository.ts.',
+      });
+    }
+    if (obj.calculatedColumns?.length) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['calculatedColumns'],
+        message:
+          'calculatedColumns run raw SQL against a database table and are not supported on a custom resource. Compute the value in repository.ts instead.',
+      });
+    }
+    for (const [id, col] of Object.entries(obj.columns ?? {})) {
+      // A relation column's shape comes from the referenced resource.
+      if (col.fieldInput?.format === 'relation') continue;
+      if (col.type === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['columns', id, 'type'],
+          message: `Column "${id}" needs a "type": a custom resource has no schema.ts, so its json_schema is built from the column types.`,
+        });
+      }
+    }
+  } else if (obj.model === undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['model'],
+      message:
+        '"model" is required for a prisma-backed resource. Set "kind": "custom" for a resource with no Prisma model.',
+    });
+  }
+};
+
+export const ResourceJsonSchema = ResourceJsonShape.superRefine(
+  refineByKind,
+).transform((obj) => {
   const title = obj.title ?? labelFromId(obj.name);
   const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
 

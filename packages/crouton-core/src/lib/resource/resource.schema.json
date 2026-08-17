@@ -14,6 +14,14 @@
       "default": false,
       "type": "boolean"
     },
+    "kind": {
+      "default": "prisma",
+      "type": "string",
+      "enum": [
+        "prisma",
+        "custom"
+      ]
+    },
     "name": {
       "type": "string"
     },
@@ -277,6 +285,26 @@
           "showInLookup": {
             "default": false,
             "type": "boolean"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "integer",
+                  "boolean",
+                  "date",
+                  "date-time",
+                  "object",
+                  "array"
+                ]
+              },
+              {
+                "$ref": "#/definitions/__schema0"
+              }
+            ]
           },
           "columnType": {
             "default": "string",
@@ -1102,19 +1130,102 @@
       "default": [],
       "type": "array",
       "items": {
-        "$ref": "#/definitions/__schema0"
+        "$ref": "#/definitions/__schema1"
       }
     }
   },
   "required": [
     "name",
     "route",
-    "model",
     "tag",
     "operations"
   ],
   "definitions": {
     "__schema0": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "enum": {
+          "type": "array",
+          "items": {}
+        },
+        "const": {},
+        "nullable": {
+          "type": "boolean"
+        },
+        "properties": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "$ref": "#/definitions/__schema0"
+          }
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "items": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/__schema0"
+            }
+          ]
+        },
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/__schema0"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {},
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "__schema1": {
       "anyOf": [
         {
           "type": "string"
@@ -1128,7 +1239,7 @@
             "include": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/__schema0"
+                "$ref": "#/definitions/__schema1"
               }
             },
             "orderBy": {

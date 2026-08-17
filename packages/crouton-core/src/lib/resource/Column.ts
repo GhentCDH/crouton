@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ColumnTypeSchema } from './ColumnType.schema';
 import { FieldInputSchema, FieldVariantSchema } from './FieldInput.schema';
 
 // Used by showWhen / hideWhen / disabledWhen
@@ -41,6 +42,26 @@ export const JsonColumnSchema = z.object({
   enum: z.string().optional(), // name of a shared enum in crouton.enums.json
   idField: z.boolean().default(false), // default: false — exactly one column should set this
   showInLookup: z.boolean().default(false), // default: false
+  /**
+   * Data type of the column, as a shorthand name (`"string"`, `"integer"`, …)
+   * or a full JSON Schema fragment:
+   *
+   * ```json
+   * "type": {
+   *   "type": "object",
+   *   "properties": { "id": { "type": "string" }, "name": { "type": "string" } }
+   * }
+   * ```
+   *
+   * Required on every column of a `kind: "custom"` resource, where it is the
+   * only source of the resource's json_schema. Optional on a `prisma`
+   * resource, whose schema is derived from the Zod model.
+   */
+  type: ColumnTypeSchema.optional(),
+  /**
+   * @deprecated Use `type` instead. Retained because it is still consumed by
+   * the boolean predicate and the schema-less sub-resource view builder.
+   */
   columnType: z.string().default('string'), // default: 'string'
   fieldInput: FieldInputSchema.optional(),
   /**

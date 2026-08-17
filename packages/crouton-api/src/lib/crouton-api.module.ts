@@ -87,7 +87,7 @@ export class CroutonApiModule {
     for (const c of configs) {
       try {
         const prisma = dataSourceRegistry.resolve(c.database);
-        if (!prisma[c.model]) {
+        if (!c.model || !prisma[c.model]) {
           resourceLoadErrorsRegistry.record({
             name: c.name,
             path: c.route,

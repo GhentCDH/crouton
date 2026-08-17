@@ -248,6 +248,16 @@ export class ReadRepository<T = any> {
     private readonly oneSelect: Record<string, any> | undefined,
   ) {}
 
+  /**
+   * Physical table name for raw SQL (calculated columns).
+   *
+   * `table` overrides `model` for a `@@map`-ed Prisma model. Empty for a custom
+   * resource, which cannot have calculated columns.
+   */
+  private get tableName(): string {
+    return this.config.table ?? this.config.model ?? '';
+  }
+
   private toId(id: string | number): string | number {
     return (this.config.idType ?? 'string') === 'number' ? +id : String(id);
   }
@@ -370,7 +380,7 @@ export class ReadRepository<T = any> {
     const withCalc = await mergeCalculatedColumnsForRows(
       mapped,
       this.config.calculatedColumns ?? [],
-      this.config.model,
+      this.tableName,
       this.prisma,
       this.config.idField ?? 'id',
     );
@@ -417,7 +427,7 @@ export class ReadRepository<T = any> {
     const [withCalc] = await mergeCalculatedColumnsForRows(
       [record],
       this.config.calculatedColumns ?? [],
-      this.config.model,
+      this.tableName,
       this.prisma,
       this.config.idField ?? 'id',
     );
