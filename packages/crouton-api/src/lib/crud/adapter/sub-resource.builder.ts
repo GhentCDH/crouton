@@ -1,4 +1,4 @@
-import type { JsonColumn, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
+import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
 import {
   buildViewsFromColumns,
   injectCalculatedColumns,
@@ -57,6 +57,27 @@ export const buildSubResources = (
         childDir,
         baseUrl,
       );
+      // Auto-derive includes for manyToOne child relations (mirrors main resource logic in read.repository)
+      const autoIncludes: string[] = (enrichedChildColumns ?? [])
+        .filter(
+          (col) =>
+            col.fieldInput?.format === 'relation' &&
+            (col.fieldInput.relationType ??
+              deriveRelationTypeFromColumns(col, enrichedChildColumns!)) ===
+              'manyToOne',
+        )
+        .map((col) => col.fieldInput?.relation ?? col.id);
+      const explicitIncludes: JsonIncludeEntry[] = childJson?.include ?? [];
+      const explicitNames = new Set(
+        explicitIncludes.map((e) =>
+          typeof e === 'string' ? e : e.relation,
+        ),
+      );
+      const mergedIncludes: JsonIncludeEntry[] = [
+        ...explicitIncludes,
+        ...autoIncludes.filter((name) => !explicitNames.has(name)),
+      ];
+
       const childLookupKey =
         childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = childJson?.calculatedColumns ?? [];
@@ -105,7 +126,7 @@ export const buildSubResources = (
         },
         ...(childJson?.actions?.length && { actions: childJson.actions }),
         ...(childJson?.modalSize && { modalSize: childJson.modalSize }),
-        ...(childJson?.include?.length && { include: childJson.include }),
+        ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childJson?.calculatedColumns?.length && {
           calculatedColumns: childJson.calculatedColumns,
         }),
