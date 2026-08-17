@@ -1,6 +1,10 @@
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
 import { resolveDefinition, schemaFor } from './crud.config';
+import {
+  type DataSourceResolver,
+  createCustomRepository,
+} from './custom-repository';
 import { ReadRepository } from './read.repository';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
@@ -70,14 +74,34 @@ export interface CrudRepository<T = any> {
  * The `findAll`/`findOne` schemas are used to derive Prisma `select` clauses so only the
  * columns the view needs are fetched.
  *
- * @param prisma - Full PrismaClient instance.
+ * A `kind: "custom"` resource short-circuits to `createCustomRepository`, which
+ * delegates to the user's `repository.ts`.
+ *
+ * @param prisma - Full PrismaClient instance (may be `undefined` for a custom
+ *   resource in a project with no datasources).
  * @param config - Resource config. `config.model` must match a key on the PrismaClient.
+ * @param dataSources - Registry exposed to a custom repository as `ctx.dataSources`.
  * @throws {Error} When `config.model` is not found on the provided PrismaClient.
  */
 export function createCrudRepository<T = any>(
   prisma: any,
   config: Resource,
+  dataSources?: DataSourceResolver,
 ): CrudRepository<T> {
+  // A custom resource brings its own data access; everything below this point
+  // assumes a Prisma delegate.
+  if (config.kind === 'custom') {
+    return createCustomRepository<T>(
+      prisma,
+      config,
+      dataSources ?? {
+        resolve: () => prisma,
+        entries: () => [],
+      },
+      config.repository,
+    );
+  }
+
   if (!config.model) {
     throw new Error(
       `Resource "${config.name}" has no "model". A prisma-backed resource must ` +

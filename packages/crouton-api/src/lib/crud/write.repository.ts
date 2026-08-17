@@ -1,28 +1,13 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import { fromValueLabel } from '@ghentcdh/crouton-core';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import { resolveDefinition, upsertOnFor } from './crud.config';
-import type { WriteOp } from './hooks';
+import { type WriteOp, postWrite, prepareWrite } from './hooks';
+import { normalizeValueLabels } from './resource/valueLabel.apply';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
-import type { ValueLabelColumn } from './resource/valueLabel';
-
-/** Unwrap `{ value, label }` fields back to their scalar before persistence. */
-const normalizeValueLabels = (
-  data: unknown,
-  cols: ValueLabelColumn[] | undefined,
-): unknown => {
-  if (!data || typeof data !== 'object' || Array.isArray(data) || !cols?.length)
-    return data;
-  const out = { ...(data as Record<string, unknown>) };
-  for (const { field } of cols) {
-    if (field in out) out[field] = fromValueLabel(out[field]);
-  }
-  return out;
-};
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (
@@ -110,14 +95,7 @@ export class WriteRepository<T = any> {
     id?: string | number,
     request?: any,
   ): Promise<any> {
-    const normalized = normalizeValueLabels(
-      data,
-      this.config.valueLabelColumns,
-    );
-    const hook = this.config.hooks?.beforeWrite;
-    return hook
-      ? hook(normalized, { prisma: this.prisma, op, id, request })
-      : normalized;
+    return prepareWrite(data, op, this.config, this.prisma, id, request);
   }
 
   private async postWrite(
@@ -126,10 +104,7 @@ export class WriteRepository<T = any> {
     id?: string | number,
     request?: any,
   ): Promise<any> {
-    const hook = this.config.hooks?.afterWrite;
-    return hook
-      ? hook(result, { prisma: this.prisma, op, id, request })
-      : result;
+    return postWrite(result, op, this.config, this.prisma, id, request);
   }
 
   private upsertWhere(data: any): Record<string, unknown> {

@@ -6,10 +6,10 @@ import {
   type OperatorType,
   buildSort,
   offsetOf,
-  toValueLabel,
 } from '@ghentcdh/crouton-core';
 
-import { type ReadOp } from './hooks';
+import { type ReadOp, decorateRow, decorateRows } from './hooks';
+import { applyValueLabelColumns } from './resource/valueLabel.apply';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { type ValueLabelColumn } from './resource/valueLabel';
@@ -215,18 +215,9 @@ export const orderableChildSort = (
   return scalarFields.has(sort) ? sort : undefined;
 };
 
-/** Wrap configured columns of a row as `{ value, label }`. Returns a shallow copy. */
-export const applyValueLabelColumns = (
-  row: any,
-  cols: ValueLabelColumn[] | undefined,
-): any => {
-  if (!row || !cols?.length) return row;
-  const out = { ...row };
-  for (const { field, values } of cols) {
-    if (field in out) out[field] = toValueLabel(out[field], values);
-  }
-  return out;
-};
+// Re-exported for backwards compatibility; the implementation now lives in
+// resource/valueLabel.apply so non-Prisma repositories can share it.
+export { applyValueLabelColumns };
 
 /**
  * Handles all read operations for a resource — list, count, detail, and sub-resource queries.
@@ -282,16 +273,7 @@ export class ReadRepository<T = any> {
     op: ReadOp,
     request?: any,
   ): Promise<any[]> {
-    const hook = this.config.hooks?.afterRead;
-    const hooked = hook
-      ? await Promise.all(
-          rows.map((row) => hook(row, { prisma: this.prisma, op, request })),
-        )
-      : rows;
-    const cols = this.config.valueLabelColumns;
-    return cols?.length
-      ? hooked.map((r) => applyValueLabelColumns(r, cols))
-      : hooked;
+    return decorateRows(rows, op, this.config, this.prisma, request);
   }
 
   private async decorateOne(
@@ -299,11 +281,7 @@ export class ReadRepository<T = any> {
     op: ReadOp,
     request?: any,
   ): Promise<any> {
-    // Note: the `{ value, label }` envelope is applied on list reads only.
-    // findOne feeds the form/detail view, where the select control maps the
-    // stored scalar to its label itself and submits the scalar back.
-    const hook = this.config.hooks?.afterRead;
-    return hook ? hook(row, { prisma: this.prisma, op, request }) : row;
+    return decorateRow(row, op, this.config, this.prisma, request);
   }
 
   /**

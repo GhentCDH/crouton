@@ -56,6 +56,18 @@ export function createCrudController(
     return Body();
   };
 
+  const resolveClient = (
+    registry: DataSourceRegistry,
+    resource: Resource,
+  ): any => {
+    try {
+      return registry.resolve(resource.database);
+    } catch (e) {
+      if (resource.kind === 'custom') return undefined;
+      throw e;
+    }
+  };
+
   class CrudControllerBase {
     protected readonly repo: CrudRepository;
     protected readonly configRegistry: ResourceConfigRegistry;
@@ -63,8 +75,11 @@ export function createCrudController(
       registry: DataSourceRegistry,
       configRegistry: ResourceConfigRegistry,
     ) {
-      const prisma = registry.resolve(config.database);
-      this.repo = createCrudRepository(prisma, config);
+      // A custom resource may legitimately run in a project with no
+      // datasources at all, so a resolve failure is not fatal for it — the
+      // repository simply receives `ctx.prisma === undefined`.
+      const prisma = resolveClient(registry, config);
+      this.repo = createCrudRepository(prisma, config, registry);
       this.configRegistry = configRegistry;
     }
   }

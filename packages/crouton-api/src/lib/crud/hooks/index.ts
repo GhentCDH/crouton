@@ -10,3 +10,10 @@ export {
 } from './hooks.types';
 
 export { loadResourceHooks, loadSubResourceHooks } from './hooks.loader';
+export {
+  type HookTarget,
+  decorateRow,
+  decorateRows,
+  postWrite,
+  prepareWrite,
+} from './hooks.apply';

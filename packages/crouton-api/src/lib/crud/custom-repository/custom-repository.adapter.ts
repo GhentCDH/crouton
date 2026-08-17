@@ -1,0 +1,195 @@
+import { NotFoundException, NotImplementedException } from '@nestjs/common';
+
+import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
+
+import {
+  type CustomListResult,
+  type CustomOp,
+  type CustomRepository,
+  type CustomRepositoryContext,
+} from './custom-repository.types';
+import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
+import type { CrudRepository } from '../crud-repository.factory';
+import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
+import { type Resource } from '../resource/ResourceConfig.schema';
+
+/** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
+export type DataSourceResolver = {
+  resolve(name?: string): any;
+  entries(): { name: string; client: any }[];
+};
+
+const unsupported = (config: Resource, op: CustomOp): never => {
+  throw new NotImplementedException(
+    `Resource "${config.name}" enables "${op}" but its repository.ts does not implement it.`,
+  );
+};
+
+/**
+ * Adapt a user-supplied `CustomRepository` to the full `CrudRepository`
+ * interface the controllers depend on.
+ *
+ * Responsibilities that stay with the framework rather than the user:
+ * - id coercion per `idType`, so a numeric key arrives as a number;
+ * - lifecycle hooks and the `{value,label}` envelope, via the shared helpers —
+ *   so `hooks.ts` behaves the same on a custom resource;
+ * - 404 on a missing row, so the user returns `null` instead of throwing;
+ * - `patch` falling back to `update`, matching the Prisma repository.
+ *
+ * Sub-resource operations are not part of the contract yet: nested child routes
+ * are derived from Prisma relations. They throw rather than silently returning
+ * nothing.
+ */
+export const createCustomRepository = <T = any>(
+  prisma: any,
+  config: Resource,
+  dataSources: DataSourceResolver,
+  repository: CustomRepository<T> | undefined,
+): CrudRepository<T> => {
+  const repo = repository ?? {};
+  const idField = config.idField ?? DEFAULT_ID_FIELD;
+
+  const toId = (id: string | number): string | number =>
+    (config.idType ?? DEFAULT_ID_TYPE) === 'number' ? +id : String(id);
+
+  const ctx = (
+    op: CustomOp,
+    params?: ListRequest,
+    id?: string | number,
+    request?: any,
+  ): CustomRepositoryContext => ({
+    prisma,
+    dataSources,
+    config,
+    op,
+    offset: params ? offsetOf(params) : 0,
+    ...(id !== undefined && { id }),
+    ...(request !== undefined && { request }),
+  });
+
+  const findAllWithCount = async (
+    params: ListRequest,
+    request?: any,
+  ): Promise<CustomListResult<T>> => {
+    if (!repo.findAll) unsupported(config, 'findAll');
+    const result = await repo.findAll!(
+      params,
+      ctx('findAll', params, undefined, request),
+    );
+    const data = await decorateRows(
+      result?.data ?? [],
+      'findAll',
+      config,
+      prisma,
+      request,
+    );
+    return { data, count: result?.count ?? data.length };
+  };
+
+  const findOne = async (id: string | number, request?: any): Promise<T> => {
+    if (!repo.findOne) unsupported(config, 'findOne');
+    const row = await repo.findOne!(
+      toId(id),
+      ctx('findOne', undefined, id, request),
+    );
+    if (row === null || row === undefined) {
+      throw new NotFoundException(`${config.name} with id ${id} not found`);
+    }
+    return decorateRow(row, 'findOne', config, prisma, request);
+  };
+
+  const write = async (
+    op: 'create' | 'update' | 'patch',
+    data: unknown,
+    id?: string | number,
+    request?: any,
+  ): Promise<T> => {
+    // `patch` falls back to `update`: the Prisma repository treats patch as an
+    // update with a partial schema, so a repository that only implements
+    // `update` behaves consistently.
+    const fn =
+      op === 'create'
+        ? repo.create
+        : op === 'update'
+          ? repo.update
+          : (repo.patch ?? repo.update);
+    if (!fn) unsupported(config, op);
+
+    const coercedId = id !== undefined ? toId(id) : undefined;
+    const prepared = await prepareWrite(
+      data,
+      op,
+      config,
+      prisma,
+      coercedId,
+      request,
+    );
+    const result =
+      op === 'create'
+        ? await (fn as NonNullable<CustomRepository<T>['create']>)(
+            prepared,
+            ctx('create', undefined, undefined, request),
+          )
+        : await (fn as NonNullable<CustomRepository<T>['update']>)(
+            coercedId!,
+            prepared,
+            ctx(op, undefined, coercedId, request),
+          );
+    return postWrite(result, op, config, prisma, coercedId, request);
+  };
+
+  // Async so callers get a rejected promise rather than a synchronous throw,
+  // matching every other method's `Promise<T>` signature.
+  const notAChildRepository = async (): Promise<never> => {
+    throw new NotImplementedException(
+      `Resource "${config.name}" is a custom resource; nested sub-resource routes are not supported. ` +
+        `Expose the child collection as its own resource instead.`,
+    );
+  };
+
+  return {
+    prisma,
+    // Preferred by register-findall: one round trip returns rows and count.
+    findAllWithCount,
+    findAll: async (params, request) =>
+      (await findAllWithCount(params, request)).data,
+    count: async (filter) =>
+      (
+        await findAllWithCount({
+          page: 1,
+          pageSize: 1,
+          sort: idField,
+          sortDir: 'asc',
+          filter: filter ?? [],
+        })
+      ).count,
+    findOne,
+    create: (data, request) => write('create', data, undefined, request),
+    update: (id, data, request) => write('update', data, id, request),
+    patch: (id, data, request) => write('patch', data, id, request),
+    delete: async (id, request) => {
+      if (!repo.delete) unsupported(config, 'delete');
+      const coercedId = toId(id);
+      const result = await repo.delete!(
+        coercedId,
+        ctx('delete', undefined, coercedId, request),
+      );
+      return postWrite(result, 'delete', config, prisma, coercedId, request);
+    },
+    upsert: async () => {
+      throw new NotImplementedException(
+        `Resource "${config.name}" is a custom resource; upsert is not part of the repository contract.`,
+      );
+    },
+    upsertMany: async () => {
+      throw new NotImplementedException(
+        `Resource "${config.name}" is a custom resource; upsert is not part of the repository contract.`,
+      );
+    },
+    findAllByParent: notAChildRepository,
+    findOneChild: notAChildRepository,
+    createChild: notAChildRepository,
+    updateChild: notAChildRepository,
+    deleteChild: notAChildRepository,
+  };
+};

@@ -10,6 +10,7 @@ import {
   ResourceRowActionSchema,
   ResourceTableActionSchema,
 } from '../action/action.types';
+import { CustomRepositorySchema } from '../custom-repository/custom-repository.types';
 import { ResourceHooksSchema } from '../hooks';
 
 export const ResourceSchema = ResourceJsonShape.extend({
@@ -24,6 +25,11 @@ export const ResourceSchema = ResourceJsonShape.extend({
   definition: DefinitionSchema,
   /** Lifecycle hooks for this sub-resource (beforeWrite, afterRead). */
   hooks: ResourceHooksSchema.optional(),
+  /**
+   * Data access for a `kind: "custom"` resource, loaded from `repository.ts`.
+   * Never set on a prisma resource.
+   */
+  repository: CustomRepositorySchema.optional(),
 
   /** Primary key field name on the model. Defaults to `"id"`. */
   idField: z.string(),
