@@ -250,6 +250,97 @@ crashing the server:
 The status page tags a custom resource with `custom` and how many operations its
 repository implements.
 
+## Nesting under a parent
+
+Two ways, depending on whether you want the child embedded in the parent's UI.
+
+### As a sub-resource of a parent (embedded in the parent's detail view)
+
+Put the child's directory inside the parent's, and declare it on the **parent**
+with a relation column — the same way a prisma child is declared:
+
+```
+resources/groups/resource.json          # prisma; relation column → ./expense
+resources/groups/expense/resource.json  # kind: custom
+resources/groups/expense/repository.ts
+```
+
+```jsonc
+// resources/groups/resource.json → columns
+"expenses": {
+  "label": "Expenses",
+  "hiddenInTable": true,
+  "fieldInput": {
+    "format": "relation",
+    "relationType": "oneToMany",
+    "resource": "./expense/resource.json",
+    "foreignKey": "group_id"
+  }
+}
+```
+
+Routes are served by the **parent's** controller, so the child's table renders
+inside the group's detail view exactly as a prisma child does:
+
+| | |
+| --- | --- |
+| `GET groups/expense/schemas` | the child's view schemas |
+| `GET groups/:id/expense` | list one group's expenses |
+| `GET groups/:id/expense/:childId` | one expense |
+| `POST groups/:id/expense` | create under that group |
+
+The data comes from the child's `repository.ts`, which implements the
+**parent-aware** operations:
+
+```ts
+const repository: CustomRepository<Expense> = {
+  findAllByParent: async (groupId, params, ctx) => ({ data, count }),
+  findOneByParent: async (groupId, id, ctx) => row ?? null,
+  createByParent: async (groupId, data, ctx) => { ... },
+  updateByParent: async (groupId, id, data, ctx) => { ... },
+  deleteByParent: async (groupId, id, ctx) => { ... },
+};
+```
+
+::: warning
+A nested child directory is **only** discovered through the parent's relation
+column. The loader scans one level, so a `resource.json` in a subdirectory that
+nothing points at is silently ignored — no error, no status-page entry.
+:::
+
+### As a standalone nested route (`parent`)
+
+When you want a nested endpoint without involving the parent's config at all,
+declare the parent on the **child** and keep it at the top level:
+
+```jsonc
+// resources/expense/resource.json
+{
+  "kind": "custom",
+  "name": "expense",
+  "route": "expense",
+  "parent": { "route": "groups", "param": "groupId" }
+}
+```
+
+The child's own controller mounts at `groups/:groupId/expense`, and it implements
+the same parent-aware operations. The parent does not need to exist as a crouton
+resource.
+
+Nesting this way is **exclusive**: no top-level route is registered, so the
+parent id is always in the path and a query cannot accidentally run across every
+parent. Two consequences:
+
+- the resource does not appear in the sidebar — a nav entry would resolve to
+  `<name>/schemas`, which is not a route. Reach it from the parent's UI, or use
+  the sub-resource form above.
+- its `/schemas` URIs carry the parent as a placeholder
+  (`/api/groups/{groupId}/expense`), so a caller substitutes a real id.
+
+`parent.param` cannot be `"id"` — that is the child's own id in `/:id` routes. It
+defaults to `parentId`. `parent` is only valid on a custom resource; a prisma
+resource is nested with a relation column instead.
+
 ## Current limitations
 
 - **No nested sub-resource routes.** Child collections
