@@ -1,4 +1,8 @@
-import { NotFoundException, NotImplementedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 
 import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
 
@@ -7,6 +11,7 @@ import {
   type CustomOp,
   type CustomRepository,
   type CustomRepositoryContext,
+  PARENT_METHOD,
 } from './custom-repository.types';
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { CrudRepository } from '../crud-repository.factory';
@@ -20,8 +25,9 @@ export type DataSourceResolver = {
 };
 
 const unsupported = (config: Resource, op: CustomOp): never => {
+  const method = config.parent ? PARENT_METHOD[op] : op;
   throw new NotImplementedException(
-    `Resource "${config.name}" enables "${op}" but its repository.ts does not implement it.`,
+    `Resource "${config.name}" enables "${op}" but its repository.ts does not implement "${method}".`,
   );
 };
 
@@ -52,6 +58,32 @@ export const createCustomRepository = <T = any>(
   const toId = (id: string | number): string | number =>
     (config.idType ?? DEFAULT_ID_TYPE) === 'number' ? +id : String(id);
 
+  const parentRef = config.parent;
+
+  /**
+   * Parent id for a nested resource, read from the request path.
+   *
+   * A nested resource registers no unnested route, so the param is always
+   * present in practice. Missing means the repository was called outside the
+   * controller — fail loudly rather than silently querying across all parents.
+   */
+  const parentIdFrom = (request: any): string | number => {
+    const raw = request?.params?.[parentRef!.param];
+    if (raw === undefined || raw === null || raw === '') {
+      throw new BadRequestException(
+        `Resource "${config.name}" is nested under "${parentRef!.route}" but no "${parentRef!.param}" was supplied.`,
+      );
+    }
+    return (parentRef!.idType ?? 'string') === 'number' ? +raw : String(raw);
+  };
+
+  const parentCtx = (
+    request: any,
+    parentId: string | number,
+  ): { parent: NonNullable<CustomRepositoryContext['parent']> } => ({
+    parent: { route: parentRef!.route, param: parentRef!.param, id: parentId },
+  });
+
   const ctx = (
     op: CustomOp,
     params?: ListRequest,
@@ -71,11 +103,23 @@ export const createCustomRepository = <T = any>(
     params: ListRequest,
     request?: any,
   ): Promise<CustomListResult<T>> => {
-    if (!repo.findAll) unsupported(config, 'findAll');
-    const result = await repo.findAll!(
-      params,
-      ctx('findAll', params, undefined, request),
-    );
+    let result: CustomListResult<T> | undefined;
+
+    if (parentRef) {
+      if (!repo.findAllByParent) unsupported(config, 'findAll');
+      const parentId = parentIdFrom(request);
+      result = await repo.findAllByParent!(parentId, params, {
+        ...ctx('findAll', params, undefined, request),
+        ...parentCtx(request, parentId),
+      });
+    } else {
+      if (!repo.findAll) unsupported(config, 'findAll');
+      result = await repo.findAll!(
+        params,
+        ctx('findAll', params, undefined, request),
+      );
+    }
+
     const data = await decorateRows(
       result?.data ?? [],
       'findAll',
@@ -87,11 +131,23 @@ export const createCustomRepository = <T = any>(
   };
 
   const findOne = async (id: string | number, request?: any): Promise<T> => {
-    if (!repo.findOne) unsupported(config, 'findOne');
-    const row = await repo.findOne!(
-      toId(id),
-      ctx('findOne', undefined, id, request),
-    );
+    let row: T | null | undefined;
+
+    if (parentRef) {
+      if (!repo.findOneByParent) unsupported(config, 'findOne');
+      const parentId = parentIdFrom(request);
+      row = await repo.findOneByParent!(parentId, toId(id), {
+        ...ctx('findOne', undefined, id, request),
+        ...parentCtx(request, parentId),
+      });
+    } else {
+      if (!repo.findOne) unsupported(config, 'findOne');
+      row = await repo.findOne!(
+        toId(id),
+        ctx('findOne', undefined, id, request),
+      );
+    }
+
     if (row === null || row === undefined) {
       throw new NotFoundException(`${config.name} with id ${id} not found`);
     }
@@ -104,37 +160,69 @@ export const createCustomRepository = <T = any>(
     id?: string | number,
     request?: any,
   ): Promise<T> => {
-    // `patch` falls back to `update`: the Prisma repository treats patch as an
-    // update with a partial schema, so a repository that only implements
-    // `update` behaves consistently.
-    const fn =
-      op === 'create'
-        ? repo.create
-        : op === 'update'
-          ? repo.update
-          : (repo.patch ?? repo.update);
-    if (!fn) unsupported(config, op);
-
     const coercedId = id !== undefined ? toId(id) : undefined;
-    const prepared = await prepareWrite(
-      data,
-      op,
-      config,
-      prisma,
-      coercedId,
-      request,
-    );
-    const result =
-      op === 'create'
-        ? await (fn as NonNullable<CustomRepository<T>['create']>)(
-            prepared,
-            ctx('create', undefined, undefined, request),
-          )
-        : await (fn as NonNullable<CustomRepository<T>['update']>)(
-            coercedId!,
-            prepared,
-            ctx(op, undefined, coercedId, request),
-          );
+
+    // `patch` falls back to `update` in both flavours: the Prisma repository
+    // treats patch as an update with a partial schema, so a repository that
+    // only implements the update variant behaves consistently.
+    const prepared = () =>
+      prepareWrite(data, op, config, prisma, coercedId, request);
+
+    let result: T;
+
+    if (parentRef) {
+      const fn =
+        op === 'create'
+          ? repo.createByParent
+          : op === 'update'
+            ? repo.updateByParent
+            : (repo.patchByParent ?? repo.updateByParent);
+      if (!fn) unsupported(config, op);
+
+      const parentId = parentIdFrom(request);
+      const nestedCtx = {
+        ...ctx(op, undefined, coercedId, request),
+        ...parentCtx(request, parentId),
+      };
+      const body = await prepared();
+
+      result =
+        op === 'create'
+          ? await (fn as NonNullable<CustomRepository<T>['createByParent']>)(
+              parentId,
+              body,
+              nestedCtx,
+            )
+          : await (fn as NonNullable<CustomRepository<T>['updateByParent']>)(
+              parentId,
+              coercedId!,
+              body,
+              nestedCtx,
+            );
+    } else {
+      const fn =
+        op === 'create'
+          ? repo.create
+          : op === 'update'
+            ? repo.update
+            : (repo.patch ?? repo.update);
+      if (!fn) unsupported(config, op);
+
+      const body = await prepared();
+
+      result =
+        op === 'create'
+          ? await (fn as NonNullable<CustomRepository<T>['create']>)(
+              body,
+              ctx('create', undefined, undefined, request),
+            )
+          : await (fn as NonNullable<CustomRepository<T>['update']>)(
+              coercedId!,
+              body,
+              ctx(op, undefined, coercedId, request),
+            );
+    }
+
     return postWrite(result, op, config, prisma, coercedId, request);
   };
 
@@ -168,12 +256,23 @@ export const createCustomRepository = <T = any>(
     update: (id, data, request) => write('update', data, id, request),
     patch: (id, data, request) => write('patch', data, id, request),
     delete: async (id, request) => {
-      if (!repo.delete) unsupported(config, 'delete');
       const coercedId = toId(id);
-      const result = await repo.delete!(
-        coercedId,
-        ctx('delete', undefined, coercedId, request),
-      );
+      let result: T;
+
+      if (parentRef) {
+        if (!repo.deleteByParent) unsupported(config, 'delete');
+        const parentId = parentIdFrom(request);
+        result = await repo.deleteByParent!(parentId, coercedId, {
+          ...ctx('delete', undefined, coercedId, request),
+          ...parentCtx(request, parentId),
+        });
+      } else {
+        if (!repo.delete) unsupported(config, 'delete');
+        result = await repo.delete!(
+          coercedId,
+          ctx('delete', undefined, coercedId, request),
+        );
+      }
       return postWrite(result, 'delete', config, prisma, coercedId, request);
     },
     upsert: async () => {

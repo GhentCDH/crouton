@@ -57,6 +57,15 @@ export interface CustomRepositoryContext<PRISMA = any> {
    * Same value hooks receive as `ctx.request` — use it for auth/tenant context.
    */
   request?: any;
+  /**
+   * Set when the resource declares a `parent`, i.e. it is mounted at
+   * `<route>/:<param>/…`. The id is read from the path on every request, so it
+   * is always present for a nested resource.
+   *
+   * The parent-aware operations receive the same id as their first argument;
+   * this is here for the cases where you want it inside a shared helper.
+   */
+  parent?: { route: string; param: string; id: string | number };
 }
 
 /** Rows plus the total matching count, used to build the list envelope. */
@@ -65,7 +74,53 @@ export interface CustomListResult<T = any> {
   count: number;
 }
 
-export interface CustomRepository<T = any, PRISMA = any> {
+/**
+ * Operations for a resource that declares a `parent`.
+ *
+ * A nested resource is *only* reachable under its parent, so these replace the
+ * unnested operations rather than supplementing them — the parent id is always
+ * available, and a query can never accidentally run across every parent.
+ */
+export interface CustomParentRepository<T = any, PRISMA = any> {
+  /** List the children of one parent. Returns rows *and* the total count. */
+  findAllByParent?(
+    parentId: string | number,
+    params: ListRequest,
+    ctx: CustomRepositoryContext<PRISMA>,
+  ): Promise<CustomListResult<T>>;
+  /** Fetch one child of one parent. Return `null`/`undefined` for a 404. */
+  findOneByParent?(
+    parentId: string | number,
+    id: string | number,
+    ctx: CustomRepositoryContext<PRISMA>,
+  ): Promise<T | null | undefined>;
+  createByParent?(
+    parentId: string | number,
+    data: any,
+    ctx: CustomRepositoryContext<PRISMA>,
+  ): Promise<T>;
+  updateByParent?(
+    parentId: string | number,
+    id: string | number,
+    data: any,
+    ctx: CustomRepositoryContext<PRISMA>,
+  ): Promise<T>;
+  /** Falls back to `updateByParent` when not implemented. */
+  patchByParent?(
+    parentId: string | number,
+    id: string | number,
+    data: any,
+    ctx: CustomRepositoryContext<PRISMA>,
+  ): Promise<T>;
+  deleteByParent?(
+    parentId: string | number,
+    id: string | number,
+    ctx: CustomRepositoryContext<PRISMA>,
+  ): Promise<T>;
+}
+
+export interface CustomRepository<T = any, PRISMA = any>
+  extends CustomParentRepository<T, PRISMA> {
   /**
    * List rows. Must return the total `count` as well — the framework builds the
    * `{ data, request: { count, totalPages, ... } }` envelope from it.
@@ -112,6 +167,16 @@ export const CUSTOM_OPS: readonly CustomOp[] = [
   'patch',
   'delete',
 ] as const;
+
+/** Parent-aware method name for an operation, used by a nested resource. */
+export const PARENT_METHOD: Record<CustomOp, keyof CustomParentRepository> = {
+  findAll: 'findAllByParent',
+  findOne: 'findOneByParent',
+  create: 'createByParent',
+  update: 'updateByParent',
+  patch: 'patchByParent',
+  delete: 'deleteByParent',
+} as const;
 
 /**
  * Loose schema for embedding the loaded repository on `ResourceSchema`.

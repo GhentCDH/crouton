@@ -1,4 +1,9 @@
-import { CUSTOM_OPS, type CustomRepository } from './custom-repository.types';
+import {
+  CUSTOM_OPS,
+  type CustomParentRepository,
+  type CustomRepository,
+  PARENT_METHOD,
+} from './custom-repository.types';
 import { type CrudOperation, isOperationEnabled, resolveDefinition } from '../crud.config';
 import { type Resource } from '../resource/ResourceConfig.schema';
 
@@ -19,26 +24,39 @@ export const validateCustomRepository = (
     isOperationEnabled(definition, op as CrudOperation),
   );
 
+  // A nested resource is only reachable under its parent, so it implements the
+  // parent-aware variants instead of the unnested ones.
+  const nested = !!config.parent;
+  const methodFor = (op: (typeof CUSTOM_OPS)[number]) =>
+    nested ? PARENT_METHOD[op] : op;
+
   if (!repository) {
     return (
       'No repository.ts found. A custom resource implements its own data access; ' +
       `create ${config.name}/repository.ts with a default export implementing: ` +
-      `${enabled.join(', ') || 'no operations'}.`
+      `${enabled.map(methodFor).join(', ') || 'no operations'}.`
     );
   }
+
+  const implemented = (name: keyof CustomRepository | keyof CustomParentRepository) =>
+    typeof (repository as Record<string, unknown>)[name as string] === 'function';
 
   // `patch` is satisfied by `update` — the adapter falls back, matching the
   // Prisma repository where patch is an update with a partial schema.
   const missing = enabled.filter((op) =>
     op === 'patch'
-      ? typeof repository.patch !== 'function' &&
-        typeof repository.update !== 'function'
-      : typeof repository[op] !== 'function',
+      ? !implemented(methodFor('patch')) && !implemented(methodFor('update'))
+      : !implemented(methodFor(op)),
   );
 
   if (missing.length) {
+    const names = missing.map(methodFor);
     return (
-      `repository.ts does not implement ${missing.join(', ')}. ` +
+      `repository.ts does not implement ${names.join(', ')}` +
+      (nested
+        ? ` (this resource is nested under "${config.parent!.route}", so it implements the parent-aware operations)` +
+          '. '
+        : '. ') +
       'Either implement them or disable the operation in resource.json ' +
       `("operations": { "${missing[0]}": false }).`
     );

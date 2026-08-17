@@ -218,7 +218,12 @@ export const buildViewsPayload = (
 ): Record<string, unknown> | undefined => {
   if (!config.views || !Object.keys(config.views).length) return undefined;
   const definition = resolveDefinition(config);
-  const baseUri = `${baseUrl}/${config.route}`;
+  // A nested resource is served under its parent, so its URIs carry the parent
+  // id as a `{param}` placeholder — the same substitution the frontend already
+  // performs for sub-resource URIs via replaceUriParams.
+  const baseUri = config.parent
+    ? `${baseUrl}/${config.parent.route}/{${config.parent.param}}/${config.route}`
+    : `${baseUrl}/${config.route}`;
   const operations: Record<string, unknown> = buildResourceOperations(
     definition,
     baseUri,
@@ -241,7 +246,7 @@ export const buildViewsPayload = (
     id: config.name,
     name: config.name,
     route: config.route,
-    uri: `${baseUrl}/${config.route}`,
+    uri: baseUri,
     title: config.title ?? config.tag,
     idField: config.lookup?.key ?? 'id',
     idType: config.idType ?? 'string',

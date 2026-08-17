@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
+import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
@@ -81,6 +82,11 @@ export const ResourceJsonShape = z.object({
    */
   idType: z.enum(['string', 'number']).optional(),
   database: z.string().optional(), // default: project's default data source
+  /**
+   * Mount this resource under a parent route instead of at the top level —
+   * see `./ParentRef.schema`. Only valid on a `kind: "custom"` resource.
+   */
+  parent: ParentRefSchema.optional(),
   sidebar: SidebarSchema.default(SidebarSchema.parse({})), // default: shown, alphabetically ordered, ungrouped
   display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }
   operations: JsonOperationsSchema, // required key — but every sub-field defaults to enabled
@@ -148,6 +154,21 @@ const refineByKind = (
         });
       }
     }
+    if (obj.parent && obj.parent.param === 'id') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['parent', 'param'],
+        message:
+          'parent.param cannot be "id" — that is the child\'s own id in /:id routes. Use something like "groupId".',
+      });
+    }
+  } else if (obj.parent !== undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['parent'],
+      message:
+        '"parent" is only supported on a custom resource. A prisma resource is nested by declaring a relation column on its parent.',
+    });
   } else if (obj.model === undefined) {
     ctx.addIssue({
       code: 'custom',

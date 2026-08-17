@@ -50,6 +50,28 @@
     "database": {
       "type": "string"
     },
+    "parent": {
+      "type": "object",
+      "properties": {
+        "route": {
+          "type": "string"
+        },
+        "param": {
+          "default": "parentId",
+          "type": "string"
+        },
+        "idType": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "route"
+      ]
+    },
     "sidebar": {
       "default": {
         "hide": false

@@ -1,8 +1,16 @@
 <template>
   <div class="flex flex-col gap-1">
     <label v-if="!hideLabel" class="text-sm font-medium">{{ label }}</label>
+
+    <!--
+      A displayKey names the one meaningful key, so the object is identifying
+      context rather than something to edit — render it as text. Same rule the
+      table (RecordCell) and the readonly view already follow.
+    -->
+    <span v-if="displayValue !== null" class="text-sm">{{ displayValue }}</span>
+
     <div
-      v-if="childElements.length"
+      v-else-if="childElements.length"
       class="grid grid-cols-12 gap-2 rounded-box border border-base-300 p-2"
     >
       <div
@@ -25,14 +33,21 @@
 
 <script setup lang="ts">
 import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
+import { useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
 import Dispatch from '../../Dispatch.vue';
 import { resolveSchema, scopeToPath } from '../../scope';
 
 /**
- * Renders a column whose schema is a nested object, one control per declared
- * property.
+ * Renders a column whose schema is a nested object.
+ *
+ * Two modes:
+ * - **`displayKey` set** — the object identifies something (a `{id, name}`
+ *   member, a lookup row) rather than being editable. Renders that one key as
+ *   text, matching what `RecordCell` does in the table and `ObjectValue` in the
+ *   readonly view.
+ * - **otherwise** — one control per declared property.
  *
  * Built the same way as `ArrayRenderer`: resolve the sub-schema, provide a
  * `pathPrefix` so children bind to dotted paths (`metadata.name`), and
@@ -62,6 +77,25 @@ const opts = computed(
 );
 const hideLabel = computed(() => opts.value.hideLabel === true);
 const label = computed(() => opts.value.label ?? scopePath);
+
+const { values: formValues } = useFormContext();
+
+/** Resolve a dotted path against an object, tolerating gaps. */
+const atPath = (source: unknown, dotted: string): unknown =>
+  dotted
+    .split('.')
+    .reduce<any>((acc, key) => (acc == null ? acc : acc[key]), source);
+
+/**
+ * The `displayKey`'s value, or `null` when there is no displayKey — which is
+ * what switches this renderer into "edit the properties" mode.
+ */
+const displayValue = computed<string | null>(() => {
+  const displayKey = opts.value.displayKey;
+  if (typeof displayKey !== 'string' || !displayKey) return null;
+  const resolved = atPath(atPath(formValues, path), displayKey);
+  return resolved === null || resolved === undefined ? '—' : String(resolved);
+});
 
 /**
  * One `Control` per declared property, unless the ui schema already carries
