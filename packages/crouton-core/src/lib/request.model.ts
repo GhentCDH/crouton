@@ -27,3 +27,17 @@ export const RequestSchemaWithOffset = RequestSchema.transform((schema) => {
     offset: (page - 1) * pageSize,
   };
 });
+
+export type ListRequestWithOffset = z.infer<typeof RequestSchemaWithOffset>;
+
+/**
+ * Zero-based row offset for a list request.
+ *
+ * Controllers validate query params with `RequestSchema` (no `offset`), while
+ * `RequestSchemaWithOffset` adds one — so consumers cannot rely on the field
+ * being present. Derive it here instead of duplicating the arithmetic at every
+ * call site.
+ */
+export const offsetOf = (params: ListRequest): number =>
+  (params as Partial<ListRequestWithOffset>).offset ??
+  (params.page - 1) * params.pageSize;

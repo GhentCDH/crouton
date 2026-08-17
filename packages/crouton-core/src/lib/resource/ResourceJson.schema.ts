@@ -63,6 +63,11 @@ export const ResourceJsonShape = z.object({
   tag: z.string(), // required — OpenAPI tag
   title: z.string().optional(), // no computed default — used as UI display title
   table: z.string().optional(), // default: same as `model`
+  /**
+   * Type of the resource's primary key, used to coerce `:id` route params.
+   * Written by codegen from the Prisma model; defaults to `'string'`.
+   */
+  idType: z.enum(['string', 'number']).optional(),
   database: z.string().optional(), // default: project's default data source
   sidebar: SidebarSchema.default(SidebarSchema.parse({})), // default: shown, alphabetically ordered, ungrouped
   display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }

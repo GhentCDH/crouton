@@ -22,10 +22,14 @@ const _findAll = async (
   if (q && lookupLabel) {
     effectiveParams.filter = [...(params.filter ?? []), `${lookupLabel}:${q}`];
   }
-  const [data, count] = await Promise.all([
-    repo.findAll(effectiveParams, request),
-    repo.count(effectiveParams.filter),
-  ]);
+  // Repositories that cannot count separately (custom repositories backed by a
+  // remote API) implement `findAllWithCount` and return both in one round trip.
+  const { data, count } = repo.findAllWithCount
+    ? await repo.findAllWithCount(effectiveParams, request)
+    : await Promise.all([
+        repo.findAll(effectiveParams, request),
+        repo.count(effectiveParams.filter),
+      ]).then(([data, count]) => ({ data, count }));
   const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
   return {
     data,

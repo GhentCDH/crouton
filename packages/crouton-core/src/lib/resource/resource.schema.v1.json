@@ -32,6 +32,13 @@
     "table": {
       "type": "string"
     },
+    "idType": {
+      "type": "string",
+      "enum": [
+        "string",
+        "number"
+      ]
+    },
     "database": {
       "type": "string"
     },

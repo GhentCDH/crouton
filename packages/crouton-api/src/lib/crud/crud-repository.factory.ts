@@ -1,6 +1,7 @@
+import type { ListRequest } from '@ghentcdh/crouton-core';
+
 import { resolveDefinition, schemaFor } from './crud.config';
 import { ReadRepository } from './read.repository';
-import type { RequestDto } from './request.dto';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { toSelectFields } from './schema.utils';
@@ -10,13 +11,25 @@ import { WriteRepository } from './write.repository';
 export interface CrudRepository<T = any> {
   /** Raw Prisma client — used by action procedures. */
   readonly prisma: any;
-  findAll(params: RequestDto, request?: any): Promise<T[]>;
+  findAll(params: ListRequest, request?: any): Promise<T[]>;
   count(filter: string[]): Promise<number>;
+  /**
+   * Fetch rows *and* their total count in a single call.
+   *
+   * Optional: the Prisma-backed repository leaves it undefined and callers fall
+   * back to `findAll` + `count`. Repositories whose backend cannot count
+   * separately (e.g. a remote HTTP API returning `{items, total}`) implement
+   * this instead.
+   */
+  findAllWithCount?(
+    params: ListRequest,
+    request?: any,
+  ): Promise<{ data: T[]; count: number }>;
   findOne(id: number | string, request?: any): Promise<T>;
   findAllByParent(
     parentId: string | number,
     childRoute: string,
-    params: RequestDto,
+    params: ListRequest,
     request?: any,
   ): Promise<{ data: T[]; count: number }>;
   findOneChild(

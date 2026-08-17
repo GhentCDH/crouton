@@ -27,10 +27,17 @@ const coerceColumnValue = (col: CalculatedColumn) => {
 };
 
 /** Build the parameterised SQL for one calculated column query. */
-const buildCalculatedColumnSql = (col: CalculatedColumn, tableName: string, ids: unknown[]): string => {
+const buildCalculatedColumnSql = (
+  col: CalculatedColumn,
+  tableName: string,
+  ids: unknown[],
+  idField: string,
+): string => {
   const alias = col.alias ?? col.id;
   const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
-  return `SELECT main.id, ${castExpression(col)} AS "${alias}" FROM "${tableName}" main WHERE main.id IN (${placeholders})`;
+  // The key column is aliased to `id` so the caller can merge on a stable name
+  // regardless of what the resource's primary key is called.
+  return `SELECT main."${idField}" AS id, ${castExpression(col)} AS "${alias}" FROM "${tableName}" main WHERE main."${idField}" IN (${placeholders})`;
 };
 
 // ── Public helpers ────────────────────────────────────────────────────────
@@ -38,20 +45,23 @@ const buildCalculatedColumnSql = (col: CalculatedColumn, tableName: string, ids:
 /**
  * Run raw SQL for each calculated column and merge results onto rows by id.
  * Each `sqlExpression` may reference the row via the alias `main`.
+ *
+ * @param idField - Primary key column of `tableName`. Defaults to `'id'`.
  */
 export const mergeCalculatedColumnsForRows = async (
   rows: any[],
   calcCols: CalculatedColumn[],
   tableName: string,
   prisma: any,
+  idField = 'id',
 ): Promise<any[]> => {
   if (!calcCols.length || !rows.length) return rows;
 
-  const ids = rows.map((r) => r.id);
+  const ids = rows.map((r) => r[idField]);
   const results = await Promise.all(
     calcCols.map(async (col) => {
       const alias = col.alias ?? col.id;
-      const sql = buildCalculatedColumnSql(col, tableName, ids);
+      const sql = buildCalculatedColumnSql(col, tableName, ids, idField);
       const defaultValue = defaultValueForType(col);
       const coerce = coerceColumnValue(col);
       try {
@@ -71,7 +81,7 @@ export const mergeCalculatedColumnsForRows = async (
   return rows.map((row) => {
     const extra: Record<string, unknown> = {};
     for (const { id, defaultValue, map } of results) {
-      extra[id] = map[String(row.id)] ?? defaultValue;
+      extra[id] = map[String(row[idField])] ?? defaultValue;
     }
     return { ...row, ...extra };
   });

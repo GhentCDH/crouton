@@ -24,8 +24,17 @@ export const findModule = (dir: string, name: string): string | undefined => {
  */
 const IS_VITE = typeof (globalThis as any).__vite_ssr_import__ === 'function';
 
-/** Dynamically import a default export, returning `undefined` on failure. */
-export const importDefault = async <T>(filePath: string): Promise<T | undefined> => {
+/**
+ * Dynamically import a default export, returning `undefined` on failure.
+ *
+ * Failures are reported through `onError` when supplied, and logged otherwise.
+ * Without that, a broken user file (syntax error, bad import) is
+ * indistinguishable from a missing one — which made `hooks.ts` fail silently.
+ */
+export const importDefault = async <T>(
+  filePath: string,
+  onError?: (error: unknown, filePath: string) => void,
+): Promise<T | undefined> => {
   try {
     if (IS_VITE) {
       // In Vite dev mode, bust the module cache so edits are picked up without
@@ -43,7 +52,9 @@ export const importDefault = async <T>(filePath: string): Promise<T | undefined>
       const mod = _require(filePath) as { default?: T };
       return mod.default;
     }
-  } catch {
+  } catch (error) {
+    if (onError) onError(error, filePath);
+    else console.error(`[crouton] Failed to import ${filePath}:`, error);
     return undefined;
   }
 };

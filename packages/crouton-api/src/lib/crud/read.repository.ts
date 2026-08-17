@@ -1,14 +1,15 @@
 import { NotFoundException } from '@nestjs/common';
 
 import {
+  type ListRequest,
   Operator,
   type OperatorType,
   buildSort,
+  offsetOf,
   toValueLabel,
 } from '@ghentcdh/crouton-core';
 
 import { type ReadOp } from './hooks';
-import type { RequestDto } from './request.dto';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { type ValueLabelColumn } from './resource/valueLabel';
@@ -299,14 +300,14 @@ export class ReadRepository<T = any> {
    * Fetch a paginated, sorted, and filtered list of records.
    * Sub-resource counts are merged onto each row; calculated columns are resolved via raw SQL.
    */
-  async findAll(params: RequestDto, request?: any): Promise<T[]> {
+  async findAll(params: ListRequest, request?: any): Promise<T[]> {
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
     const query: Record<string, any> = {
       where: this.buildWhere(params.filter),
       take: params.pageSize,
-      skip: (params as any).offset ?? (params.page - 1) * params.pageSize,
+      skip: offsetOf(params),
       orderBy: this.safeSort(
         sanitizeValueLabelSort(params.sort, this.config.valueLabelColumns),
         params.sortDir,
@@ -371,6 +372,7 @@ export class ReadRepository<T = any> {
       this.config.calculatedColumns ?? [],
       this.config.model,
       this.prisma,
+      this.config.idField ?? 'id',
     );
     return this.decorate(withCalc, 'findAll', request);
   }
@@ -417,6 +419,7 @@ export class ReadRepository<T = any> {
       this.config.calculatedColumns ?? [],
       this.config.model,
       this.prisma,
+      this.config.idField ?? 'id',
     );
 
     // Enrich nested sub-resource arrays with their own calculated columns.
@@ -431,6 +434,7 @@ export class ReadRepository<T = any> {
         sub.calculatedColumns,
         sub.childModel,
         this.prisma,
+        sub.idField ?? 'id',
       );
       enriched = { ...enriched, [sub.relation]: enrichedNested };
     }
@@ -446,7 +450,7 @@ export class ReadRepository<T = any> {
   async findAllByParent(
     parentId: string | number,
     childRoute: string,
-    params: RequestDto,
+    params: ListRequest,
     request?: any,
   ): Promise<{ data: T[]; count: number }> {
     const sub = (this.config.subResources ?? []).find(
@@ -476,7 +480,7 @@ export class ReadRepository<T = any> {
       childModel.findMany({
         where,
         take: params.pageSize,
-        skip: (params as any).offset ?? (params.page - 1) * params.pageSize,
+        skip: offsetOf(params),
         orderBy: childSort
           ? buildChildSortClause(childSort, params.sortDir)
           : undefined,
@@ -491,6 +495,7 @@ export class ReadRepository<T = any> {
           sub.calculatedColumns,
           sub.childModel,
           this.prisma,
+          sub.idField ?? 'id',
         )
       : data;
 
@@ -550,6 +555,7 @@ export class ReadRepository<T = any> {
           sub.calculatedColumns,
           sub.childModel,
           this.prisma,
+          sub.idField ?? 'id',
         )
       : [record];
 
