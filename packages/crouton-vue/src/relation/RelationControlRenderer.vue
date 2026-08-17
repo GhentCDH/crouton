@@ -12,6 +12,7 @@
         :value-key="appliedOptions.valueKey"
         :value="value"
         :options="options"
+        :form-values="formValues"
         v-bind="operations"
         @change="onAutocompleteChange"
       />
@@ -84,6 +85,7 @@ const {
   isNew,
   isInline,
   appliedOptions,
+  formValues,
 } = useRelationBinding(props.uischema, props.schema, false);
 
 const options = computed(() => {

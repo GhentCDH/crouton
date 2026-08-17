@@ -7,4 +7,5 @@ export const RelationAutocompleteProperties = {
   valueKey: { type: String, required: false as const, default: 'value' },
   value: { type: [String, Number, Object] as PropType<string | number | Record<string, unknown> | null>, default: null },
   enableCreate: { type: Boolean, required: false as const, default: true },
+  formValues: { type: Object as PropType<Record<string, unknown> | null>, required: false as const, default: null },
 };
