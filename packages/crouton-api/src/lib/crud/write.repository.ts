@@ -261,13 +261,16 @@ export class WriteRepository<T = any> {
       : payload;
 
     const includeKeys = includeRelationNames(sub.include);
+    const preparedEntries = prepared as Record<string, unknown>;
     const prismaData = {
       ...Object.fromEntries(
-        Object.entries(prepared as Record<string, unknown>).filter(
+        Object.entries(preparedEntries).filter(
           ([k, v]) => !includeKeys.has(k) || isPrismaRelationWrite(v),
         ),
       ),
-      [sub.foreignKey]: this.toId(parentId),
+      ...(sub.foreignKey in preparedEntries
+        ? { [sub.foreignKey]: this.toId(parentId) }
+        : {}),
     };
     const result = await childModel.create({ data: prismaData });
     return sub.hooks?.afterWrite
