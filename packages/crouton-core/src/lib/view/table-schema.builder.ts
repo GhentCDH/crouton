@@ -1,5 +1,10 @@
 
-import { isBoolean, isDateRange, isRecordCell } from './column-predicates';
+import {
+  isBoolean,
+  isDateRange,
+  isObjectCell,
+  isRecordCell,
+} from './column-predicates';
 import { deriveSortId } from './sort.helpers';
 import type { JsonColumn } from '../resource/Column';
 import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '../table/table.builder';
@@ -47,7 +52,7 @@ export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> 
     // Date-range reuses the form control renderer, so it needs its full options
     // (format, fromField/toField, labels).
     const fieldInputOptions =
-      isRecordCell(col) || isDateRange(col)
+      isRecordCell(col) || isDateRange(col) || isObjectCell(col)
         ? (col.fieldInput?.options as object ?? {})
         : pickSharedCellOptions(col);
     const dataPathOption = col.column ? { dataPath: col.column } : {};
@@ -65,7 +70,9 @@ export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> 
         ...(isDateRange(col) && { format: 'date-range' }),
         label: col.label,
       },
-      ...(isRecordCell(col) && { type: 'RecordCell' }),
+      // An object column with a displayKey renders the same way as a relation:
+      // one nested key out of an object value.
+      ...((isRecordCell(col) || isObjectCell(col)) && { type: 'RecordCell' }),
       ...(isDateRange(col) && { type: 'Control' }),
     };
   });

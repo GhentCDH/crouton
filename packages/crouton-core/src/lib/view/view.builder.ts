@@ -3,6 +3,7 @@ import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import { isRelation } from './column-predicates';
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
+import { columnTypeSchemaSource } from './column-type-schema.source';
 import { buildFormUiSchema } from './form-schema.builder';
 import { jsonSchemaOpts } from './json-schema.opts';
 import { applySchemaTransforms } from './schema-transforms';
@@ -114,15 +115,44 @@ const injectFieldDefaults = (
 
 // ── View building ─────────────────────────────────────────────────────────
 
+/**
+ * Produces the `json_schema` for one view from the columns that belong in it.
+ *
+ * Two implementations exist: `zodSchemaSource` picks a mask off the resource's
+ * Zod model schema (prisma resources), and `columnTypeSchemaSource` assembles
+ * properties from each column's declared `type` (custom resources, which have
+ * no `schema.ts`). Returning `undefined` skips the view entirely.
+ */
+export type ViewJsonSchemaSource = (
+  schemaCols: JsonColumn[],
+) => Record<string, unknown> | undefined;
+
+/** Build a view's json_schema by picking a mask off the resource's Zod schema. */
+export const zodSchemaSource =
+  (schema: ZodObject<ZodRawShape>): ViewJsonSchemaSource =>
+  (schemaCols) => {
+    const schemaKeys = new Set(Object.keys(schema.shape));
+    const schemaIds = schemaCols
+      .map((c) => c.id)
+      .filter((id) => schemaKeys.has(id));
+    if (!schemaIds.length) return undefined;
+    const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
+    const picked = schema.pick(mask as any);
+    return toJSONSchema(picked, {
+      target: 'draft-07',
+      ...jsonSchemaOpts,
+    }) as Record<string, unknown>;
+  };
+
 const buildView = (
-  schema: ZodObject<ZodRawShape> | undefined,
+  source: ViewJsonSchemaSource | undefined,
   columns: JsonColumn[] | undefined,
   visible: (column: JsonColumn) => boolean,
   buildUiSchema: (cols: JsonColumn[]) => Record<string, unknown>,
   sort = false,
   schemaVisible?: (column: JsonColumn) => boolean,
 ): ViewConfig | undefined => {
-  if (!schema || !columns?.length) return undefined;
+  if (!source || !columns?.length) return undefined;
   const visibleCols = sort
     ? sortByPosition(columns.filter(visible))
     : columns.filter(visible);
@@ -137,15 +167,8 @@ const buildView = (
     : visibleCols
   ).filter((c) => !isRelation(c));
 
-  const schemaKeys = new Set(Object.keys(schema.shape));
-  const schemaIds = schemaCols.map((c) => c.id).filter((id) => schemaKeys.has(id));
-  if (!schemaIds.length) return undefined;
-  const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
-  const picked = schema.pick(mask as any);
-  const jsonSchema = toJSONSchema(picked, {
-    target: 'draft-07',
-    ...jsonSchemaOpts,
-  }) as Record<string, unknown>;
+  const jsonSchema = source(schemaCols);
+  if (!jsonSchema) return undefined;
   applySchemaTransforms(jsonSchema);
   injectFieldDefaults(jsonSchema, visibleCols);
 
@@ -184,15 +207,23 @@ const emptyTableView = (): ViewConfig => ({
   columns: [],
 });
 
-/** Build table / form / filter / view schemas from a Zod schema + column definitions. */
-export const buildViews = (
-  schema: ZodObject<ZodRawShape> | undefined,
+/**
+ * Build table / form / filter / view schemas from column definitions and a
+ * json_schema source.
+ *
+ * Shared by the Zod-backed path (`buildViews`) and the column-type path
+ * (`buildViewsFromColumnTypes`) so both produce identical view shapes —
+ * default sort, filter hints, and the `required` trimming all behave the same
+ * regardless of where the properties came from.
+ */
+export const buildViewsWithSource = (
+  source: ViewJsonSchemaSource | undefined,
   columns: JsonColumn[] | undefined,
 ): Record<string, ViewConfig> | undefined => {
   const views: Record<string, ViewConfig> = {};
 
   const table = buildView(
-    schema,
+    source,
     columns?.map((c) => columnForContext(c, 'table')),
     (c) => !c.hiddenInTable,
     buildTableUiSchema,
@@ -209,7 +240,7 @@ export const buildViews = (
   }
 
   const form = buildView(
-    schema,
+    source,
     columns,
     (c) => !c.hiddenInForm,
     buildFormUiSchema,
@@ -219,7 +250,7 @@ export const buildViews = (
   if (form) views.form = form;
 
   const filter = buildView(
-    schema,
+    source,
     columns,
     (c) => !!c.filterable,
     buildFormUiSchema,
@@ -234,7 +265,7 @@ export const buildViews = (
   }
 
   const view = buildView(
-    schema,
+    source,
     columns?.map((c) => columnForContext(c, 'view')),
     (c) => !c.hiddenInView,
     buildFormUiSchema,
@@ -244,6 +275,28 @@ export const buildViews = (
 
   return Object.keys(views).length ? views : undefined;
 };
+
+/** Build table / form / filter / view schemas from a Zod schema + column definitions. */
+export const buildViews = (
+  schema: ZodObject<ZodRawShape> | undefined,
+  columns: JsonColumn[] | undefined,
+): Record<string, ViewConfig> | undefined =>
+  buildViewsWithSource(schema ? zodSchemaSource(schema) : undefined, columns);
+
+/**
+ * Build table / form / filter / view schemas for a resource with no Zod model
+ * schema, deriving every property from the columns' declared `type`.
+ *
+ * This is the `kind: "custom"` path: there is no `schema.ts` to pick from, so
+ * the column configuration is the single source of truth for the json model.
+ *
+ * Note there is no `required` array — a custom resource declares shapes, not
+ * obligations, and validating a payload is the `repository.ts` author's job.
+ */
+export const buildViewsFromColumnTypes = (
+  columns: JsonColumn[] | undefined,
+): Record<string, ViewConfig> | undefined =>
+  buildViewsWithSource(columnTypeSchemaSource, columns);
 
 /**
  * Build views from column definitions without a Zod schema.

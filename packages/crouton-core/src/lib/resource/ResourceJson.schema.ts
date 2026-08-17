@@ -132,8 +132,14 @@ const refineByKind = (
       });
     }
     for (const [id, col] of Object.entries(obj.columns ?? {})) {
-      // A relation column's shape comes from the referenced resource.
-      if (col.fieldInput?.format === 'relation') continue;
+      // A relation or autocomplete column's shape comes from the referenced
+      // resource, not from this column.
+      if (
+        col.fieldInput?.format === 'relation' ||
+        col.fieldInput?.type === 'autocomplete'
+      ) {
+        continue;
+      }
       if (col.type === undefined) {
         ctx.addIssue({
           code: 'custom',
