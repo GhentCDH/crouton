@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import {
   type ListRequest,
@@ -8,6 +8,10 @@ import {
   offsetOf,
 } from '@ghentcdh/crouton-core';
 
+import {
+  childCtx,
+  childRepositoryFn,
+} from './custom-repository/child-delegate';
 import { type ReadOp, decorateRow, decorateRows } from './hooks';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
@@ -449,6 +453,40 @@ export class ReadRepository<T = any> {
         `No sub-resource "${childRoute}" on "${this.config.name}"`,
       );
 
+    if (sub.childKind === 'custom') {
+      const findAll = childRepositoryFn(sub, 'findAll', this.config.name);
+      const result = await findAll(
+        this.toId(parentId),
+        params,
+        childCtx({
+          parentConfig: this.config,
+          prisma: this.prisma,
+          op: 'findAll',
+          parentId: this.toId(parentId),
+          params,
+          request,
+        }),
+      );
+      const rows = result?.data ?? [];
+      const decorated = sub.hooks?.afterRead
+        ? await Promise.all(
+            rows.map((row: any) =>
+              sub.hooks!.afterRead!(row, {
+                prisma: this.prisma,
+                op: 'findAll',
+                request,
+              }),
+            ),
+          )
+        : rows;
+      const labeled = sub.valueLabelColumns?.length
+        ? decorated.map((r: any) =>
+            applyValueLabelColumns(r, sub.valueLabelColumns),
+          )
+        : decorated;
+      return { data: labeled, count: result?.count ?? labeled.length };
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
@@ -517,6 +555,39 @@ export class ReadRepository<T = any> {
     parentId?: string | number,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      if (parentId === undefined) {
+        throw new BadRequestException(
+          `Sub-resource "${sub.childRoute}" of "${this.config.name}" requires a parent id.`,
+        );
+      }
+      const findOne = childRepositoryFn(sub, 'findOne', this.config.name);
+      const row = await findOne(
+        this.toId(parentId),
+        (sub.idType ?? 'string') === 'number' ? +childId : String(childId),
+        childCtx({
+          parentConfig: this.config,
+          prisma: this.prisma,
+          op: 'findOne',
+          parentId: this.toId(parentId),
+          id: childId,
+          request,
+        }),
+      );
+      if (row === null || row === undefined) {
+        throw new NotFoundException(
+          `${sub.childRoute} with id ${childId} not found`,
+        );
+      }
+      return sub.hooks?.afterRead
+        ? sub.hooks.afterRead(row, {
+            prisma: this.prisma,
+            op: 'findOne',
+            request,
+          })
+        : row;
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);

@@ -47,3 +47,38 @@ export const loadCustomRepository = async (
 
   return repository;
 };
+
+/**
+ * Attach each custom sub-resource's `repository.ts` to its `SubResourceConfig`.
+ *
+ * A sub-resource is declared by a relation column on the parent and served by
+ * the parent's controller, but a `kind: "custom"` child owns its own data
+ * access — so the parent's repository delegates to this. Mirrors
+ * `loadSubResourceHooks`, which attaches child hooks the same way.
+ *
+ * Mutates in place, because `buildSubResources` has already produced the
+ * configs by the time the loader can resolve the child directories.
+ */
+export const loadSubResourceRepositories = async (
+  subResources: { childKind?: string; childDir?: string; childRoute: string; repository?: unknown }[],
+  parentName: string,
+): Promise<void> => {
+  for (const sub of subResources) {
+    if (sub.childKind !== 'custom') continue;
+    if (!sub.childDir) {
+      resourceLoadErrorsRegistry.record({
+        name: parentName,
+        path: sub.childRoute,
+        error:
+          `Sub-resource "${sub.childRoute}" is a custom resource but its directory could not be resolved, ` +
+          'so its repository.ts cannot be loaded. Check the relation column\'s "resource" path.',
+      });
+      continue;
+    }
+    const repository = await loadCustomRepository(
+      sub.childDir,
+      `${parentName}.${sub.childRoute}`,
+    );
+    if (repository) sub.repository = repository;
+  }
+};

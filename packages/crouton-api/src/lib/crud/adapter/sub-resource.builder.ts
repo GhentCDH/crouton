@@ -103,12 +103,18 @@ export const buildSubResources = (
         }
       }
       const childOps = childJson?.operations ?? {};
+      const childKind = childJson?.kind === 'custom' ? 'custom' : 'prisma';
 
       return {
         column: c.id,
         relation: c.fieldInput?.relation ?? c.id,
         childRoute,
-        childModel: c.id,
+        childKind,
+        ...(childDir && { childDir }),
+        // A custom child has no Prisma model. Leave it empty rather than
+        // falling back to the column id, which would produce a bogus
+        // `prisma[<column>]` lookup at query time.
+        childModel: childKind === 'custom' ? '' : c.id,
         foreignKey: c.fieldInput?.foreignKey ?? `${parentModel}Id`,
         name: childJson?.name ?? childRoute,
         title: childJson?.title ?? childJson?.tag ?? childRoute,

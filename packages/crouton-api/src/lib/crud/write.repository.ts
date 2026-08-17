@@ -4,6 +4,11 @@ import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import { resolveDefinition, upsertOnFor } from './crud.config';
+import {
+  childCtx,
+  childRepositoryFn,
+  parentIdFromRequest,
+} from './custom-repository/child-delegate';
 import { type WriteOp, postWrite, prepareWrite } from './hooks';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
@@ -208,6 +213,78 @@ export class WriteRepository<T = any> {
   }
 
   /**
+   * Write to a **custom** sub-resource by delegating to the child's own
+   * repository.
+   *
+   * The child has no Prisma model, so `prisma[childModel]` is not an option.
+   * Value-label normalisation and the child's `beforeWrite`/`afterWrite` hooks
+   * still apply, so a custom child behaves like a Prisma one from the caller's
+   * point of view.
+   */
+  private async delegateChildWrite(
+    sub: SubResourceConfig,
+    op: 'create' | 'update' | 'patch' | 'delete',
+    parentId: string | number | undefined,
+    childId: string | number | undefined,
+    data: unknown,
+    request?: any,
+  ): Promise<any> {
+    if (parentId === undefined) {
+      throw new BadRequestException(
+        `Sub-resource "${sub.childRoute}" of "${this.config.name}" requires a parent id.`,
+      );
+    }
+
+    const fn = childRepositoryFn(sub, op, this.config.name);
+    const id =
+      childId === undefined
+        ? undefined
+        : (sub.idType ?? 'string') === 'number'
+          ? +childId
+          : String(childId);
+
+    const ctx = childCtx({
+      parentConfig: this.config,
+      prisma: this.prisma,
+      op,
+      parentId: this.toId(parentId),
+      id,
+      request,
+    });
+
+    let payload: unknown;
+    if (op !== 'delete') {
+      const stripped =
+        op === 'create' ? this.stripNonCreateableChildFields(data, sub) : data;
+      const normalized = normalizeValueLabels(stripped, sub.valueLabelColumns);
+      payload = sub.hooks?.beforeWrite
+        ? await sub.hooks.beforeWrite(normalized, {
+            prisma: this.prisma,
+            op: op === 'patch' ? 'patch' : op,
+            ...(id !== undefined && { id }),
+            request,
+          })
+        : normalized;
+    }
+
+    const result =
+      op === 'create'
+        ? await fn(this.toId(parentId), payload, ctx)
+        : op === 'delete'
+          ? await fn(this.toId(parentId), id, ctx)
+          : await fn(this.toId(parentId), id, payload, ctx);
+
+    return sub.hooks?.afterWrite
+      ? sub.hooks.afterWrite(result, {
+          prisma: this.prisma,
+          op: op === 'patch' ? 'patch' : op,
+          ...(id !== undefined && { id }),
+          request,
+        })
+      : result;
+  }
+
+  /**
    * Create a child record and attach it to the parent via the configured foreign key.
    * Fields marked `createable: false` in the form view are stripped before writing.
    */
@@ -217,6 +294,10 @@ export class WriteRepository<T = any> {
     data: unknown,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      return this.delegateChildWrite(sub, 'create', parentId, undefined, data, request);
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
@@ -268,6 +349,17 @@ export class WriteRepository<T = any> {
     data: unknown,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      return this.delegateChildWrite(
+        sub,
+        'update',
+        parentIdFromRequest(request),
+        childId,
+        data,
+        request,
+      );
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
@@ -323,6 +415,17 @@ export class WriteRepository<T = any> {
     parentId?: string | number,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      return this.delegateChildWrite(
+        sub,
+        'delete',
+        parentIdFromRequest(request, parentId),
+        childId,
+        undefined,
+        request,
+      );
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);

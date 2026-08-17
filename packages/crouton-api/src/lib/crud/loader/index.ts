@@ -27,7 +27,10 @@ import type { ZodObject, ZodRawShape } from 'zod';
 
 import { loadActions } from '../action';
 import { fromJson } from '../adapter';
-import { loadCustomRepository } from '../custom-repository';
+import {
+  loadCustomRepository,
+  loadSubResourceRepositories,
+} from '../custom-repository';
 import { IS_DEV } from '../dev-mode';
 import { loadEnumRegistry } from '../enum-registry';
 import { findModule, importDefault } from './module.loader';
@@ -146,6 +149,9 @@ export const loadResourceConfigsFromDir = async (
         repository,
       );
       await loadSubResourceHooks(config.subResources ?? [], basePath);
+      // A custom sub-resource brings its own data access; the parent's
+      // repository delegates to it instead of querying a Prisma model.
+      await loadSubResourceRepositories(config.subResources ?? [], config.name);
       onResourceDir?.(config.route, basePath);
       configs.push(config);
       continue;

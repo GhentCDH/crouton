@@ -9,6 +9,7 @@ export {
 export {
   REPOSITORY_MODULE,
   loadCustomRepository,
+  loadSubResourceRepositories,
 } from './custom-repository.loader';
 export {
   type DataSourceResolver,
