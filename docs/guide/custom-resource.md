@@ -305,7 +305,11 @@ const repository: CustomRepository<Expense> = {
 ::: warning
 A nested child directory is **only** discovered through the parent's relation
 column. The loader scans one level, so a `resource.json` in a subdirectory that
-nothing points at is silently ignored — no error, no status-page entry.
+nothing points at is ignored — no error, no status-page entry.
+
+The reverse — a relation column pointing at a path with no `resource.json`, or
+one that does not parse — **is** reported on the status page, naming the column
+and the paths that were tried. No sub-resource routes are registered for it.
 :::
 
 ### As a standalone nested route (`parent`)
@@ -340,6 +344,17 @@ parent. Two consequences:
 `parent.param` cannot be `"id"` — that is the child's own id in `/:id` routes. It
 defaults to `parentId`. `parent` is only valid on a custom resource; a prisma
 resource is nested with a relation column instead.
+
+::: danger The two forms are mutually exclusive
+Do not declare `parent` on the child *and* point a relation column at it from the
+parent. Both register a handler for the same path — the parent's controller at
+`groups/:id/expense`, the child's at `groups/:groupId/expense` — and whichever
+registers first wins, so requests land on the wrong repository.
+
+This is reported on the status page. Pick one: drop the `parent` block to embed
+the child in the parent's UI, or drop the relation column to keep the child's own
+nested controller.
+:::
 
 ## Current limitations
 

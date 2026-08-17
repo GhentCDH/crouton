@@ -2,15 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
+const RESOLVED = {
+  json: {
+    route: 'child',
+    columns: [],
+    operations: {},
+  },
+  dir: '/mock/child',
+};
+
 vi.mock('./resource-resolver', () => ({
-  resolveChildResource: () => ({
-    json: {
-      route: 'child',
-      columns: [],
-      operations: {},
-    },
-    dir: '/mock/child',
-  }),
+  resolveChildResource: () => RESOLVED,
+  resolveChildResourceDetailed: () => ({ ok: true, value: RESOLVED }),
 }));
 
 // Import after mock setup

@@ -8,10 +8,18 @@ import {
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { buildChildSortClause } from '../sql.helpers';
 import { deriveRelationTypeFromColumns } from './relation-type';
-import { resolveChildResource } from './resource-resolver';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { resolveChildResourceDetailed } from './resource-resolver';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+
+/**
+ * A relation column may point at another service rather than a local child
+ * config. Those still render (autocomplete against the remote resource) but are
+ * not managed as sub-resources, so they are skipped without complaint.
+ */
+const REMOTE_RESOURCE = /^https?:\/\//i;
 
 /**
  * Build `SubResourceConfig` entries for columns with `fieldInput.format === "action"`.
@@ -30,16 +38,48 @@ export const buildSubResources = (
     .filter(
       (c) => c.fieldInput?.format === 'relation' && c.fieldInput?.resource,
     )
-    .map((c) => {
-      const childResolved = resolveChildResource(
-        c.fieldInput!.resource!,
-        parentDir,
-      );
-      const childJson = childResolved?.json;
-      const childDir = childResolved?.dir;
+    .flatMap((c) => {
+      const resourcePath = c.fieldInput!.resource!;
+      if (REMOTE_RESOURCE.test(resourcePath)) return [];
+
+      const resolution = resolveChildResourceDetailed(resourcePath, parentDir);
+
+      // A child that cannot be resolved used to fall through as a Prisma-backed
+      // sub-resource named after the column, which registers `:id/<column>`
+      // routes that fail at request time with `Prisma model "<column>" not
+      // found`. Report it at load time and register nothing instead.
+      if (!resolution.ok) {
+        resourceLoadErrorsRegistry.record({
+          name: parentRoute,
+          path: resourcePath,
+          error:
+            resolution.reason === 'missing'
+              ? `Relation column "${c.id}" points at "${resourcePath}", but no resource.json was found there (looked in: ${resolution.attempted.join(', ')}). Sub-resource routes for it were not registered.`
+              : `Relation column "${c.id}" points at "${resourcePath}", which could not be read: ${resolution.error} Sub-resource routes for it were not registered.`,
+        });
+        return [];
+      }
+
+      const childJson = resolution.value.json;
+      const childDir = resolution.value.dir;
+
+      // `parent` mounts the child's own controller under the parent route. Also
+      // declaring it as a sub-resource registers a second, competing handler for
+      // the same path off the parent's controller — one of the two silently wins.
+      if (childJson.parent) {
+        resourceLoadErrorsRegistry.record({
+          name: parentRoute,
+          path: resourcePath,
+          error:
+            `Relation column "${c.id}" declares "${childJson.name}" as a sub-resource, but that resource also declares "parent": { "route": "${childJson.parent.route}" }. ` +
+            'The two ways of nesting are mutually exclusive — remove the "parent" block to embed it in this resource, or remove this relation column to keep its own nested controller. Sub-resource routes for it were not registered.',
+        });
+        return [];
+      }
+
       const childRoute =
-        childJson?.route ??
-        c.fieldInput!.resource!
+        childJson.route ??
+        resourcePath
           .replace(/^\.\.?\//, '')
           .replace(/\/resource\.json$/, '')
           .replace(/\.resource$/, '');
