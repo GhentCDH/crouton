@@ -87,6 +87,7 @@ export class WriteRepository<T = any> {
     data: any,
     op: WriteOp,
     id?: string | number,
+    request?: any,
   ): Promise<any> {
     const normalized = normalizeValueLabels(
       data,
@@ -94,7 +95,7 @@ export class WriteRepository<T = any> {
     );
     const hook = this.config.hooks?.beforeWrite;
     return hook
-      ? hook(normalized, { prisma: this.prisma, op, id })
+      ? hook(normalized, { prisma: this.prisma, op, id, request })
       : normalized;
   }
 
@@ -102,9 +103,12 @@ export class WriteRepository<T = any> {
     result: any,
     op: WriteOp,
     id?: string | number,
+    request?: any,
   ): Promise<any> {
     const hook = this.config.hooks?.afterWrite;
-    return hook ? hook(result, { prisma: this.prisma, op, id }) : result;
+    return hook
+      ? hook(result, { prisma: this.prisma, op, id, request })
+      : result;
   }
 
   private upsertWhere(data: any): Record<string, unknown> {
@@ -118,14 +122,19 @@ export class WriteRepository<T = any> {
     return { [composite]: Object.fromEntries(keys.map((k) => [k, data[k]])) };
   }
 
-  async create(data: unknown): Promise<T> {
+  async create(data: unknown, request?: any): Promise<T> {
     const result = await this.prismaModel.create({
-      data: await this.prepare(this.stripSubResourceKeys(data), 'create'),
+      data: await this.prepare(
+        this.stripSubResourceKeys(data),
+        'create',
+        undefined,
+        request,
+      ),
     });
-    return this.postWrite(result, 'create');
+    return this.postWrite(result, 'create', undefined, request);
   }
 
-  async update(id: number | string, data: unknown): Promise<T> {
+  async update(id: number | string, data: unknown, request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
       const result = await this.prismaModel.update({
@@ -134,16 +143,17 @@ export class WriteRepository<T = any> {
           this.stripSubResourceKeys(data),
           'update',
           this.toId(id),
+          request,
         ),
       });
-      return this.postWrite(result, 'update', this.toId(id));
+      return this.postWrite(result, 'update', this.toId(id), request);
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
   }
 
-  async patch(id: number | string, data: unknown): Promise<T> {
+  async patch(id: number | string, data: unknown, request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
       const result = await this.prismaModel.update({
@@ -152,48 +162,49 @@ export class WriteRepository<T = any> {
           this.stripSubResourceKeys(data),
           'patch',
           this.toId(id),
+          request,
         ),
       });
-      return this.postWrite(result, 'patch', this.toId(id));
+      return this.postWrite(result, 'patch', this.toId(id), request);
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
   }
 
-  async upsert(data: unknown): Promise<T> {
+  async upsert(data: unknown, request?: any): Promise<T> {
     const where = this.upsertWhere(data);
     const existing = await this.prismaModel.findFirst({ where });
     const op: WriteOp = existing ? 'update' : 'create';
+    const existingId = existing
+      ? existing[this.config.idField ?? DEFAULT_ID_FIELD]
+      : undefined;
     const prepared = await this.prepare(
       this.stripSubResourceKeys(data),
       op,
-      existing ? existing[this.config.idField ?? DEFAULT_ID_FIELD] : undefined,
+      existingId,
+      request,
     );
     const result = await this.prismaModel.upsert({
       where,
       create: prepared,
       update: prepared,
     });
-    return this.postWrite(
-      result,
-      op,
-      existing ? existing[this.config.idField ?? DEFAULT_ID_FIELD] : undefined,
-    );
+    return this.postWrite(result, op, existingId, request);
   }
 
   /** Upsert multiple rows in parallel. */
-  upsertMany(rows: unknown[]): Promise<T[]> {
-    return Promise.all(rows.map((r) => this.upsert(r)));
+  upsertMany(rows: unknown[], request?: any): Promise<T[]> {
+    return Promise.all(rows.map((r) => this.upsert(r, request)));
   }
 
-  async delete(id: number | string): Promise<T> {
+  async delete(id: number | string, request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
       const result = await this.prismaModel.delete({
         where: { [idField]: this.toId(id) },
       });
-      return this.postWrite(result, 'delete', this.toId(id));
+      return this.postWrite(result, 'delete', this.toId(id), request);
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
@@ -208,6 +219,7 @@ export class WriteRepository<T = any> {
     parentId: string | number,
     sub: SubResourceConfig,
     data: unknown,
+    request?: any,
   ): Promise<any> {
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
@@ -223,6 +235,7 @@ export class WriteRepository<T = any> {
       ? await sub.hooks.beforeWrite(payload, {
           prisma: this.prisma,
           op: 'create',
+          request,
         })
       : payload;
 
@@ -237,7 +250,11 @@ export class WriteRepository<T = any> {
     };
     const result = await childModel.create({ data: prismaData });
     return sub.hooks?.afterWrite
-      ? sub.hooks.afterWrite(result, { prisma: this.prisma, op: 'create' })
+      ? sub.hooks.afterWrite(result, {
+          prisma: this.prisma,
+          op: 'create',
+          request,
+        })
       : result;
   }
 
@@ -250,6 +267,7 @@ export class WriteRepository<T = any> {
     sub: SubResourceConfig,
     childId: string | number,
     data: unknown,
+    request?: any,
   ): Promise<any> {
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
@@ -263,6 +281,7 @@ export class WriteRepository<T = any> {
           prisma: this.prisma,
           op: 'update',
           id,
+          request,
         })
       : normalized;
 
@@ -282,6 +301,7 @@ export class WriteRepository<T = any> {
             prisma: this.prisma,
             op: 'update',
             id,
+            request,
           })
         : result;
     } catch (e: any) {
@@ -302,6 +322,7 @@ export class WriteRepository<T = any> {
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
+    request?: any,
   ): Promise<any> {
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
@@ -324,6 +345,7 @@ export class WriteRepository<T = any> {
             prisma: this.prisma,
             op: 'delete',
             id,
+            request,
           })
         : result;
     } catch (e: any) {

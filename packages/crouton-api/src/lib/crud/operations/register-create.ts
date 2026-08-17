@@ -1,4 +1,4 @@
-import { Body, Param, Post } from '@nestjs/common';
+import { Body, Param, Post, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { def, desc } from './decorator.utils';
@@ -16,8 +16,8 @@ const defaultCreate = (ctx: OperationContext) => {
     route: '',
     methodName,
     name: config.name,
-    createFn: function (this: { repo: CrudRepository }, body: any) {
-      return this.repo.create(body);
+    createFn: function (this: { repo: CrudRepository }, body: any, req: any) {
+      return this.repo.create(body, req);
     },
     decorators: () => {
       bodyDecorator(createSchema, { coerceNullableUndefinedToNull: true })(
@@ -25,6 +25,7 @@ const defaultCreate = (ctx: OperationContext) => {
         methodName,
         0,
       );
+      Req()(cls.prototype, methodName, 1);
     },
   };
 };
@@ -38,13 +39,15 @@ const childCreate = (sub: SubResourceConfig) => (ctx: OperationContext) => {
     this: { repo: CrudRepository },
     id: string,
     body: any,
+    req: any,
   ) {
-    return this.repo.createChild(id, sub, body);
+    return this.repo.createChild(id, sub, body, req);
   };
 
   const decorators = () => {
     Param('id')(cls.prototype, methodName, 0);
     Body()(cls.prototype, methodName, 1);
+    Req()(cls.prototype, methodName, 2);
   };
 
   return {

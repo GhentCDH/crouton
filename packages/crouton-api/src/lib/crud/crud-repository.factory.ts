@@ -10,40 +10,45 @@ import { WriteRepository } from './write.repository';
 export interface CrudRepository<T = any> {
   /** Raw Prisma client — used by action procedures. */
   readonly prisma: any;
-  findAll(params: RequestDto): Promise<T[]>;
+  findAll(params: RequestDto, request?: any): Promise<T[]>;
   count(filter: string[]): Promise<number>;
-  findOne(id: number | string): Promise<T>;
+  findOne(id: number | string, request?: any): Promise<T>;
   findAllByParent(
     parentId: string | number,
     childRoute: string,
     params: RequestDto,
+    request?: any,
   ): Promise<{ data: T[]; count: number }>;
   findOneChild(
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
+    request?: any,
   ): Promise<T>;
   createChild(
     parentId: string | number,
     sub: SubResourceConfig,
     data: unknown,
+    request?: any,
   ): Promise<T>;
   updateChild(
     sub: SubResourceConfig,
     childId: string | number,
     data: unknown,
+    request?: any,
   ): Promise<T>;
   deleteChild(
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
+    request?: any,
   ): Promise<T>;
-  create(data: unknown): Promise<T>;
-  update(id: number | string, data: unknown): Promise<T>;
-  patch(id: number | string, data: unknown): Promise<T>;
-  upsert(data: unknown): Promise<T>;
-  upsertMany(rows: unknown[]): Promise<T[]>;
-  delete(id: number | string): Promise<T>;
+  create(data: unknown, request?: any): Promise<T>;
+  update(id: number | string, data: unknown, request?: any): Promise<T>;
+  patch(id: number | string, data: unknown, request?: any): Promise<T>;
+  upsert(data: unknown, request?: any): Promise<T>;
+  upsertMany(rows: unknown[], request?: any): Promise<T[]>;
+  delete(id: number | string, request?: any): Promise<T>;
 }
 
 /**

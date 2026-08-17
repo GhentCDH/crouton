@@ -1,4 +1,4 @@
-import { Get, Param, Query } from '@nestjs/common';
+import { Get, Param, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
@@ -16,13 +16,14 @@ const _findAll = async (
   params: any,
   q: string | undefined,
   lookupLabel: string | undefined,
+  request?: any,
 ) => {
   const effectiveParams = { ...params };
   if (q && lookupLabel) {
     effectiveParams.filter = [...(params.filter ?? []), `${lookupLabel}:${q}`];
   }
   const [data, count] = await Promise.all([
-    repo.findAll(effectiveParams),
+    repo.findAll(effectiveParams, request),
     repo.count(effectiveParams.filter),
   ]);
   const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
@@ -44,8 +45,14 @@ const findAllByParent = async (
   id: string,
   childRoute: string,
   params: any,
+  request?: any,
 ) => {
-  const { data, count } = await repo.findAllByParent(id, childRoute, params);
+  const { data, count } = await repo.findAllByParent(
+    id,
+    childRoute,
+    params,
+    request,
+  );
   const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
   return {
     data,
@@ -69,9 +76,10 @@ const defaultFindAll = (ctx: OperationContext) => {
   const findAll = async function (
     this: { repo: CrudRepository },
     params: any,
-    q?: string,
+    q: string | undefined,
+    req: any,
   ) {
-    return _findAll(this.repo, params, q, lookupLabel);
+    return _findAll(this.repo, params, q, lookupLabel, req);
   };
 
   return {
@@ -97,12 +105,14 @@ const childFindAll = (sub: SubResourceConfig) => (ctx: OperationContext) => {
     params: any,
     q: string | undefined,
     id: string,
+    req: any,
   ) {
-    return findAllByParent(this.repo, id, sub.childRoute, params);
+    return findAllByParent(this.repo, id, sub.childRoute, params, req);
   };
 
   const decorators = () => {
     Param('id')(cls.prototype, methodName, 2);
+    Req()(cls.prototype, methodName, 3);
   };
 
   return {
@@ -139,6 +149,7 @@ export const registerFindAll = (
     0,
   );
   Query('q')(cls.prototype, methodName, 1);
+  if (!sub) Req()(cls.prototype, methodName, 2);
   ApiOperation({ summary: `List all ${name}s` })(cls.prototype, methodName, d);
   ApiResponse({
     status: 200,

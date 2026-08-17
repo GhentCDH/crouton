@@ -10,11 +10,13 @@ export interface WriteHookContext<PRISMACLIENT> {
   prisma: PRISMACLIENT;
   op: WriteOp;
   id?: string | number;
+  request?: any;
 }
 
 export interface ReadHookContext<PRISMACLIENT> {
   prisma: PRISMACLIENT;
   op: ReadOp;
+  request?: any;
 }
 
 export const ResourceHooksSchema = z.object({
