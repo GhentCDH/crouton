@@ -13,13 +13,16 @@ A crouton backend is a folder of resource definitions next to a folder of data s
 ```
 src/app/
 ├── resources/
-│   └── book/
-│       ├── resource.json        # declarative config (operations, columns, actions)
-│       ├── resource.author.json # sub-resource (relation) — optional
-│       ├── schema.ts            # Zod schema (default export)
-│       ├── hooks.ts             # lifecycle hooks — optional
-│       └── actions/
-│           └── publish.ts       # procedure implementations — optional
+│   ├── book/                    # prisma-backed resource
+│   │   ├── resource.json        # declarative config (operations, columns, actions)
+│   │   ├── resource.author.json # sub-resource (relation) — optional
+│   │   ├── schema.ts            # Zod schema (default export)
+│   │   ├── hooks.ts             # lifecycle hooks — optional
+│   │   └── actions/
+│   │       └── publish.ts       # procedure implementations — optional
+│   └── zotero_item/             # custom resource — see guide/custom-resource.md
+│       ├── resource.json        # "kind": "custom" — configures the UI only
+│       └── repository.ts        # your findAll / findOne / create / …
 └── data-sources/
     └── maindb/
         ├── data-source.json     # { "name": "maindb", "type": "prisma", "default": true }

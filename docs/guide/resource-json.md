@@ -60,13 +60,14 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `$schema`           | `string`                       | URL of the generated JSON Schema, for editor autocomplete — see [Versioning](./resource-versioning.md#schema-and-stamping) |
 | `schemaVersion`     | `number`                       | resource.json shape version; auto-migrated in dev — see [Versioning](./resource-versioning.md) |
 | `draft`             | `boolean`                      | When `true`, kept in the repo but not loaded/served — see [Draft resources](./resource-versioning.md#draft-resources) |
+| `kind`              | `'prisma' \| 'custom'`         | Where the data comes from. Default `prisma`. `custom` means no Prisma model and no `schema.ts` — you implement data access in `repository.ts`, see [Custom resources](./custom-resource.md) |
 | `name`              | `string`                       | Unique resource name (used as form id in the frontend)               |
 | `route`             | `string`                       | URL segment for the generated endpoints                              |
-| `model`             | `string`                       | Prisma model name                                                    |
+| `model`             | `string`                       | Prisma model name. Required when `kind` is `prisma`; must be omitted when `kind` is `custom` |
 | `tag`               | `string`                       | OpenAPI tag                                                          |
 | `title`             | `string`                       | Display title in the UI                                              |
 | `table`             | `string`                       | Database table (when it differs from the model)                      |
-| `idType`            | `'number' \| 'string'`         | Type of the id field (default `number`)                              |
+| `idType`            | `'number' \| 'string'`         | Type of the id field (default `string`)                              |
 | `database`          | `string`                       | Name of the [data source](./datasource.md) to use                    |
 | `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
 | `display`           | object                         | `mode` (`'page'` \| `'modal'`, default `'modal'`) and `customComponent`, see [Display](#display) |
@@ -141,6 +142,7 @@ Both forms support the same options:
 | Option                                            | Description                                                         |
 |---------------------------------------------------|---------------------------------------------------------------------|
 | `idField`                                         | Marks the id column                                                 |
+| `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](./custom-resource.md#column-types) |
 | `label` / `hideLabel`                             | Display label, or hide it                                           |
 | `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context                                              |
 | `sortable` / `defaultSort`                        | Sorting; `sortId` overrides the sort column                         |
@@ -153,6 +155,32 @@ Both forms support the same options:
 | `fieldInput`                                      | Form control configuration, see below                               |
 | `fieldView`                                       | Optional per-context override for the read-only view, see below      |
 | `fieldTable`                                      | Optional per-context override for the table cell, see below          |
+
+#### Nested object and array columns
+
+A column's `type` may be a full JSON Schema fragment, which is how you describe a
+value that is not a scalar:
+
+```json
+{
+  "metadata": {
+    "displayKey": "name",
+    "type": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    }
+  },
+  "tags": {
+    "type": { "type": "array", "items": { "type": "string" } }
+  }
+}
+```
+
+An object column renders as a nested group of controls in the form, and — when it
+has a `displayKey` — as a single-value record cell in the table.
 
 ### Field inputs
 

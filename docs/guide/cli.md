@@ -55,6 +55,35 @@ The first datasource in a project becomes the default; later ones are non-defaul
 
 After scaffolding: add the `urlEnv` to your `.env`, map the `generatedTypesImport` to the zod output in your tsconfig paths / workspace, then run `crouton update resources --datasource <name>`.
 
+## crouton create-resource
+
+Scaffold a [custom resource](./custom-resource.md) — one whose form, table and
+view are configured declaratively while you implement the data access.
+
+```bash
+npx crouton create-resource zotero_item
+```
+
+Writes two files, and never overwrites an existing one:
+
+```
+resources/zotero_item/
+├── resource.json     # "kind": "custom"
+└── repository.ts     # typed stub, one TODO per operation
+```
+
+| Flag | Description |
+|------|-------------|
+| `-k, --kind <kind>` | Only `custom` is supported — prisma-backed resources come from `crouton update resources` |
+| `-r, --route <route>` | URL segment (defaults to the name) |
+| `-t, --tag <tag>` | OpenAPI tag |
+| `--title <title>` | UI title |
+| `-d, --database <name>` | Datasource exposed to the repository as `ctx.prisma` |
+| `--id-type <type>` | `string` (default) or `number` |
+| `--cwd <dir>` | Project directory |
+| `--dry-run` | Show the planned files without writing |
+| `-y, --yes` | Accept all defaults (non-interactive) |
+
 ## crouton update resources
 
 The command walks through:
@@ -91,6 +120,12 @@ Defaults applied during generation:
 - `id`, and create/update timestamps are hidden in the table;
 - `description`-style string fields default to a `textarea` input;
 - enum columns become `{ value, label }` selects backed by the shared registry.
+
+::: tip
+`crouton update resources` ignores [custom resources](./custom-resource.md).
+They have no Prisma model, so introspection would see every column as missing
+from the database and offer to remove it.
+:::
 
 ## Enum registry
 

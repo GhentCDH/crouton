@@ -151,6 +151,7 @@ describe('status.service', () => {
         path: 'people',
         valid: true,
         version: 1,
+        kind: 'prisma',
       });
       expect(result[1]).toEqual({
         name: 'broken_res',
@@ -180,6 +181,44 @@ describe('status.service', () => {
       });
       // A draft must not count as a resource error.
       expect(buildSummary([], result).resourceErrors).toBe(0);
+    });
+
+    it('reports a custom resource and the operations its repository implements', () => {
+      const configs = [
+        {
+          name: 'zotero_item',
+          route: 'zotero-items',
+          schemaVersion: 1,
+          kind: 'custom',
+          repository: {
+            findAll: async () => ({ data: [], count: 0 }),
+            findOne: async () => null,
+            notAnOperation: async () => null,
+          },
+        },
+      ] as unknown as Resource[];
+
+      const [row] = getResourceStatus(configs);
+      expect(row.kind).toBe('custom');
+      // Only real operations are listed, in a stable order.
+      expect(row.customOperations).toEqual(['findAll', 'findOne']);
+    });
+
+    it('omits customOperations when no repository loaded', () => {
+      const configs = [
+        { name: 'zotero_item', route: 'zotero-items', kind: 'custom' },
+      ] as unknown as Resource[];
+
+      const [row] = getResourceStatus(configs);
+      expect(row.kind).toBe('custom');
+      expect(row.customOperations).toBeUndefined();
+    });
+
+    it('defaults kind to prisma for a resource that does not declare one', () => {
+      const configs = [
+        { name: 'people', route: 'people' },
+      ] as unknown as Resource[];
+      expect(getResourceStatus(configs)[0].kind).toBe('prisma');
     });
 
     it('carries version/expectedVersion on a schema-version failure', () => {

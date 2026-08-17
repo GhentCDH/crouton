@@ -2,6 +2,12 @@
 
 Hooks let you run custom logic inside the generated repositories — transform a payload before it is written, or decorate rows after they are read. Add a `hooks.ts` to the resource directory that default-exports a `ResourceHooks` object.
 
+::: tip
+Hooks apply to [custom resources](./custom-resource.md) too, wrapping whatever
+their `repository.ts` returns. If you need to *replace* the data access rather
+than decorate it, that is what a custom resource is for.
+:::
+
 ```ts
 // resources/book/hooks.ts
 import type { ResourceHooks } from '@ghentcdh/crouton-api';

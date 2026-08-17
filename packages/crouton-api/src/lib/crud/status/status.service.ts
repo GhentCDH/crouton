@@ -1,5 +1,6 @@
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
+import { CUSTOM_OPS } from '../custom-repository';
 import type { DataSourceRegistry } from '../data-source';
 import type {
   CroutonStatus,
@@ -91,6 +92,17 @@ export const getResourceStatus = (
     path: c.route,
     valid: true,
     version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
+    kind: c.kind ?? 'prisma',
+    // Which operations the user's repository.ts actually implements. A resource
+    // only reaches this list after validateCustomRepository passed, so this is
+    // informational rather than a warning.
+    ...(c.kind === 'custom' && c.repository
+      ? {
+          customOperations: CUSTOM_OPS.filter(
+            (op) => typeof (c.repository as any)?.[op] === 'function',
+          ),
+        }
+      : {}),
     ...(c.sidebar?.hide ? { hidden: true } : {}),
   }));
 

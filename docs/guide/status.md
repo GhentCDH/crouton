@@ -31,9 +31,19 @@ interface CroutonStatus {
     version?: number;          // loaded/expected schema version
     expectedVersion?: number;  // set when the file's version differs from what crouton expects
     draft?: boolean;           // present in the repo but intentionally not loaded/served
+    kind?: 'prisma' | 'custom';   // where the data comes from
+    customOperations?: string[];  // operations a custom resource's repository.ts implements
   }[];
 }
 ```
+
+### Custom resources
+
+A [custom resource](./custom-resource.md) is tagged `kind: 'custom'` and lists
+the operations its `repository.ts` implements. A resource whose repository is
+missing, broken, or does not cover an operation `resource.json` enables is
+reported as invalid here and skipped at boot, rather than failing on the first
+request.
 
 ### Database checks
 

@@ -8,6 +8,13 @@ export interface ResourceStatus {
   name: string;
   path: string;
   valid: boolean;
+  /**
+   * Where the resource's data comes from. `prisma` is backed by a model;
+   * `custom` is served by the resource's own `repository.ts`.
+   */
+  kind?: 'prisma' | 'custom';
+  /** Operations a custom resource serves from its repository.ts. */
+  customOperations?: string[];
   error?: string;
   /** Loaded/expected schema version (present on loaded, migration-failed, and draft rows). */
   version?: number;

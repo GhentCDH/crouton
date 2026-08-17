@@ -115,6 +115,20 @@
             >
               hidden
             </span>
+            <!-- Config-only resource: data comes from its own repository.ts. -->
+            <span
+              v-if="res.kind === 'custom'"
+              class="ml-1 rounded bg-indigo-100 px-1.5 py-0.5 text-xs font-medium text-indigo-700"
+              :title="
+                res.customOperations?.length
+                  ? `repository.ts implements: ${res.customOperations.join(', ')}`
+                  : 'No repository.ts loaded'
+              "
+            >
+              custom<span v-if="res.customOperations?.length">
+                — {{ res.customOperations.length }} ops</span
+              >
+            </span>
             <button
               v-if="isDev && res.draft"
               class="ml-2 rounded bg-blue-500 px-2 py-0.5 text-xs text-white hover:bg-blue-600"
