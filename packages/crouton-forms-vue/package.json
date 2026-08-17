@@ -33,7 +33,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "vee-validate": "5.0.0-beta.1"
@@ -51,6 +52,7 @@
     }
   },
   "devDependencies": {
-    "@ghentcdh/crouton-core": "workspace:*"
+    "@ghentcdh/crouton-core": "workspace:*",
+    "vitest": "^4.1.9"
   }
 }

@@ -55,10 +55,23 @@ export const isMarkdownControl = and(
   uiTypeIs('Control'),
   optionIsIgnoreCase('format', ControlType.markdown),
 );
+/**
+ * Matches a control whose value is a nested object.
+ *
+ * Either the ui schema names the format explicitly (what
+ * `buildFormUiSchema` emits for an object column) or the resolved schema is an
+ * object with declared properties. The latter keeps controls working when the
+ * ui schema was authored by hand without a format.
+ */
 export const isObjectControl = and(
   uiTypeIs('Control'),
-  // schemaTypeIs('object'),
-  (uischema: UISchemaElement) => !(uischema as any).options?.format,
+  or(
+    optionIsIgnoreCase('format', ControlType.object),
+    (uischema: UISchemaElement, schema: JsonSchema) =>
+      !(uischema as any).options?.format &&
+      (schema as any)?.type === 'object' &&
+      !!(schema as any)?.properties,
+  ),
 );
 
 export const isArrayRenderer = and(
