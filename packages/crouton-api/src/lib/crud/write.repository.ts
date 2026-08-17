@@ -30,6 +30,27 @@ const includeRelationNames = (
 ): Set<string> =>
   new Set((include ?? []).map((e) => (typeof e === 'string' ? e : e.relation)));
 
+/** Prisma nested-write keywords that indicate a relation mutation rather than read-only join data. */
+const PRISMA_RELATION_WRITE_KEYS = new Set([
+  'connect',
+  'connectOrCreate',
+  'create',
+  'createMany',
+  'set',
+  'disconnect',
+  'update',
+  'updateMany',
+  'upsert',
+  'delete',
+  'deleteMany',
+]);
+
+/** Returns `true` when `value` looks like a Prisma relation write (e.g. `{ connect: { id } }`). */
+const isPrismaRelationWrite = (value: unknown): boolean => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return Object.keys(value).some((k) => PRISMA_RELATION_WRITE_KEYS.has(k));
+};
+
 /**
  * Handles all write operations for a resource — create, update, upsert, delete, and child mutations.
  *
@@ -243,7 +264,7 @@ export class WriteRepository<T = any> {
     const prismaData = {
       ...Object.fromEntries(
         Object.entries(prepared as Record<string, unknown>).filter(
-          ([k]) => !includeKeys.has(k),
+          ([k, v]) => !includeKeys.has(k) || isPrismaRelationWrite(v),
         ),
       ),
       [sub.foreignKey]: this.toId(parentId),
@@ -288,7 +309,7 @@ export class WriteRepository<T = any> {
     const includeKeys = includeRelationNames(sub.include);
     const prepared = Object.fromEntries(
       Object.entries(afterHook as Record<string, unknown>).filter(
-        ([k]) => !includeKeys.has(k),
+        ([k, v]) => !includeKeys.has(k) || isPrismaRelationWrite(v),
       ),
     );
     try {
