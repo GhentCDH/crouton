@@ -160,6 +160,7 @@ export const buildSubResources = (
         title: childJson?.title ?? childJson?.tag ?? childRoute,
         idField: childLookupKey,
         idType: childJson?.idType ?? 'string',
+        ...(c.hiddenInTable && { hiddenInTable: true }),
         ...(childViews && { views: childViews }),
         operations: {
           findAll: childOps.findAll !== false,

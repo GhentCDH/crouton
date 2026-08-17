@@ -306,8 +306,15 @@ export class ReadRepository<T = any> {
       ),
     };
 
-    const countableSubResources = subResources.filter(
+    const oneToManySubResources = subResources.filter(
       (s) => s.relationType !== 'manyToOne',
+    );
+
+    // The count fills a table cell, so a column the table never renders does not
+    // need one. Skipping it keeps `_count` off the query entirely when every
+    // relation is hidden.
+    const countableSubResources = oneToManySubResources.filter(
+      (s) => !s.hiddenInTable,
     );
 
     // Include manyToOne relations (e.g. author) so they appear in list view.
@@ -318,10 +325,15 @@ export class ReadRepository<T = any> {
       ? Object.fromEntries(manyToOneIncludes.map((r) => [r, true]))
       : undefined;
     const configInclude = buildIncludeClause(this.config.include);
-    // Exclude countable (oneToMany) sub-resources from configInclude in findAll:
-    // they are already represented by _count, and including full records would be
-    // overwritten by the count mapping below.
-    const countableRelations = new Set(countableSubResources.map((s) => s.relation));
+    // Exclude every oneToMany sub-resource from configInclude in findAll: a
+    // counted one would have its records overwritten by the count mapping below,
+    // and an uncounted one is hidden from the table, so fetching whole child rows
+    // per page would be cost for nothing. Deliberately not narrowed to the
+    // counted set — that would silently turn a `_count` into a full child fetch
+    // the moment a column is hidden.
+    const countableRelations = new Set(
+      oneToManySubResources.map((s) => s.relation),
+    );
     const filteredConfigInclude = configInclude
       ? Object.fromEntries(Object.entries(configInclude).filter(([key]) => !countableRelations.has(key)))
       : undefined;

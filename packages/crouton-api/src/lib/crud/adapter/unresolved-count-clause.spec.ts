@@ -29,10 +29,9 @@ const PARENT = {
   columns: {
     id: { idField: true },
     name: { searchable: true },
-    // Resolves — a real Prisma relation.
+    // Resolves — a real Prisma relation. Shown in the table, so it is counted.
     expenses: {
       label: 'Expenses',
-      hiddenInTable: true,
       fieldInput: {
         format: 'relation',
         relationType: 'oneToMany',
@@ -41,9 +40,10 @@ const PARENT = {
       },
     },
     // Does not resolve — the directory was moved out from under the parent.
+    // Visible in the table, so `hiddenInTable` is not what keeps it out of the
+    // count clause here.
     expense: {
       label: 'Expense',
-      hiddenInTable: true,
       fieldInput: {
         format: 'relation',
         relationType: 'oneToMany',

@@ -145,7 +145,7 @@ Both forms support the same options:
 | `idField`                                         | Marks the id column                                                 |
 | `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](./custom-resource.md#column-types) |
 | `label` / `hideLabel`                             | Display label, or hide it                                           |
-| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context                                              |
+| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell |
 | `sortable` / `defaultSort`                        | Sorting; `sortId` overrides the sort column                         |
 | `searchable`                                      | Included in free-text search                                        |
 | `filterable`                                      | Gets a filter control                                               |
