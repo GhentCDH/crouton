@@ -12,13 +12,15 @@ import { CURRENT_RESOURCE_VERSION, type ResourceJsonInput } from '@ghentcdh/crou
 export const RESOURCE_SCHEMA_URL = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}/resource.schema.json`;
 
 /**
- * Prepend `$schema` / `schemaVersion` (and, when set, `draft`) so every generated
+ * Prepend `$schema` / `schemaVersion` (and, when set, `draft` / `kind`) so every generated
  * `resource.json` validates + autocompletes in editors and is born at the current version.
  *
  * `$schema` and `schemaVersion` are always (re)stamped to current — any existing values are
  * dropped and re-added at the front for a stable, diff-friendly key order. `draft` is set from
  * `opts.draft` when provided (new-resource default), otherwise the config's existing `draft`
- * value is preserved (so an update never flips it).
+ * value is preserved (so an update never flips it). `kind` is preserved as-is and hoisted to a
+ * fixed position; it is never inferred or removed, so an update cannot turn a custom resource
+ * back into a prisma one.
  */
 export const withResourceHeader = (
   config: ResourceJsonInput,
@@ -28,6 +30,7 @@ export const withResourceHeader = (
     $schema: _schema,
     schemaVersion: _version,
     draft: existingDraft,
+    kind: existingKind,
     ...rest
   } = config as Record<string, unknown>;
   const draft = opts.draft !== undefined ? opts.draft : (existingDraft as boolean | undefined);
@@ -36,6 +39,7 @@ export const withResourceHeader = (
     $schema: RESOURCE_SCHEMA_URL,
     schemaVersion: CURRENT_RESOURCE_VERSION,
     ...(draft !== undefined ? { draft } : {}),
+    ...(existingKind !== undefined ? { kind: existingKind } : {}),
     ...rest,
   };
 };
