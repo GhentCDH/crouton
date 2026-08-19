@@ -120,6 +120,24 @@ differences:
 A fragment can nest arbitrarily (`properties`, `items`, `enum`, `format`,
 `minimum`, …) and unknown keys pass through, so `x-*` extensions survive.
 
+The shorthands work at any depth, not just at the column level — `"type": "date"`
+inside a nested `properties` or `items` expands the same way:
+
+```jsonc
+"split": {
+  "type": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "joinedOn": { "type": "date" },   // → { "type": "string", "format": "date" }
+        "share":    { "type": "number" }
+      }
+    }
+  }
+}
+```
+
 The resource's json model is assembled from these: the column label becomes the
 property `title`, `fieldInput.defaultValue` becomes `default`, and
 `fieldInput.options.values` becomes `enum`. An object column with a `displayKey`

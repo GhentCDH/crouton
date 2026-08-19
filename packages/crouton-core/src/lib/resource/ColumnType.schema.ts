@@ -100,13 +100,68 @@ const SHORTHAND_FRAGMENTS: Record<ColumnTypeShorthand, JsonSchemaFragment> = {
 const isShorthand = (type: ColumnType): type is ColumnTypeShorthand =>
   typeof type === 'string';
 
+/**
+ * Shorthands that are not JSON Schema types, and so need expanding wherever they
+ * appear — including inside a fragment, where `"type"` is otherwise passed
+ * through verbatim.
+ *
+ * `"type": "date"` is a crouton spelling of `{ type: "string", format: "date" }`.
+ * Left alone at depth it reaches the frontend as an unknown type: the date
+ * renderer tests `format`, the string renderer tests `type === 'string'`, so a
+ * nested `"date"` matches nothing and the control silently fails to render.
+ * Every other shorthand happens to be a real JSON Schema type already.
+ */
+const NESTED_SHORTHANDS: Record<string, JsonSchemaFragment> = {
+  date: SHORTHAND_FRAGMENTS.date,
+  'date-time': SHORTHAND_FRAGMENTS['date-time'],
+};
+
+/**
+ * Expand crouton shorthands at every depth and return a fresh object graph.
+ *
+ * Copying matters as much as expanding: the fragment comes straight off the
+ * loaded resource config, and callers go on to mutate what they get back
+ * (`applySchemaTransforms` adds `minLength`, `injectFieldDefaults` adds
+ * `default`). Handing out the config's own nested objects would let a view build
+ * rewrite the config it was built from.
+ */
+const normalizeFragment = (
+  fragment: JsonSchemaFragment,
+): JsonSchemaFragment => {
+  const out: JsonSchemaFragment = { ...fragment };
+
+  if (typeof out.type === 'string') {
+    const expanded = NESTED_SHORTHANDS[out.type];
+    if (expanded) {
+      out.type = expanded.type;
+      // An explicit `format` wins — the shorthand only fills the blank.
+      if (out.format === undefined) out.format = expanded.format;
+    }
+  }
+
+  if (out.properties) {
+    out.properties = Object.fromEntries(
+      Object.entries(out.properties).map(([key, value]) => [
+        key,
+        normalizeFragment(value),
+      ]),
+    );
+  }
+  if (out.items) out.items = normalizeFragment(out.items);
+  if (out.additionalProperties && typeof out.additionalProperties === 'object') {
+    out.additionalProperties = normalizeFragment(out.additionalProperties);
+  }
+
+  return out;
+};
+
 /** Expand a column `type` into a JSON Schema fragment. */
 export const columnTypeToJsonSchema = (
   type: ColumnType | undefined,
 ): JsonSchemaFragment => {
   if (type === undefined) return { type: 'string' };
   if (isShorthand(type)) return { ...SHORTHAND_FRAGMENTS[type] };
-  return type;
+  return normalizeFragment(type);
 };
 
 /**
