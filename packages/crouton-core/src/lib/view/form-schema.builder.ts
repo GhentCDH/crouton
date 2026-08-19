@@ -1,3 +1,4 @@
+import { isArrayColumn, isObjectColumn } from './column-predicates';
 import { ControlBuilder } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import type { JsonColumn } from '../resource/Column';
@@ -102,6 +103,16 @@ const buildDetailLayout = (detail: DetailConfig) => {
   return inner;
 };
 
+/**
+ * Renderer format for a column with no explicit `fieldInput.type`, derived from
+ * its declared `type`. Scalars keep the historical `text` default.
+ */
+const defaultControlFormat = (col: JsonColumn): string => {
+  if (isObjectColumn(col)) return 'object';
+  if (isArrayColumn(col)) return 'array';
+  return 'text';
+};
+
 const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
   const control = ControlBuilder.properties<any>(col.id as keyof any);
   const fieldInput = col.fieldInput;
@@ -144,7 +155,10 @@ const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
   } else {
     const options: any = fieldInput?.options ?? {};
     if (!options.colspan) options.colspan = 12;
-    const type = fieldInput?.type ?? 'text';
+    // Drive the renderer off the column's declared shape when no widget is
+    // named. Without this an object/array column falls through to `text`, whose
+    // tester requires a string schema, and no renderer matches at all.
+    const type = fieldInput?.type ?? defaultControlFormat(col);
     control.control(type, options).width('full');
   }
 

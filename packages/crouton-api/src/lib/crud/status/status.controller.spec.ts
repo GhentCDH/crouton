@@ -77,6 +77,7 @@ describe('createStatusController', () => {
       name: 'users',
       path: 'users',
       valid: true,
+      kind: 'prisma',
       version: 1,
     });
     expect(status.resources[1].valid).toBe(false);

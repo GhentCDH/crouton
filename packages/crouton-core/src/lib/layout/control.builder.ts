@@ -11,6 +11,7 @@ export const ControlType = {
   textArea: 'textarea',
   markdown: 'markdown',
   array: 'array',
+  object: 'object',
   custom: 'custom',
   select: 'select',
   mutliSelect: 'mutliSelect',

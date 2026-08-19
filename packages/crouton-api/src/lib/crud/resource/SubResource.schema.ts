@@ -9,6 +9,7 @@ import {
 
 
 import { ValueLabelColumnSchema } from './valueLabel';
+import { CustomRepositorySchema } from '../custom-repository/custom-repository.types';
 import { ResourceHooksSchema } from '../hooks';
 
 export const SubResourceConfigSchema = z.object({
@@ -18,7 +19,26 @@ export const SubResourceConfigSchema = z.object({
   relation: z.string(),
   /** Route segment for the sub-resource endpoint, e.g. `"author"`. */
   childRoute: z.string(),
-  /** Prisma model name of the child, e.g. `"text_author"`. */
+  /**
+   * Where the child's data comes from. `custom` means the child declares
+   * `kind: "custom"` and brings its own `repository.ts`; the parent's Prisma
+   * repository then delegates to it instead of querying `childModel`.
+   */
+  childKind: z.enum(['prisma', 'custom']).default('prisma'),
+  /**
+   * Absolute path to the child's resource directory. Only needed for a custom
+   * child, so the loader can find its `repository.ts`.
+   */
+  childDir: z.string().optional(),
+  /**
+   * Data access for a custom child, loaded from its `repository.ts`. Attached
+   * by the loader — see `loadSubResourceRepositories`.
+   */
+  repository: CustomRepositorySchema.optional(),
+  /**
+   * Prisma model name of the child, e.g. `"text_author"`.
+   * Empty for a custom child, which has no model.
+   */
   childModel: z.string(),
   /** FK field on the child model pointing back to the parent, e.g. `"text_id"`. */
   foreignKey: z.string(),
@@ -44,6 +64,12 @@ export const SubResourceConfigSchema = z.object({
   calculatedColumns: z.array(CalculatedColumnSchema).optional(),
   /** When true, the relation is included in findOne responses (column is visible in form or view). */
   includeInFindOne: z.boolean().optional(),
+  /**
+   * Mirrors the parent column's `hiddenInTable`. The `_count` clause exists to
+   * fill a table cell, so a column the table never renders is not worth counting
+   * — see `findAll` in ReadRepository.
+   */
+  hiddenInTable: z.boolean().optional(),
   /** Prisma orderBy clause for auto-included relations (from fieldInput.options.sort). */
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
   /** Lifecycle hooks for this sub-resource (beforeWrite, afterRead). */

@@ -7,6 +7,7 @@ import DateRangeControlRenderer from './DateRangeControlRenderer.vue';
 import MarkdownControlRenderer from './MarkdownControlRenderer.vue';
 import MultiSelectControlRenderer from './MultiSelectControlRenderer.vue';
 import NumberControlRenderer from './NumberControlRenderer.vue';
+import ObjectControlRenderer from './ObjectControlRenderer.vue';
 import SelectControlRenderer from './SelectControlRenderer.vue';
 import StringControlRenderer from './StringControlRenderer.vue';
 import TextAreaControlRenderer from './TextAreaControlRenderer.vue';
@@ -20,6 +21,7 @@ import {
   isMarkdownControl,
   isMultiselectControl,
   isNumberFormat,
+  isObjectControl,
   isSelectControl,
   isStringFormat,
   isTextAreaControl,
@@ -66,5 +68,11 @@ export const controlRenderers = [
     // because crouton-core emits `{ type: 'string', format: 'date-time' }`.
     tester: rankWith(12, isDateControl),
     renderer: markRaw(DateControlRenderer),
+  },
+  // Ranked below date-range/date/relation so a format-specific object control
+  // (date-range is an object schema too) still wins.
+  {
+    tester: rankWith(11, isObjectControl),
+    renderer: markRaw(ObjectControlRenderer),
   },
 ];

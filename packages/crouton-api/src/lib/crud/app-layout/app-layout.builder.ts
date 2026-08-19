@@ -30,7 +30,13 @@ export const buildLayoutPayload = (
   isDev = false,
 ) => {
   const visible = configs.filter(
-    (c) => c.sidebar?.hide !== true && c.views?.['table'],
+    (c) =>
+      c.sidebar?.hide !== true &&
+      c.views?.['table'] &&
+      // A resource nested under a parent has no standalone route, so a sidebar
+      // entry for it would resolve to `<name>/schemas` and 404. It is reached
+      // from its parent's detail view instead.
+      !c.parent,
   );
 
   const topLevel: SidebarLeaf[] = [];

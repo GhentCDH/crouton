@@ -43,6 +43,10 @@ export const deleteChild =
 
     const decorators = () => {
       Param('childId')(cls.prototype, methodName, 0);
+      // The parent id was declared but never bound, so `parentId` always
+      // arrived undefined and the foreign-key guard in `deleteChild` — the one
+      // that is supposed to prevent cross-parent deletions — never engaged.
+      Param('id')(cls.prototype, methodName, 1);
       Req()(cls.prototype, methodName, 2);
     };
     return {

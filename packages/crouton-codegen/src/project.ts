@@ -37,7 +37,28 @@ export const readExistingResource = async (
   return { config, hasSchemaFile };
 };
 
-/** Names of resource directories that contain a `resource.json`. */
+/** `true` when a resource.json on disk declares `kind: "custom"`. */
+export const isCustomResourceFile = async (
+  jsonPath: string,
+): Promise<boolean> => {
+  try {
+    const parsed = JSON.parse(await readFile(jsonPath, 'utf-8')) as {
+      kind?: string;
+    };
+    return parsed?.kind === 'custom';
+  } catch {
+    // Unreadable/malformed: let the normal pipeline report it.
+    return false;
+  }
+};
+
+/**
+ * Names of resource directories that contain a `resource.json`.
+ *
+ * Custom resources are excluded: they have no Prisma model, so the
+ * introspect → diff pipeline would see every column as "not found in the
+ * database schema" and offer to remove it.
+ */
 export const listResourceNames = async (
   loaded: LoadedConfig,
 ): Promise<string[]> => {
@@ -46,12 +67,11 @@ export const listResourceNames = async (
   const entries = await readdir(base, { withFileTypes: true });
   const names: string[] = [];
   for (const e of entries) {
-    if (
-      e.isDirectory() &&
-      (await fileExists(join(base, e.name, 'resource.json')))
-    ) {
-      names.push(e.name);
-    }
+    if (!e.isDirectory()) continue;
+    const jsonPath = join(base, e.name, 'resource.json');
+    if (!(await fileExists(jsonPath))) continue;
+    if (await isCustomResourceFile(jsonPath)) continue;
+    names.push(e.name);
   }
   return names;
 };

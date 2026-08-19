@@ -7,6 +7,7 @@ import type {
 } from '@ghentcdh/crouton-core';
 import {
   buildViews,
+  buildViewsFromColumnTypes,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
 } from '@ghentcdh/crouton-core';
@@ -17,6 +18,7 @@ import {
   pickByColumns,
   upsertOp,
 } from '../builder/schema.helpers';
+import type { CustomRepository } from '../custom-repository';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
 import {
@@ -50,7 +52,10 @@ export const fromJson = (
   tableActions?: ResourceTableAction[],
   /** Project enum registry — injected into columns that reference an enum by name. */
   enums: EnumRegistry = {},
+  /** Data access for a `kind: "custom"` resource, loaded from `repository.ts`. */
+  repository?: CustomRepository,
 ): Resource => {
+  const isCustom = json.kind === 'custom';
   const rawColumns = expandExtendColumns(json.columns, dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -58,14 +63,19 @@ export const fromJson = (
   );
   injectEnumValues(columns, enums);
 
-  const subResources = buildSubResources(
-    columns,
-    json.route,
-    json.model,
-    dirPath,
-    enums,
-    baseUrl,
-  );
+  // Sub-resources are served by nested Prisma queries against the child model,
+  // which a custom resource has no equivalent of. Relation columns still render
+  // (autocomplete/link) — they just aren't managed through child routes here.
+  const subResources = isCustom
+    ? []
+    : buildSubResources(
+        columns,
+        json.route,
+        json.model ?? '',
+        dirPath,
+        enums,
+        baseUrl,
+      );
   // Resolve fieldView/fieldTable variants LAST, after URI/relation enrichment,
   // so the resolved variants inherit the injected relation/resource options.
   const enrichedColumns = resolveColumnFieldVariants(
@@ -78,6 +88,8 @@ export const fromJson = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
+  // With no zod model schema there is nothing to pick: a custom resource's
+  // request/response shapes come from the views built off the column types.
   const picked = pickByColumns(schema, enrichedColumns);
   const createSchema = pickByColumns(
     schema,
@@ -89,7 +101,9 @@ export const fromJson = (
     enrichedColumns,
     (c) => !c.idField && c.updateable !== false,
   );
-  let views = buildViews(schema, enrichedColumns);
+  let views = isCustom
+    ? buildViewsFromColumnTypes(enrichedColumns)
+    : buildViews(schema, enrichedColumns);
   if (views && calculatedColumns.length) {
     views = {
       ...views,
@@ -138,6 +152,7 @@ export const fromJson = (
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
     ...(json.database && { database: json.database }),
     ...(hooks && { hooks }),
+    ...(repository && { repository }),
     definition,
     ...(views && { views }),
     ...(lookup && { lookup }),

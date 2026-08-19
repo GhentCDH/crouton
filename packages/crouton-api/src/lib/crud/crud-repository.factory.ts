@@ -1,6 +1,11 @@
+import type { ListRequest } from '@ghentcdh/crouton-core';
+
 import { resolveDefinition, schemaFor } from './crud.config';
+import {
+  type DataSourceResolver,
+  createCustomRepository,
+} from './custom-repository';
 import { ReadRepository } from './read.repository';
-import type { RequestDto } from './request.dto';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { toSelectFields } from './schema.utils';
@@ -10,13 +15,25 @@ import { WriteRepository } from './write.repository';
 export interface CrudRepository<T = any> {
   /** Raw Prisma client — used by action procedures. */
   readonly prisma: any;
-  findAll(params: RequestDto, request?: any): Promise<T[]>;
+  findAll(params: ListRequest, request?: any): Promise<T[]>;
   count(filter: string[]): Promise<number>;
+  /**
+   * Fetch rows *and* their total count in a single call.
+   *
+   * Optional: the Prisma-backed repository leaves it undefined and callers fall
+   * back to `findAll` + `count`. Repositories whose backend cannot count
+   * separately (e.g. a remote HTTP API returning `{items, total}`) implement
+   * this instead.
+   */
+  findAllWithCount?(
+    params: ListRequest,
+    request?: any,
+  ): Promise<{ data: T[]; count: number }>;
   findOne(id: number | string, request?: any): Promise<T>;
   findAllByParent(
     parentId: string | number,
     childRoute: string,
-    params: RequestDto,
+    params: ListRequest,
     request?: any,
   ): Promise<{ data: T[]; count: number }>;
   findOneChild(
@@ -57,14 +74,40 @@ export interface CrudRepository<T = any> {
  * The `findAll`/`findOne` schemas are used to derive Prisma `select` clauses so only the
  * columns the view needs are fetched.
  *
- * @param prisma - Full PrismaClient instance.
+ * A `kind: "custom"` resource short-circuits to `createCustomRepository`, which
+ * delegates to the user's `repository.ts`.
+ *
+ * @param prisma - Full PrismaClient instance (may be `undefined` for a custom
+ *   resource in a project with no datasources).
  * @param config - Resource config. `config.model` must match a key on the PrismaClient.
+ * @param dataSources - Registry exposed to a custom repository as `ctx.dataSources`.
  * @throws {Error} When `config.model` is not found on the provided PrismaClient.
  */
 export function createCrudRepository<T = any>(
   prisma: any,
   config: Resource,
+  dataSources?: DataSourceResolver,
 ): CrudRepository<T> {
+  // A custom resource brings its own data access; everything below this point
+  // assumes a Prisma delegate.
+  if (config.kind === 'custom') {
+    return createCustomRepository<T>(
+      prisma,
+      config,
+      dataSources ?? {
+        resolve: () => prisma,
+        entries: () => [],
+      },
+      config.repository,
+    );
+  }
+
+  if (!config.model) {
+    throw new Error(
+      `Resource "${config.name}" has no "model". A prisma-backed resource must ` +
+        'name its Prisma model; set "kind": "custom" for a resource with no model.',
+    );
+  }
   const model = prisma[config.model];
   if (!model) {
     throw new Error(

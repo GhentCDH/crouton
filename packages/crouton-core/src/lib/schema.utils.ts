@@ -45,9 +45,24 @@ export const enforceRequiredStringMinLength = (schema: JsonSchema): JsonSchema =
   return changed ? ({ ...schema, properties: patchedProperties } as JsonSchema) : schema;
 };
 
+/**
+ * Resolve a column's scope to its schema property.
+ *
+ * Scopes may be nested (`#/properties/author/properties/name`, produced for
+ * `extend` columns and inline object types). Previously only the
+ * `#/properties/` prefix was stripped, so a nested scope yielded the id
+ * `"author/properties/name"` and an empty property — leaving such columns with
+ * no schema type at all. Each `properties/<key>` segment is now walked.
+ */
 export const findProperty = <F extends Field>(column: F, schema: JsonSchema) => {
   if (!column.scope) return { id: null, property: null };
-  const id = column.scope?.substring('#/properties/'.length);
-  const property = schema?.properties?.[id] ?? {};
+  const id = column.scope.substring('#/properties/'.length);
+  const segments = id.split('/properties/');
+
+  let property: any = schema?.properties?.[segments[0]] ?? {};
+  for (const segment of segments.slice(1)) {
+    property = property?.properties?.[segment] ?? {};
+  }
+
   return { id, property } as { id: string; property: any };
 };

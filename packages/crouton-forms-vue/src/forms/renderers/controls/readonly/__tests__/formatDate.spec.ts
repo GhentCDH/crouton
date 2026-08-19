@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatDate } from '../formatDate';
+import { formatDate, relativeDate } from '../displayValue/formatDate';
 
 describe('formatDate', () => {
   const iso = '2026-06-05T07:27:20.987Z';
@@ -33,19 +33,30 @@ describe('formatDate', () => {
     );
   });
 
+  it('never appends a relative suffix — that is relativeDate’s job', () => {
+    expect(formatDate(iso)).not.toContain('·');
+    const now = new Date(iso);
+    const past = new Date(now.getTime() - 4 * 24 * 60 * 60_000);
+    expect(formatDate(past, { withTime: false })).toBe('1 Jun 2026');
+  });
+});
+
+describe('relativeDate', () => {
+  const iso = '2026-06-05T07:27:20.987Z';
+
   it.each`
     deltaMs                  | unit       | expected
     ${-4 * 24 * 60 * 60_000} | ${'days'}  | ${'4 days ago'}
     ${-2 * 60 * 60_000}      | ${'hours'} | ${'2 hours ago'}
     ${3 * 24 * 60 * 60_000}  | ${'days'}  | ${'in 3 days'}
-  `('appends relative suffix ($unit)', ({ deltaMs, expected }) => {
+  `('describes the offset ($unit)', ({ deltaMs, expected }) => {
     const now = new Date(iso);
     const target = new Date(now.getTime() + deltaMs);
-    const out = formatDate(target, { withTime: false, relative: true, now });
-    expect(out?.endsWith(`· ${expected}`)).toBe(true);
+    expect(relativeDate(target, { now })).toBe(expected);
   });
 
-  it('does not append a relative suffix by default', () => {
-    expect(formatDate(iso)).not.toContain('·');
+  it('returns undefined for unparseable input', () => {
+    expect(relativeDate('not-a-date')).toBeUndefined();
+    expect(relativeDate(null)).toBeUndefined();
   });
 });

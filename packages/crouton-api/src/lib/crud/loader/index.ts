@@ -16,14 +16,21 @@
  * the loader narrows the Zod schema down to those column ids via
  * `.pick()` before attaching it to every enabled operation.
  *
- * `resource.ts` / `hooks.ts` / `schema.ts` do **not** import from each
- * other — this loader is the only place that stitches them together.
+ * A `kind: "custom"` resource has no `schema.ts` — its json model is built
+ * from the column `type`s — and supplies data access in `repository.ts`.
+ *
+ * `resource.ts` / `hooks.ts` / `schema.ts` / `repository.ts` do **not** import
+ * from each other — this loader is the only place that stitches them together.
  */
 
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import { loadActions } from '../action';
 import { fromJson } from '../adapter';
+import {
+  loadCustomRepository,
+  loadSubResourceRepositories,
+} from '../custom-repository';
 import { IS_DEV } from '../dev-mode';
 import { loadEnumRegistry } from '../enum-registry';
 import { findModule, importDefault } from './module.loader';
@@ -117,6 +124,13 @@ export const loadResourceConfigsFromDir = async (
         });
         continue;
       }
+      // Custom resources own their data access; prisma resources never load a
+      // repository, so a stray repository.ts on one is simply ignored.
+      const repository =
+        json.kind === 'custom'
+          ? await loadCustomRepository(basePath, json.name)
+          : undefined;
+
       const actions = await loadActions(json.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
         json.tableActions ?? [],
@@ -132,8 +146,12 @@ export const loadResourceConfigsFromDir = async (
         actions,
         tableActions,
         enums,
+        repository,
       );
       await loadSubResourceHooks(config.subResources ?? [], basePath);
+      // A custom sub-resource brings its own data access; the parent's
+      // repository delegates to it instead of querying a Prisma model.
+      await loadSubResourceRepositories(config.subResources ?? [], config.name);
       onResourceDir?.(config.route, basePath);
       configs.push(config);
       continue;

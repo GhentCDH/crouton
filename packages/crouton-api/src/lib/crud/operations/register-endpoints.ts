@@ -5,8 +5,8 @@ import {
 } from './register-actions';
 import { registerCreate } from './register-create';
 import { registerDelete } from './register-delete';
-import { childFindAll, registerFindAll } from './register-findall';
-import { childFindOne, registerFindOne } from './register-findone';
+import { registerFindAll } from './register-findall';
+import { registerFindOne } from './register-findone';
 import { registerPatch } from './register-patch';
 import {
   registerDefinitionEndpoint,

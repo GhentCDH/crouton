@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import type { CroutonConfig, LoadedConfig } from './config';
 import {
+  isCustomResourceFile,
   listResourceNames,
   makeRelationResolver,
   readExistingResource,
@@ -36,6 +37,16 @@ beforeAll(async () => {
   );
   // notAResource: directory without resource.json
   await mkdir(join(res, 'helpers'), { recursive: true });
+  // zotero_item: a config-only resource — no Prisma model to introspect
+  await mkdir(join(res, 'zotero_item'), { recursive: true });
+  await writeFile(
+    join(res, 'zotero_item', 'resource.json'),
+    JSON.stringify({ name: 'zotero_item', kind: 'custom' }),
+  );
+  await writeFile(join(res, 'zotero_item', 'repository.ts'), 'export default {};');
+  // broken: unreadable JSON — the normal pipeline should still see it
+  await mkdir(join(res, 'broken'), { recursive: true });
+  await writeFile(join(res, 'broken', 'resource.json'), '{ not json');
 });
 
 describe('readExistingResource', () => {
@@ -59,7 +70,42 @@ describe('readExistingResource', () => {
 describe('listResourceNames', () => {
   it('lists only directories with a resource.json', async () => {
     const names = (await listResourceNames(loaded)).sort();
-    expect(names).toEqual(['author', 'language']);
+    // 'broken' is included on purpose: a malformed file should surface through
+    // the normal pipeline rather than being silently skipped here.
+    expect(names).toEqual(['author', 'broken', 'language']);
+  });
+
+  it('excludes custom resources — they have no model to introspect', async () => {
+    expect(await listResourceNames(loaded)).not.toContain('zotero_item');
+  });
+});
+
+describe('isCustomResourceFile', () => {
+  it('detects kind: custom', async () => {
+    expect(
+      await isCustomResourceFile(
+        join(loaded.root, 'resources', 'zotero_item', 'resource.json'),
+      ),
+    ).toBe(true);
+  });
+
+  it('is false for a prisma resource', async () => {
+    expect(
+      await isCustomResourceFile(
+        join(loaded.root, 'resources', 'language', 'resource.json'),
+      ),
+    ).toBe(false);
+  });
+
+  it('is false for an unreadable file, so the pipeline reports it', async () => {
+    expect(
+      await isCustomResourceFile(
+        join(loaded.root, 'resources', 'broken', 'resource.json'),
+      ),
+    ).toBe(false);
+    expect(await isCustomResourceFile(join(loaded.root, 'nope.json'))).toBe(
+      false,
+    );
   });
 });
 

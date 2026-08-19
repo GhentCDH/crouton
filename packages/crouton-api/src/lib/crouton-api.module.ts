@@ -7,6 +7,7 @@ import { createAppLayoutController } from './crud/app-layout';
 import { loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
+import { validateCustomRepository } from './crud/custom-repository';
 import type { DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { IS_DEV } from './crud/dev-mode';
@@ -80,14 +81,44 @@ export class CroutonApiModule {
         : dirname(fileURLToPath(import.meta.url));
     const enumRegistry = loadEnumRegistry(startDir, config.enumsFile);
 
-    // Validate that each resource's model exists on its Prisma client.
-    // Resources with missing models are skipped and recorded as load errors
-    // so they appear on the status page instead of crashing the server.
+    // Validate that each resource can actually serve what it advertises:
+    // a prisma resource needs its model on the client, a custom resource needs
+    // a repository.ts implementing every enabled operation. Failures are
+    // skipped and recorded so they appear on the status page instead of
+    // crashing the server.
     const validConfigs: Resource[] = [];
     for (const c of configs) {
+      if (c.kind === 'custom') {
+        // A custom resource may run without any datasource; only a *named*
+        // datasource that does not exist is an error.
+        if (c.database) {
+          try {
+            dataSourceRegistry.resolve(c.database);
+          } catch (e: any) {
+            resourceLoadErrorsRegistry.record({
+              name: c.name,
+              path: c.route,
+              error: e.message ?? String(e),
+            });
+            continue;
+          }
+        }
+        const problem = validateCustomRepository(c, c.repository);
+        if (problem) {
+          resourceLoadErrorsRegistry.record({
+            name: c.name,
+            path: c.route,
+            error: problem,
+          });
+          continue;
+        }
+        validConfigs.push(c);
+        continue;
+      }
+
       try {
         const prisma = dataSourceRegistry.resolve(c.database);
-        if (!prisma[c.model]) {
+        if (!c.model || !prisma[c.model]) {
           resourceLoadErrorsRegistry.record({
             name: c.name,
             path: c.route,

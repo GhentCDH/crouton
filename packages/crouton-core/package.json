@@ -30,11 +30,13 @@
     "@jsonforms/core": "^3.0.0"
   },
   "devDependencies": {
-    "tsup": "^8.0.0"
+    "tsup": "^8.0.0",
+    "vitest": "^4.1.9"
   },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit -p tsconfig.lib.json"
+    "typecheck": "tsc --noEmit -p tsconfig.lib.json",
+    "test": "vitest run"
   }
 }

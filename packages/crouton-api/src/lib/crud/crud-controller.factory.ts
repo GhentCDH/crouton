@@ -1,6 +1,8 @@
 import { Body, Controller, type Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { resourceControllerPath } from '@ghentcdh/crouton-core';
+
 import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
 import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud.config';
 import { DataSourceRegistry } from './data-source';
@@ -56,6 +58,18 @@ export function createCrudController(
     return Body();
   };
 
+  const resolveClient = (
+    registry: DataSourceRegistry,
+    resource: Resource,
+  ): any => {
+    try {
+      return registry.resolve(resource.database);
+    } catch (e) {
+      if (resource.kind === 'custom') return undefined;
+      throw e;
+    }
+  };
+
   class CrudControllerBase {
     protected readonly repo: CrudRepository;
     protected readonly configRegistry: ResourceConfigRegistry;
@@ -63,8 +77,11 @@ export function createCrudController(
       registry: DataSourceRegistry,
       configRegistry: ResourceConfigRegistry,
     ) {
-      const prisma = registry.resolve(config.database);
-      this.repo = createCrudRepository(prisma, config);
+      // A custom resource may legitimately run in a project with no
+      // datasources at all, so a resolve failure is not fatal for it — the
+      // repository simply receives `ctx.prisma === undefined`.
+      const prisma = resolveClient(registry, config);
+      this.repo = createCrudRepository(prisma, config, registry);
       this.configRegistry = configRegistry;
     }
   }
@@ -90,7 +107,11 @@ export function createCrudController(
   registerEndpoints(ctx);
 
   // ── Class-level decorators ─────────────────────────────────────────────
-  Controller(route)(CrudControllerBase);
+  // A resource that declares a `parent` is reachable ONLY underneath it, so the
+  // whole controller moves to `<parent.route>/:<param>/<route>`; every operation
+  // route (``, `:id`, `schemas`, …) inherits the prefix, and the parent id is
+  // available to handlers through the request they already receive.
+  Controller(resourceControllerPath(route, config.parent))(CrudControllerBase);
   ApiTags(tag)(CrudControllerBase);
   Object.defineProperty(CrudControllerBase, 'name', {
     value: `${name.charAt(0).toUpperCase() + name.slice(1)}Controller`,

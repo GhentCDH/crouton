@@ -8,3 +8,6 @@ export * from './CalculatedColumn.schema';
 export * from './FieldInput.schema';
 export * from './Column';
 export * from './fieldVariants';
+export * from './ResourceKind';
+export * from './ParentRef.schema';
+export * from './ColumnType.schema';

@@ -1,28 +1,18 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import { fromValueLabel } from '@ghentcdh/crouton-core';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
 import { resolveDefinition, upsertOnFor } from './crud.config';
-import type { WriteOp } from './hooks';
+import {
+  childCtx,
+  childRepositoryFn,
+  parentIdFromRequest,
+} from './custom-repository/child-delegate';
+import { type WriteOp, postWrite, prepareWrite } from './hooks';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
-import type { ValueLabelColumn } from './resource/valueLabel';
-
-/** Unwrap `{ value, label }` fields back to their scalar before persistence. */
-const normalizeValueLabels = (
-  data: unknown,
-  cols: ValueLabelColumn[] | undefined,
-): unknown => {
-  if (!data || typeof data !== 'object' || Array.isArray(data) || !cols?.length)
-    return data;
-  const out = { ...(data as Record<string, unknown>) };
-  for (const { field } of cols) {
-    if (field in out) out[field] = fromValueLabel(out[field]);
-  }
-  return out;
-};
+import { normalizeValueLabels } from './resource/valueLabel.apply';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (
@@ -104,20 +94,28 @@ export class WriteRepository<T = any> {
     );
   }
 
+  /**
+   * The parent a *child* write is scoped to, for the hook context.
+   *
+   * A sub-resource is served by the parent's controller, so its parent id arrives
+   * as the parent's own `:id` — hence `param: 'id'`. A resource that declares
+   * `parent` names its own param and goes through the custom adapter instead.
+   */
+  private parentHookContext(parentId: string | number) {
+    return {
+      route: this.config.route,
+      param: 'id',
+      id: this.toId(parentId),
+    };
+  }
+
   private async prepare(
     data: any,
     op: WriteOp,
     id?: string | number,
     request?: any,
   ): Promise<any> {
-    const normalized = normalizeValueLabels(
-      data,
-      this.config.valueLabelColumns,
-    );
-    const hook = this.config.hooks?.beforeWrite;
-    return hook
-      ? hook(normalized, { prisma: this.prisma, op, id, request })
-      : normalized;
+    return prepareWrite(data, op, this.config, this.prisma, id, request);
   }
 
   private async postWrite(
@@ -126,10 +124,7 @@ export class WriteRepository<T = any> {
     id?: string | number,
     request?: any,
   ): Promise<any> {
-    const hook = this.config.hooks?.afterWrite;
-    return hook
-      ? hook(result, { prisma: this.prisma, op, id, request })
-      : result;
+    return postWrite(result, op, this.config, this.prisma, id, request);
   }
 
   private upsertWhere(data: any): Record<string, unknown> {
@@ -233,6 +228,79 @@ export class WriteRepository<T = any> {
   }
 
   /**
+   * Write to a **custom** sub-resource by delegating to the child's own
+   * repository.
+   *
+   * The child has no Prisma model, so `prisma[childModel]` is not an option.
+   * Value-label normalisation and the child's `beforeWrite`/`afterWrite` hooks
+   * still apply, so a custom child behaves like a Prisma one from the caller's
+   * point of view.
+   */
+  private async delegateChildWrite(
+    sub: SubResourceConfig,
+    op: 'create' | 'update' | 'patch' | 'delete',
+    parentId: string | number | undefined,
+    childId: string | number | undefined,
+    data: unknown,
+    request?: any,
+  ): Promise<any> {
+    if (parentId === undefined) {
+      throw new BadRequestException(
+        `Sub-resource "${sub.childRoute}" of "${this.config.name}" requires a parent id.`,
+      );
+    }
+
+    const fn = childRepositoryFn(sub, op, this.config.name);
+    const id =
+      childId === undefined
+        ? undefined
+        : (sub.idType ?? 'string') === 'number'
+          ? +childId
+          : String(childId);
+
+    const ctx = childCtx({
+      parentConfig: this.config,
+      prisma: this.prisma,
+      op,
+      parentId: this.toId(parentId),
+      id,
+      request,
+    });
+
+    let payload: unknown;
+    if (op !== 'delete') {
+      const stripped =
+        op === 'create' ? this.stripNonCreateableChildFields(data, sub) : data;
+      const normalized = normalizeValueLabels(stripped, sub.valueLabelColumns);
+      payload = sub.hooks?.beforeWrite
+        ? await sub.hooks.beforeWrite(normalized, {
+            prisma: this.prisma,
+            op: op === 'patch' ? 'patch' : op,
+            ...(id !== undefined && { id }),
+            request,
+            parent: ctx.parent,
+          })
+        : normalized;
+    }
+
+    const result =
+      op === 'create'
+        ? await fn(this.toId(parentId), payload, ctx)
+        : op === 'delete'
+          ? await fn(this.toId(parentId), id, ctx)
+          : await fn(this.toId(parentId), id, payload, ctx);
+
+    return sub.hooks?.afterWrite
+      ? sub.hooks.afterWrite(result, {
+          prisma: this.prisma,
+          op: op === 'patch' ? 'patch' : op,
+          ...(id !== undefined && { id }),
+          request,
+        })
+      : result;
+  }
+
+  /**
    * Create a child record and attach it to the parent via the configured foreign key.
    * Fields marked `createable: false` in the form view are stripped before writing.
    */
@@ -242,6 +310,10 @@ export class WriteRepository<T = any> {
     data: unknown,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      return this.delegateChildWrite(sub, 'create', parentId, undefined, data, request);
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
@@ -257,6 +329,7 @@ export class WriteRepository<T = any> {
           prisma: this.prisma,
           op: 'create',
           request,
+          parent: this.parentHookContext(parentId),
         })
       : payload;
 
@@ -293,6 +366,17 @@ export class WriteRepository<T = any> {
     data: unknown,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      return this.delegateChildWrite(
+        sub,
+        'update',
+        parentIdFromRequest(request),
+        childId,
+        data,
+        request,
+      );
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
@@ -306,6 +390,7 @@ export class WriteRepository<T = any> {
           op: 'update',
           id,
           request,
+          parent: this.parentHookContext(parentId),
         })
       : normalized;
 
@@ -348,6 +433,17 @@ export class WriteRepository<T = any> {
     parentId?: string | number,
     request?: any,
   ): Promise<any> {
+    if (sub.childKind === 'custom') {
+      return this.delegateChildWrite(
+        sub,
+        'delete',
+        parentIdFromRequest(request, parentId),
+        childId,
+        undefined,
+        request,
+      );
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
