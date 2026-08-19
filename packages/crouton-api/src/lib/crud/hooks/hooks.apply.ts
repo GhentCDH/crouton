@@ -1,4 +1,9 @@
-import type { ReadOp, ResourceHooks, WriteOp } from './hooks.types';
+import type {
+  ParentHookContext,
+  ReadOp,
+  ResourceHooks,
+  WriteOp,
+} from './hooks.types';
 import type { ValueLabelColumn } from '../resource/valueLabel';
 import {
   applyValueLabelColumns,
@@ -33,10 +38,13 @@ export const decorateRows = async (
   target: HookTarget,
   prisma: any,
   request?: any,
+  parent?: ParentHookContext,
 ): Promise<any[]> => {
   const hook = target.hooks?.afterRead;
   const hooked = hook
-    ? await Promise.all(rows.map((row) => hook(row, { prisma, op, request })))
+    ? await Promise.all(
+        rows.map((row) => hook(row, { prisma, op, request, ...(parent && { parent }) })),
+      )
     : rows;
   const cols = target.valueLabelColumns;
   return cols?.length
@@ -51,9 +59,12 @@ export const decorateRow = async (
   target: HookTarget,
   prisma: any,
   request?: any,
+  parent?: ParentHookContext,
 ): Promise<any> => {
   const hook = target.hooks?.afterRead;
-  return hook ? hook(row, { prisma, op, request }) : row;
+  return hook
+    ? hook(row, { prisma, op, request, ...(parent && { parent }) })
+    : row;
 };
 
 /** Unwrap value-label envelopes, then run `beforeWrite`. */
@@ -64,10 +75,13 @@ export const prepareWrite = async (
   prisma: any,
   id?: string | number,
   request?: any,
+  parent?: ParentHookContext,
 ): Promise<any> => {
   const normalized = normalizeValueLabels(data, target.valueLabelColumns);
   const hook = target.hooks?.beforeWrite;
-  return hook ? hook(normalized, { prisma, op, id, request }) : normalized;
+  return hook
+    ? hook(normalized, { prisma, op, id, request, ...(parent && { parent }) })
+    : normalized;
 };
 
 /** Run `afterWrite` on the persisted result. */
@@ -78,7 +92,10 @@ export const postWrite = async (
   prisma: any,
   id?: string | number,
   request?: any,
+  parent?: ParentHookContext,
 ): Promise<any> => {
   const hook = target.hooks?.afterWrite;
-  return hook ? hook(result, { prisma, op, id, request }) : result;
+  return hook
+    ? hook(result, { prisma, op, id, request, ...(parent && { parent }) })
+    : result;
 };

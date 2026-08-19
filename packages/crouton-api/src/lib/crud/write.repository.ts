@@ -94,6 +94,21 @@ export class WriteRepository<T = any> {
     );
   }
 
+  /**
+   * The parent a *child* write is scoped to, for the hook context.
+   *
+   * A sub-resource is served by the parent's controller, so its parent id arrives
+   * as the parent's own `:id` — hence `param: 'id'`. A resource that declares
+   * `parent` names its own param and goes through the custom adapter instead.
+   */
+  private parentHookContext(parentId: string | number) {
+    return {
+      route: this.config.route,
+      param: 'id',
+      id: this.toId(parentId),
+    };
+  }
+
   private async prepare(
     data: any,
     op: WriteOp,
@@ -263,6 +278,7 @@ export class WriteRepository<T = any> {
             op: op === 'patch' ? 'patch' : op,
             ...(id !== undefined && { id }),
             request,
+            parent: ctx.parent,
           })
         : normalized;
     }
@@ -313,6 +329,7 @@ export class WriteRepository<T = any> {
           prisma: this.prisma,
           op: 'create',
           request,
+          parent: this.parentHookContext(parentId),
         })
       : payload;
 
@@ -373,6 +390,7 @@ export class WriteRepository<T = any> {
           op: 'update',
           id,
           request,
+          parent: this.parentHookContext(parentId),
         })
       : normalized;
 

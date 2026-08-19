@@ -272,6 +272,24 @@ export class ReadRepository<T = any> {
     return buildSort(sort, sortDir);
   }
 
+  /**
+   * The parent a *child* read is scoped to, for the hook context.
+   *
+   * A sub-resource is served by the parent's controller, so its parent id arrives
+   * as the parent's own `:id` — hence `param: 'id'`. `undefined` when no parent id
+   * was supplied, so a hook is never handed a fabricated one.
+   */
+  private parentHookContext(parentId: string | number | undefined) {
+    if (parentId === undefined || parentId === null || parentId === '') {
+      return undefined;
+    }
+    return {
+      route: this.config.route,
+      param: 'id',
+      id: this.toId(parentId),
+    };
+  }
+
   private async decorate(
     rows: any[],
     op: ReadOp,
@@ -501,6 +519,7 @@ export class ReadRepository<T = any> {
                 prisma: this.prisma,
                 op: 'findAll',
                 request,
+                parent: this.parentHookContext(parentId),
               }),
             ),
           )
@@ -558,6 +577,7 @@ export class ReadRepository<T = any> {
               prisma: this.prisma,
               op: 'findAll',
               request,
+              parent: this.parentHookContext(parentId),
             }),
           ),
         )
@@ -610,6 +630,7 @@ export class ReadRepository<T = any> {
             prisma: this.prisma,
             op: 'findOne',
             request,
+            parent: this.parentHookContext(parentId),
           })
         : row;
     }
@@ -650,6 +671,7 @@ export class ReadRepository<T = any> {
         prisma: this.prisma,
         op: 'findOne',
         request,
+        parent: this.parentHookContext(parentId),
       });
     return withCalc;
   }

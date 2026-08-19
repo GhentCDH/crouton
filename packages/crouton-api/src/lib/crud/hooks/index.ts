@@ -1,4 +1,5 @@
 export {
+  type ParentHookContext,
   type ReadHookContext,
   type ReadOp,
   ReadOpSchema,

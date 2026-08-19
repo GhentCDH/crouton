@@ -84,6 +84,23 @@ export const createCustomRepository = <T = any>(
     parent: { route: parentRef!.route, param: parentRef!.param, id: parentId },
   });
 
+  /**
+   * The parent for a hook context — same shape hooks get on a sub-resource, so a
+   * `hooks.ts` reads `ctx.parent.id` regardless of which way the resource nests.
+   * `undefined` when the resource is not nested, or when the request carries no
+   * parent id to read (a hook must not be handed a fabricated one).
+   */
+  const parentHookCtx = (request: any) => {
+    if (!parentRef) return undefined;
+    const raw = request?.params?.[parentRef.param];
+    if (raw === undefined || raw === null || raw === '') return undefined;
+    return {
+      route: parentRef.route,
+      param: parentRef.param,
+      id: (parentRef.idType ?? 'string') === 'number' ? +raw : String(raw),
+    };
+  };
+
   const ctx = (
     op: CustomOp,
     params?: ListRequest,
@@ -126,6 +143,7 @@ export const createCustomRepository = <T = any>(
       config,
       prisma,
       request,
+      parentHookCtx(request),
     );
     return { data, count: result?.count ?? data.length };
   };
@@ -151,7 +169,14 @@ export const createCustomRepository = <T = any>(
     if (row === null || row === undefined) {
       throw new NotFoundException(`${config.name} with id ${id} not found`);
     }
-    return decorateRow(row, 'findOne', config, prisma, request);
+    return decorateRow(
+      row,
+      'findOne',
+      config,
+      prisma,
+      request,
+      parentHookCtx(request),
+    );
   };
 
   const write = async (
@@ -166,7 +191,15 @@ export const createCustomRepository = <T = any>(
     // treats patch as an update with a partial schema, so a repository that
     // only implements the update variant behaves consistently.
     const prepared = () =>
-      prepareWrite(data, op, config, prisma, coercedId, request);
+      prepareWrite(
+        data,
+        op,
+        config,
+        prisma,
+        coercedId,
+        request,
+        parentHookCtx(request),
+      );
 
     let result: T;
 
@@ -223,7 +256,15 @@ export const createCustomRepository = <T = any>(
             );
     }
 
-    return postWrite(result, op, config, prisma, coercedId, request);
+    return postWrite(
+      result,
+      op,
+      config,
+      prisma,
+      coercedId,
+      request,
+      parentHookCtx(request),
+    );
   };
 
   // Async so callers get a rejected promise rather than a synchronous throw,
@@ -273,7 +314,15 @@ export const createCustomRepository = <T = any>(
           ctx('delete', undefined, coercedId, request),
         );
       }
-      return postWrite(result, 'delete', config, prisma, coercedId, request);
+      return postWrite(
+        result,
+        'delete',
+        config,
+        prisma,
+        coercedId,
+        request,
+        parentHookCtx(request),
+      );
     },
     upsert: async () => {
       throw new NotImplementedException(
