@@ -306,7 +306,15 @@ export class ReadRepository<T = any> {
       ),
     };
 
-    const oneToManySubResources = subResources.filter(
+    // A `kind: "custom"` child is served by its own repository.ts and has no
+    // Prisma relation of that name, so it must stay out of every Prisma-shaped
+    // clause below — `_count`, `include`, and the configInclude filter alike.
+    // Asking for a relation the model does not have fails the whole query.
+    const prismaSubResources = subResources.filter(
+      (s) => s.childKind !== 'custom',
+    );
+
+    const oneToManySubResources = prismaSubResources.filter(
       (s) => s.relationType !== 'manyToOne',
     );
 
@@ -318,7 +326,7 @@ export class ReadRepository<T = any> {
     );
 
     // Include manyToOne relations (e.g. author) so they appear in list view.
-    const manyToOneIncludes = subResources
+    const manyToOneIncludes = prismaSubResources
       .filter((s) => s.relationType === 'manyToOne')
       .map((s) => s.relation);
     const flatIncludes = manyToOneIncludes.length
@@ -331,9 +339,15 @@ export class ReadRepository<T = any> {
     // per page would be cost for nothing. Deliberately not narrowed to the
     // counted set — that would silently turn a `_count` into a full child fetch
     // the moment a column is hidden.
-    const countableRelations = new Set(
-      oneToManySubResources.map((s) => s.relation),
-    );
+    // Custom children join this set too: they cannot be Prisma-included at all,
+    // so an entry naming one in `config.include` has to be dropped rather than
+    // passed through to fail the query.
+    const countableRelations = new Set([
+      ...oneToManySubResources.map((s) => s.relation),
+      ...subResources
+        .filter((s) => s.childKind === 'custom')
+        .map((s) => s.relation),
+    ]);
     const filteredConfigInclude = configInclude
       ? Object.fromEntries(Object.entries(configInclude).filter(([key]) => !countableRelations.has(key)))
       : undefined;

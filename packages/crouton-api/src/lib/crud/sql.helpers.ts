@@ -160,12 +160,18 @@ export const buildChildSortClause = (
  *
  * Auto-included sub-resources (`includeInFindOne`) are merged with explicit
  * `configInclude` entries. `configInclude` wins when both specify the same relation.
+ *
+ * A `kind: "custom"` child is skipped: it is reached through its own
+ * `repository.ts`, so there is no Prisma relation of that name to include and
+ * asking for one fails the entire query.
  */
 export const buildFindOneIncludes = (
   subResources: SubResourceConfig[],
   configInclude: Record<string, unknown> | undefined,
 ): Record<string, unknown> | undefined => {
-  const autoSubs = subResources.filter((s) => s.includeInFindOne);
+  const autoSubs = subResources.filter(
+    (s) => s.includeInFindOne && s.childKind !== 'custom',
+  );
   const flatIncludes = autoSubs.length
     ? Object.fromEntries(
         autoSubs.map((s) =>

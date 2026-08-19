@@ -312,17 +312,30 @@ resources/groups/expense/repository.ts
 
 ```jsonc
 // resources/groups/resource.json → columns
-"expenses": {
+"expense": {
   "label": "Expenses",
   "hiddenInTable": true,
   "fieldInput": {
-    "format": "relation",
-    "relationType": "oneToMany",
-    "resource": "./expense/resource.json",
-    "foreignKey": "group_id"
+    "resource": "./expense/resource.json"
   }
 }
 ```
+
+`resource` is the whole declaration. `format: "relation"` is filled in when a
+column names a `resource` and sets neither `format` nor `type`, and
+`relationType` defaults to `oneToMany`. Spelling both out is harmless but adds
+nothing.
+
+`foreignKey` is not needed either. It tells the *Prisma* child which column points
+back at the parent; a custom child gets the parent id as the first argument to
+every operation and decides for itself what to do with it.
+
+::: tip It is a route, not a database relation
+The parent's model needs no relation field of that name. The parent never puts a
+custom child in a Prisma `_count`, `include`, or `select` — reads and writes go
+through the child's `repository.ts` — so the column can be visible in the table
+without breaking the parent's list query.
+:::
 
 Routes are served by the **parent's** controller, so the child's table renders
 inside the group's detail view exactly as a prisma child does:
@@ -403,17 +416,19 @@ nested controller.
 
 ## Current limitations
 
-- **No nested sub-resource routes.** Child collections
-  (`GET /parent/:id/children`) are derived from Prisma relations. Relation
-  columns still *render* — autocomplete against another resource works — but a
-  child collection managed inline from a custom parent does not. Expose the
-  child as its own resource instead.
+- **A custom resource cannot be a *parent* of sub-resources.** A custom *child*
+  under a prisma parent works (see [Nesting](#nesting-under-a-parent)); the
+  reverse does not. Relation columns on a custom resource still *render* —
+  autocomplete against another resource works — but they register no child
+  routes, because the parent has no model to hang them off. Expose that child as
+  its own resource instead.
 - **No `calculatedColumns`.** They are raw SQL against a table.
 - **No `upsert`.** Not part of the repository contract.
 - **`crouton update resources` skips custom resources.** They have no model to
   introspect, so the pipeline would otherwise offer to delete every column.
-- **`relationType` must be explicit** on relation columns — there is no Zod
-  model to infer cardinality from.
+- **`relationType` is worth being explicit about** on a `manyToOne` relation
+  column of a custom resource: there is no Zod model to infer cardinality from, and
+  the default is `oneToMany`.
 
 ## See also
 
