@@ -157,6 +157,24 @@ export const zodSchemaSource =
  * `undefined` leaves the schema's own answer alone — which is why the column flag
  * is optional rather than defaulting to `false`.
  */
+/**
+ * Every JSON Schema type except `null`.
+ *
+ * A typeless property — what an autocomplete column emits, since the shape of its
+ * `{ value, label }` envelope depends on the widget's `storeValue` option — becomes
+ * `unknown` once the form converts the schema to Zod, and `unknown` accepts
+ * `undefined` and `null`. Listing it in `required` therefore validated nothing:
+ * the control showed its required marker and an empty field still submitted.
+ *
+ * Constraining the type to "anything but null" is what makes the requirement bite
+ * without claiming to know the envelope's shape. `not: { type: 'null' }` would say
+ * it more directly but Zod cannot represent `not`.
+ */
+const NON_NULL_TYPES = ['object', 'array', 'string', 'number', 'boolean'];
+
+/** Keys that already constrain a property's shape enough to reject null. */
+const SHAPE_KEYS = ['type', 'enum', 'const', 'anyOf', 'oneOf', 'allOf', '$ref'];
+
 const applyRequiredColumns = (
   jsonSchema: Record<string, unknown>,
   columns: JsonColumn[] | undefined,
@@ -186,6 +204,17 @@ const applyRequiredColumns = (
     if (col.idField) continue;
     if (col.createable === false && col.updateable === false) continue;
     required.add(col.id);
+
+    // A typeless property cannot be required in any meaningful sense — see
+    // NON_NULL_TYPES. Give it just enough of a type to reject an empty value.
+    const property = properties[col.id];
+    if (
+      property &&
+      typeof property === 'object' &&
+      !SHAPE_KEYS.some((key) => key in (property as Record<string, unknown>))
+    ) {
+      (property as Record<string, unknown>)['type'] = [...NON_NULL_TYPES];
+    }
   }
 
   if (required.size) jsonSchema['required'] = [...required];

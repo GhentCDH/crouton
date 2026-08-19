@@ -175,6 +175,32 @@ On a prisma resource the same flag overrides the model in either direction:
 `true` requires a field the model left optional, `false` relaxes one the model
 made mandatory, and omitting it defers to the model.
 
+An **autocomplete** column carries no `type` — the shape of its `{ value, label }`
+envelope depends on the widget's `storeValue` option — so `required: true` on one
+constrains its type to "anything but null" rather than guessing that shape:
+
+```jsonc
+"paid_by": {
+  "label": "Paid by",
+  "displayKey": "name",
+  "required": true,
+  "fieldInput": { "type": "autocomplete", "options": { "uri": "/users?q={q}" } }
+}
+```
+
+Declare the `type` yourself when you want the envelope validated properly:
+
+```jsonc
+"paid_by": {
+  "required": true,
+  "type": {
+    "type": "object",
+    "properties": { "id": { "type": "string" }, "name": { "type": "string" } },
+    "required": ["id"]
+  }
+}
+```
+
 ## repository.ts
 
 ```ts

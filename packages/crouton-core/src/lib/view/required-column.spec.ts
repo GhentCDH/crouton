@@ -142,3 +142,85 @@ describe('required on a sub-resource (schema-less column path)', () => {
     expect(required(views)).toBeUndefined();
   });
 });
+
+/**
+ * An autocomplete column has no declared `type` on purpose: the shape of its
+ * `{ value, label }` envelope depends on the widget's `storeValue` option. But a
+ * typeless property becomes `unknown` once the form converts the schema to Zod,
+ * and `unknown` accepts `undefined` and `null` — so listing it in `required`
+ * validated nothing. The control showed its required marker and an empty field
+ * still submitted.
+ */
+describe('required on a typeless (autocomplete) column', () => {
+  const autocomplete = (required?: boolean) =>
+    col({
+      id: 'paid_by',
+      label: 'Paid by',
+      displayKey: 'name',
+      ...(required !== undefined && { required }),
+      fieldInput: {
+        type: 'autocomplete',
+        options: { uri: '/users?q={q}', valueKey: 'id', labelKey: 'name' },
+      },
+    } as any);
+
+  it('lists it in required', () => {
+    const views = buildViewsFromColumnTypes([
+      col({ id: 'id', type: 'string', idField: true }),
+      autocomplete(true),
+    ]);
+    expect(required(views)).toEqual(['paid_by']);
+  });
+
+  it('constrains the type so the requirement can actually reject a value', () => {
+    const views = buildViewsFromColumnTypes([
+      col({ id: 'id', type: 'string', idField: true }),
+      autocomplete(true),
+    ]);
+    const prop = (views?.['form']?.json_schema as any).properties.paid_by;
+    expect(prop.type).toEqual([
+      'object',
+      'array',
+      'string',
+      'number',
+      'boolean',
+    ]);
+    expect(prop.type).not.toContain('null');
+  });
+
+  it('leaves an optional autocomplete typeless', () => {
+    const views = buildViewsFromColumnTypes([
+      col({ id: 'id', type: 'string', idField: true }),
+      autocomplete(),
+    ]);
+    const prop = (views?.['form']?.json_schema as any).properties.paid_by;
+    expect(prop.type).toBeUndefined();
+  });
+
+  it('does not touch a column that declares its own type', () => {
+    const views = buildViewsFromColumnTypes([
+      col({ id: 'id', type: 'string', idField: true }),
+      col({
+        id: 'member',
+        required: true,
+        type: { type: 'object', properties: { id: { type: 'string' } } },
+      } as any),
+    ]);
+    const prop = (views?.['form']?.json_schema as any).properties.member;
+    expect(prop.type).toBe('object');
+  });
+
+  it('does not touch an enum-constrained column', () => {
+    const views = buildViewsFromColumnTypes([
+      col({ id: 'id', type: 'string', idField: true }),
+      col({
+        id: 'status',
+        required: true,
+        fieldInput: { options: { values: ['open', 'closed'] } },
+      } as any),
+    ]);
+    const prop = (views?.['form']?.json_schema as any).properties.status;
+    expect(prop.enum).toEqual(['open', 'closed']);
+    expect(Array.isArray(prop.type)).toBe(false);
+  });
+});
