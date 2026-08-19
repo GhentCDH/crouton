@@ -150,6 +150,7 @@ Both forms support the same options:
 | `searchable`                                      | Included in free-text search                                        |
 | `filterable`                                      | Gets a filter control                                               |
 | `createable` / `updateable`                       | Whether the field is written on create/update                       |
+| `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable |
 | `showWhen` / `hideWhen` / `disabledWhen`          | Conditional display: `{ "field": "...", "eq"/"neq"/"exists": ... }` |
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                        |
 | `showInLookup`                                    | Shown in autocomplete lookups of this resource                      |

@@ -59,6 +59,21 @@ export const JsonColumnSchema = z.object({
    */
   type: ColumnTypeSchema.optional(),
   /**
+   * Whether the form requires a value.
+   *
+   * A prisma resource derives `required` from its Zod model, so this is an
+   * override in either direction: `true` adds the column to the form schema's
+   * `required` array, `false` removes it, and omitting it leaves the model's
+   * answer alone. A `kind: "custom"` resource has no model, so this is the only
+   * way to mark one of its fields required.
+   *
+   * Applies to the **form** view only — a required filter input would make the
+   * filter panel unsubmittable, and the table and view schemas are read-only.
+   * Ignored on the id column and on columns that are neither createable nor
+   * updateable, since the form cannot supply a value for those.
+   */
+  required: z.boolean().optional(),
+  /**
    * @deprecated Use `type` instead. Retained because it is still consumed by
    * the boolean predicate and the schema-less sub-resource view builder.
    */

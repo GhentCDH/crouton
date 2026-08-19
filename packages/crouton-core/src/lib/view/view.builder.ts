@@ -2,7 +2,10 @@ import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 
 import { isRelation } from './column-predicates';
-import { columnTypeSchemaSource } from './column-type-schema.source';
+import {
+  columnToJsonSchemaProperty,
+  columnTypeSchemaSource,
+} from './column-type-schema.source';
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
 import { jsonSchemaOpts } from './json-schema.opts';
@@ -144,6 +147,51 @@ export const zodSchemaSource =
     }) as Record<string, unknown>;
   };
 
+/**
+ * Apply column-level `required` to a form's `json_schema`.
+ *
+ * For a prisma resource the Zod model has already produced a `required` array and
+ * a column overrides it in either direction; for a `kind: "custom"` resource
+ * there is no model, so this is the only source of `required`.
+ *
+ * `undefined` leaves the schema's own answer alone — which is why the column flag
+ * is optional rather than defaulting to `false`.
+ */
+const applyRequiredColumns = (
+  jsonSchema: Record<string, unknown>,
+  columns: JsonColumn[] | undefined,
+): void => {
+  if (!columns?.length) return;
+  const properties = jsonSchema['properties'] as
+    | Record<string, unknown>
+    | undefined;
+  if (!properties) return;
+
+  const required = new Set(
+    Array.isArray(jsonSchema['required'])
+      ? (jsonSchema['required'] as string[])
+      : [],
+  );
+
+  for (const col of columns) {
+    if (col.required === undefined) continue;
+    if (!(col.id in properties)) continue;
+    if (!col.required) {
+      required.delete(col.id);
+      continue;
+    }
+    // Same exclusion `buildView` applies to the model's own `required`: a field
+    // the form cannot edit must not be demanded, or every submit fails on a value
+    // the user has no way to provide.
+    if (col.idField) continue;
+    if (col.createable === false && col.updateable === false) continue;
+    required.add(col.id);
+  }
+
+  if (required.size) jsonSchema['required'] = [...required];
+  else delete jsonSchema['required'];
+};
+
 const buildView = (
   source: ViewJsonSchemaSource | undefined,
   columns: JsonColumn[] | undefined,
@@ -247,7 +295,10 @@ export const buildViewsWithSource = (
     true,
     (c) => !c.idField && (c.createable === true || c.updateable === true),
   );
-  if (form) views.form = form;
+  if (form) {
+    applyRequiredColumns(form.json_schema as Record<string, unknown>, columns);
+    views.form = form;
+  }
 
   const filter = buildView(
     source,
@@ -338,6 +389,11 @@ export const buildViewsFromColumns = (
           type: 'string',
           title: c.label ?? c.id,
         };
+      } else if (c.type !== undefined) {
+        // A declared `type` is the whole point of a column config that has no
+        // Zod model behind it — honour it here exactly as `columnTypeSchemaSource`
+        // does, rather than falling through to the `string` default below.
+        properties[c.id] = columnToJsonSchemaProperty(c);
       } else {
         const opts = c.fieldInput?.options as
           Record<string, unknown> | undefined;
@@ -413,7 +469,10 @@ export const buildViewsFromColumns = (
 
   const formCols = sortByPosition(columns.filter((c) => !c.hiddenInForm));
   const form = makeView(formCols, buildFormUiSchema);
-  if (form) views.form = form;
+  if (form) {
+    applyRequiredColumns(form.json_schema as Record<string, unknown>, formCols);
+    views.form = form;
+  }
 
   const viewCols = sortByPosition(
     columns.filter((c) => !c.hiddenInView).map((c) => columnForContext(c, 'view')),

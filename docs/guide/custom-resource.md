@@ -130,6 +130,33 @@ Two columns are exempt from needing a `type`, because their shape lives in the
 resource they point at: relation columns (`fieldInput.format: "relation"`) and
 autocomplete columns (`fieldInput.type: "autocomplete"`).
 
+The form control follows from the type — the renderers test the resolved schema,
+so `"type": "number"` gets a number input and `"type": "date"` a date picker with
+no `fieldInput` needed. Set `fieldInput.type` only to override that choice
+(`textarea`, `markdown`, `select`, …).
+
+### Required fields
+
+A prisma resource derives `required` from its Zod model. A custom resource has no
+model, so mark the column:
+
+```jsonc
+"columns": {
+  "label":  { "type": "string", "required": true },
+  "amount": { "type": "number", "required": true },
+  "note":   { "type": "string" }
+}
+```
+
+This lands in the **form** schema's `required` array only — a required filter
+field would make the filter panel unsubmittable, and the table and view schemas
+are read-only. It is ignored on the id column and on columns that are neither
+`createable` nor `updateable`, since the form cannot supply a value for those.
+
+On a prisma resource the same flag overrides the model in either direction:
+`true` requires a field the model left optional, `false` relaxes one the model
+made mandatory, and omitting it defers to the model.
+
 ## repository.ts
 
 ```ts

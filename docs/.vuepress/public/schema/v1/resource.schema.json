@@ -328,6 +328,9 @@
               }
             ]
           },
+          "required": {
+            "type": "boolean"
+          },
           "columnType": {
             "default": "string",
             "type": "string"
