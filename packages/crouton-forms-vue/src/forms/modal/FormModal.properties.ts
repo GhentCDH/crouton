@@ -74,6 +74,10 @@ export const FormModalProperties = {
     type: Function as PropType<() => Promise<any>>,
     default: null,
   },
+  validateOnMount: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 export type FormModalProp = ExtractPublicPropTypes<typeof FormModalProperties>;

@@ -27,6 +27,7 @@
         :error-mode="errorMode"
         :http="properties.http"
         :renderers="renderers"
+        :validateOnMount="validateOnMount"
         @errors="onErrors"
         @change="onChange"
         @valid="onValid"

@@ -124,4 +124,16 @@ const onUpdate = (value: unknown) => {
       @update:model-value="onUpdate"
     />
   </div>
+  <h2>Validate on mount</h2>
+  <div class="border border-base-300 rounded-lg p-4">
+    <AutoSaveForm
+      :schema="dataSchema"
+      :ui-schema="uiSchema"
+      :model-value="resource"
+      :api="api"
+      :validate-on-mount="true"
+      modal-title="Demo auto save form"
+      @update:model-value="onUpdate"
+    />
+  </div>
 </template>
