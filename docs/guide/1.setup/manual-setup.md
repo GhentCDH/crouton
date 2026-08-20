@@ -138,14 +138,18 @@ export default client;
 
 ### Standalone project
 
-In `tsconfig.json`, add path aliases for the generated types and client:
+In `../../../tsconfig.json`, add path aliases for the generated types and client:
 
 ```json
 {
   "compilerOptions": {
     "paths": {
-      "@my-app/generated/default/types": ["./generated/default/types/src"],
-      "@my-app/generated/default/client": ["./generated/default/client/src"]
+      "@my-app/generated/default/types": [
+        "./generated/default/types/src"
+      ],
+      "@my-app/generated/default/client": [
+        "./generated/default/client/src"
+      ]
     }
   }
 }
@@ -153,15 +157,19 @@ In `tsconfig.json`, add path aliases for the generated types and client:
 
 ### Nx monorepo
 
-In `tsconfig.base.json` at the workspace root:
+In `../../../tsconfig.base.json` at the workspace root:
 
 ```json
 {
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@my-app/generated/default/types": ["./generated/default/types/src"],
-      "@my-app/generated/default/client": ["./generated/default/client/src"]
+      "@my-app/generated/default/types": [
+        "./generated/default/types/src"
+      ],
+      "@my-app/generated/default/client": [
+        "./generated/default/client/src"
+      ]
     }
   }
 }
@@ -173,8 +181,12 @@ If using a prefix subfolder (e.g. `split`), adjust the paths:
 {
   "compilerOptions": {
     "paths": {
-      "@my-app/generated/default/types": ["./split/generated/default/types/src"],
-      "@my-app/generated/default/client": ["./split/generated/default/client/src"]
+      "@my-app/generated/default/types": [
+        "./split/generated/default/types/src"
+      ],
+      "@my-app/generated/default/client": [
+        "./split/generated/default/client/src"
+      ]
     }
   }
 }
@@ -204,7 +216,8 @@ import { CroutonApiModule } from '@ghentcdh/crouton-api';
     ),
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 ## 6. Environment file
@@ -235,20 +248,21 @@ For Nx workspaces with a prefix subfolder:
 npx crouton update resources --prefix split
 ```
 
-This introspects your database, lets you pick which models to expose, and generates `resource.json` + `schema.ts` files per resource.
+This introspects your database, lets you pick which models to expose, and generates `resource.json` + `schema.ts` files
+per resource.
 
 ### CLI flags
 
-| Flag | Description |
-| --- | --- |
-| `-d, --datasource <name>` | Datasource to use (from crouton.config). |
-| `-m, --models <list>` | Comma-separated models to limit to. |
-| `--cwd <dir>` | Project directory (defaults to cwd). |
-| `--prefix <name>` | Subfolder prefix (resolves cwd to `<cwd>/<prefix>`). |
-| `--dry-run` | Show planned changes without writing files. |
-| `-y, --yes` | Accept all defaults (non-interactive). |
-| `--skip-pull` | Do not run `prisma db pull`. |
-| `--skip-generate` | Do not run `prisma generate` after pulling. |
+| Flag                      | Description                                          |
+|---------------------------|------------------------------------------------------|
+| `-d, --datasource <name>` | Datasource to use (from crouton.config).             |
+| `-m, --models <list>`     | Comma-separated models to limit to.                  |
+| `--cwd <dir>`             | Project directory (defaults to cwd).                 |
+| `--prefix <name>`         | Subfolder prefix (resolves cwd to `<cwd>/<prefix>`). |
+| `--dry-run`               | Show planned changes without writing files.          |
+| `-y, --yes`               | Accept all defaults (non-interactive).               |
+| `--skip-pull`             | Do not run `prisma db pull`.                         |
+| `--skip-generate`         | Do not run `prisma generate` after pulling.          |
 
 ## 9. Frontend app (Vue 3)
 
@@ -264,15 +278,15 @@ pnpm add -D vite @vitejs/plugin-vue @types/node typescript
 ```html
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My App</title>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>
 ```
 
@@ -325,6 +339,7 @@ useCrouton()
 Create `src/App.vue`:
 
 ```vue
+
 <template>
   <router-view />
 </template>
@@ -368,8 +383,14 @@ The proxy forwards `/api` requests to the NestJS backend during development.
     "jsx": "preserve",
     "jsxImportSource": "vue"
   },
-  "include": ["src/**/*.ts", "src/**/*.vue"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
 ```
 
@@ -379,7 +400,7 @@ The proxy forwards `/api` requests to the NestJS backend during development.
 pnpm dev
 ```
 
-For more frontend configuration, see [Frontend setup](./frontend.md).
+For more frontend configuration, see [Frontend setup](frontend.md).
 
 ## Nx workspace extras
 
@@ -421,16 +442,22 @@ Backend app tsconfigs should extend the base:
     "incremental": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
 ```
 
 ### Generated package.json files
 
-Each generated output needs a `package.json` for workspace resolution:
+Each generated output needs a `../../../package.json` for workspace resolution:
 
 `generated/default/types/package.json`:
+
 ```json
 {
   "name": "@my-app/generated-default-types",
@@ -444,6 +471,7 @@ Each generated output needs a `package.json` for workspace resolution:
 ```
 
 `generated/default/client/package.json`:
+
 ```json
 {
   "name": "@my-app/generated-default-client",

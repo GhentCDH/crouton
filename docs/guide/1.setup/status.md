@@ -1,6 +1,7 @@
 # Status page
 
-Crouton ships a built-in status endpoint and frontend page that report version info, environment, database connectivity, and resource load health.
+Crouton ships a built-in status endpoint and frontend page that report version info, environment, database connectivity,
+and resource load health.
 
 ## Backend — `GET /crouton/status.json`
 
@@ -39,36 +40,44 @@ interface CroutonStatus {
 
 ### Custom resources
 
-A [custom resource](./custom-resource.md) is tagged `kind: 'custom'` and lists
-the operations its `repository.ts` implements. A resource whose repository is
-missing, broken, or does not cover an operation `resource.json` enables is
-reported as invalid here and skipped at boot, rather than failing on the first
-request.
+A [custom resource](../resource/custom-resource.md) is tagged `kind: 'custom'` and lists the operations its
+`repository.ts`
+implements. A resource whose repository is missing, broken, or does not cover an operation `resource.json` enables is
+reported as invalid here and skipped at boot, rather than failing on the first request.
 
 ### Database checks
 
-Each registered data source gets a `SELECT 1` query with a 3-second timeout. Connection strings in error messages are automatically stripped.
+Each registered data source gets a `SELECT 1` query with a 3-second timeout. Connection strings in error messages are
+automatically stripped.
 
 ### Resource load errors
 
-Since crouton `0.0.1-alpha.35`, a malformed `resource.json` or `data-source.json` no longer crashes boot. The invalid file is skipped, the error is recorded, and the rest of the resources load normally. The status endpoint surfaces these errors in the `resources` array.
+Since crouton `0.0.1-alpha.35`, a malformed `resource.json` or `data-source.json` no longer crashes boot. The invalid
+file is skipped, the error is recorded, and the rest of the resources load normally. The status endpoint surfaces these
+errors in the `resources` array.
 
 Each loaded resource reports its `version`. Two more states show up here:
 
-- **Needs migration** — a `resource.json` whose `schemaVersion` differs from what crouton expects. It carries `expectedVersion` and is `valid: false`; the fix is to migrate it (automatic in dev). See [Versioning & migrations](./resource-versioning.md).
-- **Draft** — a resource with `draft: true` is present but intentionally not served. It reports `draft: true` and `valid: true`, and does **not** count as a resource error. See [Draft resources](./resource-versioning.md#draft-resources).
+- **Needs migration** — a `resource.json` whose `schemaVersion` differs from what crouton expects. It carries
+  `expectedVersion` and is `valid: false`; the fix is to migrate it (automatic in dev).
+  See [Versioning & migrations](../resource/resource-versioning.md).
+- **Draft** — a resource with `draft: true` is present but intentionally not served. It reports `draft: true` and
+  `valid: true`, and does **not** count as a resource error.
+  See [Draft resources](../resource/resource-versioning.md#draft-resources).
 
 ## Frontend — `/crouton/status`
 
-The `StatusView` is included in `CroutonRouter` by default, so any app using crouton gets it at the `/crouton/status` path (relative to wherever `CroutonRouter` is mounted).
+The `StatusView` is included in `CroutonRouter` by default, so any app using crouton gets it at the `/crouton/status`
+path (relative to wherever `CroutonRouter` is mounted).
 
 The page shows:
 
 - **Backend connectivity** — green "Running" / red "Down" based on whether the fetch succeeds
-- **Summary banner** — "All systems operational" or "N issue(s) detected"
+- **Summary banner** — "All systems operational" or "N issue (s) detected"
 - **Version badges** — app version, crouton version, environment
 - **Databases list** — green/red dot per data source, with error text on failure
-- **Resources list** — a dot per resource (green loaded, red failed, gray draft), a `v{version}` badge, an amber "needs migration" line for out-of-date files, and a "draft — not loaded" badge for drafts
+- **Resources list** — a dot per resource (green loaded, red failed, gray draft), a `v{version}` badge, an amber "needs
+  migration" line for out-of-date files, and a "draft — not loaded" badge for drafts
 
 ### Standalone route
 

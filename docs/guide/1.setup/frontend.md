@@ -21,7 +21,8 @@ import '@ghentcdh/crouton-vue/styles.css';
 
 ## Bootstrap
 
-Initialize crouton with an axios instance **before** mounting the app. `init()` configures the API client and fetches `/_app/layout` from the backend to build the sidebar:
+Initialize crouton with an axios instance **before** mounting the app. `init()` configures the API client and fetches
+`/_app/layout` from the backend to build the sidebar:
 
 ```ts
 // main.ts
@@ -43,8 +44,7 @@ useCrouton()
   });
 ```
 
-::: tip
-Any pre-configured `AxiosInstance` works — add your auth interceptors to it before passing it to `init()`.
+::: tip Any pre-configured `AxiosInstance` works — add your auth interceptors to it before passing it to `init()`.
 :::
 
 ## Mount the routes
@@ -71,7 +71,8 @@ const router = createRouter({
 export default router;
 ```
 
-Navigating to `/admin/form/<resource>` now renders the complete admin view — table, filters, and forms — for that resource. Nothing else to configure.
+Navigating to `/admin/form/<resource>` now renders the complete admin view — table, filters, and forms — for that
+resource. Nothing else to configure.
 
 Navigate programmatically with the named route:
 
@@ -89,7 +90,8 @@ router.push({ name: CROUTON_FORM, params: { formId: 'book' } });
 const { sidebar } = useCrouton();
 ```
 
-Use it to render your own navigation, or hide resources from it via `sidebar.hide` in their [resource.json](./resource-json.md).
+Use it to render your own navigation, or hide resources from it via `sidebar.hide` in
+their [resource.json](../resource/resource-json.md).
 
 ## Advanced: schemas in custom views
 

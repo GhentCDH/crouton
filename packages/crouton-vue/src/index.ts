@@ -4,7 +4,7 @@ export { Table } from '@ghentcdh/ui';
 
 export { isCustomFormat } from './resource/renderers';
 
-export { croutonApiCall } from './resource/resource.api';
+export { croutonApiCall, resourceApi } from './resource/resource.api';
 
 export * from './router';
 export * from './composables/useCrouton';

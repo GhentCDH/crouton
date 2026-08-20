@@ -2,8 +2,8 @@
 
 Every `resource.json` carries a `schemaVersion`. When crouton evolves the shape of `resource.json`, older files are
 **auto-migrated** to the current version in the dev environment; anything that can't be brought current is reported on
-the [status page](./status.md) rather than crashing boot. A generated JSON Schema gives you editor autocomplete and
-inline validation, and a `draft` flag lets a resource live in the repo without being served.
+the [status page](../1.setup/status.md) rather than crashing boot. A generated JSON Schema gives you editor autocomplete
+and inline validation, and a `draft` flag lets a resource live in the repo without being served.
 
 ## `schemaVersion`
 
@@ -28,13 +28,13 @@ by the CLI are stamped with it automatically (see [`$schema` and stamping](#sche
 When crouton loads resources, each `resource.json` is checked against `CURRENT_RESOURCE_VERSION` **before** it is
 parsed. Migration only runs in the **dev environment** — it rewrites the checked-in file, so it needs a writable,
 version-controlled checkout where the change can be reviewed and committed. Dev mode is enabled with the
-`CROUTON_SCHEMA_EDITOR` env var (the same flag that powers the [visual resource builder](./visual-resource-builder.md)).
+`CROUTON_SCHEMA_EDITOR` env var (the same flag that powers the [visual resource builder](visual-resource-builder.md)).
 
-| File version vs current | Dev (`CROUTON_SCHEMA_EDITOR=true`) | Non-dev |
-| --- | --- | --- |
-| equal | loads normally | loads normally |
-| older | migrated → validated → **rewritten on disk** → loaded; any failure is reported | reported as failed (no migration runs) |
-| newer than crouton | reported as failed (upgrade crouton) | reported as failed |
+| File version vs current | Dev (`CROUTON_SCHEMA_EDITOR=true`)                                             | Non-dev                                |
+|-------------------------|--------------------------------------------------------------------------------|----------------------------------------|
+| equal                   | loads normally                                                                 | loads normally                         |
+| older                   | migrated → validated → **rewritten on disk** → loaded; any failure is reported | reported as failed (no migration runs) |
+| newer than crouton      | reported as failed (upgrade crouton)                                           | reported as failed                     |
 
 Because the dev loader re-reads resources on every request, a freshly migrated file is picked up immediately — no
 restart needed. The rewrite goes through the same raw-preserving serializer used elsewhere, so untouched keys stay
@@ -47,13 +47,13 @@ still out of date shows up on the status page as failed — a signal that the mi
 ### What "failed" looks like
 
 A file that can't be brought current (a missing migration step, a step that throws, or a post-migration validation
-error) is skipped — that resource is not served — and listed on the [status page](./status.md) with its version, the
-expected version, and the error. See [Resource load health](./status.md#resource-load-errors).
+error) is skipped — that resource is not served — and listed on the [status page](../1.setup/status.md) with its
+version, the expected version, and the error. See [Resource load health](../1.setup/status.md#resource-load-errors).
 
 ## Authoring a migration
 
-Migrations live in `packages/crouton-core/src/lib/resource/migrations/`. Each step is a small, **pure** function that
-transforms the raw JSON object (before any Zod normalisation) and returns a new object:
+Migrations live in `../../../packages/crouton-core/src/lib/resource/migrations`. Each step is a small, **pure** function
+that transforms the raw JSON object (before any Zod normalisation) and returns a new object:
 
 ```ts
 // migrations/0001-to-0002.ts
@@ -100,7 +100,9 @@ is needed:
 {
   "json.schemas": [
     {
-      "fileMatch": ["**/resource.json"],
+      "fileMatch": [
+        "**/resource.json"
+      ],
       "url": "./node_modules/@ghentcdh/crouton-core/dist/resource.schema.json"
     }
   ]
@@ -124,10 +126,9 @@ installing the package:
 Prefer a versioned URL (or the packaged copy) over `main`-branch raw links, so a file always validates against the
 schema for its own version.
 
-::: tip Autocomplete, not a second validator
-The JSON Schema covers structure and types for editor ergonomics. It does **not** enforce cross-field rules or the
-runtime normalisation (e.g. `table` defaulting to `model`). The Zod schema in `crouton-core` remains the source of
-truth; the JSON Schema is a generated mirror — never hand-edit it.
+::: tip Autocomplete, not a second validator The JSON Schema covers structure and types for editor ergonomics. It does
+**not** enforce cross-field rules or the runtime normalisation (e.g. `table` defaulting to `model`). The Zod schema in
+`crouton-core` remains the source of truth; the JSON Schema is a generated mirror — never hand-edit it.
 :::
 
 ## Draft resources
@@ -145,9 +146,9 @@ Set `draft: true` to keep a resource in the repo without serving it:
 
 A draft is excluded from the loaded set entirely — it doesn't appear in the sidebar, has no CRUD or schema endpoints,
 and its route 404s like any unknown resource. It is still auto-migrated in dev (so it stays current while you work on
-it), and it shows on the [status page](./status.md) as an informational "draft — not loaded" row so it's visible but
-clearly excluded rather than silently missing.
+it), and it shows on the [status page](../1.setup/status.md) as an informational "draft — not loaded" row so it's
+visible but clearly excluded rather than silently missing.
 
 New resources scaffolded by `crouton update resources` default to `draft: true`, so a generated-but-unreviewed resource
-never goes live by accident. Pass [`--no-draft`](./cli.md#crouton-update-resources) to opt out, or flip the flag to
+never goes live by accident. Pass [`--no-draft`](../cli/cli.md#crouton-update-resources) to opt out, or flip the flag to
 `false` (or remove it) once the resource is ready.

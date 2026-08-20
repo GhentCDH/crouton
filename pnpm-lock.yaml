@@ -14,6 +14,9 @@ importers:
       '@ghentcdh/create-crouton':
         specifier: link:packages/create-crouton
         version: link:packages/create-crouton
+      '@heroicons/vue':
+        specifier: ^2.2.0
+        version: 2.2.0(vue@3.5.39(typescript@5.9.3))
     devDependencies:
       '@ghentcdh/ui':
         specifier: ^3.0.6
