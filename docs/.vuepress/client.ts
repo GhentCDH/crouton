@@ -2,6 +2,7 @@ import { defineClientConfig } from 'vuepress/client';
 
 import AutoSaveFormDemo from './components/AutoSaveFormDemo.vue';
 import ResourceJsonEditorDemo from './components/ResourceJsonEditorDemo.vue';
+import AutoSaveFormDemo from './components/AutoSaveFormDemo.vue';
 
 import './styles/app.css';
 
