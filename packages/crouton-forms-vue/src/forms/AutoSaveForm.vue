@@ -1,11 +1,21 @@
 <template>
-  <button @click="() => navigate.go(-1)">Back</button>
-
   <div class="border border-gray-200 p-4 mt-4">
-    <slot v-if="$slots.title" name="title" />
-    <h3 v-else :id="`title-${id}`" class="font-bold shrink-0">
-      {{ modalTitle }}
-    </h3>
+    <div
+      class="flex gap-2 border-b border-gray-200 items-center font-bold pb-2"
+    >
+      <Btn
+        @click="() => navigate.go(-1)"
+        :icon="ArrowLeftIcon"
+        color="blank"
+        :outline="true"
+        size="xsgi"
+        :noBorder="true"
+      />
+      <slot v-if="$slots.title" name="title" />
+      <div v-else :id="`title-${id}`">
+        {{ modalTitle }}
+      </div>
+    </div>
     <div class="overflow-y-auto">
       <slot name="content-before" />
       <FormComponent
@@ -67,7 +77,7 @@
 import { ref } from 'vue';
 
 import { Btn, Color } from '@ghentcdh/ui';
-
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import {
   FormModalEmits,
   FormModalProperties,

@@ -172,7 +172,7 @@ npx @ghentcdh/add-crouton --cwd /path/to/project
 
 ### What it does
 
-1. **Detects project type** — checks for `nx.json` to distinguish Nx workspaces from regular projects.
+1. **Detects project type** — checks for `../../../nx.json` to distinguish Nx workspaces from regular projects.
 2. **Discovers apps** (Nx only) — scans `apps/` subdirs, classifies them as backend (`@nestjs/core` in deps) or frontend (`vue`/`vite` in deps), and prompts which to use.
 3. **Detects package manager** — from lockfile presence (pnpm-lock.yaml, package-lock.json, yarn.lock, bun.lockb).
 4. **Scans dependencies** — reports missing backend deps (`@ghentcdh/crouton-api`, `@ghentcdh/crouton-core`, `prisma`, etc.).
@@ -183,4 +183,4 @@ npx @ghentcdh/add-crouton --cwd /path/to/project
    - `.env.example` — with `DATABASE_URL` placeholder
 6. **Installs dependencies** — runs `<pm> install` if missing deps were detected.
 
-After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module — see [Backend setup](./backend.md).
+After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module — see [Backend setup](backend.md).

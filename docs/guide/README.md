@@ -1,9 +1,10 @@
 # Using crouton
 
-Crouton is a schema-driven CRUD framework for **NestJS + Vue**. You define each resource once — in a `resource.json` file plus a Zod schema — and crouton generates the API endpoints, validation, data tables, forms, and filters for it.
+Crouton is a schema-driven CRUD framework for **NestJS + Vue**. You define each resource once — in a `resource.json`
+file plus a Zod schema — and crouton generates the API endpoints, validation, data tables, forms, and filters for it.
 
-::: warning Work in progress
-Crouton is still in active development. APIs, schemas, and components may change without notice.
+::: warning Work in progress Crouton is still in active development. APIs, schemas, and components may change without
+notice.
 :::
 
 ## How it works
@@ -29,7 +30,9 @@ src/app/
         └── index.ts             # default export: PrismaClient
 ```
 
-At startup, `crouton-api` loads these definitions, registers CRUD controllers and repositories per resource, and exposes schema endpoints. The Vue frontend bootstraps once, fetches the layout for its sidebar, and renders tables and forms straight from those schemas.
+At startup, `crouton-api` loads these definitions, registers CRUD controllers and repositories per resource, and exposes
+schema endpoints. The Vue frontend bootstraps once, fetches the layout for its sidebar, and renders tables and forms
+straight from those schemas.
 
 ```mermaid
 flowchart LR
@@ -40,52 +43,53 @@ flowchart LR
         AC[actions/*.ts]
     end
 
-    subgraph backend [NestJS — crouton-api]
-        LOADER[Resource loader]
-        REG[Resource registry]
-        CRUD[CRUD controllers<br/>+ repositories]
-        SCHEMAS[Schema endpoints<br/>/schemas · /definition]
-        LAYOUT[App layout<br/>/_app/layout]
-        DS[(Data sources<br/>Prisma clients)]
-    end
+subgraph backend [NestJS — crouton-api]
+LOADER[Resource loader]
+REG[Resource registry]
+CRUD[CRUD controllers<br/>+ repositories]
+SCHEMAS[Schema endpoints<br/>/schemas · /definition]
+LAYOUT[App layout<br/>/_app/layout]
+DS[(Data sources<br/>Prisma clients)]
+end
 
-    subgraph frontend [Vue 3 — crouton-vue]
-        INIT[useCrouton.init]
-        SIDEBAR[Sidebar menu]
-        ROUTER[CroutonRouter<br/>form/:formId]
-        ADMIN[AdminView]
-        TABLE[Table + filters]
-        FORM[Form]
-    end
+subgraph frontend [Vue 3 — crouton-vue]
+INIT[useCrouton.init]
+SIDEBAR[Sidebar menu]
+ROUTER[CroutonRouter<br/>form/:formId]
+ADMIN[AdminView]
+TABLE[Table + filters]
+FORM[Form]
+end
 
-    RJ --> LOADER
-    ZS --> LOADER
-    HK --> LOADER
-    AC --> LOADER
-    LOADER --> REG --> CRUD
-    REG --> SCHEMAS
-    REG --> LAYOUT
-    CRUD --> DS
+RJ --> LOADER
+ZS --> LOADER
+HK --> LOADER
+AC --> LOADER
+LOADER --> REG --> CRUD
+REG --> SCHEMAS
+REG --> LAYOUT
+CRUD --> DS
 
-    INIT -->|GET /_app/layout| LAYOUT
-    INIT --> SIDEBAR --> ROUTER --> ADMIN
-    ADMIN -->|GET :resource/schemas| SCHEMAS
-    ADMIN --> TABLE
-    ADMIN --> FORM
-    TABLE -->|CRUD requests| CRUD
-    FORM -->|CRUD requests| CRUD
+INIT -->|GET /_app/layout|LAYOUT
+INIT --> SIDEBAR --> ROUTER --> ADMIN
+ADMIN -->|GET :resource/schemas|SCHEMAS
+ADMIN --> TABLE
+ADMIN --> FORM
+TABLE -->|CRUD requests|CRUD
+FORM -->|CRUD requests|CRUD
 ```
 
 ## In this guide
 
-- [Getting started](./getting-started.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set up a new or existing project
-- [Manual setup](./manual-setup.md) — add crouton to an existing project step by step, without the CLI
-- [CLI & project config](./cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`
-- [Backend setup](./backend.md) — register crouton in your NestJS application
-- [Frontend setup](./frontend.md) — bootstrap crouton in your Vue application
-- [resource.json](./resource-json.md) — the resource configuration reference
-- [Data sources](./datasource.md) — connecting one or more databases
-- [Actions](./actions.md) — custom row and table actions
-- [Hooks](./hooks.md) — lifecycle hooks around reads and writes
-- [Custom styling](./styling.md) — theming with Tailwind and daisyUI
-- [Status page](./status.md) — built-in health checks and diagnostics at `/crouton/status.json`
+- [Getting started](1. setup/getting-started.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set
+  up a new or existing project
+- [Manual setup](1.setup/manual-setup.md) — add crouton to an existing project step by step, without the CLI
+- [CLI & project config](cli/cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`
+- [Backend setup](1.setup/backend.md) — register crouton in your NestJS application
+- [Frontend setup](1.setup/frontend.md) — bootstrap crouton in your Vue application
+- [resource.json](resource/resource-json.md) — the resource configuration reference
+- [Data sources](datasource/datasource.md) — connecting one or more databases
+- [Actions](resource/actions.md) — custom row and table actions
+- [Hooks](resource/hooks.md) — lifecycle hooks around reads and writes
+- [Custom styling](1.setup/styling.md) — theming with Tailwind and daisyUI
+- [Status page](1.setup/status.md) — built-in health checks and diagnostics at `/crouton/status.json`
