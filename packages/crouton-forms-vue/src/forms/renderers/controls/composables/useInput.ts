@@ -5,7 +5,11 @@ import { computed, inject, ref } from 'vue';
 import { type MyStyles, mergeStyles } from '@ghentcdh/ui';
 
 import { formatError } from '../../../errorMessages';
-import { ERROR_MODE_KEY, FORM_READONLY_KEY, FORM_SUBMITTED_KEY } from '../../../errorMode';
+import {
+  ERROR_MODE_KEY,
+  FORM_READONLY_KEY,
+  FORM_SUBMITTED_KEY,
+} from '../../../errorMode';
 import { resolveSchema, scopeToPath } from '../../../scope';
 
 export interface InputProps {

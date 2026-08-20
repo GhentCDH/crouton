@@ -42,6 +42,10 @@ export const JsonFormComponentProperties = {
     type: Array as PropType<any[]>,
     default: null,
   },
+  validateOnMount: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 export type JsonFormComponentProp = ExtractPublicPropTypes<

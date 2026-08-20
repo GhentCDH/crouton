@@ -76,7 +76,7 @@ provide(FORM_READONLY_KEY, toRef(properties, 'readonly'));
 // visible immediately — the user needs to know what to fix before saving.
 onMounted(async () => {
   const result = await validate();
-  if (!result.valid) {
+  if (!result.valid && properties.validateOnMount) {
     for (const field of Object.keys(result.errors)) {
       setFieldTouched(field, true);
     }
