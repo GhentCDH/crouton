@@ -8,7 +8,7 @@
         :icon="ArrowLeftIcon"
         color="blank"
         :outline="true"
-        size="xs"
+        size="xsgi"
         :noBorder="true"
       />
       <slot v-if="$slots.title" name="title" />
