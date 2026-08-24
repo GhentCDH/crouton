@@ -1,3 +1,25 @@
+## 0.0.1-alpha.40 (2026-08-24)
+
+### 🚀 Features
+
+- update docs & update ui autosave ([#83](https://github.com/GhentCDH/crouton/pull/83))
+- **api:** auto-derive includes for manyToOne relations in sub-resources ([#80](https://github.com/GhentCDH/crouton/pull/80))
+- **codegen:** include relations by default; hide the reverse side of a relation by default ([#75](https://github.com/GhentCDH/crouton/pull/75))
+- **forms-vue:** add date control with daisyUI datepicker ([#77](https://github.com/GhentCDH/crouton/pull/77))
+
+### 🩹 Fixes
+
+- preserve prisma relation writes in hooks ([#79](https://github.com/GhentCDH/crouton/pull/79))
+- hide errors on new form ([#84](https://github.com/GhentCDH/crouton/pull/84))
+- hide errors on new form ([#85](https://github.com/GhentCDH/crouton/pull/85))
+- **autocomplete:** resolve stored id back to its label on edit ([#82](https://github.com/GhentCDH/crouton/pull/82))
+- **core:** map Prisma Decimal, BigInt, and Buffer to correct JSON schema types ([#76](https://github.com/GhentCDH/crouton/pull/76))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.39 (2026-08-14)
 
 ### 🚀 Features
