@@ -27,5 +27,6 @@ export * from './custom-resource-scaffold';
 export * from './project';
 export * from './plan';
 export * from './enum-registry';
+export * from './translations';
 export { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
 export * from './prisma-shell';
