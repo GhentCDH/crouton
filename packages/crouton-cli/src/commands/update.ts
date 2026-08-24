@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 
+import { runTranslationsUpdate } from '../translations/runner';
 import { runUpdateResources } from '../update/runner';
 import { resolve } from 'node:path';
 
@@ -8,6 +9,29 @@ export const registerUpdateCommand = (program: Command) => {
   const update = program
     .command('update')
     .description('Update resources in the project');
+
+  update
+    .command('translations')
+    .description('Regenerate and merge translation bundles (alias for `crouton translations update`)')
+    .option('--cwd <dir>', 'project directory (defaults to the current directory)')
+    .option('--lang <list>', 'comma-separated languages to limit to')
+    .option('--prune', 'remove keys with no backing column/enum (reports first)')
+    .option('--dry-run', 'show the planned changes without writing files')
+    .option('-y, --yes', 'accept all recommended defaults (non-interactive)')
+    .action(async (opts) => {
+      try {
+        await runTranslationsUpdate({
+          cwd: opts.cwd ? resolve(opts.cwd) : undefined,
+          lang: opts.lang,
+          prune: opts.prune,
+          dryRun: opts.dryRun,
+          yes: opts.yes,
+        });
+      } catch (err) {
+        console.error(err instanceof Error ? err.message : err);
+        process.exitCode = 1;
+      }
+    });
 
   update
     .command('resources')
