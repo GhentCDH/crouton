@@ -13,11 +13,11 @@ import {
   childRepositoryFn,
 } from './custom-repository/child-delegate';
 import { type ReadOp, decorateRow, decorateRows } from './hooks';
-import type { ResourceConfigRegistry } from './resource-config.registry';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { type ValueLabelColumn } from './resource/valueLabel';
 import { applyValueLabelColumns } from './resource/valueLabel.apply';
+import type { ResourceConfigRegistry } from './resource-config.registry';
 import {
   buildChildSortClause,
   buildFindOneIncludes,

@@ -16,8 +16,8 @@ import {
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { CrudRepository } from '../crud-repository.factory';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
-import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { resolveValueLabelColumns } from '../translation';
 
 /** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */

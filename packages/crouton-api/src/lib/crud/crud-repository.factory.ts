@@ -6,9 +6,9 @@ import {
   createCustomRepository,
 } from './custom-repository';
 import { ReadRepository } from './read.repository';
-import type { ResourceConfigRegistry } from './resource-config.registry';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
+import type { ResourceConfigRegistry } from './resource-config.registry';
 import { toSelectFields } from './schema.utils';
 import { WriteRepository } from './write.repository';
 
