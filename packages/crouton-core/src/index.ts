@@ -18,3 +18,4 @@ export * from './lib/resource';
 export * from './lib/config';
 export * from './lib/schema/label.helper';
 export * from './lib/view';
+export * from './lib/i18n';

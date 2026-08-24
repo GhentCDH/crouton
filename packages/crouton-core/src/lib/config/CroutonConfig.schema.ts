@@ -21,6 +21,17 @@ export const RulesetSchema = z.object({
 
 export type Ruleset = z.infer<typeof RulesetSchema>;
 
+export const I18nConfigSchema = z.object({
+  /** Default / fallback language. */
+  defaultLanguage: z.string().default('en'),
+  /** All supported language codes. */
+  languages: z.array(z.string()).min(1),
+  /** Directory containing `<lang>.json` bundles, relative to project root. */
+  translationsDir: z.string().default('translations'),
+});
+
+export type I18nConfig = z.infer<typeof I18nConfigSchema>;
+
 export const CroutonConfigSchema = z.object({
   /**
    * Application title served to the frontend via `GET /_app/layout`.
@@ -51,6 +62,8 @@ export const CroutonConfigSchema = z.object({
    * @default true
    */
   autoSave: z.boolean().default(true),
+  /** Optional i18n / translation configuration. */
+  i18n: I18nConfigSchema.optional(),
 });
 
 export type CroutonConfig = z.infer<typeof CroutonConfigSchema>;
