@@ -5,6 +5,7 @@ import { type SidebarGroupConfig } from '@ghentcdh/crouton-core';
 
 import { IS_DEV } from '../dev-mode';
 import { ResourceConfigRegistry } from '../resource-config.registry';
+import { getRequestLanguage } from '../translation/language.context';
 import { buildLayoutPayload } from './app-layout.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
 
@@ -31,8 +32,9 @@ export const createAppLayoutController = (
     @ApiOperation({ summary: 'Get the application layout (sidebar, …)' })
     @ApiResponse({ status: 200, description: 'Application layout metadata' })
     async getLayout() {
-      if (IS_DEV) {
-        const fresh = await this.configRegistry.getAll();
+      const language = getRequestLanguage();
+      if (IS_DEV || language) {
+        const fresh = await this.configRegistry.getAll(language);
 
         return buildLayoutPayload(
           fresh,
