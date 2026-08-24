@@ -14,8 +14,8 @@ import type { Observable } from 'rxjs';
 
 import { resolveLanguage } from '@ghentcdh/crouton-core';
 
-import { TranslationRegistry } from './translation.registry';
 import { runWithLanguage } from './language.context';
+import { type TranslationRegistry } from './translation.registry';
 
 @Injectable()
 export class LanguageInterceptor implements NestInterceptor {

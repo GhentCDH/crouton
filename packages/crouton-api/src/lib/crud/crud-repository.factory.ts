@@ -6,6 +6,7 @@ import {
   createCustomRepository,
 } from './custom-repository';
 import { ReadRepository } from './read.repository';
+import type { ResourceConfigRegistry } from './resource-config.registry';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { toSelectFields } from './schema.utils';
@@ -87,6 +88,7 @@ export function createCrudRepository<T = any>(
   prisma: any,
   config: Resource,
   dataSources?: DataSourceResolver,
+  configRegistry?: ResourceConfigRegistry,
 ): CrudRepository<T> {
   // A custom resource brings its own data access; everything below this point
   // assumes a Prisma delegate.
@@ -99,6 +101,7 @@ export function createCrudRepository<T = any>(
         entries: () => [],
       },
       config.repository,
+      configRegistry,
     );
   }
 
@@ -128,6 +131,7 @@ export function createCrudRepository<T = any>(
     config,
     listSelect,
     oneSelect,
+    configRegistry,
   );
   const writer = new WriteRepository<T>(model, prisma, config);
 

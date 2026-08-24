@@ -81,7 +81,7 @@ export function createCrudController(
       // datasources at all, so a resolve failure is not fatal for it — the
       // repository simply receives `ctx.prisma === undefined`.
       const prisma = resolveClient(registry, config);
-      this.repo = createCrudRepository(prisma, config, registry);
+      this.repo = createCrudRepository(prisma, config, registry, configRegistry);
       this.configRegistry = configRegistry;
     }
   }

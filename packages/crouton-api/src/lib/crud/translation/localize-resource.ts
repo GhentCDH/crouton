@@ -8,19 +8,67 @@
 
 import type { JsonColumn, Translator, ViewConfig } from '@ghentcdh/crouton-core';
 import {
-  columnKey,
-  resourceTitleKey,
-  resourceSidebarKey,
   actionKey,
-  subResourceTitleKey,
+  columnKey,
+  enumKey,
+  resourceSidebarKey,
+  resourceTitleKey,
   subResourceColumnKey,
+  subResourceTitleKey,
 } from '@ghentcdh/crouton-core';
 
+import { buildValueLabelColumns } from '../adapter/column-transforms';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
+import type { ValueLabelColumn } from '../resource/valueLabel';
 
 /** Deep-clone a plain object (JSON-safe). */
 const clone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
+
+/**
+ * Translate enum option labels for columns that reference a shared enum.
+ * Mutates the cloned column's `fieldInput.options.values[].label` in place.
+ */
+const translateEnumOptions = (
+  columns: JsonColumn[] | undefined,
+  t: Translator,
+): void => {
+  if (!columns) return;
+  for (const col of columns) {
+    if (!col.enum) continue;
+    const opts = col.fieldInput?.options as
+      | { values?: { value: unknown; label: string }[] }
+      | undefined;
+    if (!Array.isArray(opts?.values)) continue;
+    for (const entry of opts!.values!) {
+      entry.label = t(
+        enumKey(col.enum!, String(entry.value)),
+        entry.label,
+      );
+    }
+  }
+};
+
+/**
+ * Translate labels in pre-built `valueLabelColumns` entries that carry an
+ * `enumName`. Used for sub-resources where the original `JsonColumn` (with
+ * its `col.enum` property) is no longer available.
+ */
+const translateValueLabelEntries = (
+  vlCols: ValueLabelColumn[] | undefined,
+  t: Translator,
+): void => {
+  if (!vlCols) return;
+  for (const vlc of vlCols) {
+    if (!vlc.enumName) continue;
+    for (const entry of vlc.values) {
+      entry.label = t(
+        enumKey(vlc.enumName, String(entry.value)),
+        entry.label,
+      );
+    }
+  }
+};
 
 /**
  * Patch `json_schema.properties[key].title` for each column whose label
@@ -113,6 +161,10 @@ export const localizeResource = (
       col.label = translated;
       columnLabels.set(col.id, translated);
     }
+
+    // Translate enum option labels and rebuild valueLabelColumns
+    translateEnumOptions(columns, t);
+    localized.valueLabelColumns = buildValueLabelColumns(columns);
   }
 
   // Views — patch JSON Schema titles + view column labels
@@ -161,6 +213,9 @@ export const localizeResource = (
           subColumnLabels,
         ) as typeof sub.views;
       }
+
+      // Translate enum option labels in sub-resource valueLabelColumns
+      translateValueLabelEntries(sub.valueLabelColumns, t);
     }
   }
 

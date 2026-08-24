@@ -5,9 +5,9 @@ import { type SidebarGroupConfig } from '@ghentcdh/crouton-core';
 
 import { IS_DEV } from '../dev-mode';
 import { ResourceConfigRegistry } from '../resource-config.registry';
-import { getRequestLanguage } from '../translation/language.context';
 import { buildLayoutPayload } from './app-layout.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { getRequestLanguage } from '../translation/language.context';
 
 export const createAppLayoutController = (
   configs: Resource[],
