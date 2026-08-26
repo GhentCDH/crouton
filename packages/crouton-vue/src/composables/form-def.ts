@@ -3,6 +3,7 @@ import { fromJSONSchema, z } from 'zod';
 import { FormDefResponseZ } from './form-def.schema';
 import type { FormDef, FormSchema } from './form-def.types';
 import { useApi } from './useApi';
+import { useLanguage } from './useLanguage';
 
 const stripAdditionalProperties = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripAdditionalProperties);
@@ -45,6 +46,9 @@ const createFormSchema = (
   return { ...formSchema, zodSchema, parseValue };
 };
 
+const cacheKey = (uri: string, language: string): string =>
+  language ? `${language}:${uri}` : uri;
+
 export class FormDefCache {
   private cache = new Map<string, Promise<FormDef>>();
 
@@ -53,7 +57,9 @@ export class FormDefCache {
   }
 
   async getFormDefByUri(uri: string): Promise<FormDef> {
-    const cached = this.cache.get(uri);
+    const { language } = useLanguage();
+    const key = cacheKey(uri, language.value);
+    const cached = this.cache.get(key);
     if (cached) return cached;
 
     const promise = useApi()
@@ -80,25 +86,26 @@ export class FormDefCache {
         return formDef;
       });
 
-    this.cache.set(uri, promise);
+    this.cache.set(key, promise);
     return promise;
   }
 
   /**
-   * Drops the cached `FormDef` for `formId` (and its `/schemas` URI) so the
-   * next `getFormDef` call refetches from the backend. Used by the resource
-   * schema editor after a successful save — table/form layout (colspan,
-   * position, hiddenIn*) is only picked up by `ResourceTable` once its
-   * cached `config` is refetched.
+   * Drops cached `FormDef` entries for `formId` across all languages so the
+   * next `getFormDef` call refetches from the backend.
    */
   invalidate(formId: string): void {
-    this.cache.delete(`${formId}/schemas`);
+    const suffix = `${formId}/schemas`;
+    for (const key of this.cache.keys()) {
+      if (key === suffix || key.endsWith(`:${suffix}`)) {
+        this.cache.delete(key);
+      }
+    }
   }
 
   /**
    * Drops every cached `FormDef`. Used after a multi-resource database sync
-   * (Phase 4/5 dev tools) where many resources — including brand new ones
-   * with no prior cache entry to target by id — may have changed at once.
+   * or a language change where all cached entries must be refreshed.
    */
   invalidateAll(): void {
     this.cache.clear();

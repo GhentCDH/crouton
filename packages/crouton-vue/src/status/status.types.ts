@@ -48,6 +48,19 @@ export interface EnumSections {
   project: EnumGroup[];
 }
 
+export interface I18nLanguageStatus {
+  language: string;
+  keyCount: number;
+  emptyKeys: number;
+}
+
+export interface I18nStatus {
+  active: boolean;
+  defaultLanguage: string;
+  languages: string[];
+  bundles: I18nLanguageStatus[];
+}
+
 export interface CroutonStatus {
   version: string;
   croutonVersion: string;
@@ -56,4 +69,5 @@ export interface CroutonStatus {
   databases: DatabaseStatus[];
   resources: ResourceStatus[];
   enums?: EnumSections;
+  i18n?: I18nStatus;
 }

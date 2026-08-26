@@ -12,7 +12,12 @@
  */
 export class CroutonValidationError extends Error {
   constructor(
-    public readonly errors: Array<{ field: string; message: string }>,
+    public readonly errors: Array<{
+      field: string;
+      message: string;
+      /** Zod issue code (e.g. `invalid_type`, `too_small`). */
+      code?: string;
+    }>,
   ) {
     super('Validation failed');
     this.name = 'CroutonValidationError';

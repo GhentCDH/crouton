@@ -4,7 +4,11 @@
  * targets to sibling resource files.
  */
 
-import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+import {
+  type ResourceJson,
+  type ResourceJsonInput,
+  ResourceJsonSchema,
+} from '@ghentcdh/crouton-core';
 
 import { type LoadedConfig, resolveFromRoot } from './config';
 import { clientAccessor } from './naming';
@@ -74,6 +78,50 @@ export const listResourceNames = async (
     names.push(e.name);
   }
   return names;
+};
+
+/**
+ * Names of all resource directories (including custom resources).
+ * Used for translation generation where every resource is translatable.
+ */
+export const listAllResourceNames = async (
+  loaded: LoadedConfig,
+): Promise<string[]> => {
+  const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
+  if (!(await fileExists(base))) return [];
+  const entries = await readdir(base, { withFileTypes: true });
+  const names: string[] = [];
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const jsonPath = join(base, e.name, 'resource.json');
+    if (!(await fileExists(jsonPath))) continue;
+    names.push(e.name);
+  }
+  return names;
+};
+
+/**
+ * Read and parse all `resource.json` files (including custom resources).
+ * Invalid files are silently skipped.
+ */
+export const readAllResourceJsons = async (
+  loaded: LoadedConfig,
+): Promise<ResourceJson[]> => {
+  const names = await listAllResourceNames(loaded);
+  const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
+  const results: ResourceJson[] = [];
+  for (const name of names) {
+    try {
+      const raw = JSON.parse(
+        await readFile(join(base, name, 'resource.json'), 'utf-8'),
+      );
+      const parsed = ResourceJsonSchema.safeParse(raw);
+      if (parsed.success) results.push(parsed.data);
+    } catch {
+      /* skip unreadable */
+    }
+  }
+  return results;
 };
 
 /**

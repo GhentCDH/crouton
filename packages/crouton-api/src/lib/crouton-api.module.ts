@@ -1,5 +1,5 @@
 import { type DynamicModule, Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { type CroutonConfig } from '@ghentcdh/crouton-core';
 
@@ -20,7 +20,8 @@ import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
 import { createStatusController } from './crud/status';
-import { dirname } from 'node:path';
+import { LanguageInterceptor, TranslationRegistry } from './crud/translation';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 type CroutonAppConfig = {
@@ -139,6 +140,20 @@ export class CroutonApiModule {
 
     const configRegistry = new ResourceConfigRegistry(loader, validConfigs);
 
+    // Translation registry: wire up when i18n is configured.
+    let translationRegistry: TranslationRegistry | undefined;
+    if (config.i18n) {
+      const translationsDir = join(
+        process.cwd(),
+        config.i18n.translationsDir,
+      );
+      translationRegistry = new TranslationRegistry(
+        translationsDir,
+        config.i18n,
+      );
+      configRegistry.setTranslationRegistry(translationRegistry);
+    }
+
     const controllers = [
       ...validConfigs.map((c) => createCrudController(c, baseUrl)),
       createAppLayoutController(
@@ -146,11 +161,13 @@ export class CroutonApiModule {
         config.sidebarGroups,
         config.title,
         config.autoSave ?? true,
+        translationRegistry,
+        config.i18n,
       ),
       // Only registered (and thus only visible in Swagger/routing) when the
       // visual resource builder is enabled — see dev-resources.controller.ts.
       ...(IS_DEV ? [DevResourcesController] : []),
-      createStatusController(enumRegistry),
+      createStatusController(enumRegistry, translationRegistry),
     ];
 
     return {
@@ -160,6 +177,19 @@ export class CroutonApiModule {
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },
+        ...(translationRegistry
+          ? [
+              {
+                provide: TranslationRegistry,
+                useValue: translationRegistry,
+              },
+              {
+                provide: APP_INTERCEPTOR,
+                useFactory: () =>
+                  new LanguageInterceptor(translationRegistry!),
+              },
+            ]
+          : []),
       ],
     };
   }

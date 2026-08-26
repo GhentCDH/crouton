@@ -8,6 +8,8 @@ export { croutonApiCall, resourceApi } from './resource/resource.api';
 
 export * from './router';
 export * from './composables/useCrouton';
+export { useLanguage } from './composables/useLanguage';
+export { default as LanguageSelect } from './i18n/LanguageSelect.vue';
 export * from './resource/resource-modal';
 export * from './resource/useResources';
 export * from './relation/useRelationBinding';

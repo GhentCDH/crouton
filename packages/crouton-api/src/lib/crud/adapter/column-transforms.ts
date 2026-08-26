@@ -111,7 +111,13 @@ export const buildValueLabelColumns = (
       | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
       | undefined;
     if (!opts?.emitObject || !Array.isArray(opts.values)) return [];
-    return [{ field: c.column ?? c.id, values: opts.values }];
+    return [
+      {
+        field: c.column ?? c.id,
+        values: opts.values,
+        ...(c.enum && { enumName: c.enum }),
+      },
+    ];
   });
 
 /**

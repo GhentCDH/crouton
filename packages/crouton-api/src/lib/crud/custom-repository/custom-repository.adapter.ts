@@ -17,6 +17,8 @@ import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { CrudRepository } from '../crud-repository.factory';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { resolveValueLabelColumns } from '../translation';
 
 /** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
 export type DataSourceResolver = {
@@ -51,6 +53,7 @@ export const createCustomRepository = <T = any>(
   config: Resource,
   dataSources: DataSourceResolver,
   repository: CustomRepository<T> | undefined,
+  configRegistry?: ResourceConfigRegistry,
 ): CrudRepository<T> => {
   const repo = repository ?? {};
   const idField = config.idField ?? DEFAULT_ID_FIELD;
@@ -137,10 +140,19 @@ export const createCustomRepository = <T = any>(
       );
     }
 
+    const vlCols = await resolveValueLabelColumns(
+      config.route,
+      config.valueLabelColumns,
+      configRegistry,
+    );
+    const target =
+      vlCols === config.valueLabelColumns
+        ? config
+        : { hooks: config.hooks, valueLabelColumns: vlCols };
     const data = await decorateRows(
       result?.data ?? [],
       'findAll',
-      config,
+      target,
       prisma,
       request,
       parentHookCtx(request),

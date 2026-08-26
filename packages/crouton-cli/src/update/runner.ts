@@ -21,6 +21,7 @@ import {
   apply,
   buildEnumRegistry,
   buildResourceDiffs,
+  buildTranslationBundle,
   commit,
   fixZodImports,
   introspect,
@@ -30,8 +31,10 @@ import {
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
+  mergeTranslationBundle,
   prismaGenerate,
   pullAndGenerate,
+  readAllResourceJsons,
   readExistingResource,
   recommendedResolver,
   resolve as resolveDiff,
@@ -41,8 +44,9 @@ import {
   resourceNames,
   scaffoldConfigFromProject,
   serializeEnumRegistry,
+  serializeTranslationBundle,
 } from '@ghentcdh/crouton-codegen';
-import { type DataSource } from '@ghentcdh/crouton-core';
+import { type DataSource, type TranslationBundle } from '@ghentcdh/crouton-core';
 
 import { formatResourceChange } from './preview';
 import { CancelledError, interactiveResolver } from './resolver';
@@ -301,6 +305,29 @@ const resolveDraftOption = async (
   );
 };
 
+/** Replace all leaf string values with empty strings (for non-default languages). */
+const emptyLeafValues = (obj: unknown): TranslationBundle => {
+  if (typeof obj === 'string') return '' as unknown as TranslationBundle;
+  if (obj == null || typeof obj !== 'object') return obj as TranslationBundle;
+  if (Array.isArray(obj)) return obj.map(emptyLeafValues) as unknown as TranslationBundle;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[k] = emptyLeafValues(v);
+  }
+  return out as unknown as TranslationBundle;
+};
+
+/** Count leaf string keys in a nested object. */
+const countLeaves = (obj: unknown): number => {
+  if (typeof obj === 'string') return 1;
+  if (obj == null || typeof obj !== 'object') return 0;
+  let count = 0;
+  for (const v of Object.values(obj)) {
+    count += countLeaves(v);
+  }
+  return count;
+};
+
 export const runUpdateResources = async (
   opts: UpdateResourcesOptions,
 ): Promise<void> => {
@@ -441,7 +468,71 @@ export const runUpdateResources = async (
       (c) => c.plan.files.length > 0 || c.plan.notes.length > 0,
     );
 
-    if (changes.length === 0 && !enumsChanged) {
+    // Translation bundles: when i18n is configured, build per-language bundles
+    // from all resources on disk + the merged enums, and merge with existing
+    // translation files (hand edits preserved).
+    const i18n = loaded.config.i18n;
+    interface TranslationPlan {
+      lang: string;
+      relPath: string;
+      absPath: string;
+      content: string;
+      newKeys: number;
+    }
+    const translationPlans: TranslationPlan[] = [];
+    if (i18n) {
+      const translationsDir = resolveFromRoot(
+        loaded.root,
+        i18n.translationsDir,
+      );
+      // Read all current resources from disk for translation seeding.
+      const allResources = await readAllResourceJsons(loaded);
+      const generated = buildTranslationBundle(allResources, mergedEnums);
+
+      for (const lang of i18n.languages) {
+        const relPath = `${i18n.translationsDir}/${lang}.json`;
+        const absPath = join(translationsDir, `${lang}.json`);
+        let existing: TranslationBundle = {};
+        let isNew = true;
+        try {
+          existing = JSON.parse(
+            await readFile(absPath, 'utf-8'),
+          ) as TranslationBundle;
+          isNew = false;
+        } catch {
+          /* no file yet */
+        }
+
+        // For non-default languages, seed new keys empty.
+        const genForLang =
+          lang !== i18n.defaultLanguage ? emptyLeafValues(generated) : generated;
+
+        const merged = isNew
+          ? genForLang
+          : mergeTranslationBundle(existing, genForLang);
+        const content = serializeTranslationBundle(merged);
+
+        // Only plan a write if content actually changed.
+        const existingContent = isNew
+          ? ''
+          : serializeTranslationBundle(existing);
+        if (content !== existingContent) {
+          const existingKeyCount = isNew ? 0 : countLeaves(existing);
+          const mergedKeyCount = countLeaves(merged);
+          translationPlans.push({
+            lang,
+            relPath,
+            absPath,
+            content,
+            newKeys: mergedKeyCount - existingKeyCount,
+          });
+        }
+      }
+    }
+
+    const hasTranslationChanges = translationPlans.length > 0;
+
+    if (changes.length === 0 && !enumsChanged && !hasTranslationChanges) {
       clack.outro(pc.green('Everything is up to date — nothing to write.'));
       return;
     }
@@ -452,6 +543,10 @@ export const runUpdateResources = async (
         pc.cyan(`~ ${enumsRel} (${Object.keys(mergedEnums).length} enum(s))`),
       );
     }
+    for (const tp of translationPlans) {
+      const info = tp.newKeys > 0 ? ` (${tp.newKeys} new key(s))` : '';
+      previewLines.push(pc.cyan(`~ ${tp.relPath}${info}`));
+    }
     clack.log.message(previewLines.join('\n'));
 
     if (opts.dryRun) {
@@ -461,7 +556,8 @@ export const runUpdateResources = async (
 
     const fileCount =
       changes.reduce((n, c) => n + c.plan.files.length, 0) +
-      (enumsChanged ? 1 : 0);
+      (enumsChanged ? 1 : 0) +
+      translationPlans.length;
     const go = opts.yes
       ? true
       : assertNotCancel(
@@ -481,6 +577,11 @@ export const runUpdateResources = async (
     }
     if (enumsChanged) {
       await writeFile(enumsPath, serializeEnumRegistry(mergedEnums), 'utf-8');
+      written += 1;
+    }
+    for (const tp of translationPlans) {
+      await mkdir(dirname(tp.absPath), { recursive: true });
+      await writeFile(tp.absPath, tp.content, 'utf-8');
       written += 1;
     }
     clack.outro(

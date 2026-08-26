@@ -21,6 +21,7 @@ import {
   writeRawResourceJson,
 } from '../resource/WriteResourceJson';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
+import { getRequestLanguage } from '../translation/language.context';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
@@ -44,8 +45,9 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
     cls,
     'getDefinition',
     async function (this: { configRegistry: ResourceConfigRegistry }) {
-      if (IS_DEV) {
-        const fresh = await this.configRegistry.getByRoute(route);
+      const language = getRequestLanguage();
+      if (IS_DEV || language) {
+        const fresh = await this.configRegistry.getByRoute(route, language);
         if (fresh) return buildDefinitionPayload(fresh);
       }
       return definitionPayload;
@@ -77,8 +79,9 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
     cls,
     'getResourceJson',
     async function (this: { configRegistry: ResourceConfigRegistry }) {
-      if (IS_DEV) {
-        const fresh = await this.configRegistry.getByRoute(route);
+      const language = getRequestLanguage();
+      if (IS_DEV || language) {
+        const fresh = await this.configRegistry.getByRoute(route, language);
         if (fresh) return buildResourceJsonPayload(fresh, baseUrl);
       }
       return resourceJsonPayload;

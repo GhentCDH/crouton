@@ -17,12 +17,14 @@ import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import { type ValueLabelColumn } from './resource/valueLabel';
 import { applyValueLabelColumns } from './resource/valueLabel.apply';
+import type { ResourceConfigRegistry } from './resource-config.registry';
 import {
   buildChildSortClause,
   buildFindOneIncludes,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
 } from './sql.helpers';
+import { resolveValueLabelColumns } from './translation';
 
 // FilterOperator (OperatorType) and Operator list are imported from @ghentcdh/crouton-core
 
@@ -241,6 +243,7 @@ export class ReadRepository<T = any> {
     private readonly config: Resource,
     private readonly listSelect: Record<string, any> | undefined,
     private readonly oneSelect: Record<string, any> | undefined,
+    private readonly configRegistry?: ResourceConfigRegistry,
   ) {}
 
   /**
@@ -295,7 +298,16 @@ export class ReadRepository<T = any> {
     op: ReadOp,
     request?: any,
   ): Promise<any[]> {
-    return decorateRows(rows, op, this.config, this.prisma, request);
+    const vlCols = await resolveValueLabelColumns(
+      this.config.route,
+      this.config.valueLabelColumns,
+      this.configRegistry,
+    );
+    const target =
+      vlCols === this.config.valueLabelColumns
+        ? this.config
+        : { hooks: this.config.hooks, valueLabelColumns: vlCols };
+    return decorateRows(rows, op, target, this.prisma, request);
   }
 
   private async decorateOne(
@@ -314,12 +326,17 @@ export class ReadRepository<T = any> {
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
+    const vlCols = await resolveValueLabelColumns(
+      this.config.route,
+      this.config.valueLabelColumns,
+      this.configRegistry,
+    );
     const query: Record<string, any> = {
       where: this.buildWhere(params.filter),
       take: params.pageSize,
       skip: offsetOf(params),
       orderBy: this.safeSort(
-        sanitizeValueLabelSort(params.sort, this.config.valueLabelColumns),
+        sanitizeValueLabelSort(params.sort, vlCols),
         params.sortDir,
       ),
     };
@@ -524,9 +541,15 @@ export class ReadRepository<T = any> {
             ),
           )
         : rows;
-      const labeled = sub.valueLabelColumns?.length
+      const subVlCols = await resolveValueLabelColumns(
+        this.config.route,
+        sub.valueLabelColumns,
+        this.configRegistry,
+        sub.childRoute,
+      );
+      const labeled = subVlCols?.length
         ? decorated.map((r: any) =>
-            applyValueLabelColumns(r, sub.valueLabelColumns),
+            applyValueLabelColumns(r, subVlCols),
           )
         : decorated;
       return { data: labeled, count: result?.count ?? labeled.length };
@@ -541,8 +564,14 @@ export class ReadRepository<T = any> {
       [sub.foreignKey]: this.toId(parentId),
     };
     const includeClause = buildIncludeClause(sub.include);
+    const subVlCols = await resolveValueLabelColumns(
+      this.config.route,
+      sub.valueLabelColumns,
+      this.configRegistry,
+      sub.childRoute,
+    );
     const childSort = orderableChildSort(
-      sanitizeValueLabelSort(params.sort, sub.valueLabelColumns),
+      sanitizeValueLabelSort(params.sort, subVlCols),
       childModel,
       sub,
     );
@@ -583,9 +612,9 @@ export class ReadRepository<T = any> {
         )
       : withCalc;
 
-    const labeled = sub.valueLabelColumns?.length
+    const labeled = subVlCols?.length
       ? decorated.map((r: any) =>
-          applyValueLabelColumns(r, sub.valueLabelColumns),
+          applyValueLabelColumns(r, subVlCols),
         )
       : decorated;
     return { data: labeled, count };

@@ -4,7 +4,10 @@
 
     <template #left-drawer>
       <div class="gap-2 flex flex-col h-full">
-        <h2>{{ app.title }} Admin</h2>
+        <div class="flex items-center justify-between gap-2">
+          <h2>{{ app.title }} Admin</h2>
+          <LanguageSelect v-if="languages.length > 1" />
+        </div>
         <ul class="menu w-full gap-2 flex-1 flex-grow h-full">
           <template v-for="node in app.sidebar" :key="node.id">
             <!-- Group with children -->
@@ -90,8 +93,11 @@ import { CROUTON_DEV_RESOURCES, CROUTON_FORM } from '../router';
 import { isSidebarGroup } from '../composables/sidebar';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import { useLanguage } from '../composables/useLanguage';
+import LanguageSelect from '../i18n/LanguageSelect.vue';
 
 const app = useCrouton();
+const { languages } = useLanguage();
 
 interface VisibilityResource {
   name: string;

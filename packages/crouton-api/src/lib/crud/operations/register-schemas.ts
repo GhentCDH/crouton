@@ -10,6 +10,7 @@ import {
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { getRequestLanguage } from '../translation/language.context';
 
 export const defaultSchemas = (ctx: OperationContext) => {
   const { config, baseUrl } = ctx;
@@ -23,8 +24,9 @@ export const defaultSchemas = (ctx: OperationContext) => {
     schemasFn: async function (this: {
       configRegistry: ResourceConfigRegistry;
     }) {
-      if (IS_DEV) {
-        const fresh = await this.configRegistry.getByRoute(route);
+      const language = getRequestLanguage();
+      if (IS_DEV || language) {
+        const fresh = await this.configRegistry.getByRoute(route, language);
         if (fresh) return buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
       }
       return viewsPayload;
