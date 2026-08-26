@@ -82,6 +82,7 @@ export class ZodValidationPipe implements PipeTransform {
     return error.issues.map((e) => ({
       field: e.path.join('.'),
       message: e.message,
+      code: e.code,
     }));
   }
 }

@@ -47,4 +47,16 @@ export class TranslationRegistry {
       this.i18nConfig.defaultLanguage,
     );
   }
+
+  /** Raw bundle for a language (falls back to default). */
+  bundleFor(language: string): TranslationBundle {
+    if (IS_DEV) {
+      this.bundles = loadTranslationBundles(this.translationsDir);
+    }
+    return (
+      this.bundles[language] ??
+      this.bundles[this.i18nConfig.defaultLanguage] ??
+      {}
+    );
+  }
 }

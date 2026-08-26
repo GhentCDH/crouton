@@ -161,6 +161,8 @@ export class CroutonApiModule {
         config.sidebarGroups,
         config.title,
         config.autoSave ?? true,
+        translationRegistry,
+        config.i18n,
       ),
       // Only registered (and thus only visible in Swagger/routing) when the
       // visual resource builder is enabled — see dev-resources.controller.ts.
