@@ -8,11 +8,11 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { IS_DEV } from '../dev-mode';
-import { ResourceConfigRegistry } from '../resource-config.registry';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { ResourceConfigRegistry } from '../resource-config.registry';
+import { buildLayoutPayload } from './app-layout.builder';
 import { getRequestLanguage } from '../translation/language.context';
 import { type TranslationRegistry } from '../translation/translation.registry';
-import { buildLayoutPayload } from './app-layout.builder';
 
 export const createAppLayoutController = (
   configs: Resource[],

@@ -13,6 +13,12 @@ import type { FormDef } from './form-def.types';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
+  configureLanguage,
+  installLanguageHeader,
+  onLanguageChange,
+  setUiDictionary,
+} from './useLanguage';
+import {
   customControlRenderers,
   relationReadonlyRenderers,
 } from '../resource/renderers';
@@ -95,6 +101,17 @@ export const useCrouton = (): {
         if (res.data.isDev !== undefined) {
           config.value = { ...config.value, isDev: res.data.isDev };
         }
+        // i18n: configure language system from backend response.
+        if (res.data.i18n) {
+          configureLanguage({
+            languages: res.data.i18n.languages,
+            defaultLanguage: res.data.i18n.defaultLanguage,
+          });
+        }
+        // Store ui dictionary for t() lookups.
+        if (res.data.ui) {
+          setUiDictionary(res.data.ui);
+        }
       })
       .catch(() => {
         console.error('no layout');
@@ -105,7 +122,16 @@ export const useCrouton = (): {
     _config: Partial<typeof AppConfig> = {},
   ) => {
     configureApi(api);
+    installLanguageHeader(api);
     config.value = { ...AppConfig, ..._config };
+
+    // When language changes, refresh layout (sidebar, title, ui dict) and
+    // re-fetch all cached FormDefs so labels match the new language.
+    onLanguageChange(async () => {
+      formDefCache.invalidateAll();
+      await fetchLayout(_config);
+    });
+
     return fetchLayout(_config);
   };
 
