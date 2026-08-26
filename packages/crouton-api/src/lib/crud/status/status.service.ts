@@ -7,9 +7,11 @@ import type {
   DatabaseStatus,
   EnumGroup,
   EnumSections,
+  I18nStatus,
   ResourceStatus,
   StatusSummary,
 } from './status.types';
+import type { TranslationRegistry } from '../translation/translation.registry';
 import type { EnumRegistry } from '../enum-registry/enum-registry.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -224,10 +226,49 @@ const getEnums = (enumRegistry: EnumRegistry): EnumSections => {
   };
 };
 
+/** Count leaf string keys in a nested object, and how many are empty. */
+const countKeys = (
+  obj: Record<string, unknown>,
+  prefix = '',
+): { total: number; empty: number } => {
+  let total = 0;
+  let empty = 0;
+  for (const [, v] of Object.entries(obj)) {
+    if (typeof v === 'string') {
+      total++;
+      if (v === '') empty++;
+    } else if (v && typeof v === 'object' && !Array.isArray(v)) {
+      const sub = countKeys(v as Record<string, unknown>, prefix);
+      total += sub.total;
+      empty += sub.empty;
+    }
+  }
+  return { total, empty };
+};
+
+const getI18nStatus = (
+  translationRegistry?: TranslationRegistry,
+): I18nStatus | undefined => {
+  if (!translationRegistry?.active) return undefined;
+  const languages = [...translationRegistry.languages];
+  const bundles = languages.map((language) => {
+    const bundle = translationRegistry.bundleFor(language);
+    const { total, empty } = countKeys(bundle as Record<string, unknown>);
+    return { language, keyCount: total, emptyKeys: empty };
+  });
+  return {
+    active: true,
+    defaultLanguage: translationRegistry.defaultLanguage,
+    languages,
+    bundles,
+  };
+};
+
 export const buildStatus = async (
   registry: DataSourceRegistry,
   loadedConfigs: Resource[],
   enumRegistry: EnumRegistry,
+  translationRegistry?: TranslationRegistry,
 ): Promise<CroutonStatus> => {
   const databases = await checkDatabases(registry);
   const resources = getResourceStatus(loadedConfigs);
@@ -241,5 +282,8 @@ export const buildStatus = async (
     databases,
     resources,
     enums: getEnums(enumRegistry),
+    ...(translationRegistry?.active && {
+      i18n: getI18nStatus(translationRegistry),
+    }),
   };
 };

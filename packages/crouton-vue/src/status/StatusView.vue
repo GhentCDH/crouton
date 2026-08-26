@@ -177,6 +177,47 @@
     <!-- Enums -->
     <StatusEnumsSection v-if="status" :enums="status.enums" />
 
+    <!-- i18n / Translations -->
+    <section v-if="status?.i18n">
+      <h2 class="text-lg font-semibold mb-2">Translations</h2>
+      <div class="rounded-lg border p-4 border-gray-200 bg-gray-50 space-y-2">
+        <div class="flex items-center gap-2 text-sm">
+          <span
+            class="inline-block w-2.5 h-2.5 rounded-full"
+            :class="status.i18n.active ? 'bg-green-500' : 'bg-gray-400'"
+          />
+          <span class="font-medium">{{ status.i18n.active ? 'Active' : 'Inactive' }}</span>
+          <span class="text-gray-500">
+            &mdash; default: {{ status.i18n.defaultLanguage }}
+          </span>
+        </div>
+        <ul class="space-y-1 mt-2">
+          <li
+            v-for="b in status.i18n.bundles"
+            :key="b.language"
+            class="flex items-center gap-2 text-sm"
+          >
+            <span class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
+              {{ b.language }}
+            </span>
+            <span>{{ b.keyCount }} keys</span>
+            <span
+              v-if="b.emptyKeys > 0"
+              class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700"
+            >
+              {{ b.emptyKeys }} untranslated
+            </span>
+            <span
+              v-else
+              class="rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700"
+            >
+              complete
+            </span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <!-- Loading state -->
     <div v-if="loading" class="text-gray-500">Loading status...</div>
   </div>

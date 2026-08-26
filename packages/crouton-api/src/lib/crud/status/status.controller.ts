@@ -5,8 +5,12 @@ import { DataSourceRegistry } from '../data-source';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildStatus } from './status.service';
 import type { EnumRegistry } from '../enum-registry/enum-registry.types';
+import type { TranslationRegistry } from '../translation/translation.registry';
 
-export const createStatusController = (enumRegistry: EnumRegistry) => {
+export const createStatusController = (
+  enumRegistry: EnumRegistry,
+  translationRegistry?: TranslationRegistry,
+) => {
   @Controller('crouton')
   @ApiTags('Status')
   class StatusController {
@@ -20,7 +24,12 @@ export const createStatusController = (enumRegistry: EnumRegistry) => {
     @ApiResponse({ status: 200, description: 'System status' })
     async getStatus() {
       const configs = await this.configRegistry.getAll();
-      return buildStatus(this.dataSourceRegistry, configs, enumRegistry);
+      return buildStatus(
+        this.dataSourceRegistry,
+        configs,
+        enumRegistry,
+        translationRegistry,
+      );
     }
   }
 
