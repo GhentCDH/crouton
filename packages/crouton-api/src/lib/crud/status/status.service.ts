@@ -11,11 +11,11 @@ import type {
   ResourceStatus,
   StatusSummary,
 } from './status.types';
-import type { TranslationRegistry } from '../translation/translation.registry';
 import type { EnumRegistry } from '../enum-registry/enum-registry.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+import type { TranslationRegistry } from '../translation/translation.registry';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
