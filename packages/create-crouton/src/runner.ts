@@ -24,6 +24,7 @@ export interface CreateOptions {
   install: boolean;
   git: boolean;
   docker: boolean;
+  postgres: boolean;
   yes?: boolean;
   force?: boolean;
   dbUrl?: string;
@@ -84,13 +85,19 @@ export const runCreate = async (
     }
 
     const dbUrl = await resolveDbUrl(opts);
+    const postgres =
+      opts.docker !== false ? await resolvePostgres(opts) : false;
 
     // 3. Resolve tokens
     const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
+    const appName = prefix || name;
     const tokens: Record<string, string> = {
       name,
       Name: toTitle(name),
-      version: typeof __CROUTON_VERSION__ !== 'undefined' ? __CROUTON_VERSION__ : 'latest',
+      version:
+        typeof __CROUTON_VERSION__ !== 'undefined'
+          ? __CROUTON_VERSION__
+          : 'latest',
       year: String(new Date().getFullYear()),
       pmRun: pm === 'npm' ? 'npm run' : pm,
       urlEnv: 'DATABASE_URL',
@@ -98,11 +105,21 @@ export const runCreate = async (
         dbUrl ||
         `postgresql://crouton:crouton@localhost:5432/${dbName}?schema=public`,
       dbName,
+      appName,
+      frontendPort: '4200',
+      backendPort: '3000',
     };
     if (layout === 'nx') {
       tokens['nx'] = 'true';
       tokens['backendApp'] = 'backend';
       tokens['frontendApp'] = 'frontend';
+      tokens['dockerfileDev'] = prefix
+        ? `${prefix}/Dockerfile.dev`
+        : 'Dockerfile.dev';
+      tokens['envFile'] = prefix ? `${prefix}/.env` : '.env';
+      tokens['generatedGlob'] = prefix
+        ? `${prefix}/generated/default`
+        : 'generated/default';
 
       if (prefix) {
         tokens['prefix'] = prefix;
@@ -121,9 +138,16 @@ export const runCreate = async (
         tokens['generatedTypesPath'] = 'generated/default/types/src';
         tokens['generatedClientPath'] = 'generated/default/client';
       }
+    } else {
+      tokens['regular'] = 'true';
+      tokens['dockerfileDev'] = 'Dockerfile.dev';
+      tokens['envFile'] = '.env';
     }
     if (frontend) {
       tokens['frontend'] = 'true';
+    }
+    if (postgres) {
+      tokens['postgres'] = 'true';
     }
 
     // 4. Read + render templates
@@ -153,14 +177,14 @@ export const runCreate = async (
       );
       files.push(...workspaceFiles);
 
-      // 4b. Docker templates
+      // 4b. Docker templates — per-file routing
       if (opts.docker !== false) {
-        const dockerDir = resolve(templateRoot, 'docker');
-        const dockerFiles = await loadAndRenderTemplates(
-          dockerDir,
-          '',
+        const dockerFiles = await renderDockerTemplates(
+          templateRoot,
           tokens,
           targetDir,
+          workspaceTarget,
+          { postgres },
         );
         files.push(...dockerFiles);
       }
@@ -206,15 +230,14 @@ export const runCreate = async (
         skipPaths,
       );
 
-      // Docker templates
+      // Docker templates — per-file routing
       if (opts.docker !== false) {
-        const dockerTokens = { ...tokens, regular: 'true' };
-        const dockerDir = resolve(templateRoot, 'docker');
-        const dockerFiles = await loadAndRenderTemplates(
-          dockerDir,
-          '',
-          dockerTokens,
+        const dockerFiles = await renderDockerTemplates(
+          templateRoot,
+          tokens,
           targetDir,
+          targetDir,
+          { postgres },
         );
         files.push(...dockerFiles);
       }
@@ -253,7 +276,7 @@ export const runCreate = async (
     const prefixFlag = prefix ? ` --prefix ${prefix}` : '';
     clack.note(
       [
-        opts.docker !== false
+        opts.docker !== false && postgres
           ? 'docker compose up -d          # start postgres'
           : null,
         `${pmRun} prisma:migrate          # create initial migration`,
@@ -273,6 +296,108 @@ export const runCreate = async (
     }
     throw err;
   }
+};
+
+/**
+ * Render Docker templates with per-file routing.
+ * compose files → targetDir (repo root)
+ * Dockerfiles → workspaceTarget (next to crouton.json)
+ */
+const renderDockerTemplates = async (
+  templateRoot: string,
+  tokens: Record<string, string>,
+  targetDir: string,
+  workspaceTarget: string,
+  opts: { postgres: boolean },
+): Promise<FileEntry[]> => {
+  const dockerDir = resolve(templateRoot, 'docker');
+  const files: FileEntry[] = [];
+
+  // compose.yml → targetDir/compose.yml
+  const composeYml = render(
+    await loadTemplate(dockerDir, 'compose.yml.tmpl'),
+    tokens,
+  );
+  files.push({ path: resolve(targetDir, 'compose.yml'), contents: composeYml });
+
+  // compose.app.tmpl → targetDir/compose.app.{appName}.yml
+  const composeApp = render(
+    await loadTemplate(dockerDir, 'compose.app.tmpl'),
+    tokens,
+  );
+  files.push({
+    path: resolve(targetDir, `compose.app.${tokens['appName']}.yml`),
+    contents: composeApp,
+  });
+
+  // compose.infra.yml → targetDir/compose.infra.yml (only if postgres)
+  if (opts.postgres) {
+    const composeInfra = render(
+      await loadTemplate(dockerDir, 'compose.infra.yml.tmpl'),
+      tokens,
+    );
+    files.push({
+      path: resolve(targetDir, 'compose.infra.yml'),
+      contents: composeInfra,
+    });
+
+    // .env.infra → targetDir/.env.infra
+    const envInfra = render(
+      await loadTemplate(dockerDir, '.env.infra.tmpl'),
+      tokens,
+    );
+    files.push({
+      path: resolve(targetDir, '.env.infra'),
+      contents: envInfra,
+    });
+
+    const envInfraExample = render(
+      await loadTemplate(dockerDir, '.env.infra.example.tmpl'),
+      tokens,
+    );
+    files.push({
+      path: resolve(targetDir, '.env.infra.example'),
+      contents: envInfraExample,
+    });
+
+    // docker/init-data/.gitkeep
+    files.push({
+      path: resolve(targetDir, 'docker/init-data/.gitkeep'),
+      contents: '',
+    });
+  }
+
+  // Dockerfile.dev → workspaceTarget/Dockerfile.dev (next to crouton.json)
+  const dockerfileDev = render(
+    await loadTemplate(dockerDir, 'Dockerfile.dev.tmpl'),
+    tokens,
+  );
+  files.push({
+    path: resolve(workspaceTarget, 'Dockerfile.dev'),
+    contents: dockerfileDev,
+  });
+
+  // Dockerfile.prod → workspaceTarget/Dockerfile.prod
+  const dockerfileProd = render(
+    await loadTemplate(dockerDir, 'Dockerfile.prod.tmpl'),
+    tokens,
+  );
+  files.push({
+    path: resolve(workspaceTarget, 'Dockerfile.prod'),
+    contents: dockerfileProd,
+  });
+
+  // .dockerignore → targetDir/.dockerignore
+  const dockerignore = render(
+    await loadTemplate(dockerDir, '.dockerignore.tmpl'),
+    tokens,
+  );
+  files.push({
+    path: resolve(targetDir, '.dockerignore'),
+    contents: dockerignore,
+  });
+
+  return files;
 };
 
 const postScaffold = async (
@@ -417,6 +542,18 @@ const resolveDbUrl = async (opts: CreateOptions): Promise<string> => {
     }),
   ) as string;
   return url.trim();
+};
+
+const resolvePostgres = async (opts: CreateOptions): Promise<boolean> => {
+  if (opts.yes) return opts.postgres;
+  if (!opts.postgres) return false;
+
+  return assertNotCancel(
+    await clack.confirm({
+      message: 'Run PostgreSQL in Docker?',
+      initialValue: true,
+    }),
+  ) as boolean;
 };
 
 /**

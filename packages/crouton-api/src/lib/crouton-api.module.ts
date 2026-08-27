@@ -1,10 +1,8 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
-import { type CroutonConfig } from '@ghentcdh/crouton-core';
-
 import { createAppLayoutController } from './crud/app-layout';
-import { loadConfig } from './crud/config/read';
+import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
@@ -71,7 +69,7 @@ export class CroutonApiModule {
     dataSources: DataSourceEntry[],
     loader: ResourceConfigLoader,
     { baseUrl }: CroutonAppConfig,
-    config: CroutonConfig,
+    config: LoadedConfig,
   ): DynamicModule {
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
 
@@ -144,7 +142,7 @@ export class CroutonApiModule {
     let translationRegistry: TranslationRegistry | undefined;
     if (config.i18n) {
       const translationsDir = join(
-        process.cwd(),
+        config.configDir,
         config.i18n.translationsDir,
       );
       translationRegistry = new TranslationRegistry(

@@ -1,0 +1,53 @@
+networks:
+  {{name}}-net:
+    name: {{name}}-net
+
+services:
+{{#if frontend}}  {{appName}}-frontend:
+    build:
+      context: .
+      dockerfile: {{dockerfileDev}}
+    env_file: [{{envFile}}]
+    ports:
+      - "{{frontendPort}}:{{frontendPort}}"
+    environment:
+      - PORT={{frontendPort}}
+      - NX_COMMAND={{frontendApp}}:dev
+      - WATCHPACK_POLLING=true
+      - IS_DOCKER=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.nx
+    networks: [{{name}}-net]
+{{/if}}{{#if nx}}  {{appName}}-backend:
+    build:
+      context: .
+      dockerfile: {{dockerfileDev}}
+    env_file: [{{envFile}}]
+    ports:
+      - "{{backendPort}}:{{backendPort}}"
+    environment:
+      - PORT={{backendPort}}
+      - NX_COMMAND={{backendApp}}:serve
+      - WATCHPACK_POLLING=true
+      - IS_DOCKER=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.nx
+    networks: [{{name}}-net]
+{{/if}}{{#if regular}}  {{appName}}-backend:
+    build:
+      context: .
+      dockerfile: {{dockerfileDev}}
+    env_file: [{{envFile}}]
+    ports:
+      - "{{backendPort}}:{{backendPort}}"
+    environment:
+      - PORT={{backendPort}}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks: [{{name}}-net]
+{{/if}}
