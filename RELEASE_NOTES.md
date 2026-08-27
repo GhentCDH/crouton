@@ -1,3 +1,15 @@
+## 0.0.1-alpha.41 (2026-08-27)
+
+### 🚀 Features
+
+- add i18n ([#86](https://github.com/GhentCDH/crouton/pull/86))
+- use crouton form instead of autosaveform ([#87](https://github.com/GhentCDH/crouton/pull/87))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.40 (2026-08-24)
 
 ### 🚀 Features
