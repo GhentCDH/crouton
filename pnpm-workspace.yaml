@@ -1,6 +1,8 @@
 packages:
   - packages/*
 
+minimumReleaseAge: 0
+
 overrides:
   '@ghentcdh/create-crouton': link:packages/create-crouton
 

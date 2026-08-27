@@ -46,6 +46,6 @@
     "@ghentcdh/crouton-core": "workspace:*",
     "@ghentcdh/crouton-editor-vue": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*",
-    "daisyui": "^5.5.0"
+    "daisyui": "^5.7.22"
   }
 }

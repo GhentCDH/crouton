@@ -26,12 +26,12 @@
     "dist"
   ],
   "peerDependencies": {
-    "zod": "^4.0.0",
-    "@jsonforms/core": "^3.0.0"
+    "@jsonforms/core": "^3.0.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   },
   "scripts": {
     "build": "tsup",
