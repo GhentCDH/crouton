@@ -5,14 +5,13 @@ import {
   type FormModalResult,
   JsonFormModalService,
 } from '@ghentcdh/crouton-forms-vue';
-
-import { CroutonForm } from '../forms';
 import {
   ModalService,
   NotificationService,
   type TableAction,
 } from '@ghentcdh/ui';
 
+import { CroutonForm } from '../forms';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';

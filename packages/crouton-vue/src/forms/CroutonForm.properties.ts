@@ -1,8 +1,9 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
+
 import {
-  ErrorMode,
-  FormEventPayload,
-  HttpClient,
+  type ErrorMode,
+  type FormEventPayload,
+  type HttpClient,
 } from '@ghentcdh/crouton-forms-vue';
 
 export const CroutonFormProperties = {

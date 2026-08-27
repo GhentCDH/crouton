@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { CroutonForm } from '@ghentcdh/crouton-vue';
+import CroutonForm from '../../../packages/crouton-vue/src/forms/CroutonForm.vue';
 import axios from 'axios';
 
 const api = axios;
