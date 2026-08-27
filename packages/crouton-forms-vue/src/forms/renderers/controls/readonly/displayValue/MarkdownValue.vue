@@ -13,7 +13,7 @@ import { DisplayValueProperties } from './displayValue.properties';
 const props = defineProps(DisplayValueProperties);
 
 const renderedHtml = computed(() => {
-  const raw = props.value as string;
+  const raw = props.value as string | null;
 
   if (!raw) return '';
   return raw

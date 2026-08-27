@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useCustomControlBinding } from './composables/useControlBinding';
-import { computed } from 'vue';
+import { type Ref, computed } from 'vue';
 import ControlLabel from './ControlLabel.vue';
 
 type DateRange = Record<string, string | undefined>;
@@ -45,10 +45,9 @@ type DateRange = Record<string, string | undefined>;
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 // Binds to a single property whose value is the object keyed by fromField/toField.
-const { value, wrapper, onBlur, appliedOptions } = useCustomControlBinding()(
-  props.uischema,
-  props.schema,
-);
+const { value: rawValue, wrapper, onBlur, appliedOptions } =
+  useCustomControlBinding()(props.uischema, props.schema);
+const value = rawValue as Ref<DateRange | undefined>;
 
 const fromLabel = computed<string>(
   () => (appliedOptions.value?.fromLabel as string) ?? 'From',

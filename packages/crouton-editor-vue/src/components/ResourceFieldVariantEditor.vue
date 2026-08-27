@@ -169,7 +169,7 @@ const validateRawJson = () => {
               v-if="activeTab !== 'form'"
               color="secondary"
               :outline="true"
-              size="!sm"
+              size="sm"
               title="Reset to inherited"
               @click="resetField('colspan')"
             >
