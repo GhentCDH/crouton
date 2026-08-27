@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { AutoSaveForm } from '@ghentcdh/crouton-forms-vue';
+import CroutonForm from '../../../packages/crouton-vue/src/forms/CroutonForm.vue';
 import axios from 'axios';
 
 const api = axios;
@@ -115,24 +115,24 @@ const onUpdate = (value: unknown) => {
 
 <template>
   <div class="border border-base-300 rounded-lg p-4">
-    <AutoSaveForm
+    <CroutonForm
       :schema="dataSchema"
       :ui-schema="uiSchema"
       :model-value="resource"
-      :api="api"
-      modal-title="Demo auto save form"
+      :http="api"
+      title="Demo form"
       @update:model-value="onUpdate"
     />
   </div>
   <h2>Validate on mount</h2>
   <div class="border border-base-300 rounded-lg p-4">
-    <AutoSaveForm
+    <CroutonForm
       :schema="dataSchema"
       :ui-schema="uiSchema"
       :model-value="resource"
-      :api="api"
+      :http="api"
       :validate-on-mount="true"
-      modal-title="Demo auto save form"
+      title="Demo form"
       @update:model-value="onUpdate"
     />
   </div>

@@ -1,7 +1,6 @@
 import { type Component, type Ref, markRaw, ref } from 'vue';
 
 import {
-  AutoSaveForm,
   FormModal,
   type FormModalResult,
   JsonFormModalService,
@@ -12,6 +11,7 @@ import {
   type TableAction,
 } from '@ghentcdh/ui';
 
+import { CroutonForm } from '../forms';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
@@ -404,7 +404,8 @@ export const resourceModals = (
         openEditModal(api, resource, formDef, handleEvent)(formData);
         return;
       }
-      const component = mode === 'page' ? AutoSaveForm : FormModal;
+      const isPageMode = mode === 'page';
+      const component = isPageMode ? CroutonForm : FormModal;
 
       const customComponent =
         findCustomComponent(
@@ -418,11 +419,16 @@ export const resourceModals = (
         handleEvent,
       )(formData);
 
+      // CroutonForm uses `title` instead of `modalTitle`
+      if (isPageMode && config) {
+        (config as any).title = (config as any).modalTitle;
+      }
+
       form.value = {
         component: markRaw(component),
         config,
         customComponent: customComponent ? markRaw(customComponent) : null,
-        hideTable: mode === 'page',
+        hideTable: isPageMode,
       };
     };
 

@@ -1,6 +1,8 @@
 <template>
+  some form
   <div class="border border-gray-200 p-4 mt-4">
     <div
+      v-if="$slots.title || title"
       class="flex gap-2 border-b border-gray-200 items-center font-bold pb-2"
     >
       <Btn
@@ -13,7 +15,7 @@
       />
       <slot v-if="$slots.title" name="title" />
       <div v-else :id="`title-${id}`">
-        {{ modalTitle }}
+        {{ title }}
       </div>
     </div>
     <div class="overflow-y-auto">
@@ -21,11 +23,12 @@
       <FormComponent
         :id="`modal-${id}`"
         ref="formRef"
+        :readonly="readonly"
         :form-data="formData"
         :schema="schema"
         :ui-schema="uiSchema"
         :error-mode="errorMode"
-        :http="properties.http"
+        :http="api"
         :renderers="renderers"
         :validateOnMount="validateOnMount"
         @errors="onErrors"
@@ -33,8 +36,11 @@
         @valid="onValid"
         @events="onFormEvents"
       />
+      <slot name="content-after" />
     </div>
+
     <div
+      v-if="showButtons && !readonly"
       class="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-300 shrink-0"
     >
       <!-- Auto-save mode: status indicator + optional Retry + Close -->
@@ -44,7 +50,7 @@
         </span>
         <Btn
           v-if="autoSaveStatus === 'error'"
-          :color="Color.secondary"
+          color="secondary"
           :outline="true"
           aria-label="Retry save"
           @click="onRetry"
@@ -56,7 +62,7 @@
       <!-- Normal mode: Cancel + Save -->
       <template v-else>
         <Btn
-          :color="Color.secondary"
+          color="secondary"
           :outline="true"
           :aria-label="cancelLabel"
           @click="onCancel"
@@ -69,44 +75,29 @@
       </template>
     </div>
   </div>
-  <div>
-    <slot name="content-after" />
-  </div>
 </template>
-
 <script setup lang="ts">
-/**
- * @deprecated Use `CroutonForm` from `@ghentcdh/crouton-vue` instead.
- * This component will be removed in a future release.
- */
-import { onMounted, ref } from 'vue';
-
-import { Btn, Color } from '@ghentcdh/ui';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import {
-  FormModalEmits,
-  FormModalProperties,
-} from './modal/FormModal.properties';
-import FormComponent from './FormComponent.vue';
-import { useFormLogic } from '../composables/useFormLogic';
+import { computed, ref } from 'vue';
+import { Btn } from '@ghentcdh/ui';
 import { useRouter } from 'vue-router';
+import {
+  CroutonFormEmits,
+  CroutonFormProperties,
+} from './CroutonForm.properties';
+import { FormComponent, useFormLogic } from '@ghentcdh/crouton-forms-vue';
+import { useApi } from '../composables/useApi';
 
-const properties = defineProps(FormModalProperties);
-const emits = defineEmits(FormModalEmits);
-
-onMounted(() => {
-  console.warn(
-    '[crouton] AutoSaveForm is deprecated. Use CroutonForm from @ghentcdh/crouton-vue instead.',
-  );
-});
+const properties = defineProps(CroutonFormProperties);
+const emits = defineEmits(CroutonFormEmits);
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
 const navigate = useRouter();
+const api = computed(() => properties.http ?? useApi());
 
 const {
   id,
   valid,
-  renderers,
   autoSaveStatus,
   autoSaveStatusLabel,
   autoSaveStatusClass,
@@ -117,5 +108,6 @@ const {
   onRetry,
   onFormEvents,
   onErrors,
+  renderers,
 } = useFormLogic(properties, emits, formData, formRef);
 </script>

@@ -1,5 +1,7 @@
 import './styles.css';
 
+export { useFormLogic } from './composables/useFormLogic';
+
 // Types
 export { default as FormComponent } from './forms/FormComponent.vue';
 
@@ -39,6 +41,9 @@ export {
 export { default as JsonForm } from './forms/FormComponent.vue';
 export { default as JsonFormModal } from './forms/modal/FormModal.vue';
 export { default as FormModal } from './forms/modal/FormModal.vue';
+/**
+ * @deprecated Use `CroutonForm` from `@ghentcdh/crouton-vue` instead.
+ */
 export { default as AutoSaveForm } from './forms/AutoSaveForm.vue';
 export {
   FormModalEmits,

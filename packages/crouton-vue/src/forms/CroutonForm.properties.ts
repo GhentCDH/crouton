@@ -1,14 +1,14 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
-import type { SizeType } from '@ghentcdh/crouton-core';
+import {
+  type ErrorMode,
+  type FormEventPayload,
+  type HttpClient,
+} from '@ghentcdh/crouton-forms-vue';
 
-import type { FormEventPayload } from '../../composables/useFormEvents';
-import type { HttpClient } from '../../http-client';
-import type { ErrorMode } from '../errorMode';
-
-export const FormModalProperties = {
+export const CroutonFormProperties = {
   /** Title displayed in the modal header. */
-  modalTitle: { type: String, required: true as const },
+  title: { type: String, required: false as const },
   /** Label for the save button. */
   saveLabel: { type: String, default: 'Save' },
   /** Label for the cancel button. */
@@ -17,16 +17,10 @@ export const FormModalProperties = {
   schema: { type: Object as PropType<any>, required: true as const },
   /** UI schema describing the layout and controls. */
   uiSchema: { type: Object as PropType<any>, required: true as const },
-  /** Modal width (`'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`). */
-  modalSize: { type: String as PropType<SizeType>, default: 'md' },
-  /** Callback invoked when the modal closes (with result or `null` on cancel). */
-  onClose: {
-    type: Function as PropType<(result: any) => void>,
-    required: true as const,
-  },
   /** Callback for form events dispatched by custom renderers. */
   onEvents: {
     type: Function as PropType<(payload: FormEventPayload) => void>,
+    required: false,
   },
   /** Initial form data to populate the form with. */
   data: { type: Object as PropType<any>, required: true as const },
@@ -34,16 +28,19 @@ export const FormModalProperties = {
   errorMode: {
     type: String as PropType<ErrorMode>,
     default: 'onBlur' as const,
+    required: false,
   },
   /** HTTP client passed through to the inner JsonForm for remote renderers (e.g. autocomplete). */
   http: {
     type: [Object, Function] as PropType<HttpClient>,
     default: null,
+    required: false,
   },
   /** Custom renderer registry passed to the inner JsonForm. */
   renderers: {
     type: Array as PropType<any[]>,
     default: null,
+    required: false,
   },
   /**
    * When true, form changes are saved automatically (debounced) instead of
@@ -82,16 +79,17 @@ export const FormModalProperties = {
     type: Boolean,
     default: true,
   },
-
   readonly: {
     type: Boolean,
     default: false,
   },
 };
 
-export type FormModalProp = ExtractPublicPropTypes<typeof FormModalProperties>;
+export type CroutonFormProps = ExtractPublicPropTypes<
+  typeof CroutonFormProperties
+>;
 
-export const FormModalEmits = [
+export const CroutonFormEmits = [
   /** Emitted when the modal is closed (submit or cancel). */
   'closeModal',
   /** Emitted when a custom renderer dispatches a form event. */
@@ -103,7 +101,7 @@ export const FormModalEmits = [
 ];
 
 /** Result payload returned when the modal is submitted. */
-export type FormModalResult<DATA = any> = {
+export type CroutonFormData<DATA = any> = {
   /** The form data at the time of submission. */
   data: DATA;
   /** Whether the form passed validation. */
