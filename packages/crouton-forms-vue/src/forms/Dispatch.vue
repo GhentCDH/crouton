@@ -4,6 +4,8 @@
     v-if="renderer"
     :uischema="uischema"
     :schema="resolved"
+    :data-dispatch-renderer="renderer.__name ?? renderer.name ?? 'anonymous'"
+    :data-dispatch-scope="(uischema as any).scope"
   />
   <div v-else class="text-error text-xs">
     No renderer for {{ (uischema as any).scope }} type:

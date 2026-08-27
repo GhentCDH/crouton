@@ -404,7 +404,7 @@ The `display` object controls how the create/edit form is presented. Both fields
 When `mode` is `'page'`, the form renders inline (replacing the table) instead of opening a modal. This happens
 automatically — no `inline: true` option needed in `useResources`. The table is hidden while the form is open.
 
-Page mode uses `AutoSaveForm` as its component, which enables autosave by default when editing.
+Page mode uses `CroutonForm` as its component, which enables autosave by default when editing.
 
 ### Custom components
 
