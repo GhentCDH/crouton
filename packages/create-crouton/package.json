@@ -5,6 +5,11 @@
     "access": "public",
     "tag": "alpha"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhentCDH/crouton",
+    "directory": "packages/create-crouton"
+  },
   "type": "module",
   "exports": {
     ".": {
