@@ -20,7 +20,7 @@ import {
 } from '@ghentcdh/create-crouton/lib';
 import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 export interface AddOptions {
@@ -272,11 +272,11 @@ const setupDocker = async (
     const envInfraPath = resolve(cwd, '.env.infra');
     if (!(await fileExists(envInfraPath))) {
       const envInfraContent = [
-        `POSTGRES_USER=crouton`,
-        `POSTGRES_PASSWORD=crouton`,
+        'POSTGRES_USER=crouton',
+        'POSTGRES_PASSWORD=crouton',
         `POSTGRES_DB=${dbName}`,
-        `POSTGRES_PORT=5432`,
-        `POSTGRES_DATA_HOME=./var/pgdata`,
+        'POSTGRES_PORT=5432',
+        'POSTGRES_DATA_HOME=./var/pgdata',
         '',
       ].join('\n');
       await writeFileWithDir(envInfraPath, envInfraContent);
