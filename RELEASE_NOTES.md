@@ -1,3 +1,13 @@
+## 0.0.1-alpha.42 (2026-08-27)
+
+### 🩹 Fixes
+
+- release ([d683ad7](https://github.com/GhentCDH/crouton/commit/d683ad7))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.41 (2026-08-27)
 
 ### 🚀 Features
