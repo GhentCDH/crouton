@@ -32,7 +32,7 @@ export const useFormLogic = (
   // Resolve renderers via prop → inject fallback
   const renderers = useDefaultRenderers(
     properties.renderers as JsonFormsRendererRegistryEntry[] | null,
-    properties.readonly,
+    properties.readonly ?? false,
   );
   // ─── Auto-save ──────────────────────────────────────────────────────────────
 

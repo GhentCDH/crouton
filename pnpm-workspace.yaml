@@ -1,8 +1,11 @@
 packages:
   - packages/*
 
+minimumReleaseAge: 0
+
 overrides:
   '@ghentcdh/create-crouton': link:packages/create-crouton
+  '@ghentcdh/ui': ^3.0.6
 
 allowBuilds:
   '@parcel/watcher': true

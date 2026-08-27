@@ -339,21 +339,6 @@ const onGridKeydown = (event: KeyboardEvent) => {
   }
 };
 
-const toggle = async () => {
-  if (open.value) {
-    close();
-    inputRef.value?.focus();
-
-    return;
-  }
-
-  view.value = initialView();
-  focusKey.value = toDateKey(selectedDate.value ?? new Date());
-  open.value = true;
-
-  await nextTick();
-  clickOutsideListener = addClickOutsideEventListener(rootRef.value, close);
-};
 
 /** Keep DOM focus on whichever cell the roving tabindex points at. */
 watch([focusKey, cells], async () => {

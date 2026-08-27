@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "../../dist/crouton-core",
     "rootDir": "./src",
-    "tsBuildInfoFile": "../../dist/crouton-core/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "../../dist/crouton-core/tsconfig.tsbuildinfo",
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

@@ -5,6 +5,12 @@
   "sourceRoot": "packages/crouton-forms-vue/src",
   "tags": ["scope:crouton", "type:ui", "tech:vue"],
   "targets": {
+    "typecheck": {
+      "command": "vue-tsc --noEmit -p tsconfig.lib.json",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
     "nx-release-publish": {
       "dependsOn": ["build"],
       "command": "npm publish --access public",
