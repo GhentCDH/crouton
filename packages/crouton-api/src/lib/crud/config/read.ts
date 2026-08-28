@@ -33,8 +33,13 @@ export const findConfigPath = async (
   }
 };
 
+export type LoadedConfig = CroutonConfig & {
+  /** Absolute directory containing the resolved crouton config file. */
+  configDir: string;
+};
+
 /** Load + validate `crouton.json`. Throws if none is found. */
-export const loadConfig = async () => {
+export const loadConfig = async (): Promise<LoadedConfig> => {
   const cwd = pathResolve(process.cwd());
   const path = await findConfigPath(cwd);
   if (!path) {
@@ -52,5 +57,6 @@ export const loadConfig = async () => {
     config = mod.default ?? mod;
   }
 
-  return CroutonConfigSchema.parse(config);
+  const parsed = CroutonConfigSchema.parse(config);
+  return { ...parsed, configDir: dirname(path) };
 };

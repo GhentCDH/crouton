@@ -1,35 +1,125 @@
-FROM node:22-slim AS base
+{{#if nx}}# syntax=docker/dockerfile:1.7-labs
+# Build context: workspace root
+# ========================================================
+# Stage 1: Install dependencies
+# ========================================================
+FROM --platform=$BUILDPLATFORM node:24-alpine AS deps
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml nx.json tsconfig.base.json pnpm-workspace.yaml ./
+COPY --parents {{appsRoot}}/*/package.json ./
+
+# Stub generated workspace packages (pnpm needs them for resolution)
+RUN mkdir -p {{generatedGlob}}/client && \
+    echo '{"name":"@{{name}}/generated-default-client","version":"0.0.1","private":true}' > {{generatedGlob}}/client/package.json && \
+    mkdir -p {{generatedGlob}}/types && \
+    echo '{"name":"@{{name}}/generated-default-types","version":"0.0.1","private":true}' > {{generatedGlob}}/types/package.json
+
+RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install --no-frozen-lockfile
+
+# ========================================================
+# Stage 2: Build
+# ========================================================
+FROM --platform=$BUILDPLATFORM deps AS build
+
+ENV PRISMA_CLI_BINARY_TARGETS="linux-musl,linux-musl-arm64-openssl-3.0.x"
+
+COPY . .
+
+# Generate Prisma client for Linux
+RUN cd {{workspaceRoot}} && DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy npx prisma generate --config prisma/default/prisma.config.ts
+
+# Prisma 7+ hashes the package name — restore workspace-compatible name
+RUN sed -i 's/"name": "prisma-client-[^"]*"/"name": "@{{name}}\/generated-default-client"/' {{generatedGlob}}/client/package.json
+
+# Re-link after prisma generate
+RUN pnpm install --no-frozen-lockfile
+
+# Build applications
+{{/if}}{{#if nxFrontend}}RUN npx nx build {{backendApp}} && npx nx build {{frontendApp}}
+{{/if}}{{#if nxBackendOnly}}RUN npx nx build {{backendApp}}
+{{/if}}{{#if nx}}
+# Create flat node_modules for backend (no pnpm symlinks)
+RUN pnpm --filter @{{name}}/backend deploy --legacy --prod /app/deployed-backend
+
+# Transpile resource & data-source .ts → .js for runtime require()
+COPY {{appsRoot}}/backend/src/app/resources /app/dist/apps/backend/resources
+COPY {{appsRoot}}/backend/src/app/data-sources /app/dist/apps/backend/data-sources
+RUN find /app/dist/apps/backend/resources /app/dist/apps/backend/data-sources -name '*.ts' \
+    | while read f; do \
+        npx esbuild "$f" --outfile="${f%.ts}.js" --platform=node --format=cjs --target=node22; \
+      done \
+    && find /app/dist/apps/backend/resources /app/dist/apps/backend/data-sources -name '*.ts' -delete
+
+# Transpile generated types .ts → .js
+RUN find /app/{{generatedGlob}}/types/src -name '*.ts' \
+    | while read f; do \
+        npx esbuild "$f" --outfile="${f%.ts}.js" --platform=node --format=cjs --target=node22; \
+      done \
+    && find /app/{{generatedGlob}}/types/src -name '*.ts' -delete \
+    && sed -i 's/index\.ts/index.js/g' /app/{{generatedGlob}}/types/package.json
+
+# ========================================================
+# Stage 3: Production
+# ========================================================
+FROM node:24-alpine
+{{/if}}{{#if nxFrontend}}
+RUN apk add --no-cache caddy ca-certificates openssl
+{{/if}}{{#if nx}}
+WORKDIR /app
+
+ARG VERSION=unknown
+ARG BUILD_SHA=unknown
+ENV APP_VERSION=${VERSION}
+ENV BUILD_SHA=${BUILD_SHA}
+ENV NODE_ENV=production
+
+COPY --from=build /app/dist/apps/backend ./backend
+COPY --from=build /app/deployed-backend/node_modules ./node_modules
+COPY --from=build /app/{{generatedGlob}}/client ./generated/client
+COPY --from=build /app/{{generatedGlob}}/types ./node_modules/@{{name}}/generated-default-types
+{{/if}}{{#if nxFrontend}}COPY --from=build /app/{{appsRoot}}/frontend/dist /srv/frontend
+{{/if}}{{#if nx}}
+# Crouton config (runtime: CroutonApiModule.forResourceDir looks for crouton.json)
+COPY {{workspaceRoot}}/crouton.json {{workspaceRoot}}/crouton.enums.json ./
+{{/if}}{{#if nxFrontend}}
+COPY {{appsRoot}}/frontend/Caddyfile /etc/caddy/Caddyfile
+COPY {{appsRoot}}/frontend/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+EXPOSE 9000 3000
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["sh", "-c", "node /app/backend/main.js & caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
+{{/if}}{{#if nxBackendOnly}}
+EXPOSE 3000
+
+CMD ["node", "backend/main.js"]
+{{/if}}{{#if regular}}FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV CI=true
 WORKDIR /app
 
 # -- deps stage --
 FROM base AS deps
-{{#if nx}}COPY pnpm-workspace.yaml ./
 COPY package.json pnpm-lock.yaml ./
-COPY apps/backend/package.json ./apps/backend/
-{{/if}}{{#if regular}}COPY package.json pnpm-lock.yaml ./
-{{/if}}
-RUN pnpm install --frozen-lockfile --prod
+RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install --frozen-lockfile --prod
 
 # -- build stage --
 FROM base AS build
-{{#if nx}}COPY pnpm-workspace.yaml ./
 COPY package.json pnpm-lock.yaml ./
-COPY apps/backend/package.json ./apps/backend/
-{{/if}}{{#if regular}}COPY package.json pnpm-lock.yaml ./
-{{/if}}
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install --frozen-lockfile
 COPY . .
-{{#if nx}}RUN pnpm --filter @{{name}}/backend build
-{{/if}}{{#if regular}}RUN pnpm build
-{{/if}}
+RUN pnpm build
+
 # -- production stage --
 FROM base AS production
 COPY --from=deps /app/node_modules ./node_modules
-{{#if nx}}COPY --from=build /app/apps/backend/dist ./dist
-{{/if}}{{#if regular}}COPY --from=build /app/dist ./dist
-{{/if}}
+COPY --from=build /app/dist ./dist
+
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]
+{{/if}}

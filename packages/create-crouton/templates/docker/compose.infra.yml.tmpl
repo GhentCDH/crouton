@@ -1,0 +1,24 @@
+networks:
+  {{name}}-net:
+    name: {{name}}-net
+
+services:
+  postgres:
+    container_name: {{name}}.data.app
+    image: postgres:17
+    env_file: [.env.infra]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ${POSTGRES_DATA_HOME}:/var/lib/postgresql/data
+      - ./docker/init-data:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [{{name}}-net]

@@ -12,6 +12,7 @@ const program = new Command('add-crouton')
   .option('--pm <manager>', 'package manager (pnpm | npm | yarn | bun)')
   .option('--no-install', 'skip dependency installation')
   .option('--no-docker', 'skip Docker file generation')
+  .option('--no-postgres', 'skip PostgreSQL in Docker (use external DB)')
   .option('-y, --yes', 'accept all defaults (non-interactive)')
   .action(async (opts) => {
     try {
