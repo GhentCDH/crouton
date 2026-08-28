@@ -111,8 +111,9 @@ export const runCreate = async (
     };
     if (layout === 'nx') {
       tokens['nx'] = 'true';
-      tokens['backendApp'] = 'backend';
-      tokens['frontendApp'] = 'frontend';
+      tokens['backendApp'] = `${appName}-backend`;
+      tokens['frontendApp'] = `${appName}-frontend`;
+      tokens['workspaceRoot'] = prefix || '.';
       tokens['dockerfileDev'] = prefix
         ? `${prefix}/Dockerfile.dev`
         : 'Dockerfile.dev';
@@ -145,6 +146,12 @@ export const runCreate = async (
     }
     if (frontend) {
       tokens['frontend'] = 'true';
+    }
+    if (layout === 'nx' && frontend) {
+      tokens['nxFrontend'] = 'true';
+    }
+    if (layout === 'nx' && !frontend) {
+      tokens['nxBackendOnly'] = 'true';
     }
     if (postgres) {
       tokens['postgres'] = 'true';
