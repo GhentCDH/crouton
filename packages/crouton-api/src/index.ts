@@ -8,6 +8,7 @@ export * from './lib/crud/resource-config.registry';
 export * from './lib/crud/data-source';
 export * from './lib/crud/crud.config';
 export * from './lib/crud/hooks';
+export * from './lib/crud/security';
 
 // Types a consumer needs to type their own `repository.ts` on a
 // `kind: "custom"` resource.
