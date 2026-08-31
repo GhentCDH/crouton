@@ -1,3 +1,15 @@
+## 0.0.1-alpha.44 (2026-08-31)
+
+### 🚀 Features
+
+- only init crouton on first usage ([#90](https://github.com/GhentCDH/crouton/pull/90))
+- security ([#91](https://github.com/GhentCDH/crouton/pull/91))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.43 (2026-08-31)
 
 This was a version bump only, there were no code changes.
