@@ -1,6 +1,6 @@
-import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { GUARDS_METADATA } from '@nestjs/common/constants';
 
 import { createStatusController } from './status.controller';
 import { type DataSourceRegistry } from '../data-source';
