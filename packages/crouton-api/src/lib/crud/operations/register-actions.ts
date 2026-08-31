@@ -1,8 +1,9 @@
-import { Param, Post } from '@nestjs/common';
+import { Param, Post, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudRepository } from '../crud-repository.factory';
 import { isRowProcedureAction, isTableProcedureAction } from '../crud.config';
+import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 
@@ -26,6 +27,11 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
     ApiOperation({ summary: `Execute action "${action.label}" on a ${name}` })(cls.prototype, methodName, d);
     ApiParam({ name: 'recordId', type: 'string' })(cls.prototype, methodName, d);
     ApiResponse({ status: 200, description: `Action "${action.id}" result` })(cls.prototype, methodName, d);
+
+    const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+    if (sec) {
+      SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, methodName, d);
+    }
   }
 };
 
@@ -47,5 +53,10 @@ export const registerTableActionRoutes = (ctx: OperationContext): void => {
     Post(`table-action/${action.id}`)(cls.prototype, methodName, d);
     ApiOperation({ summary: `Execute table action "${action.label ?? action.id}" on ${name}` })(cls.prototype, methodName, d);
     ApiResponse({ status: 200, description: `Table action "${action.id}" result` })(cls.prototype, methodName, d);
+
+    const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+    if (sec) {
+      SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, methodName, d);
+    }
   }
 };

@@ -5,11 +5,13 @@ import {
   ForbiddenException,
   Get,
   NotFoundException,
-  Patch, Put 
+  Patch, Put,
+  SetMetadata,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { IS_DEV } from '../dev-mode';
+import { CROUTON_SECURITY } from '../security';
 import {
   type PatchResourceJson,
   PatchResourceJsonSchema,
@@ -64,6 +66,11 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
     status: 200,
     description: `Definition (operations + schemas) for ${name}`,
   })(cls.prototype, 'getDefinition', d);
+
+  const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+  if (sec) {
+    SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, 'getDefinition', d);
+  }
 };
 
 /**
@@ -98,6 +105,11 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
     status: 200,
     description: `Resource descriptor (operations + JSON Schema) for ${name}`,
   })(cls.prototype, 'getResourceJson', d);
+
+  const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+  if (sec) {
+    SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, 'getResourceJson', d);
+  }
 };
 
 /**

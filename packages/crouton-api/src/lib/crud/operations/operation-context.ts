@@ -1,5 +1,8 @@
-import type { resolveDefinition, schemaFor } from '../crud.config';
+import type { SecurityConfig } from '@ghentcdh/crouton-core';
+
+import type { CrudOperation, resolveDefinition, schemaFor } from '../crud.config';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ZodValidationPipeOptions } from '../zod-validation.pipe';
 
 export type OperationContext = {
@@ -21,4 +24,8 @@ export type OperationContext = {
     options?: ZodValidationPipeOptions,
   ) => ParameterDecorator;
   baseUrl?: string;
+  /** Module-level default security (fallback when neither op nor resource declares security). */
+  moduleDefaultSecurity?: SecurityConfig;
+  /** Tag a just-defined handler with its effective security metadata. */
+  secure: (methodName: string, op: CrudOperation, sub?: SubResourceConfig) => void;
 };

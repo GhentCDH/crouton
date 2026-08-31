@@ -1,16 +1,18 @@
-import { Body, Controller, type Type } from '@nestjs/common';
+import { Body, Controller, SetMetadata, type Type, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { resourceControllerPath } from '@ghentcdh/crouton-core';
+import { type SecurityConfig, resourceControllerPath } from '@ghentcdh/crouton-core';
 
 import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
-import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud.config';
+import { type CrudOperation, isOperationEnabled, resolveDefinition, schemaFor, securityFor, securityForSub, upsertOnFor } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
 import { registerEndpoints } from './operations/register-endpoints';
 import { type Resource } from './resource/ResourceConfig.schema';
+import type { SubResourceConfig } from './resource/SubResource.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { isZodSchema } from './schema.utils';
+import { CROUTON_SECURITY, CroutonSecurityGuard } from './security';
 import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
 
 /**
@@ -28,6 +30,7 @@ import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validati
 export function createCrudController(
   config: Resource,
   baseUrl?: string,
+  moduleDefaultSecurity?: SecurityConfig,
 ): Type<any> {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
@@ -86,6 +89,19 @@ export function createCrudController(
     }
   }
 
+  const secure = (methodName: string, op: CrudOperation, sub?: SubResourceConfig): void => {
+    const sec = sub
+      ? securityForSub(config, sub, op, moduleDefaultSecurity)
+      : securityFor(config, definition, op, moduleDefaultSecurity);
+    if (sec) {
+      SetMetadata(CROUTON_SECURITY, sec)(
+        CrudControllerBase.prototype,
+        methodName,
+        Object.getOwnPropertyDescriptor(CrudControllerBase.prototype, methodName)!,
+      );
+    }
+  };
+
   const ctx: OperationContext = {
     cls: CrudControllerBase,
     config,
@@ -102,6 +118,8 @@ export function createCrudController(
     },
     bodyDecorator,
     baseUrl,
+    moduleDefaultSecurity,
+    secure,
   };
 
   registerEndpoints(ctx);
@@ -112,6 +130,7 @@ export function createCrudController(
   // route (``, `:id`, `schemas`, …) inherits the prefix, and the parent id is
   // available to handlers through the request they already receive.
   Controller(resourceControllerPath(route, config.parent))(CrudControllerBase);
+  UseGuards(CroutonSecurityGuard)(CrudControllerBase);
   ApiTags(tag)(CrudControllerBase);
   Object.defineProperty(CrudControllerBase, 'name', {
     value: `${name.charAt(0).toUpperCase() + name.slice(1)}Controller`,

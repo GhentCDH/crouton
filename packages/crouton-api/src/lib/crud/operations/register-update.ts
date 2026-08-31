@@ -95,4 +95,5 @@ export const registerUpdate = (
   );
 
   properties.decorators();
+  ctx.secure(methodName, 'update', sub);
 };
