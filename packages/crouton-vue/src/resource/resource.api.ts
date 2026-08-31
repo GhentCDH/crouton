@@ -19,7 +19,7 @@ const paramsSerializer = (params: Record<string, unknown>) => {
 };
 
 const apiCall = (
-  formDef: FormDef,
+  formDef: Pick<FormDef, 'id' | 'operations'>,
   operation: OperationKey,
   defaultUriParams: Record<string, string>,
   data?: any,
@@ -46,8 +46,8 @@ const apiCall = (
 export const croutonApiCall = apiCall;
 
 export const resourceApi = (
-  formDef: FormDef,
-  defaultUriParams: Record<string, string>,
+  formDef: Pick<FormDef, 'id' | 'operations' | 'idField'>,
+  defaultUriParams: Record<string, string> = {},
 ) => {
   const loadData = (requestData: RequestData, signal?: AbortSignal) =>
     apiCall(

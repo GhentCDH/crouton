@@ -1,12 +1,11 @@
 <template>
-  some form
   <div class="border border-gray-200 p-4 mt-4">
     <div
       v-if="$slots.title || title"
       class="flex gap-2 border-b border-gray-200 items-center font-bold pb-2"
     >
       <Btn
-        @click="() => navigate.go(-1)"
+        @click="onBack"
         :icon="ArrowLeftIcon"
         color="blank"
         :outline="true"
@@ -18,26 +17,38 @@
         {{ title }}
       </div>
     </div>
-    <div class="overflow-y-auto">
+    <div
+      class="overflow-y-auto flex gap-2"
+      :class="{
+        'flex-row': layout === 'rows',
+        'flex-col': layout !== 'rows',
+      }"
+    >
       <slot name="content-before" />
-      <FormComponent
-        :id="`modal-${id}`"
-        ref="formRef"
-        :readonly="readonly"
-        :form-data="formData"
-        :schema="schema"
-        :ui-schema="uiSchema"
-        :error-mode="errorMode"
-        :http="api"
-        :renderers="renderers"
-        :validateOnMount="validateOnMount"
-        @errors="onErrors"
-        @change="onChange"
-        @valid="onValid"
-        @events="onFormEvents"
-      />
+      <div :class="formMaxWidth">
+        <FormComponent
+          v-if="uiSchema && schema"
+          :id="`modal-${id}`"
+          ref="formRef"
+          :readonly="readonly"
+          :form-data="formData"
+          :schema="schema"
+          :ui-schema="uiSchema"
+          :error-mode="errorMode"
+          :http="api"
+          :renderers="renderers"
+          :validateOnMount="validateOnMount"
+          @errors="onErrors"
+          @change="onChange"
+          @valid="onValid"
+          @events="onFormEvents"
+        />
+      </div>
       <slot name="content-after" />
     </div>
+    <pre v-if="showErrors" class="border p-2 m-2 border-error">
+      {{ errors }}
+    </pre>
 
     <div
       v-if="showButtons && !readonly"
@@ -58,7 +69,6 @@
           Retry
         </Btn>
       </template>
-
       <!-- Normal mode: Cancel + Save -->
       <template v-else>
         <Btn
@@ -69,7 +79,12 @@
         >
           {{ cancelLabel }}
         </Btn>
-        <Btn :disabled="!valid" :aria-label="saveLabel" @click="onSubmit">
+        <Btn
+          :disabled="!valid"
+          :aria-label="saveLabel"
+          @click="onSubmit"
+          type="submit"
+        >
           {{ saveLabel }}
         </Btn>
       </template>
@@ -80,19 +95,18 @@
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { computed, ref } from 'vue';
 import { Btn } from '@ghentcdh/ui';
-import { useRouter } from 'vue-router';
 import {
-  CroutonFormEmits,
+  type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FormComponent, useFormLogic } from '@ghentcdh/crouton-forms-vue';
+import { FormComponent } from '@ghentcdh/crouton-forms-vue';
 import { useApi } from '../composables/useApi';
+import { useFormLogic } from './useFormLogic';
 
 const properties = defineProps(CroutonFormProperties);
-const emits = defineEmits(CroutonFormEmits);
+const emits = defineEmits<CroutonFormEmitsType>();
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
-const navigate = useRouter();
 const api = computed(() => properties.http ?? useApi());
 
 const {
@@ -109,5 +123,12 @@ const {
   onFormEvents,
   onErrors,
   renderers,
+  schema,
+  uiSchema,
+  errors,
 } = useFormLogic(properties, emits, formData, formRef);
+
+const onBack = (): void => {
+  onCancel();
+};
 </script>

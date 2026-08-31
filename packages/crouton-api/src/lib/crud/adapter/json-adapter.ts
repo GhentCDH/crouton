@@ -13,11 +13,7 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
-import {
-  opWithSchema,
-  pickByColumns,
-  upsertOp,
-} from '../builder/schema.helpers';
+import { buildResourceDefinitions } from '../builder/schema.helpers';
 import type { CustomRepository } from '../custom-repository';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
@@ -35,7 +31,6 @@ import {
 import { enrichRelationTypes } from './relation-type';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
-import type { ResourceDefinition } from '../resource/defintion.schema';
 import type { LookupConfig } from '../resource/lookup.schema';
 
 export const fromJson = (
@@ -90,17 +85,7 @@ export const fromJson = (
 
   // With no zod model schema there is nothing to pick: a custom resource's
   // request/response shapes come from the views built off the column types.
-  const picked = pickByColumns(schema, enrichedColumns);
-  const createSchema = pickByColumns(
-    schema,
-    enrichedColumns,
-    (c) => !c.idField && c.createable !== false,
-  );
-  const updateSchema = pickByColumns(
-    schema,
-    enrichedColumns,
-    (c) => !c.idField && c.updateable !== false,
-  );
+
   let views = isCustom
     ? buildViewsFromColumnTypes(enrichedColumns)
     : buildViews(schema, enrichedColumns);
@@ -119,26 +104,11 @@ export const fromJson = (
 
   const lookup = buildLookup(enrichedColumns);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
-
-  const definition: ResourceDefinition = {
-    ...(opWithSchema(json.operations.findAll, picked) && {
-      findAll: opWithSchema(json.operations.findAll, picked)!,
-    }),
-    ...(opWithSchema(json.operations.findOne, picked) && {
-      findOne: opWithSchema(json.operations.findOne, picked)!,
-    }),
-    ...(opWithSchema(json.operations.create, createSchema) && {
-      create: opWithSchema(json.operations.create, createSchema)!,
-    }),
-    ...(opWithSchema(json.operations.update, updateSchema) && {
-      update: opWithSchema(json.operations.update, updateSchema)!,
-    }),
-    ...(upsertOp(json.operations.upsert, createSchema) && {
-      upsert: upsertOp(json.operations.upsert, createSchema)!,
-    }),
-    ...(json.operations.patch !== false && { patch: true }),
-    ...(json.operations.delete !== false && { delete: true }),
-  };
+  const definition = buildResourceDefinitions(
+    schema,
+    json.operations,
+    enrichedColumns,
+  );
 
   return {
     ...json,

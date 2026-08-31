@@ -31,7 +31,7 @@ const JsonDisplaySchema = z.object({
 export type JsonDisplay = z.infer<typeof JsonDisplaySchema>;
 
 /** Normalise `columns` from either array or object-map form. */
-const normalizeColumns = (
+export const normalizeColumns = (
   columns: JsonColumnsMap | undefined,
 ): JsonColumn[] | undefined => {
   if (!columns) return undefined;
@@ -119,7 +119,7 @@ export const ResourceJsonShape = z.object({
  * union. The generated JSON Schema is therefore permissive about these rules
  * while the loader enforces them.
  */
-const refineByKind = (
+export const refineByKind = (
   obj: z.infer<typeof ResourceJsonShape>,
   ctx: z.RefinementCtx,
 ): void => {

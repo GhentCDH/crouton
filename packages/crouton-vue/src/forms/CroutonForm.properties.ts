@@ -1,10 +1,15 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
+import { type ViewConfig, type ViewDef } from '@ghentcdh/crouton-core';
 import {
   type ErrorMode,
   type FormEventPayload,
   type HttpClient,
 } from '@ghentcdh/crouton-forms-vue';
+
+import { type ResourceApiInstance } from '../resource';
+
+type Views = Record<ViewDef, ViewConfig>;
 
 export const CroutonFormProperties = {
   /** Title displayed in the modal header. */
@@ -13,10 +18,8 @@ export const CroutonFormProperties = {
   saveLabel: { type: String, default: 'Save' },
   /** Label for the cancel button. */
   cancelLabel: { type: String, default: 'Cancel' },
-  /** JSON schema describing the shape of the form data. */
-  schema: { type: Object as PropType<any>, required: true as const },
-  /** UI schema describing the layout and controls. */
-  uiSchema: { type: Object as PropType<any>, required: true as const },
+  layout: { type: String, default: 'rows' },
+
   /** Callback for form events dispatched by custom renderers. */
   onEvents: {
     type: Function as PropType<(payload: FormEventPayload) => void>,
@@ -83,22 +86,37 @@ export const CroutonFormProperties = {
     type: Boolean,
     default: false,
   },
+  formMaxWidth: {
+    type: String,
+    default: 'w-full',
+  },
+  views: {
+    type: Object as PropType<ViewDef>,
+    required: true,
+  },
+  formatBeforeSave: {
+    type: Function as PropType<(data: any) => Promise<any>>,
+    required: false,
+    default: null,
+  },
+  resourceApi: {
+    type: Object as PropType<ResourceApiInstance>,
+    required: false,
+  },
+  saveId: {
+    type: String,
+    required: false,
+    default: null,
+  },
+  showErrors: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 export type CroutonFormProps = ExtractPublicPropTypes<
   typeof CroutonFormProperties
 >;
-
-export const CroutonFormEmits = [
-  /** Emitted when the modal is closed (submit or cancel). */
-  'closeModal',
-  /** Emitted when a custom renderer dispatches a form event. */
-  'events',
-  /** Emitted when validation errors change. */
-  'errors',
-  /** Emitted when form validity changes. */
-  'valid',
-];
 
 /** Result payload returned when the modal is submitted. */
 export type CroutonFormData<DATA = any> = {
@@ -106,4 +124,22 @@ export type CroutonFormData<DATA = any> = {
   data: DATA;
   /** Whether the form passed validation. */
   valid: boolean;
+};
+
+export type CroutonFormEmitsType = {
+  cancel: [value: null];
+  /** Emitted when no resourceApi is defined. */
+  save: [data: unknown];
+  /** Emitted on successful save when resourceApi is defined. */
+  onSaveSuccess: [response: unknown];
+  /** Emitted on failed save when resourceApi is defined. */
+  onSaveError: [error: unknown];
+  /** Emitted on cancel or after save so the parent can close/clean up (matches FormModal). */
+  closeModal: [result: CroutonFormData | null];
+  /** Emitted when a custom renderer dispatches a form event. */
+  events: [payload: FormEventPayload];
+  /** Emitted when validation errors change. */
+  errors: [errors: unknown];
+  /** Emitted when form validity changes. */
+  valid: [isValid: boolean];
 };
