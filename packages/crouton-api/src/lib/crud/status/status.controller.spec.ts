@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { GUARDS_METADATA } from '@nestjs/common/constants';
+
 import { createStatusController } from './status.controller';
 import { type DataSourceRegistry } from '../data-source';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
+import { CROUTON_SECURITY } from '../security';
 
 describe('createStatusController', () => {
   beforeEach(() => {
@@ -86,6 +89,19 @@ describe('createStatusController', () => {
     expect(status.summary.ok).toBe(false);
     expect(status.summary.databaseErrors).toBe(1);
     expect(status.summary.resourceErrors).toBe(1);
+  });
+
+  it('should never carry a security guard or security metadata', () => {
+    const ControllerClass = createStatusController();
+    // No class-level UseGuards
+    const guards = Reflect.getMetadata(GUARDS_METADATA, ControllerClass);
+    expect(guards).toBeUndefined();
+    // No handler-level crouton:security
+    const sec = Reflect.getMetadata(
+      CROUTON_SECURITY,
+      ControllerClass.prototype.getStatus,
+    );
+    expect(sec).toBeUndefined();
   });
 
   it('getStatus should report all-ok when healthy', async () => {
