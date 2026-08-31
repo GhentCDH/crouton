@@ -172,15 +172,9 @@ export const useFormLogic = (
   const onErrors = (_errors: any) => {
     emits('errors', _errors);
     errors.value = _errors;
-    const isValid =
-      !errors ||
-      (Array.isArray(_errors)
-        ? _errors.length === 0
-        : Object.keys(_errors).length === 0);
-    valid.value = isValid;
 
     if (autoSaver && userHasEdited.value) {
-      autoSaver.trigger(liveValues(), isValid);
+      autoSaver.trigger(liveValues(), valid.value);
     }
   };
 
