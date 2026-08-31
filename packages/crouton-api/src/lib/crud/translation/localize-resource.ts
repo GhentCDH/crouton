@@ -26,6 +26,19 @@ import type { ValueLabelColumn } from '../resource/valueLabel';
 const clone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 /**
+ * Shallow-clone a Resource, deep-cloning only the JSON-safe parts that
+ * will be mutated during translation. Fields like `definition` (Zod schema)
+ * may contain circular references and are never translated, so they are
+ * copied by reference.
+ */
+const cloneResource = (config: Resource): Resource => {
+  const { definition, ...rest } = config as Record<string, unknown>;
+  const localized = clone(rest) as Resource;
+  if (definition) (localized as Record<string, unknown>).definition = definition;
+  return localized;
+};
+
+/**
  * Translate enum option labels for columns that reference a shared enum.
  * Mutates the cloned column's `fieldInput.options.values[].label` in place.
  */
@@ -129,7 +142,7 @@ export const localizeResource = (
   t: Translator,
 ): Resource => {
   const name = config.name;
-  const localized = clone(config);
+  const localized = cloneResource(config);
 
   // Title
   localized.title = t(
