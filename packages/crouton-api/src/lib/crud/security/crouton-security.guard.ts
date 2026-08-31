@@ -1,13 +1,12 @@
 import {
+  Injectable,
   type CanActivate,
   type ExecutionContext,
-  Injectable,
 } from '@nestjs/common';
-import { type ModuleRef, type Reflector } from '@nestjs/core';
-
+import { ModuleRef, Reflector } from '@nestjs/core';
 import type { SecurityConfig } from '@ghentcdh/crouton-core';
 
-import { type SecurityGuardRegistry } from './security-guard.registry';
+import { SecurityGuardRegistry } from './security-guard.registry';
 
 export const CROUTON_SECURITY = 'crouton:security';
 

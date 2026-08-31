@@ -1,4 +1,4 @@
-import { type CanActivate, Injectable, type Type } from '@nestjs/common';
+import { Injectable, type CanActivate, type Type } from '@nestjs/common';
 
 @Injectable()
 export class SecurityGuardRegistry {
