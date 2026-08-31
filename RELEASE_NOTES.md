@@ -1,3 +1,14 @@
+## 0.0.1-alpha.45 (2026-08-31)
+
+### 🚀 Features
+
+- security ([#92](https://github.com/GhentCDH/crouton/pull/92))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Opus 4.6
+
 ## 0.0.1-alpha.44 (2026-08-31)
 
 ### 🚀 Features
