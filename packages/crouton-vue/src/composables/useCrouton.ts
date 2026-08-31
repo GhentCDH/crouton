@@ -1,6 +1,6 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
-import { type App, computed, type ComputedRef, ref } from 'vue';
+import { type App, type ComputedRef, computed, ref } from 'vue';
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
