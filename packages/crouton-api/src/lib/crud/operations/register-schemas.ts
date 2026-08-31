@@ -1,4 +1,4 @@
-import { Get } from '@nestjs/common';
+import { Get, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { def, desc } from './decorator.utils';
@@ -10,6 +10,7 @@ import {
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { CROUTON_SECURITY } from '../security';
 import { getRequestLanguage } from '../translation/language.context';
 
 export const defaultSchemas = (ctx: OperationContext) => {
@@ -82,4 +83,10 @@ export const registerSchemas = (
   );
 
   properties.decorators();
+
+  // Schema endpoints follow resource-level global security.
+  const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+  if (sec) {
+    SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, methodName, d);
+  }
 };

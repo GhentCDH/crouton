@@ -1,5 +1,7 @@
-import { type DynamicModule, Module } from '@nestjs/common';
+import { type CanActivate, type DynamicModule, Module, type Type } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+
+import type { SecurityConfig } from '@ghentcdh/crouton-core';
 
 import { createAppLayoutController } from './crud/app-layout';
 import { type LoadedConfig, loadConfig } from './crud/config/read';
@@ -17,6 +19,7 @@ import { type ResourceConfigLoader } from './crud/loader/resource-config.loader'
 import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';
 import { ResourceConfigRegistry } from './crud/resource-config.registry';
+import { CroutonSecurityGuard, SecurityGuardRegistry } from './crud/security';
 import { createStatusController } from './crud/status';
 import { LanguageInterceptor, TranslationRegistry } from './crud/translation';
 import { dirname, join } from 'node:path';
@@ -24,29 +27,13 @@ import { fileURLToPath } from 'node:url';
 
 type CroutonAppConfig = {
   baseUrl: string;
-  /**
-   * Explicit path to the project enum registry (`crouton.enums.json`).
-   * When omitted, the loader walks up from the resources dir to find it.
-   */
-  // enumsFile?: string;
-  /**
-   * Sidebar group definitions, keyed by group slug.
-   * Matches `sidebarGroups` in `crouton.json`.
-   * Resources reference a group via `sidebar.group` in their `resource.json`.
-   */
-  // sidebarGroups?: Record<string, SidebarGroupConfig>;
-  /**
-   * Application title served to the frontend via `GET /_app/layout`.
-   * Displayed in the admin sidebar header.
-   */
-  // title?: string;
-  /**
-   * Whether form fields are saved automatically as the user edits them.
-   * Served to the frontend via `GET /_app/layout`. Defaults to `true`.
-   * Set to `false` to restore explicit Save/Cancel buttons across the app.
-   * Matches `autoSave` in `crouton.json`.
-   */
-  // autoSave?: boolean;
+  /** Named security guards and an optional module-level default. */
+  security?: {
+    /** Map of guard name → NestJS guard class (e.g. `{ admin: AdminGuard }`). */
+    guards: Record<string, Type<CanActivate>>;
+    /** Applied when neither the operation nor the resource declares security. */
+    default?: SecurityConfig;
+  };
 };
 @Module({
   controllers: [],
@@ -68,10 +55,15 @@ export class CroutonApiModule {
     configs: Resource[],
     dataSources: DataSourceEntry[],
     loader: ResourceConfigLoader,
-    { baseUrl }: CroutonAppConfig,
+    appConfig: CroutonAppConfig,
     config: LoadedConfig,
   ): DynamicModule {
+    const { baseUrl, security } = appConfig;
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
+
+    // Security guard registry: maps guard names to their NestJS guard classes.
+    const guardRegistry = new SecurityGuardRegistry(security?.guards ?? {});
+    const moduleDefaultSecurity = security?.default;
 
     // Load enum registry
     const startDir =
@@ -153,7 +145,9 @@ export class CroutonApiModule {
     }
 
     const controllers = [
-      ...validConfigs.map((c) => createCrudController(c, baseUrl)),
+      ...validConfigs.map((c) =>
+        createCrudController(c, baseUrl, moduleDefaultSecurity),
+      ),
       createAppLayoutController(
         configs,
         config.sidebarGroups,
@@ -175,6 +169,9 @@ export class CroutonApiModule {
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },
+        { provide: SecurityGuardRegistry, useValue: guardRegistry },
+        CroutonSecurityGuard,
+        ...guardRegistry.classes(),
         ...(translationRegistry
           ? [
               {
@@ -195,17 +192,17 @@ export class CroutonApiModule {
   static async forResourceDir(
     dirPath: string,
     dataSourcesPath: string,
-    { baseUrl }: CroutonAppConfig,
+    appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
     const config = await loadConfig();
     const loader = new FileSystemResourceConfigLoader(
       dirPath,
-      baseUrl,
+      appConfig.baseUrl,
       config.enumsFile,
     );
     const configs = await loadResourceConfigsFromDir(
       dirPath,
-      baseUrl,
+      appConfig.baseUrl,
       config.enumsFile,
     );
     const dataSources = await loadDataSourcesFromDir(dataSourcesPath);
@@ -214,9 +211,7 @@ export class CroutonApiModule {
       configs,
       dataSources,
       loader,
-      {
-        baseUrl,
-      },
+      appConfig,
       config,
     );
   }

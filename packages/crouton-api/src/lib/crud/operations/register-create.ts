@@ -82,4 +82,5 @@ export const registerCreate = (
   );
 
   properties.decorators();
+  ctx.secure(methodName, 'create', sub);
 };

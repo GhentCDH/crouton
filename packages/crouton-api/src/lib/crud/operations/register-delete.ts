@@ -83,4 +83,5 @@ export const registerDelete = (
   ApiResponse({ status: 200 })(cls.prototype, methodName, d);
   properties.decorators();
   if (!sub) Req()(cls.prototype, methodName, 1);
+  ctx.secure(methodName, 'delete', sub);
 };

@@ -95,4 +95,5 @@ export const registerPatch = (
   );
 
   properties.decorators();
+  ctx.secure(methodName, 'patch', sub);
 };

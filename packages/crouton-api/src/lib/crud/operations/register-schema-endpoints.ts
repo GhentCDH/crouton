@@ -5,7 +5,8 @@ import {
   ForbiddenException,
   Get,
   NotFoundException,
-  Patch, Put 
+  Patch, Put,
+  SetMetadata,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -21,8 +22,7 @@ import {
   writeRawResourceJson,
 } from '../resource/WriteResourceJson';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
-import { getRequestLanguage } from '../translation/language.context';
-import { ZodValidationPipe } from '../zod-validation.pipe';
+import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import {
@@ -30,6 +30,8 @@ import {
   buildEditableColumnsPayload,
   buildResourceJsonPayload,
 } from './payload-builders';
+import { getRequestLanguage } from '../translation/language.context';
+import { ZodValidationPipe } from '../zod-validation.pipe';
 import { join } from 'node:path';
 
 /**
@@ -64,6 +66,11 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
     status: 200,
     description: `Definition (operations + schemas) for ${name}`,
   })(cls.prototype, 'getDefinition', d);
+
+  const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+  if (sec) {
+    SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, 'getDefinition', d);
+  }
 };
 
 /**
@@ -98,6 +105,11 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
     status: 200,
     description: `Resource descriptor (operations + JSON Schema) for ${name}`,
   })(cls.prototype, 'getResourceJson', d);
+
+  const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
+  if (sec) {
+    SetMetadata(CROUTON_SECURITY, sec)(cls.prototype, 'getResourceJson', d);
+  }
 };
 
 /**

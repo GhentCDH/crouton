@@ -164,4 +164,5 @@ export const registerFindAll = (
   })(cls.prototype, methodName, d);
 
   properties.decorators();
+  ctx.secure(methodName, 'findAll', sub);
 };

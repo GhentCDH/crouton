@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
+import { SecuritySchema } from '@ghentcdh/crouton-core';
+
 import { SchemaInputSchema } from './json.schema';
 
 const OperationDefSchema = z.union([
   z.literal(true),
   z.object({
     schema: SchemaInputSchema.optional(),
+    security: SecuritySchema.optional(),
   }),
 ]);
 
@@ -14,6 +17,7 @@ export type OperationDef = z.infer<typeof OperationDefSchema>;
 const UpsertOperationDefSchema = z.object({
   schema: SchemaInputSchema.optional(),
   upsertOn: z.union([z.string(), z.array(z.string())]),
+  security: SecuritySchema.optional(),
 });
 
 export type UpsertOperationDef = z.infer<typeof UpsertOperationDefSchema>;

@@ -9,6 +9,7 @@ import { JsonActionSchema } from './TableAction.schema';
 import { JsonIncludeEntrySchema } from './include.schema';
 import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
+import { SecuritySchema } from '../data-source/Security.schema';
 import { labelFromId } from '../schema/label.helper';
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -89,6 +90,8 @@ export const ResourceJsonShape = z.object({
   parent: ParentRefSchema.optional(),
   sidebar: SidebarSchema.default(SidebarSchema.parse({})), // default: shown, alphabetically ordered, ungrouped
   display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }
+  /** Global security block — applies to every operation unless overridden per-operation. */
+  security: SecuritySchema.optional(),
   operations: JsonOperationsSchema, // required key — but every sub-field defaults to enabled
   columns: ColumnsSchema.default(ColumnsSchema.parse({})), //  id-keyed map; omit for a columnless resource
   calculatedColumns: z.array(CalculatedColumnSchema).default([]),

@@ -50,4 +50,5 @@ export const registerUpsert = (ctx: OperationContext): void => {
     'upsert',
     d,
   );
+  ctx.secure('upsert', 'upsert');
 };

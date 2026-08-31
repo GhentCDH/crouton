@@ -94,4 +94,5 @@ export const registerFindOne = (
   );
 
   properties.decorators();
+  ctx.secure(methodName, 'findOne', sub);
 };
