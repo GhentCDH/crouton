@@ -59,28 +59,11 @@ const sidebar = ref<SidebarNode[]>([]);
 const formDefCache = new FormDefCache();
 const config = ref({ ...AppConfig });
 
-export type UseCrouton = Omit<ReturnType<typeof useCrouton>, 'init'>;
-
-export const useCrouton = (): {
-  init: (
-    api: AxiosInstance,
-    _config?: Partial<typeof AppConfig>,
-  ) => Promise<void>;
-  readonly sidebar: SidebarNode[];
-  version: ComputedRef<string>;
-  title: ComputedRef<string>;
-  autoSave: ComputedRef<boolean>;
-  isDev: ComputedRef<boolean>;
-  readonly renderers: JsonFormsRendererRegistryEntry[];
-  readonly customComponents: CustomComponentEntry[];
-  readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
-  readonly cellRenderers: CellRendererEntry[];
-  getFormDefById: (formId: string) => Promise<FormDef>;
-  getFormByUri: (uri: string) => Promise<FormDef>;
-  invalidateFormDef: (formId: string) => void;
-  invalidateAllFormDefs: () => void;
-  refreshLayout: () => Promise<void>;
-} => {
+const createCrouton = (
+  api: AxiosInstance,
+  _config: Partial<typeof AppConfig> = {},
+) => {
+  configureApi(api);
   const fetchLayout = (overrides: Partial<typeof AppConfig> = {}) =>
     useApi()
       .get('/_app/layout')
@@ -117,11 +100,13 @@ export const useCrouton = (): {
         console.error('no layout');
       });
 
-  const init = (
-    api: AxiosInstance,
-    _config: Partial<typeof AppConfig> = {},
-  ) => {
-    configureApi(api);
+  let initialized = false;
+
+  const init = () => {
+    if (initialized) {
+      return;
+    }
+    initialized = true;
     installLanguageHeader(api);
     config.value = { ...AppConfig, ..._config };
 
@@ -178,13 +163,43 @@ export const useCrouton = (): {
     refreshLayout: () => fetchLayout(),
   };
 };
+export type UseCrouton = {
+  readonly sidebar: SidebarNode[];
+  version: ComputedRef<string>;
+  title: ComputedRef<string>;
+  autoSave: ComputedRef<boolean>;
+  isDev: ComputedRef<boolean>;
+  readonly renderers: JsonFormsRendererRegistryEntry[];
+  readonly customComponents: CustomComponentEntry[];
+  readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
+  readonly cellRenderers: CellRendererEntry[];
+  getFormDefById: (formId: string) => Promise<FormDef>;
+  getFormByUri: (uri: string) => Promise<FormDef>;
+  invalidateFormDef: (formId: string) => void;
+  invalidateAllFormDefs: () => void;
+  refreshLayout: () => Promise<void>;
+};
+
+let _crouton: UseCrouton = null;
+
+export const useCrouton = (): UseCrouton => {
+  const initialized = false;
+
+  if (!_crouton) {
+    throw new Error('First init the CroutonPlugin');
+  }
+
+  (_crouton as any).init();
+
+  return _crouton;
+};
 
 export const CroutonPlugin = (
   api: AxiosInstance,
   options: Partial<typeof AppConfig> = {},
 ) => ({
   install(app: App) {
-    useCrouton().init(api, options);
+    // useCrouton(); //.init(api, options);
     app.provide(
       CROUTON_EDITABLE_RENDERERS,
       [customControlRenderers, options.renderers ?? []].flat(),
@@ -193,5 +208,10 @@ export const CroutonPlugin = (
       CROUTON_READONLY_RENDERERS,
       [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
     );
+    app.provide(
+      CROUTON_READONLY_RENDERERS,
+      [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
+    );
+    _crouton = createCrouton(api, options);
   },
 });
