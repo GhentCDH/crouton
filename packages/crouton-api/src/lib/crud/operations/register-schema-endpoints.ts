@@ -11,6 +11,7 @@ import {
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { IS_DEV } from '../dev-mode';
+import { CROUTON_SECURITY } from '../security';
 import {
   type PatchResourceJson,
   PatchResourceJsonSchema,
