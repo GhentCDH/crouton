@@ -3,11 +3,13 @@ import {
   type ExecutionContext,
   Injectable,
 } from '@nestjs/common';
-import { type ModuleRef, type Reflector } from '@nestjs/core';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- runtime DI requires value imports
+import { ModuleRef, Reflector } from '@nestjs/core';
 
 import type { SecurityConfig } from '@ghentcdh/crouton-core';
 
-import { type SecurityGuardRegistry } from './security-guard.registry';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- runtime DI requires value import
+import { SecurityGuardRegistry } from './security-guard.registry';
 
 export const CROUTON_SECURITY = 'crouton:security';
 
