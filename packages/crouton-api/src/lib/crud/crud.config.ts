@@ -1,9 +1,9 @@
 import { type JsonResourceOperations, type SecurityConfig } from '@ghentcdh/crouton-core';
 
 import { type Resource } from './resource/ResourceConfig.schema';
+import type { SubResourceConfig } from './resource/SubResource.schema';
 import { type ResourceDefinition } from './resource/defintion.schema';
 import { type SchemaInput } from './resource/json.schema';
-import type { SubResourceConfig } from './resource/SubResource.schema';
 
 export { isRowProcedureAction, isTableProcedureAction } from './action';
 

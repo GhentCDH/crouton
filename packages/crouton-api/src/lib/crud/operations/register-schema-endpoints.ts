@@ -11,7 +11,6 @@ import {
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { IS_DEV } from '../dev-mode';
-import { CROUTON_SECURITY } from '../security';
 import {
   type PatchResourceJson,
   PatchResourceJsonSchema,
@@ -23,8 +22,7 @@ import {
   writeRawResourceJson,
 } from '../resource/WriteResourceJson';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
-import { getRequestLanguage } from '../translation/language.context';
-import { ZodValidationPipe } from '../zod-validation.pipe';
+import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import {
@@ -32,6 +30,8 @@ import {
   buildEditableColumnsPayload,
   buildResourceJsonPayload,
 } from './payload-builders';
+import { getRequestLanguage } from '../translation/language.context';
+import { ZodValidationPipe } from '../zod-validation.pipe';
 import { join } from 'node:path';
 
 /**
