@@ -1,9 +1,8 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import type { JsonColumn } from '@ghentcdh/crouton-core';
-import { isRelation } from '@ghentcdh/crouton-core';
+import { type JsonColumn, type JsonResourceOperations, isRelation } from '@ghentcdh/crouton-core';
 
-import { type OperationDef, type UpsertOperationDef } from '../resource/defintion.schema';
+import { type OperationDef, type ResourceDefinition, type UpsertOperationDef } from '../resource/defintion.schema';
 import { type SchemaInput } from '../resource/json.schema';
 
 /** Narrow a Zod object schema to the set of column ids listed in JSON. */
@@ -49,4 +48,44 @@ export const upsertOp = (
     return { upsertOn: entry.upsertOn, ...(schema && { schema }) };
   }
   return undefined;
+};
+
+export const buildResourceDefinitions = (
+  schema: ZodObject<ZodRawShape> | undefined,
+  operations: JsonResourceOperations,
+  enrichedColumns: JsonColumn[] | undefined,
+) => {
+  const picked = pickByColumns(schema, enrichedColumns);
+  const createSchema = pickByColumns(
+    schema,
+    enrichedColumns,
+    (c) => !c.idField && c.createable !== false,
+  );
+  const updateSchema = pickByColumns(
+    schema,
+    enrichedColumns,
+    (c) => !c.idField && c.updateable !== false,
+  );
+
+  const definition: ResourceDefinition = {
+    ...(opWithSchema(operations.findAll, picked) && {
+      findAll: opWithSchema(operations.findAll, picked)!,
+    }),
+    ...(opWithSchema(operations.findOne, picked) && {
+      findOne: opWithSchema(operations.findOne, picked)!,
+    }),
+    ...(opWithSchema(operations.create, createSchema) && {
+      create: opWithSchema(operations.create, createSchema)!,
+    }),
+    ...(opWithSchema(operations.update, updateSchema) && {
+      update: opWithSchema(operations.update, updateSchema)!,
+    }),
+    ...(upsertOp(operations.upsert, createSchema) && {
+      upsert: upsertOp(operations.upsert, createSchema)!,
+    }),
+    ...(operations.patch !== false && { patch: true }),
+    ...(operations.delete !== false && { delete: true }),
+  };
+
+  return definition;
 };
