@@ -146,7 +146,7 @@ export class CroutonApiModule {
 
     const controllers = [
       ...validConfigs.map((c) =>
-        createCrudController(c, baseUrl, moduleDefaultSecurity),
+        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security),
       ),
       createAppLayoutController(
         configs,
@@ -169,9 +169,15 @@ export class CroutonApiModule {
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },
-        { provide: SecurityGuardRegistry, useValue: guardRegistry },
-        CroutonSecurityGuard,
-        ...guardRegistry.classes(),
+        // Security providers only registered when security is configured;
+        // without guards the dispatching guard is never applied (see factory).
+        ...(security
+          ? [
+              { provide: SecurityGuardRegistry, useValue: guardRegistry },
+              CroutonSecurityGuard,
+              ...guardRegistry.classes(),
+            ]
+          : []),
         ...(translationRegistry
           ? [
               {

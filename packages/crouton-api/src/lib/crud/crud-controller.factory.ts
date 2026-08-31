@@ -31,6 +31,7 @@ export function createCrudController(
   config: Resource,
   baseUrl?: string,
   moduleDefaultSecurity?: SecurityConfig,
+  securityEnabled = false,
 ): Type<any> {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
@@ -130,7 +131,12 @@ export function createCrudController(
   // route (``, `:id`, `schemas`, …) inherits the prefix, and the parent id is
   // available to handlers through the request they already receive.
   Controller(resourceControllerPath(route, config.parent))(CrudControllerBase);
-  UseGuards(CroutonSecurityGuard)(CrudControllerBase);
+  // Only apply the dispatching guard when the module has security configured.
+  // Without this, the guard's DI dependencies would fail to resolve in
+  // projects that do not configure security at all.
+  if (securityEnabled) {
+    UseGuards(CroutonSecurityGuard)(CrudControllerBase);
+  }
   ApiTags(tag)(CrudControllerBase);
   Object.defineProperty(CrudControllerBase, 'name', {
     value: `${name.charAt(0).toUpperCase() + name.slice(1)}Controller`,
