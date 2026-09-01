@@ -117,17 +117,30 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
           ) as 'prisma' | 'custom'));
 
     // ── url env ─────────────────────────────────────────────────────────────
-    const urlEnv =
-      opts.urlEnv ??
-      (opts.yes
-        ? defaultUrlEnv(name)
-        : (assertNotCancel(
-            await clack.text({
-              message: 'Env var for the connection URL',
-              initialValue: defaultUrlEnv(name),
-              validate: (v) => (v?.trim() ? undefined : 'Required'),
-            }),
-          ) as string));
+    // Required for Prisma (the connection string must come from somewhere).
+    // Optional for custom adapters — their connection config can be anything.
+    let urlEnv: string | undefined = opts.urlEnv;
+    if (urlEnv === undefined) {
+      if (adapter === 'prisma') {
+        urlEnv = opts.yes
+          ? defaultUrlEnv(name)
+          : (assertNotCancel(
+              await clack.text({
+                message: 'Env var for the connection URL',
+                initialValue: defaultUrlEnv(name),
+                validate: (v) => (v?.trim() ? undefined : 'Required'),
+              }),
+            ) as string);
+      } else if (!opts.yes) {
+        const raw = assertNotCancel(
+          await clack.text({
+            message: 'Env var for the connection URL (optional — leave blank to skip)',
+            placeholder: defaultUrlEnv(name),
+          }),
+        ) as string;
+        urlEnv = raw.trim() || undefined;
+      }
+    }
 
     // ── generated types import (Prisma only) ────────────────────────────────
     let generatedImport: string | undefined;

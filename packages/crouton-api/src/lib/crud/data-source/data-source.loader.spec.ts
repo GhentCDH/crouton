@@ -66,6 +66,22 @@ describe('loadDataSourcesFromDir', () => {
     expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
   });
 
+  it('loads a custom adapter without urlEnv', async () => {
+    const dsDir = join(tempDir, 'nourlds');
+    mkdirSync(dsDir);
+    writeFileSync(
+      join(dsDir, 'data-source.json'),
+      JSON.stringify({ name: 'nourlds', adapter: 'custom' }),
+    );
+    writeFileSync(join(dsDir, 'index.js'), 'module.exports = { kind: \'no-url-adapter\' };');
+
+    const results = await loadDataSourcesFromDir(tempDir);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].adapter.kind).toBe('no-url-adapter');
+    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
+  });
+
   it('loads a custom adapter when adapter field is "custom"', async () => {
     const dsDir = join(tempDir, 'myds');
     mkdirSync(dsDir);

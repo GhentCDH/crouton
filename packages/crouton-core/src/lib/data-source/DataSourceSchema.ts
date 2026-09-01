@@ -6,8 +6,12 @@ import z from 'zod';
 export const DataSourceShape = z.object({
   /** Datasource name (folder + `name` in data-source.json). */
   name: z.string(),
-  /** Env var holding the connection URL. */
-  urlEnv: z.string(),
+  /**
+   * Env var holding the connection URL. Required for Prisma adapters; optional
+   * for custom adapters whose connection config may differ (secrets file, SDK
+   * key, etc.).
+   */
+  urlEnv: z.string().optional(),
   /** Import path for this datasource's generated Zod types (for resource `schema.ts`). */
   generatedTypesImport: z.string().optional(),
   /** Datasource type tag. Default `postgres`. */

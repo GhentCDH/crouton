@@ -18,8 +18,11 @@ export interface DatasourceScaffoldOptions {
   name: string;
   /** Where datasource folders live, relative to project root (from crouton.json). */
   dataSourcesDir: string;
-  /** Env var holding the connection URL. */
-  urlEnv: string;
+  /**
+   * Env var holding the connection URL. Required for Prisma; optional for
+   * custom adapters whose connection config may not use an env var.
+   */
+  urlEnv?: string;
   /**
    * Adapter kind. `"prisma"` (default) generates the full Prisma scaffold;
    * `"custom"` emits only `data-source.json` + an `index.ts` adapter stub.
@@ -52,9 +55,11 @@ export interface ScaffoldFile {
 export interface DatasourceScaffold {
   files: ScaffoldFile[];
   /** The fully-resolved settings (after defaults), e.g. for printing a summary. */
-  resolved: Required<Pick<DatasourceScaffoldOptions, 'name' | 'urlEnv'>> & {
+  resolved: {
+    name: string;
     adapter: 'prisma' | 'custom';
     default: boolean;
+    urlEnv?: string;
     type?: string;
     generatedTypesImport?: string;
     prismaSchema?: string;
@@ -94,7 +99,7 @@ export const buildDatasourceFiles = (opts: DatasourceScaffoldOptions): Datasourc
     const dataSourceJson: Record<string, unknown> = {
       adapter: 'custom',
       name,
-      urlEnv: opts.urlEnv,
+      ...(opts.urlEnv ? { urlEnv: opts.urlEnv } : {}),
       ...(isDefault ? { default: true } : {}),
     };
 
@@ -115,16 +120,17 @@ const adapter: DataSourceAdapter = {
 export default adapter;
 `;
 
+    const notes: string[] = [];
+    if (opts.urlEnv) notes.push(`Add ${opts.urlEnv} to your .env (and .env.example).`);
+    notes.push(`Implement your DataSourceAdapter in ${posix.join(dsDir, 'index.ts')}.`);
+
     return {
       files: [
         { path: posix.join(dsDir, 'data-source.json'), contents: `${JSON.stringify(dataSourceJson, null, 2)}\n` },
         { path: posix.join(dsDir, 'index.ts'), contents: indexTs },
       ],
       resolved: { name, urlEnv: opts.urlEnv, adapter: 'custom', default: isDefault },
-      notes: [
-        `Add ${opts.urlEnv} to your .env (and .env.example).`,
-        `Implement your DataSourceAdapter in ${posix.join(dsDir, 'index.ts')}.`,
-      ],
+      notes,
     };
   }
 

@@ -85,10 +85,10 @@ describe('buildDatasourceFiles', () => {
 });
 
 describe('buildDatasourceFiles — custom adapter', () => {
+  // No urlEnv — custom adapters don't require a DB connection string.
   const out = buildDatasourceFiles({
     name: 'externalapi',
     dataSourcesDir: 'apps/backend/src/app/data-sources',
-    urlEnv: 'EXTERNAL_API_URL',
     adapter: 'custom',
   });
   const file = (suffix: string) => out.files.find((f) => f.path.endsWith(suffix))!;
@@ -101,14 +101,25 @@ describe('buildDatasourceFiles — custom adapter', () => {
     ]);
   });
 
-  it('data-source.json has adapter: "custom" and no Prisma fields', () => {
+  it('data-source.json has adapter: "custom", no urlEnv, and no Prisma fields', () => {
     const ds = JSON.parse(file('data-source.json').contents);
     expect(ds.adapter).toBe('custom');
     expect(ds.name).toBe('externalapi');
-    expect(ds.urlEnv).toBe('EXTERNAL_API_URL');
+    expect('urlEnv' in ds).toBe(false);
     expect('prismaSchema' in ds).toBe(false);
     expect('zodOutput' in ds).toBe(false);
     expect('clientOutput' in ds).toBe(false);
+  });
+
+  it('includes urlEnv in data-source.json when provided', () => {
+    const withUrl = buildDatasourceFiles({
+      name: 'ext2',
+      dataSourcesDir: 'data-sources',
+      adapter: 'custom',
+      urlEnv: 'EXT_API_KEY',
+    });
+    const ds = JSON.parse(withUrl.files.find((f) => f.path.endsWith('data-source.json'))!.contents);
+    expect(ds.urlEnv).toBe('EXT_API_KEY');
   });
 
   it('index.ts imports DataSourceAdapter and has export default', () => {
@@ -118,9 +129,10 @@ describe('buildDatasourceFiles — custom adapter', () => {
     expect(idx).toContain('kind: \'custom\'');
   });
 
-  it('resolved reflects custom adapter', () => {
+  it('resolved reflects custom adapter with no urlEnv', () => {
     expect(out.resolved.adapter).toBe('custom');
     expect(out.resolved.name).toBe('externalapi');
+    expect(out.resolved.urlEnv).toBeUndefined();
     expect(out.resolved.prismaSchema).toBeUndefined();
   });
 });
