@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-import { runAdd } from './runner';
+import { runAdd } from './runner-add';
 
 const program = new Command('add-crouton')
   .description('Add crouton to an existing project')

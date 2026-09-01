@@ -22,7 +22,8 @@
     }
   },
   "bin": {
-    "create-crouton": "./dist/index.js"
+    "create-crouton": "./dist/index.js",
+    "add-crouton": "./dist/add.js"
   },
   "files": [
     "dist"

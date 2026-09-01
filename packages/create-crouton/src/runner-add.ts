@@ -5,7 +5,6 @@ import {
   BACKEND_DEPS,
   CancelledError,
   type DiscoveredApp,
-  FRONTEND_DEPS,
   type FileEntry,
   type PackageManager,
   assertNotCancel,
@@ -17,7 +16,7 @@ import {
   isNxProject,
   writeFiles,
   writeIfAbsent,
-} from '@ghentcdh/create-crouton/lib';
+} from './lib/index';
 import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';

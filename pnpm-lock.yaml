@@ -333,6 +333,12 @@ importers:
 
   packages/crouton-vue:
     dependencies:
+      '@ghentcdh/crouton-editor-vue':
+        specifier: workspace:*
+        version: link:../crouton-editor-vue
+      '@ghentcdh/crouton-forms-vue':
+        specifier: workspace:*
+        version: link:../crouton-forms-vue
       '@ghentcdh/ui':
         specifier: ^3.0.6
         version: 3.0.6(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@tiptap/vue-3@3.26.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.30.5(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(vue@3.5.39(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.30.5(@tiptap/pm@3.26.0)))(vue-router@5.1.0(@vue/compiler-sfc@3.5.39)(vite@8.1.0(@types/node@26.4.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
@@ -358,12 +364,6 @@ importers:
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../crouton-core
-      '@ghentcdh/crouton-editor-vue':
-        specifier: workspace:*
-        version: link:../crouton-editor-vue
-      '@ghentcdh/crouton-forms-vue':
-        specifier: workspace:*
-        version: link:../crouton-forms-vue
       daisyui:
         specifier: ^5.7.22
         version: 5.7.22

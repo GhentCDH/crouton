@@ -8,9 +8,9 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const outDir = './dist';
 
 export default defineConfig([
-  // CLI entry (with shebang)
+  // CLI entries (with shebang)
   {
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/add.ts'],
     outDir,
     format: ['esm'],
     dts: false,
@@ -41,7 +41,7 @@ export default defineConfig([
       );
     },
   },
-  // Library entry (shared utilities used by add-crouton)
+  // Library entry (shared utilities — exported as @ghentcdh/create-crouton/lib)
   {
     entry: { 'lib/index': 'src/lib/index.ts' },
     outDir,
