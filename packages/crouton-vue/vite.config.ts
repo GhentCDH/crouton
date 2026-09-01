@@ -34,8 +34,6 @@ export default defineConfig({
     },
     rolldownOptions: {
       external: [
-        '@ghentcdh/crouton-editor-vue',
-        '@ghentcdh/crouton-forms-vue',
         '@ghentcdh/ui',
         '@jsonforms/core',
         'axios',

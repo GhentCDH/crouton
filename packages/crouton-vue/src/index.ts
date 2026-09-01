@@ -31,5 +31,6 @@ export * from './status';
 
 export { rankWith } from '@jsonforms/core';
 export * from './relation';
-export { TableComponent } from '@ghentcdh/crouton-forms-vue';
 export * from './forms';
+export * from '@ghentcdh/crouton-forms-vue';
+export * from '@ghentcdh/crouton-editor-vue';
