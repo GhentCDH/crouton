@@ -210,7 +210,7 @@ describe('apply — update merges and preserves hand edits', () => {
     const res = JSON.parse(
       plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
     );
-    expect(res.columns.name.fieldInput.type).toBe('text'); // overwritten with generated default
+    expect(res.columns.name.fieldInput.type).toBe('string'); // overwritten with generated default
     expect(res.columns.legacy).toBeUndefined(); // removed
     expect(res.columns.created_at).toBeDefined();
   });

@@ -148,7 +148,7 @@ describe('classify', () => {
 
   it('gives plain scalars a typed control', () => {
     const d = classify(model);
-    expect(col(d, 'title').fieldInput).toMatchObject({ type: 'text' });
+    expect(col(d, 'title').fieldInput).toMatchObject({ type: 'string' });
   });
 
   it('carries a literal DB default into fieldInput.defaultValue (scalar)', () => {

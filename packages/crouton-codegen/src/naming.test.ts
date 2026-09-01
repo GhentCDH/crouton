@@ -60,7 +60,7 @@ describe('isTimestampField', () => {
 
 describe('fieldInputType', () => {
   it('maps scalars', () => {
-    expect(fieldInputType('String', false)).toBe('text');
+    expect(fieldInputType('String', false)).toBe('string');
     expect(fieldInputType('Boolean', false)).toBe('boolean');
     expect(fieldInputType('Int', false)).toBe('number');
     expect(fieldInputType('DateTime', false)).toBe('date');
@@ -76,8 +76,8 @@ describe('scalarFieldInputType', () => {
     expect(scalarFieldInputType('description', 'String')).toBe('textarea');
     expect(scalarFieldInputType('short_description', 'String')).toBe('textarea');
   });
-  it('leaves other strings as text and respects type for non-strings', () => {
-    expect(scalarFieldInputType('name', 'String')).toBe('text');
+  it('leaves other strings as string and respects type for non-strings', () => {
+    expect(scalarFieldInputType('name', 'String')).toBe('string');
     expect(scalarFieldInputType('description_count', 'Int')).toBe('number');
   });
 });
