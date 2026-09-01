@@ -83,3 +83,56 @@ describe('buildDatasourceFiles', () => {
     );
   });
 });
+
+describe('buildDatasourceFiles — custom adapter', () => {
+  // No urlEnv — custom adapters don't require a DB connection string.
+  const out = buildDatasourceFiles({
+    name: 'externalapi',
+    dataSourcesDir: 'apps/backend/src/app/data-sources',
+    adapter: 'custom',
+  });
+  const file = (suffix: string) => out.files.find((f) => f.path.endsWith(suffix))!;
+
+  it('emits exactly two files', () => {
+    expect(out.files).toHaveLength(2);
+    expect(out.files.map((f) => f.path).sort()).toEqual([
+      'apps/backend/src/app/data-sources/externalapi/data-source.json',
+      'apps/backend/src/app/data-sources/externalapi/index.ts',
+    ]);
+  });
+
+  it('data-source.json has adapter: "custom", no urlEnv, and no Prisma fields', () => {
+    const ds = JSON.parse(file('data-source.json').contents);
+    expect(ds.adapter).toBe('custom');
+    expect(ds.name).toBe('externalapi');
+    expect('urlEnv' in ds).toBe(false);
+    expect('prismaSchema' in ds).toBe(false);
+    expect('zodOutput' in ds).toBe(false);
+    expect('clientOutput' in ds).toBe(false);
+  });
+
+  it('includes urlEnv in data-source.json when provided', () => {
+    const withUrl = buildDatasourceFiles({
+      name: 'ext2',
+      dataSourcesDir: 'data-sources',
+      adapter: 'custom',
+      urlEnv: 'EXT_API_KEY',
+    });
+    const ds = JSON.parse(withUrl.files.find((f) => f.path.endsWith('data-source.json'))!.contents);
+    expect(ds.urlEnv).toBe('EXT_API_KEY');
+  });
+
+  it('index.ts imports DataSourceAdapter and has export default', () => {
+    const idx = file('index.ts').contents;
+    expect(idx).toContain('import type { DataSourceAdapter } from \'@ghentcdh/crouton-api\'');
+    expect(idx).toContain('export default adapter');
+    expect(idx).toContain('kind: \'custom\'');
+  });
+
+  it('resolved reflects custom adapter with no urlEnv', () => {
+    expect(out.resolved.adapter).toBe('custom');
+    expect(out.resolved.name).toBe('externalapi');
+    expect(out.resolved.urlEnv).toBeUndefined();
+    expect(out.resolved.prismaSchema).toBeUndefined();
+  });
+});

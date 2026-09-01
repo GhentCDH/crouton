@@ -1,48 +1,51 @@
 import { Injectable, type OnModuleDestroy } from '@nestjs/common';
 
+import type { DataSourceAdapter } from './data-source.adapter';
 import type { DataSourceEntry } from './data-source.types';
 
 @Injectable()
 export class DataSourceRegistry implements OnModuleDestroy {
-  private readonly clients = new Map<string, any>();
+  private readonly adapters = new Map<string, DataSourceAdapter>();
   private defaultName: string | undefined;
 
   constructor(entries: DataSourceEntry[]) {
     for (const entry of entries) {
-      this.clients.set(entry.config.name, entry.client);
+      this.adapters.set(entry.config.name, entry.adapter);
       if (entry.config.default) {
         this.defaultName = entry.config.name;
       }
     }
-    // If no explicit default, use the first entry.
     if (!this.defaultName && entries.length > 0) {
       this.defaultName = entries[0].config.name;
     }
   }
 
-  get(name: string): any {
-    const client = this.clients.get(name);
-    if (!client) {
-      throw new Error(`Data source "${name}" not found in registry`);
-    }
-    return client;
+  resolveAdapter(name?: string): DataSourceAdapter {
+    const key = name ?? this.defaultName;
+    if (!key) throw new Error('No default data source configured');
+    const adapter = this.adapters.get(key);
+    if (!adapter) throw new Error(`Data source "${key}" not found in registry`);
+    return adapter;
   }
 
-  getDefault(): any {
-    if (!this.defaultName) {
-      throw new Error('No default data source configured');
-    }
-    return this.get(this.defaultName);
+  /** Returns the raw backend client for escape-hatch usage (`ctx.prisma`, action procedures). */
+  resolveClient(name?: string): unknown {
+    return this.resolveAdapter(name).client;
   }
 
-  resolve(database?: string): any {
-    return database ? this.get(database) : this.getDefault();
+  /**
+   * Backward-compatible alias — returns the raw client, same as `resolveClient`.
+   * Prefer `resolveAdapter` for new code.
+   */
+  resolve(name?: string): unknown {
+    return this.resolveClient(name);
   }
 
-  entries(): { name: string; client: any }[] {
-    return [...this.clients.entries()].map(([name, client]) => ({
+  entries(): { name: string; adapter: DataSourceAdapter; client: unknown }[] {
+    return [...this.adapters.entries()].map(([name, adapter]) => ({
       name,
-      client,
+      adapter,
+      client: adapter.client,
     }));
   }
 
@@ -51,16 +54,12 @@ export class DataSourceRegistry implements OnModuleDestroy {
   }
 
   /**
-   * Disconnect every datasource's Prisma client. Exposed publicly (in
-   * addition to `onModuleDestroy`) for the dev-only "restart backend"
-   * action, which calls this deliberately before `process.exit()` so the
-   * next process boot doesn't inherit dangling DB connections.
+   * Disconnect every datasource. Called by `onModuleDestroy` and also by the
+   * dev "restart backend" action before `process.exit()`.
    */
   async disconnectAll(): Promise<void> {
-    for (const client of this.clients.values()) {
-      if (typeof client.$disconnect === 'function') {
-        await client.$disconnect();
-      }
+    for (const adapter of this.adapters.values()) {
+      await adapter.disconnect?.();
     }
   }
 }

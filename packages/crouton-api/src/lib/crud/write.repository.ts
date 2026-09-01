@@ -9,7 +9,8 @@ import {
   childRepositoryFn,
   parentIdFromRequest,
 } from './custom-repository/child-delegate';
-import { type WriteOp, postWrite, prepareWrite } from './hooks';
+import type { DataSourceAdapter } from './data-source/data-source.adapter';
+import { type WriteOp } from './hooks';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { normalizeValueLabels } from './resource/valueLabel.apply';
@@ -41,17 +42,54 @@ const isPrismaRelationWrite = (value: unknown): boolean => {
   return Object.keys(value).some((k) => PRISMA_RELATION_WRITE_KEYS.has(k));
 };
 
+/** Remove sub-resource count columns from a write payload. Module-level so the factory can use it. */
+export const stripSubResourceKeys = (config: Resource, data: unknown): unknown => {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+  const subKeys = new Set((config.subResources ?? []).map((s) => s.column));
+  if (!subKeys.size) return data;
+  return Object.fromEntries(
+    Object.entries(data as Record<string, unknown>).filter(([k]) => !subKeys.has(k)),
+  );
+};
+
+const stripNonCreateableChildFields = (
+  sub: SubResourceConfig,
+  data: unknown,
+): unknown => {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+  const nonCreateable = new Set<string>(
+    (sub.views?.form?.columns ?? [])
+      .filter((c) => (c as any).createable === false)
+      .map((c) => c.id),
+  );
+  if (!nonCreateable.size) return data;
+  return Object.fromEntries(
+    Object.entries(data as Record<string, unknown>).filter(
+      ([k]) => !nonCreateable.has(k),
+    ),
+  );
+};
+
 /**
  * Handles all write operations for a resource — create, update, upsert, delete, and child mutations.
  *
- * Sub-resource count columns are stripped from payloads before writing.
- * `beforeWrite` hooks are invoked (when configured) prior to every Prisma call.
+ * Resource-level `beforeWrite`/`afterWrite` hooks are NOT applied here for the core operations
+ * (create, update, patch, delete) — they are applied by the factory wrapper so Prisma and custom
+ * adapters share the same hook path. Sub-resource hooks are still applied inline.
+ *
+ * `upsert`/`upsertMany` retain their own hook calls because the op (create vs update) must be
+ * determined by a database lookup before hooks can run.
+ *
  * Prisma `P2025` (record not found) errors are mapped to `NotFoundException`.
  */
 export class WriteRepository<T = any> {
+  private get prisma(): any {
+    return this.adapter.client;
+  }
+
   constructor(
     private readonly prismaModel: any,
-    private readonly prisma: any,
+    private readonly adapter: DataSourceAdapter,
     private readonly config: Resource,
   ) {}
 
@@ -63,35 +101,15 @@ export class WriteRepository<T = any> {
     return new NotFoundException(`${this.config.name} with id ${id} not found`);
   }
 
-  private stripSubResourceKeys(data: unknown): unknown {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
-    const subKeys = new Set(
-      (this.config.subResources ?? []).map((s) => s.column),
-    );
-    if (!subKeys.size) return data;
-    return Object.fromEntries(
-      Object.entries(data as Record<string, unknown>).filter(
-        ([k]) => !subKeys.has(k),
-      ),
-    );
-  }
-
-  private stripNonCreateableChildFields(
-    data: unknown,
-    sub: SubResourceConfig,
-  ): unknown {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
-    const nonCreateable = new Set<string>(
-      (sub.views?.form?.columns ?? [])
-        .filter((c) => (c as any).createable === false)
-        .map((c) => c.id),
-    );
-    if (!nonCreateable.size) return data;
-    return Object.fromEntries(
-      Object.entries(data as Record<string, unknown>).filter(
-        ([k]) => !nonCreateable.has(k),
-      ),
-    );
+  private upsertWhere(data: any): Record<string, unknown> {
+    const keys = upsertOnFor(resolveDefinition(this.config));
+    if (!keys)
+      throw new BadRequestException(
+        `${this.config.name} has no upsertOn configured`,
+      );
+    if (typeof keys === 'string') return { [keys]: data[keys] };
+    const composite = keys.join('_');
+    return { [composite]: Object.fromEntries(keys.map((k) => [k, data[k]])) };
   }
 
   /**
@@ -109,95 +127,64 @@ export class WriteRepository<T = any> {
     };
   }
 
-  private async prepare(
-    data: any,
-    op: WriteOp,
-    id?: string | number,
-    request?: any,
-  ): Promise<any> {
-    return prepareWrite(data, op, this.config, this.prisma, id, request);
+  /**
+   * Create a record. The data has already been stripped of sub-resource keys,
+   * normalized, and run through `beforeWrite` by the factory wrapper.
+   */
+  async create(data: unknown, _request?: any): Promise<T> {
+    return this.prismaModel.create({ data });
   }
 
-  private async postWrite(
-    result: any,
-    op: WriteOp,
-    id?: string | number,
-    request?: any,
-  ): Promise<any> {
-    return postWrite(result, op, this.config, this.prisma, id, request);
-  }
-
-  private upsertWhere(data: any): Record<string, unknown> {
-    const keys = upsertOnFor(resolveDefinition(this.config));
-    if (!keys)
-      throw new BadRequestException(
-        `${this.config.name} has no upsertOn configured`,
-      );
-    if (typeof keys === 'string') return { [keys]: data[keys] };
-    const composite = keys.join('_');
-    return { [composite]: Object.fromEntries(keys.map((k) => [k, data[k]])) };
-  }
-
-  async create(data: unknown, request?: any): Promise<T> {
-    const result = await this.prismaModel.create({
-      data: await this.prepare(
-        this.stripSubResourceKeys(data),
-        'create',
-        undefined,
-        request,
-      ),
-    });
-    return this.postWrite(result, 'create', undefined, request);
-  }
-
-  async update(id: number | string, data: unknown, request?: any): Promise<T> {
+  /**
+   * Update a record. The data has already been stripped, normalized, and hooked
+   * by the factory wrapper.
+   */
+  async update(id: number | string, data: unknown, _request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      const result = await this.prismaModel.update({
+      return await this.prismaModel.update({
         where: { [idField]: this.toId(id) },
-        data: await this.prepare(
-          this.stripSubResourceKeys(data),
-          'update',
-          this.toId(id),
-          request,
-        ),
+        data,
       });
-      return this.postWrite(result, 'update', this.toId(id), request);
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
   }
 
-  async patch(id: number | string, data: unknown, request?: any): Promise<T> {
+  /**
+   * Partial-update a record. Same contract as `update`.
+   */
+  async patch(id: number | string, data: unknown, _request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      const result = await this.prismaModel.update({
+      return await this.prismaModel.update({
         where: { [idField]: this.toId(id) },
-        data: await this.prepare(
-          this.stripSubResourceKeys(data),
-          'patch',
-          this.toId(id),
-          request,
-        ),
+        data,
       });
-      return this.postWrite(result, 'patch', this.toId(id), request);
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
   }
 
+  /**
+   * Upsert — retains its own hook calls because the op (create vs update) must be
+   * determined by a database lookup before hooks can be applied.
+   */
   async upsert(data: unknown, request?: any): Promise<T> {
+    const { prepareWrite, postWrite } = await import('./hooks');
     const where = this.upsertWhere(data);
     const existing = await this.prismaModel.findFirst({ where });
     const op: WriteOp = existing ? 'update' : 'create';
     const existingId = existing
       ? existing[this.config.idField ?? DEFAULT_ID_FIELD]
       : undefined;
-    const prepared = await this.prepare(
-      this.stripSubResourceKeys(data),
+    const prepared = await prepareWrite(
+      stripSubResourceKeys(this.config, data),
       op,
+      this.config,
+      this.adapter,
       existingId,
       request,
     );
@@ -206,7 +193,7 @@ export class WriteRepository<T = any> {
       create: prepared,
       update: prepared,
     });
-    return this.postWrite(result, op, existingId, request);
+    return postWrite(result, op, this.config, this.adapter, existingId, request);
   }
 
   /** Upsert multiple rows in parallel. */
@@ -214,13 +201,12 @@ export class WriteRepository<T = any> {
     return Promise.all(rows.map((r) => this.upsert(r, request)));
   }
 
-  async delete(id: number | string, request?: any): Promise<T> {
+  async delete(id: number | string, _request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      const result = await this.prismaModel.delete({
+      return await this.prismaModel.delete({
         where: { [idField]: this.toId(id) },
       });
-      return this.postWrite(result, 'delete', this.toId(id), request);
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
@@ -270,10 +256,11 @@ export class WriteRepository<T = any> {
     let payload: unknown;
     if (op !== 'delete') {
       const stripped =
-        op === 'create' ? this.stripNonCreateableChildFields(data, sub) : data;
+        op === 'create' ? stripNonCreateableChildFields(sub, data) : data;
       const normalized = normalizeValueLabels(stripped, sub.valueLabelColumns);
       payload = sub.hooks?.beforeWrite
         ? await sub.hooks.beforeWrite(normalized, {
+            dataSource: this.adapter,
             prisma: this.prisma,
             op: op === 'patch' ? 'patch' : op,
             ...(id !== undefined && { id }),
@@ -292,6 +279,7 @@ export class WriteRepository<T = any> {
 
     return sub.hooks?.afterWrite
       ? sub.hooks.afterWrite(result, {
+          dataSource: this.adapter,
           prisma: this.prisma,
           op: op === 'patch' ? 'patch' : op,
           ...(id !== undefined && { id }),
@@ -318,7 +306,7 @@ export class WriteRepository<T = any> {
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 
-    const stripped = this.stripNonCreateableChildFields(data, sub);
+    const stripped = stripNonCreateableChildFields(sub, data);
     const normalized = normalizeValueLabels(
       stripped,
       sub.valueLabelColumns,
@@ -326,6 +314,7 @@ export class WriteRepository<T = any> {
     const payload = { ...normalized, [sub.foreignKey]: this.toId(parentId) };
     const prepared = sub.hooks?.beforeWrite
       ? await sub.hooks.beforeWrite(payload, {
+          dataSource: this.adapter,
           prisma: this.prisma,
           op: 'create',
           request,
@@ -348,6 +337,7 @@ export class WriteRepository<T = any> {
     const result = await childModel.create({ data: prismaData });
     return sub.hooks?.afterWrite
       ? sub.hooks.afterWrite(result, {
+          dataSource: this.adapter,
           prisma: this.prisma,
           op: 'create',
           request,
@@ -386,11 +376,12 @@ export class WriteRepository<T = any> {
     const normalized = normalizeValueLabels(data, sub.valueLabelColumns);
     const afterHook = sub.hooks?.beforeWrite
       ? await sub.hooks.beforeWrite(normalized, {
+          dataSource: this.adapter,
           prisma: this.prisma,
           op: 'update',
           id,
           request,
-          parent: this.parentHookContext(parentId),
+          parent: this.parentHookContext(parentIdFromRequest(request) ?? id),
         })
       : normalized;
 
@@ -407,6 +398,7 @@ export class WriteRepository<T = any> {
       });
       return sub.hooks?.afterWrite
         ? sub.hooks.afterWrite(result, {
+            dataSource: this.adapter,
             prisma: this.prisma,
             op: 'update',
             id,
@@ -462,6 +454,7 @@ export class WriteRepository<T = any> {
         );
       return sub.hooks?.afterWrite
         ? sub.hooks.afterWrite(result, {
+            dataSource: this.adapter,
             prisma: this.prisma,
             op: 'delete',
             id,

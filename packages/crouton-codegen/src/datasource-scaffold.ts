@@ -18,10 +18,18 @@ export interface DatasourceScaffoldOptions {
   name: string;
   /** Where datasource folders live, relative to project root (from crouton.json). */
   dataSourcesDir: string;
-  /** Env var holding the connection URL. */
-  urlEnv: string;
-  /** Import path for this datasource's generated Zod types (for resource `schema.ts`). */
-  generatedTypesImport: string;
+  /**
+   * Env var holding the connection URL. Required for Prisma; optional for
+   * custom adapters whose connection config may not use an env var.
+   */
+  urlEnv?: string;
+  /**
+   * Adapter kind. `"prisma"` (default) generates the full Prisma scaffold;
+   * `"custom"` emits only `data-source.json` + an `index.ts` adapter stub.
+   */
+  adapter?: 'prisma' | 'custom';
+  /** Import path for this datasource's generated Zod types (for resource `schema.ts`). Prisma only. */
+  generatedTypesImport?: string;
   /** Import path for this datasource's generated Prisma client. When set, used instead of a relative path in data-source index.ts. */
   generatedClientImport?: string;
   /** Datasource type tag. Default `postgres`. */
@@ -47,12 +55,18 @@ export interface ScaffoldFile {
 export interface DatasourceScaffold {
   files: ScaffoldFile[];
   /** The fully-resolved settings (after defaults), e.g. for printing a summary. */
-  resolved: Required<
-    Pick<
-      DatasourceScaffoldOptions,
-      'name' | 'type' | 'urlEnv' | 'generatedTypesImport' | 'prismaSchema' | 'prismaConfig' | 'zodOutput' | 'clientOutput'
-    >
-  > & { default: boolean };
+  resolved: {
+    name: string;
+    adapter: 'prisma' | 'custom';
+    default: boolean;
+    urlEnv?: string;
+    type?: string;
+    generatedTypesImport?: string;
+    prismaSchema?: string;
+    prismaConfig?: string;
+    zodOutput?: string;
+    clientOutput?: string;
+  };
   notes: string[];
 }
 
@@ -76,8 +90,52 @@ const relImport = (fromDir: string, toDir: string): string => {
 
 export const buildDatasourceFiles = (opts: DatasourceScaffoldOptions): DatasourceScaffold => {
   const name = opts.name;
-  const type = opts.type ?? 'postgres';
   const isDefault = opts.default === true;
+  const adapter = opts.adapter ?? 'prisma';
+  const dsDir = posix.join(opts.dataSourcesDir, name);
+
+  // ── Custom adapter path ───────────────────────────────────────────────────
+  if (adapter === 'custom') {
+    const dataSourceJson: Record<string, unknown> = {
+      adapter: 'custom',
+      name,
+      ...(opts.urlEnv ? { urlEnv: opts.urlEnv } : {}),
+      ...(isDefault ? { default: true } : {}),
+    };
+
+    const indexTs = `import type { DataSourceAdapter } from '@ghentcdh/crouton-api';
+
+const adapter: DataSourceAdapter = {
+  kind: 'custom',
+
+  supports(_model: string): boolean {
+    return true;
+  },
+
+  async disconnect(): Promise<void> {
+    // clean up connections
+  },
+};
+
+export default adapter;
+`;
+
+    const notes: string[] = [];
+    if (opts.urlEnv) notes.push(`Add ${opts.urlEnv} to your .env (and .env.example).`);
+    notes.push(`Implement your DataSourceAdapter in ${posix.join(dsDir, 'index.ts')}.`);
+
+    return {
+      files: [
+        { path: posix.join(dsDir, 'data-source.json'), contents: `${JSON.stringify(dataSourceJson, null, 2)}\n` },
+        { path: posix.join(dsDir, 'index.ts'), contents: indexTs },
+      ],
+      resolved: { name, urlEnv: opts.urlEnv, adapter: 'custom', default: isDefault },
+      notes,
+    };
+  }
+
+  // ── Prisma adapter path (default) ─────────────────────────────────────────
+  const type = opts.type ?? 'postgres';
   const provider = PRISMA_PROVIDERS[type.toLowerCase()] ?? 'postgresql';
 
   const prismaSchema = opts.prismaSchema ?? `prisma/${name}/schema.prisma`;
@@ -85,7 +143,6 @@ export const buildDatasourceFiles = (opts: DatasourceScaffoldOptions): Datasourc
   const zodOutput = opts.zodOutput ?? `generated/${name}/src`;
   const clientOutput = opts.clientOutput ?? `generated/${name}/client`;
 
-  const dsDir = posix.join(opts.dataSourcesDir, name);
   const schemaDir = dirname(prismaSchema);
   const migrationsDir = posix.join(schemaDir, 'migrations');
 
@@ -178,7 +235,7 @@ export default defineConfig({
 
   return {
     files,
-    resolved: { name, type, default: isDefault, urlEnv: opts.urlEnv, generatedTypesImport: opts.generatedTypesImport, prismaSchema, prismaConfig, zodOutput, clientOutput },
+    resolved: { name, type, adapter: 'prisma', default: isDefault, urlEnv: opts.urlEnv, generatedTypesImport: opts.generatedTypesImport, prismaSchema, prismaConfig, zodOutput, clientOutput },
     notes,
   };
 };

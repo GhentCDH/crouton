@@ -1,6 +1,8 @@
 import { type DataSource } from '@ghentcdh/crouton-core';
 
+import type { DataSourceAdapter } from './data-source.adapter';
+
 export type DataSourceEntry = {
   config: DataSource;
-  client: any; // PrismaClient from any generated schema
+  adapter: DataSourceAdapter;
 };

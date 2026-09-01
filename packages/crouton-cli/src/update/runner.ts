@@ -338,6 +338,15 @@ export const runUpdateResources = async (
     const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes);
     const datasources = await loadDatasources(loaded);
     const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
+
+    if ((ds as any).adapter === 'custom') {
+      clack.log.warn(
+        `Datasource "${ds.name}" uses a custom adapter — Prisma introspection is not available.`,
+      );
+      clack.outro('Nothing to do for a custom datasource.');
+      return;
+    }
+
     const schemaAbs = resolveFromRoot(loaded.root, ds.prismaSchema);
     const configAbs = resolveFromRoot(loaded.root, ds.prismaConfig);
 

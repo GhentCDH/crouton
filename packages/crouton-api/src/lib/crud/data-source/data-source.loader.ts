@@ -1,12 +1,14 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
+import type { DataSourceAdapter } from './data-source.adapter';
 import type { DataSourceEntry } from './data-source.types';
+import { PrismaDataSourceAdapter } from './prisma.adapter';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
- * Scan a directory for data-source subdirectories and load their configs + clients.
+ * Scan a directory for data-source subdirectories and load their configs + adapters.
  *
  * Each subdirectory must contain:
  * - `data-source.json` — config with `name`, `type`, and optional `default`
@@ -55,11 +57,37 @@ export const loadDataSourcesFromDir = async (
 
     if (!indexFile) continue;
 
-    const mod = await import(indexFile);
-    const client = mod.default;
-    if (!client) continue;
+    let adapter: DataSourceAdapter;
+    try {
+      const mod = await import(indexFile);
+      const exported = mod.default;
+      if (!exported) continue;
 
-    results.push({ config, client });
+      if (config.adapter === 'custom') {
+        // index.ts default-exports a DataSourceAdapter directly.
+        if (typeof exported !== 'object' || typeof exported.kind !== 'string') {
+          resourceLoadErrorsRegistry.record({
+            name: dir,
+            path: indexFile,
+            error: `Custom datasource "${dir}": index.ts must default-export a DataSourceAdapter (object with a "kind" string field).`,
+          });
+          continue;
+        }
+        adapter = exported as DataSourceAdapter;
+      } else {
+        // Default: prisma — wrap the exported PrismaClient.
+        adapter = new PrismaDataSourceAdapter(exported);
+      }
+    } catch (err) {
+      resourceLoadErrorsRegistry.record({
+        name: dir,
+        path: indexFile,
+        error: `Failed to load datasource adapter: ${(err as Error).message}`,
+      });
+      continue;
+    }
+
+    results.push({ config, adapter });
   }
 
   return results;

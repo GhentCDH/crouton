@@ -12,10 +12,10 @@ import {
   childCtx,
   childRepositoryFn,
 } from './custom-repository/child-delegate';
-import { type ReadOp, decorateRow, decorateRows } from './hooks';
+import type { DataSourceAdapter } from './data-source/data-source.adapter';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
-import { type ValueLabelColumn } from './resource/valueLabel';
+import type { ValueLabelColumn } from './resource/valueLabel';
 import { applyValueLabelColumns } from './resource/valueLabel.apply';
 import type { ResourceConfigRegistry } from './resource-config.registry';
 import {
@@ -227,19 +227,24 @@ export { applyValueLabelColumns };
 
 /**
  * Handles all read operations for a resource — list, count, detail, and sub-resource queries.
+ * Pure data access: hooks and valueLabel decoration are applied by the factory wrapper.
  *
  * Constructed by `createCrudRepository`; instantiate directly only in tests.
  *
  * @param prismaModel - The Prisma delegate for the resource's model (e.g. `prisma.text`).
- * @param prisma - Full PrismaClient, used for sub-resource queries and calculated columns.
+ * @param adapter - The datasource adapter; `adapter.client` is the raw PrismaClient.
  * @param config - Resource config including model name, idType, hooks, and sub-resources.
  * @param listSelect - Prisma `select` clause for list queries, derived from the `findAll` schema. `undefined` = select all.
  * @param oneSelect - Prisma `select` clause for detail queries. Falls back to `listSelect` when absent.
  */
 export class ReadRepository<T = any> {
+  private get prisma(): any {
+    return this.adapter.client;
+  }
+
   constructor(
     private readonly prismaModel: any,
-    private readonly prisma: any,
+    private readonly adapter: DataSourceAdapter,
     private readonly config: Resource,
     private readonly listSelect: Record<string, any> | undefined,
     private readonly oneSelect: Record<string, any> | undefined,
@@ -293,34 +298,11 @@ export class ReadRepository<T = any> {
     };
   }
 
-  private async decorate(
-    rows: any[],
-    op: ReadOp,
-    request?: any,
-  ): Promise<any[]> {
-    const vlCols = await resolveValueLabelColumns(
-      this.config.route,
-      this.config.valueLabelColumns,
-      this.configRegistry,
-    );
-    const target =
-      vlCols === this.config.valueLabelColumns
-        ? this.config
-        : { hooks: this.config.hooks, valueLabelColumns: vlCols };
-    return decorateRows(rows, op, target, this.prisma, request);
-  }
-
-  private async decorateOne(
-    row: any,
-    op: ReadOp,
-    request?: any,
-  ): Promise<any> {
-    return decorateRow(row, op, this.config, this.prisma, request);
-  }
-
   /**
    * Fetch a paginated, sorted, and filtered list of records.
    * Sub-resource counts are merged onto each row; calculated columns are resolved via raw SQL.
+   * Resource-level `afterRead` and valueLabel decoration are NOT applied here — the
+   * factory wrapper handles them so both Prisma and custom adapters use the same path.
    */
   async findAll(params: ListRequest, request?: any): Promise<T[]> {
     const subResources = this.config.subResources ?? [];
@@ -427,7 +409,8 @@ export class ReadRepository<T = any> {
       this.prisma,
       this.config.idField ?? 'id',
     );
-    return this.decorate(withCalc, 'findAll', request);
+    // Resource-level afterRead + valueLabel decoration is applied by the factory wrapper.
+    return withCalc;
   }
 
   /** Count records matching the given filter strings. */
@@ -439,6 +422,7 @@ export class ReadRepository<T = any> {
    * Fetch a single record by id.
    * Sub-resources with `includeInFindOne: true` are eagerly loaded (flat).
    * `config.include` entries are loaded with full nesting via `buildIncludeClause`.
+   * Resource-level `afterRead` decoration is applied by the factory wrapper.
    * @throws {NotFoundException} When no record exists for the given id.
    */
   async findOne(id: number | string, request?: any): Promise<T> {
@@ -492,7 +476,8 @@ export class ReadRepository<T = any> {
       enriched = { ...enriched, [sub.relation]: enrichedNested };
     }
 
-    return this.decorateOne(enriched, 'findOne', request);
+    // Resource-level afterRead decoration is applied by the factory wrapper.
+    return enriched;
   }
 
   /**
@@ -533,6 +518,7 @@ export class ReadRepository<T = any> {
         ? await Promise.all(
             rows.map((row: any) =>
               sub.hooks!.afterRead!(row, {
+                dataSource: this.adapter,
                 prisma: this.prisma,
                 op: 'findAll',
                 request,
@@ -603,6 +589,7 @@ export class ReadRepository<T = any> {
       ? await Promise.all(
           withCalc.map((row: any) =>
             sub.hooks!.afterRead!(row, {
+              dataSource: this.adapter,
               prisma: this.prisma,
               op: 'findAll',
               request,
@@ -656,6 +643,7 @@ export class ReadRepository<T = any> {
       }
       return sub.hooks?.afterRead
         ? sub.hooks.afterRead(row, {
+            dataSource: this.adapter,
             prisma: this.prisma,
             op: 'findOne',
             request,
@@ -697,6 +685,7 @@ export class ReadRepository<T = any> {
     // findOne (single child) keeps the scalar — see decorateOne.
     if (sub.hooks?.afterRead)
       return sub.hooks.afterRead(withCalc, {
+        dataSource: this.adapter,
         prisma: this.prisma,
         op: 'findOne',
         request,
