@@ -74,10 +74,15 @@ describe('classify', () => {
     const d = classify(model, {
       resolveRelationResource: (m) => (m === 'Author' ? './resource.author.json' : undefined),
     });
-    // Author (manyToOne, resolves) → relation control, hidden in table only
+    // Author (manyToOne, resolves) → autocomplete relation control, hidden in table only
     expect(col(d, 'author')).toEqual({
       hiddenInTable: true,
-      fieldInput: { format: 'relation', resource: './resource.author.json', relationType: 'manyToOne' },
+      fieldInput: {
+        format: 'relation',
+        resource: './resource.author.json',
+        relationType: 'manyToOne',
+        options: { display: 'autocomplete' },
+      },
     });
     // no redundant `type: 'relation'` — every reader keys off `fieldInput.format`
     expect((col(d, 'author') as any).fieldInput).not.toHaveProperty('type');
@@ -86,19 +91,25 @@ describe('classify', () => {
     expect(d.unwiredRelations).toEqual([{ field: 'sources', targetModel: 'Source' }]);
   });
 
-  it('wires the collection (reverse) side of a relation but hides it in form+view by default', () => {
+  it('renders the collection (reverse) side of a relation as a sub-resource table', () => {
     const d = classify(model, {
       resolveRelationResource: (m) =>
         m === 'Author' ? './resource.author.json' : m === 'Source' ? './resource.source.json' : undefined,
     });
-    // Source (oneToMany, now resolves) → wired, but hidden in form+view like the table
+    // Source (oneToMany, now resolves) → table in the form, hidden in table only
     expect(col(d, 'sources')).toEqual({
       hiddenInTable: true,
-      hiddenInForm: true,
-      hiddenInView: true,
-      fieldInput: { format: 'relation', resource: './resource.source.json', relationType: 'oneToMany' },
+      fieldInput: {
+        format: 'relation',
+        resource: './resource.source.json',
+        relationType: 'oneToMany',
+        options: { display: 'table' },
+      },
     });
-    // no longer unwired — it resolved, it's just hidden by default
+    // shown in the form + view — not hidden
+    expect((col(d, 'sources') as any).hiddenInForm).toBeUndefined();
+    expect((col(d, 'sources') as any).hiddenInView).toBeUndefined();
+    // no longer unwired — it resolved
     expect(d.unwiredRelations).toEqual([]);
     // the forward side is unaffected — still visible
     expect(col(d, 'author')).toMatchObject({ hiddenInTable: true });

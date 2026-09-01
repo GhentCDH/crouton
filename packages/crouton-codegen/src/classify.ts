@@ -6,12 +6,11 @@
  *  - created/updated timestamps: hidden in table+form, non-editable
  *  - foreign-key scalars: hidden in table+form, non-editable
  *  - relations: hidden in table always; unresolved (no sibling resource) hidden
- *    everywhere. Resolved relations render as an inline relation control on the
- *    owning (forward) side — `manyToOne` / `oneToOne`, e.g. `groupMembers.group`
- *    — and are wired but hidden in form+view by default on the collection
- *    (reverse) side — `oneToMany` / `manyToMany`, e.g. `groups.groupMembers` —
- *    since that side is normally edited from the child's own resource, not
- *    inline in the parent's form.
+ *    everywhere. Resolved relations render in the form by cardinality via
+ *    `fieldInput.options.display`: the owning (forward) side — `manyToOne` /
+ *    `oneToOne`, e.g. `groupMembers.group` — as an `autocomplete` picker, and
+ *    the collection (reverse) side — `oneToMany` / `manyToMany`, e.g.
+ *    `groups.groupMembers` — as a sub-resource `table`.
  */
 
 import { type JsonColumnInput, type ResourceJsonInput, type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
@@ -97,21 +96,26 @@ export const classify = (
           };
     } else if (field.kind === 'relation') {
       const target = ctx.resolveRelationResource?.(field.relationModel ?? '');
-      // The collection (reverse) side of a relation — the list of *other* rows
-      // pointing back at this one — is normally edited from that other model's
-      // own resource, not inline here. Keep it wired (so it can be toggled on)
-      // but hidden in form+view by default; only the owning (forward) side
-      // renders as a visible inline relation control.
+      // A relation renders in the form according to its cardinality:
+      //  - manyToOne / oneToOne (a single FK reference) → an autocomplete
+      //    picker on the owning (forward) side.
+      //  - oneToMany / manyToMany (a collection) → a sub-resource table listing
+      //    the related rows.
+      // `options.display` drives the frontend `RelationControlRenderer`; without
+      // it the control falls back to an inert "Configure autocomplete" state.
+      // Relations are always hidden in the table (a relation column can't be
+      // ordered/filtered like a scalar), but are shown in form + view.
       const isCollectionSide =
         field.relationType === 'oneToMany' || field.relationType === 'manyToMany';
+      const display = isCollectionSide ? 'table' : 'autocomplete';
       if (ruleset.showRelationsInForm && target) {
         col = {
           hiddenInTable: ruleset.hideRelationsInTable,
-          ...(isCollectionSide ? { hiddenInForm: true, hiddenInView: true } : {}),
           fieldInput: {
             format: 'relation',
             resource: target,
             relationType: field.relationType,
+            options: { display },
           },
         };
       } else {
