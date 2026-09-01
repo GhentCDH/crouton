@@ -10,7 +10,7 @@ const outDir = './dist';
 export default defineConfig([
   // CLI entries (with shebang)
   {
-    entry: ['src/index.ts', 'src/add.ts'],
+    entry: ['src/index.ts', 'src/add.ts', 'src/crouton.ts', 'src/create-datasource/index.ts'],
     outDir,
     format: ['esm'],
     dts: false,
@@ -24,7 +24,7 @@ export default defineConfig([
         'const require = __createRequire(import.meta.url);',
       ].join('\n'),
     },
-    noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli'],
+    noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen'],
     external: ['@prisma/internals'],
     define: {
       __CROUTON_VERSION__: JSON.stringify(pkg.version),
@@ -56,7 +56,7 @@ export default defineConfig([
         'const require = __createRequire(import.meta.url);',
       ].join('\n'),
     },
-    noExternal: ['@ghentcdh/crouton-codegen', '@ghentcdh/crouton-cli'],
+    noExternal: ['@ghentcdh/crouton-codegen'],
     external: ['@prisma/internals'],
     esbuildOptions(options) {
       options.conditions = ['@ghentcdh/crouton'];

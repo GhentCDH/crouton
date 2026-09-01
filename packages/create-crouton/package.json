@@ -19,11 +19,16 @@
     "./lib": {
       "@ghentcdh/crouton": "./src/lib/index.ts",
       "import": "./dist/lib/index.js"
+    },
+    "./create-datasource": {
+      "@ghentcdh/crouton": "./src/create-datasource/index.ts",
+      "import": "./dist/create-datasource/index.js"
     }
   },
   "bin": {
     "create-crouton": "./dist/index.js",
-    "add-crouton": "./dist/add.js"
+    "add-crouton": "./dist/add.js",
+    "crouton": "./dist/crouton.js"
   },
   "files": [
     "dist"
@@ -37,7 +42,6 @@
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
-    "@ghentcdh/crouton-cli": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "commander": "^14.0.0",
     "picocolors": "^1.1.0",

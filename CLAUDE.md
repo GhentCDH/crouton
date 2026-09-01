@@ -28,12 +28,12 @@ Published packages (4):
 - `crouton-core` — browser-safe shared code (types, schemas, utilities). No Node-only imports (`child_process`, `fs`, etc.)
 - `crouton-vue` — all Vue UI: includes crouton-forms-vue and crouton-editor-vue bundled internally. Import everything from `@ghentcdh/crouton-vue`.
 - `crouton-api` — NestJS/server-side API package
-- `create-crouton` — scaffold tool (`npm create @ghentcdh/crouton`)
+- `create-crouton` — scaffold tool (`npm create @ghentcdh/crouton`) + project dev CLI (`crouton update|create-resource|create-datasource|translations`). Scaffolded backends install this as a devDependency.
 
 Internal (never publish):
 - `crouton-forms-vue` — bundled into crouton-vue, marked private
 - `crouton-editor-vue` — bundled into crouton-vue, marked private
-- `crouton-codegen` — all shared Node-only codegen/prisma tooling. Both `crouton-cli` and `crouton-api` depend on it for prisma shell wrappers, introspection, scaffolding, etc. Put shared codegen logic here, not in cli or api
+- `crouton-codegen` — all shared Node-only codegen/prisma tooling. Both `create-crouton` and `crouton-api` depend on it for prisma shell wrappers, introspection, scaffolding, etc. Put shared codegen logic here, not in create-crouton or api
 
 # Code Style Preferences
 

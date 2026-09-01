@@ -1,6 +1,8 @@
 import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
+import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
+
 import {
   BACKEND_DEPS,
   CancelledError,
@@ -17,8 +19,6 @@ import {
   writeFiles,
   writeIfAbsent,
 } from './lib/index';
-import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
-
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
