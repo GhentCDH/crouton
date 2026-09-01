@@ -5,12 +5,16 @@ import {
   type DataSourceResolver,
   createCustomRepository,
 } from './custom-repository';
+import type { DataSourceAdapter } from './data-source/data-source.adapter';
+import { PrismaDataSourceAdapter } from './data-source/prisma.adapter';
+import { decorateRow, decorateRows, postWrite, prepareWrite } from './hooks';
 import { ReadRepository } from './read.repository';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
 import type { ResourceConfigRegistry } from './resource-config.registry';
 import { toSelectFields } from './schema.utils';
-import { WriteRepository } from './write.repository';
+import { resolveValueLabelColumns } from './translation';
+import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = any> {
@@ -78,10 +82,13 @@ export interface CrudRepository<T = any> {
  * A `kind: "custom"` resource short-circuits to `createCustomRepository`, which
  * delegates to the user's `repository.ts`.
  *
+ * Resource-level hooks (`beforeWrite`/`afterWrite`/`afterRead`) and valueLabel
+ * decoration are applied here in the factory wrapper — the repositories perform
+ * pure data access so both Prisma and custom adapters share the same hook path.
+ *
  * @param prisma - Full PrismaClient instance (may be `undefined` for a custom
  *   resource in a project with no datasources).
  * @param config - Resource config. `config.model` must match a key on the PrismaClient.
- * @param dataSources - Registry exposed to a custom repository as `ctx.dataSources`.
  * @throws {Error} When `config.model` is not found on the provided PrismaClient.
  */
 export function createCrudRepository<T = any>(
@@ -125,29 +132,92 @@ export function createCrudRepository<T = any>(
   const listSelect = listSchema ? toSelectFields(listSchema) : undefined;
   const oneSelect = oneSchema ? toSelectFields(oneSchema) : listSelect;
 
+  // Wrap the raw prisma client in an adapter so hooks receive a `DataSourceAdapter`.
+  const adapter: DataSourceAdapter = new PrismaDataSourceAdapter(prisma);
+
   const reader = new ReadRepository<T>(
     model,
-    prisma,
+    adapter,
     config,
     listSelect,
     oneSelect,
     configRegistry,
   );
-  const writer = new WriteRepository<T>(model, prisma, config);
+  const writer = new WriteRepository<T>(model, adapter, config);
+
+  // ── Resource-level decoration helpers ────────────────────────────────────
+  // These mirror the removed ReadRepository.decorate / decorateOne methods,
+  // moved here so both Prisma and custom adapters share the same hook path.
+
+  const decorateFindAll = async (rows: any[], request?: any): Promise<any[]> => {
+    const vlCols = await resolveValueLabelColumns(
+      config.route,
+      config.valueLabelColumns,
+      configRegistry,
+    );
+    const target =
+      vlCols === config.valueLabelColumns
+        ? config
+        : { hooks: config.hooks, valueLabelColumns: vlCols };
+    return decorateRows(rows, 'findAll', target, adapter, request);
+  };
+
+  const decorateFindOne = (row: any, request?: any): Promise<any> =>
+    decorateRow(row, 'findOne', config, adapter, request);
+
+  const prepareData = (
+    data: unknown,
+    op: 'create' | 'update' | 'patch',
+    id?: string | number,
+    request?: any,
+  ) => prepareWrite(data, op, config, adapter, id, request);
+
+  const postData = (
+    result: any,
+    op: 'create' | 'update' | 'patch' | 'delete',
+    id?: string | number,
+    request?: any,
+  ) => postWrite(result, op, config, adapter, id, request);
+
+  const toId = (id: string | number): string | number =>
+    (config.idType ?? 'string') === 'number' ? +id : String(id);
 
   return {
     prisma,
-    findAll: reader.findAll.bind(reader),
+    findAll: async (params, request) =>
+      decorateFindAll(await reader.findAll(params, request), request),
     count: reader.count.bind(reader),
-    findOne: reader.findOne.bind(reader),
+    findOne: async (id, request) =>
+      decorateFindOne(await reader.findOne(id, request), request),
     findAllByParent: reader.findAllByParent.bind(reader),
     findOneChild: reader.findOneChild.bind(reader),
-    create: writer.create.bind(writer),
-    update: writer.update.bind(writer),
-    patch: writer.patch.bind(writer),
+    create: async (data, request) => {
+      const stripped = stripSubResourceKeys(config, data);
+      const prepared = await prepareData(stripped, 'create', undefined, request);
+      const result = await writer.create(prepared, request);
+      return postData(result, 'create', undefined, request);
+    },
+    update: async (id, data, request) => {
+      const coercedId = toId(id);
+      const stripped = stripSubResourceKeys(config, data);
+      const prepared = await prepareData(stripped, 'update', coercedId, request);
+      const result = await writer.update(id, prepared, request);
+      return postData(result, 'update', coercedId, request);
+    },
+    patch: async (id, data, request) => {
+      const coercedId = toId(id);
+      const stripped = stripSubResourceKeys(config, data);
+      const prepared = await prepareData(stripped, 'patch', coercedId, request);
+      const result = await writer.patch(id, prepared, request);
+      return postData(result, 'patch', coercedId, request);
+    },
     upsert: writer.upsert.bind(writer),
     upsertMany: writer.upsertMany.bind(writer),
-    delete: writer.delete.bind(writer),
+    delete: async (id, request) => {
+      const coercedId = toId(id);
+      const result = await writer.delete(id, request);
+      return postData(result, 'delete', coercedId, request);
+    },
     createChild: writer.createChild.bind(writer),
     updateChild: writer.updateChild.bind(writer),
     deleteChild: writer.deleteChild.bind(writer),

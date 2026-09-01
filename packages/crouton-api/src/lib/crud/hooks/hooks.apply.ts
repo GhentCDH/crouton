@@ -4,6 +4,7 @@ import type {
   ResourceHooks,
   WriteOp,
 } from './hooks.types';
+import type { DataSourceAdapter } from '../data-source/data-source.adapter';
 import type { ValueLabelColumn } from '../resource/valueLabel';
 import {
   applyValueLabelColumns,
@@ -14,16 +15,39 @@ import {
  * Lifecycle-hook application, extracted so every repository implementation
  * treats hooks identically.
  *
- * Before this existed the four wrappers were private methods on
- * `ReadRepository` / `WriteRepository`, which meant an alternative repository
- * (a user-supplied `repository.ts`) would silently skip hooks and the
- * value-label envelope.
+ * All four helpers now accept a `DataSourceAdapter` instead of a raw Prisma
+ * client. The adapter is forwarded into the hook context as `dataSource`; the
+ * raw client is available as `ctx.prisma` (= `adapter.client`) for backward
+ * compatibility with existing hook files.
  */
 
 export type HookTarget = {
   hooks?: ResourceHooks;
   valueLabelColumns?: ValueLabelColumn[];
 };
+
+const hookCtxRead = (adapter: DataSourceAdapter, op: ReadOp, request?: any, parent?: ParentHookContext) => ({
+  dataSource: adapter,
+  prisma: adapter.client,
+  op,
+  request,
+  ...(parent && { parent }),
+});
+
+const hookCtxWrite = (
+  adapter: DataSourceAdapter,
+  op: WriteOp,
+  id?: string | number,
+  request?: any,
+  parent?: ParentHookContext,
+) => ({
+  dataSource: adapter,
+  prisma: adapter.client,
+  op,
+  ...(id !== undefined && { id }),
+  ...(request !== undefined && { request }),
+  ...(parent && { parent }),
+});
 
 /**
  * `afterRead` for a list, plus the `{ value, label }` envelope.
@@ -36,15 +60,14 @@ export const decorateRows = async (
   rows: any[],
   op: ReadOp,
   target: HookTarget,
-  prisma: any,
+  adapter: DataSourceAdapter,
   request?: any,
   parent?: ParentHookContext,
 ): Promise<any[]> => {
   const hook = target.hooks?.afterRead;
+  const ctx = hookCtxRead(adapter, op, request, parent);
   const hooked = hook
-    ? await Promise.all(
-        rows.map((row) => hook(row, { prisma, op, request, ...(parent && { parent }) })),
-      )
+    ? await Promise.all(rows.map((row) => hook(row, ctx)))
     : rows;
   const cols = target.valueLabelColumns;
   return cols?.length
@@ -57,14 +80,12 @@ export const decorateRow = async (
   row: any,
   op: ReadOp,
   target: HookTarget,
-  prisma: any,
+  adapter: DataSourceAdapter,
   request?: any,
   parent?: ParentHookContext,
 ): Promise<any> => {
   const hook = target.hooks?.afterRead;
-  return hook
-    ? hook(row, { prisma, op, request, ...(parent && { parent }) })
-    : row;
+  return hook ? hook(row, hookCtxRead(adapter, op, request, parent)) : row;
 };
 
 /** Unwrap value-label envelopes, then run `beforeWrite`. */
@@ -72,7 +93,7 @@ export const prepareWrite = async (
   data: any,
   op: WriteOp,
   target: HookTarget,
-  prisma: any,
+  adapter: DataSourceAdapter,
   id?: string | number,
   request?: any,
   parent?: ParentHookContext,
@@ -80,7 +101,7 @@ export const prepareWrite = async (
   const normalized = normalizeValueLabels(data, target.valueLabelColumns);
   const hook = target.hooks?.beforeWrite;
   return hook
-    ? hook(normalized, { prisma, op, id, request, ...(parent && { parent }) })
+    ? hook(normalized, hookCtxWrite(adapter, op, id, request, parent))
     : normalized;
 };
 
@@ -89,13 +110,11 @@ export const postWrite = async (
   result: any,
   op: WriteOp,
   target: HookTarget,
-  prisma: any,
+  adapter: DataSourceAdapter,
   id?: string | number,
   request?: any,
   parent?: ParentHookContext,
 ): Promise<any> => {
   const hook = target.hooks?.afterWrite;
-  return hook
-    ? hook(result, { prisma, op, id, request, ...(parent && { parent }) })
-    : result;
+  return hook ? hook(result, hookCtxWrite(adapter, op, id, request, parent)) : result;
 };

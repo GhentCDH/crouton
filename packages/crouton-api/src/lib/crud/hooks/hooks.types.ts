@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { DataSourceAdapter } from '../data-source/data-source.adapter';
+
 export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'upsert', 'delete']);
 export type WriteOp = z.infer<typeof WriteOpSchema>;
 
@@ -23,7 +25,14 @@ export interface ParentHookContext {
   id: string | number;
 }
 
-export interface WriteHookContext<PRISMACLIENT> {
+export interface WriteHookContext<PRISMACLIENT = unknown> {
+  /** The datasource adapter for this resource. Use `dataSource.client` to reach the raw backend. */
+  dataSource: DataSourceAdapter;
+  /**
+   * Raw Prisma client — backward-compatible alias for `dataSource.client`.
+   * `undefined` on a non-Prisma datasource.
+   * @deprecated prefer `dataSource.client`
+   */
   prisma: PRISMACLIENT;
   op: WriteOp;
   id?: string | number;
@@ -31,7 +40,14 @@ export interface WriteHookContext<PRISMACLIENT> {
   parent?: ParentHookContext;
 }
 
-export interface ReadHookContext<PRISMACLIENT> {
+export interface ReadHookContext<PRISMACLIENT = unknown> {
+  /** The datasource adapter for this resource. Use `dataSource.client` to reach the raw backend. */
+  dataSource: DataSourceAdapter;
+  /**
+   * Raw Prisma client — backward-compatible alias for `dataSource.client`.
+   * `undefined` on a non-Prisma datasource.
+   * @deprecated prefer `dataSource.client`
+   */
   prisma: PRISMACLIENT;
   op: ReadOp;
   request?: any;
@@ -50,6 +66,13 @@ export const ResourceHooksSchema = z.object({
     .optional(),
 });
 
-export type ResourceHooks<PRISMACLIENT = any> = z.infer<
-  typeof ResourceHooksSchema
->;
+/**
+ * Hand-written interface so the `PRISMACLIENT` generic is preserved.
+ * `z.infer<typeof ResourceHooksSchema>` erases it (Zod wraps every custom()
+ * in `ZodType<T>`, discarding the generic), making `ctx.prisma` always `any`.
+ */
+export interface ResourceHooks<PRISMACLIENT = any> {
+  beforeWrite?: (data: any, ctx: WriteHookContext<PRISMACLIENT>) => Promise<any> | any;
+  afterWrite?: (result: any, ctx: WriteHookContext<PRISMACLIENT>) => Promise<any> | any;
+  afterRead?: (row: any, ctx: ReadHookContext<PRISMACLIENT>) => Promise<any> | any;
+}

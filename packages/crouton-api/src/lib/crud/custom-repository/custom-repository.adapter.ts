@@ -15,6 +15,7 @@ import {
 } from './custom-repository.types';
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { CrudRepository } from '../crud-repository.factory';
+import { PrismaDataSourceAdapter } from '../data-source/prisma.adapter';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
@@ -55,6 +56,9 @@ export const createCustomRepository = <T = any>(
   repository: CustomRepository<T> | undefined,
   configRegistry?: ResourceConfigRegistry,
 ): CrudRepository<T> => {
+  // Wrap the raw prisma client in an adapter so hook contexts receive `dataSource`.
+  const adapter = new PrismaDataSourceAdapter(prisma);
+
   const repo = repository ?? {};
   const idField = config.idField ?? DEFAULT_ID_FIELD;
 
@@ -153,7 +157,7 @@ export const createCustomRepository = <T = any>(
       result?.data ?? [],
       'findAll',
       target,
-      prisma,
+      adapter,
       request,
       parentHookCtx(request),
     );
@@ -185,7 +189,7 @@ export const createCustomRepository = <T = any>(
       row,
       'findOne',
       config,
-      prisma,
+      adapter,
       request,
       parentHookCtx(request),
     );
@@ -207,7 +211,7 @@ export const createCustomRepository = <T = any>(
         data,
         op,
         config,
-        prisma,
+        adapter,
         coercedId,
         request,
         parentHookCtx(request),
@@ -272,7 +276,7 @@ export const createCustomRepository = <T = any>(
       result,
       op,
       config,
-      prisma,
+      adapter,
       coercedId,
       request,
       parentHookCtx(request),
@@ -330,7 +334,7 @@ export const createCustomRepository = <T = any>(
         result,
         'delete',
         config,
-        prisma,
+        adapter,
         coercedId,
         request,
         parentHookCtx(request),
