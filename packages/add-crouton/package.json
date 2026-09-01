@@ -1,6 +1,6 @@
 {
   "name": "@ghentcdh/add-crouton",
-  "version": "0.0.1-alpha.46",
+  "version": "0.0.1-alpha.47",
   "publishConfig": {
     "access": "public",
     "tag": "alpha"
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
-    "@ghentcdh/create-crouton": "0.0.1-alpha.46",
+    "@ghentcdh/create-crouton": "0.0.1-alpha.47",
     "@ghentcdh/crouton-cli": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "commander": "^14.0.0",

@@ -1,3 +1,17 @@
+## 0.0.1-alpha.47 (2026-09-01)
+
+### 🚀 Features
+
+- **codegen:** render relations as autocomplete (manyToOne) or table (oneToMany) ([#96](https://github.com/GhentCDH/crouton/pull/96))
+
+### 🩹 Fixes
+
+- smaller issues ([#97](https://github.com/GhentCDH/crouton/pull/97))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.46 (2026-08-31)
 
 ### 🚀 Features
