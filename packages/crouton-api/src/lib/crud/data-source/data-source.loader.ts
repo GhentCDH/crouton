@@ -1,5 +1,6 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
+import type { DataSourceAdapter } from './data-source.adapter';
 import type { DataSourceEntry } from './data-source.types';
 import { PrismaDataSourceAdapter } from './prisma.adapter';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -56,12 +57,27 @@ export const loadDataSourcesFromDir = async (
 
     if (!indexFile) continue;
 
-    let adapter;
+    let adapter: DataSourceAdapter;
     try {
       const mod = await import(indexFile);
-      const client = mod.default;
-      if (!client) continue;
-      adapter = new PrismaDataSourceAdapter(client);
+      const exported = mod.default;
+      if (!exported) continue;
+
+      if (config.adapter === 'custom') {
+        // index.ts default-exports a DataSourceAdapter directly.
+        if (typeof exported !== 'object' || typeof exported.kind !== 'string') {
+          resourceLoadErrorsRegistry.record({
+            name: dir,
+            path: indexFile,
+            error: `Custom datasource "${dir}": index.ts must default-export a DataSourceAdapter (object with a "kind" string field).`,
+          });
+          continue;
+        }
+        adapter = exported as DataSourceAdapter;
+      } else {
+        // Default: prisma — wrap the exported PrismaClient.
+        adapter = new PrismaDataSourceAdapter(exported);
+      }
     } catch (err) {
       resourceLoadErrorsRegistry.record({
         name: dir,

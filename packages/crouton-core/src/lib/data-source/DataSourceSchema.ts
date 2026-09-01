@@ -14,6 +14,11 @@ export const DataSourceShape = z.object({
   type: z.string().default('postgres'),
   /** Mark this as the default datasource. Default `false`. */
   default: z.boolean().default(false),
+  /**
+   * Adapter kind. `"prisma"` (default) expects `index.ts` to default-export a
+   * `PrismaClient`; `"custom"` expects it to default-export a `DataSourceAdapter`.
+   */
+  adapter: z.enum(['prisma', 'custom']).default('prisma'),
   /** Prisma schema path, relative to project root. Default `prisma/<name>/schema.prisma`. */
   prismaSchema: z.string().optional(),
   /** Prisma config path, relative to project root. Default `prisma/<name>/prisma.config.ts`. */
