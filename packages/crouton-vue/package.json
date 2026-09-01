@@ -34,8 +34,6 @@
     "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
-    "@ghentcdh/crouton-editor-vue": "workspace:^",
-    "@ghentcdh/crouton-forms-vue": "workspace:^",
     "@ghentcdh/ui": "*",
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
