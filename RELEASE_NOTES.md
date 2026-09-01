@@ -1,3 +1,17 @@
+## 0.0.1-alpha.48 (2026-09-01)
+
+### 🚀 Features
+
+- add annotations ([5eed61d](https://github.com/GhentCDH/crouton/commit/5eed61d))
+
+### 🩹 Fixes
+
+- inline form ([b5e8f6f](https://github.com/GhentCDH/crouton/commit/b5e8f6f))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.47 (2026-09-01)
 
 ### 🚀 Features
