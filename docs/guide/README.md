@@ -81,7 +81,7 @@ FORM -->|CRUD requests|CRUD
 
 ## In this guide
 
-- [Getting started](1. setup/getting-started.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set
+- [Getting started](1. setup/getting-started.md) — `npm create @ghentcdh/crouton` or `npx add-crouton` to set
   up a new or existing project
 - [Manual setup](1.setup/manual-setup.md) — add crouton to an existing project step by step, without the CLI
 - [CLI & project config](cli/cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`

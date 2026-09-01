@@ -10,8 +10,7 @@
 [![Publish Docs](https://github.com/GhentCDH/crouton/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/GhentCDH/crouton/actions/workflows/publish-docs.yml)
 [![crouton-api](https://img.shields.io/npm/v/@ghentcdh/crouton-api.svg?label=crouton-api)](https://www.npmjs.com/package/@ghentcdh/crouton-api)
 [![crouton-vue](https://img.shields.io/npm/v/@ghentcdh/crouton-vue.svg?label=crouton-vue)](https://www.npmjs.com/package/@ghentcdh/crouton-vue)
-[![crouton-forms-vue](https://img.shields.io/npm/v/@ghentcdh/crouton-forms-vue.svg?label=crouton-forms-vue)](https://www.npmjs.com/package/@ghentcdh/crouton-forms-vue)
-[![crouton-cli](https://img.shields.io/npm/v/@ghentcdh/crouton-cli.svg?label=crouton-cli)](https://www.npmjs.com/package/@ghentcdh/crouton-cli)
+[![crouton-core](https://img.shields.io/npm/v/@ghentcdh/crouton-core.svg?label=crouton-core)](https://www.npmjs.com/package/@ghentcdh/crouton-core)
 [![create-crouton](https://img.shields.io/npm/v/@ghentcdh/create-crouton.svg?label=create-crouton)](https://www.npmjs.com/package/@ghentcdh/create-crouton)
 
 [Documentation](https://ghentcdh.github.io/crouton/)

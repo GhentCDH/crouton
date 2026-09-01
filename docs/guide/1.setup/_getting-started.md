@@ -147,14 +147,14 @@ When using a prefix, add the `--prefix` flag:
 crouton update resources --prefix split
 ```
 
-## @ghentcdh/add-crouton
+## add-crouton (existing project)
 
-Add crouton to an **existing** NestJS project — regular or Nx. This command is additive: it never overwrites existing files.
+Add crouton to an **existing** NestJS project — regular or Nx. This command is additive: it never overwrites existing files. It ships inside `@ghentcdh/create-crouton`.
 
 ```sh
-npx @ghentcdh/add-crouton
+npx add-crouton
 # or from outside the project:
-npx @ghentcdh/add-crouton --cwd /path/to/project
+npx add-crouton --cwd /path/to/project
 ```
 
 ### Flags

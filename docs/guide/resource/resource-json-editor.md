@@ -1,6 +1,6 @@
 # Resource JSON Editor
 
-The `ResourceJsonEditor` component from `@ghentcdh/crouton-editor-vue` is a standalone, "dumb" editor for `resource.json` files. It takes the raw resource object as input and emits updated versions — no backend calls, no router, no app context required.
+The `ResourceJsonEditor` component from `@ghentcdh/crouton-vue` is a standalone, "dumb" editor for `resource.json` files. It takes the raw resource object as input and emits updated versions — no backend calls, no router, no app context required.
 
 ## Live preview
 
@@ -53,7 +53,7 @@ All three canvases render and compute purely client-side — no backend call is 
 ```vue
 <script setup>
 import { ref } from 'vue';
-import { ResourceJsonEditor } from '@ghentcdh/crouton-editor-vue';
+import { ResourceJsonEditor } from '@ghentcdh/crouton-vue';
 
 const resource = ref({
   name: 'book',

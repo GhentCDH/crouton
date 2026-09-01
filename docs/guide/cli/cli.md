@@ -5,7 +5,7 @@ schema, then generates new resources and reconciles existing ones — interactiv
 change.
 
 ```sh
-pnpm add -D @ghentcdh/crouton-cli
+pnpm add -D @ghentcdh/create-crouton
 npx crouton update resources
 ```
 
