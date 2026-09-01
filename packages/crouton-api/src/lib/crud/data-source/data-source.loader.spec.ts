@@ -65,4 +65,43 @@ describe('loadDataSourcesFromDir', () => {
     expect(results).toHaveLength(0);
     expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
   });
+
+  it('loads a custom adapter when adapter field is "custom"', async () => {
+    const dsDir = join(tempDir, 'myds');
+    mkdirSync(dsDir);
+    writeFileSync(
+      join(dsDir, 'data-source.json'),
+      JSON.stringify({ name: 'myds', urlEnv: 'MYDS_URL', adapter: 'custom' }),
+    );
+    // CJS module exporting a valid DataSourceAdapter object
+    writeFileSync(
+      join(dsDir, 'index.js'),
+      'module.exports = { kind: \'test-adapter\' };',
+    );
+
+    const results = await loadDataSourcesFromDir(tempDir);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].adapter.kind).toBe('test-adapter');
+    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
+  });
+
+  it('records an error when custom adapter export is not a valid adapter', async () => {
+    const dsDir = join(tempDir, 'bads');
+    mkdirSync(dsDir);
+    writeFileSync(
+      join(dsDir, 'data-source.json'),
+      JSON.stringify({ name: 'bads', urlEnv: 'BADS_URL', adapter: 'custom' }),
+    );
+    // Not a DataSourceAdapter — scalar export
+    writeFileSync(join(dsDir, 'index.js'), 'module.exports = 42;');
+
+    const results = await loadDataSourcesFromDir(tempDir);
+
+    expect(results).toHaveLength(0);
+    const errors = resourceLoadErrorsRegistry.getAll();
+    expect(errors).toHaveLength(1);
+    expect(errors[0].name).toBe('bads');
+    expect(errors[0].error).toContain('must default-export a DataSourceAdapter');
+  });
 });
