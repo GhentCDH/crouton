@@ -11,7 +11,7 @@ export const BACKEND_DEPS: DepSet = {
 };
 
 export const FRONTEND_DEPS: DepSet = {
-  deps: ['@ghentcdh/crouton-vue', '@ghentcdh/crouton-forms-vue', '@ghentcdh/crouton-editor-vue', 'vue'],
+  deps: ['@ghentcdh/crouton-vue', 'vue'],
   devDeps: ['vite', '@vitejs/plugin-vue'],
 };
 

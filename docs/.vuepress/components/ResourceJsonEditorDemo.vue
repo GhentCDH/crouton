@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ResourceJsonEditor } from '@ghentcdh/crouton-editor-vue';
+import { ResourceJsonEditor } from '@ghentcdh/crouton-vue';
 
 const resource = ref({
   name: 'book',
