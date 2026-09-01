@@ -63,9 +63,10 @@ export const checkDatabases = async (
   const results: DatabaseStatus[] = [];
 
   for (const { name, client } of entries) {
+    const prismaClient = client as any;
     try {
       await Promise.race([
-        client.$queryRaw`SELECT 1`,
+        prismaClient.$queryRaw`SELECT 1`,
         new Promise((_resolve, reject) =>
           setTimeout(
             () => reject(new Error('Database health check timed out')),

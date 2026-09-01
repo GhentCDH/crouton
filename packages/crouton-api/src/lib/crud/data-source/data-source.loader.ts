@@ -1,12 +1,13 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
 import type { DataSourceEntry } from './data-source.types';
+import { PrismaDataSourceAdapter } from './prisma.adapter';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
- * Scan a directory for data-source subdirectories and load their configs + clients.
+ * Scan a directory for data-source subdirectories and load their configs + adapters.
  *
  * Each subdirectory must contain:
  * - `data-source.json` — config with `name`, `type`, and optional `default`
@@ -55,11 +56,22 @@ export const loadDataSourcesFromDir = async (
 
     if (!indexFile) continue;
 
-    const mod = await import(indexFile);
-    const client = mod.default;
-    if (!client) continue;
+    let adapter;
+    try {
+      const mod = await import(indexFile);
+      const client = mod.default;
+      if (!client) continue;
+      adapter = new PrismaDataSourceAdapter(client);
+    } catch (err) {
+      resourceLoadErrorsRegistry.record({
+        name: dir,
+        path: indexFile,
+        error: `Failed to load datasource adapter: ${(err as Error).message}`,
+      });
+      continue;
+    }
 
-    results.push({ config, client });
+    results.push({ config, adapter });
   }
 
   return results;

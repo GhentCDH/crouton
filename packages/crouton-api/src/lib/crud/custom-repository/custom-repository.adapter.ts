@@ -23,7 +23,7 @@ import { resolveValueLabelColumns } from '../translation';
 /** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
 export type DataSourceResolver = {
   resolve(name?: string): any;
-  entries(): { name: string; client: any }[];
+  entries(): { name: string; client: unknown }[];
 };
 
 const unsupported = (config: Resource, op: CustomOp): never => {

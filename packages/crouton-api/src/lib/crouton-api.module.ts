@@ -84,7 +84,7 @@ export class CroutonApiModule {
         // datasource that does not exist is an error.
         if (c.database) {
           try {
-            dataSourceRegistry.resolve(c.database);
+            dataSourceRegistry.resolveAdapter(c.database);
           } catch (e: any) {
             resourceLoadErrorsRegistry.record({
               name: c.name,
@@ -108,8 +108,16 @@ export class CroutonApiModule {
       }
 
       try {
-        const prisma = dataSourceRegistry.resolve(c.database);
-        if (!c.model || !prisma[c.model]) {
+        const adapter = dataSourceRegistry.resolveAdapter(c.database);
+        if (c.model && adapter.supports && !adapter.supports(c.model)) {
+          resourceLoadErrorsRegistry.record({
+            name: c.name,
+            path: c.route,
+            error: `Model "${c.model}" not found on the provided PrismaClient. Check the resource config for "${c.name}".`,
+          });
+          continue;
+        }
+        if (!c.model) {
           resourceLoadErrorsRegistry.record({
             name: c.name,
             path: c.route,
