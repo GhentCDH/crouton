@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Btn } from '@ghentcdh/ui';
-import { FormDevSchema } from '../consumable/form-def.schema';
+import { FormDevSchema } from '../composables/form-def.schema';
 
 const props = defineProps<{
   data: any[] | null;
