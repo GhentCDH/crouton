@@ -24,6 +24,7 @@ import { dirname, resolve as pathResolve } from 'node:path';
 export interface CreateDatasourceOptions {
   cwd?: string;
   name?: string;
+  adapter?: 'prisma' | 'custom';
   type?: string;
   urlEnv?: string;
   generatedImport?: string;
@@ -99,6 +100,22 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
       throw new CancelledError();
     }
 
+    // ── adapter ───────────────────────────────────────────────────────────────
+    const adapter: 'prisma' | 'custom' =
+      opts.adapter ??
+      (opts.yes
+        ? 'prisma'
+        : (assertNotCancel(
+            await clack.select({
+              message: 'Which adapter?',
+              options: [
+                { value: 'prisma', label: 'prisma', hint: 'Prisma ORM (generates schema, types, client)' },
+                { value: 'custom', label: 'custom', hint: 'Supply your own DataSourceAdapter' },
+              ],
+              initialValue: 'prisma',
+            }),
+          ) as 'prisma' | 'custom'));
+
     // ── url env ─────────────────────────────────────────────────────────────
     const urlEnv =
       opts.urlEnv ??
@@ -112,18 +129,21 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
             }),
           ) as string));
 
-    // ── generated types import ──────────────────────────────────────────────
-    const generatedImport =
-      opts.generatedImport ??
-      (opts.yes
-        ? `@app/generated/${name}`
-        : (assertNotCancel(
-            await clack.text({
-              message: 'Import path for this datasource’s generated Zod types',
-              initialValue: `@app/generated/${name}`,
-              validate: (v) => (v?.trim() ? undefined : 'Required'),
-            }),
-          ) as string));
+    // ── generated types import (Prisma only) ────────────────────────────────
+    let generatedImport: string | undefined;
+    if (adapter === 'prisma') {
+      generatedImport =
+        opts.generatedImport ??
+        (opts.yes
+          ? `@app/generated/${name}`
+          : (assertNotCancel(
+              await clack.text({
+                message: 'Import path for this datasource’s generated Zod types',
+                initialValue: `@app/generated/${name}`,
+                validate: (v) => (v?.trim() ? undefined : 'Required'),
+              }),
+            ) as string));
+    }
 
     // ── default? ──────────────────────────────────────────────────────────
     let makeDefault = opts.default ?? false;
@@ -143,6 +163,7 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
 
     const { files, resolved, notes } = buildDatasourceFiles({
       name,
+      adapter,
       dataSourcesDir: loaded.config.dataSourcesDir,
       urlEnv,
       generatedTypesImport: generatedImport,
