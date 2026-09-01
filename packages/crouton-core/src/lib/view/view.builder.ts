@@ -141,10 +141,16 @@ export const zodSchemaSource =
     if (!schemaIds.length) return undefined;
     const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
     const picked = schema.pick(mask as any);
-    return toJSONSchema(picked, {
-      target: 'draft-07',
-      ...jsonSchemaOpts,
-    }) as Record<string, unknown>;
+    try {
+      return toJSONSchema(picked, {
+        target: 'draft-07',
+        ...jsonSchemaOpts,
+      }) as Record<string, unknown>;
+    } catch {
+      // Zod v4 bug: z.record() inside z.union() inside z.lazy() crashes toJSONSchema.
+      // Skip this field's JSON schema contribution — the column's type will be used instead.
+      return undefined;
+    }
   };
 
 /**

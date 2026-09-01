@@ -1,4 +1,4 @@
-import { type Component, type Ref, markRaw, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
 import {
   FormModal,
@@ -168,6 +168,7 @@ const createEditForm =
       data: formData ?? form.parseValue({}),
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
+      views: formDef.schemas,
       onEvents: (event: any) => {
         // Other renderer events (e.g. 'create', 'view') can be handled here.
       },

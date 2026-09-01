@@ -23,7 +23,7 @@ export const useFormLogic = (
   formRef: { value: ComponentPublicInstance | null | undefined },
 ) => {
   const viewType = properties.readonly ? 'view' : 'form';
-  const view = properties.views[viewType] as ViewConfig | null;
+  const view = (properties.views?.[viewType] ?? null) as ViewConfig | null;
   const uiSchema = view?.ui_schema ?? view?.ui ?? null;
   const schema = view?.json_schema ?? view?.data ?? null;
   const errors = ref(null);

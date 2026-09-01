@@ -36,10 +36,17 @@ const dropNullableFromRequired = (jsonSchema: Record<string, any>): void => {
 /** Returns a plain JSON Schema object for Swagger / AJV */
 export function toJsonSchema(schema: SchemaInput): JsonSchemaInput {
   if (isZodSchema(schema)) {
-    const jsonSchema = toJSONSchema(schema, {
-      target: 'openApi3',
-      ...jsonSchemaOpts,
-    }) as Record<string, any>;
+    let jsonSchema: Record<string, any>;
+    try {
+      jsonSchema = toJSONSchema(schema, {
+        target: 'openApi3',
+        ...jsonSchemaOpts,
+      }) as Record<string, any>;
+    } catch {
+      // Zod v4 bug: z.record() inside z.union() inside z.lazy() crashes toJSONSchema
+      // (e.g. Prisma JsonValue schema). Fall back to a permissive object schema.
+      return { type: 'object' } as JsonSchemaInput;
+    }
 
     dropNullableFromRequired(jsonSchema);
 
