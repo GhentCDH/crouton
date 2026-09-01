@@ -69,7 +69,7 @@ export const fieldInputType = (prismaType: string, isEnum: boolean): string => {
       return 'json';
     case 'String':
     default:
-      return 'text';
+      return 'string';
   }
 };
 

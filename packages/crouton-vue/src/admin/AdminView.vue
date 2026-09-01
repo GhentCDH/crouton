@@ -8,7 +8,7 @@
           <h2>{{ app.title }} Admin</h2>
           <LanguageSelect v-if="languages.length > 1" />
         </div>
-        <ul class="menu w-full gap-2 flex-1 flex-grow h-full">
+        <ul class="menu w-full gap-2 flex-1 flex-grow h-full flex-nowrap">
           <template v-for="node in app.sidebar" :key="node.id">
             <!-- Group with children -->
             <li v-if="isSidebarGroup(node)">
@@ -52,7 +52,10 @@
               v-if="addResourceOpen"
               class="absolute left-0 z-10 mt-1 max-h-60 w-full overflow-auto rounded border bg-white shadow-lg"
             >
-              <li v-if="availableResources.length === 0" class="p-2 text-sm text-gray-400">
+              <li
+                v-if="availableResources.length === 0"
+                class="p-2 text-sm text-gray-400"
+              >
                 No hidden or draft resources
               </li>
               <li
