@@ -29,7 +29,8 @@ export * from './utils/PageService';
 export * from './runtime.config';
 export * from './status';
 
+export type { ControlElement, JsonSchema } from '@jsonforms/core';
 export { rankWith } from '@jsonforms/core';
 export * from './relation';
-export { TableComponent } from '@ghentcdh/crouton-forms-vue';
+export { TableComponent, useControlBinding } from '@ghentcdh/crouton-forms-vue';
 export * from './forms';
