@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef, toRaw, watch } from 'vue';
+import { Component, PropType, computed, ref, shallowRef, toRaw, watch } from 'vue';
 
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
@@ -18,6 +18,7 @@ const props = defineProps({
   initialRequestParams: { type: Object, default: {} },
   defaultUriParams: { type: Object, default: {} },
   hideToolbar: { type: Boolean, default: false },
+  tableComponent: { type: Object as PropType<Component>, default: () => TableComponent },
 });
 
 const id = computed(() => `${props.formId}_${Date.now()}`);
@@ -44,6 +45,7 @@ const onRequest = (requestData: Request) => emits('onRequest', { requestData });
 const resource = shallowRef(
   useResources(config.value, {
     initialRequestParams: { ...toRaw(props.initialRequestParams) },
+    defaultUriParams: toRaw(props.defaultUriParams),
     onRequest,
     handleEvent,
     inline: true,
@@ -165,7 +167,8 @@ const showSchemaEditor = ref(false);
       </template>
     </TableToolbar>
 
-    <TableComponent
+    <component
+      :is="props.tableComponent"
       :id="`form_table_${id}`"
       v-bind="resource"
       @refresh="reload"
