@@ -3,5 +3,10 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/create-crouton/src",
-  "tags": ["scope:crouton", "type:cli", "tech:node"]
+  "tags": ["scope:crouton", "type:cli", "tech:node"],
+  "targets": {
+    "nx-release-publish": {
+      "dependsOn": []
+    }
+  }
 }
