@@ -1,3 +1,14 @@
+## 0.0.1-alpha.50 (2026-09-02)
+
+### 🩹 Fixes
+
+- exports ([c1b304d](https://github.com/GhentCDH/crouton/commit/c1b304d))
+- relase ([44dbed8](https://github.com/GhentCDH/crouton/commit/44dbed8))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.49 (2026-09-02)
 
 ### 🚀 Features
