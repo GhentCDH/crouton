@@ -1,3 +1,13 @@
+## 0.0.1-alpha.49 (2026-09-02)
+
+### 🚀 Features
+
+- add annotations ([be909e0](https://github.com/GhentCDH/crouton/commit/be909e0))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.48 (2026-09-01)
 
 ### 🚀 Features
