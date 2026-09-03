@@ -2,6 +2,8 @@ import { type CanActivate, type DynamicModule, Module, type Type } from '@nestjs
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
 import type { SecurityConfig } from '@ghentcdh/crouton-core';
+import { registerResourceExtensions } from '@ghentcdh/crouton-core';
+import type { ZodType } from 'zod';
 
 import { createAppLayoutController } from './crud/app-layout';
 import { type LoadedConfig, loadConfig } from './crud/config/read';
@@ -36,6 +38,8 @@ type CroutonAppConfig = {
     /** Applied when neither the operation nor the resource declares security. */
     default?: SecurityConfig;
   };
+  /** App-defined resource.json extension sections, keyed by top-level name. */
+  extensions?: Record<string, ZodType>;
 };
 @Module({
   controllers: [],
@@ -211,6 +215,8 @@ export class CroutonApiModule {
     dataSourcesPath: string,
     appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
+    // Register extensions before parsing resource.json files — ordering contract.
+    if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
     const config = await loadConfig();
     const loader = new FileSystemResourceConfigLoader(
       dirPath,
