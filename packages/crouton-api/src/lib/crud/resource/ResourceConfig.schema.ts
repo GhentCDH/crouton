@@ -14,6 +14,8 @@ import { CustomRepositorySchema } from '../custom-repository/custom-repository.t
 import { ResourceHooksSchema } from '../hooks';
 
 export const ResourceSchema = ResourceJsonShape.extend({
+  /** Always resolved (via `route ?? id ?? name`) before a Resource is constructed. */
+  route: z.string(),
   /** Columns serialized as `{ value, label }` on read / unwrapped on write. */
   valueLabelColumns: z.array(ValueLabelColumnSchema).default([]),
   actions: z.array(ResourceRowActionSchema).default([]),
