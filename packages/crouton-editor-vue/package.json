@@ -32,7 +32,7 @@
   },
   "peerDependencies": {
     "@ghentcdh/crouton-forms-vue": "workspace:^",
-    "@ghentcdh/ui": "*",
+    "@ghentcdh/ui": "^3.0.6",
     "vue": ">=3.0.0",
     "vuedraggable": "^4.1.0",
     "zod": "^4.0.0"

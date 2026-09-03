@@ -75,7 +75,7 @@ export const ResourceJsonShape = z.object({
    * `custom` — there is no Prisma delegate to address.
    */
   model: z.string().optional(),
-  tag: z.string().optional(), // required — OpenAPI tag
+  tag: z.string().optional().default('Crouton'), // required — OpenAPI tag
   title: z.string().optional(), // no computed default — used as UI display title
   table: z.string().optional(), // default: same as `model`
   /**
@@ -190,7 +190,10 @@ export const ResourceJsonSchema = z.preprocess(
     if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
       const obj = raw as Record<string, unknown>;
       if (obj['kind'] === undefined) {
-        return { ...obj, kind: obj['model'] !== undefined ? 'prisma' : 'custom' };
+        return {
+          ...obj,
+          kind: obj['model'] !== undefined ? 'prisma' : 'custom',
+        };
       }
     }
     return raw;

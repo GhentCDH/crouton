@@ -118,7 +118,7 @@ export type TableAction = z.infer<typeof TableActionSchema>;
 
 export const FormDevSchemas = z.object({
   table: ViewSchemaZ,
-  form: ViewSchemaZ,
+  form: ViewSchemaZ.optional(),
   view: ViewSchemaZ.optional(),
   filter: ViewSchemaZ.optional(),
 });

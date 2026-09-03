@@ -28,10 +28,14 @@
     "route": {
       "type": "string"
     },
+    "id": {
+      "type": "string"
+    },
     "model": {
       "type": "string"
     },
     "tag": {
+      "default": "Crouton",
       "type": "string"
     },
     "title": {
@@ -160,6 +164,15 @@
       ]
     },
     "operations": {
+      "default": {
+        "findAll": true,
+        "findOne": true,
+        "create": true,
+        "update": true,
+        "patch": true,
+        "upsert": false,
+        "delete": true
+      },
       "type": "object",
       "properties": {
         "findAll": {
@@ -1518,10 +1531,7 @@
     }
   },
   "required": [
-    "name",
-    "route",
-    "tag",
-    "operations"
+    "name"
   ],
   "definitions": {
     "__schema0": {

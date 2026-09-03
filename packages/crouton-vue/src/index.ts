@@ -1,5 +1,7 @@
 import './styles.css';
 
+export { default as ResourceTable } from './resource/ResourceTable.vue';
+
 export { Table } from '@ghentcdh/ui';
 
 export { isCustomFormat } from './resource/renderers';

@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { Component, PropType, computed, ref, shallowRef, toRaw, watch } from 'vue';
+import {
+  Component,
+  computed,
+  PropType,
+  ref,
+  shallowRef,
+  toRaw,
+  watch,
+} from 'vue';
 
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
@@ -18,7 +26,11 @@ const props = defineProps({
   initialRequestParams: { type: Object, default: {} },
   defaultUriParams: { type: Object, default: {} },
   hideToolbar: { type: Boolean, default: false },
-  tableComponent: { type: Object as PropType<Component>, default: () => TableComponent },
+  hideTitle: { type: Boolean, default: false },
+  tableComponent: {
+    type: Object as PropType<Component>,
+    default: () => TableComponent,
+  },
 });
 
 const id = computed(() => `${props.formId}_${Date.now()}`);
@@ -108,6 +120,7 @@ const showSchemaEditor = ref(false);
   <div v-if="config && resource && !form?.hideTable">
     <template v-if="hideToolbar">
       <legend
+        v-if="!hideTitle"
         class="w-full block flex flex-row space-between"
         :class="['fieldset-legend']"
       >
