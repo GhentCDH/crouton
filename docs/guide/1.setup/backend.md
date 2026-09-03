@@ -39,9 +39,14 @@ export class AppModule {
 Every subdirectory of `resources/` is loaded as one resource (see [resource.json](./resource-json.md)); every
 subdirectory of `data-sources/` provides a database client (see [Data sources](../datasource/datasource.md)).
 
-The config object accepts `baseUrl` and an optional `enumsFile` pointing at the
-shared [enum registry](../cli/cli.md#enum-registry). When omitted, the registry is found by walking up from the
-resources directory for a `crouton.enums.json`.
+The config object accepts the following fields:
+
+| Field        | Type     | Description |
+|--------------|----------|-------------|
+| `baseUrl`    | `string` | Absolute base URL prepended to operation URIs returned to the frontend (e.g. `https://api.example.com`). |
+| `prefix`     | `string` | Optional URL path prefix prepended to every crouton controller route (e.g. `'api'`). See [Route prefix](#route-prefix). |
+| `enumsFile`  | `string` | Path to the shared [enum registry](../cli/cli.md#enum-registry). When omitted, found by walking up from the resources directory. |
+| `security`   | object   | Named NestJS guards and an optional module-level default. See [Security](../resource/security.md). |
 
 ### Other registration styles
 
@@ -84,3 +89,23 @@ One application-wide endpoint feeds the frontend navigation:
 | Endpoint           | Description                                                                    |
 |--------------------|--------------------------------------------------------------------------------|
 | `GET /_app/layout` | Sidebar items for all resources (respects `sidebar.hide` / `sidebar.position`) |
+
+## Route prefix
+
+Set `prefix` in the config to mount every crouton route under a common path segment:
+
+```ts
+CroutonApiModule.forResourceDir(
+  resolve(__dirname, 'resources'),
+  resolve(__dirname, 'data-sources'),
+  {
+    baseUrl: 'http://localhost:3000',
+    prefix: 'api',
+  },
+)
+```
+
+With `prefix: 'api'` the routes become `/api/books`, `/api/_app/layout`, `/api/crouton/status.json`, etc.
+This is useful when crouton shares a NestJS application with other controllers and you want all crouton
+routes grouped under a single path prefix without relying on NestJS's global prefix (which would affect
+all controllers).

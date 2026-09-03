@@ -10,8 +10,9 @@ import type { TranslationRegistry } from '../translation/translation.registry';
 export const createStatusController = (
   enumRegistry: EnumRegistry,
   translationRegistry?: TranslationRegistry,
+  prefix?: string,
 ) => {
-  @Controller('crouton')
+  @Controller(prefix ? `${prefix}/crouton` : 'crouton')
   @ApiTags('Status')
   class StatusController {
     constructor(
