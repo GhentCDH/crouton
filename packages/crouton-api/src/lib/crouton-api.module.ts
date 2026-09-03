@@ -46,7 +46,7 @@ type CroutonAppConfig = {
    * the payload. Use for dynamic fields or values derived from the schema itself.
    * Example: `(schema) => ({ details: { route: schema['route'], generatedTimestamp: new Date() } })`
    */
-  schemaEnricher?: (schema: Record<string, unknown>) => Record<string, unknown>;
+  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>;
 };
 @Module({
   controllers: [],

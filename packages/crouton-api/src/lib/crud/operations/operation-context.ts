@@ -33,5 +33,5 @@ export type OperationContext = {
    * value is spread into the payload. Use for dynamic fields like
    * `generatedTimestamp` or computed values derived from the schema itself.
    */
-  schemaEnricher?: (schema: Record<string, unknown>) => Record<string, unknown>;
+  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>;
 };

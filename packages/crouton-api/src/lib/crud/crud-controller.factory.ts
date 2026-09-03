@@ -33,7 +33,7 @@ export function createCrudController(
   moduleDefaultSecurity?: SecurityConfig,
   securityEnabled = false,
   prefix?: string,
-  schemaEnricher?: () => Record<string, unknown>,
+  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>,
 ): Type<any> {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
