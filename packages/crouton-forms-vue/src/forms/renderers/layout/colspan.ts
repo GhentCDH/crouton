@@ -14,6 +14,16 @@ export const COLSPAN: Record<number, string> = {
   12: 'col-span-full',
 };
 
+/** row-span-* Tailwind classes; falls back to '' (no rowspan) when the key is absent. */
+export const ROWSPAN: Record<number, string> = {
+  1: 'row-span-1',
+  2: 'row-span-2',
+  3: 'row-span-3',
+  4: 'row-span-4',
+  5: 'row-span-5',
+  6: 'row-span-6',
+};
+
 export const COLSPAN_READ_ONLY: Record<number, string> = {
   1: 'col-span-2',
   2: 'col-span-4',
