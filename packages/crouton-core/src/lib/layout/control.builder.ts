@@ -147,6 +147,7 @@ export interface ControlOption {
   firstDayOfWeek?: number;
   customRender?: any;
   colspan?: number;
+  rowspan?: number;
 }
 
 export type ControlTypes = {
@@ -308,13 +309,15 @@ export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
     });
   }
 
-  width(width: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full') {
+  width(width: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | (string & {})) {
+    const named = ['xs', 'sm', 'md', 'lg', 'xl', 'full'];
+    const isNamed = named.includes(width);
     return this.opt({
       styles: {
         ...this.options?.styles,
         width,
         control: {
-          wrapper: `input-${width}`,
+          wrapper: isNamed ? `input-${width}` : width,
         },
       },
     });
