@@ -135,6 +135,7 @@ export const fromJson = (
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
+    ...(json.extensions && { extensions: json.extensions }),
   };
 };
 
