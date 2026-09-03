@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildFormUiSchema } from './form-schema.builder';
-import { buildFormUiSchemaFromLayout, flattenLayoutControlIds } from './layout-ui-schema.builder';
 import { orderTableColumnsFromLayout } from './layout-table-order';
+import { buildFormUiSchemaFromLayout, flattenLayoutControlIds } from './layout-ui-schema.builder';
 import { buildTableUiSchema } from './table-schema.builder';
 import { JsonColumnSchema } from '../resource/Column';
 import type { LayoutNode } from '../resource/Layout.schema';

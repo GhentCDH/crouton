@@ -1,7 +1,7 @@
-import type { LayoutControl, LayoutNode } from '../resource/Layout.schema';
+import { buildFormControl } from './form-schema.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import type { JsonColumn } from '../resource/Column';
-import { buildFormControl } from './form-schema.builder';
+import type { LayoutControl, LayoutNode } from '../resource/Layout.schema';
 
 const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
   const type = node.type ?? 'grid';
