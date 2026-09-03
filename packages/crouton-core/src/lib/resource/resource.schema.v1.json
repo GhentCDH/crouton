@@ -164,15 +164,6 @@
       ]
     },
     "operations": {
-      "default": {
-        "findAll": true,
-        "findOne": true,
-        "create": true,
-        "update": true,
-        "patch": true,
-        "upsert": false,
-        "delete": true
-      },
       "type": "object",
       "properties": {
         "findAll": {

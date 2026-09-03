@@ -93,9 +93,7 @@ export const ResourceJsonShape = z.object({
   display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }
   /** Global security block — applies to every operation unless overridden per-operation. */
   security: SecuritySchema.optional(),
-  operations: JsonOperationsSchema.optional().default(
-    JsonOperationsSchema.parse({}),
-  ), // required key — but every sub-field defaults to enabled
+  operations: JsonOperationsSchema.optional(), // default applied in transform: custom → all false, prisma → all true
   columns: ColumnsSchema.optional().default(ColumnsSchema.parse({})), //  id-keyed map; omit for a columnless resource
   calculatedColumns: z.array(CalculatedColumnSchema).default([]),
   actions: z.array(JsonActionSchema).default([]),
@@ -201,6 +199,10 @@ export const ResourceJsonSchema = z.preprocess(
   ResourceJsonShape.superRefine(refineByKind).transform((obj) => {
     const title = obj.title ?? labelFromId(obj.name);
     const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
+    const defaultOps =
+      obj.kind === 'custom'
+        ? JsonOperationsSchema.parse({ findAll: false, findOne: false, create: false, update: false, patch: false, delete: false })
+        : JsonOperationsSchema.parse({});
 
     return {
       title,
@@ -208,6 +210,7 @@ export const ResourceJsonSchema = z.preprocess(
       route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
       schemaVersion,
       columns: normalizeColumns(obj.columns),
+      operations: obj.operations ?? defaultOps,
     };
   }),
 );
