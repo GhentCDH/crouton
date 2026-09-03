@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
-import { getResourceExtensions } from './extensions';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { JsonActionSchema } from './TableAction.schema';
+import { getResourceExtensions } from './extensions';
 import { JsonIncludeEntrySchema } from './include.schema';
 import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
@@ -252,3 +252,35 @@ export type ResourceJsonInput = z.input<typeof ResourceJsonShape> & {
 };
 
 export type ResourceConfig = ResourceJson;
+
+/**
+ * Generate a JSON Schema for resource.json that includes all currently-registered
+ * extension keys. Call this after registering extensions to emit an app-specific
+ * `resource.schema.json` that includes `annotation`, `context`, etc. as top-level
+ * properties — enabling editor autocomplete for extension blocks.
+ *
+ * The core committed `resource.schema.json` is extension-agnostic (generated at
+ * crouton-core build time when no extensions are registered). This helper lets
+ * a consuming app emit its own schema after registering its extensions.
+ */
+export const generateResourceJsonSchema = (): Record<string, unknown> => {
+  const ext = getResourceExtensions();
+  const extShape = Object.fromEntries(
+    [...ext].map(([name, schema]) => [name, schema.optional()]),
+  );
+  const shape = ext.size ? ResourceJsonShape.extend(extShape) : ResourceJsonShape;
+  try {
+    return z.toJSONSchema(shape, {
+      target: 'draft-7',
+      io: 'input',
+      unrepresentable: 'any',
+    }) as Record<string, unknown>;
+  } catch {
+    // ponytail: if toJSONSchema fails (recursive/record schema), fall back to the base shape.
+    return z.toJSONSchema(ResourceJsonShape, {
+      target: 'draft-7',
+      io: 'input',
+      unrepresentable: 'any',
+    }) as Record<string, unknown>;
+  }
+};
