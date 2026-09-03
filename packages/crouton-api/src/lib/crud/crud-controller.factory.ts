@@ -32,6 +32,7 @@ export function createCrudController(
   baseUrl?: string,
   moduleDefaultSecurity?: SecurityConfig,
   securityEnabled = false,
+  prefix?: string,
 ): Type<any> {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
@@ -130,7 +131,8 @@ export function createCrudController(
   // whole controller moves to `<parent.route>/:<param>/<route>`; every operation
   // route (``, `:id`, `schemas`, …) inherits the prefix, and the parent id is
   // available to handlers through the request they already receive.
-  Controller(resourceControllerPath(route, config.parent))(CrudControllerBase);
+  const controllerPath = resourceControllerPath(route, config.parent);
+  Controller(prefix ? `${prefix}/${controllerPath}` : controllerPath)(CrudControllerBase);
   // Only apply the dispatching guard when the module has security configured.
   // Without this, the guard's DI dependencies would fail to resolve in
   // projects that do not configure security at all.
