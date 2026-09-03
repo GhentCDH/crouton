@@ -113,7 +113,7 @@ const defaultControlFormat = (col: JsonColumn): string => {
   return 'text';
 };
 
-const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
+export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
   const control = ControlBuilder.properties<any>(col.id as keyof any);
   const fieldInput = col.fieldInput;
 
