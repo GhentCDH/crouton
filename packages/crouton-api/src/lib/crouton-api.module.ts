@@ -27,6 +27,8 @@ import { fileURLToPath } from 'node:url';
 
 type CroutonAppConfig = {
   baseUrl: string;
+  /** URL path prefix prepended to every crouton controller route (e.g. `'api'`). */
+  prefix?: string;
   /** Named security guards and an optional module-level default. */
   security?: {
     /** Map of guard name → NestJS guard class (e.g. `{ admin: AdminGuard }`). */
@@ -58,7 +60,7 @@ export class CroutonApiModule {
     appConfig: CroutonAppConfig,
     config: LoadedConfig,
   ): DynamicModule {
-    const { baseUrl, security } = appConfig;
+    const { baseUrl, prefix, security } = appConfig;
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
 
     // Security guard registry: maps guard names to their NestJS guard classes.
@@ -154,7 +156,7 @@ export class CroutonApiModule {
 
     const controllers = [
       ...validConfigs.map((c) =>
-        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security),
+        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security, prefix),
       ),
       createAppLayoutController(
         configs,
@@ -163,11 +165,12 @@ export class CroutonApiModule {
         config.autoSave ?? true,
         translationRegistry,
         config.i18n,
+        prefix,
       ),
       // Only registered (and thus only visible in Swagger/routing) when the
       // visual resource builder is enabled — see dev-resources.controller.ts.
       ...(IS_DEV ? [DevResourcesController] : []),
-      createStatusController(enumRegistry, translationRegistry),
+      createStatusController(enumRegistry, translationRegistry, prefix),
     ];
 
     return {

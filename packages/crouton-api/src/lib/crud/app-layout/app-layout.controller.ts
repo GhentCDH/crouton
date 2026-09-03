@@ -21,6 +21,7 @@ export const createAppLayoutController = (
   autoSave = true,
   translationRegistry?: TranslationRegistry,
   i18nConfig?: I18nConfig,
+  prefix?: string,
 ) => {
   const layoutPayload = buildLayoutPayload(
     configs,
@@ -30,7 +31,7 @@ export const createAppLayoutController = (
     IS_DEV,
   );
 
-  @Controller('_app')
+  @Controller(prefix ? `${prefix}/_app` : '_app')
   @ApiTags('App')
   class AppLayoutController {
     constructor(public readonly configRegistry: ResourceConfigRegistry) {}
