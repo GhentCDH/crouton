@@ -9,8 +9,8 @@ import {
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
 import { jsonSchemaOpts } from './json-schema.opts';
-import { buildFormUiSchemaFromLayout } from './layout-ui-schema.builder';
 import { orderTableColumnsFromLayout } from './layout-table-order';
+import { buildFormUiSchemaFromLayout } from './layout-ui-schema.builder';
 import { applySchemaTransforms } from './schema-transforms';
 import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';

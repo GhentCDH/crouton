@@ -1515,6 +1515,32 @@
       "items": {
         "$ref": "#/definitions/__schema1"
       }
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "form": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/__schema2"
+            }
+          ]
+        },
+        "view": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/__schema2"
+            }
+          ]
+        },
+        "table": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/__schema2"
+            }
+          ]
+        }
+      }
     }
   },
   "required": [
@@ -1638,6 +1664,101 @@
           ]
         }
       ]
+    },
+    "__schema2": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "grid",
+            "vertical",
+            "horizontal",
+            "collapse",
+            "group"
+          ]
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "title": {
+          "type": "string"
+        },
+        "titleKey": {
+          "type": "string"
+        },
+        "colspan": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "rowspan": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "label": {
+          "type": "string"
+        },
+        "controls": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "colspan": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "rowspan": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  "width": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "hideLabel": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "options": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/__schema2"
+          }
+        }
+      }
     }
   },
   "$id": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",

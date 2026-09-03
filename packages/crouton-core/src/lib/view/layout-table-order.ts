@@ -1,6 +1,6 @@
-import type { LayoutNode } from '../resource/Layout.schema';
-import type { ViewConfig } from './view.schema';
 import { flattenLayoutControlIds } from './layout-ui-schema.builder';
+import type { ViewConfig } from './view.schema';
+import type { LayoutNode } from '../resource/Layout.schema';
 
 /**
  * Reorder a table view's elements and columns to match the `layout.table` declaration.
