@@ -19,7 +19,7 @@ describe('resource.json kind', () => {
   });
 
   it('requires model on a prisma resource', () => {
-    const result = ResourceJsonSchema.safeParse(base);
+    const result = ResourceJsonSchema.safeParse({ ...base, kind: 'prisma' });
     expect(result.success).toBe(false);
     expect(issuePaths(result)).toContain('model');
   });
