@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
+import { getResourceExtensions } from './extensions';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
@@ -109,6 +110,11 @@ export const ResourceJsonShape = z.object({
    *   `include: { text_author: { include: { author: true } } }`
    */
   include: z.array(JsonIncludeEntrySchema).default([]),
+  /**
+   * Normalized extension blocks lifted from registered top-level keys.
+   * Authors never write this key directly — the transform fills it.
+   */
+  extensions: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -183,39 +189,62 @@ export const refineByKind = (
   }
 };
 
-export const ResourceJsonSchema = z.preprocess(
-  (raw) => {
-    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-      const obj = raw as Record<string, unknown>;
-      if (obj['kind'] === undefined) {
-        return {
-          ...obj,
-          kind: obj['model'] !== undefined ? 'prisma' : 'custom',
-        };
+export const buildResourceJsonSchema = () => {
+  const ext = getResourceExtensions();
+  const extShape = Object.fromEntries(
+    [...ext].map(([name, schema]) => [name, schema.optional()]),
+  );
+  // Cast back to ResourceJsonShape type so refineByKind and transform stay typed.
+  // Extension keys are lifted off the top level into `extensions` in the transform.
+  const shape = (
+    ext.size ? ResourceJsonShape.extend(extShape) : ResourceJsonShape
+  ) as unknown as typeof ResourceJsonShape;
+
+  return z.preprocess(
+    (raw) => {
+      if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+        const obj = raw as Record<string, unknown>;
+        if (obj['kind'] === undefined) {
+          return {
+            ...obj,
+            kind: obj['model'] !== undefined ? 'prisma' : 'custom',
+          };
+        }
       }
-    }
-    return raw;
-  },
-  ResourceJsonShape.superRefine(refineByKind).transform((obj) => {
-    const title = obj.title ?? labelFromId(obj.name);
-    const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
-    const defaultOps =
-      obj.kind === 'custom'
-        ? JsonOperationsSchema.parse({ findAll: false, findOne: false, create: false, update: false, patch: false, delete: false })
-        : JsonOperationsSchema.parse({});
+      return raw;
+    },
+    shape.superRefine(refineByKind).transform((obj) => {
+      const title = obj.title ?? labelFromId(obj.name);
+      const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
+      const defaultOps =
+        obj.kind === 'custom'
+          ? JsonOperationsSchema.parse({ findAll: false, findOne: false, create: false, update: false, patch: false, delete: false })
+          : JsonOperationsSchema.parse({});
+      const raw = obj as Record<string, unknown>;
+      const extensions: Record<string, unknown> = {};
+      for (const name of ext.keys()) {
+        if (raw[name] !== undefined) {
+          extensions[name] = raw[name];
+          delete raw[name];
+        }
+      }
+      return {
+        title,
+        ...obj,
+        route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
+        schemaVersion,
+        columns: normalizeColumns(obj.columns),
+        operations: obj.operations ?? defaultOps,
+        ...(Object.keys(extensions).length && { extensions }),
+      };
+    }),
+  );
+};
 
-    return {
-      title,
-      ...obj,
-      route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
-      schemaVersion,
-      columns: normalizeColumns(obj.columns),
-      operations: obj.operations ?? defaultOps,
-    };
-  }),
-);
+/** Convenience constant — reads the registry at call time via the builder. */
+export const ResourceJsonSchema = buildResourceJsonSchema();
 
-export type ResourceJson = z.infer<typeof ResourceJsonSchema> & {
+export type ResourceJson = z.infer<ReturnType<typeof buildResourceJsonSchema>> & {
   route: string;
 };
 export type ResourceJsonInput = z.input<typeof ResourceJsonShape> & {

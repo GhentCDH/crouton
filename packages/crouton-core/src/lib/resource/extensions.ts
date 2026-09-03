@@ -1,8 +1,13 @@
 import type { ZodType } from 'zod';
 
-import { ResourceJsonShape } from './ResourceJson.schema';
-
-const CORE_RESOURCE_KEYS = new Set(Object.keys(ResourceJsonShape.shape));
+// Hardcoded to avoid a circular dep with ResourceJson.schema.ts.
+// Update when a key is added to or removed from ResourceJsonShape.
+const CORE_RESOURCE_KEYS = new Set([
+  '$schema', 'schemaVersion', 'draft', 'kind', 'id', 'name', 'route', 'model', 'tag',
+  'title', 'table', 'idType', 'database', 'parent', 'sidebar', 'display',
+  'security', 'operations', 'columns', 'calculatedColumns', 'actions',
+  'tableActions', 'modalSize', 'include', 'extensions',
+]);
 
 const registry = new Map<string, ZodType>();
 
