@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
+import { ResourceJsonSchema, buildResourceJsonSchema } from './ResourceJson.schema';
 import {
   clearResourceExtensions,
   registerResourceExtension,
   registerResourceExtensions,
 } from './extensions';
-import { buildResourceJsonSchema, ResourceJsonSchema } from './ResourceJson.schema';
 
 const base = {
   name: 'item',
