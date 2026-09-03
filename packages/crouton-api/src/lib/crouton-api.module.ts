@@ -1,9 +1,9 @@
 import { type CanActivate, type DynamicModule, Module, type Type } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import type { ZodType } from 'zod';
 
 import type { SecurityConfig } from '@ghentcdh/crouton-core';
 import { registerResourceExtensions } from '@ghentcdh/crouton-core';
-import type { ZodType } from 'zod';
 
 import { createAppLayoutController } from './crud/app-layout';
 import { type LoadedConfig, loadConfig } from './crud/config/read';
@@ -40,6 +40,12 @@ type CroutonAppConfig = {
   };
   /** App-defined resource.json extension sections, keyed by top-level name. */
   extensions?: Record<string, ZodType>;
+  /**
+   * Called on every schema-serving request (`GET /schemas`, `/definition`,
+   * `/resource.json`); its return value is spread into the payload. Use for
+   * dynamic fields like `{ details: { generatedTimestamp: new Date() } }`.
+   */
+  schemaEnricher?: () => Record<string, unknown>;
 };
 @Module({
   controllers: [],
@@ -160,7 +166,7 @@ export class CroutonApiModule {
 
     const controllers = [
       ...validConfigs.map((c) =>
-        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security, prefix),
+        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security, prefix, appConfig.schemaEnricher),
       ),
       createAppLayoutController(
         configs,
