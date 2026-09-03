@@ -67,14 +67,15 @@ export const ResourceJsonShape = z.object({
    */
   kind: ResourceKindSchema,
   name: z.string(), // required — unique id, used as the frontend form id
-  route: z.string(), // required — URL segment for generated endpoints
+  route: z.string().optional(), //  URL segment for generated endpoints - default id is used
+  id: z.string().optional(), //  URL segment for generated endpoints - default id is used
   /**
    * Prisma model name. Required when `kind` is `prisma` (enforced by the
    * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
    * `custom` — there is no Prisma delegate to address.
    */
   model: z.string().optional(),
-  tag: z.string(), // required — OpenAPI tag
+  tag: z.string().optional().default('Crouton'), // required — OpenAPI tag
   title: z.string().optional(), // no computed default — used as UI display title
   table: z.string().optional(), // default: same as `model`
   /**
@@ -92,8 +93,8 @@ export const ResourceJsonShape = z.object({
   display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }
   /** Global security block — applies to every operation unless overridden per-operation. */
   security: SecuritySchema.optional(),
-  operations: JsonOperationsSchema, // required key — but every sub-field defaults to enabled
-  columns: ColumnsSchema.default(ColumnsSchema.parse({})), //  id-keyed map; omit for a columnless resource
+  operations: JsonOperationsSchema.optional(), // default applied in transform: custom → all false, prisma → all true
+  columns: ColumnsSchema.optional().default(ColumnsSchema.parse({})), //  id-keyed map; omit for a columnless resource
   calculatedColumns: z.array(CalculatedColumnSchema).default([]),
   actions: z.array(JsonActionSchema).default([]),
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
@@ -182,21 +183,43 @@ export const refineByKind = (
   }
 };
 
-export const ResourceJsonSchema = ResourceJsonShape.superRefine(
-  refineByKind,
-).transform((obj) => {
-  const title = obj.title ?? labelFromId(obj.name);
-  const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
+export const ResourceJsonSchema = z.preprocess(
+  (raw) => {
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      const obj = raw as Record<string, unknown>;
+      if (obj['kind'] === undefined) {
+        return {
+          ...obj,
+          kind: obj['model'] !== undefined ? 'prisma' : 'custom',
+        };
+      }
+    }
+    return raw;
+  },
+  ResourceJsonShape.superRefine(refineByKind).transform((obj) => {
+    const title = obj.title ?? labelFromId(obj.name);
+    const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
+    const defaultOps =
+      obj.kind === 'custom'
+        ? JsonOperationsSchema.parse({ findAll: false, findOne: false, create: false, update: false, patch: false, delete: false })
+        : JsonOperationsSchema.parse({});
 
-  return {
-    title,
-    ...obj,
-    schemaVersion,
-    columns: normalizeColumns(obj.columns),
-  };
-});
+    return {
+      title,
+      ...obj,
+      route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
+      schemaVersion,
+      columns: normalizeColumns(obj.columns),
+      operations: obj.operations ?? defaultOps,
+    };
+  }),
+);
 
-export type ResourceJson = z.infer<typeof ResourceJsonSchema>;
-export type ResourceJsonInput = z.input<typeof ResourceJsonShape>;
+export type ResourceJson = z.infer<typeof ResourceJsonSchema> & {
+  route: string;
+};
+export type ResourceJsonInput = z.input<typeof ResourceJsonShape> & {
+  route: string;
+};
 
 export type ResourceConfig = ResourceJson;

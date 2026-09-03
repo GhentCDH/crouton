@@ -34,7 +34,7 @@
     "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
-    "@ghentcdh/ui": "*",
+    "@ghentcdh/ui": "^3.0.6",
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
     "vue": ">=3.0.0",
@@ -45,6 +45,6 @@
     "@ghentcdh/crouton-core": "workspace:*",
     "@ghentcdh/crouton-editor-vue": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*",
-    "daisyui": "^5.7.22"
+    "daisyui": "^5.7.28"
   }
 }

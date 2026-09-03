@@ -31,10 +31,11 @@ export const validateCustomRepository = (
     nested ? PARENT_METHOD[op] : op;
 
   if (!repository) {
+    if (enabled.length === 0) return undefined;
     return (
       'No repository.ts found. A custom resource implements its own data access; ' +
       `create ${config.name}/repository.ts with a default export implementing: ` +
-      `${enabled.map(methodFor).join(', ') || 'no operations'}.`
+      `${enabled.map(methodFor).join(', ')}.`
     );
   }
 

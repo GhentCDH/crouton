@@ -28,10 +28,14 @@
     "route": {
       "type": "string"
     },
+    "id": {
+      "type": "string"
+    },
     "model": {
       "type": "string"
     },
     "tag": {
+      "default": "Crouton",
       "type": "string"
     },
     "title": {
@@ -1518,10 +1522,7 @@
     }
   },
   "required": [
-    "name",
-    "route",
-    "tag",
-    "operations"
+    "name"
   ],
   "definitions": {
     "__schema0": {

@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
-    "@ghentcdh/create-crouton": "0.0.1-alpha.48",
+    "@ghentcdh/create-crouton": "link:packages/create-crouton",
     "@ghentcdh/crouton-cli": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "commander": "^14.0.0",
