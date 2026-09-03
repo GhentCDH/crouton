@@ -42,10 +42,11 @@ type CroutonAppConfig = {
   extensions?: Record<string, ZodType>;
   /**
    * Called on every schema-serving request (`GET /schemas`, `/definition`,
-   * `/resource.json`); its return value is spread into the payload. Use for
-   * dynamic fields like `{ details: { generatedTimestamp: new Date() } }`.
+   * `/resource.json`) with the built payload; its return value is spread into
+   * the payload. Use for dynamic fields or values derived from the schema itself.
+   * Example: `(schema) => ({ details: { route: schema['route'], generatedTimestamp: new Date() } })`
    */
-  schemaEnricher?: () => Record<string, unknown>;
+  schemaEnricher?: (schema: Record<string, unknown>) => Record<string, unknown>;
 };
 @Module({
   controllers: [],

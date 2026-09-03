@@ -32,7 +32,7 @@ export const defaultSchemas = (ctx: OperationContext) => {
         if (fresh) payload = buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
       }
       if (!payload || !schemaEnricher) return payload;
-      return { ...payload, ...schemaEnricher() };
+      return { ...payload, ...schemaEnricher(payload) };
     },
     decorators: () => {
       //

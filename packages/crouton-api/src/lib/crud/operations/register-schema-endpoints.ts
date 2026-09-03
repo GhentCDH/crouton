@@ -54,7 +54,7 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
         if (fresh) payload = buildDefinitionPayload(fresh);
       }
       if (!schemaEnricher) return payload;
-      return { ...payload, ...schemaEnricher() };
+      return { ...payload, ...schemaEnricher(payload) };
     },
   );
   const d = desc(cls, 'getDefinition');
@@ -95,7 +95,7 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
         if (fresh) payload = buildResourceJsonPayload(fresh, baseUrl);
       }
       if (!schemaEnricher) return payload;
-      return { ...payload, ...schemaEnricher() };
+      return { ...payload, ...schemaEnricher(payload) };
     },
   );
   const d = desc(cls, 'getResourceJson');
