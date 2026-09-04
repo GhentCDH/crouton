@@ -445,9 +445,11 @@ const postScaffold = async (
       try {
         const s2 = clack.spinner();
         s2.start('Running crouton update resources');
-        const croutonCwd = prefix ? resolve(targetDir, prefix) : targetDir;
-        execSync('npx crouton update resources --yes', {
-          cwd: croutonCwd,
+        // In an Nx monorepo the CLI must run from the workspace root and target
+        // the app via --prefix, so it can resolve nx.json / the pnpm workspace.
+        const prefixArg = prefix ? ` --prefix ${prefix}` : '';
+        execSync(`npx crouton update resources --yes${prefixArg}`, {
+          cwd: targetDir,
           stdio: 'pipe',
           env: { ...process.env, DATABASE_URL: dbUrl },
         });

@@ -39,7 +39,7 @@ export const registerUpdateCommand = (program: Command) => {
     .option('-d, --datasource <name>', 'datasource to use (from crouton.config)')
     .option('-m, --models <list>', 'comma-separated models/resources to limit to')
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
-    .option('--prefix <name>', 'subfolder prefix (resolves cwd to <cwd>/<prefix>)')
+    .option('-p, --prefix <name>', 'subfolder prefix (resolves cwd to <cwd>/<prefix>)')
     .option('--dry-run', 'show the planned changes without writing files')
     .option('-y, --yes', 'accept all recommended defaults (non-interactive)')
     .option('--skip-pull', 'do not run `prisma db pull` (use the current schema)')
