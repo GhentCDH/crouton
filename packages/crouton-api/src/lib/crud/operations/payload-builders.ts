@@ -115,6 +115,7 @@ export const buildDefinitionPayload = (
         ? { upsert: toJsonSchema(upsertSchema) }
         : {}),
     },
+    ...(config.extensions && { extensions: config.extensions }),
   };
 };
 
@@ -136,7 +137,13 @@ export const buildResourceJsonPayload = (
     ? { data: form.json_schema, ui: form.ui_schema }
     : null;
 
-  return { id: name, uri, operations, schema };
+  return {
+    id: name,
+    uri,
+    operations,
+    schema,
+    ...(config.extensions && { extensions: config.extensions }),
+  };
 };
 
 const _resolveActions = (
@@ -221,6 +228,7 @@ export const buildViewsPayload = (
     schemas,
     actions: resolveActions(baseAction, config.actions),
     tableActions: resolveActions(baseAction, config.tableActions),
+    ...(config.extensions && { extensions: config.extensions }),
   };
 };
 

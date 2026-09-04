@@ -7,7 +7,7 @@
 import {
   type ResourceJson,
   type ResourceJsonInput,
-  ResourceJsonSchema,
+  buildResourceJsonSchema,
 } from '@ghentcdh/crouton-core';
 
 import { type LoadedConfig, resolveFromRoot } from './config';
@@ -115,7 +115,7 @@ export const readAllResourceJsons = async (
       const raw = JSON.parse(
         await readFile(join(base, name, 'resource.json'), 'utf-8'),
       );
-      const parsed = ResourceJsonSchema.safeParse(raw);
+      const parsed = buildResourceJsonSchema().safeParse(raw);
       if (parsed.success) results.push(parsed.data);
     } catch {
       /* skip unreadable */

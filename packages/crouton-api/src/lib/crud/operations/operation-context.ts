@@ -28,4 +28,10 @@ export type OperationContext = {
   moduleDefaultSecurity?: SecurityConfig;
   /** Tag a just-defined handler with its effective security metadata. */
   secure: (methodName: string, op: CrudOperation, sub?: SubResourceConfig) => void;
+  /**
+   * Called on every schema-serving request with the built payload; its return
+   * value is spread into the payload. Use for dynamic fields like
+   * `generatedTimestamp` or computed values derived from the schema itself.
+   */
+  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>;
 };

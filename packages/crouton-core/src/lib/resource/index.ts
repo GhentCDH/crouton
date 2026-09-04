@@ -1,4 +1,5 @@
 export * from './ResourceJson.schema';
+export * from './extensions';
 export * from './version';
 export * from './migrations';
 export * from './Sidebar.schema';

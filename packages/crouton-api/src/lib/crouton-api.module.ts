@@ -1,7 +1,9 @@
 import { type CanActivate, type DynamicModule, Module, type Type } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import type { ZodType } from 'zod';
 
 import type { SecurityConfig } from '@ghentcdh/crouton-core';
+import { registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import { createAppLayoutController } from './crud/app-layout';
 import { type LoadedConfig, loadConfig } from './crud/config/read';
@@ -36,6 +38,15 @@ type CroutonAppConfig = {
     /** Applied when neither the operation nor the resource declares security. */
     default?: SecurityConfig;
   };
+  /** App-defined resource.json extension sections, keyed by top-level name. */
+  extensions?: Record<string, ZodType>;
+  /**
+   * Called on every schema-serving request (`GET /schemas`, `/definition`,
+   * `/resource.json`) with the built payload; its return value is spread into
+   * the payload. Use for dynamic fields or values derived from the schema itself.
+   * Example: `(schema) => ({ details: { route: schema['route'], generatedTimestamp: new Date() } })`
+   */
+  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>;
 };
 @Module({
   controllers: [],
@@ -156,7 +167,7 @@ export class CroutonApiModule {
 
     const controllers = [
       ...validConfigs.map((c) =>
-        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security, prefix),
+        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security, prefix, appConfig.schemaEnricher),
       ),
       createAppLayoutController(
         configs,
@@ -211,6 +222,8 @@ export class CroutonApiModule {
     dataSourcesPath: string,
     appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
+    // Register extensions before parsing resource.json files — ordering contract.
+    if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
     const config = await loadConfig();
     const loader = new FileSystemResourceConfigLoader(
       dirPath,

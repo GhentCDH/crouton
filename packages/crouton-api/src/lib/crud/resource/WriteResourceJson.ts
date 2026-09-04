@@ -2,7 +2,7 @@
 import {
   type FieldInput,
   type FieldVariant,
-  ResourceJsonSchema,
+  buildResourceJsonSchema,
   mergeFieldVariant,
 } from '@ghentcdh/crouton-core';
 
@@ -118,7 +118,7 @@ export const serializeResourceJson = (config: unknown): string =>
 
 /** Validates a merged raw resource.json before it's written to disk. */
 export const validateResourceJson = (raw: unknown) =>
-  ResourceJsonSchema.safeParse(raw);
+  buildResourceJsonSchema().safeParse(raw);
 
 export const writeRawResourceJson = (
   jsonPath: string,

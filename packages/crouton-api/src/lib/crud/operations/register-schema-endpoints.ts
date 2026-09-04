@@ -39,7 +39,7 @@ import { join } from 'node:path';
  * In dev mode the response is rebuilt from the live config registry on every request.
  */
 export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
-  const { cls, config } = ctx;
+  const { cls, config, schemaEnricher } = ctx;
   const { route, name } = config;
   const definitionPayload = buildDefinitionPayload(config);
 
@@ -48,11 +48,13 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
     'getDefinition',
     async function (this: { configRegistry: ResourceConfigRegistry }) {
       const language = getRequestLanguage();
+      let payload = definitionPayload;
       if (IS_DEV || language) {
         const fresh = await this.configRegistry.getByRoute(route, language);
-        if (fresh) return buildDefinitionPayload(fresh);
+        if (fresh) payload = buildDefinitionPayload(fresh);
       }
-      return definitionPayload;
+      if (!schemaEnricher) return payload;
+      return { ...payload, ...schemaEnricher(payload) };
     },
   );
   const d = desc(cls, 'getDefinition');
@@ -78,7 +80,7 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
  * In dev mode the response is rebuilt from the live config registry on every request.
  */
 export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
-  const { cls, config, baseUrl } = ctx;
+  const { cls, config, baseUrl, schemaEnricher } = ctx;
   const { route, name } = config;
   const resourceJsonPayload = buildResourceJsonPayload(config, baseUrl);
 
@@ -87,11 +89,13 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
     'getResourceJson',
     async function (this: { configRegistry: ResourceConfigRegistry }) {
       const language = getRequestLanguage();
+      let payload = resourceJsonPayload;
       if (IS_DEV || language) {
         const fresh = await this.configRegistry.getByRoute(route, language);
-        if (fresh) return buildResourceJsonPayload(fresh, baseUrl);
+        if (fresh) payload = buildResourceJsonPayload(fresh, baseUrl);
       }
-      return resourceJsonPayload;
+      if (!schemaEnricher) return payload;
+      return { ...payload, ...schemaEnricher(payload) };
     },
   );
   const d = desc(cls, 'getResourceJson');

@@ -14,7 +14,7 @@ import { CROUTON_SECURITY } from '../security';
 import { getRequestLanguage } from '../translation/language.context';
 
 export const defaultSchemas = (ctx: OperationContext) => {
-  const { config, baseUrl } = ctx;
+  const { config, baseUrl, schemaEnricher } = ctx;
   const { route, name } = config;
   const viewsPayload = buildViewsPayload(config, baseUrl);
 
@@ -26,11 +26,13 @@ export const defaultSchemas = (ctx: OperationContext) => {
       configRegistry: ResourceConfigRegistry;
     }) {
       const language = getRequestLanguage();
+      let payload = viewsPayload;
       if (IS_DEV || language) {
         const fresh = await this.configRegistry.getByRoute(route, language);
-        if (fresh) return buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
+        if (fresh) payload = buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
       }
-      return viewsPayload;
+      if (!payload || !schemaEnricher) return payload;
+      return { ...payload, ...schemaEnricher(payload) };
     },
     decorators: () => {
       //

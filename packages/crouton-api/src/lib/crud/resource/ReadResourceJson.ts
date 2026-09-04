@@ -1,4 +1,7 @@
-import { type ResourceJson, ResourceJsonSchema } from '@ghentcdh/crouton-core';
+import {
+  type ResourceJson,
+  buildResourceJsonSchema,
+} from '@ghentcdh/crouton-core';
 
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -22,7 +25,7 @@ export const readResourceJson = (jsonPath: string): ReadResourceJsonResult | und
     };
   }
 
-  const resource = ResourceJsonSchema.safeParse(fileContent);
+  const resource = buildResourceJsonSchema().safeParse(fileContent);
   if (resource.error) {
     return {
       success: false,
