@@ -49,6 +49,10 @@ export abstract class ElementBuilder<
     return this.opt({ colspan } as Partial<OPT>);
   }
 
+  rowspan(rowspan: number): this {
+    return this.opt({ rowspan } as Partial<OPT>);
+  }
+
   showWhen(scope: string, schema: Record<string, unknown>): this {
     return this.rule('SHOW', scope, schema);
   }

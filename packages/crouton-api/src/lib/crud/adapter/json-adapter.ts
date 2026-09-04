@@ -87,8 +87,8 @@ export const fromJson = (
   // request/response shapes come from the views built off the column types.
 
   let views = isCustom
-    ? buildViewsFromColumnTypes(enrichedColumns)
-    : buildViews(schema, enrichedColumns);
+    ? buildViewsFromColumnTypes(enrichedColumns, json.layout)
+    : buildViews(schema, enrichedColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = {
       ...views,

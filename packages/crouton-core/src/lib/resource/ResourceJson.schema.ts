@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
+import { LayoutSchema } from './Layout.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
@@ -109,6 +110,8 @@ export const ResourceJsonShape = z.object({
    *   `include: { text_author: { include: { author: true } } }`
    */
   include: z.array(JsonIncludeEntrySchema).default([]),
+  /** Explicit layout for generated views (`form`, `view`, `table`). When absent, source-order grid is used. */
+  layout: LayoutSchema.optional(),
 });
 
 /**

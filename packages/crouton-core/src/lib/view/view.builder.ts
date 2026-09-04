@@ -9,11 +9,14 @@ import {
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
 import { jsonSchemaOpts } from './json-schema.opts';
+import { orderTableColumnsFromLayout } from './layout-table-order';
+import { buildFormUiSchemaFromLayout } from './layout-ui-schema.builder';
 import { applySchemaTransforms } from './schema-transforms';
 import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';
 import type { ViewConfig } from './view.schema';
 import type { JsonColumn } from '../resource/Column';
+import type { Layout } from '../resource/Layout.schema';
 
 // ── Filter schema enrichment ──────────────────────────────────────────────
 
@@ -302,12 +305,14 @@ const emptyTableView = (): ViewConfig => ({
 export const buildViewsWithSource = (
   source: ViewJsonSchemaSource | undefined,
   columns: JsonColumn[] | undefined,
+  layout?: Layout,
 ): Record<string, ViewConfig> | undefined => {
   const views: Record<string, ViewConfig> = {};
 
-  const table = buildView(
+  const tableCols = columns?.map((c) => columnForContext(c, 'table'));
+  let table = buildView(
     source,
-    columns?.map((c) => columnForContext(c, 'table')),
+    tableCols,
     (c) => !c.hiddenInTable,
     buildTableUiSchema,
     true,
@@ -317,16 +322,20 @@ export const buildViewsWithSource = (
       table.columns as JsonColumn[],
       columns,
     );
+    if (layout?.table) table = orderTableColumnsFromLayout(table, layout.table);
     views.table = table;
   } else if (columns?.length) {
     views.table = emptyTableView();
   }
 
+  const formUiBuilder = layout?.form
+    ? (cols: JsonColumn[]) => buildFormUiSchemaFromLayout(layout.form!, cols)
+    : buildFormUiSchema;
   const form = buildView(
     source,
     columns,
     (c) => !c.hiddenInForm,
-    buildFormUiSchema,
+    formUiBuilder,
     true,
     (c) => !c.idField && (c.createable === true || c.updateable === true),
   );
@@ -350,11 +359,15 @@ export const buildViewsWithSource = (
     views.filter = filter;
   }
 
+  const viewCols = columns?.map((c) => columnForContext(c, 'view'));
+  const viewUiBuilder = layout?.view
+    ? (cols: JsonColumn[]) => buildFormUiSchemaFromLayout(layout.view!, cols)
+    : buildFormUiSchema;
   const view = buildView(
     source,
-    columns?.map((c) => columnForContext(c, 'view')),
+    viewCols,
     (c) => !c.hiddenInView,
-    buildFormUiSchema,
+    viewUiBuilder,
     true,
   );
   if (view) views.view = view;
@@ -366,8 +379,9 @@ export const buildViewsWithSource = (
 export const buildViews = (
   schema: ZodObject<ZodRawShape> | undefined,
   columns: JsonColumn[] | undefined,
+  layout?: Layout,
 ): Record<string, ViewConfig> | undefined =>
-  buildViewsWithSource(schema ? zodSchemaSource(schema) : undefined, columns);
+  buildViewsWithSource(schema ? zodSchemaSource(schema) : undefined, columns, layout);
 
 /**
  * Build table / form / filter / view schemas for a resource with no Zod model
@@ -381,8 +395,9 @@ export const buildViews = (
  */
 export const buildViewsFromColumnTypes = (
   columns: JsonColumn[] | undefined,
+  layout?: Layout,
 ): Record<string, ViewConfig> | undefined =>
-  buildViewsWithSource(columnTypeSchemaSource, columns);
+  buildViewsWithSource(columnTypeSchemaSource, columns, layout);
 
 /**
  * Build views from column definitions without a Zod schema.
