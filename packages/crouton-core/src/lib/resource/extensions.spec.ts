@@ -47,8 +47,8 @@ describe('buildResourceJsonSchema', () => {
 
   it('still surfaces core key typos (typo protection intact)', () => {
     // "colums" is not a core key, not registered — stripped, no error (Zod strips unknowns)
-    // but "model" missing IS an error
-    const result = ResourceJsonSchema.safeParse({ name: 'x', route: 'x', tag: 'x', operations: {} });
+    // but "model" missing on an explicit prisma resource IS an error
+    const result = ResourceJsonSchema.safeParse({ name: 'x', route: 'x', kind: 'prisma', tag: 'x', operations: {} });
     expect(result.success).toBe(false);
   });
 
