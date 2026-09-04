@@ -1,4 +1,4 @@
-import { createZodDto } from '@anatine/zod-nestjs';
+import { createZodDto } from 'nestjs-zod';
 
 import { RequestSchema, RequestSchemaWithOffset } from '@ghentcdh/crouton-core';
 

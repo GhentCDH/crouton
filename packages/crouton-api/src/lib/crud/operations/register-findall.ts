@@ -147,7 +147,7 @@ export const registerFindAll = (
   def(cls, methodName, properties.findAll);
   const d = desc(cls, methodName);
   Get(route)(cls.prototype, methodName, d);
-  Query(new ZodValidationPipe(RequestDtoNoOffset.zodSchema as any))(
+  Query(new ZodValidationPipe(RequestDtoNoOffset.schema as any))(
     cls.prototype,
     methodName,
     0,

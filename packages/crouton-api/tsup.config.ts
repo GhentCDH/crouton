@@ -14,7 +14,7 @@ export default defineConfig({
     '@nestjs/common',
     '@nestjs/core',
     '@nestjs/swagger',
-    '@anatine/zod-nestjs',
+    'nestjs-zod',
     '@prisma/client',
     // Only ever imported lazily by crouton-codegen's introspect() (bundled
     // in via noExternal above), and only exercised when the dev-only

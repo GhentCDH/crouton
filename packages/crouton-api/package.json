@@ -36,7 +36,7 @@
     "vitest": "^4.1.11"
   },
   "peerDependencies": {
-    "@anatine/zod-nestjs": ">=2.0.0",
+    "nestjs-zod": ">=5.0.0",
     "@nestjs/common": ">=10.0.0",
     "@nestjs/core": ">=10.0.0",
     "@nestjs/swagger": ">=7.0.0",
