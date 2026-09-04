@@ -1,3 +1,17 @@
+## 0.0.1-alpha.51 (2026-09-04)
+
+### 🚀 Features
+
+- crouton api controller prefix ([#100](https://github.com/GhentCDH/crouton/pull/100))
+- crouton core auto kind ([#102](https://github.com/GhentCDH/crouton/pull/102))
+- resource.json extension registry ([#101](https://github.com/GhentCDH/crouton/pull/101))
+- **crouton-vue:** add tableComponent prop to ResourceTable ([#99](https://github.com/GhentCDH/crouton/pull/99))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.50 (2026-09-02)
 
 ### 🩹 Fixes
