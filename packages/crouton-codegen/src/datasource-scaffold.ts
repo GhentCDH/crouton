@@ -164,10 +164,14 @@ export default adapter;
   const indexTs = `import { PrismaClient } from '${clientImport}';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const adapter = new PrismaPg({
-  connectionString: process.env.${opts.urlEnv},
-});
+const connectionString = process.env.${opts.urlEnv} ?? '';
+// ?schema=<name> in the URL is a Prisma extension; pg ignores it — set search_path explicitly.
+const _schema = new URLSearchParams((connectionString.split('?')[1]) ?? '').get('schema');
 
+const adapter = new PrismaPg({
+  connectionString,
+  ...(_schema && _schema !== 'public' ? { options: \`--search_path=\${_schema}\` } : {}),
+});
 const client = new PrismaClient({ adapter });
 
 export default client;

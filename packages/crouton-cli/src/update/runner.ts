@@ -54,6 +54,30 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';
 
+/**
+ * Derive the project scope from the nearest package.json walking up from `root`.
+ * "@scope/pkg" → "scope"; "bare-name" → "bare-name".
+ * Falls back to `fallback` when no package.json with a name is found.
+ */
+const resolveProjectScope = async (root: string, fallback: string): Promise<string> => {
+  let dir = root;
+  for (let i = 0; i < 6; i++) {
+    const pkgPath = join(dir, 'package.json');
+    if (existsSync(pkgPath)) {
+      try {
+        const { name } = JSON.parse(await readFile(pkgPath, 'utf-8')) as { name?: string };
+        if (typeof name === 'string' && name) {
+          return name.startsWith('@') ? name.slice(1, name.indexOf('/')) : name;
+        }
+      } catch { /* ignore */ }
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return fallback;
+};
+
 export interface UpdateResourcesOptions {
   cwd?: string;
   datasource?: string;
@@ -411,7 +435,10 @@ export const runUpdateResources = async (
 
     // CLI-only scaffold steps (independent of pull vs generate-only).
     if (!opts.skipGenerate) {
-      const projectName = loaded.config.title?.toLowerCase().replace(/\s+/g, '-') ?? 'app';
+      const projectName = await resolveProjectScope(
+        loaded.root,
+        loaded.config.title?.toLowerCase().replace(/\s+/g, '-') ?? 'app',
+      );
       const scaffolded = await ensureGeneratedScaffold(loaded.root, ds, projectName);
       if (scaffolded > 0) {
         clack.log.info(`Created ${scaffolded} scaffold file(s) in generated dirs`);
