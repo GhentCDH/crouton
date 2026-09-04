@@ -1,8 +1,8 @@
 packages:
 {{#if prefix}}  - {{prefix}}/apps/*
-  - {{prefix}}/generated/default/*
+  - {{prefix}}/generated/**
 {{/if}}{{#if noPrefix}}  - apps/*
-  - generated/default/*
+  - generated/**
 {{/if}}  - libs/*
 
 allowBuilds:
