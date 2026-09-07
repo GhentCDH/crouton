@@ -184,7 +184,14 @@ describe('buildViewsFromColumnTypes', () => {
 
   it('returns undefined without columns', () => {
     expect(buildViewsFromColumnTypes(undefined)).toBeUndefined();
-    expect(buildViewsFromColumnTypes([])).toBeUndefined();
+  });
+
+  it('returns empty table view with no columns', () => {
+    const views = buildViewsFromColumnTypes([]);
+    expect(views).toBeDefined();
+    expect(views?.table).toBeDefined();
+    expect(views?.table.columns).toEqual([]);
+    expect(views?.form).toBeUndefined();
   });
 
   it('excludes relation columns from the json schema', () => {
