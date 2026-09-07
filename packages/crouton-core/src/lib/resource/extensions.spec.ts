@@ -33,8 +33,8 @@ describe('registerResourceExtension', () => {
     const schema = buildResourceJsonSchema();
     const result = schema.safeParse({ ...base, annotation: { color: '#fff' } });
     expect(result.success).toBe(true);
-    expect(result.data?.extensions?.['annotation']).toEqual({ color: '#fff' });
-    expect('annotation' in (result.data ?? {})).toBe(false);
+    expect((result.data as Record<string, unknown>)?.['annotation']).toEqual({ color: '#fff' });
+    expect(result.data?.['extensions']).toBeUndefined();
   });
 });
 
@@ -59,7 +59,7 @@ describe('buildResourceJsonSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('normalizes multiple extensions into extensions block', () => {
+  it('normalizes multiple extensions flat', () => {
     registerResourceExtensions({
       annotation: z.object({ color: z.string() }),
       context: z.object({ scope: z.string() }),
@@ -71,10 +71,10 @@ describe('buildResourceJsonSchema', () => {
       context: { scope: 'global' },
     });
     expect(result.success).toBe(true);
-    expect(result.data?.extensions).toEqual({
-      annotation: { color: '#0f0' },
-      context: { scope: 'global' },
-    });
+    const data = result.data as Record<string, unknown>;
+    expect(data?.['annotation']).toEqual({ color: '#0f0' });
+    expect(data?.['context']).toEqual({ scope: 'global' });
+    expect(data?.['extensions']).toBeUndefined();
   });
 
   it('backward-compat: no extension registered ⇒ no extensions field', () => {
