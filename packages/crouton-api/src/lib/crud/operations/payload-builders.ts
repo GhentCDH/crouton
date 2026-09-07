@@ -142,7 +142,7 @@ export const buildResourceJsonPayload = (
     : null;
 
   return {
-    id: name,
+    id: config.id ?? route,
     uri,
     operations,
     schema,
@@ -219,7 +219,7 @@ export const buildViewsPayload = (
   );
   const baseAction = `${baseUri}${config.route}`;
   return {
-    id: config.name,
+    id: config.id ?? config.route,
     name: config.name,
     route: config.route,
     uri: baseUri,

@@ -166,7 +166,7 @@ describe('custom resource served through the generated controller', () => {
     const payload = await controller.getSchemas();
 
     expect(payload).toMatchObject({
-      id: 'zotero_item',
+      id: 'zotero-items',
       route: 'zotero-items',
       title: 'Zotero items',
       idField: 'id',
