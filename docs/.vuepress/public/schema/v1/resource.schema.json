@@ -1519,13 +1519,6 @@
       "items": {
         "$ref": "#/definitions/__schema1"
       }
-    },
-    "extensions": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {}
     }
   },
   "required": [

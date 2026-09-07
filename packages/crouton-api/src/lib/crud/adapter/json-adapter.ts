@@ -8,6 +8,7 @@ import type {
 import {
   buildViews,
   buildViewsFromColumnTypes,
+  getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
 } from '@ghentcdh/crouton-core';
@@ -32,6 +33,9 @@ import { enrichRelationTypes } from './relation-type';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { LookupConfig } from '../resource/lookup.schema';
+
+const pickExtensions = (obj: Record<string, unknown>) =>
+  Object.fromEntries([...getResourceExtensions().keys()].filter(k => obj[k] !== undefined).map(k => [k, obj[k]]));
 
 export const fromJson = (
   json: ResourceJson,
@@ -135,7 +139,7 @@ export const fromJson = (
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
-    ...(json.extensions && { extensions: json.extensions }),
+    ...pickExtensions(json as Record<string, unknown>),
   };
 };
 

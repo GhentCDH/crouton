@@ -110,11 +110,6 @@ export const ResourceJsonShape = z.object({
    *   `include: { text_author: { include: { author: true } } }`
    */
   include: z.array(JsonIncludeEntrySchema).default([]),
-  /**
-   * Normalized extension blocks lifted from registered top-level keys.
-   * Authors never write this key directly — the transform fills it.
-   */
-  extensions: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -220,14 +215,6 @@ export const buildResourceJsonSchema = () => {
         obj.kind === 'custom'
           ? JsonOperationsSchema.parse({ findAll: false, findOne: false, create: false, update: false, patch: false, delete: false })
           : JsonOperationsSchema.parse({});
-      const raw = obj as Record<string, unknown>;
-      const extensions: Record<string, unknown> = {};
-      for (const name of ext.keys()) {
-        if (raw[name] !== undefined) {
-          extensions[name] = raw[name];
-          delete raw[name];
-        }
-      }
       return {
         title,
         ...obj,
@@ -235,7 +222,6 @@ export const buildResourceJsonSchema = () => {
         schemaVersion,
         columns: normalizeColumns(obj.columns),
         operations: obj.operations ?? defaultOps,
-        ...(Object.keys(extensions).length && { extensions }),
       };
     }),
   );

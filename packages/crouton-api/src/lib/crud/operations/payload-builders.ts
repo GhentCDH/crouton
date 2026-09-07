@@ -2,6 +2,7 @@ import {
   type FieldInput,
   type JsonColumn,
   buildSubResourceOperations,
+  getResourceExtensions,
   resolveTableField,
   resolveViewField,
 } from '@ghentcdh/crouton-core';
@@ -18,6 +19,9 @@ import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { toJsonSchema } from '../schema.utils';
 
 // ── Internal helpers ──────────────────────────────────────────────────────
+
+const pickExtensions = (config: Resource) =>
+  Object.fromEntries([...getResourceExtensions().keys()].filter(k => (config as Record<string, unknown>)[k] !== undefined).map(k => [k, (config as Record<string, unknown>)[k]]));
 
 /**
  * Replace `{env.VAR_NAME}` placeholders with `process.env.VAR_NAME`.
@@ -115,7 +119,7 @@ export const buildDefinitionPayload = (
         ? { upsert: toJsonSchema(upsertSchema) }
         : {}),
     },
-    ...(config.extensions && { extensions: config.extensions }),
+    ...pickExtensions(config),
   };
 };
 
@@ -142,7 +146,7 @@ export const buildResourceJsonPayload = (
     uri,
     operations,
     schema,
-    ...(config.extensions && { extensions: config.extensions }),
+    ...pickExtensions(config),
   };
 };
 
@@ -228,7 +232,7 @@ export const buildViewsPayload = (
     schemas,
     actions: resolveActions(baseAction, config.actions),
     tableActions: resolveActions(baseAction, config.tableActions),
-    ...(config.extensions && { extensions: config.extensions }),
+    ...pickExtensions(config),
   };
 };
 
