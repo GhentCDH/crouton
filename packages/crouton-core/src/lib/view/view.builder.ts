@@ -318,7 +318,7 @@ export const buildViewsWithSource = (
       columns,
     );
     views.table = table;
-  } else if (columns?.length) {
+  } else if (columns !== undefined) {
     views.table = emptyTableView();
   }
 
