@@ -1,6 +1,13 @@
 export { buildViews } from '@ghentcdh/crouton-core';
 
 export * from './lib/crouton-api.module';
+export type { CroutonAppConfig } from './lib/crud/app-config';
+export {
+  type ParseAppConfig,
+  type ParseSchemaInput,
+  type ParseSchemaView,
+  parseSchema,
+} from './lib/crud/parse-schema';
 export * from './lib/crud/loader/index';
 export * from './lib/crud/loader/resource-config.loader';
 export * from './lib/crud/loader/fs-resource-config.loader';

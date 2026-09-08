@@ -1,17 +1,14 @@
 import {
-  type CanActivate,
   type DynamicModule,
   Module,
-  type Type,
 } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import type { ZodType } from 'zod';
 
-import type { SecurityConfig } from '@ghentcdh/crouton-core';
 import { registerResourceExtensions } from '@ghentcdh/crouton-core';
 
+import type { CroutonAppConfig } from './crud/app-config';
 import { createAppLayoutController } from './crud/app-layout';
-import { loadConfig, type LoadedConfig } from './crud/config/read';
+import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
@@ -32,29 +29,7 @@ import { LanguageInterceptor, TranslationRegistry } from './crud/translation';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-type CroutonAppConfig = {
-  baseUrl: string;
-  /** URL path prefix prepended to every crouton controller route (e.g. `'api'`). */
-  prefix?: string;
-  /** Named security guards and an optional module-level default. */
-  security?: {
-    /** Map of guard name → NestJS guard class (e.g. `{ admin: AdminGuard }`). */
-    guards: Record<string, Type<CanActivate>>;
-    /** Applied when neither the operation nor the resource declares security. */
-    default?: SecurityConfig;
-  };
-  /** App-defined resource.json extension sections, keyed by top-level name. */
-  extensions?: Record<string, ZodType>;
-  /**
-   * Called on every schema-serving request (`GET /schemas`, `/definition`,
-   * `/resource.json`) with the built payload; its return value is spread into
-   * the payload. Use for dynamic fields or values derived from the schema itself.
-   * Example: `(schema) => ({ details: { route: schema['route'], generatedTimestamp: new Date() } })`
-   */
-  schemaEnricher?: <T extends Record<string, unknown>>(
-    schema: T,
-  ) => Record<string, unknown>;
-};
+
 @Module({
   controllers: [],
   providers: [],
