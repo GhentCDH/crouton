@@ -1,4 +1,9 @@
-import { type CanActivate, type DynamicModule, Module, type Type } from '@nestjs/common';
+import {
+  type CanActivate,
+  type DynamicModule,
+  Module,
+  type Type,
+} from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import type { ZodType } from 'zod';
 
@@ -6,7 +11,7 @@ import type { SecurityConfig } from '@ghentcdh/crouton-core';
 import { registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import { createAppLayoutController } from './crud/app-layout';
-import { type LoadedConfig, loadConfig } from './crud/config/read';
+import { loadConfig, type LoadedConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
@@ -46,7 +51,9 @@ type CroutonAppConfig = {
    * the payload. Use for dynamic fields or values derived from the schema itself.
    * Example: `(schema) => ({ details: { route: schema['route'], generatedTimestamp: new Date() } })`
    */
-  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>;
+  schemaEnricher?: <T extends Record<string, unknown>>(
+    schema: T,
+  ) => Record<string, unknown>;
 };
 @Module({
   controllers: [],
@@ -167,7 +174,14 @@ export class CroutonApiModule {
 
     const controllers = [
       ...validConfigs.map((c) =>
-        createCrudController(c, baseUrl, moduleDefaultSecurity, !!security, prefix, appConfig.schemaEnricher),
+        createCrudController(
+          c,
+          baseUrl,
+          moduleDefaultSecurity,
+          !!security,
+          prefix,
+          appConfig.schemaEnricher,
+        ),
       ),
       createAppLayoutController(
         configs,
@@ -187,6 +201,7 @@ export class CroutonApiModule {
     return {
       module: CroutonApiModule,
       controllers,
+      exports: [ResourceConfigRegistry],
       providers: [
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
@@ -208,8 +223,7 @@ export class CroutonApiModule {
               },
               {
                 provide: APP_INTERCEPTOR,
-                useFactory: () =>
-                  new LanguageInterceptor(translationRegistry!),
+                useFactory: () => new LanguageInterceptor(translationRegistry!),
               },
             ]
           : []),

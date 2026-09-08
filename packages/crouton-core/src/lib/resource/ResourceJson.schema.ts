@@ -218,6 +218,7 @@ export const buildResourceJsonSchema = () => {
       return {
         title,
         ...obj,
+        id: (obj.id ?? obj.name) as string,
         route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
         schemaVersion,
         columns: normalizeColumns(obj.columns),

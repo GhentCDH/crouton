@@ -7,19 +7,19 @@ import { localizeResource } from './translation/localize-resource';
 import type { TranslationRegistry } from './translation/translation.registry';
 
 @Injectable()
-export class ResourceConfigRegistry {
-  private configs: Resource[];
+export class ResourceConfigRegistry<R extends Resource = Resource> {
+  private configs: R[];
   private translationRegistry?: TranslationRegistry;
 
   /**
-   * Per-language memo: `Map<language, Map<route, Resource>>`.
+   * Per-language memo: `Map<language, Map<route, R>>`.
    * Cleared whenever the underlying configs reload (dev mode).
    */
-  private localizedCache = new Map<string, Map<string, Resource>>();
+  private localizedCache = new Map<string, Map<string, R>>();
 
   constructor(
     private readonly loader: ResourceConfigLoader,
-    initialConfigs: Resource[],
+    initialConfigs: R[],
   ) {
     this.configs = initialConfigs;
   }
@@ -28,9 +28,9 @@ export class ResourceConfigRegistry {
     this.translationRegistry = registry;
   }
 
-  async getAll(language?: string): Promise<Resource[]> {
+  async getAll(language?: string): Promise<R[]> {
     if (IS_DEV) {
-      this.configs = await this.loader.loadAll();
+      this.configs = (await this.loader.loadAll()) as R[];
       this.localizedCache.clear();
     }
     if (!language || !this.translationRegistry?.active) {
@@ -39,18 +39,15 @@ export class ResourceConfigRegistry {
     return this.configs.map((c) => this.getLocalized(c, language));
   }
 
-  async getByRoute(
-    route: string,
-    language?: string,
-  ): Promise<Resource | undefined> {
+  async getByRoute(route: string, language?: string): Promise<R | undefined> {
     if (IS_DEV) {
       const fresh = await this.loader.loadByRoute(route);
       this.localizedCache.clear();
       if (!fresh) return undefined;
       if (language && this.translationRegistry?.active) {
-        return this.localize(fresh, language);
+        return this.localize(fresh as R, language);
       }
-      return fresh;
+      return fresh as R;
     }
     const config = this.configs.find((c) => c.route === route);
     if (!config) return undefined;
@@ -58,6 +55,11 @@ export class ResourceConfigRegistry {
       return this.getLocalized(config, language);
     }
     return config;
+  }
+
+  async findById(id: string, language?: string): Promise<R | undefined> {
+    const all = await this.getAll(language);
+    return all.find((c) => c.id === id);
   }
 
   /**
@@ -70,7 +72,7 @@ export class ResourceConfigRegistry {
     return this.loader.getResourceDir(route);
   }
 
-  private getLocalized(config: Resource, language: string): Resource {
+  private getLocalized(config: R, language: string): R {
     let langMap = this.localizedCache.get(language);
     if (!langMap) {
       langMap = new Map();
@@ -84,9 +86,9 @@ export class ResourceConfigRegistry {
     return localized;
   }
 
-  private localize(config: Resource, language: string): Resource {
+  private localize(config: R, language: string): R {
     if (!this.translationRegistry) return config;
     const t = this.translationRegistry.translatorFor(language);
-    return localizeResource(config, t);
+    return localizeResource(config, t) as R;
   }
 }
