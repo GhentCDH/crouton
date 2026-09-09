@@ -24,12 +24,16 @@ export interface ResourceStatus {
   draft?: boolean;
   /** Loaded and served, but hidden from the admin sidebar menu. */
   hidden?: boolean;
+  /** Non-fatal warnings recorded during load. */
+  warnings?: string[];
 }
 
 export interface StatusSummary {
   ok: boolean;
   databaseErrors: number;
   resourceErrors: number;
+  /** Total warning count across all resources. Does not affect `ok`. */
+  warningCount: number;
 }
 
 export interface EnumValue {

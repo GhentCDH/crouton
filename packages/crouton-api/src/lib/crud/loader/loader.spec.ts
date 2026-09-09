@@ -6,6 +6,7 @@ import { loadResourceConfigsFromDir } from './index';
 
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+import type { WarningResourceNotice } from '../resource/resource-load-report.registry';
 import {
   mkdirSync,
   mkdtempSync,
@@ -138,5 +139,46 @@ describe('loadResourceConfigsFromDir', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0].name).toBe('stale');
     expect(errors[0].expectedVersion).toBe(CURRENT_RESOURCE_VERSION);
+  });
+
+  it('records a warning when a prisma resource has a stray repository.ts', async () => {
+    const dir = join(tempDir, 'book');
+    mkdirSync(dir);
+    writeFileSync(join(dir, 'resource.json'), JSON.stringify(validResource));
+    writeFileSync(join(dir, 'repository.ts'), 'export default {};');
+
+    const configs = await loadResourceConfigsFromDir(tempDir);
+
+    expect(configs).toHaveLength(1); // still loaded — it is a warning, not an error
+    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
+    const warnings = resourceLoadReportRegistry
+      .getByState('warning') as WarningResourceNotice[];
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].warning).toMatch(/repository\.ts is present on a prisma resource/);
+  });
+
+  it('records a warning when kind:custom also sets database', async () => {
+    const customWithDb = {
+      name: 'custom_res',
+      route: 'custom-res',
+      kind: 'custom',
+      tag: 'Custom',
+      database: 'secondary',
+      operations: { create: false, update: false, patch: false, delete: false },
+      columns: { id: { type: 'string', idField: true } },
+    };
+    const REPO_TS = 'export default { findAll: async () => ({ data: [], count: 0 }), findOne: async () => null };';
+    const dir = join(tempDir, 'custom_res');
+    mkdirSync(dir);
+    writeFileSync(join(dir, 'resource.json'), JSON.stringify(customWithDb));
+    writeFileSync(join(dir, 'repository.ts'), REPO_TS);
+
+    const configs = await loadResourceConfigsFromDir(tempDir);
+
+    expect(configs).toHaveLength(1);
+    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
+    const warnings = resourceLoadReportRegistry
+      .getByState('warning') as WarningResourceNotice[];
+    expect(warnings.some((w) => w.warning.includes('"database" is set alongside kind: "custom"'))).toBe(true);
   });
 });

@@ -78,6 +78,13 @@ export const checkDatabases = async (
 export const getResourceStatus = (
   loadedConfigs: Resource[],
 ): ResourceStatus[] => {
+  const warningsByName = new Map<string, string[]>();
+  for (const w of resourceLoadReportRegistry.getByState('warning')) {
+    const existing = warningsByName.get(w.name) ?? [];
+    existing.push(w.warning);
+    warningsByName.set(w.name, existing);
+  }
+
   const valid: ResourceStatus[] = loadedConfigs.map((c) => ({
     name: c.name,
     path: c.route,
@@ -93,6 +100,7 @@ export const getResourceStatus = (
         }
       : {}),
     ...(c.sidebar?.hide ? { hidden: true } : {}),
+    ...(warningsByName.has(c.name) ? { warnings: warningsByName.get(c.name) } : {}),
   }));
 
   const failed: ResourceStatus[] = resourceLoadErrorsRegistry
@@ -126,11 +134,13 @@ export const buildSummary = (
 ): StatusSummary => {
   const databaseErrors = databases.filter((d) => !d.connected).length;
   const resourceErrors = resources.filter((r) => !r.valid).length;
+  const warningCount = resources.reduce((acc, r) => acc + (r.warnings?.length ?? 0), 0);
 
   return {
     ok: databaseErrors === 0 && resourceErrors === 0,
     databaseErrors,
     resourceErrors,
+    warningCount,
   };
 };
 

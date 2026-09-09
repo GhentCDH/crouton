@@ -210,6 +210,22 @@ describe('status.service', () => {
       expect(row.customOperations).toBeUndefined();
     });
 
+    it('attaches warnings from the report registry to the matching valid row', () => {
+      resourceLoadReportRegistry.record({
+        state: 'warning',
+        name: 'people',
+        path: '/r/people/resource.json',
+        warning: 'repository.ts is present on a prisma resource and will be ignored',
+      });
+
+      const configs = [{ name: 'people', route: 'people' }] as Resource[];
+      const result = getResourceStatus(configs);
+
+      expect(result[0].warnings).toEqual([
+        'repository.ts is present on a prisma resource and will be ignored',
+      ]);
+    });
+
     it('defaults kind to prisma for a resource that does not declare one', () => {
       const configs = [
         { name: 'people', route: 'people' },
@@ -243,6 +259,7 @@ describe('status.service', () => {
         ok: true,
         databaseErrors: 0,
         resourceErrors: 0,
+        warningCount: 0,
       });
     });
 
@@ -261,7 +278,17 @@ describe('status.service', () => {
         ok: false,
         databaseErrors: 1,
         resourceErrors: 1,
+        warningCount: 0,
       });
+    });
+
+    it('warningCount reflects warnings on resources but does not affect ok', () => {
+      const summary = buildSummary(
+        [{ name: 'db', connected: true }],
+        [{ name: 'res', path: '/r', valid: true, warnings: ['repository.ts ignored'] }],
+      );
+      expect(summary.ok).toBe(true);
+      expect(summary.warningCount).toBe(1);
     });
   });
 
