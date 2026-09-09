@@ -1,3 +1,23 @@
+## 0.0.1-alpha.52 (2026-09-09)
+
+### 🚀 Features
+
+- type safety on resource config ([a6506d7](https://github.com/GhentCDH/crouton/commit/a6506d7))
+- type safety on resource config ([5103c75](https://github.com/GhentCDH/crouton/commit/5103c75))
+- **crouton-api:** add parseSchema — compile resource schema without … ([#108](https://github.com/GhentCDH/crouton/pull/108))
+
+### 🩹 Fixes
+
+- tests ([51956d9](https://github.com/GhentCDH/crouton/commit/51956d9))
+- **crouton-api:** use config.id ?? config.route for payload id field ([#107](https://github.com/GhentCDH/crouton/pull/107))
+- **crouton-core:** flatten resource extensions to top level ([#105](https://github.com/GhentCDH/crouton/pull/105))
+- **crouton-core:** return empty table view for columnless resources ([#106](https://github.com/GhentCDH/crouton/pull/106))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.51 (2026-09-04)
 
 ### 🚀 Features
