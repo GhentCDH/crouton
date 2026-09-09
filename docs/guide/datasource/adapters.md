@@ -44,6 +44,13 @@ const adapter: DataSourceAdapter = {
     return true;
   },
 
+  async healthCheck(): Promise<void> {
+    // Optional. Throw to report the datasource as disconnected on the status page.
+    // Omit this method to report it as connected without probing.
+    const ok = await fetch('https://api.example.com/health').then((r) => r.ok);
+    if (!ok) throw new Error('API health check failed');
+  },
+
   async disconnect(): Promise<void> {
     // Clean up connections / HTTP clients.
   },
