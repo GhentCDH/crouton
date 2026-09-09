@@ -54,6 +54,25 @@ For every registered resource you get:
 | `sidebarGroups` | `Record<string, SidebarGroupConfig>` | Optional sidebar group definitions (label, position). Resources opt in via `sidebar.group` in `resource.json`. |
 | `enumsFile` | `string` | Explicit path to `crouton.enums.json`. Defaults to auto-discovery from the resources dir. |
 
+## Offline schema compilation
+
+To compile a resource schema without booting the NestJS module (build step, CLI, tests), use `parseSchema` from `@ghentcdh/crouton-core`:
+
+```ts
+import { parseSchema } from '@ghentcdh/crouton-core';
+import MySchema from './resources/my-resource/schema';
+import resourceJson from './resources/my-resource/resource.json';
+
+const schemas = parseSchema(
+  { json: resourceJson, schema: MySchema },
+  { baseUrl: 'http://localhost:3000' },
+  'schemas',
+);
+// JSON.stringify(schemas) → same output as GET /my-resource/schemas
+```
+
+See the [crouton-core docs](../../crouton-core/docs/README.md#parseschema) for the full API.
+
 ## Building blocks
 
 - **Resource config loaders** — load resource definitions from the file system (`FsResourceConfigLoader`) or implement your own `ResourceConfigLoader`.
