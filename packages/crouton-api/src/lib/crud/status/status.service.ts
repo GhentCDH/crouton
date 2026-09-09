@@ -64,6 +64,10 @@ export const checkDatabases = async (
 
   for (const { name, client } of entries) {
     const prismaClient = client as any;
+    if (typeof prismaClient?.$queryRaw !== 'function') {
+      results.push({ name, connected: true });
+      continue;
+    }
     try {
       await Promise.race([
         prismaClient.$queryRaw`SELECT 1`,

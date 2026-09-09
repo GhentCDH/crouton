@@ -11,7 +11,7 @@ import type { SecurityConfig } from '@ghentcdh/crouton-core';
 import { registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import { createAppLayoutController } from './crud/app-layout';
-import { loadConfig, type LoadedConfig } from './crud/config/read';
+import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
