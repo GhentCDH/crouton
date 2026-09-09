@@ -69,7 +69,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `table`             | `string`                       | Database table (when it differs from the model)                                                                                                                                               |
 | `idType`            | `'number' \| 'string'`         | Type of the id field (default `string`)                                                                                                                                                       |
 | `database`          | `string`                       | Name of the [data source](../datasource/datasource.md) to use                                                                                                                                 |
-| `parent`            | object                         | Mount this resource under a parent route: `{ "route": "groups", "param": "groupId" }`. Custom resources only — see [Custom resources](custom-resource.md#as-a-standalone-nested-route-parent) |
+| `parent`            | object                         | Mount this resource under a parent route: `{ "uri": "groups", "param": "groupId" }`. Custom resources only — see [Custom resources](custom-resource.md#as-a-standalone-nested-route-parent) |
 | `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar)                                                                                                                          |
 | `display`           | object                         | `mode` (`'page'` \| `'modal'`, default `'modal'`) and `customComponent`, see [Display](#display)                                                                                              |
 | `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `patch`, `upsert`, `delete`                                                                                                                  |
@@ -101,7 +101,7 @@ Each key accepts three forms:
 |-------|---------|
 | `true` (default) | Crouton registers and serves the endpoint |
 | `false` | Endpoint disabled — not registered |
-| `{ "route": "/path/{id}" }` | **External** — client calls the given route directly; crouton registers nothing |
+| `{ "uri": "/path/{id}" }` | **External** — client calls the given route directly; crouton registers nothing |
 
 `upsert` is the exception: it defaults to **disabled** and must be an object with `upsertOn`, not `true`:
 
@@ -121,7 +121,7 @@ existing record) is required.
 
 ### External operations
 
-Declare an operation as `{ "route": "..." }` to have the frontend call an external service directly for that
+Declare an operation as `{ "uri": "..." }` to have the frontend call an external service directly for that
 operation, with crouton registering nothing internally:
 
 ```json
@@ -132,7 +132,7 @@ operation, with crouton registering nothing internally:
     "create":  false,
     "update":  false,
     "patch":   false,
-    "delete":  { "route": "/annotation/{id}" }
+    "delete":  { "uri": "/annotation/{id}" }
   }
 }
 ```

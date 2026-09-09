@@ -6,7 +6,7 @@ import { SecuritySchema } from './Security.schema';
 
 /** An operation served by an external API instead of crouton. */
 const ExternalOpEntry = z.object({
-  route: z.string(),
+  uri: z.string(),
   method: z.string().optional(),
   security: SecuritySchema.optional(),
 });

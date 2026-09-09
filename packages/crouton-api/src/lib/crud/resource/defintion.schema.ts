@@ -5,7 +5,7 @@ import { SecuritySchema } from '@ghentcdh/crouton-core';
 import { SchemaInputSchema } from './json.schema';
 
 const ExternalOperationDefSchema = z.object({
-  route: z.string(),
+  uri: z.string(),
   method: z.string().optional(),
 });
 

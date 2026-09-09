@@ -29,8 +29,8 @@ export const opWithSchema = (
 ): OperationDef | undefined => {
   // `undefined` means the key was omitted → default to enabled.
   if (enabled === false) return undefined;
-  if (typeof enabled === 'object' && enabled !== null && 'route' in enabled) {
-    return { route: enabled['route'] as string, ...(enabled['method'] ? { method: enabled['method'] as string } : {}) };
+  if (typeof enabled === 'object' && enabled !== null && 'uri' in enabled) {
+    return { uri: enabled['uri'] as string, ...(enabled['method'] ? { method: enabled['method'] as string } : {}) };
   }
   return schema ? { schema } : true;
 };
