@@ -1,4 +1,6 @@
-import type { ListRequest } from '@ghentcdh/crouton-core';
+import { NotFoundException } from '@nestjs/common';
+
+import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
 
 import { resolveDefinition, schemaFor } from './crud.config';
 import {
@@ -146,6 +148,118 @@ export function createCrudRepository<T = any>(
   const listSelect = listSchema ? toSelectFields(listSchema) : undefined;
   const oneSelect = oneSchema ? toSelectFields(oneSchema) : listSelect;
 
+  // Phase B: if the resolved adapter exposes the CRUD surface (e.g.,
+  // PrismaDataSourceAdapter or a subclass that overrides individual methods),
+  // route through it so the override is honoured before factory decoration.
+  if (resolvedAdapter?.findAll && resolvedAdapter.count) {
+    const baseCtx = { config, op: 'n/a', offset: 0, listSelect, oneSelect, configRegistry };
+    const ctx = (request?: any, op = 'findAll', id?: string | number) => ({
+      ...baseCtx, op, request, ...(id !== undefined && { id }),
+    });
+
+    const mkDecorateFindAll = (adapter: DataSourceAdapter) =>
+      async (rows: any[], request?: any): Promise<any[]> => {
+        const vlCols = await resolveValueLabelColumns(config.route, config.valueLabelColumns, configRegistry);
+        const target = vlCols === config.valueLabelColumns ? config : { hooks: config.hooks, valueLabelColumns: vlCols };
+        return decorateRows(rows, 'findAll', target, adapter, request);
+      };
+    const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
+    const decorateFindOne = (row: any, request?: any) => decorateRow(row, 'findOne', config, resolvedAdapter, request);
+    const prepareData = (data: unknown, op: 'create'|'update'|'patch', id?: string|number, request?: any) =>
+      prepareWrite(data, op, config, resolvedAdapter, id, request);
+    const postData = (result: any, op: 'create'|'update'|'patch'|'delete', id?: string|number, request?: any) =>
+      postWrite(result, op, config, resolvedAdapter, id, request);
+    const toId = (id: string | number): string | number =>
+      (config.idType ?? 'string') === 'number' ? +id : String(id);
+
+    const adapterFindAllByParent = async (
+      parentId: string | number,
+      childRoute: string,
+      params: ListRequest,
+      request?: any,
+    ): Promise<{ data: T[]; count: number }> => {
+      if (resolvedAdapter.findAllByParent) {
+        const sub = config.subResources?.find((s) => s.childRoute === childRoute);
+        if (!sub) throw new Error(`No sub-resource "${childRoute}" on "${config.name}"`);
+        return resolvedAdapter.findAllByParent(config.model!, parentId, sub, params, ctx(request, 'findAll'));
+      }
+      // Fallback: build a reader directly (sub-resource uses prisma child model, not the resource's model).
+      const reader = new ReadRepository<T>(model, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
+      return reader.findAllByParent(parentId, childRoute, params, request);
+    };
+
+    const adapterFindOneChild = async (
+      sub: SubResourceConfig,
+      childId: string | number,
+      parentId?: string | number,
+      request?: any,
+    ): Promise<T> => {
+      if (resolvedAdapter.findOneChild) {
+        const row = await resolvedAdapter.findOneChild(config.model!, sub, childId, parentId, ctx(request, 'findOne', childId));
+        if (row === null || row === undefined) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
+        return row;
+      }
+      const reader = new ReadRepository<T>(model, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
+      return reader.findOneChild(sub, childId, parentId, request);
+    };
+
+    const writer = new WriteRepository<T>(model, resolvedAdapter, config);
+
+    return {
+      prisma,
+      findAllWithCount: async (params, request) => {
+        const { data, count } = await resolvedAdapter.findAll!(config.model!, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
+        return { data: await decorateFindAll(data, request), count };
+      },
+      findAll: async (params, request) => {
+        const { data } = await resolvedAdapter.findAll!(config.model!, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
+        return decorateFindAll(data, request);
+      },
+      count: (filter) => resolvedAdapter.count!(config.model!, filter, baseCtx),
+      findOne: async (id, request) => {
+        const row = await resolvedAdapter.findOne!(config.model!, id, ctx(request, 'findOne', id));
+        if (row === null || row === undefined) throw new NotFoundException(`${config.name} with id ${id} not found`);
+        return decorateFindOne(row, request);
+      },
+      findAllByParent: adapterFindAllByParent,
+      findOneChild: adapterFindOneChild,
+      create: async (data, request) => {
+        const stripped = stripSubResourceKeys(config, data);
+        const prepared = await prepareData(stripped, 'create', undefined, request);
+        const result = await resolvedAdapter.create!(config.model!, prepared, ctx(request, 'create'));
+        return postData(result, 'create', undefined, request);
+      },
+      update: async (id, data, request) => {
+        const coercedId = toId(id);
+        const stripped = stripSubResourceKeys(config, data);
+        const prepared = await prepareData(stripped, 'update', coercedId, request);
+        const result = await resolvedAdapter.update!(config.model!, id, prepared, ctx(request, 'update', coercedId));
+        return postData(result, 'update', coercedId, request);
+      },
+      patch: async (id, data, request) => {
+        const coercedId = toId(id);
+        const stripped = stripSubResourceKeys(config, data);
+        const prepared = await prepareData(stripped, 'patch', coercedId, request);
+        const result = await (resolvedAdapter.patch ?? resolvedAdapter.update)!(config.model!, id, prepared, ctx(request, 'patch', coercedId));
+        return postData(result, 'patch', coercedId, request);
+      },
+      upsert: writer.upsert.bind(writer),
+      upsertMany: writer.upsertMany.bind(writer),
+      delete: async (id, request) => {
+        const coercedId = toId(id);
+        const result = await resolvedAdapter.delete!(config.model!, id, ctx(request, 'delete', coercedId));
+        return postData(result, 'delete', coercedId, request);
+      },
+      createChild: writer.createChild.bind(writer),
+      updateChild: writer.updateChild.bind(writer),
+      deleteChild: writer.deleteChild.bind(writer),
+    };
+  }
+
+  // ── Legacy Prisma path ────────────────────────────────────────────────────
+  // Used when no registry is provided (unit tests, direct factory calls).
+  // The resolved adapter path above covers all production scenarios.
+
   // Wrap the raw prisma client in an adapter so hooks receive a `DataSourceAdapter`.
   const adapter: DataSourceAdapter = new PrismaDataSourceAdapter(prisma);
 
@@ -160,9 +274,6 @@ export function createCrudRepository<T = any>(
   const writer = new WriteRepository<T>(model, adapter, config);
 
   // ── Resource-level decoration helpers ────────────────────────────────────
-  // These mirror the removed ReadRepository.decorate / decorateOne methods,
-  // moved here so both Prisma and custom adapters share the same hook path.
-
   const decorateFindAll = async (rows: any[], request?: any): Promise<any[]> => {
     const vlCols = await resolveValueLabelColumns(
       config.route,
