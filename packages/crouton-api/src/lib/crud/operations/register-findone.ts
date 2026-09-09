@@ -7,7 +7,7 @@ import {
 } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
-import { isOperationEnabled } from '../crud.config';
+import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
 import type { CrudRepository } from '../crud-repository.factory';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
@@ -15,6 +15,7 @@ import { toJsonSchema } from '../schema.utils';
 
 const defaultFindOne = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'findOne')) return null;
+  if (isOperationExternal(ctx.definition, 'findOne')) return null;
   const { cls, config } = ctx;
   const methodName = 'findOne';
 

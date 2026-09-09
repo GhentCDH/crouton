@@ -8,11 +8,12 @@ import {
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../crud-repository.factory';
-import { isOperationEnabled } from '../crud.config';
+import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 const defaultUpdate = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'update')) return null;
+  if (isOperationExternal(ctx.definition, 'update')) return null;
   const { cls, config, updateSchema, bodyDecorator } = ctx;
   const methodName = 'update';
 

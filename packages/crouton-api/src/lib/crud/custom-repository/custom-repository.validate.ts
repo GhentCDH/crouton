@@ -4,7 +4,7 @@ import {
   type CustomRepository,
   PARENT_METHOD,
 } from './custom-repository.types';
-import { type CrudOperation, isOperationEnabled, resolveDefinition } from '../crud.config';
+import { type CrudOperation, isOperationEnabled, isOperationExternal, resolveDefinition } from '../crud.config';
 import { type Resource } from '../resource/ResourceConfig.schema';
 
 /**
@@ -22,7 +22,8 @@ export const validateCustomRepository = (
 ): string | undefined => {
   const definition = resolveDefinition(config);
   const enabled = CUSTOM_OPS.filter((op) =>
-    isOperationEnabled(definition, op as CrudOperation),
+    isOperationEnabled(definition, op as CrudOperation) &&
+    !isOperationExternal(definition, op as CrudOperation),
   );
 
   // A nested resource is only reachable under its parent, so it implements the

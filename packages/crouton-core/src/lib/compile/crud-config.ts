@@ -32,6 +32,25 @@ export const schemaFor = (
   return (entry as { schema?: SchemaInput }).schema;
 };
 
+export const isOperationExternal = (
+  def: ResourceDefinition | JsonResourceOperations,
+  op: CrudOperation,
+): boolean => {
+  const entry = def[op];
+  return typeof entry === 'object' && entry !== null && 'route' in entry;
+};
+
+export const externalRouteFor = (
+  def: ResourceDefinition | JsonResourceOperations,
+  op: CrudOperation,
+): string | undefined => {
+  const entry = def[op];
+  if (typeof entry === 'object' && entry !== null && 'route' in entry) {
+    return (entry as { route: string }).route;
+  }
+  return undefined;
+};
+
 export const upsertOnFor = (
   def: ResourceDefinition,
 ): string | string[] | undefined => def.upsert?.upsertOn;
