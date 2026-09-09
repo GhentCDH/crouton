@@ -95,6 +95,14 @@ endpoint. Set a key to `false` to disable it.
 | `upsert`  | `PUT`       | `/`    | Create or update based on `upsertOn` key(s)          |
 | `delete`  | `DELETE`    | `/:id` | Delete a record                                      |
 
+Each key accepts three forms:
+
+| Value | Meaning |
+|-------|---------|
+| `true` (default) | Crouton registers and serves the endpoint |
+| `false` | Endpoint disabled — not registered |
+| `{ "route": "/path/{id}" }` | **External** — client calls the given route directly; crouton registers nothing |
+
 `upsert` is the exception: it defaults to **disabled** and must be an object with `upsertOn`, not `true`:
 
 ```json
@@ -110,6 +118,27 @@ endpoint. Set a key to `false` to disable it.
 
 Passing `"upsert": true` throws at load time — `upsertOn` (a column name or array of column names used to detect an
 existing record) is required.
+
+### External operations
+
+Declare an operation as `{ "route": "..." }` to have the frontend call an external service directly for that
+operation, with crouton registering nothing internally:
+
+```json
+{
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create":  false,
+    "update":  false,
+    "patch":   false,
+    "delete":  { "route": "/annotation/{id}" }
+  }
+}
+```
+
+`{id}` and other `{param}` placeholders work as usual. Use `{env.VAR}` to inject an environment variable at compile
+time. See [External operations](external-operations.md) for the full reference.
 
 ### PUT vs PATCH
 
