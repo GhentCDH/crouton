@@ -24,11 +24,14 @@ export const pickByColumns = (
 };
 
 export const opWithSchema = (
-  enabled: boolean | undefined,
+  enabled: boolean | Record<string, unknown> | undefined,
   schema: SchemaInput | undefined,
 ): OperationDef | undefined => {
   // `undefined` means the key was omitted → default to enabled.
   if (enabled === false) return undefined;
+  if (typeof enabled === 'object' && enabled !== null && 'route' in enabled) {
+    return { route: enabled['route'] as string, ...(enabled['method'] ? { method: enabled['method'] as string } : {}) };
+  }
   return schema ? { schema } : true;
 };
 
@@ -83,8 +86,12 @@ export const buildResourceDefinitions = (
     ...(upsertOp(operations.upsert, createSchema) && {
       upsert: upsertOp(operations.upsert, createSchema)!,
     }),
-    ...(operations.patch !== false && { patch: true }),
-    ...(operations.delete !== false && { delete: true }),
+    ...(opWithSchema(operations.patch as any, undefined) && {
+      patch: opWithSchema(operations.patch as any, undefined)!,
+    }),
+    ...(opWithSchema(operations.delete as any, undefined) && {
+      delete: opWithSchema(operations.delete as any, undefined)!,
+    }),
   };
 
   return definition;

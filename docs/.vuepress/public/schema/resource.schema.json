@@ -175,6 +175,58 @@
             {
               "type": "object",
               "properties": {
+                "route": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "security": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "public": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "public"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "guard": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "guard"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "route"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
                 "security": {
                   "anyOf": [
                     {
@@ -222,6 +274,58 @@
           "anyOf": [
             {
               "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "route": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "security": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "public": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "public"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "guard": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "guard"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "route"
+              ]
             },
             {
               "type": "object",
@@ -277,6 +381,58 @@
             {
               "type": "object",
               "properties": {
+                "route": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "security": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "public": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "public"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "guard": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "guard"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "route"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
                 "security": {
                   "anyOf": [
                     {
@@ -328,6 +484,58 @@
             {
               "type": "object",
               "properties": {
+                "route": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "security": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "public": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "public"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "guard": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "guard"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "route"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
                 "security": {
                   "anyOf": [
                     {
@@ -375,6 +583,58 @@
           "anyOf": [
             {
               "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "route": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "security": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "public": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "public"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "guard": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "guard"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "route"
+              ]
             },
             {
               "type": "object",
@@ -493,6 +753,58 @@
           "anyOf": [
             {
               "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "route": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "security": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "public": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "public"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "guard": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "guard"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "route"
+              ]
             },
             {
               "type": "object",

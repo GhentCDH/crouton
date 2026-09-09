@@ -2,7 +2,7 @@ import { Get, Param, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
-import { isOperationEnabled } from '../crud.config';
+import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
 import type { CrudRepository } from '../crud-repository.factory';
 import { RequestDtoNoOffset } from '../request.dto';
@@ -74,6 +74,7 @@ const findAllByParent = async (
 
 const defaultFindAll = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'findAll')) return;
+  if (isOperationExternal(ctx.definition, 'findAll')) return;
 
   const { config } = ctx;
   const lookupLabel = config.lookup?.label;

@@ -2,13 +2,14 @@ import { Delete, Param, Req } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
-import { isOperationEnabled } from '../crud.config';
+import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
 import type { CrudRepository } from '../crud-repository.factory';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 
 const defaultDelete = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'delete')) return null;
+  if (isOperationExternal(ctx.definition, 'delete')) return null;
   const { config } = ctx;
   const methodName = 'delete';
   const { name } = config;

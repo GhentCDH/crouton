@@ -3,7 +3,7 @@ import type { JsonAction } from '../resource';
 import { getResourceExtensions } from '../resource';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
-import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud-config';
+import { externalRouteFor, isOperationEnabled, isOperationExternal, resolveDefinition, schemaFor, upsertOnFor } from './crud-config';
 import { toJsonSchema } from './to-json-schema';
 
 const pickExtensions = (config: CompiledResource) =>
@@ -53,9 +53,16 @@ export const buildResourceOperations = (
   baseUri: string,
 ): Record<string, unknown> =>
   Object.fromEntries(
-    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map(
-      (op) => [op, { uri: `${baseUri}${OP_SUFFIX[op]}`, method: OP_METHOD[op] }],
-    ),
+    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map((op) => {
+      const extRoute = externalRouteFor(definition, op);
+      const uri = extRoute ? resolveEnvPlaceholders(extRoute) : `${baseUri}${OP_SUFFIX[op]}`;
+      const entry = definition[op];
+      const method =
+        (extRoute && typeof entry === 'object' && entry !== null && 'method' in entry
+          ? (entry as { method?: string }).method
+          : undefined) ?? OP_METHOD[op];
+      return [op, { uri, method }];
+    }),
   );
 
 const _resolveActions = (
@@ -132,7 +139,9 @@ export const buildResourceJsonPayload = (
   const operations: Record<string, unknown> = Object.fromEntries(
     RESOURCE_OPS.map((op) => [op, isOperationEnabled(definition, op)]),
   );
-  operations['lookup'] = `${uri}?q={text}`;
+  if (!isOperationExternal(definition, 'findAll')) {
+    operations['lookup'] = `${uri}?q={text}`;
+  }
 
   const form = config.views?.['form'];
   const schema = form?.json_schema
@@ -158,7 +167,7 @@ export const buildViewsPayload = (
     ? `${baseUrl}/${config.parent.route}/{${config.parent.param}}/${config.route}`
     : `${baseUrl}/${config.route}`;
   const operations: Record<string, unknown> = buildResourceOperations(definition, baseUri);
-  if (isOperationEnabled(definition, 'findAll')) {
+  if (isOperationEnabled(definition, 'findAll') && !isOperationExternal(definition, 'findAll')) {
     operations['lookup'] = `${baseUri}?q={text}`;
   }
   const schemas = Object.fromEntries(

@@ -6,8 +6,14 @@ import { SecuritySchema } from '../data-source/Security.schema';
 
 export type { JsonSchemaInput, SchemaInput } from './schema-input';
 
+const ExternalOperationDefSchema = z.object({
+  route: z.string(),
+  method: z.string().optional(),
+});
+
 const OperationDefSchema = z.union([
   z.literal(true),
+  ExternalOperationDefSchema,
   z.object({
     schema: SchemaInputSchema.optional(),
     security: SecuritySchema.optional(),

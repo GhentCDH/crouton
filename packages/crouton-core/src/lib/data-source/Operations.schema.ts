@@ -4,9 +4,19 @@ import { SecuritySchema } from './Security.schema';
 
 // ── Operations ────────────────────────────────────────────────────────
 
-/** A standard operation entry: plain boolean or an object with optional security. */
+/** An operation served by an external API instead of crouton. */
+const ExternalOpEntry = z.object({
+  route: z.string(),
+  method: z.string().optional(),
+  security: SecuritySchema.optional(),
+});
+
+export type ExternalOpEntry = z.infer<typeof ExternalOpEntry>;
+
+/** A standard operation entry: plain boolean, external route object, or security config. */
 const OpEntry = z.union([
   z.boolean(),
+  ExternalOpEntry,
   z.object({ security: SecuritySchema.optional() }),
 ]);
 

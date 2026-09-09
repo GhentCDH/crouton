@@ -8,11 +8,12 @@ import {
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../crud-repository.factory';
-import { isOperationEnabled } from '../crud.config';
+import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 const defaultPatch = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'patch')) return null;
+  if (isOperationExternal(ctx.definition, 'patch')) return null;
   const { cls, config, patchSchema, bodyDecorator } = ctx;
   const methodName = 'patch';
 

@@ -71,3 +71,32 @@ describe('JsonOperationsSchema — security support', () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe('JsonOperationsSchema — external route support', () => {
+  it('accepts { route } on an operation', () => {
+    const result = JsonOperationsSchema.parse({
+      delete: { route: '/annotation/{id}' },
+    });
+    expect(result.delete).toEqual({ route: '/annotation/{id}' });
+  });
+
+  it('accepts { route, method } on an operation', () => {
+    const result = JsonOperationsSchema.parse({
+      create: { route: '/annotation', method: 'post' },
+    });
+    expect(result.create).toEqual({ route: '/annotation', method: 'post' });
+  });
+
+  it('accepts { route } alongside disabled ops', () => {
+    const result = JsonOperationsSchema.parse({
+      findAll: false,
+      findOne: false,
+      create: false,
+      update: false,
+      patch: false,
+      delete: { route: '/annotation/{id}' },
+    });
+    expect(result.delete).toEqual({ route: '/annotation/{id}' });
+    expect(result.findAll).toBe(false);
+  });
+});
