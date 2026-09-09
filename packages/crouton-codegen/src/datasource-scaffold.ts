@@ -82,6 +82,9 @@ const PRISMA_PROVIDERS: Record<string, string> = {
   cockroachdb: 'cockroachdb',
 };
 
+const toPascalCase = (s: string): string =>
+  s.replace(/[-_](.)/g, (_, c: string) => c.toUpperCase()).replace(/^(.)/, (_, c: string) => c.toUpperCase());
+
 /** Posix-style relative import from one project-relative dir/file to another dir. */
 const relImport = (fromDir: string, toDir: string): string => {
   const rel = relative(fromDir, toDir).split(/[\\/]/).join(posix.sep);
@@ -103,26 +106,37 @@ export const buildDatasourceFiles = (opts: DatasourceScaffoldOptions): Datasourc
       ...(isDefault ? { default: true } : {}),
     };
 
-    const indexTs = `import type { DataSourceAdapter } from '@ghentcdh/crouton-api';
+    const indexTs = `import { PrismaDataSourceAdapter } from '@ghentcdh/crouton-api';
+import type { AdapterCrudContext } from '@ghentcdh/crouton-api';
+import type { ListRequest } from '@ghentcdh/crouton-core';
 
-const adapter: DataSourceAdapter = {
-  kind: 'custom',
-
-  supports(_model: string): boolean {
-    return true;
-  },
-
-  async disconnect(): Promise<void> {
-    // clean up connections
-  },
-};
-
-export default adapter;
+/**
+ * ${name} datasource adapter.
+ *
+ * Extends PrismaDataSourceAdapter so every Prisma-backed method is available
+ * by default. Override only the methods you need to customise.
+ *
+ * Example — enrich findAll results:
+ *
+ *   override async findAll(model: string, params: ListRequest, ctx: AdapterCrudContext) {
+ *     const result = await super.findAll(model, params, ctx);
+ *     return { ...result, data: result.data.map(decorate) };
+ *   }
+ *
+ * To use a non-Prisma backend, remove the super() call and implement methods directly.
+ */
+export default class ${toPascalCase(name)}Adapter extends PrismaDataSourceAdapter {
+  constructor() {
+    // Replace with your own client if not using Prisma.
+    super(null);
+  }
+}
 `;
 
     const notes: string[] = [];
     if (opts.urlEnv) notes.push(`Add ${opts.urlEnv} to your .env (and .env.example).`);
-    notes.push(`Implement your DataSourceAdapter in ${posix.join(dsDir, 'index.ts')}.`);
+    notes.push(`Implement your adapter in ${posix.join(dsDir, 'index.ts')} — override only the methods you need.`);
+    notes.push(`Pass your client to super() in the constructor, or replace super() with direct calls for a non-Prisma backend.`);
 
     return {
       files: [
