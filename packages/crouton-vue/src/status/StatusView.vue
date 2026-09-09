@@ -27,8 +27,11 @@
       class="rounded-lg border p-4"
       :class="status.summary.ok ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'"
     >
-      <span v-if="status.summary.ok" class="font-semibold text-green-800">
+      <span v-if="status.summary.ok && !status.summary.warningCount" class="font-semibold text-green-800">
         All systems operational
+      </span>
+      <span v-else-if="status.summary.ok" class="font-semibold text-amber-800">
+        Operational with {{ status.summary.warningCount }} warning(s)
       </span>
       <span v-else class="font-semibold text-red-800">
         {{ totalErrors }} issue(s) detected
@@ -37,6 +40,9 @@
         </span>
         <span v-if="status.summary.resourceErrors" class="font-normal">
           &mdash; {{ status.summary.resourceErrors }} resource
+        </span>
+        <span v-if="status.summary.warningCount" class="font-normal">
+          &mdash; {{ status.summary.warningCount }} warning(s)
         </span>
       </span>
     </div>
@@ -92,7 +98,7 @@
         >
           <span
             class="inline-block w-2.5 h-2.5 rounded-full mt-1.5 shrink-0"
-            :class="res.draft ? 'bg-gray-400' : res.valid ? 'bg-green-500' : 'bg-red-500'"
+            :class="res.draft ? 'bg-gray-400' : !res.valid ? 'bg-red-500' : res.warnings?.length ? 'bg-amber-400' : 'bg-green-500'"
           />
           <div>
             <span class="font-medium">{{ res.name }}</span>
@@ -153,6 +159,14 @@
             >
               {{ actionLoading === res.name ? '...' : 'Remove from menu' }}
             </button>
+            <!-- Warnings: non-fatal issues detected at load time. -->
+            <p
+              v-for="w in res.warnings ?? []"
+              :key="w"
+              class="text-sm text-amber-600"
+            >
+              ⚠ {{ w }}
+            </p>
             <!-- Out-of-date file that just needs migration: amber, distinct from a hard error. -->
             <p
               v-if="res.expectedVersion != null && res.expectedVersion !== res.version"

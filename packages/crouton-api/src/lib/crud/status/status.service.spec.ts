@@ -15,7 +15,7 @@ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.reg
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 
 const mockRegistry = (
-  entries: { name: string; client: any }[],
+  entries: { name: string; adapter: { healthCheck?: () => Promise<void> } }[],
 ): DataSourceRegistry =>
   ({
     entries: () => entries,
@@ -73,10 +73,7 @@ describe('status.service', () => {
   describe('checkDatabases', () => {
     it('should report healthy db as connected', async () => {
       const registry = mockRegistry([
-        {
-          name: 'main',
-          client: { $queryRaw: () => Promise.resolve([{ '?column?': 1 }]) },
-        },
+        { name: 'main', adapter: { healthCheck: () => Promise.resolve() } },
       ]);
 
       const result = await checkDatabases(registry);
@@ -89,12 +86,10 @@ describe('status.service', () => {
       const registry = mockRegistry([
         {
           name: 'broken',
-          client: {
-            $queryRaw: () =>
+          adapter: {
+            healthCheck: () =>
               Promise.reject(
-                new Error(
-                  'connect ECONNREFUSED postgresql://user:pass@localhost:5432/db',
-                ),
+                new Error('connect ECONNREFUSED postgresql://user:pass@localhost:5432/db'),
               ),
           },
         },
@@ -111,15 +106,10 @@ describe('status.service', () => {
 
     it('should handle mixed healthy and unhealthy', async () => {
       const registry = mockRegistry([
-        {
-          name: 'ok',
-          client: { $queryRaw: () => Promise.resolve([]) },
-        },
+        { name: 'ok', adapter: { healthCheck: () => Promise.resolve() } },
         {
           name: 'down',
-          client: {
-            $queryRaw: () => Promise.reject(new Error('connection refused')),
-          },
+          adapter: { healthCheck: () => Promise.reject(new Error('connection refused')) },
         },
       ]);
 
@@ -128,6 +118,12 @@ describe('status.service', () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ name: 'ok', connected: true });
       expect(result[1].connected).toBe(false);
+    });
+
+    it('reports an adapter without healthCheck as connected (unprobed)', async () => {
+      const registry = mockRegistry([{ name: 'custom', adapter: {} }]);
+      const result = await checkDatabases(registry);
+      expect(result[0]).toEqual({ name: 'custom', connected: true });
     });
   });
 
@@ -214,6 +210,22 @@ describe('status.service', () => {
       expect(row.customOperations).toBeUndefined();
     });
 
+    it('attaches warnings from the report registry to the matching valid row', () => {
+      resourceLoadReportRegistry.record({
+        state: 'warning',
+        name: 'people',
+        path: '/r/people/resource.json',
+        warning: 'repository.ts is present on a prisma resource and will be ignored',
+      });
+
+      const configs = [{ name: 'people', route: 'people' }] as Resource[];
+      const result = getResourceStatus(configs);
+
+      expect(result[0].warnings).toEqual([
+        'repository.ts is present on a prisma resource and will be ignored',
+      ]);
+    });
+
     it('defaults kind to prisma for a resource that does not declare one', () => {
       const configs = [
         { name: 'people', route: 'people' },
@@ -247,6 +259,7 @@ describe('status.service', () => {
         ok: true,
         databaseErrors: 0,
         resourceErrors: 0,
+        warningCount: 0,
       });
     });
 
@@ -265,7 +278,17 @@ describe('status.service', () => {
         ok: false,
         databaseErrors: 1,
         resourceErrors: 1,
+        warningCount: 0,
       });
+    });
+
+    it('warningCount reflects warnings on resources but does not affect ok', () => {
+      const summary = buildSummary(
+        [{ name: 'db', connected: true }],
+        [{ name: 'res', path: '/r', valid: true, warnings: ['repository.ts ignored'] }],
+      );
+      expect(summary.ok).toBe(true);
+      expect(summary.warningCount).toBe(1);
     });
   });
 
@@ -275,10 +298,7 @@ describe('status.service', () => {
       vi.stubEnv('ENVIRONMENT', 'test');
 
       const registry = mockRegistry([
-        {
-          name: 'main',
-          client: { $queryRaw: () => Promise.resolve([]) },
-        },
+        { name: 'main', adapter: { healthCheck: () => Promise.resolve() } },
       ]);
 
       resourceLoadErrorsRegistry.record({

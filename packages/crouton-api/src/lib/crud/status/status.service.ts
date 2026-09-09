@@ -20,8 +20,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DB_CHECK_TIMEOUT_MS = 3_000;
-
 const CONNECTION_STRING_PATTERN =
   /(?:postgresql|postgres|mysql|mongodb|sqlserver|sqlite):\/\/[^\s"')]+/gi;
 
@@ -59,25 +57,11 @@ export const getEnvironment = (): string =>
 export const checkDatabases = async (
   registry: DataSourceRegistry,
 ): Promise<DatabaseStatus[]> => {
-  const entries = registry.entries();
   const results: DatabaseStatus[] = [];
 
-  for (const { name, client } of entries) {
-    const prismaClient = client as any;
-    if (typeof prismaClient?.$queryRaw !== 'function') {
-      results.push({ name, connected: true });
-      continue;
-    }
+  for (const { name, adapter } of registry.entries()) {
     try {
-      await Promise.race([
-        prismaClient.$queryRaw`SELECT 1`,
-        new Promise((_resolve, reject) =>
-          setTimeout(
-            () => reject(new Error('Database health check timed out')),
-            DB_CHECK_TIMEOUT_MS,
-          ),
-        ),
-      ]);
+      await adapter.healthCheck?.();
       results.push({ name, connected: true });
     } catch (err) {
       results.push({
@@ -94,15 +78,20 @@ export const checkDatabases = async (
 export const getResourceStatus = (
   loadedConfigs: Resource[],
 ): ResourceStatus[] => {
+  const warningsByName = new Map<string, string[]>();
+  for (const w of resourceLoadReportRegistry.getByState('warning')) {
+    const existing = warningsByName.get(w.name) ?? [];
+    existing.push(w.warning);
+    warningsByName.set(w.name, existing);
+  }
+
   const valid: ResourceStatus[] = loadedConfigs.map((c) => ({
     name: c.name,
     path: c.route,
     valid: true,
     version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
     kind: c.kind ?? 'prisma',
-    // Which operations the user's repository.ts actually implements. A resource
-    // only reaches this list after validateCustomRepository passed, so this is
-    // informational rather than a warning.
+    // Which operations the user's repository.ts actually implements.
     ...(c.kind === 'custom' && c.repository
       ? {
           customOperations: CUSTOM_OPS.filter(
@@ -111,6 +100,7 @@ export const getResourceStatus = (
         }
       : {}),
     ...(c.sidebar?.hide ? { hidden: true } : {}),
+    ...(warningsByName.has(c.name) ? { warnings: warningsByName.get(c.name) } : {}),
   }));
 
   const failed: ResourceStatus[] = resourceLoadErrorsRegistry
@@ -144,11 +134,13 @@ export const buildSummary = (
 ): StatusSummary => {
   const databaseErrors = databases.filter((d) => !d.connected).length;
   const resourceErrors = resources.filter((r) => !r.valid).length;
+  const warningCount = resources.reduce((acc, r) => acc + (r.warnings?.length ?? 0), 0);
 
   return {
     ok: databaseErrors === 0 && resourceErrors === 0,
     databaseErrors,
     resourceErrors,
+    warningCount,
   };
 };
 

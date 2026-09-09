@@ -1,5 +1,7 @@
 import type { DataSourceAdapter } from './data-source.adapter';
 
+const DB_CHECK_TIMEOUT_MS = 3_000;
+
 /**
  * Default adapter: wraps a generated PrismaClient.
  *
@@ -17,6 +19,16 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
 
   supports(model: string): boolean {
     return typeof (this.client as any)?.[model] !== 'undefined';
+  }
+
+  async healthCheck(): Promise<void> {
+    const c = this.client as any;
+    await Promise.race([
+      c.$queryRaw`SELECT 1`,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Database health check timed out')), DB_CHECK_TIMEOUT_MS),
+      ),
+    ]);
   }
 
   async disconnect(): Promise<void> {

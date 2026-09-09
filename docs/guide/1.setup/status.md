@@ -15,9 +15,10 @@ interface CroutonStatus {
   croutonVersion: string;   // @ghentcdh/crouton-api package version
   environment: string;      // ENVIRONMENT ?? NODE_ENV ?? "unknown"
   summary: {
-    ok: boolean;            // true when no errors
+    ok: boolean;            // true when no errors (warnings do not affect ok)
     databaseErrors: number;
     resourceErrors: number;
+    warningCount: number;   // total warnings across all resources
   };
   databases: {
     name: string;
@@ -34,6 +35,7 @@ interface CroutonStatus {
     draft?: boolean;           // present in the repo but intentionally not loaded/served
     kind?: 'prisma' | 'custom';   // where the data comes from
     customOperations?: string[];  // operations a custom resource's repository.ts implements
+    warnings?: string[];       // non-fatal issues detected at load time
   }[];
 }
 ```
@@ -41,14 +43,26 @@ interface CroutonStatus {
 ### Custom resources
 
 A [custom resource](../resource/custom-resource.md) is tagged `kind: 'custom'` and lists the operations its
-`repository.ts`
-implements. A resource whose repository is missing, broken, or does not cover an operation `resource.json` enables is
-reported as invalid here and skipped at boot, rather than failing on the first request.
+`repository.ts` implements. A resource whose repository is missing, broken, or does not cover an enabled operation is
+reported as **invalid** (`valid: false`) and skipped at boot, rather than failing silently on the first request.
+
+### Resource warnings
+
+Non-fatal issues detected during load appear as `warnings` on the resource row. The resource is still served; warnings
+do **not** set `valid: false` or increment `resourceErrors`. Current sources:
+
+| Warning | Cause |
+|---------|-------|
+| `"database" is set alongside kind: "custom"` | `database` selects `ctx.prisma`; data still comes from `repository.ts`. Usually harmless, but the field is redundant. |
+| `"upsert" enabled on a custom resource` | Custom resources have no PUT handler for upsert — disable the operation or implement it. |
+| `repository.ts present on a prisma resource` | The file is ignored. Set `kind: "custom"` if you intended to use it. |
+| `All operations disabled` | The resource serves no endpoints. |
 
 ### Database checks
 
-Each registered data source gets a `SELECT 1` query with a 3-second timeout. Connection strings in error messages are
-automatically stripped.
+Each registered data source is probed via its adapter's `healthCheck()`. The built-in `PrismaDataSourceAdapter` runs
+`SELECT 1` with a 3-second timeout. Custom adapters that omit `healthCheck` are reported as connected without probing.
+Connection strings in error messages are automatically redacted.
 
 ### Resource load errors
 
@@ -73,11 +87,12 @@ path (relative to wherever `CroutonRouter` is mounted).
 The page shows:
 
 - **Backend connectivity** — green "Running" / red "Down" based on whether the fetch succeeds
-- **Summary banner** — "All systems operational" or "N issue (s) detected"
+- **Summary banner** — "All systems operational", "Operational with N warning(s)", or "N issue(s) detected"
 - **Version badges** — app version, crouton version, environment
 - **Databases list** — green/red dot per data source, with error text on failure
-- **Resources list** — a dot per resource (green loaded, red failed, gray draft), a `v{version}` badge, an amber "needs
-  migration" line for out-of-date files, and a "draft — not loaded" badge for drafts
+- **Resources list** — a dot per resource (green loaded, amber when warnings exist, red failed, gray draft), a `v{version}`
+  badge, amber warning lines for non-fatal issues, an amber "needs migration" line for out-of-date files, and a
+  "draft — not loaded" badge for drafts
 
 ### Standalone route
 

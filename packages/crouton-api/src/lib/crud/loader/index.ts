@@ -38,6 +38,7 @@ import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
 import { migrateResourceJsonFile } from '../resource/MigrateResourceJson';
 import { readResourceJson } from '../resource/ReadResourceJson';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { validateResourceConfig } from '../resource/resource-config.validator';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { existsSync, readdirSync } from 'node:fs';
@@ -126,10 +127,14 @@ export const loadResourceConfigsFromDir = async (
       }
       // Custom resources own their data access; prisma resources never load a
       // repository, so a stray repository.ts on one is simply ignored.
+      const errorsBeforeRepo = resourceLoadErrorsRegistry.getAll().length;
       const repository =
         json.kind === 'custom'
           ? await loadCustomRepository(basePath, json.name)
           : undefined;
+      // If the repository.ts file exists but failed to import, an error was already
+      // recorded by loadCustomRepository. Skip further validation to avoid a double error.
+      const repositoryImportFailed = resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
       const actions = await loadActions(json.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
@@ -148,6 +153,24 @@ export const loadResourceConfigsFromDir = async (
         enums,
         repository,
       );
+
+      if (repositoryImportFailed) continue;
+
+      const repositoryFileExistsOnDisk =
+        json.kind !== 'custom' && !!findModule(basePath, 'repository');
+      const { errors, warnings } = validateResourceConfig(config, { repositoryFileExistsOnDisk });
+
+      if (errors.length > 0) {
+        for (const error of errors) {
+          resourceLoadErrorsRegistry.record({ name: dir, path: jsonFile, error });
+        }
+        continue;
+      }
+
+      for (const warning of warnings) {
+        resourceLoadReportRegistry.record({ state: 'warning', name: config.name, path: jsonFile, warning });
+      }
+
       await loadSubResourceHooks(config.subResources ?? [], basePath);
       // A custom sub-resource brings its own data access; the parent's
       // repository delegates to it instead of querying a Prisma model.
@@ -160,7 +183,14 @@ export const loadResourceConfigsFromDir = async (
     const tsFile = findModule(basePath, 'resource');
     if (tsFile) {
       const config = await importDefault<Resource>(tsFile);
-      if (!config) continue;
+      if (!config) {
+        resourceLoadErrorsRegistry.record({
+          name: dir,
+          path: tsFile,
+          error: 'resource.ts has no default export — add `export default { name, route, ... }`.',
+        });
+        continue;
+      }
       if (config.draft) {
         resourceLoadReportRegistry.record({
           state: 'draft',
@@ -170,7 +200,22 @@ export const loadResourceConfigsFromDir = async (
         });
         continue;
       }
-      configs.push(hooks ? { ...config, hooks } : config);
+
+      const merged = hooks ? { ...config, hooks } : config;
+      const { errors, warnings } = validateResourceConfig(merged);
+
+      if (errors.length > 0) {
+        for (const error of errors) {
+          resourceLoadErrorsRegistry.record({ name: dir, path: tsFile, error });
+        }
+        continue;
+      }
+
+      for (const warning of warnings) {
+        resourceLoadReportRegistry.record({ state: 'warning', name: merged.name, path: tsFile, warning });
+      }
+
+      configs.push(merged);
     }
   }
 

@@ -143,29 +143,30 @@ describe('custom resource loading', () => {
     expect(resourceLoadErrorsRegistry.getAll()[0].error).toMatch(/type/i);
   });
 
-  it('loads but reports a resource whose repository.ts is broken', async () => {
+  it('rejects a resource whose repository.ts is broken', async () => {
     writeResource('zotero_item', customResource, {
       'repository.ts': 'export default {',
     });
 
     const configs = await loadResourceConfigsFromDir(tempDir);
 
-    // The config still loads (so the status page can describe it), but the
-    // import failure is recorded rather than silently looking like a missing file.
-    expect(configs).toHaveLength(1);
-    expect(configs[0].repository).toBeUndefined();
+    // Import failure recorded; config is excluded so the status page shows an error row.
+    expect(configs).toHaveLength(0);
     const errors = resourceLoadErrorsRegistry.getAll();
     expect(errors).toHaveLength(1);
     expect(errors[0].error).toMatch(/Failed to import repository/);
   });
 
-  it('leaves repository undefined when the file is absent', async () => {
+  it('rejects a custom resource with enabled ops but no repository.ts', async () => {
     writeResource('zotero_item', customResource);
 
-    const [config] = await loadResourceConfigsFromDir(tempDir);
-    expect(config.repository).toBeUndefined();
-    // Absence is not an import error — it is caught by validateCustomRepository.
-    expect(resourceLoadErrorsRegistry.getAll()).toEqual([]);
+    const configs = await loadResourceConfigsFromDir(tempDir);
+
+    // Missing repository is a load error — ops would silently serve nothing otherwise.
+    expect(configs).toHaveLength(0);
+    const errors = resourceLoadErrorsRegistry.getAll();
+    expect(errors).toHaveLength(1);
+    expect(errors[0].error).toMatch(/repository\.ts/);
   });
 
   it('ignores a repository.ts on a prisma resource', async () => {

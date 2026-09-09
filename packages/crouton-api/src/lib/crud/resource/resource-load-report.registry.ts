@@ -21,7 +21,14 @@ export interface DraftResourceNotice {
   version?: number;
 }
 
-export type ResourceLoadNotice = MigratedResourceNotice | DraftResourceNotice;
+export interface WarningResourceNotice {
+  state: 'warning';
+  name: string;
+  path: string;
+  warning: string;
+}
+
+export type ResourceLoadNotice = MigratedResourceNotice | DraftResourceNotice | WarningResourceNotice;
 
 class ResourceLoadReportRegistry {
   private notices: ResourceLoadNotice[] = [];
