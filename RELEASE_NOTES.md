@@ -1,3 +1,13 @@
+## 0.0.1-alpha.53 (2026-09-09)
+
+### 🚀 Features
+
+- export parseschema from crouton-vue ([9bb8667](https://github.com/GhentCDH/crouton/commit/9bb8667))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.52 (2026-09-09)
 
 ### 🚀 Features
