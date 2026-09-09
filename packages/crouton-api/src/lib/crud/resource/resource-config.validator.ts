@@ -1,6 +1,6 @@
-import { validateCustomRepository } from '../custom-repository/custom-repository.validate';
 import { type CrudOperation, isOperationEnabled, resolveDefinition } from '../crud.config';
 import type { Resource } from './ResourceConfig.schema';
+import { validateCustomRepository } from '../custom-repository/custom-repository.validate';
 
 const ALL_OPS: readonly CrudOperation[] = [
   'findAll',

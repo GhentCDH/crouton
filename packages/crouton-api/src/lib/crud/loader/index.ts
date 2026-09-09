@@ -38,9 +38,9 @@ import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
 import { migrateResourceJsonFile } from '../resource/MigrateResourceJson';
 import { readResourceJson } from '../resource/ReadResourceJson';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { validateResourceConfig } from '../resource/resource-config.validator';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
-import { validateResourceConfig } from '../resource/resource-config.validator';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
