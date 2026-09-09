@@ -8,7 +8,6 @@ import {
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
 } from '../view';
-
 import { enrichActionColumns, enrichIncludeWithSort } from './column-enrichment';
 import {
   applyRelationFormatDefault,

@@ -1,5 +1,4 @@
 import type { JsonResourceOperations } from '../data-source';
-
 import type { ResourceDefinition } from './definition.schema';
 import type { SchemaInput } from './schema-input';
 

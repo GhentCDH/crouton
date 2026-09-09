@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 import { ResourceJsonShape } from '../resource';
 import { ViewConfigSchema } from '../view';
-
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { DefinitionSchema } from './definition.schema';
 import { LookupSchema } from './lookup.schema';

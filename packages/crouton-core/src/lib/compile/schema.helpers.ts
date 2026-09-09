@@ -3,7 +3,6 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type { JsonResourceOperations } from '../data-source';
 import type { JsonColumn } from '../resource';
 import { isRelation } from '../view';
-
 import type { OperationDef, ResourceDefinition, UpsertOperationDef } from './definition.schema';
 import type { SchemaInput } from './schema-input';
 

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
+import { SchemaInputSchema } from './schema-input';
 import { SecuritySchema } from '../data-source/Security.schema';
 
-import { SchemaInputSchema } from './schema-input';
 
 export type { JsonSchemaInput, SchemaInput } from './schema-input';
 

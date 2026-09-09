@@ -1,6 +1,5 @@
 import type { JsonColumn } from '../resource';
 import { resolveTableField, resolveViewField } from '../resource';
-
 import type { ValueLabelColumn } from './value-label-column';
 
 export const applyRelationFormatDefault = (

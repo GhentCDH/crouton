@@ -3,7 +3,7 @@ import type { JsonAction } from '../resource';
 import { getResourceExtensions } from '../resource';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
-import { resolveDefinition, isOperationEnabled, schemaFor, upsertOnFor } from './crud-config';
+import { isOperationEnabled, resolveDefinition, schemaFor, upsertOnFor } from './crud-config';
 import { toJsonSchema } from './to-json-schema';
 
 const pickExtensions = (config: CompiledResource) =>

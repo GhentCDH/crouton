@@ -7,7 +7,6 @@ import {
   JsonIncludeEntrySchema,
 } from '../resource';
 import { ViewConfigSchema } from '../view';
-
 import { ValueLabelColumnSchema } from './value-label-column';
 
 export const CompiledSubResourceConfigSchema = z.object({

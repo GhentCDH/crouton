@@ -1,8 +1,8 @@
 import { ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
+import type { JsonSchemaInput, SchemaInput } from './schema-input';
 import { jsonSchemaOpts } from '../view/json-schema.opts';
 
-import type { JsonSchemaInput, SchemaInput } from './schema-input';
 
 export const isZodSchema = (
   schema: SchemaInput,

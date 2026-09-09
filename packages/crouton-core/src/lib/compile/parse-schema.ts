@@ -2,7 +2,6 @@ import type { ZodObject, ZodRawShape, ZodType } from 'zod';
 
 import type { JsonAction } from '../resource';
 import { buildResourceJsonSchema, registerResourceExtensions } from '../resource';
-
 import { compileResource } from './compile-resource';
 import type { EnumRegistry } from './enum-registry';
 import {
