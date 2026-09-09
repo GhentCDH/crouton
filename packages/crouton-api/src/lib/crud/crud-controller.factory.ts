@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { type SecurityConfig, resourceControllerPath } from '@ghentcdh/crouton-core';
 
 import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
-import { type CrudOperation, isOperationEnabled, resolveDefinition, schemaFor, securityFor, securityForSub, upsertOnFor } from './crud.config';
+import { type CrudOperation, isOperationEnabled, resolveDefinition, schemaFor, securityFor, securityForSub } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
 import { registerEndpoints } from './operations/register-endpoints';
@@ -25,7 +25,6 @@ import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validati
  *
  * @param config - Resource definition including model, route, operations, views, etc.
  * @param baseUrl - Absolute base URL prepended to operation URIs in schema payloads (e.g. `https://api.example.com`).
- * @throws {Error} When `upsert` is enabled but no `upsertOn` key is configured.
  */
 export function createCrudController(
   config: Resource,
@@ -48,12 +47,6 @@ export function createCrudController(
       ? (updateSchema as any).partial()
       : undefined) ??
     updateSchema;
-  const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
-
-  if (isOperationEnabled(definition, 'upsert') && !upsertOnFor(definition)) {
-    throw new Error(`Resource "${name}" declares 'upsert' but no upsertOn`);
-  }
-
   const bodyDecorator = (
     schema?: ReturnType<typeof schemaFor>,
     options?: ZodValidationPipeOptions,
@@ -122,7 +115,6 @@ export function createCrudController(
     createSchema,
     updateSchema,
     patchSchema,
-    upsertSchema,
     idParamMeta: {
       name: 'id',
       type: idType === 'number' ? 'number' : 'string',

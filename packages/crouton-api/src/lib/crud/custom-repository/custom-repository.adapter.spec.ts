@@ -289,12 +289,6 @@ describe('createCustomRepository', () => {
       );
     });
 
-    it('rejects upsert, which is not part of the contract', async () => {
-      await expect(repo.upsert({})).rejects.toBeInstanceOf(
-        NotImplementedException,
-      );
-    });
-
     it('rejects sub-resource operations', async () => {
       await expect(
         repo.findAllByParent('1', 'children', listParams()),

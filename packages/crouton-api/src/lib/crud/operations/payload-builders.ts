@@ -14,7 +14,6 @@ import {
   isOperationExternal,
   resolveDefinition,
   schemaFor,
-  upsertOnFor,
 } from '../crud.config';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
@@ -93,8 +92,6 @@ export const buildDefinitionPayload = (
   const createSchema = schemaFor(definition, 'create');
   const updateSchema = schemaFor(definition, 'update');
   const patchSchema = schemaFor(definition, 'patch');
-  const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
-
   const operations = (
     [
       'findAll',
@@ -102,7 +99,6 @@ export const buildDefinitionPayload = (
       'create',
       'update',
       'patch',
-      'upsert',
       'delete',
     ] as const
   ).filter((op) => isOperationEnabled(definition, op));
@@ -113,7 +109,6 @@ export const buildDefinitionPayload = (
     idType,
     tag,
     operations,
-    upsertOn: upsertOnFor(definition),
     display: config.display,
     schemas: {
       ...(listSchema && { findAll: toJsonSchema(listSchema) }),
@@ -121,9 +116,6 @@ export const buildDefinitionPayload = (
       ...(createSchema && { create: toJsonSchema(createSchema) }),
       ...(updateSchema && { update: toJsonSchema(updateSchema) }),
       ...(patchSchema && { patch: toJsonSchema(patchSchema) }),
-      ...(isOperationEnabled(definition, 'upsert') && upsertSchema
-        ? { upsert: toJsonSchema(upsertSchema) }
-        : {}),
     },
     ...pickExtensions(config),
   };

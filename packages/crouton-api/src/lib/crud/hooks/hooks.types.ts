@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { DataSourceAdapter } from '../data-source/data-source.adapter';
 
-export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'upsert', 'delete']);
+export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'delete']);
 export type WriteOp = z.infer<typeof WriteOpSchema>;
 
 export const ReadOpSchema = z.enum(['findAll', 'findOne']);

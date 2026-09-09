@@ -254,12 +254,13 @@ export const createCustomRepository = <T = any>(
               nestedCtx,
             );
     } else {
-      const fn =
+      const fn = (
         op === 'create'
           ? repo.create
           : op === 'update'
             ? repo.update
-            : (repo.patch ?? repo.update);
+            : (repo.patch ?? repo.update)
+      )?.bind(repo);
       if (!fn) unsupported(config, op);
 
       const body = await prepared();
@@ -343,16 +344,6 @@ export const createCustomRepository = <T = any>(
         coercedId,
         request,
         parentHookCtx(request),
-      );
-    },
-    upsert: async () => {
-      throw new NotImplementedException(
-        `Resource "${config.name}" is a custom resource; upsert is not part of the repository contract.`,
-      );
-    },
-    upsertMany: async () => {
-      throw new NotImplementedException(
-        `Resource "${config.name}" is a custom resource; upsert is not part of the repository contract.`,
       );
     },
     findAllByParent: notAChildRepository,

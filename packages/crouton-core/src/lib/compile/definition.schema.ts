@@ -22,13 +22,6 @@ const OperationDefSchema = z.union([
 
 export type OperationDef = z.infer<typeof OperationDefSchema>;
 
-const UpsertOperationDefSchema = z.object({
-  schema: SchemaInputSchema.optional(),
-  upsertOn: z.union([z.string(), z.array(z.string())]),
-  security: SecuritySchema.optional(),
-});
-
-export type UpsertOperationDef = z.infer<typeof UpsertOperationDefSchema>;
 export type PatchOperationDef = z.infer<typeof OperationDefSchema>;
 
 export const ResourceDefinitionSchema = z.object({
@@ -37,7 +30,6 @@ export const ResourceDefinitionSchema = z.object({
   create: OperationDefSchema.optional(),
   update: OperationDefSchema.optional(),
   patch: OperationDefSchema.optional(),
-  upsert: UpsertOperationDefSchema.optional(),
   delete: OperationDefSchema.optional(),
 });
 

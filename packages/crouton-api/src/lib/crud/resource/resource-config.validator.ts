@@ -8,7 +8,6 @@ const ALL_OPS: readonly CrudOperation[] = [
   'create',
   'update',
   'patch',
-  'upsert',
   'delete',
 ];
 
@@ -38,13 +37,6 @@ export const validateResourceConfig = (
       warnings.push(
         '"database" is set alongside kind: "custom" — it selects the client injected as ' +
           'ctx.prisma, but data access still comes from repository.ts.',
-      );
-    }
-
-    if (isOperationEnabled(definition, 'upsert')) {
-      warnings.push(
-        '"upsert" is enabled but custom resources do not register a PUT handler — ' +
-          'disable it in operations or implement it yourself.',
       );
     }
 

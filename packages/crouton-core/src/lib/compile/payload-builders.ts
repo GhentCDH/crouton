@@ -3,7 +3,7 @@ import type { JsonAction } from '../resource';
 import { getResourceExtensions } from '../resource';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
-import { externalRouteFor, isOperationEnabled, isOperationExternal, resolveDefinition, schemaFor, upsertOnFor } from './crud-config';
+import { externalRouteFor, isOperationEnabled, isOperationExternal, resolveDefinition, schemaFor } from './crud-config';
 import { toJsonSchema } from './to-json-schema';
 
 const pickExtensions = (config: CompiledResource) =>
@@ -101,10 +101,9 @@ export const buildDefinitionPayload = (
   const createSchema = schemaFor(definition, 'create');
   const updateSchema = schemaFor(definition, 'update');
   const patchSchema = schemaFor(definition, 'patch');
-  const upsertSchema = schemaFor(definition, 'upsert') ?? createSchema;
 
   const operations = (
-    ['findAll', 'findOne', 'create', 'update', 'patch', 'upsert', 'delete'] as const
+    ['findAll', 'findOne', 'create', 'update', 'patch', 'delete'] as const
   ).filter((op) => isOperationEnabled(definition, op));
 
   return {
@@ -113,7 +112,6 @@ export const buildDefinitionPayload = (
     idType,
     tag,
     operations,
-    upsertOn: upsertOnFor(definition),
     display: config.display,
     schemas: {
       ...(listSchema && { findAll: toJsonSchema(listSchema) }),
@@ -121,9 +119,6 @@ export const buildDefinitionPayload = (
       ...(createSchema && { create: toJsonSchema(createSchema) }),
       ...(updateSchema && { update: toJsonSchema(updateSchema) }),
       ...(patchSchema && { patch: toJsonSchema(patchSchema) }),
-      ...(isOperationEnabled(definition, 'upsert') && upsertSchema
-        ? { upsert: toJsonSchema(upsertSchema) }
-        : {}),
     },
     ...pickExtensions(config),
   };

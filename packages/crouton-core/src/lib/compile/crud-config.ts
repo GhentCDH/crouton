@@ -8,7 +8,6 @@ export type CrudOperation =
   | 'create'
   | 'update'
   | 'patch'
-  | 'upsert'
   | 'delete';
 
 export const resolveDefinition = (config: {
@@ -51,6 +50,3 @@ export const externalRouteFor = (
   return undefined;
 };
 
-export const upsertOnFor = (
-  def: ResourceDefinition,
-): string | string[] | undefined => def.upsert?.upsertOn;

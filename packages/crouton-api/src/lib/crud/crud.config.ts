@@ -8,7 +8,7 @@ import { type SchemaInput } from './resource/json.schema';
 export { isRowProcedureAction, isTableProcedureAction } from './action';
 
 export type CrudOperation =
-  'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'upsert' | 'delete';
+  'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -49,10 +49,6 @@ export const externalRouteFor = (
   }
   return undefined;
 };
-
-export const upsertOnFor = (
-  def: ResourceDefinition,
-): string | string[] | undefined => def.upsert?.upsertOn;
 
 // ─── security ────────────────────────────────────────────────────────────────
 
