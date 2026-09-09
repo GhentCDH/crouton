@@ -136,7 +136,7 @@ export default class ${toPascalCase(name)}Adapter extends PrismaDataSourceAdapte
     const notes: string[] = [];
     if (opts.urlEnv) notes.push(`Add ${opts.urlEnv} to your .env (and .env.example).`);
     notes.push(`Implement your adapter in ${posix.join(dsDir, 'index.ts')} — override only the methods you need.`);
-    notes.push(`Pass your client to super() in the constructor, or replace super() with direct calls for a non-Prisma backend.`);
+    notes.push('Pass your client to super() in the constructor, or replace super() with direct calls for a non-Prisma backend.');
 
     return {
       files: [
