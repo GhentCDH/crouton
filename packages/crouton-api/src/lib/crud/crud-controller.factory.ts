@@ -71,7 +71,15 @@ export function createCrudController(
     try {
       return registry.resolve(resource.database);
     } catch (e) {
+      // A resource with no datasource at all (kind=custom or custom adapter) is valid —
+      // the repository receives undefined as its client.
       if (resource.kind === 'custom') return undefined;
+      try {
+        const adapter = registry.resolveAdapter(resource.database);
+        if (adapter.kind !== 'prisma') return adapter.client;
+      } catch {
+        // fall through to re-throw original
+      }
       throw e;
     }
   };

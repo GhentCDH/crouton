@@ -122,11 +122,11 @@ describe('buildDatasourceFiles — custom adapter', () => {
     expect(ds.urlEnv).toBe('EXT_API_KEY');
   });
 
-  it('index.ts imports DataSourceAdapter and has export default', () => {
+  it('index.ts extends PrismaDataSourceAdapter and has export default class', () => {
     const idx = file('index.ts').contents;
-    expect(idx).toContain('import type { DataSourceAdapter } from \'@ghentcdh/crouton-api\'');
-    expect(idx).toContain('export default adapter');
-    expect(idx).toContain('kind: \'custom\'');
+    expect(idx).toContain('import { PrismaDataSourceAdapter } from \'@ghentcdh/crouton-api\'');
+    expect(idx).toContain('extends PrismaDataSourceAdapter');
+    expect(idx).toContain('export default class');
   });
 
   it('resolved reflects custom adapter with no urlEnv', () => {

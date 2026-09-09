@@ -1,16 +1,24 @@
 # Datasources & Adapters
 
-## Overview
+## kind vs adapter — two orthogonal axes
 
-Each datasource folder (`data-sources/<name>/`) contains a `data-source.json` and an `index.ts`.
-The `adapter` field in `data-source.json` selects how crouton-api connects to that datasource.
+Every resource has two independent settings:
 
-| `adapter` value | What `index.ts` must export | Use case |
+| Setting | What it controls | Values |
 |---|---|---|
-| `"prisma"` (default) | A `PrismaClient` instance | Any Prisma-supported database |
-| `"custom"` | A `DataSourceAdapter` object | REST APIs, other ORMs, in-memory stores |
+| `kind` | Where the **schema** comes from | `"prisma"` (generated `schema.ts`) · `"custom"` (column-based JSON Schema) |
+| `adapter` | How **data is accessed** | `"prisma"` (PrismaClient) · `"custom"` (your `DataSourceAdapter`) |
 
-Existing projects without an `adapter` field behave exactly as before (Prisma).
+These are set in different places and are fully independent:
+
+| `kind` | `adapter` | Typical use case |
+|---|---|---|
+| `"prisma"` (default) | `"prisma"` (default) | Normal Prisma-backed resource |
+| `"prisma"` | `"custom"` | Resource on a non-Prisma backend — **no `repository.ts` needed** |
+| `"custom"` | `"custom"` | Columns-defined resource on a non-Prisma backend — **no `repository.ts` needed** |
+| `"custom"` | `"prisma"` | Hand-written `repository.ts` on a Prisma DB (requires `repository.ts`) |
+
+`kind` lives in `resource.json`; `adapter` lives in `data-source.json`.
 
 ## The default Prisma adapter
 
@@ -29,44 +37,78 @@ export default client;
 
 ## Writing a custom adapter
 
-Implement the `DataSourceAdapter` interface from `@ghentcdh/crouton-api` and export it as the
-default from `index.ts`:
+The recommended approach is to extend `PrismaDataSourceAdapter` from `@ghentcdh/crouton-api`.
+Every Prisma-backed method is available by default — override only what you need to customise.
 
 ```ts
-// data-sources/external-api/index.ts
+// data-sources/my-api/index.ts
+import { PrismaDataSourceAdapter } from '@ghentcdh/crouton-api';
+import type { AdapterCrudContext } from '@ghentcdh/crouton-api';
+import type { ListRequest } from '@ghentcdh/crouton-core';
+
+export default class MyApiAdapter extends PrismaDataSourceAdapter {
+  constructor() {
+    super(null); // replace null with a real PrismaClient if you still need Prisma for some models
+  }
+
+  override async findAll(
+    model: string,
+    params: ListRequest,
+    ctx: AdapterCrudContext,
+  ): Promise<{ data: any[]; count: number }> {
+    const res = await fetch(`https://my-api.example.com/${model}?page=${params.page}`);
+    const body = await res.json();
+    return { data: body.items, count: body.total };
+  }
+
+  override async findOne(model: string, id: string | number, ctx: AdapterCrudContext) {
+    const res = await fetch(`https://my-api.example.com/${model}/${id}`);
+    if (res.status === 404) return null;
+    return res.json();
+  }
+}
+```
+
+Override any subset of: `findAll`, `count`, `findOne`, `create`, `update`, `patch`, `delete`,
+`findAllByParent`, `findOneChild`, `createChild`, `updateChild`, `deleteChild`.
+Methods you don't override fall through to the base class (which calls Prisma, or throws
+`NotImplementedException` when the client is `null`).
+
+### Starting from scratch (no Prisma)
+
+When the backend is entirely custom, pass `null` to `super()` and implement every operation
+the resource needs. Unimplemented operations throw `NotImplementedException` if the resource
+enables them.
+
+### Plain object (legacy)
+
+You can still export a plain object satisfying `DataSourceAdapter`, but the class form is
+preferred because it lets you inherit Prisma behaviour for models that do live in your database:
+
+```ts
 import type { DataSourceAdapter } from '@ghentcdh/crouton-api';
 
-const adapter: DataSourceAdapter = {
+export default {
   kind: 'my-api',
-
-  supports(_model: string): boolean {
-    // Return true for every model this adapter can serve.
-    return true;
-  },
-
+  supports: (_model: string) => true,
   async healthCheck(): Promise<void> {
     // Optional. Throw to report the datasource as disconnected on the status page.
-    // Omit this method to report it as connected without probing.
     const ok = await fetch('https://api.example.com/health').then((r) => r.ok);
     if (!ok) throw new Error('API health check failed');
   },
-
   async disconnect(): Promise<void> {
     // Clean up connections / HTTP clients.
   },
-};
-
-export default adapter;
+} satisfies DataSourceAdapter;
 ```
 
 ## Registering a custom adapter
 
-Set `"adapter": "custom"` in `data-source.json`. Only `name` is required — Prisma fields and
-`urlEnv` are optional (a custom adapter's connection config can use anything):
+Set `"adapter": "custom"` in `data-source.json`. Only `name` is required:
 
 ```json
 {
-  "name": "external-api",
+  "name": "my-api",
   "adapter": "custom"
 }
 ```
@@ -75,130 +117,75 @@ If the adapter needs an env var (e.g. an API key), add it:
 
 ```json
 {
-  "name": "external-api",
+  "name": "my-api",
   "adapter": "custom",
-  "urlEnv": "EXTERNAL_API_KEY"
+  "urlEnv": "MY_API_KEY"
 }
 ```
 
 Run `crouton create-datasource` and choose **custom** when prompted to generate this scaffold
 automatically.
 
-## Example — filesystem adapter
+## Resources on a custom adapter
 
-A minimal adapter that stores records as JSON files. Copy it into
-`data-sources/filesystem/index.ts` and set `"adapter": "custom"` in `data-source.json`.
+Resources that point at a custom-adapter datasource do **not** need `kind: "custom"` or a
+`repository.ts`. They declare a `model` as usual; the adapter's `findAll`, `findOne`, etc.
+are called with that model name:
+
+```jsonc
+// resources/item/resource.json
+{
+  "$schema": "...",
+  "kind": "prisma",     // schema from generated schema.ts (or omit — prisma is the default)
+  "name": "item",
+  "route": "items",
+  "model": "Item",      // passed as the first argument to every adapter method
+  "database": "my-api", // selects the custom-adapter datasource
+  "operations": { "findAll": true, "findOne": true, "create": true }
+}
+```
+
+The adapter's method receives the model name and can route to the right backend endpoint:
 
 ```ts
-// data-sources/filesystem/index.ts
-import type { DataSourceAdapter } from '@ghentcdh/crouton-api';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+override async findAll(model: string, params: ListRequest, ctx: AdapterCrudContext) {
+  // model === 'Item'
+  const res = await fetch(`https://api.example.com/${model.toLowerCase()}s?...`);
+  ...
+}
+```
 
-const DATA_DIR = process.env.FILESYSTEM_DATA_DIR ?? '.data';
+Hook (`hooks.ts`) decoration and valueLabel columns apply exactly as on Prisma resources.
 
-/** Simple CRUD client backed by one JSON file per model. */
-export class FilesystemClient {
-  constructor(readonly dataDir: string) {
-    mkdirSync(dataDir, { recursive: true });
+## Composable adapter — enriching Prisma results
+
+The extend pattern lets you decorate data from a Prisma database without a per-resource
+`repository.ts`. Override only the methods where you need the enrichment:
+
+```ts
+// data-sources/maindb/index.ts
+import { PrismaDataSourceAdapter } from '@ghentcdh/crouton-api';
+import type { AdapterCrudContext } from '@ghentcdh/crouton-api';
+import type { ListRequest } from '@ghentcdh/crouton-core';
+import { prisma } from './client';
+
+export default class EnrichedAdapter extends PrismaDataSourceAdapter {
+  constructor() {
+    super(prisma);
   }
 
-  private file(model: string): string {
-    return join(this.dataDir, `${model}.json`);
-  }
-
-  private read(model: string): Record<string, unknown>[] {
-    const f = this.file(model);
-    return existsSync(f) ? (JSON.parse(readFileSync(f, 'utf-8')) as Record<string, unknown>[]) : [];
-  }
-
-  private write(model: string, rows: Record<string, unknown>[]): void {
-    writeFileSync(this.file(model), JSON.stringify(rows, null, 2), 'utf-8');
-  }
-
-  findAll(model: string): Record<string, unknown>[] {
-    return this.read(model);
-  }
-
-  findOne(model: string, id: unknown): Record<string, unknown> | null {
-    return this.read(model).find((r) => r['id'] === id) ?? null;
-  }
-
-  create(model: string, data: Record<string, unknown>): Record<string, unknown> {
-    const rows = this.read(model);
-    const row = { id: Date.now(), ...data };
-    rows.push(row);
-    this.write(model, rows);
-    return row;
-  }
-
-  update(model: string, id: unknown, data: Record<string, unknown>): Record<string, unknown> {
-    const rows = this.read(model);
-    const idx = rows.findIndex((r) => r['id'] === id);
-    if (idx === -1) throw new Error(`${model} with id ${id} not found`);
-    rows[idx] = { ...rows[idx], ...data, id };
-    this.write(model, rows);
-    return rows[idx];
-  }
-
-  delete(model: string, id: unknown): Record<string, unknown> {
-    const rows = this.read(model);
-    const idx = rows.findIndex((r) => r['id'] === id);
-    if (idx === -1) throw new Error(`${model} with id ${id} not found`);
-    const [removed] = rows.splice(idx, 1);
-    this.write(model, rows);
-    return removed;
+  override async findAll(model: string, params: ListRequest, ctx: AdapterCrudContext) {
+    const result = await super.findAll(model, params, ctx);
+    if (model === 'Annotation') {
+      return { ...result, data: result.data.map(addPermissions) };
+    }
+    return result;
   }
 }
-
-const filesystemAdapter: DataSourceAdapter = {
-  kind: 'filesystem',
-  client: new FilesystemClient(DATA_DIR),
-
-  supports(_model: string): boolean {
-    return true; // accepts any model name
-  },
-
-  async disconnect(): Promise<void> {
-    // no persistent connections to close
-  },
-};
-
-export default filesystemAdapter;
 ```
 
-Resources backed by this adapter must use `kind: "custom"` with a `repository.ts` that calls
-`ctx.dataSources.resolve('filesystem')` to get the `FilesystemClient`:
-
-```ts
-// resources/note/repository.ts
-import type { CustomRepository } from '@ghentcdh/crouton-api';
-import type { FilesystemClient } from '../../data-sources/filesystem';
-
-export default {
-  async findAll(_params, ctx) {
-    const db = ctx.dataSources.resolve('filesystem') as FilesystemClient;
-    const rows = db.findAll('note');
-    return { data: rows, count: rows.length };
-  },
-  async findOne(id, ctx) {
-    const db = ctx.dataSources.resolve('filesystem') as FilesystemClient;
-    return db.findOne('note', id) as any;
-  },
-  async create(data, ctx) {
-    const db = ctx.dataSources.resolve('filesystem') as FilesystemClient;
-    return db.create('note', data as any) as any;
-  },
-  async update(_id, data, ctx) {
-    const db = ctx.dataSources.resolve('filesystem') as FilesystemClient;
-    return db.update('note', _id, data as any) as any;
-  },
-  async delete(id, ctx) {
-    const db = ctx.dataSources.resolve('filesystem') as FilesystemClient;
-    return db.delete('note', id) as any;
-  },
-} satisfies CustomRepository;
-```
+This is useful when per-resource `hooks.ts` would be the same across many resources, or when
+the enrichment needs access to the datasource's own client rather than the resource config.
 
 ## Hook context
 
@@ -218,10 +205,10 @@ export const hooks = {
 
 ## Limitations
 
-- **Sub-resources** — nested child routes are derived from Prisma relations. A custom adapter
-  must expose each child collection as its own top-level resource.
-- **Upsert** — `upsert` / `upsertMany` are Prisma-only; a custom adapter resource that enables
-  `upsert` will throw `NotImplementedException`.
+- **Sub-resources** — implement `findAllByParent`, `findOneChild`, `createChild`, `updateChild`,
+  `deleteChild` on the adapter; or expose each child collection as its own top-level resource.
+- **Upsert** — `upsert` / `upsertMany` are not part of the adapter interface; a resource that
+  enables `upsert` on a custom adapter will throw `NotImplementedException`.
 - **Introspection** — `crouton update resources` runs Prisma `db pull`; it skips datasources
   with `adapter: "custom"` automatically.
 - **Migrations** — a custom datasource owns its own schema lifecycle; crouton does not manage
