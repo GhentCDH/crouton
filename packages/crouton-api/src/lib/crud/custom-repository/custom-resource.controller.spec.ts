@@ -166,7 +166,7 @@ describe('custom resource served through the generated controller', () => {
     const payload = await controller.getSchemas();
 
     expect(payload).toMatchObject({
-      id: 'zotero-items',
+      id: 'zotero_item',
       route: 'zotero-items',
       title: 'Zotero items',
       idField: 'id',
@@ -214,10 +214,12 @@ describe('custom resource served through the generated controller', () => {
       id: 'c',
       title: 'Gamma',
     });
-    await expect(controller.update('a', { title: 'Alpha 2' })).resolves.toEqual({
-      id: 'a',
-      title: 'Alpha 2',
-    });
+    await expect(controller.update('a', { title: 'Alpha 2' })).resolves.toEqual(
+      {
+        id: 'a',
+        title: 'Alpha 2',
+      },
+    );
     await expect(controller.delete('a')).resolves.toEqual({ id: 'a' });
   });
 });
