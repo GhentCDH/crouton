@@ -15,6 +15,7 @@ import {
 } from './custom-repository.types';
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { CrudRepository } from '../crud-repository.factory';
+import type { DataSourceAdapter } from '../data-source/data-source.adapter';
 import { PrismaDataSourceAdapter } from '../data-source/prisma.adapter';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
@@ -25,6 +26,8 @@ import { resolveValueLabelColumns } from '../translation';
 export type DataSourceResolver = {
   resolve(name?: string): any;
   entries(): { name: string; client: unknown }[];
+  /** Resolve the full adapter for a datasource (optional — not all callers supply it). */
+  resolveAdapter?(name?: string): DataSourceAdapter;
 };
 
 const unsupported = (config: Resource, op: CustomOp): never => {

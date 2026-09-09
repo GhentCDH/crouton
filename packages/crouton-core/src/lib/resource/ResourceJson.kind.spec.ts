@@ -18,10 +18,12 @@ describe('resource.json kind', () => {
     expect(parsed.kind).toBe('prisma');
   });
 
-  it('requires model on a prisma resource', () => {
+  it('accepts a prisma resource with no model (model required check moved to adapter load)', () => {
+    // Phase A: "model required" validation moved from the schema to the Prisma adapter
+    // at datasource load time. A modelless prisma-kind resource is valid JSON — the
+    // adapter rejects it when the datasource is wired up.
     const result = ResourceJsonSchema.safeParse({ ...base, kind: 'prisma' });
-    expect(result.success).toBe(false);
-    expect(issuePaths(result)).toContain('model');
+    expect(result.success).toBe(true);
   });
 
   it('accepts a custom resource with no model', () => {

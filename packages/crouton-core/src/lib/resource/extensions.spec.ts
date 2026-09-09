@@ -46,9 +46,10 @@ describe('buildResourceJsonSchema', () => {
   });
 
   it('still surfaces core key typos (typo protection intact)', () => {
-    // "colums" is not a core key, not registered — stripped, no error (Zod strips unknowns)
-    // but "model" missing on an explicit prisma resource IS an error
-    const result = ResourceJsonSchema.safeParse({ name: 'x', route: 'x', kind: 'prisma', tag: 'x', operations: {} });
+    // "colums" is not a core key, not registered — stripped, no error (Zod strips unknowns).
+    // Phase A: "model required" moved to adapter load; a prisma resource with no model is now
+    // valid at schema parse time. Use an actual invalid enum value to test error surfacing.
+    const result = ResourceJsonSchema.safeParse({ name: 'x', route: 'x', kind: 'unknown-kind', tag: 'x', operations: {} });
     expect(result.success).toBe(false);
   });
 

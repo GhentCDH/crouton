@@ -174,14 +174,9 @@ export const refineByKind = (
       message:
         '"parent" is only supported on a custom resource. A prisma resource is nested by declaring a relation column on its parent.',
     });
-  } else if (obj.model === undefined) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['model'],
-      message:
-        '"model" is required for a prisma-backed resource. Set "kind": "custom" for a resource with no Prisma model.',
-    });
   }
+  // "model required for prisma kind" moved to the Prisma adapter at load time —
+  // a resource on a custom-adapter datasource may have no model and is still valid.
 };
 
 export const buildResourceJsonSchema = () => {
@@ -199,11 +194,11 @@ export const buildResourceJsonSchema = () => {
     (raw) => {
       if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
         const obj = raw as Record<string, unknown>;
-        if (obj['kind'] === undefined) {
-          return {
-            ...obj,
-            kind: obj['model'] !== undefined ? 'prisma' : 'custom',
-          };
+        // Only auto-derive kind='prisma' when a model is present and kind is unset.
+        // A modelless resource no longer auto-derives to kind='custom' — set it
+        // explicitly when you want the columns-based json_schema behavior.
+        if (obj['kind'] === undefined && obj['model'] !== undefined) {
+          return { ...obj, kind: 'prisma' };
         }
       }
       return raw;

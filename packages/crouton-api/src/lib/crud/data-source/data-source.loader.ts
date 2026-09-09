@@ -64,16 +64,30 @@ export const loadDataSourcesFromDir = async (
       if (!exported) continue;
 
       if (config.adapter === 'custom') {
-        // index.ts default-exports a DataSourceAdapter directly.
-        if (typeof exported !== 'object' || typeof exported.kind !== 'string') {
+        // index.ts may default-export a DataSourceAdapter instance or a class
+        // that extends PrismaDataSourceAdapter (or any DataSourceAdapter).
+        if (typeof exported === 'function') {
+          // Class export: `export default class MyAdapter extends PrismaDataSourceAdapter { ... }`
+          const instance = new exported() as DataSourceAdapter;
+          if (typeof instance.kind !== 'string') {
+            resourceLoadErrorsRegistry.record({
+              name: dir,
+              path: indexFile,
+              error: `Custom datasource "${dir}": default-exported class must produce a DataSourceAdapter (object with a "kind" string field).`,
+            });
+            continue;
+          }
+          adapter = instance;
+        } else if (typeof exported === 'object' && typeof exported.kind === 'string') {
+          adapter = exported as DataSourceAdapter;
+        } else {
           resourceLoadErrorsRegistry.record({
             name: dir,
             path: indexFile,
-            error: `Custom datasource "${dir}": index.ts must default-export a DataSourceAdapter (object with a "kind" string field).`,
+            error: `Custom datasource "${dir}": index.ts must default-export a DataSourceAdapter instance or class (with a "kind" string field).`,
           });
           continue;
         }
-        adapter = exported as DataSourceAdapter;
       } else {
         // Default: prisma — wrap the exported PrismaClient.
         adapter = new PrismaDataSourceAdapter(exported);

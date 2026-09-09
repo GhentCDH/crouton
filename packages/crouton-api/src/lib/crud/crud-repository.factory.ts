@@ -97,17 +97,31 @@ export function createCrudRepository<T = any>(
   dataSources?: DataSourceResolver,
   configRegistry?: ResourceConfigRegistry,
 ): CrudRepository<T> {
-  // A custom resource brings its own data access; everything below this point
-  // assumes a Prisma delegate.
-  if (config.kind === 'custom') {
+  const fallbackDataSources: DataSourceResolver = dataSources ?? {
+    resolve: () => prisma,
+    entries: () => [],
+  };
+
+  // A per-resource repository.ts always takes precedence over the datasource adapter.
+  if (config.repository) {
     return createCustomRepository<T>(
       prisma,
       config,
-      dataSources ?? {
-        resolve: () => prisma,
-        entries: () => [],
-      },
+      fallbackDataSources,
       config.repository,
+      configRegistry,
+    );
+  }
+
+  // Branch on the resolved adapter kind, not on `config.kind`.
+  // A non-Prisma (custom) datasource adapter handles CRUD directly.
+  const resolvedAdapter = dataSources?.resolveAdapter?.(config.database);
+  if (resolvedAdapter && resolvedAdapter.kind !== 'prisma') {
+    return createCustomRepository<T>(
+      resolvedAdapter.client as any,
+      config,
+      fallbackDataSources,
+      undefined, // no repository.ts; adapter.client is used as the repo (falls back in createCustomRepository)
       configRegistry,
     );
   }
@@ -115,7 +129,7 @@ export function createCrudRepository<T = any>(
   if (!config.model) {
     throw new Error(
       `Resource "${config.name}" has no "model". A prisma-backed resource must ` +
-        'name its Prisma model; set "kind": "custom" for a resource with no model.',
+        'name its Prisma model, or point to a datasource with adapter: "custom".',
     );
   }
   const model = prisma[config.model];

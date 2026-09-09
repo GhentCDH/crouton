@@ -12,7 +12,7 @@ import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
-import type { DataSourceEntry } from './crud/data-source';
+import type { DataSourceAdapter, DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { IS_DEV } from './crud/dev-mode';
 import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
@@ -74,14 +74,17 @@ export class CroutonApiModule {
     // crashing the server.
     const validConfigs: Resource[] = [];
     for (const c of configs) {
-      if (c.kind === 'custom') {
-        // A custom resource may run without any datasource; only a *named*
-        // datasource that does not exist is an error.
-        let adapterClient: unknown;
-        if (c.database) {
-          try {
-            adapterClient = dataSourceRegistry.resolveAdapter(c.database).client;
-          } catch (e: any) {
+      // Resolve the datasource adapter to determine data-access strategy.
+      // Dispatch branches on the adapter kind, not on config.kind.
+      // config.kind controls schema source only (prisma = schema.ts, custom = columns).
+      let adapter: DataSourceAdapter | undefined;
+      if (c.database || dataSourceRegistry.entries().length > 0) {
+        try {
+          adapter = dataSourceRegistry.resolveAdapter(c.database);
+        } catch (e: any) {
+          // A named datasource that doesn't exist is always an error.
+          // No datasource at all is ok for kind=custom or custom-adapter resources.
+          if (c.database) {
             resourceLoadErrorsRegistry.record({
               name: c.name,
               path: c.route,
@@ -89,6 +92,20 @@ export class CroutonApiModule {
             });
             continue;
           }
+        }
+      }
+
+      const adapterIsCustom = adapter ? adapter.kind !== 'prisma' : false;
+      const hasRepository = !!c.repository;
+
+      // A per-resource repository.ts or a custom-adapter datasource → validate
+      // that the enabled operations can be served.
+      if (hasRepository || adapterIsCustom || c.kind === 'custom') {
+        let adapterClient: unknown = adapter?.client;
+        // kind=custom on a prisma adapter: the adapter client is a PrismaClient, not
+        // a repository — don't pass it as a fallback repository to the validator.
+        if (!adapterIsCustom && !hasRepository) {
+          adapterClient = undefined;
         }
         const problem = validateCustomRepository(c, c.repository, adapterClient);
         if (problem) {
@@ -103,29 +120,21 @@ export class CroutonApiModule {
         continue;
       }
 
-      try {
-        const adapter = dataSourceRegistry.resolveAdapter(c.database);
-        if (c.model && adapter.supports && !adapter.supports(c.model)) {
-          resourceLoadErrorsRegistry.record({
-            name: c.name,
-            path: c.route,
-            error: `Model "${c.model}" not found on the provided PrismaClient. Check the resource config for "${c.name}".`,
-          });
-          continue;
-        }
-        if (!c.model) {
-          resourceLoadErrorsRegistry.record({
-            name: c.name,
-            path: c.route,
-            error: `Model "${c.model}" not found on the provided PrismaClient. Check the resource config for "${c.name}".`,
-          });
-          continue;
-        }
-      } catch (e: any) {
+      // Prisma adapter, no per-resource repository.ts: validate model.
+      if (!c.model) {
         resourceLoadErrorsRegistry.record({
           name: c.name,
           path: c.route,
-          error: e.message ?? String(e),
+          error: `"model" is required for resource "${c.name}" on a Prisma datasource. ` +
+            'Set "model" to the Prisma model name, or set adapter: "custom" on the datasource.',
+        });
+        continue;
+      }
+      if (adapter && adapter.supports && !adapter.supports(c.model)) {
+        resourceLoadErrorsRegistry.record({
+          name: c.name,
+          path: c.route,
+          error: `Model "${c.model}" not found on the provided PrismaClient. Check the resource config for "${c.name}".`,
         });
         continue;
       }
