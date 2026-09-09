@@ -1,3 +1,19 @@
+## 0.0.1-alpha.54 (2026-09-09)
+
+### 🚀 Features
+
+- external-route operations — proxy a resource op to an external api ([#111](https://github.com/GhentCDH/crouton/pull/111))
+- custom adapter ([#110](https://github.com/GhentCDH/crouton/pull/110))
+
+### 🩹 Fixes
+
+- external op uri not used in API payload; rename route→uri ([#112](https://github.com/GhentCDH/crouton/pull/112))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.53 (2026-09-09)
 
 ### 🚀 Features
