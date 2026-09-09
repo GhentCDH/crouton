@@ -9,7 +9,9 @@ import {
 
 import { type ResourceRowAction } from '../action';
 import {
+  externalRouteFor,
   isOperationEnabled,
+  isOperationExternal,
   resolveDefinition,
   schemaFor,
   upsertOnFor,
@@ -66,12 +68,16 @@ export const buildResourceOperations = (
   baseUri: string,
 ): Record<string, unknown> =>
   Object.fromEntries(
-    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map(
-      (op) => [
-        op,
-        { uri: `${baseUri}${OP_SUFFIX[op]}`, method: OP_METHOD[op] },
-      ],
-    ),
+    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map((op) => {
+      const extUri = externalRouteFor(definition, op);
+      const uri = extUri ? resolveEnvPlaceholders(extUri) : `${baseUri}${OP_SUFFIX[op]}`;
+      const entry = definition[op];
+      const method =
+        (extUri && typeof entry === 'object' && entry !== null && 'method' in entry
+          ? (entry as { method?: string }).method
+          : undefined) ?? OP_METHOD[op];
+      return [op, { uri, method }];
+    }),
   );
 
 // ── Public payload builders ───────────────────────────────────────────────
@@ -134,7 +140,9 @@ export const buildResourceJsonPayload = (
   const operations: any = Object.fromEntries(
     RESOURCE_OPS.map((op) => [op, isOperationEnabled(definition, op)]),
   );
-  operations.lookup = `${uri}?q={text}`;
+  if (!isOperationExternal(definition, 'findAll')) {
+    operations.lookup = `${uri}?q={text}`;
+  }
 
   const form = config.views?.['form'];
   const schema = form?.json_schema
@@ -204,7 +212,7 @@ export const buildViewsPayload = (
     definition,
     baseUri,
   );
-  if (isOperationEnabled(definition, 'findAll')) {
+  if (isOperationEnabled(definition, 'findAll') && !isOperationExternal(definition, 'findAll')) {
     operations['lookup'] = `${baseUri}?q={text}`;
   }
   const schemas = Object.fromEntries(

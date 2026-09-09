@@ -72,31 +72,31 @@ describe('JsonOperationsSchema — security support', () => {
   });
 });
 
-describe('JsonOperationsSchema — external route support', () => {
-  it('accepts { route } on an operation', () => {
+describe('JsonOperationsSchema — external uri support', () => {
+  it('accepts { uri } on an operation', () => {
     const result = JsonOperationsSchema.parse({
-      delete: { route: '/annotation/{id}' },
+      delete: { uri: '/annotation/{id}' },
     });
-    expect(result.delete).toEqual({ route: '/annotation/{id}' });
+    expect(result.delete).toEqual({ uri: '/annotation/{id}' });
   });
 
-  it('accepts { route, method } on an operation', () => {
+  it('accepts { uri, method } on an operation', () => {
     const result = JsonOperationsSchema.parse({
-      create: { route: '/annotation', method: 'post' },
+      create: { uri: '/annotation', method: 'post' },
     });
-    expect(result.create).toEqual({ route: '/annotation', method: 'post' });
+    expect(result.create).toEqual({ uri: '/annotation', method: 'post' });
   });
 
-  it('accepts { route } alongside disabled ops', () => {
+  it('accepts { uri } alongside disabled ops', () => {
     const result = JsonOperationsSchema.parse({
       findAll: false,
       findOne: false,
       create: false,
       update: false,
       patch: false,
-      delete: { route: '/annotation/{id}' },
+      delete: { uri: '/annotation/{id}' },
     });
-    expect(result.delete).toEqual({ route: '/annotation/{id}' });
+    expect(result.delete).toEqual({ uri: '/annotation/{id}' });
     expect(result.findAll).toBe(false);
   });
 });

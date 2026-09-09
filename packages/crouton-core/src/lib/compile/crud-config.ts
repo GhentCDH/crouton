@@ -37,7 +37,7 @@ export const isOperationExternal = (
   op: CrudOperation,
 ): boolean => {
   const entry = def[op];
-  return typeof entry === 'object' && entry !== null && 'route' in entry;
+  return typeof entry === 'object' && entry !== null && 'uri' in entry;
 };
 
 export const externalRouteFor = (
@@ -45,8 +45,8 @@ export const externalRouteFor = (
   op: CrudOperation,
 ): string | undefined => {
   const entry = def[op];
-  if (typeof entry === 'object' && entry !== null && 'route' in entry) {
-    return (entry as { route: string }).route;
+  if (typeof entry === 'object' && entry !== null && 'uri' in entry) {
+    return (entry as { uri: string }).uri;
   }
   return undefined;
 };

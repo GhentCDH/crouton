@@ -11,7 +11,7 @@ Declare it as an object with a `route` key:
     "create": false,
     "update": false,
     "patch":  false,
-    "delete": { "route": "/annotation/{id}" }
+    "delete": { "uri": "/annotation/{id}" }
   }
 }
 ```
@@ -36,7 +36,7 @@ time** (when crouton builds the operations payload):
 
 ```json
 {
-  "delete": { "route": "{env.LEGACY_API}/annotation/{id}" }
+  "delete": { "uri": "{env.LEGACY_API}/annotation/{id}" }
 }
 ```
 
@@ -51,7 +51,7 @@ you override it:
 
 ```json
 {
-  "delete": { "route": "/annotation/{id}", "method": "post" }
+  "delete": { "uri": "/annotation/{id}", "method": "post" }
 }
 ```
 
@@ -75,14 +75,14 @@ is displayed, and crouton never touches the data itself.
 ```json
 {
   "name": "legacy-annotation",
-  "route": "legacy-annotation",
+  "uri": "legacy-annotation",
   "kind": "custom",
   "operations": {
     "findAll": false,
     "findOne": false,
-    "create":  { "route": "/annotation" },
-    "update":  { "route": "/annotation/{id}" },
-    "delete":  { "route": "/annotation/{id}" }
+    "create":  { "uri": "/annotation" },
+    "update":  { "uri": "/annotation/{id}" },
+    "delete":  { "uri": "/annotation/{id}" }
   },
   "columns": {
     "id": { "idField": true },

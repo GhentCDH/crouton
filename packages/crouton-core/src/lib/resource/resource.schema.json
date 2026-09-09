@@ -175,7 +175,7 @@
             {
               "type": "object",
               "properties": {
-                "route": {
+                "uri": {
                   "type": "string"
                 },
                 "method": {
@@ -221,7 +221,7 @@
                 }
               },
               "required": [
-                "route"
+                "uri"
               ]
             },
             {
@@ -278,7 +278,7 @@
             {
               "type": "object",
               "properties": {
-                "route": {
+                "uri": {
                   "type": "string"
                 },
                 "method": {
@@ -324,7 +324,7 @@
                 }
               },
               "required": [
-                "route"
+                "uri"
               ]
             },
             {
@@ -381,7 +381,7 @@
             {
               "type": "object",
               "properties": {
-                "route": {
+                "uri": {
                   "type": "string"
                 },
                 "method": {
@@ -427,7 +427,7 @@
                 }
               },
               "required": [
-                "route"
+                "uri"
               ]
             },
             {
@@ -484,7 +484,7 @@
             {
               "type": "object",
               "properties": {
-                "route": {
+                "uri": {
                   "type": "string"
                 },
                 "method": {
@@ -530,7 +530,7 @@
                 }
               },
               "required": [
-                "route"
+                "uri"
               ]
             },
             {
@@ -587,7 +587,7 @@
             {
               "type": "object",
               "properties": {
-                "route": {
+                "uri": {
                   "type": "string"
                 },
                 "method": {
@@ -633,7 +633,7 @@
                 }
               },
               "required": [
-                "route"
+                "uri"
               ]
             },
             {
@@ -757,7 +757,7 @@
             {
               "type": "object",
               "properties": {
-                "route": {
+                "uri": {
                   "type": "string"
                 },
                 "method": {
@@ -803,7 +803,7 @@
                 }
               },
               "required": [
-                "route"
+                "uri"
               ]
             },
             {
