@@ -33,14 +33,11 @@ describe('createStatusController', () => {
       entries: () => [
         {
           name: 'main',
-          client: { $queryRaw: () => Promise.resolve([]) },
+          adapter: { healthCheck: () => Promise.resolve() },
         },
         {
           name: 'broken',
-          client: {
-            $queryRaw: () =>
-              Promise.reject(new Error('connection refused')),
-          },
+          adapter: { healthCheck: () => Promise.reject(new Error('connection refused')) },
         },
       ],
     } as unknown as DataSourceRegistry;
@@ -112,7 +109,7 @@ describe('createStatusController', () => {
         entries: () => [
           {
             name: 'db',
-            client: { $queryRaw: () => Promise.resolve([]) },
+            adapter: { healthCheck: () => Promise.resolve() },
           },
         ],
       } as unknown as DataSourceRegistry,

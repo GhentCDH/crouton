@@ -32,6 +32,20 @@ describe.each(makeAdapters())('DataSourceAdapter contract — $label', ({ adapte
   });
 });
 
+describe('PrismaDataSourceAdapter — healthCheck', () => {
+  it('resolves when $queryRaw succeeds', async () => {
+    const a = new PrismaDataSourceAdapter({ $queryRaw: () => Promise.resolve([]) });
+    await expect(a.healthCheck()).resolves.not.toThrow();
+  });
+
+  it('rejects when $queryRaw rejects', async () => {
+    const a = new PrismaDataSourceAdapter({
+      $queryRaw: () => Promise.reject(new Error('connection refused')),
+    });
+    await expect(a.healthCheck()).rejects.toThrow('connection refused');
+  });
+});
+
 describe('PrismaDataSourceAdapter', () => {
   it('supports() returns true for a model present on the client', () => {
     const a = new PrismaDataSourceAdapter({ user: {}, post: {} });

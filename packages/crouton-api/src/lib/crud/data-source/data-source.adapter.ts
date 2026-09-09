@@ -19,6 +19,14 @@ export interface DataSourceAdapter {
   /** Return `true` when this adapter can serve the given model key. */
   supports?(model: string): boolean;
 
+  /**
+   * Probe the datasource. Throw on failure; the status service catches it and
+   * reports `connected: false`. Omit on adapters that have no meaningful probe
+   * (in-memory, custom REST) — the status page will report them as connected
+   * without probing.
+   */
+  healthCheck?(): Promise<void>;
+
   connect?(): Promise<void>;
   disconnect?(): Promise<void>;
 }

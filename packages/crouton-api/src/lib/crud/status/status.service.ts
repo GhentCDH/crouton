@@ -20,8 +20,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DB_CHECK_TIMEOUT_MS = 3_000;
-
 const CONNECTION_STRING_PATTERN =
   /(?:postgresql|postgres|mysql|mongodb|sqlserver|sqlite):\/\/[^\s"')]+/gi;
 
@@ -59,25 +57,11 @@ export const getEnvironment = (): string =>
 export const checkDatabases = async (
   registry: DataSourceRegistry,
 ): Promise<DatabaseStatus[]> => {
-  const entries = registry.entries();
   const results: DatabaseStatus[] = [];
 
-  for (const { name, client } of entries) {
-    const prismaClient = client as any;
-    if (typeof prismaClient?.$queryRaw !== 'function') {
-      results.push({ name, connected: true });
-      continue;
-    }
+  for (const { name, adapter } of registry.entries()) {
     try {
-      await Promise.race([
-        prismaClient.$queryRaw`SELECT 1`,
-        new Promise((_resolve, reject) =>
-          setTimeout(
-            () => reject(new Error('Database health check timed out')),
-            DB_CHECK_TIMEOUT_MS,
-          ),
-        ),
-      ]);
+      await adapter.healthCheck?.();
       results.push({ name, connected: true });
     } catch (err) {
       results.push({
@@ -100,9 +84,7 @@ export const getResourceStatus = (
     valid: true,
     version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
     kind: c.kind ?? 'prisma',
-    // Which operations the user's repository.ts actually implements. A resource
-    // only reaches this list after validateCustomRepository passed, so this is
-    // informational rather than a warning.
+    // Which operations the user's repository.ts actually implements.
     ...(c.kind === 'custom' && c.repository
       ? {
           customOperations: CUSTOM_OPS.filter(

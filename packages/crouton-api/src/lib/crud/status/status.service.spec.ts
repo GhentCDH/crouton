@@ -15,7 +15,7 @@ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.reg
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 
 const mockRegistry = (
-  entries: { name: string; client: any }[],
+  entries: { name: string; adapter: { healthCheck?: () => Promise<void> } }[],
 ): DataSourceRegistry =>
   ({
     entries: () => entries,
@@ -73,10 +73,7 @@ describe('status.service', () => {
   describe('checkDatabases', () => {
     it('should report healthy db as connected', async () => {
       const registry = mockRegistry([
-        {
-          name: 'main',
-          client: { $queryRaw: () => Promise.resolve([{ '?column?': 1 }]) },
-        },
+        { name: 'main', adapter: { healthCheck: () => Promise.resolve() } },
       ]);
 
       const result = await checkDatabases(registry);
@@ -89,12 +86,10 @@ describe('status.service', () => {
       const registry = mockRegistry([
         {
           name: 'broken',
-          client: {
-            $queryRaw: () =>
+          adapter: {
+            healthCheck: () =>
               Promise.reject(
-                new Error(
-                  'connect ECONNREFUSED postgresql://user:pass@localhost:5432/db',
-                ),
+                new Error('connect ECONNREFUSED postgresql://user:pass@localhost:5432/db'),
               ),
           },
         },
@@ -111,15 +106,10 @@ describe('status.service', () => {
 
     it('should handle mixed healthy and unhealthy', async () => {
       const registry = mockRegistry([
-        {
-          name: 'ok',
-          client: { $queryRaw: () => Promise.resolve([]) },
-        },
+        { name: 'ok', adapter: { healthCheck: () => Promise.resolve() } },
         {
           name: 'down',
-          client: {
-            $queryRaw: () => Promise.reject(new Error('connection refused')),
-          },
+          adapter: { healthCheck: () => Promise.reject(new Error('connection refused')) },
         },
       ]);
 
@@ -128,6 +118,12 @@ describe('status.service', () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ name: 'ok', connected: true });
       expect(result[1].connected).toBe(false);
+    });
+
+    it('reports an adapter without healthCheck as connected (unprobed)', async () => {
+      const registry = mockRegistry([{ name: 'custom', adapter: {} }]);
+      const result = await checkDatabases(registry);
+      expect(result[0]).toEqual({ name: 'custom', connected: true });
     });
   });
 
@@ -275,10 +271,7 @@ describe('status.service', () => {
       vi.stubEnv('ENVIRONMENT', 'test');
 
       const registry = mockRegistry([
-        {
-          name: 'main',
-          client: { $queryRaw: () => Promise.resolve([]) },
-        },
+        { name: 'main', adapter: { healthCheck: () => Promise.resolve() } },
       ]);
 
       resourceLoadErrorsRegistry.record({
