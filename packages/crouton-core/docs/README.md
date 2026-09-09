@@ -20,10 +20,17 @@ Compile a single resource to the same JSON payload the `/schemas`, `/definition`
 ```ts
 import { parseSchema } from '@ghentcdh/crouton-core';
 
+// prisma resource — pass the Zod schema for full field narrowing
 const payload = parseSchema(
   { json: rawResourceJson, schema: myZodSchema },
   { baseUrl: 'http://localhost:3000' },
   'schemas', // 'schemas' | 'definition' | 'resource.json'
+);
+
+// custom resource — schema is not needed
+const customPayload = parseSchema(
+  { json: rawResourceJson },
+  { baseUrl: 'http://localhost:3000' },
 );
 ```
 
@@ -51,7 +58,7 @@ parseSchema(
 | Field | Type | Description |
 |---|---|---|
 | `json` | `unknown` | Raw `resource.json` content (validated internally). |
-| `schema` | `ZodObject<ZodRawShape>` | Zod schema for the Prisma model. Required for `kind: "prisma"` resources; omit for `kind: "custom"`. |
+| `schema` | `ZodObject<ZodRawShape>` | Optional. Zod schema for the Prisma model. Provide it for `kind: "prisma"` to get per-operation field narrowing and typed validation schemas. Omit for `kind: "custom"` (views are derived from column `fieldInput` types instead). |
 | `enums` | `EnumRegistry` | Enum values to inject into columns that reference a named enum. |
 | `hooks` | `ResourceHooks` | Lifecycle hooks (ignored by the schema payload, accepted for signature parity). |
 | `actions` | `ResourceRowAction[]` | Resolved row-level action procedures. |
