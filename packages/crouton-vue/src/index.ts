@@ -36,3 +36,4 @@ export { rankWith } from '@jsonforms/core';
 export * from './relation';
 export { TableComponent, useControlBinding } from '@ghentcdh/crouton-forms-vue';
 export * from './forms';
+export { parseSchema } from '@ghentcdh/crouton-core';
