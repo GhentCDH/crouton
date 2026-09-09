@@ -102,12 +102,11 @@ npx nx run-many -t typecheck
 ```
 packages/
   crouton-api/   — NestJS CRUD framework
-  crouton-core/  — shared schema & builder logic (internal, bundled)
+  crouton-core/  — shared schema & builder logic, published as @ghentcdh/crouton-core
   crouton-vue/   — Vue 3 UI components
 ```
 
-> `crouton-core` is an internal build-time package bundled into both `crouton-api` and `crouton-vue` — it is never
-> published separately.
+> `crouton-core` is published as `@ghentcdh/crouton-core`. It is bundled into `crouton-api` and `crouton-vue`, but can also be used directly for offline schema compilation via `parseSchema`.
 
 ### Documentation
 
