@@ -59,7 +59,9 @@ export const createCustomRepository = <T = any>(
   // Wrap the raw prisma client in an adapter so hook contexts receive `dataSource`.
   const adapter = new PrismaDataSourceAdapter(prisma);
 
-  const repo = repository ?? {};
+  // Fall back to the adapter client when it implements CustomRepository directly
+  // (no repository.ts required).
+  const repo = repository ?? (prisma && typeof prisma === 'object' ? (prisma as CustomRepository) : {});
   const idField = config.idField ?? DEFAULT_ID_FIELD;
 
   const toId = (id: string | number): string | number =>

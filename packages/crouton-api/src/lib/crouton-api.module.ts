@@ -102,9 +102,10 @@ export class CroutonApiModule {
       if (c.kind === 'custom') {
         // A custom resource may run without any datasource; only a *named*
         // datasource that does not exist is an error.
+        let adapterClient: unknown;
         if (c.database) {
           try {
-            dataSourceRegistry.resolveAdapter(c.database);
+            adapterClient = dataSourceRegistry.resolveAdapter(c.database).client;
           } catch (e: any) {
             resourceLoadErrorsRegistry.record({
               name: c.name,
@@ -114,7 +115,7 @@ export class CroutonApiModule {
             continue;
           }
         }
-        const problem = validateCustomRepository(c, c.repository);
+        const problem = validateCustomRepository(c, c.repository, adapterClient);
         if (problem) {
           resourceLoadErrorsRegistry.record({
             name: c.name,

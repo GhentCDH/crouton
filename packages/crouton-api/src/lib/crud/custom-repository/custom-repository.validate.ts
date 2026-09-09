@@ -18,6 +18,7 @@ import { type Resource } from '../resource/ResourceConfig.schema';
 export const validateCustomRepository = (
   config: Resource,
   repository: CustomRepository | undefined,
+  adapterClient?: unknown,
 ): string | undefined => {
   const definition = resolveDefinition(config);
   const enabled = CUSTOM_OPS.filter((op) =>
@@ -32,6 +33,14 @@ export const validateCustomRepository = (
 
   if (!repository) {
     if (enabled.length === 0) return undefined;
+    // If the datasource adapter client implements all required methods it acts
+    // as the repository — no repository.ts needed.
+    if (adapterClient && typeof adapterClient === 'object') {
+      const missing = enabled.filter(
+        (op) => typeof (adapterClient as Record<string, unknown>)[methodFor(op)] !== 'function',
+      );
+      if (missing.length === 0) return undefined;
+    }
     return (
       'No repository.ts found. A custom resource implements its own data access; ' +
       `create ${config.name}/repository.ts with a default export implementing: ` +
