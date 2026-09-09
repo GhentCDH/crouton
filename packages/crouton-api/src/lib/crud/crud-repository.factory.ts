@@ -115,32 +115,11 @@ export function createCrudRepository<T = any>(
     );
   }
 
-  // Branch on the resolved adapter kind, not on `config.kind`.
-  // A non-Prisma (custom) datasource adapter handles CRUD directly.
   const resolvedAdapter = dataSources?.resolveAdapter?.(config.database);
-  if (resolvedAdapter && resolvedAdapter.kind !== 'prisma') {
-    return createCustomRepository<T>(
-      resolvedAdapter.client as any,
-      config,
-      fallbackDataSources,
-      undefined, // no repository.ts; adapter.client is used as the repo (falls back in createCustomRepository)
-      configRegistry,
-    );
-  }
 
-  if (!config.model) {
-    throw new Error(
-      `Resource "${config.name}" has no "model". A prisma-backed resource must ` +
-        'name its Prisma model, or point to a datasource with adapter: "custom".',
-    );
-  }
-  const model = prisma[config.model];
-  if (!model) {
-    throw new Error(
-      `Model "${config.model}" not found on the provided PrismaClient. ` +
-        `Check the resource config for "${config.name}".`,
-    );
-  }
+  // For kind:custom resources there is no Prisma model; use the resource name as the
+  // model key passed to adapter methods so they can route to the right collection.
+  const adapterModelKey = config.model ?? config.name;
 
   const definition = resolveDefinition(config);
   const listSchema = schemaFor(definition, 'findAll');
@@ -148,9 +127,11 @@ export function createCrudRepository<T = any>(
   const listSelect = listSchema ? toSelectFields(listSchema) : undefined;
   const oneSelect = oneSchema ? toSelectFields(oneSchema) : listSelect;
 
-  // Phase B: if the resolved adapter exposes the CRUD surface (e.g.,
-  // PrismaDataSourceAdapter or a subclass that overrides individual methods),
-  // route through it so the override is honoured before factory decoration.
+  // If the adapter exposes the CRUD surface, route through it regardless of adapter
+  // kind or resource kind. Covers:
+  //   - kind:prisma  + adapter:prisma  (PrismaDataSourceAdapter or subclass override)
+  //   - kind:custom  + adapter:custom  (no repository.ts needed)
+  //   - kind:prisma  + adapter:custom  (custom backend with generated schema)
   if (resolvedAdapter?.findAll && resolvedAdapter.count) {
     const baseCtx = { config, op: 'n/a', offset: 0, listSelect, oneSelect, configRegistry };
     const ctx = (request?: any, op = 'findAll', id?: string | number) => ({
@@ -181,10 +162,12 @@ export function createCrudRepository<T = any>(
       if (resolvedAdapter.findAllByParent) {
         const sub = config.subResources?.find((s) => s.childRoute === childRoute);
         if (!sub) throw new Error(`No sub-resource "${childRoute}" on "${config.name}"`);
-        return resolvedAdapter.findAllByParent(config.model!, parentId, sub, params, ctx(request, 'findAll'));
+        return resolvedAdapter.findAllByParent(adapterModelKey, parentId, sub, params, ctx(request, 'findAll'));
       }
-      // Fallback: build a reader directly (sub-resource uses prisma child model, not the resource's model).
-      const reader = new ReadRepository<T>(model, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
+      // Fallback: only available when prisma model exists (Prisma adapter).
+      if (!config.model) throw new Error(`Adapter for "${config.name}" does not implement findAllByParent`);
+      const prismaModel = prisma[config.model];
+      const reader = new ReadRepository<T>(prismaModel, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
       return reader.findAllByParent(parentId, childRoute, params, request);
     };
 
@@ -195,29 +178,32 @@ export function createCrudRepository<T = any>(
       request?: any,
     ): Promise<T> => {
       if (resolvedAdapter.findOneChild) {
-        const row = await resolvedAdapter.findOneChild(config.model!, sub, childId, parentId, ctx(request, 'findOne', childId));
+        const row = await resolvedAdapter.findOneChild(adapterModelKey, sub, childId, parentId, ctx(request, 'findOne', childId));
         if (row === null || row === undefined) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
         return row;
       }
-      const reader = new ReadRepository<T>(model, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
+      if (!config.model) throw new Error(`Adapter for "${config.name}" does not implement findOneChild`);
+      const prismaModel = prisma[config.model];
+      const reader = new ReadRepository<T>(prismaModel, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
       return reader.findOneChild(sub, childId, parentId, request);
     };
 
-    const writer = new WriteRepository<T>(model, resolvedAdapter, config);
+    const prismaModel = config.model ? prisma?.[config.model] : undefined;
+    const writer = prismaModel ? new WriteRepository<T>(prismaModel, resolvedAdapter, config) : undefined;
 
     return {
       prisma,
       findAllWithCount: async (params, request) => {
-        const { data, count } = await resolvedAdapter.findAll!(config.model!, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
+        const { data, count } = await resolvedAdapter.findAll!(adapterModelKey, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
         return { data: await decorateFindAll(data, request), count };
       },
       findAll: async (params, request) => {
-        const { data } = await resolvedAdapter.findAll!(config.model!, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
+        const { data } = await resolvedAdapter.findAll!(adapterModelKey, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
         return decorateFindAll(data, request);
       },
-      count: (filter) => resolvedAdapter.count!(config.model!, filter, baseCtx),
+      count: (filter) => resolvedAdapter.count!(adapterModelKey, filter, baseCtx),
       findOne: async (id, request) => {
-        const row = await resolvedAdapter.findOne!(config.model!, id, ctx(request, 'findOne', id));
+        const row = await resolvedAdapter.findOne!(adapterModelKey, id, ctx(request, 'findOne', id));
         if (row === null || row === undefined) throw new NotFoundException(`${config.name} with id ${id} not found`);
         return decorateFindOne(row, request);
       },
@@ -226,52 +212,88 @@ export function createCrudRepository<T = any>(
       create: async (data, request) => {
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'create', undefined, request);
-        const result = await resolvedAdapter.create!(config.model!, prepared, ctx(request, 'create'));
+        const result = await resolvedAdapter.create!(adapterModelKey, prepared, ctx(request, 'create'));
         return postData(result, 'create', undefined, request);
       },
       update: async (id, data, request) => {
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'update', coercedId, request);
-        const result = await resolvedAdapter.update!(config.model!, id, prepared, ctx(request, 'update', coercedId));
+        const result = await resolvedAdapter.update!(adapterModelKey, id, prepared, ctx(request, 'update', coercedId));
         return postData(result, 'update', coercedId, request);
       },
       patch: async (id, data, request) => {
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'patch', coercedId, request);
-        const result = await (resolvedAdapter.patch ?? resolvedAdapter.update)!(config.model!, id, prepared, ctx(request, 'patch', coercedId));
+        const result = await (resolvedAdapter.patch ?? resolvedAdapter.update)!(adapterModelKey, id, prepared, ctx(request, 'patch', coercedId));
         return postData(result, 'patch', coercedId, request);
       },
-      upsert: writer.upsert.bind(writer),
-      upsertMany: writer.upsertMany.bind(writer),
+      upsert: writer
+        ? writer.upsert.bind(writer)
+        : () => Promise.reject(new Error(`upsert not supported for "${config.name}" (no Prisma model)`)),
+      upsertMany: writer
+        ? writer.upsertMany.bind(writer)
+        : () => Promise.reject(new Error(`upsertMany not supported for "${config.name}" (no Prisma model)`)),
       delete: async (id, request) => {
         const coercedId = toId(id);
-        const result = await resolvedAdapter.delete!(config.model!, id, ctx(request, 'delete', coercedId));
+        const result = await resolvedAdapter.delete!(adapterModelKey, id, ctx(request, 'delete', coercedId));
         return postData(result, 'delete', coercedId, request);
       },
-      createChild: writer.createChild.bind(writer),
-      updateChild: writer.updateChild.bind(writer),
-      deleteChild: writer.deleteChild.bind(writer),
+      createChild: writer
+        ? writer.createChild.bind(writer)
+        : () => Promise.reject(new Error(`createChild not supported for "${config.name}" (no Prisma model)`)),
+      updateChild: writer
+        ? writer.updateChild.bind(writer)
+        : () => Promise.reject(new Error(`updateChild not supported for "${config.name}" (no Prisma model)`)),
+      deleteChild: writer
+        ? writer.deleteChild.bind(writer)
+        : () => Promise.reject(new Error(`deleteChild not supported for "${config.name}" (no Prisma model)`)),
     };
+  }
+
+  // If non-prisma adapter has no CRUD surface, fall back to createCustomRepository
+  // (requires adapter.client that implements ops, or a repository.ts was already handled above).
+  if (resolvedAdapter && resolvedAdapter.kind !== 'prisma') {
+    return createCustomRepository<T>(
+      resolvedAdapter.client as any,
+      config,
+      fallbackDataSources,
+      undefined,
+      configRegistry,
+    );
   }
 
   // ── Legacy Prisma path ────────────────────────────────────────────────────
   // Used when no registry is provided (unit tests, direct factory calls).
   // The resolved adapter path above covers all production scenarios.
 
+  if (!config.model) {
+    throw new Error(
+      `Resource "${config.name}" has no "model". A prisma-backed resource must ` +
+        'name its Prisma model, or point to a datasource with adapter: "custom".',
+    );
+  }
+  const legacyModel = prisma[config.model];
+  if (!legacyModel) {
+    throw new Error(
+      `Model "${config.model}" not found on the provided PrismaClient. ` +
+        `Check the resource config for "${config.name}".`,
+    );
+  }
+
   // Wrap the raw prisma client in an adapter so hooks receive a `DataSourceAdapter`.
   const adapter: DataSourceAdapter = new PrismaDataSourceAdapter(prisma);
 
   const reader = new ReadRepository<T>(
-    model,
+    legacyModel,
     adapter,
     config,
     listSelect,
     oneSelect,
     configRegistry,
   );
-  const writer = new WriteRepository<T>(model, adapter, config);
+  const writer = new WriteRepository<T>(legacyModel, adapter, config);
 
   // ── Resource-level decoration helpers ────────────────────────────────────
   const decorateFindAll = async (rows: any[], request?: any): Promise<any[]> => {

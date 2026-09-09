@@ -14,9 +14,9 @@ These are set in different places and are fully independent:
 | `kind` | `adapter` | Typical use case |
 |---|---|---|
 | `"prisma"` (default) | `"prisma"` (default) | Normal Prisma-backed resource |
-| `"custom"` | `"prisma"` | Per-resource hand-written `repository.ts` on a Prisma DB |
 | `"prisma"` | `"custom"` | Resource on a non-Prisma backend — **no `repository.ts` needed** |
-| `"custom"` | `"custom"` | Per-resource hand-written `repository.ts` on a custom datasource |
+| `"custom"` | `"custom"` | Columns-defined resource on a non-Prisma backend — **no `repository.ts` needed** |
+| `"custom"` | `"prisma"` | Hand-written `repository.ts` on a Prisma DB (requires `repository.ts`) |
 
 `kind` lives in `resource.json`; `adapter` lives in `data-source.json`.
 

@@ -97,9 +97,17 @@ export class CroutonApiModule {
 
       const adapterIsCustom = adapter ? adapter.kind !== 'prisma' : false;
       const hasRepository = !!c.repository;
+      // Adapter exposes the CRUD surface → factory routes through it; no repository.ts needed.
+      const adapterHasCrud = !!(adapter?.findAll && adapter.count);
 
-      // A per-resource repository.ts or a custom-adapter datasource → validate
-      // that the enabled operations can be served.
+      if (adapterHasCrud && !hasRepository) {
+        // Adapter guarantees CRUD; skip validateCustomRepository.
+        validConfigs.push(c);
+        continue;
+      }
+
+      // A per-resource repository.ts or a custom-adapter datasource without CRUD surface →
+      // validate that the enabled operations can be served.
       if (hasRepository || adapterIsCustom || c.kind === 'custom') {
         let adapterClient: unknown = adapter?.client;
         // kind=custom on a prisma adapter: the adapter client is a PrismaClient, not

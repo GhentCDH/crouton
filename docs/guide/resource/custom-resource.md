@@ -13,13 +13,21 @@ and hooks — but defines columns explicitly.
 - `kind: "prisma"` → schema from generated `schema.ts` (default)
 - `kind: "custom"` → schema from `columns` in `resource.json`
 
-A resource on a non-Prisma backend (REST API, search index, …) does **not** need
-`kind: "custom"` — point it at a [custom-adapter datasource](../datasource/adapters.md) and
-use a plain `kind: "prisma"` resource with a `model`. The adapter handles CRUD; no
-`repository.ts` needed.
+A resource on a **non-Prisma backend** does not need `kind: "custom"`. Point it at a
+[custom-adapter datasource](../datasource/adapters.md) and use a normal `kind: "prisma"`
+resource with a `model`. The adapter handles CRUD; no `repository.ts` needed.
 
-Use `kind: "custom"` when you need **per-resource** hand-written data access on top of an
-existing Prisma database, or when the data has no Prisma model at all.
+Use `kind: "custom"` when:
+
+- the data has no Prisma model (columns defined by hand), **or**
+- you need per-resource hand-written data access via a `repository.ts`
+:::
+
+::: info kind: custom + adapter: custom — repository.ts optional
+When `adapter: "custom"` is set on the datasource and the adapter implements the CRUD
+surface (`findAll`, `findOne`, …), a `kind: "custom"` resource does **not** need a
+`repository.ts`. The adapter method receives `config.name` as the model key and handles
+all operations.
 :::
 
 Reach for a custom resource when the data does not live in a shape a Prisma model describes:
