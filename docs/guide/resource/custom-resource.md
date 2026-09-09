@@ -3,16 +3,30 @@
 A normal crouton resource is backed by a Prisma model: you point `resource.json`
 at a model, add a `schema.ts`, and crouton generates the whole data access layer.
 
-A **custom resource** keeps everything above that line — the table, form, view, filters, routes, sidebar entry, actions
-and hooks — but hands data access to you. Set `"kind": "custom"` and implement the operations in a sibling
-`repository.ts`.
+A **custom resource** (`kind: "custom"`) uses a column-based JSON Schema instead of a generated `schema.ts`.
+It keeps everything above the data-access line — the table, form, view, filters, routes, sidebar entry, actions
+and hooks — but defines columns explicitly.
 
-Reach for it when the data does not live in your database, or does not live there in a shape a Prisma model describes:
+::: tip kind ≠ backend
+`kind` controls **where the schema comes from**, not how data is fetched:
 
-- a third-party HTTP API (Zotero, a catalogue, an institutional repository);
-- a search index you query rather than a table you select from;
+- `kind: "prisma"` → schema from generated `schema.ts` (default)
+- `kind: "custom"` → schema from `columns` in `resource.json`
+
+A resource on a non-Prisma backend (REST API, search index, …) does **not** need
+`kind: "custom"` — point it at a [custom-adapter datasource](../datasource/adapters.md) and
+use a plain `kind: "prisma"` resource with a `model`. The adapter handles CRUD; no
+`repository.ts` needed.
+
+Use `kind: "custom"` when you need **per-resource** hand-written data access on top of an
+existing Prisma database, or when the data has no Prisma model at all.
+:::
+
+Reach for a custom resource when the data does not live in a shape a Prisma model describes:
+
 - a computed or aggregated view stitched together from several sources;
-- a legacy endpoint you want to expose through the same admin UI as everything else.
+- a per-resource repository on a Prisma DB that requires non-standard queries;
+- a legacy endpoint that is too project-specific for a shared datasource adapter.
 
 ::: tip The API a custom resource serves is byte-for-byte the shape a prisma resource serves, so the frontend does not
 know the difference. Nothing to configure on that side.
@@ -443,4 +457,5 @@ the relation column to keep the child's own nested controller.
 - [resource.json reference](resource-json.md)
 - [Hooks](hooks.md) — apply to custom resources too
 - [Actions](actions.md)
+- [Datasources & Adapters](../datasource/adapters.md) — use a custom-adapter datasource for non-Prisma backends without per-resource repository.ts
 - [Datasources](../datasource/datasource.md)
