@@ -84,8 +84,6 @@ Everything a prisma resource supports still applies — `sidebar`, `display`,
   // resources needs no datasource at all.
   "database": "maindb",
 
-  "idType": "string",
-
   // Disable anything you do not implement — see "Validation" below.
   "operations": {
     "findAll": true, "findOne": true,
@@ -312,7 +310,7 @@ findAll: async (params, ctx) => {
 
 You implement the fetch; the framework keeps its usual guarantees:
 
-- **id coercion** per `idType`, so a numeric key arrives as a number;
+- **id coercion** — a numeric id field arrives as a number;
 - **404s** — return `null`/`undefined` from `findOne` rather than throwing;
 - **`patch` falls back to `update`** when you do not implement it, matching the prisma repository where patch is an
   update with a partial schema;
