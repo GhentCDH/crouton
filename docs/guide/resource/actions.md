@@ -97,6 +97,14 @@ Row-level actions accept a `condition` that is evaluated per row, so the button 
 }
 ```
 
+The `condition` object takes a `field`, an operator, and (except for the existence checks) a `value`:
+
+| Operator | Meaning |
+|----------|---------|
+| `eq` (default) / `neq` | Strict equality / inequality against `value` |
+| `gt` / `gte` / `lt` / `lte` | Numeric or date comparison against `value` |
+| `exists` / `notExists` | Field is (not) null / undefined / empty string — no `value` needed |
+
 ## Display options
 
 Table actions support `icon`, `label`, and `tooltip`; row actions support `label`. The HTTP `method` of a procedure action defaults to `post`.

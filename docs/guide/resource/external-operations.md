@@ -1,7 +1,7 @@
 # External operations
 
 An operation can be served by an **external API** instead of a crouton-registered endpoint.
-Declare it as an object with a `route` key:
+Declare it as an object with a `uri` key:
 
 ```json
 {
@@ -23,8 +23,8 @@ calls the external service directly.
 ## How it works
 
 The frontend's operations map is a set of `{ uri, method }` entries per operation. Normally crouton
-fills in its own route (`${baseUri}/{id}` for delete, etc.). With an external op, the `route` you
-declare becomes the `uri`, and the client calls it the same way it calls any other operation.
+fills in its own route (`${baseUri}/{id}` for delete, etc.). With an external op, the `uri` you
+declare is used directly, and the client calls it the same way it calls any other operation.
 
 `{id}` and other `{param}` placeholders work exactly as they do with crouton routes — the client
 replaces them at call time.
@@ -75,7 +75,7 @@ is displayed, and crouton never touches the data itself.
 ```json
 {
   "name": "legacy-annotation",
-  "uri": "legacy-annotation",
+  "route": "legacy-annotation",
   "kind": "custom",
   "operations": {
     "findAll": false,
