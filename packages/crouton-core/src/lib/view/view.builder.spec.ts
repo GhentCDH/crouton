@@ -32,6 +32,39 @@ describe('buildViews — fieldInput.defaultValue', () => {
   });
 });
 
+describe('buildViews — no schema fallback to column types', () => {
+  const columns = parse([
+    { id: 'id', type: 'string', idField: true, hiddenInForm: true },
+    { id: 'title', type: 'string', filterable: true },
+    { id: 'count', type: 'integer' },
+    { id: 'register', fieldInput: { type: 'autocomplete' } },
+  ]);
+
+  const views = buildViews(undefined, columns);
+
+  it('produces table, form, filter, and view', () => {
+    expect(Object.keys(views ?? {}).sort()).toEqual(['filter', 'form', 'table', 'view']);
+  });
+
+  it('derives table properties from column types', () => {
+    const props = (views?.table?.json_schema as any).properties;
+    expect(props.title.type).toBe('string');
+    expect(props.count.type).toBe('integer');
+  });
+
+  it('includes typeless autocomplete column in the schema', () => {
+    const props = (views?.form?.json_schema as any).properties;
+    expect(props.register).toBeDefined();
+    expect(props.register.type).toBeUndefined();
+  });
+
+  it('matches buildViewsFromColumnTypes output', async () => {
+    const { buildViewsFromColumnTypes } = await import('./view.builder');
+    const expected = buildViewsFromColumnTypes(columns);
+    expect(views).toEqual(expected);
+  });
+});
+
 describe('buildViewsFromColumns — fieldInput.defaultValue (sub-resource path)', () => {
   const columns = parse([
     { id: 'role', column: 'role', fieldInput: { type: 'select', defaultValue: 'admin' } },

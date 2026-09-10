@@ -7,7 +7,6 @@ import type {
 } from '@ghentcdh/crouton-core';
 import {
   buildViews,
-  buildViewsFromColumnTypes,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
@@ -87,12 +86,7 @@ export const fromJson = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  // With no zod model schema there is nothing to pick: a custom resource's
-  // request/response shapes come from the views built off the column types.
-
-  let views = isCustom
-    ? buildViewsFromColumnTypes(enrichedColumns)
-    : buildViews(schema, enrichedColumns);
+  let views = buildViews(schema, enrichedColumns);
   if (views && calculatedColumns.length) {
     views = {
       ...views,
