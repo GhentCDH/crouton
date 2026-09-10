@@ -31,7 +31,8 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "vee-validate": "5.0.0-beta.1"
   },
   "peerDependencies": {
     "@ghentcdh/ui": "^3.0.6",
