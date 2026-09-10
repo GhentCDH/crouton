@@ -362,12 +362,18 @@ export const buildViewsWithSource = (
   return Object.keys(views).length ? views : undefined;
 };
 
-/** Build table / form / filter / view schemas from a Zod schema + column definitions. */
+/**
+ * Build table / form / filter / view schemas from a Zod schema + column definitions.
+ *
+ * When `schema` is absent (no schema.ts), falls back to `columnTypeSchemaSource`
+ * so column `type` declarations are the single source of truth — same behaviour
+ * as `buildViewsFromColumnTypes`, now available for any kind, not just "custom".
+ */
 export const buildViews = (
   schema: ZodObject<ZodRawShape> | undefined,
   columns: JsonColumn[] | undefined,
 ): Record<string, ViewConfig> | undefined =>
-  buildViewsWithSource(schema ? zodSchemaSource(schema) : undefined, columns);
+  buildViewsWithSource(schema ? zodSchemaSource(schema) : columnTypeSchemaSource, columns);
 
 /**
  * Build table / form / filter / view schemas for a resource with no Zod model

@@ -4,7 +4,6 @@ import type { CalculatedColumn, JsonAction, JsonColumn, ResourceJson } from '../
 import { getResourceExtensions } from '../resource';
 import {
   buildViews,
-  buildViewsFromColumnTypes,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
 } from '../view';
@@ -50,7 +49,6 @@ export const compileResource = (
   tableActions?: JsonAction[],
   enums: EnumRegistry = {},
 ): CompiledResource => {
-  const isCustom = json.kind === 'custom';
   // columns is always JsonColumn[] after ResourceJsonSchema.parse
   const rawColumns = json.columns as JsonColumn[] | undefined;
   const columns: JsonColumn[] = enrichRelationTypes(
@@ -67,9 +65,7 @@ export const compileResource = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  let views = isCustom
-    ? buildViewsFromColumnTypes(enrichedColumns)
-    : buildViews(schema, enrichedColumns);
+  let views = buildViews(schema, enrichedColumns);
   if (views && calculatedColumns.length) {
     views = { ...views, table: injectCalculatedColumns(views.table, calculatedColumns) };
     if (views.view) {

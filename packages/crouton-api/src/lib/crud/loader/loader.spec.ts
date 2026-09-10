@@ -157,6 +157,35 @@ describe('loadResourceConfigsFromDir', () => {
     expect(warnings[0].warning).toMatch(/repository\.ts is present on a prisma resource/);
   });
 
+  it('loads a prisma-kind resource with no schema.ts when columns declare types', async () => {
+    const dir = join(tempDir, 'typed_cols');
+    mkdirSync(dir);
+    writeFileSync(
+      join(dir, 'resource.json'),
+      JSON.stringify({
+        name: 'typed_cols',
+        route: 'typed-cols',
+        tag: 'Test',
+        operations: { findAll: true },
+        columns: {
+          id: { type: 'string', idField: true, hiddenInForm: true },
+          title: { type: 'string' },
+          count: { type: 'integer' },
+        },
+      }),
+    );
+
+    const configs = await loadResourceConfigsFromDir(tempDir);
+
+    expect(configs).toHaveLength(1);
+    expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
+    const views = configs[0].views;
+    expect(views?.table).toBeDefined();
+    expect(views?.form).toBeDefined();
+    expect((views?.table?.json_schema as any).properties.title.type).toBe('string');
+    expect((views?.form?.json_schema as any).properties.count.type).toBe('integer');
+  });
+
   it('records a warning when kind:custom also sets database', async () => {
     const customWithDb = {
       name: 'custom_res',
