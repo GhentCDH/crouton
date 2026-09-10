@@ -3,7 +3,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type { JsonResourceOperations } from '../data-source';
 import type { JsonColumn } from '../resource';
 import { isRelation } from '../view';
-import type { OperationDef, ResourceDefinition, UpsertOperationDef } from './definition.schema';
+import type { OperationDef, ResourceDefinition } from './definition.schema';
 import type { SchemaInput } from './schema-input';
 
 export const pickByColumns = (
@@ -31,24 +31,6 @@ const opWithSchema = (
     return { uri: enabled['uri'] as string, ...(enabled['method'] ? { method: enabled['method'] as string } : {}) };
   }
   return schema ? { schema } : true;
-};
-
-type BoolOrUpsert = boolean | { upsertOn: string | string[] };
-
-const upsertOp = (
-  entry: BoolOrUpsert | undefined,
-  schema: SchemaInput | undefined,
-): UpsertOperationDef | undefined => {
-  if (!entry) return undefined;
-  if (entry === true) {
-    throw new Error(
-      '`operations.upsert` must be an object with `upsertOn`, not `true`.',
-    );
-  }
-  if (typeof entry === 'object') {
-    return { upsertOn: entry.upsertOn, ...(schema && { schema }) };
-  }
-  return undefined;
 };
 
 export const buildResourceDefinitions = (
@@ -80,9 +62,6 @@ export const buildResourceDefinitions = (
     }),
     ...(opWithSchema(operations.update, updateSchema) && {
       update: opWithSchema(operations.update, updateSchema)!,
-    }),
-    ...(upsertOp(operations.upsert, createSchema) && {
-      upsert: upsertOp(operations.upsert, createSchema)!,
     }),
     ...(opWithSchema(operations.patch as any, undefined) && {
       patch: opWithSchema(operations.patch as any, undefined)!,

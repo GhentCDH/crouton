@@ -10,7 +10,6 @@ describe('JsonOperationsSchema — security support', () => {
       create: true,
       update: true,
       patch: true,
-      upsert: false,
       delete: true,
     });
     expect(result.findAll).toBe(true);
@@ -48,20 +47,6 @@ describe('JsonOperationsSchema — security support', () => {
     expect(result.update).toBe(true);
     expect(result.patch).toBe(true);
     expect(result.delete).toBe(true);
-    expect(result.upsert).toBe(false);
-  });
-
-  it('keeps upsertOn when security is added to upsert', () => {
-    const result = JsonOperationsSchema.parse({
-      upsert: {
-        upsertOn: ['email'],
-        security: { guard: 'admin' },
-      },
-    });
-    expect(result.upsert).toEqual({
-      upsertOn: ['email'],
-      security: { guard: 'admin' },
-    });
   });
 
   it('rejects { guard: [] } (empty guard array)', () => {

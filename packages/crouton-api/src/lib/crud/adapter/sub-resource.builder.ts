@@ -168,7 +168,6 @@ export const buildSubResources = (
           create: childOps.create !== false,
           update: childOps.update !== false,
           patch: childOps.patch !== false,
-          upsert: childOps.upsert ?? false,
           delete: childOps.delete !== false,
         },
         ...(childJson?.actions?.length && { actions: childJson.actions }),

@@ -1,1 +1,1 @@
-export { opWithSchema, pickByColumns, upsertOp } from './schema.helpers';
+export { opWithSchema, pickByColumns } from './schema.helpers';

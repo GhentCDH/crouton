@@ -15,7 +15,6 @@ export type OperationContext = {
   createSchema: ReturnType<typeof schemaFor>;
   updateSchema: ReturnType<typeof schemaFor>;
   patchSchema: ReturnType<typeof schemaFor>;
-  upsertSchema: ReturnType<typeof schemaFor>;
   /** `{ name: 'id', type: 'string' | 'number' }` for Swagger @ApiParam. */
   idParamMeta: { name: string; type: string };
   /** Returns the correct Body() decorator: with ZodValidationPipe for Zod schemas, plain Body() otherwise. */

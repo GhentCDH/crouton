@@ -2,7 +2,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 
 import { type JsonColumn, type JsonResourceOperations, isRelation } from '@ghentcdh/crouton-core';
 
-import { type OperationDef, type ResourceDefinition, type UpsertOperationDef } from '../resource/defintion.schema';
+import { type OperationDef, type ResourceDefinition } from '../resource/defintion.schema';
 import { type SchemaInput } from '../resource/json.schema';
 
 /** Narrow a Zod object schema to the set of column ids listed in JSON. */
@@ -35,24 +35,6 @@ export const opWithSchema = (
   return schema ? { schema } : true;
 };
 
-type BoolOrUpsert = boolean | { upsertOn: string | string[] };
-
-export const upsertOp = (
-  entry: BoolOrUpsert | undefined,
-  schema: SchemaInput | undefined,
-): UpsertOperationDef | undefined => {
-  if (!entry) return undefined;
-  if (entry === true) {
-    throw new Error(
-      '`operations.upsert` must be an object with `upsertOn`, not `true`.',
-    );
-  }
-  if (typeof entry === 'object') {
-    return { upsertOn: entry.upsertOn, ...(schema && { schema }) };
-  }
-  return undefined;
-};
-
 export const buildResourceDefinitions = (
   schema: ZodObject<ZodRawShape> | undefined,
   operations: JsonResourceOperations,
@@ -82,9 +64,6 @@ export const buildResourceDefinitions = (
     }),
     ...(opWithSchema(operations.update, updateSchema) && {
       update: opWithSchema(operations.update, updateSchema)!,
-    }),
-    ...(upsertOp(operations.upsert, createSchema) && {
-      upsert: upsertOp(operations.upsert, createSchema)!,
     }),
     ...(opWithSchema(operations.patch as any, undefined) && {
       patch: opWithSchema(operations.patch as any, undefined)!,

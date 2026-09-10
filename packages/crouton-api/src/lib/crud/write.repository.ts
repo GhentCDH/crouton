@@ -3,14 +3,12 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
-import { resolveDefinition, upsertOnFor } from './crud.config';
 import {
   childCtx,
   childRepositoryFn,
   parentIdFromRequest,
 } from './custom-repository/child-delegate';
 import type { DataSourceAdapter } from './data-source/data-source.adapter';
-import { type WriteOp } from './hooks';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { normalizeValueLabels } from './resource/valueLabel.apply';
@@ -71,14 +69,11 @@ const stripNonCreateableChildFields = (
 };
 
 /**
- * Handles all write operations for a resource — create, update, upsert, delete, and child mutations.
+ * Handles all write operations for a resource — create, update, patch, delete, and child mutations.
  *
  * Resource-level `beforeWrite`/`afterWrite` hooks are NOT applied here for the core operations
  * (create, update, patch, delete) — they are applied by the factory wrapper so Prisma and custom
  * adapters share the same hook path. Sub-resource hooks are still applied inline.
- *
- * `upsert`/`upsertMany` retain their own hook calls because the op (create vs update) must be
- * determined by a database lookup before hooks can run.
  *
  * Prisma `P2025` (record not found) errors are mapped to `NotFoundException`.
  */
@@ -99,17 +94,6 @@ export class WriteRepository<T = any> {
 
   private notFound(id: string | number): NotFoundException {
     return new NotFoundException(`${this.config.name} with id ${id} not found`);
-  }
-
-  private upsertWhere(data: any): Record<string, unknown> {
-    const keys = upsertOnFor(resolveDefinition(this.config));
-    if (!keys)
-      throw new BadRequestException(
-        `${this.config.name} has no upsertOn configured`,
-      );
-    if (typeof keys === 'string') return { [keys]: data[keys] };
-    const composite = keys.join('_');
-    return { [composite]: Object.fromEntries(keys.map((k) => [k, data[k]])) };
   }
 
   /**
@@ -166,39 +150,6 @@ export class WriteRepository<T = any> {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       throw e;
     }
-  }
-
-  /**
-   * Upsert — retains its own hook calls because the op (create vs update) must be
-   * determined by a database lookup before hooks can be applied.
-   */
-  async upsert(data: unknown, request?: any): Promise<T> {
-    const { prepareWrite, postWrite } = await import('./hooks');
-    const where = this.upsertWhere(data);
-    const existing = await this.prismaModel.findFirst({ where });
-    const op: WriteOp = existing ? 'update' : 'create';
-    const existingId = existing
-      ? existing[this.config.idField ?? DEFAULT_ID_FIELD]
-      : undefined;
-    const prepared = await prepareWrite(
-      stripSubResourceKeys(this.config, data),
-      op,
-      this.config,
-      this.adapter,
-      existingId,
-      request,
-    );
-    const result = await this.prismaModel.upsert({
-      where,
-      create: prepared,
-      update: prepared,
-    });
-    return postWrite(result, op, this.config, this.adapter, existingId, request);
-  }
-
-  /** Upsert multiple rows in parallel. */
-  upsertMany(rows: unknown[], request?: any): Promise<T[]> {
-    return Promise.all(rows.map((r) => this.upsert(r, request)));
   }
 
   async delete(id: number | string, _request?: any): Promise<T> {

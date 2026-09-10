@@ -70,8 +70,6 @@ export interface CrudRepository<T = any> {
   create(data: unknown, request?: any): Promise<T>;
   update(id: number | string, data: unknown, request?: any): Promise<T>;
   patch(id: number | string, data: unknown, request?: any): Promise<T>;
-  upsert(data: unknown, request?: any): Promise<T>;
-  upsertMany(rows: unknown[], request?: any): Promise<T[]>;
   delete(id: number | string, request?: any): Promise<T>;
 }
 
@@ -226,15 +224,10 @@ export function createCrudRepository<T = any>(
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'patch', coercedId, request);
-        const result = await (resolvedAdapter.patch ?? resolvedAdapter.update)!(adapterModelKey, id, prepared, ctx(request, 'patch', coercedId));
+        const patchOrUpdate = (resolvedAdapter.patch ?? resolvedAdapter.update)!.bind(resolvedAdapter);
+        const result = await patchOrUpdate(adapterModelKey, id, prepared, ctx(request, 'patch', coercedId));
         return postData(result, 'patch', coercedId, request);
       },
-      upsert: writer
-        ? writer.upsert.bind(writer)
-        : () => Promise.reject(new Error(`upsert not supported for "${config.name}" (no Prisma model)`)),
-      upsertMany: writer
-        ? writer.upsertMany.bind(writer)
-        : () => Promise.reject(new Error(`upsertMany not supported for "${config.name}" (no Prisma model)`)),
       delete: async (id, request) => {
         const coercedId = toId(id);
         const result = await resolvedAdapter.delete!(adapterModelKey, id, ctx(request, 'delete', coercedId));
@@ -358,8 +351,6 @@ export function createCrudRepository<T = any>(
       const result = await writer.patch(id, prepared, request);
       return postData(result, 'patch', coercedId, request);
     },
-    upsert: writer.upsert.bind(writer),
-    upsertMany: writer.upsertMany.bind(writer),
     delete: async (id, request) => {
       const coercedId = toId(id);
       const result = await writer.delete(id, request);
