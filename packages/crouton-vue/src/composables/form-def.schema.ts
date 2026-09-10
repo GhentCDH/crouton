@@ -137,7 +137,6 @@ export const FormDefResponseZ = z
     uri: z.string(),
     display: Display.optional(),
     idField: z.string().default('id'),
-    idType: z.enum(['string', 'number']).default('string'),
     modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
     operations: Operations,
     actions: z.array(ActionSchema).optional().default([]),
