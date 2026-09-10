@@ -72,7 +72,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `parent`            | object                         | Mount this resource under a parent route: `{ "uri": "groups", "param": "groupId" }`. Custom resources only — see [Custom resources](custom-resource.md#as-a-standalone-nested-route-parent) |
 | `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar)                                                                                                                          |
 | `display`           | object                         | `mode` (`'page'` \| `'modal'`, default `'modal'`) and `customComponent`, see [Display](#display)                                                                                              |
-| `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `patch`, `upsert`, `delete`                                                                                                                  |
+| `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `patch`, `delete`                                                                                                                            |
 | `columns`           | map or array                   | Column definitions, see below                                                                                                                                                                 |
 | `calculatedColumns` | array                          | SQL-computed read-only columns, see below                                                                                                                                                     |
 | `actions`           | array                          | Row-level [actions](actions.md)                                                                                                                                                               |
@@ -92,7 +92,6 @@ endpoint. Set a key to `false` to disable it.
 | `create`  | `POST`      | `/`    | Create a new record                                  |
 | `update`  | `PUT`       | `/:id` | Full replace — all fields required per schema        |
 | `patch`   | `PATCH`     | `/:id` | Partial update — fields optional (auto `.partial()`) |
-| `upsert`  | `PUT`       | `/`    | Create or update based on `upsertOn` key(s)          |
 | `delete`  | `DELETE`    | `/:id` | Delete a record                                      |
 
 Each key accepts three forms:
@@ -102,22 +101,6 @@ Each key accepts three forms:
 | `true` (default) | Crouton registers and serves the endpoint |
 | `false` | Endpoint disabled — not registered |
 | `{ "uri": "/path/{id}" }` | **External** — client calls the given route directly; crouton registers nothing |
-
-`upsert` is the exception: it defaults to **disabled** and must be an object with `upsertOn`, not `true`:
-
-```json
-{
-  "operations": {
-    "delete": false,
-    "upsert": {
-      "upsertOn": "isbn"
-    }
-  }
-}
-```
-
-Passing `"upsert": true` throws at load time — `upsertOn` (a column name or array of column names used to detect an
-existing record) is required.
 
 ### External operations
 
