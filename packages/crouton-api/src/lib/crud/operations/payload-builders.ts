@@ -258,6 +258,7 @@ export const buildSubResourceViewsPayload = (
     idField: sub.idField ?? 'id',
     idType: sub.idType ?? 'string',
     ...(sub.modalSize && { modalSize: sub.modalSize }),
+    ...(sub.display && { display: sub.display }),
     operations: buildSubResourceOperations(
       sub.operations,
       childUri,

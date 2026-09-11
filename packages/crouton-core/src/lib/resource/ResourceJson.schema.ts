@@ -24,7 +24,7 @@ const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Display / sidebar ────────────────────────────────────────────────
 
-const JsonDisplaySchema = z.object({
+export const JsonDisplaySchema = z.object({
   mode: z.enum(['page', 'modal']).default('modal'), // default: 'modal'
   customComponent: z.string().nullable().optional().default(null), // default: null
 });

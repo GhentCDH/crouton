@@ -3,8 +3,9 @@ import { z } from 'zod';
 import {
   CalculatedColumnSchema,
   JsonActionSchema,
+  JsonDisplaySchema,
   JsonIncludeEntrySchema,
-  JsonOperationsSchema, ViewConfigSchema 
+  JsonOperationsSchema, ViewConfigSchema
 } from '@ghentcdh/crouton-core';
 
 
@@ -58,6 +59,8 @@ export const SubResourceConfigSchema = z.object({
   actions: z.array(JsonActionSchema).optional(),
   /** Modal width when opening a form for this sub-resource. */
   modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
+  /** How to display the sub-resource: page or modal. */
+  display: JsonDisplaySchema.optional(),
   /** Relations to include when querying this sub-resource. Supports nested includes — see `JsonIncludeEntry`. */
   include: z.array(JsonIncludeEntrySchema).optional(),
   /** Calculated columns to compute and merge for each row of this sub-resource. */
