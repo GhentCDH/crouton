@@ -4,7 +4,7 @@
       <div
         v-for="(child, i) in (uischema as Layout).elements"
         :key="i"
-        :class="COLSPAN[(child as any).options?.colspan ?? 12]"
+        :class="[COLSPAN[(child as any).options?.colspan ?? 12], ROWSPAN[(child as any).options?.rowspan ?? 0]]"
       >
         <Dispatch
           :uischema="child"
@@ -22,7 +22,7 @@ import { computed, inject } from 'vue';
 
 import { Collapse } from '@ghentcdh/ui';
 
-import { COLSPAN } from './colspan';
+import { COLSPAN, ROWSPAN } from './colspan';
 import Dispatch from '../../Dispatch.vue';
 
 const props = defineProps<{

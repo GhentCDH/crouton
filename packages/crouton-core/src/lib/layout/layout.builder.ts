@@ -38,6 +38,10 @@ export class LayoutBuilder<TYPE = Record<string, unknown>> extends ContainerBuil
     return new LayoutBuilder<TYPE>(LayoutType.Collapse);
   }
 
+  static group<TYPE = Record<string, unknown>>(): LayoutBuilder<TYPE> {
+    return new LayoutBuilder<TYPE>(LayoutType.Group);
+  }
+
   /** Collapse layout title. */
   title(title: string): this {
     return this.opt({ title });

@@ -12,15 +12,18 @@ export const LayoutType = {
   Vertical: 'VerticalLayout',
   Grid: 'GridLayout',
   Collapse: 'CollapseLayout',
+  Group: 'GroupLayout',
 } as const;
 
 export type LayoutType = (typeof LayoutType)[keyof typeof LayoutType];
 
-/** Options shared by every UI element. `colspan` is crouton-custom (read by the renderers). */
+/** Options shared by every UI element. `colspan`/`rowspan` are crouton-custom (read by the renderers). */
 export interface CroutonElementOptions {
   label?: string;
-  /** 1..12 grid span, mapped to a Tailwind class by the layout renderers. */
+  /** 1..12 column span, mapped to a Tailwind class by the layout renderers. */
   colspan?: number;
+  /** Row span for CSS grid; mapped to a Tailwind `row-span-*` class. */
+  rowspan?: number;
   styles?: Record<string, unknown>;
 }
 

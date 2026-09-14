@@ -24,6 +24,7 @@ export {
 export {
   type WhenCondition,
   buildConditionSchema,
+  buildFormControl,
   buildFormUiSchema,
   buildRule,
 } from './form-schema.builder';
@@ -40,6 +41,8 @@ export {
   patchFilterProperties,
   zodSchemaSource,
 } from './view.builder';
+export { buildFormUiSchemaFromLayout, flattenLayoutControlIds } from './layout-ui-schema.builder';
+export { orderTableColumnsFromLayout } from './layout-table-order';
 export {
   columnToJsonSchemaProperty,
   columnTypeSchemaSource,

@@ -3,7 +3,7 @@
     <div
       v-for="(child, i) in (uischema as Layout).elements"
       :key="i"
-      :class="COLSPAN[(child as any).options?.colspan ?? 12]"
+      :class="[COLSPAN[(child as any).options?.colspan ?? 12], ROWSPAN[(child as any).options?.rowspan ?? 0]]"
     >
       <Dispatch :uischema="child" :schema="schema" />
     </div>
@@ -16,7 +16,7 @@
 import type { JsonSchema, Layout, UISchemaElement } from '@jsonforms/core';
 import { computed } from 'vue';
 
-import { COLSPAN } from './colspan';
+import { COLSPAN, ROWSPAN } from './colspan';
 import Dispatch from '../../Dispatch.vue';
 
 const props = defineProps<{
@@ -28,7 +28,8 @@ const LAYOUT: Record<string, string> = {
   // Stack on narrow viewports (e.g. small modals), switch to the 12-column
   // grid at md+. Children keep their `col-span-*`; with a single column the
   // span clamps to full width, so fields stack cleanly.
-  GridLayout: 'grid grid-cols-1 gap-x-3 md:grid-cols-12',
+  // grid-flow-row-dense ensures row-spanning items fill the grid correctly.
+  GridLayout: 'grid grid-cols-1 gap-x-3 md:grid-cols-12 grid-flow-row-dense',
   HorizontalLayout: 'flex flex-col gap-y-3 md:flex-row',
   VerticalLayout: 'flex flex-col gap-3',
 };
