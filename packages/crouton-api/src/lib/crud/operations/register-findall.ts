@@ -1,15 +1,13 @@
 import { Get, Param, Query, Req } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
-import { isOperationEnabled, isOperationExternal } from '../crud.config';
-import { def, desc } from './decorator.utils';
 import type { CrudRepository } from '../crud-repository.factory';
 import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { toJsonSchema } from '../schema.utils';
 import { ZodValidationPipe } from '../zod-validation.pipe';
-import { childSchemas } from './register-schemas';
+import { isOpEnabled, registerOperation, type OperationSpec } from './operation-registrar';
 
 const _findAll = async (
   repo: CrudRepository,
@@ -44,6 +42,7 @@ const _findAll = async (
     },
   };
 };
+
 const findAllByParent = async (
   repo: CrudRepository,
   id: string,
@@ -72,61 +71,68 @@ const findAllByParent = async (
   };
 };
 
-const defaultFindAll = (ctx: OperationContext) => {
-  if (!isOperationEnabled(ctx.definition, 'findAll')) return;
-  if (isOperationExternal(ctx.definition, 'findAll')) return;
+const describeFindAll = (
+  ctx: OperationContext,
+  sub?: SubResourceConfig,
+): OperationSpec | null => {
+  if (!isOpEnabled(ctx, 'findAll', sub)) return null;
 
-  const { config } = ctx;
-  const lookupLabel = config.lookup?.label;
-  const findAll = async function (
-    this: { repo: CrudRepository },
-    params: any,
-    q: string | undefined,
-    req: any,
-  ) {
-    return _findAll(this.repo, params, q, lookupLabel, req);
-  };
+  const { config, cls, listSchema } = ctx;
+  const methodName = sub ? `findAllBy_${sub.childRoute}` : 'findAll';
+  const route = sub ? `:id/${sub.childRoute}` : '';
+  const name = sub ? sub.childRoute : config.name;
+  const lookupLabel = sub ? undefined : config.lookup?.label;
 
-  return {
-    route: '',
-    name: config.name,
-    methodName: 'findAll',
-    findAll,
-    listSchema: ctx.listSchema,
-    decorators: () => {
-      //
-    },
-  };
-};
+  const handler = sub
+    ? async function (
+        this: { repo: CrudRepository },
+        params: any,
+        q: string | undefined,
+        id: string,
+        req: any,
+      ) {
+        return findAllByParent(this.repo, id, sub.childRoute, params, req);
+      }
+    : async function (
+        this: { repo: CrudRepository },
+        params: any,
+        q: string | undefined,
+        req: any,
+      ) {
+        return _findAll(this.repo, params, q, lookupLabel, req);
+      };
 
-const childFindAll = (sub: SubResourceConfig) => (ctx: OperationContext) => {
-  if (!isOperationEnabled(sub.operations, 'findAll')) return;
-
-  const { cls } = ctx;
-  const methodName = `findAllBy_${sub.childRoute}`;
-
-  const findAll = async function (
-    this: { repo: CrudRepository },
-    params: any,
-    q: string | undefined,
-    id: string,
-    req: any,
-  ) {
-    return findAllByParent(this.repo, id, sub.childRoute, params, req);
-  };
-
-  const decorators = () => {
-    Param('id')(cls.prototype, methodName, 2);
-    Req()(cls.prototype, methodName, 3);
-  };
+  const paramDecorators = sub
+    ? () => {
+        Query(new ZodValidationPipe(RequestDtoNoOffset.schema as any))(cls.prototype, methodName, 0);
+        Query('q')(cls.prototype, methodName, 1);
+        Param('id')(cls.prototype, methodName, 2);
+        Req()(cls.prototype, methodName, 3);
+      }
+    : () => {
+        Query(new ZodValidationPipe(RequestDtoNoOffset.schema as any))(cls.prototype, methodName, 0);
+        Query('q')(cls.prototype, methodName, 1);
+        Req()(cls.prototype, methodName, 2);
+      };
 
   return {
-    name: sub.childRoute,
     methodName,
-    findAll,
-    route: `:id/${sub.childRoute}`,
-    decorators,
-    listSchema: ctx.listSchema,
+    route,
+    name,
+    handler,
+    paramDecorators,
+    httpVerbDecorator: Get,
+    apiSummary: `List all ${name}s`,
+    apiResponses: [
+      (t, k, d) => ApiResponse({
+        status: 200,
+        description: `Array of ${name}`,
+        ...(listSchema && {
+          schema: { type: 'array', items: toJsonSchema(listSchema) },
+        }),
+      })(t, k, d),
+    ],
+    op: 'findAll',
   };
 };
 
@@ -138,32 +144,7 @@ export const registerFindAll = (
   ctx: OperationContext,
   sub?: SubResourceConfig,
 ): void => {
-  const operationFn = sub ? childFindAll(sub) : defaultFindAll;
-  const properties = operationFn(ctx);
-  if (!properties) return;
-
-  const { methodName, route, name, listSchema } = properties;
-  const { cls } = ctx;
-
-  def(cls, methodName, properties.findAll);
-  const d = desc(cls, methodName);
-  Get(route)(cls.prototype, methodName, d);
-  Query(new ZodValidationPipe(RequestDtoNoOffset.schema as any))(
-    cls.prototype,
-    methodName,
-    0,
-  );
-  Query('q')(cls.prototype, methodName, 1);
-  if (!sub) Req()(cls.prototype, methodName, 2);
-  ApiOperation({ summary: `List all ${name}s` })(cls.prototype, methodName, d);
-  ApiResponse({
-    status: 200,
-    description: `Array of ${name}`,
-    ...(listSchema && {
-      schema: { type: 'array', items: toJsonSchema(listSchema) },
-    }),
-  })(cls.prototype, methodName, d);
-
-  properties.decorators();
-  ctx.secure(methodName, 'findAll', sub);
+  const spec = describeFindAll(ctx, sub);
+  if (!spec) return;
+  registerOperation(ctx, spec, sub);
 };

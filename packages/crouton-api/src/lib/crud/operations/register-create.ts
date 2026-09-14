@@ -1,62 +1,58 @@
 import { Body, Param, Post, Req } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 
-import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../crud-repository.factory';
-import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { isOpEnabled, registerOperation, type OperationSpec } from './operation-registrar';
 
-const defaultCreate = (ctx: OperationContext) => {
-  if (!isOperationEnabled(ctx.definition, 'create')) return null;
-  if (isOperationExternal(ctx.definition, 'create')) return null;
+const describeCreate = (
+  ctx: OperationContext,
+  sub?: SubResourceConfig,
+): OperationSpec | null => {
+  if (!isOpEnabled(ctx, 'create', sub)) return null;
+
   const { cls, config, createSchema, bodyDecorator } = ctx;
-  const methodName = 'create';
+  const methodName = sub ? `createChild_${sub.childRoute}` : 'create';
+  const route = sub ? `:id/${sub.childRoute}` : '';
+  const name = sub ? sub.childRoute : config.name;
+
+  const handler = sub
+    ? async function (
+        this: { repo: CrudRepository },
+        id: string,
+        body: any,
+        req: any,
+      ) {
+        return this.repo.createChild(id, sub, body, req);
+      }
+    : function (this: { repo: CrudRepository }, body: any, req: any) {
+        return this.repo.create(body, req);
+      };
+
+  const paramDecorators = sub
+    ? () => {
+        Param('id')(cls.prototype, methodName, 0);
+        Body()(cls.prototype, methodName, 1);
+        Req()(cls.prototype, methodName, 2);
+      }
+    : () => {
+        bodyDecorator(createSchema, { coerceNullableUndefinedToNull: true })(cls.prototype, methodName, 0);
+        Req()(cls.prototype, methodName, 1);
+      };
 
   return {
-    route: '',
     methodName,
-    name: config.name,
-    createFn: function (this: { repo: CrudRepository }, body: any, req: any) {
-      return this.repo.create(body, req);
-    },
-    decorators: () => {
-      bodyDecorator(createSchema, { coerceNullableUndefinedToNull: true })(
-        cls.prototype,
-        methodName,
-        0,
-      );
-      Req()(cls.prototype, methodName, 1);
-    },
-  };
-};
-
-const childCreate = (sub: SubResourceConfig) => (ctx: OperationContext) => {
-  if (!isOperationEnabled(sub.operations, 'create')) return null;
-  const { cls } = ctx;
-  const methodName = `createChild_${sub.childRoute}`;
-
-  const createFn = async function (
-    this: { repo: CrudRepository },
-    id: string,
-    body: any,
-    req: any,
-  ) {
-    return this.repo.createChild(id, sub, body, req);
-  };
-
-  const decorators = () => {
-    Param('id')(cls.prototype, methodName, 0);
-    Body()(cls.prototype, methodName, 1);
-    Req()(cls.prototype, methodName, 2);
-  };
-
-  return {
-    route: `:id/${sub.childRoute}`,
-    methodName,
-    name: sub.childRoute,
-    createFn,
-    decorators,
+    route,
+    name,
+    handler,
+    paramDecorators,
+    httpVerbDecorator: Post,
+    apiSummary: `Create a ${name}`,
+    apiResponses: [
+      (t, k, d) => ApiResponse({ status: 201, description: `${name} created` })(t, k, d),
+    ],
+    op: 'create',
   };
 };
 
@@ -65,23 +61,7 @@ export const registerCreate = (
   ctx: OperationContext,
   sub?: SubResourceConfig,
 ): void => {
-  const operationFn = sub ? childCreate(sub) : defaultCreate;
-  const properties = operationFn(ctx);
-  if (!properties) return;
-
-  const { methodName, route, name } = properties;
-  const { cls } = ctx;
-
-  def(cls, methodName, properties.createFn);
-  const d = desc(cls, methodName);
-  Post(route)(cls.prototype, methodName, d);
-  ApiOperation({ summary: `Create a ${name}` })(cls.prototype, methodName, d);
-  ApiResponse({ status: 201, description: `${name} created` })(
-    cls.prototype,
-    methodName,
-    d,
-  );
-
-  properties.decorators();
-  ctx.secure(methodName, 'create', sub);
+  const spec = describeCreate(ctx, sub);
+  if (!spec) return;
+  registerOperation(ctx, spec, sub);
 };
