@@ -345,6 +345,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
+      vee-validate:
+        specifier: 5.0.0-beta.1
+        version: 5.0.0-beta.1(vue@3.5.39(typescript@6.0.3))
       vue:
         specifier: '>=3.0.0'
         version: 3.5.39(typescript@6.0.3)
@@ -13883,6 +13886,14 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@14.0.2: {}
+
+  vee-validate@5.0.0-beta.1(vue@3.5.39(typescript@6.0.3)):
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      '@standard-schema/utils': 0.3.0
+      '@vue/devtools-api': 7.7.9
+      type-fest: 4.41.0
+      vue: 3.5.39(typescript@6.0.3)
 
   vee-validate@5.0.0-beta.1(vue@3.5.42(typescript@6.0.3)):
     dependencies:
