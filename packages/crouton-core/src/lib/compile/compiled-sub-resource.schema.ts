@@ -4,6 +4,7 @@ import { JsonOperationsSchema } from '../data-source';
 import {
   CalculatedColumnSchema,
   JsonActionSchema,
+  JsonDisplaySchema,
   JsonIncludeEntrySchema,
 } from '../resource';
 import { ViewConfigSchema } from '../view';
@@ -25,6 +26,7 @@ export const CompiledSubResourceConfigSchema = z.object({
   operations: JsonOperationsSchema,
   actions: z.array(JsonActionSchema).optional(),
   modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
+  display: JsonDisplaySchema.optional(),
   include: z.array(JsonIncludeEntrySchema).optional(),
   calculatedColumns: z.array(CalculatedColumnSchema).optional(),
   includeInFindOne: z.boolean().optional(),
