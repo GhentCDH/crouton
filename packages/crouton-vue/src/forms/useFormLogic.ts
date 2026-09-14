@@ -28,7 +28,8 @@ export const useFormLogic = (
   const schema = view?.json_schema ?? view?.data ?? null;
   const errors = ref(null);
   const id = `edit_${Math.floor(Math.random() * 1000)}`;
-  const valid = ref(false);
+  // If there is no schema it is by default valid as there is no data to validate
+  const valid = ref(!(uiSchema && schema));
 
   if (properties.data) {
     formData.value = properties.data;
