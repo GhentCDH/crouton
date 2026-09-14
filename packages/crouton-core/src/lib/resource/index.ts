@@ -1,3 +1,4 @@
+export * from './Layout.schema';
 export * from './ResourceJson.schema';
 export * from './extensions';
 export * from './version';
