@@ -24,6 +24,7 @@ export const replaceUriParams = (
   params: Record<string, any>,
 ) => {
   return uri.replace(/\{([\w.]+)\}/g, (match, key: string) => {
-    return getNestedValue(params, key) ?? match;
+    const value = getNestedValue(params, key);
+    return value != null ? encodeURIComponent(value) : match;
   });
 };
