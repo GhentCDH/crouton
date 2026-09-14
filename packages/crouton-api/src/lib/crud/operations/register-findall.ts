@@ -2,7 +2,7 @@ import { Get, Param, Query, Req } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
-import type { CrudRepository } from '../crud-repository.factory';
+import type { CrudRepository, ChildScope } from '../crud-repository.factory';
 import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { toJsonSchema } from '../schema.utils';
@@ -14,48 +14,21 @@ const _findAll = async (
   params: any,
   q: string | undefined,
   lookupLabel: string | undefined,
+  scope: ChildScope | undefined,
   request?: any,
 ) => {
   const effectiveParams = { ...params };
   if (q && lookupLabel) {
     effectiveParams.filter = [...(params.filter ?? []), `${lookupLabel}:${q}`];
   }
-  // Repositories that cannot count separately (custom repositories backed by a
-  // remote API) implement `findAllWithCount` and return both in one round trip.
   const { data, count } = repo.findAllWithCount
-    ? await repo.findAllWithCount(effectiveParams, request)
+    ? await repo.findAllWithCount(effectiveParams, scope, request)
+    : scope
+    ? await repo.findAllByParent!(scope.parentId, scope.sub.childRoute, effectiveParams, request)
     : await Promise.all([
-        repo.findAll(effectiveParams, request),
+        repo.findAll(effectiveParams, undefined, request),
         repo.count(effectiveParams.filter),
       ]).then(([data, count]) => ({ data, count }));
-  const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
-  return {
-    data,
-    request: {
-      count,
-      page: params.page,
-      pageSize: params.pageSize,
-      totalPages,
-      sort: params.sort,
-      sortDir: params.sortDir,
-      filter: params.filter,
-    },
-  };
-};
-
-const findAllByParent = async (
-  repo: CrudRepository,
-  id: string,
-  childRoute: string,
-  params: any,
-  request?: any,
-) => {
-  const { data, count } = await repo.findAllByParent(
-    id,
-    childRoute,
-    params,
-    request,
-  );
   const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
   return {
     data,
@@ -88,10 +61,10 @@ const describeFindAll = (
         this: { repo: CrudRepository },
         params: any,
         q: string | undefined,
-        id: string,
+        parentId: string,
         req: any,
       ) {
-        return findAllByParent(this.repo, id, sub.childRoute, params, req);
+        return _findAll(this.repo, params, q, lookupLabel, { parentId, sub }, req);
       }
     : async function (
         this: { repo: CrudRepository },
@@ -99,7 +72,7 @@ const describeFindAll = (
         q: string | undefined,
         req: any,
       ) {
-        return _findAll(this.repo, params, q, lookupLabel, req);
+        return _findAll(this.repo, params, q, lookupLabel, undefined, req);
       };
 
   const paramDecorators = sub

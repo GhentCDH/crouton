@@ -2,9 +2,9 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import type { CrudOperation } from '../crud.config';
 import { isOperationEnabled, isOperationExternal } from '../crud.config';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 export type OperationSpec = {
   methodName: string;

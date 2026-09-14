@@ -93,7 +93,7 @@ describe('createCustomRepository', () => {
       const repo = make({ findAll });
       const request = { user: { id: 'u1' } };
 
-      await repo.findAll(listParams(), request);
+      await repo.findAll(listParams(), undefined, request);
 
       const [, ctx] = findAll.mock.calls[0] as any[];
       expect(ctx.request).toBe(request);
@@ -137,7 +137,7 @@ describe('createCustomRepository', () => {
     it('forwards the request into ctx', async () => {
       const findOne = vi.fn(async (id: any) => ({ id }));
       const request = { user: { id: 'u1' } };
-      await make({ findOne }).findOne('abc', request);
+      await make({ findOne }).findOne('abc', undefined, request);
       expect((findOne.mock.calls[0] as any[])[1].request).toBe(request);
     });
 
@@ -191,7 +191,7 @@ describe('createCustomRepository', () => {
       const create = vi.fn(async (data: any) => data);
       const request = { user: { id: 'u1' } };
 
-      await make({ create }, config).create({ title: 'a' }, request);
+      await make({ create }, config).create({ title: 'a' }, undefined, request);
 
       // beforeWrite, the repository's own ctx, and afterWrite all see it.
       expect((create.mock.calls[0] as any[])[1].request).toBe(request);

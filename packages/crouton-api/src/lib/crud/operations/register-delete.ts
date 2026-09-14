@@ -3,8 +3,8 @@ import { ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../crud-repository.factory';
+import { type OperationSpec, isOpEnabled, registerOperation } from './operation-registrar';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
-import { isOpEnabled, registerOperation, type OperationSpec } from './operation-registrar';
 
 const describeDelete = (
   ctx: OperationContext,
@@ -24,10 +24,10 @@ const describeDelete = (
         parentId: string,
         req: any,
       ) {
-        return this.repo.deleteChild(sub, childId, parentId, req);
+        return this.repo.delete(childId, { parentId, sub }, req);
       }
     : function (this: { repo: CrudRepository }, id: string, req: any) {
-        return this.repo.delete(id, req);
+        return this.repo.delete(id, undefined, req);
       };
 
   const paramDecorators = sub

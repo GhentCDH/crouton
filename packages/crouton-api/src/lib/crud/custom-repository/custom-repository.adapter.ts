@@ -301,8 +301,9 @@ export const createCustomRepository = <T = any>(
   return {
     prisma,
     // Preferred by register-findall: one round trip returns rows and count.
-    findAllWithCount,
-    findAll: async (params, request) =>
+    // scope is always undefined for parent-nested custom resources; ignored.
+    findAllWithCount: (params, _scope, request) => findAllWithCount(params, request),
+    findAll: async (params, _scope, request) =>
       (await findAllWithCount(params, request)).data,
     count: async (filter) =>
       (
@@ -314,11 +315,11 @@ export const createCustomRepository = <T = any>(
           filter: filter ?? [],
         })
       ).count,
-    findOne,
-    create: (data, request) => write('create', data, undefined, request),
-    update: (id, data, request) => write('update', data, id, request),
-    patch: (id, data, request) => write('patch', data, id, request),
-    delete: async (id, request) => {
+    findOne: (id, _scope, request) => findOne(id, request),
+    create: (data, _scope, request) => write('create', data, undefined, request),
+    update: (id, data, _scope, request) => write('update', data, id, request),
+    patch: (id, data, _scope, request) => write('patch', data, id, request),
+    delete: async (id, _scope, request) => {
       const coercedId = toId(id);
       let result: T;
 

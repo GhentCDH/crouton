@@ -29,10 +29,10 @@ const describeFindOne = (
         childId: string,
         req: any,
       ) {
-        return this.repo.findOneChild(sub, childId, parentId, req);
+        return this.repo.findOne(childId, { parentId, sub }, req);
       }
     : function (this: { repo: CrudRepository }, id: string, req: any) {
-        return this.repo.findOne(id, req);
+        return this.repo.findOne(id, undefined, req);
       };
 
   const paramDecorators = sub

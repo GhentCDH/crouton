@@ -23,12 +23,12 @@ const describeUpdate = (
   const handler = sub
     ? async function (
         this: { repo: CrudRepository },
-        _id: string,
+        parentId: string,
         childId: string,
         body: any,
         req: any,
       ) {
-        return this.repo.updateChild(sub, childId, body, req);
+        return this.repo.update(childId, body, { parentId, sub }, req);
       }
     : function (
         this: { repo: CrudRepository },
@@ -36,7 +36,7 @@ const describeUpdate = (
         body: any,
         req: any,
       ) {
-        return this.repo.update(id, body, req);
+        return this.repo.update(id, body, undefined, req);
       };
 
   const paramDecorators = sub

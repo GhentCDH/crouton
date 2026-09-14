@@ -20,14 +20,14 @@ const describeCreate = (
   const handler = sub
     ? async function (
         this: { repo: CrudRepository },
-        id: string,
+        parentId: string,
         body: any,
         req: any,
       ) {
-        return this.repo.createChild(id, sub, body, req);
+        return this.repo.create(body, { parentId, sub }, req);
       }
     : function (this: { repo: CrudRepository }, body: any, req: any) {
-        return this.repo.create(body, req);
+        return this.repo.create(body, undefined, req);
       };
 
   const paramDecorators = sub

@@ -18,59 +18,68 @@ import { toSelectFields } from './schema.utils';
 import { resolveValueLabelColumns } from './translation';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
+/** Identifies the parent when operating on a child resource. */
+export type ChildScope = { parentId: string | number; sub: SubResourceConfig };
+
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = any> {
   /** Raw Prisma client — used by action procedures. */
   readonly prisma: any;
-  findAll(params: ListRequest, request?: any): Promise<T[]>;
+  findAll(params: ListRequest, scope?: ChildScope, request?: any): Promise<T[]>;
   count(filter: string[]): Promise<number>;
   /**
    * Fetch rows *and* their total count in a single call.
    *
-   * Optional: the Prisma-backed repository leaves it undefined and callers fall
-   * back to `findAll` + `count`. Repositories whose backend cannot count
-   * separately (e.g. a remote HTTP API returning `{items, total}`) implement
-   * this instead.
+   * Optional: callers fall back to `findAll` + `count` when absent.
+   * Repositories whose backend cannot count separately (e.g. a remote HTTP API)
+   * implement this instead. When `scope` is provided, returns the child rows.
    */
   findAllWithCount?(
     params: ListRequest,
+    scope?: ChildScope,
     request?: any,
   ): Promise<{ data: T[]; count: number }>;
-  findOne(id: number | string, request?: any): Promise<T>;
+  findOne(id: number | string, scope?: ChildScope, request?: any): Promise<T>;
+  create(data: unknown, scope?: ChildScope, request?: any): Promise<T>;
+  update(id: number | string, data: unknown, scope?: ChildScope, request?: any): Promise<T>;
+  patch(id: number | string, data: unknown, scope?: ChildScope, request?: any): Promise<T>;
+  delete(id: number | string, scope?: ChildScope, request?: any): Promise<T>;
+
+  /** @deprecated Use findAll with scope instead */
   findAllByParent(
     parentId: string | number,
     childRoute: string,
     params: ListRequest,
     request?: any,
   ): Promise<{ data: T[]; count: number }>;
+  /** @deprecated Use findOne with scope instead */
   findOneChild(
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
     request?: any,
   ): Promise<T>;
+  /** @deprecated Use create with scope instead */
   createChild(
     parentId: string | number,
     sub: SubResourceConfig,
     data: unknown,
     request?: any,
   ): Promise<T>;
+  /** @deprecated Use update with scope instead */
   updateChild(
     sub: SubResourceConfig,
     childId: string | number,
     data: unknown,
     request?: any,
   ): Promise<T>;
+  /** @deprecated Use delete with scope instead */
   deleteChild(
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
     request?: any,
   ): Promise<T>;
-  create(data: unknown, request?: any): Promise<T>;
-  update(id: number | string, data: unknown, request?: any): Promise<T>;
-  patch(id: number | string, data: unknown, request?: any): Promise<T>;
-  delete(id: number | string, request?: any): Promise<T>;
 }
 
 /**
@@ -191,36 +200,55 @@ export function createCrudRepository<T = any>(
 
     return {
       prisma,
-      findAllWithCount: async (params, request) => {
+      findAllWithCount: async (params, scope, request) => {
+        if (scope) {
+          const { data, count } = await adapterFindAllByParent(scope.parentId, scope.sub.childRoute, params, request);
+          return { data, count };
+        }
         const { data, count } = await resolvedAdapter.findAll!(adapterModelKey, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
         return { data: await decorateFindAll(data, request), count };
       },
-      findAll: async (params, request) => {
+      findAll: async (params, scope, request) => {
+        if (scope) {
+          const { data } = await adapterFindAllByParent(scope.parentId, scope.sub.childRoute, params, request);
+          return data;
+        }
         const { data } = await resolvedAdapter.findAll!(adapterModelKey, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
         return decorateFindAll(data, request);
       },
       count: (filter) => resolvedAdapter.count!(adapterModelKey, filter, baseCtx),
-      findOne: async (id, request) => {
+      findOne: async (id, scope, request) => {
+        if (scope) return adapterFindOneChild(scope.sub, id, scope.parentId, request);
         const row = await resolvedAdapter.findOne!(adapterModelKey, id, ctx(request, 'findOne', id));
         if (row === null || row === undefined) throw new NotFoundException(`${config.name} with id ${id} not found`);
         return decorateFindOne(row, request);
       },
-      findAllByParent: adapterFindAllByParent,
-      findOneChild: adapterFindOneChild,
-      create: async (data, request) => {
+      create: async (data, scope, request) => {
+        if (scope) {
+          if (!writer) return Promise.reject(new Error(`createChild not supported for "${config.name}" (no Prisma model)`));
+          return writer.createChild(scope.parentId, scope.sub, data, request);
+        }
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'create', undefined, request);
         const result = await resolvedAdapter.create!(adapterModelKey, prepared, ctx(request, 'create'));
         return postData(result, 'create', undefined, request);
       },
-      update: async (id, data, request) => {
+      update: async (id, data, scope, request) => {
+        if (scope) {
+          if (!writer) return Promise.reject(new Error(`updateChild not supported for "${config.name}" (no Prisma model)`));
+          return writer.updateChild(scope.sub, id, data, request);
+        }
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'update', coercedId, request);
         const result = await resolvedAdapter.update!(adapterModelKey, id, prepared, ctx(request, 'update', coercedId));
         return postData(result, 'update', coercedId, request);
       },
-      patch: async (id, data, request) => {
+      patch: async (id, data, scope, request) => {
+        if (scope) {
+          if (!writer) return Promise.reject(new Error(`updateChild not supported for "${config.name}" (no Prisma model)`));
+          return writer.updateChild(scope.sub, id, data, request);
+        }
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
         const prepared = await prepareData(stripped, 'patch', coercedId, request);
@@ -228,11 +256,18 @@ export function createCrudRepository<T = any>(
         const result = await patchOrUpdate(adapterModelKey, id, prepared, ctx(request, 'patch', coercedId));
         return postData(result, 'patch', coercedId, request);
       },
-      delete: async (id, request) => {
+      delete: async (id, scope, request) => {
+        if (scope) {
+          if (!writer) return Promise.reject(new Error(`deleteChild not supported for "${config.name}" (no Prisma model)`));
+          return writer.deleteChild(scope.sub, id, scope.parentId, request);
+        }
         const coercedId = toId(id);
         const result = await resolvedAdapter.delete!(adapterModelKey, id, ctx(request, 'delete', coercedId));
         return postData(result, 'delete', coercedId, request);
       },
+      // Deprecated shims — delegate to scoped methods
+      findAllByParent: adapterFindAllByParent,
+      findOneChild: adapterFindOneChild,
       createChild: writer
         ? writer.createChild.bind(writer)
         : () => Promise.reject(new Error(`createChild not supported for "${config.name}" (no Prisma model)`)),
@@ -324,38 +359,60 @@ export function createCrudRepository<T = any>(
 
   return {
     prisma,
-    findAll: async (params, request) =>
-      decorateFindAll(await reader.findAll(params, request), request),
+    findAll: async (params, scope, request) => {
+      if (scope) {
+        const { data } = await reader.findAllByParent(scope.parentId, scope.sub.childRoute, params, request);
+        return data;
+      }
+      return decorateFindAll(await reader.findAll(params, request), request);
+    },
+    findAllWithCount: async (params, scope, request) => {
+      if (scope) {
+        return reader.findAllByParent(scope.parentId, scope.sub.childRoute, params, request);
+      }
+      const [data, count] = await Promise.all([
+        reader.findAll(params, request).then((rows) => decorateFindAll(rows, request)),
+        reader.count(params.filter ?? []),
+      ]);
+      return { data, count };
+    },
     count: reader.count.bind(reader),
-    findOne: async (id, request) =>
-      decorateFindOne(await reader.findOne(id, request), request),
-    findAllByParent: reader.findAllByParent.bind(reader),
-    findOneChild: reader.findOneChild.bind(reader),
-    create: async (data, request) => {
+    findOne: async (id, scope, request) => {
+      if (scope) return reader.findOneChild(scope.sub, id, scope.parentId, request);
+      return decorateFindOne(await reader.findOne(id, request), request);
+    },
+    create: async (data, scope, request) => {
+      if (scope) return writer.createChild(scope.parentId, scope.sub, data, request);
       const stripped = stripSubResourceKeys(config, data);
       const prepared = await prepareData(stripped, 'create', undefined, request);
       const result = await writer.create(prepared, request);
       return postData(result, 'create', undefined, request);
     },
-    update: async (id, data, request) => {
+    update: async (id, data, scope, request) => {
+      if (scope) return writer.updateChild(scope.sub, id, data, request);
       const coercedId = toId(id);
       const stripped = stripSubResourceKeys(config, data);
       const prepared = await prepareData(stripped, 'update', coercedId, request);
       const result = await writer.update(id, prepared, request);
       return postData(result, 'update', coercedId, request);
     },
-    patch: async (id, data, request) => {
+    patch: async (id, data, scope, request) => {
+      if (scope) return writer.updateChild(scope.sub, id, data, request);
       const coercedId = toId(id);
       const stripped = stripSubResourceKeys(config, data);
       const prepared = await prepareData(stripped, 'patch', coercedId, request);
       const result = await writer.patch(id, prepared, request);
       return postData(result, 'patch', coercedId, request);
     },
-    delete: async (id, request) => {
+    delete: async (id, scope, request) => {
+      if (scope) return writer.deleteChild(scope.sub, id, scope.parentId, request);
       const coercedId = toId(id);
       const result = await writer.delete(id, request);
       return postData(result, 'delete', coercedId, request);
     },
+    // Deprecated shims
+    findAllByParent: reader.findAllByParent.bind(reader),
+    findOneChild: reader.findOneChild.bind(reader),
     createChild: writer.createChild.bind(writer),
     updateChild: writer.updateChild.bind(writer),
     deleteChild: writer.deleteChild.bind(writer),
