@@ -1,3 +1,26 @@
+## 0.0.1-alpha.55 (2026-09-15)
+
+### 🚀 Features
+
+- remove upsert operation ([#113](https://github.com/GhentCDH/crouton/pull/113))
+- layout section ([#103](https://github.com/GhentCDH/crouton/pull/103))
+- encodeURIComponent on ids ([bcb5e4c](https://github.com/GhentCDH/crouton/commit/bcb5e4c))
+- expose form message ([#119](https://github.com/GhentCDH/crouton/pull/119))
+- **core:** build json_schema from column types when no schema.ts is present ([#115](https://github.com/GhentCDH/crouton/pull/115))
+- **crouton-vue:** remove idType from FormDefResponse schema ([#114](https://github.com/GhentCDH/crouton/pull/114))
+
+### 🩹 Fixes
+
+- build ([56979af](https://github.com/GhentCDH/crouton/commit/56979af))
+- valid when no data is avalable ([88742ac](https://github.com/GhentCDH/crouton/commit/88742ac))
+- **crouton-api,crouton-core:** propagate display field through sub-resource schemas ([#117](https://github.com/GhentCDH/crouton/pull/117))
+- **crouton-vue:** declare vee-validate as a dependency ([b53f331](https://github.com/GhentCDH/crouton/commit/b53f331))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.54 (2026-09-09)
 
 ### 🚀 Features
