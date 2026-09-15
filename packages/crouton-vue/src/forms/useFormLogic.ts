@@ -56,29 +56,6 @@ export const useFormLogic = (
 
   const autoSaveStatus = computed(() => autoSaver?.status.value ?? 'idle');
 
-  const autoSaveStatusLabel = computed(() => {
-    switch (autoSaveStatus.value) {
-      case 'saving':
-        return 'Saving…';
-      case 'saved':
-        return 'Saved ✓';
-      case 'pending':
-        return 'Fill required fields to save';
-      case 'error':
-        return 'Save failed';
-      default:
-        return '';
-    }
-  });
-
-  const autoSaveStatusClass = computed(() => ({
-    'text-gray-400': autoSaveStatus.value === 'idle',
-    'text-blue-500': autoSaveStatus.value === 'saving',
-    'text-green-600': autoSaveStatus.value === 'saved',
-    'text-amber-500': autoSaveStatus.value === 'pending',
-    'text-red-500': autoSaveStatus.value === 'error',
-  }));
-
   // ─── Form event handlers ────────────────────────────────────────────────────
 
   const onCancel = () => {
@@ -190,8 +167,6 @@ export const useFormLogic = (
     valid,
     renderers,
     autoSaveStatus,
-    autoSaveStatusLabel,
-    autoSaveStatusClass,
     onCancel,
     onValid,
     onChange,

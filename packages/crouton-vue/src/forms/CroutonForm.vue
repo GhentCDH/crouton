@@ -52,13 +52,12 @@
 
     <div
       v-if="showButtons && !readonly"
-      class="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-300 shrink-0"
+      class="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-300 shrink-0 items-center"
     >
+      <span class="text-sm mr-3"> <slot name="message-buttons" /></span>
       <!-- Auto-save mode: status indicator + optional Retry + Close -->
       <template v-if="properties.autoSave">
-        <span class="text-sm mr-3" :class="autoSaveStatusClass">
-          {{ autoSaveStatusLabel }}
-        </span>
+        <Message :status="autoSaveStatus" />
         <Btn
           v-if="autoSaveStatus === 'error'"
           color="secondary"
@@ -102,6 +101,7 @@ import {
 import { FormComponent } from '@ghentcdh/crouton-forms-vue';
 import { useApi } from '../composables/useApi';
 import { useFormLogic } from './useFormLogic';
+import Message from './Message.vue';
 
 const properties = defineProps(CroutonFormProperties);
 const emits = defineEmits<CroutonFormEmitsType>();
@@ -113,8 +113,6 @@ const {
   id,
   valid,
   autoSaveStatus,
-  autoSaveStatusLabel,
-  autoSaveStatusClass,
   onCancel,
   onValid,
   onChange,
