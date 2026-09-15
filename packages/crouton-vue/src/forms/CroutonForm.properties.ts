@@ -1,6 +1,6 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
-import { type ViewConfig, type ViewDef } from '@ghentcdh/crouton-core';
+import { type ViewDef } from '@ghentcdh/crouton-core';
 import {
   type ErrorMode,
   type FormEventPayload,
@@ -8,8 +8,6 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 
 import { type ResourceApiInstance } from '../resource';
-
-type Views = Record<ViewDef, ViewConfig>;
 
 export const CroutonFormProperties = {
   /** Title displayed in the modal header. */
