@@ -36,13 +36,24 @@ import { fileURLToPath } from 'node:url';
   exports: [],
 })
 export class CroutonApiModule {
-  onModuleInit() {
+  async onModuleInit() {
     // BigInt has no toJSON — JSON.stringify throws "Do not know how to serialize a BigInt".
     // Patch once so every response containing BigInt fields (e.g. Prisma Int8 / BigInt columns) works.
     if (!(BigInt.prototype as any).toJSON) {
       (BigInt.prototype as any).toJSON = function () {
         return Number(this);
       };
+    }
+    // Decimal: Prisma.Decimal.prototype.toJSON returns a string by default ("80" instead of 80).
+    // Patch to emit numbers — consistent with BigInt fix and jsonSchemaOpts (Decimal → type:"number").
+    // Import from runtime/client (stable, no generated client needed) with a fallback for older Prisma.
+    try {
+      const { Decimal } = await import('@prisma/client/runtime/client');
+      (Decimal.prototype as any).toJSON = function () {
+        return parseFloat(this.toString());
+      };
+    } catch {
+      // @prisma/client runtime not reachable — Decimal fields will serialize as strings
     }
   }
 
