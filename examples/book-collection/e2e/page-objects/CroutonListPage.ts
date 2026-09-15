@@ -49,6 +49,17 @@ export class CroutonListPage {
     await this.page.getByTestId('form-modal').waitFor({ state: 'visible' });
   };
 
+  clickDelete = async (rowIndex: number) => {
+    const row = this.getRows().nth(rowIndex);
+    await row.hover();
+    await row.getByRole('button', { name: /delete|remove/i }).click();
+  };
+
+  confirmDelete = async () => {
+    await this.page.getByRole('button', { name: 'Ok' }).click();
+    await this.page.waitForLoadState('networkidle');
+  };
+
   waitForRows = async () => {
     await expect(this.getRows().first()).toBeVisible({ timeout: 10_000 });
   };
