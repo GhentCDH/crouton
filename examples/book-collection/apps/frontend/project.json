@@ -1,0 +1,8 @@
+{
+  "name": "book-collection-frontend",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/book-collection/apps/frontend/src",
+  "root": "examples/book-collection/apps/frontend",
+  "tags": ["scope:frontend"]
+}

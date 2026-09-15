@@ -1,0 +1,32 @@
+{
+  "name": "book",
+  "model": "Book",
+  "title": "Books",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "searchable": true, "filterable": true, "sortable": true },
+    "isbn": { "sortable": true },
+    "publishedYear": { "type": "integer", "sortable": true },
+    "status": { "enum": "bookStatus", "filterable": true },
+    "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "authorId": {
+      "label": "Author",
+      "fieldInput": {
+        "type": "autocomplete",
+        "relationType": "manyToOne",
+        "resource": "./author.resource"
+      },
+      "showInLookup": true
+    },
+    "categories": {
+      "label": "Categories",
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "manyToMany",
+        "resource": "./category.resource"
+      },
+      "hiddenInTable": true
+    }
+  },
+  "include": ["author", "categories"]
+}
