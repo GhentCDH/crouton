@@ -1,0 +1,14 @@
+import './style.css';
+import { createApp } from 'vue';
+import { CroutonPlugin, loadRuntimeConfig } from '@ghentcdh/crouton-vue';
+import { router } from './router.js';
+import App from './App.vue';
+import { useApi } from './api.js';
+
+loadRuntimeConfig().then(() => {
+  const api = useApi();
+  const app = createApp(App);
+  app.use(CroutonPlugin(api));
+  app.use(router);
+  app.mount('#app');
+});
