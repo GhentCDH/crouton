@@ -11,7 +11,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve as pathResolve } from 'node:path';
 
 /**
  * Load a .env file from `dir` (or the nearest parent that has one) into
@@ -22,7 +22,6 @@ const loadDotenv = (dir: string): void => {
   try {
     const _require = createRequire(import.meta.url);
     const dotenv = _require('dotenv') as { config: (opts?: { path?: string }) => void };
-    // Walk up to find .env
     let d = dir;
     for (let i = 0; i < 6; i++) {
       if (readdirSync(d).includes('.env')) {
@@ -34,6 +33,23 @@ const loadDotenv = (dir: string): void => {
       d = parent;
     }
   } catch { /* dotenv not available or no .env — prisma will read env vars directly */ }
+};
+
+/**
+ * Resolve a CLI binary from the project's node_modules first, then fall back
+ * to `npx <name>`. Prevents version mismatches where npx downloads a newer
+ * major version that has different command names.
+ */
+const resolveBin = (name: string, cwd: string): [string, string[]] => {
+  let d = cwd;
+  for (let i = 0; i < 6; i++) {
+    const bin = join(d, 'node_modules', '.bin', name);
+    if (existsSync(bin)) return [bin, []];
+    const parent = dirname(d);
+    if (parent === d) break;
+    d = parent;
+  }
+  return ['npx', [name]];
 };
 
 const run = (
@@ -70,16 +86,10 @@ export interface PrismaRunResult {
   output: string;
 }
 
-/**
- * Introspect the live database into schema file.
- * Prisma 7 removed `db pull` in favour of `contract infer --output <schema>`.
- */
-export const prismaDbPull = async (cwd: string, prismaConfig: string, schemaPath: string): Promise<PrismaRunResult> => {
-  const { code, stdout, stderr } = await run(
-    'npx',
-    ['prisma', 'contract', 'infer', '--config', prismaConfig, '--output', schemaPath],
-    cwd,
-  );
+/** Introspect the live database into the schema file. */
+export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
+  const [bin, prefix] = resolveBin('prisma', cwd);
+  const { code, stdout, stderr } = await run(bin, [...prefix, 'db', 'pull', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
@@ -101,7 +111,8 @@ export const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise
 
 /** `prisma generate` (refreshes zod-prisma-types output) for a datasource's config. */
 export const prismaGenerate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
-  const { code, stdout, stderr } = await run('npx', ['prisma', 'generate', '--config', prismaConfig], cwd);
+  const [bin, prefix] = resolveBin('prisma', cwd);
+  const { code, stdout, stderr } = await run(bin, [...prefix, 'generate', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
@@ -168,7 +179,7 @@ export const pullAndGenerate = async (
   loadDotenv(root);
   const backupPath = await backupSchema(schemaPath);
 
-  const dbPull = await prismaDbPull(root, prismaConfigPath, schemaPath);
+  const dbPull = await prismaDbPull(root, prismaConfigPath);
   if (!dbPull.ok) {
     return { ok: false, backupPath, dbPull };
   }
