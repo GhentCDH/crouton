@@ -15,6 +15,7 @@ export const ControlType = {
   custom: 'custom',
   select: 'select',
   mutliSelect: 'mutliSelect',
+  toggle: 'toggle',
   boolean: 'boolean',
   link: 'link',
   relation: 'relation',
@@ -72,6 +73,27 @@ export interface SelectOptions extends ControlOption {
   resource?: string;
   labelKey?: string;
   valueKey?: string;
+}
+
+/**
+ * A single-select control rendered as a row of buttons where exactly one
+ * option is shown as active. Same data shape and option sources as
+ * {@link SelectOptions}; only the presentation differs.
+ */
+export interface ToggleOptions extends ControlOption {
+  format: 'toggle';
+  options?: Array<any>;
+  values?: Array<any>;
+  labelKey?: string;
+  valueKey?: string;
+  /** Store `option[valueKey]` instead of the whole option object. */
+  storeValue?: boolean;
+  /** Clicking the active button clears the value. @default true */
+  clearable?: boolean;
+  /** `Btn` color for the active button. @default 'primary' */
+  color?: string;
+  /** `Btn` size. @default 'sm' */
+  size?: string;
 }
 
 export interface AutocompleteOptions extends Omit<SelectOptions, 'format'> {
@@ -305,6 +327,13 @@ export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
   mutliSelect(options: Omit<SelectOptions, 'format'>) {
     return this.opt({
       format: ControlType.mutliSelect,
+      ...options,
+    });
+  }
+
+  toggle(options: Omit<ToggleOptions, 'format'>) {
+    return this.opt({
+      format: ControlType.toggle,
       ...options,
     });
   }

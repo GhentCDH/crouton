@@ -1,7 +1,11 @@
 import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { describe, expect, it } from 'vitest';
 
-import { isBooleanControl, isDateControl } from '../tester';
+import {
+  isBooleanControl,
+  isDateControl,
+  isToggleControl,
+} from '../tester';
 
 const control = (
   options: Record<string, any> = {},
@@ -36,5 +40,18 @@ describe('isBooleanControl', () => {
     ${'plain string'}            | ${control()}                      | ${schema()}                  | ${false}
   `('$description → $result', ({ uischema, schema: s, result }) => {
     expect(isBooleanControl(uischema, s)).toBe(result);
+  });
+});
+
+describe('isToggleControl', () => {
+  it.each`
+    description                  | uischema                          | schema        | result
+    ${'toggle format option'}    | ${control({ format: 'toggle' })}  | ${schema()}   | ${true}
+    ${'case-insensitive format'} | ${control({ format: 'TOGGLE' })}  | ${schema()}   | ${true}
+    ${'unrelated format'}        | ${control({ format: 'select' })}  | ${schema()}   | ${false}
+    ${'plain control'}           | ${control()}                      | ${schema()}   | ${false}
+    ${'non-control element'}     | ${{ type: 'VerticalLayout' }}     | ${schema()}   | ${false}
+  `('$description → $result', ({ uischema, schema: s, result }) => {
+    expect(isToggleControl(uischema, s)).toBe(result);
   });
 });

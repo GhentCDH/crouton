@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 
 import {
+  Btn,
   Checkbox,
   Input,
   InputNumber,
@@ -27,6 +28,7 @@ const previewValue = ref<unknown>(
       case 'mutliSelect':
         return [];
       case 'select':
+      case 'toggle':
         return props.selectOptions[0]?.value ?? '';
       default:
         return props.value;
@@ -89,6 +91,28 @@ const previewValue = ref<unknown>(
     "
     :enabled="false"
   />
+  <div
+    v-else-if="type === 'toggle'"
+    class="flex flex-row flex-wrap gap-2"
+  >
+    <Btn
+      v-for="(opt, i) in (
+        selectOptions.length
+          ? selectOptions
+          : [
+              { label: 'Option A', value: 'a' },
+              { label: 'Option B', value: 'b' },
+            ]
+      )"
+      :key="i"
+      size="sm"
+      :color="i === 0 ? 'primary' : 'blank'"
+      :outline="i !== 0"
+      :disabled="true"
+    >
+      {{ opt.label }}
+    </Btn>
+  </div>
   <div v-else class="text-xs opacity-40 italic py-1">
     No preview for "{{ type }}"
   </div>
