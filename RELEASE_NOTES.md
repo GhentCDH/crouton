@@ -1,3 +1,16 @@
+## 0.0.1-alpha.58 (2026-09-16)
+
+### 🩹 Fixes
+
+- Add `prisma-case-format` as a real dependency; resolve bin via `createRequire` to avoid silent ad-hoc npx download failures that left schemas in snake_case ([#127](https://github.com/GhentCDH/crouton/pull/127))
+- **cli:** resolve project scope from root only, not workspace parent ([#126](https://github.com/GhentCDH/crouton/pull/126))
+- **core:** detect Decimal instanceof when custom message is present ([#125](https://github.com/GhentCDH/crouton/pull/125))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.57 (2026-09-16)
 
 ### 🚀 Features
