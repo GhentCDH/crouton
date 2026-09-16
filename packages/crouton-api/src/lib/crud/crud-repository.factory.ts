@@ -9,7 +9,7 @@ import {
 } from './custom-repository';
 import type { DataSourceAdapter } from './data-source/data-source.adapter';
 import { PrismaDataSourceAdapter } from './data-source/prisma.adapter';
-import { decorateRow, decorateRows, postWrite, prepareWrite } from './hooks';
+import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './hooks';
 import { ReadRepository } from './read.repository';
 import { type Resource } from './resource/ResourceConfig.schema';
 import { type SubResourceConfig } from './resource/SubResource.schema';
@@ -140,9 +140,12 @@ export function createCrudRepository<T = any>(
       async (rows: any[], request?: any): Promise<any[]> => {
         const vlCols = await resolveValueLabelColumns(config.route, config.valueLabelColumns, configRegistry);
         const target = vlCols === config.valueLabelColumns ? config : { hooks: config.hooks, valueLabelColumns: vlCols };
-        return decorateRows(rows, 'findAll', target, adapter, request);
+        const decorated = await decorateRows(rows, 'findAll', target, adapter, request);
+        return applyAfterFindAll(decorated, config, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
+    const applyBefore = (params: ListRequest, request?: any) =>
+      applyBeforeFindAll(params, config, resolvedAdapter, request);
     const decorateFindOne = (row: any, request?: any) => decorateRow(row, 'findOne', config, resolvedAdapter, request);
     const prepareData = (data: unknown, op: 'create'|'update'|'patch', id?: string|number, request?: any) =>
       prepareWrite(data, op, config, resolvedAdapter, id, request);
@@ -192,11 +195,13 @@ export function createCrudRepository<T = any>(
     return {
       prisma,
       findAllWithCount: async (params, request) => {
-        const { data, count } = await resolvedAdapter.findAll!(adapterModelKey, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
+        const effectiveParams = await applyBefore(params, request);
+        const { data, count } = await resolvedAdapter.findAll!(adapterModelKey, effectiveParams, { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) });
         return { data: await decorateFindAll(data, request), count };
       },
       findAll: async (params, request) => {
-        const { data } = await resolvedAdapter.findAll!(adapterModelKey, params, { ...ctx(request, 'findAll'), offset: offsetOf(params) });
+        const effectiveParams = await applyBefore(params, request);
+        const { data } = await resolvedAdapter.findAll!(adapterModelKey, effectiveParams, { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) });
         return decorateFindAll(data, request);
       },
       count: (filter) => resolvedAdapter.count!(adapterModelKey, filter, baseCtx),
@@ -299,7 +304,8 @@ export function createCrudRepository<T = any>(
       vlCols === config.valueLabelColumns
         ? config
         : { hooks: config.hooks, valueLabelColumns: vlCols };
-    return decorateRows(rows, 'findAll', target, adapter, request);
+    const decorated = await decorateRows(rows, 'findAll', target, adapter, request);
+    return applyAfterFindAll(decorated, config, adapter, request);
   };
 
   const decorateFindOne = (row: any, request?: any): Promise<any> =>
@@ -324,8 +330,10 @@ export function createCrudRepository<T = any>(
 
   return {
     prisma,
-    findAll: async (params, request) =>
-      decorateFindAll(await reader.findAll(params, request), request),
+    findAll: async (params, request) => {
+      const effectiveParams = await applyBeforeFindAll(params, config, adapter, request);
+      return decorateFindAll(await reader.findAll(effectiveParams, request), request);
+    },
     count: reader.count.bind(reader),
     findOne: async (id, request) =>
       decorateFindOne(await reader.findOne(id, request), request),

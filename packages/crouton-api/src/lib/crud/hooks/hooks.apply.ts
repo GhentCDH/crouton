@@ -1,3 +1,5 @@
+import type { ListRequest } from '@ghentcdh/crouton-core';
+
 import type {
   ParentHookContext,
   ReadOp,
@@ -103,6 +105,30 @@ export const prepareWrite = async (
   return hook
     ? hook(normalized, hookCtxWrite(adapter, op, id, request, parent))
     : normalized;
+};
+
+/** Run `beforeFindAll` to transform query params before the DB query. */
+export const applyBeforeFindAll = async (
+  params: ListRequest,
+  target: HookTarget,
+  adapter: DataSourceAdapter,
+  request?: any,
+  parent?: ParentHookContext,
+): Promise<ListRequest> => {
+  const hook = target.hooks?.beforeFindAll;
+  return hook ? hook(params, hookCtxRead(adapter, 'findAll', request, parent)) : params;
+};
+
+/** Run `afterFindAll` on the full result list, after per-row `afterRead` decoration. */
+export const applyAfterFindAll = async (
+  rows: any[],
+  target: HookTarget,
+  adapter: DataSourceAdapter,
+  request?: any,
+  parent?: ParentHookContext,
+): Promise<any[]> => {
+  const hook = target.hooks?.afterFindAll;
+  return hook ? hook(rows, hookCtxRead(adapter, 'findAll', request, parent)) : rows;
 };
 
 /** Run `afterWrite` on the persisted result. */
