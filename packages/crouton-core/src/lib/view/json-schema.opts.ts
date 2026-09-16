@@ -1,4 +1,5 @@
-import { z, type ZodType } from 'zod';
+import type { ZodType } from 'zod';
+import { z } from 'zod';
 
 type ToJSONSchemaParams = NonNullable<
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -48,15 +49,17 @@ const jsonSchemaOverride = ({ zodSchema, jsonSchema }: OverrideContext) => {
   }
 };
 
+type ZodTypeInternal = ZodType & { _zod?: { def?: { type?: string; innerType?: ZodType } } };
+
 /** Strip optional/nullable/default/readonly wrappers to reach the core type. */
 const unwrap = (schema: ZodType): ZodType => {
-  let s: any = schema;
-  let t: string | undefined = s?._zod?.def?.type;
+  let s: ZodTypeInternal = schema;
+  let t: string | undefined = s._zod?.def?.type;
   while (t === 'optional' || t === 'nullable' || t === 'default' || t === 'readonly') {
-    s = s._zod.def.innerType;
-    t = s?._zod?.def?.type;
+    s = (s._zod?.def?.innerType ?? s) as ZodTypeInternal;
+    t = s._zod?.def?.type;
   }
-  return s as ZodType;
+  return s;
 };
 
 /**
