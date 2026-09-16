@@ -47,9 +47,16 @@ export interface PrismaRunResult {
   output: string;
 }
 
-/** `prisma db pull` for a datasource's Prisma config, run in the project root. */
-export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
-  const { code, stdout, stderr } = await run('npx', ['prisma', 'db', 'pull', '--config', prismaConfig], cwd);
+/**
+ * Introspect the live database into schema file.
+ * Prisma 7 removed `db pull` in favour of `contract infer --output <schema>`.
+ */
+export const prismaDbPull = async (cwd: string, prismaConfig: string, schemaPath: string): Promise<PrismaRunResult> => {
+  const { code, stdout, stderr } = await run(
+    'npx',
+    ['prisma', 'contract', 'infer', '--config', prismaConfig, '--output', schemaPath],
+    cwd,
+  );
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
@@ -137,7 +144,7 @@ export const pullAndGenerate = async (
 
   const backupPath = await backupSchema(schemaPath);
 
-  const dbPull = await prismaDbPull(root, prismaConfigPath);
+  const dbPull = await prismaDbPull(root, prismaConfigPath, schemaPath);
   if (!dbPull.ok) {
     return { ok: false, backupPath, dbPull };
   }
