@@ -1,3 +1,18 @@
+## 0.0.1-alpha.57 (2026-09-16)
+
+### 🚀 Features
+
+- beautify buttons ([fd19c2d](https://github.com/GhentCDH/crouton/commit/fd19c2d))
+
+### 🩹 Fixes
+
+- **api:** coerce inbound number/string to Prisma.Decimal in ZodValida… ([#124](https://github.com/GhentCDH/crouton/pull/124))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.56 (2026-09-16)
 
 ### 🚀 Features
