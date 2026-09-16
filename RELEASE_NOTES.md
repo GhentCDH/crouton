@@ -1,3 +1,19 @@
+## 0.0.1-alpha.56 (2026-09-16)
+
+### 🚀 Features
+
+- **forms:** add toggle control type ([#123](https://github.com/GhentCDH/crouton/pull/123))
+
+### 🩹 Fixes
+
+- **api:** serialize Prisma Decimal fields as numbers in JSON responses ([#121](https://github.com/GhentCDH/crouton/pull/121))
+- **api:** propagate display field from child resource.json in buildSubResources ([#122](https://github.com/GhentCDH/crouton/pull/122))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.55 (2026-09-15)
 
 ### 🚀 Features
