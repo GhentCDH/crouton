@@ -172,6 +172,7 @@ export const buildSubResources = (
         },
         ...(childJson?.actions?.length && { actions: childJson.actions }),
         ...(childJson?.modalSize && { modalSize: childJson.modalSize }),
+        ...(childJson?.display && { display: childJson.display }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childJson?.calculatedColumns?.length && {
           calculatedColumns: childJson.calculatedColumns,
