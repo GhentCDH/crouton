@@ -8,10 +8,33 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
+
+/**
+ * Load a .env file from `dir` (or the nearest parent that has one) into
+ * `process.env` so that prisma commands inherit DATABASE_URL etc.
+ * Uses `dotenv` if available; skips silently otherwise.
+ */
+const loadDotenv = (dir: string): void => {
+  try {
+    const _require = createRequire(import.meta.url);
+    const dotenv = _require('dotenv') as { config: (opts?: { path?: string }) => void };
+    // Walk up to find .env
+    let d = dir;
+    for (let i = 0; i < 6; i++) {
+      if (readdirSync(d).includes('.env')) {
+        dotenv.config({ path: join(d, '.env') });
+        return;
+      }
+      const parent = dirname(d);
+      if (parent === d) break;
+      d = parent;
+    }
+  } catch { /* dotenv not available or no .env — prisma will read env vars directly */ }
+};
 
 const run = (
   cmd: string,
@@ -142,6 +165,7 @@ export const pullAndGenerate = async (
 ): Promise<PullAndGenerateResult> => {
   const { root, prismaConfigPath, schemaPath, zodOutputDir } = input;
 
+  loadDotenv(root);
   const backupPath = await backupSchema(schemaPath);
 
   const dbPull = await prismaDbPull(root, prismaConfigPath, schemaPath);
