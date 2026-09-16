@@ -49,4 +49,4 @@ export {
 } from './column-type-schema.source';
 export { ViewColumnConfigSchema, ViewConfigSchema } from './view.schema';
 export type { ViewColumnConfig, ViewConfig, ViewDef } from './view.schema';
-export { jsonSchemaOpts } from './json-schema.opts';
+export { isDecimalField, jsonSchemaOpts } from './json-schema.opts';

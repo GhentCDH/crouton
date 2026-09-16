@@ -6,6 +6,7 @@
 
 ### 🩹 Fixes
 
+- **api:** coerce inbound number/string to Prisma.Decimal in ZodValidationPipe
 - **api:** serialize Prisma Decimal fields as numbers in JSON responses ([#121](https://github.com/GhentCDH/crouton/pull/121))
 - **api:** propagate display field from child resource.json in buildSubResources ([#122](https://github.com/GhentCDH/crouton/pull/122))
 

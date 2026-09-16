@@ -1,3 +1,4 @@
+import type { ZodType } from 'zod';
 import { z } from 'zod';
 
 type ToJSONSchemaParams = NonNullable<
@@ -36,7 +37,8 @@ const jsonSchemaOverride = ({ zodSchema, jsonSchema }: OverrideContext) => {
   // Prisma Decimal fields use z.instanceof(Prisma.Decimal) which produces
   // an empty JSON schema ({}). Patch to { type: "number" } so the frontend
   // renders a number input with proper validation.
-  if (isInstanceOf(zodSchema, 'Decimal')) {
+  // Prisma 7+ bundles the class as 'Decimal2'; check both names.
+  if (isInstanceOf(zodSchema, 'Decimal') || isInstanceOf(zodSchema, 'Decimal2')) {
     jsonSchema.type = 'number';
   }
   // Prisma Bytes fields use z.instanceof(Buffer) which produces an empty
@@ -45,6 +47,28 @@ const jsonSchemaOverride = ({ zodSchema, jsonSchema }: OverrideContext) => {
   if (isInstanceOf(zodSchema, 'Buffer')) {
     jsonSchema.type = 'string';
   }
+};
+
+type ZodTypeInternal = ZodType & { _zod?: { def?: { type?: string; innerType?: ZodType } } };
+
+/** Strip optional/nullable/default/readonly wrappers to reach the core type. */
+const unwrap = (schema: ZodType): ZodType => {
+  let s: ZodTypeInternal = schema;
+  let t: string | undefined = s._zod?.def?.type;
+  while (t === 'optional' || t === 'nullable' || t === 'default' || t === 'readonly') {
+    s = (s._zod?.def?.innerType ?? s) as ZodTypeInternal;
+    t = s._zod?.def?.type;
+  }
+  return s;
+};
+
+/**
+ * Returns true when `zodType` (after unwrapping) is a `z.instanceof(Prisma.Decimal)`.
+ * Checks both 'Decimal' (Prisma ≤6) and 'Decimal2' (Prisma 7+ runtime bundle).
+ */
+export const isDecimalField = (zodType: ZodType): boolean => {
+  const inner = unwrap(zodType);
+  return isInstanceOf(inner, 'Decimal') || isInstanceOf(inner, 'Decimal2');
 };
 
 export const jsonSchemaOpts = {
