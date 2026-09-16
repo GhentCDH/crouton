@@ -95,6 +95,10 @@ export const isSelectControl = and(
   uiTypeIs('Control'),
   optionIsIgnoreCase('format', ControlType.select),
 );
+export const isToggleControl = and(
+  uiTypeIs('Control'),
+  optionIsIgnoreCase('format', ControlType.toggle),
+);
 export const isBooleanControl = or(
   and(uiTypeIs('Control'), schemaTypeIs('boolean')),
   and(uiTypeIs('Control'), optionIsIgnoreCase('format', ControlType.boolean)),

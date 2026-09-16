@@ -11,6 +11,7 @@ import ObjectControlRenderer from './ObjectControlRenderer.vue';
 import SelectControlRenderer from './SelectControlRenderer.vue';
 import StringControlRenderer from './StringControlRenderer.vue';
 import TextAreaControlRenderer from './TextAreaControlRenderer.vue';
+import ToggleControlRenderer from './ToggleControlRenderer.vue';
 import { rankWith } from '../../../testers/jsonforms-testers';
 import {
   isAutoCompleteControl,
@@ -25,6 +26,7 @@ import {
   isSelectControl,
   isStringFormat,
   isTextAreaControl,
+  isToggleControl,
 } from '../../../testers/tester';
 
 export { default as AutocompleteControlRenderer } from './AutocompleteControlRenderer.vue';
@@ -43,6 +45,7 @@ export const controlRenderers = [
   },
   { tester: rankWith(11, isBooleanControl), renderer: BooleanControlRenderer },
   { tester: rankWith(11, isSelectControl), renderer: SelectControlRenderer },
+  { tester: rankWith(11, isToggleControl), renderer: ToggleControlRenderer },
   {
     tester: rankWith(11, isMultiselectControl),
     renderer: MultiSelectControlRenderer,

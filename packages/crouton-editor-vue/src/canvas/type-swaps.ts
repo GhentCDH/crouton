@@ -76,6 +76,7 @@ export const CANVAS_SUPPORTED_TYPES = new Set<string>([
   'boolean',
   'select',
   'mutliSelect',
+  'toggle',
 ]);
 
 export const isCanvasSupportedType = (type: string | undefined): boolean =>
