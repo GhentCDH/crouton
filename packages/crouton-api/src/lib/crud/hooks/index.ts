@@ -13,6 +13,8 @@ export {
 export { loadResourceHooks, loadSubResourceHooks } from './hooks.loader';
 export {
   type HookTarget,
+  applyAfterFindAll,
+  applyBeforeFindAll,
   decorateRow,
   decorateRows,
   postWrite,

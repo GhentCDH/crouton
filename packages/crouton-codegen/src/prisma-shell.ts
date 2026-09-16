@@ -11,7 +11,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname, join, resolve as pathResolve } from 'node:path';
+import { dirname, join } from 'node:path';
 
 /**
  * Load a .env file from `dir` (or the nearest parent that has one) into

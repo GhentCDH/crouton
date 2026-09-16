@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { ListRequest } from '@ghentcdh/crouton-core';
+
 import type { DataSourceAdapter } from '../data-source/data-source.adapter';
 
 export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'delete']);
@@ -64,6 +66,12 @@ export const ResourceHooksSchema = z.object({
   afterRead: z
     .custom<(row: any, ctx: ReadHookContext<any>) => Promise<any> | any>()
     .optional(),
+  beforeFindAll: z
+    .custom<(params: ListRequest, ctx: ReadHookContext<any>) => Promise<ListRequest> | ListRequest>()
+    .optional(),
+  afterFindAll: z
+    .custom<(rows: any[], ctx: ReadHookContext<any>) => Promise<any[]> | any[]>()
+    .optional(),
 });
 
 /**
@@ -75,4 +83,6 @@ export interface ResourceHooks<PRISMACLIENT = any> {
   beforeWrite?: (data: any, ctx: WriteHookContext<PRISMACLIENT>) => Promise<any> | any;
   afterWrite?: (result: any, ctx: WriteHookContext<PRISMACLIENT>) => Promise<any> | any;
   afterRead?: (row: any, ctx: ReadHookContext<PRISMACLIENT>) => Promise<any> | any;
+  beforeFindAll?: (params: ListRequest, ctx: ReadHookContext<PRISMACLIENT>) => Promise<ListRequest> | ListRequest;
+  afterFindAll?: (rows: any[], ctx: ReadHookContext<PRISMACLIENT>) => Promise<any[]> | any[];
 }
