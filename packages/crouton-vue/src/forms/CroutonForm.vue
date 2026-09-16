@@ -1,5 +1,5 @@
 <template>
-  <div class="border border-gray-200 p-4 mt-4">
+  <div class="crouton-form border border-gray-200 p-4 mt-4">
     <div
       v-if="$slots.title || title"
       class="flex gap-2 border-b border-gray-200 items-center font-bold pb-2"

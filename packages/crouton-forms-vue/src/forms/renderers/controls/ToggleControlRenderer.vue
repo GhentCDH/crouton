@@ -1,9 +1,10 @@
 <template>
   <ControlWrapper v-bind="wrapper">
-    <div class="flex flex-row flex-wrap gap-2">
+    <div class="join">
       <Btn
         v-for="(opt, i) in toggleOptions"
         :key="optionValue(opt) ?? i"
+        class="join-item"
         :size="(appliedOptions as any).size ?? 'sm'"
         :color="isActive(opt) ? ((appliedOptions as any).color ?? 'primary') : 'blank'"
         :outline="!isActive(opt)"

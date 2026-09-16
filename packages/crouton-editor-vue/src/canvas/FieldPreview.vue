@@ -93,7 +93,7 @@ const previewValue = ref<unknown>(
   />
   <div
     v-else-if="type === 'toggle'"
-    class="flex flex-row flex-wrap gap-2"
+    class="join"
   >
     <Btn
       v-for="(opt, i) in (
@@ -105,6 +105,7 @@ const previewValue = ref<unknown>(
             ]
       )"
       :key="i"
+      class="join-item"
       size="sm"
       :color="i === 0 ? 'primary' : 'blank'"
       :outline="i !== 0"
