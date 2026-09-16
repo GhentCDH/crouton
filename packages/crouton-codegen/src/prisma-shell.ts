@@ -10,6 +10,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
 const run = (
@@ -54,7 +55,17 @@ export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<P
 
 /** `prisma-case-format` — PascalCase models + camelCase fields with @@map/@map annotations. */
 export const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise<PrismaRunResult> => {
-  const { code, stdout, stderr } = await run('npx', ['prisma-case-format', '--file', schemaPath], cwd);
+  // Resolve bin from crouton's own node_modules to avoid ad-hoc npx download failures
+  let binPath: string | undefined;
+  try {
+    const _require = createRequire(import.meta.url);
+    binPath = _require.resolve('prisma-case-format/bin/cli.js');
+  } catch { /* fall back to npx */ }
+
+  const [cmd, args] = binPath
+    ? [process.execPath, [binPath, '--file', schemaPath]]
+    : ['npx', ['prisma-case-format', '--file', schemaPath]];
+  const { code, stdout, stderr } = await run(cmd, args, cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
