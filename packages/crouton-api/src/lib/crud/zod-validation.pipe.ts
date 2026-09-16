@@ -36,7 +36,7 @@ export class ZodValidationPipe implements PipeTransform {
       .map(([key]) => key);
 
     // Resolve Decimal ctor once; skip coercion entirely if @prisma/client is unavailable.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+     
     let decimalCtor: (new (v: number | string) => object) | null = null;
     try {
       decimalCtor = require('@prisma/client/runtime/client').Decimal;
