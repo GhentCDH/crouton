@@ -32,6 +32,7 @@ import {
 export { default as AutocompleteControlRenderer } from './AutocompleteControlRenderer.vue';
 export * from './date';
 export { useFetchOptions } from './composables/useFetchOption';
+export { default as DatePicker } from './date/DatePicker.vue';
 
 export const controlRenderers = [
   { tester: rankWith(10, isStringFormat), renderer: StringControlRenderer },

@@ -1,7 +1,10 @@
 import { arrayRenderers } from './array/ArrayRenderers';
 import { controlRenderers } from './controls';
 import { readonlyControlRenderers } from './controls/readonly';
-import { layoutRenderers, readonlyLayoutRenderers } from './layout/LayoutRenderers';
+import {
+  layoutRenderers,
+  readonlyLayoutRenderers,
+} from './layout/LayoutRenderers';
 
 export * from './array/ArrayRenderers';
 export * from './controls';
