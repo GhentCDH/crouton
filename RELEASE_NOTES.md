@@ -1,3 +1,21 @@
+## 0.0.1-alpha.59 (2026-09-16)
+
+### 🚀 Features
+
+- **crouton-api:** add beforeFindAll and afterFindAll resource hooks ([#128](https://github.com/GhentCDH/crouton/pull/128))
+
+### 🩹 Fixes
+
+- validation pipe ([adb31ee](https://github.com/GhentCDH/crouton/commit/adb31ee))
+- **codegen:** replace prisma db pull with contract infer for Prisma 7 ([788afe6](https://github.com/GhentCDH/crouton/commit/788afe6))
+- **codegen:** load .env in crouton, remove dotenv import from config template ([b635eab](https://github.com/GhentCDH/crouton/commit/b635eab))
+- **codegen:** resolve local prisma binary to avoid npx version mismatch ([00625d1](https://github.com/GhentCDH/crouton/commit/00625d1))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.58 (2026-09-16)
 
 ### 🩹 Fixes
