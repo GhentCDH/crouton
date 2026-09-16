@@ -55,25 +55,22 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';
 
 /**
- * Derive the project scope from the nearest package.json walking up from `root`.
+ * Derive the project scope from `root/package.json` only.
  * "@scope/pkg" → "scope"; "bare-name" → "bare-name".
- * Falls back to `fallback` when no package.json with a name is found.
+ * Falls back to `fallback` (crouton title) when no package.json with a name is found.
+ * Walking up is intentionally avoided: in a monorepo a parent workspace root
+ * has a different scope (e.g. "@smartparrot/workspace") that would produce the
+ * wrong package name for generated clients.
  */
 const resolveProjectScope = async (root: string, fallback: string): Promise<string> => {
-  let dir = root;
-  for (let i = 0; i < 6; i++) {
-    const pkgPath = join(dir, 'package.json');
-    if (existsSync(pkgPath)) {
-      try {
-        const { name } = JSON.parse(await readFile(pkgPath, 'utf-8')) as { name?: string };
-        if (typeof name === 'string' && name) {
-          return name.startsWith('@') ? name.slice(1, name.indexOf('/')) : name;
-        }
-      } catch { /* ignore */ }
-    }
-    const parent = dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
+  const pkgPath = join(root, 'package.json');
+  if (existsSync(pkgPath)) {
+    try {
+      const { name } = JSON.parse(await readFile(pkgPath, 'utf-8')) as { name?: string };
+      if (typeof name === 'string' && name) {
+        return name.startsWith('@') ? name.slice(1, name.indexOf('/')) : name;
+      }
+    } catch { /* ignore */ }
   }
   return fallback;
 };
