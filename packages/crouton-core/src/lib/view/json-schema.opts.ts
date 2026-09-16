@@ -18,10 +18,12 @@ type OverrideContext = Parameters<
 const isInstanceOf = (zodSchema: unknown, className: string): boolean => {
   if (!(zodSchema instanceof z.ZodCustom)) return false;
   const result = (zodSchema as z.ZodCustom<unknown>).safeParse(null);
-  return (
-    !result.success &&
-    (result.error.issues[0] as { expected?: string })?.expected === className
-  );
+  if (result.success) return false;
+  const issue = result.error.issues[0] as { expected?: string; message?: string };
+  // When z.instanceof(Cls) has no custom message, Zod emits { expected: 'Cls.name' }.
+  // When a custom message is provided (e.g. zod-prisma-types does this), Zod emits
+  // { code: 'custom', message: '...' } with no `expected` — so also check the message.
+  return issue?.expected === className || (issue?.message?.includes(className) ?? false);
 };
 
 const jsonSchemaOverride = ({ zodSchema, jsonSchema }: OverrideContext) => {
