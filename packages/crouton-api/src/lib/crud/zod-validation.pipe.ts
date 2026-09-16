@@ -1,6 +1,8 @@
 import { type PipeTransform } from '@nestjs/common';
 import { type ZodError, type ZodObject, type ZodRawShape, type ZodType } from 'zod';
 
+import { isDecimalField } from '@ghentcdh/crouton-core';
+
 import { CroutonValidationError } from './crouton-validation.error';
 
 export interface ZodValidationPipeOptions {
@@ -17,6 +19,10 @@ export interface ZodValidationPipeOptions {
 export class ZodValidationPipe implements PipeTransform {
   /** Top-level field names that accept `null` (i.e. are nullable). */
   private readonly nullableKeys: readonly string[];
+  /** Top-level field names whose unwrapped type is a Prisma Decimal. */
+  private readonly decimalKeys: readonly string[];
+  /** Prisma Decimal constructor resolved once per pipe instance; null if unavailable. */
+  private readonly decimalCtor: (new (v: number | string) => object) | null;
   /** Whether to coerce `undefined` → `null` on nullable fields (create/upsert only). */
   private readonly coerceUndefinedToNull: boolean;
 
@@ -28,12 +34,29 @@ export class ZodValidationPipe implements PipeTransform {
     this.nullableKeys = Object.entries(schema.shape)
       .filter(([, field]) => (field as ZodType).safeParse(null).success)
       .map(([key]) => key);
+
+    // Resolve Decimal ctor once; skip coercion entirely if @prisma/client is unavailable.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    let decimalCtor: (new (v: number | string) => object) | null = null;
+    try {
+      decimalCtor = require('@prisma/client/runtime/client').Decimal;
+    } catch {
+      // @prisma/client not available — Decimal coercion disabled, falls back to today's behaviour
+    }
+    this.decimalCtor = decimalCtor;
+
+    this.decimalKeys = decimalCtor
+      ? Object.entries(schema.shape)
+          .filter(([, field]) => isDecimalField(field as ZodType))
+          .map(([key]) => key)
+      : [];
     this.coerceUndefinedToNull = options.coerceNullableUndefinedToNull ?? false;
   }
 
   transform(value: unknown) {
     const stripped = this.stripEmptyStrings(value);
-    const input = this.coerceNullable(stripped);
+    const coerced = this.coerceNullable(stripped);
+    const input = this.coerceDecimals(coerced);
     const result = this.schema.safeParse(input);
     if (!result.success) {
       throw new CroutonValidationError(this.formatErrors(result.error));
@@ -74,6 +97,37 @@ export class ZodValidationPipe implements PipeTransform {
     const out = { ...(value as Record<string, unknown>) };
     for (const key of this.nullableKeys) {
       if (out[key] === undefined) out[key] = null;
+    }
+    return out;
+  }
+
+  /**
+   * Coerce `number` / `string` values on Decimal fields to `Prisma.Decimal`.
+   * `null` / `undefined` / omitted keys are left untouched (PATCH-safe).
+   * An invalid numeric string is left as-is so Zod emits a proper validation error.
+   * Known limitation: only top-level fields are coerced (nested Decimals in relations/arrays
+   * are out of scope — matches how nullableKeys works today).
+   */
+  private coerceDecimals(value: unknown): unknown {
+    if (
+      !this.decimalCtor ||
+      this.decimalKeys.length === 0 ||
+      value == null ||
+      typeof value !== 'object' ||
+      Array.isArray(value)
+    ) {
+      return value;
+    }
+    const out = { ...(value as Record<string, unknown>) };
+    for (const key of this.decimalKeys) {
+      const v = out[key];
+      if (v == null) continue;
+      if (typeof v !== 'number' && typeof v !== 'string') continue;
+      try {
+        out[key] = new this.decimalCtor(v);
+      } catch {
+        // leave raw value — Zod will emit the correct validation error
+      }
     }
     return out;
   }
