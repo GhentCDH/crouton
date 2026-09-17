@@ -1,5 +1,6 @@
 import { type Component, type Ref, markRaw, ref } from 'vue';
 
+import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 import {
   FormModal,
   type FormModalResult,
@@ -10,8 +11,6 @@ import {
   NotificationService,
   type TableAction,
 } from '@ghentcdh/ui';
-
-import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 
 import { CroutonForm } from '../forms';
 import { type Resource } from './resource';
