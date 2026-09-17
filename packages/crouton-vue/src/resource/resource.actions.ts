@@ -11,6 +11,8 @@ import {
   type TableAction,
 } from '@ghentcdh/ui';
 
+import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
+
 import { CroutonForm } from '../forms';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
@@ -160,12 +162,14 @@ const createEditForm =
     const crouton = useCrouton();
     const autoSaveEnabled = crouton.autoSave.value;
 
+    const blankData = formData ?? resolveDefaultTokens(form.parseValue({}), { user: crouton.user }) as any;
+
     const sharedProps = {
       schema: form.data,
       uiSchema: form.ui,
       modalSize: formDef.modalSize ?? 'lg',
-      initialData: formData ?? form.parseValue({}),
-      data: formData ?? form.parseValue({}),
+      initialData: blankData,
+      data: blankData,
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
       views: formDef.schemas,

@@ -13,3 +13,4 @@ export * from './fieldVariants';
 export * from './ResourceKind';
 export * from './ParentRef.schema';
 export * from './ColumnType.schema';
+export * from './default-tokens';
