@@ -49,6 +49,9 @@
     <pre v-if="showErrors" class="border p-2 m-2 border-error">
       {{ errors }}
     </pre>
+    <pre v-if="debugValue" class="border p-2 m-2 border-info">
+      {{ currentValues }}
+    </pre>
 
     <div
       v-if="showButtons && !readonly"
@@ -100,6 +103,7 @@ import {
 } from './CroutonForm.properties';
 import { FormComponent } from '@ghentcdh/crouton-forms-vue';
 import { useApi } from '../composables/useApi';
+import { useCrouton } from '../composables/useCrouton';
 import { useFormLogic } from './useFormLogic';
 import Message from './Message.vue';
 
@@ -108,6 +112,14 @@ const emits = defineEmits<CroutonFormEmitsType>();
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
 const api = computed(() => properties.http ?? useApi());
+const { showErrors: globalShowErrors, debugValue: globalDebugValue } =
+  useCrouton();
+const showErrors = computed(
+  () => properties.showErrors ?? globalShowErrors.value,
+);
+const debugValue = computed(
+  () => properties.debugValue ?? globalDebugValue.value,
+);
 
 const {
   id,
@@ -124,6 +136,7 @@ const {
   schema,
   uiSchema,
   errors,
+  currentValues,
 } = useFormLogic(properties, emits, formData, formRef);
 
 const onBack = (): void => {

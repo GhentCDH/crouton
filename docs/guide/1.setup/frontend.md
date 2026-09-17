@@ -93,6 +93,34 @@ const { sidebar } = useCrouton();
 Use it to render your own navigation, or hide resources from it via `sidebar.hide` in
 their [resource.json](../resource/resource-json.md).
 
+## Plugin options
+
+`CroutonPlugin` accepts an optional second argument to configure global defaults:
+
+```ts
+app.use(
+  CroutonPlugin(api, {
+    title: 'My App',          // App title (overridden by backend if not set)
+    showErrors: true,         // Show raw validation errors below every CroutonForm (default: true)
+    debugValue: false,        // Show live form values below every CroutonForm (default: false)
+    renderers: [],            // Extra JsonForms control renderers
+    readonlyRenderers: [],    // Extra renderers for readonly/view mode
+    cellRenderers: [],        // Extra table cell renderers
+    customComponents: [],     // Extra custom components
+  }),
+);
+```
+
+`showErrors` and `debugValue` can be overridden per form via the matching props:
+
+```vue
+<!-- disable error display for this form only -->
+<CroutonForm :show-errors="false" ... />
+
+<!-- enable debug output for this form only -->
+<CroutonForm :debug-value="true" ... />
+```
+
 ## Advanced: schemas in custom views
 
 For custom pages that want the resource schemas directly, use the cached form definitions:
