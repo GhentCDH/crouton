@@ -39,7 +39,7 @@ export const AppConfig = {
    * restore explicit Save/Cancel buttons across the whole application.
    */
   autoSave: true,
-  showErrors: true,
+  showErrors: false,
   debugValue: false,
   /**
    * Whether the connected backend has the visual resource builder enabled
