@@ -1,3 +1,20 @@
+## 0.0.1-alpha.60 (2026-09-17)
+
+### 🚀 Features
+
+- expose datepicker ([8b7e7a2](https://github.com/GhentCDH/crouton/commit/8b7e7a2))
+- dynamic default value tokens for fieldInput ([#129](https://github.com/GhentCDH/crouton/pull/129))
+- **crouton-vue:** add global showErrors and debugValue config to CroutonPlugin ([#130](https://github.com/GhentCDH/crouton/pull/130))
+
+### 🩹 Fixes
+
+- **table:** clear button and undefined filter values in toolbar search ([#131](https://github.com/GhentCDH/crouton/pull/131))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.59 (2026-09-16)
 
 ### 🚀 Features
