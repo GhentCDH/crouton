@@ -1,5 +1,6 @@
 import { type Component, type Ref, markRaw, ref } from 'vue';
 
+import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 import {
   FormModal,
   type FormModalResult,
@@ -160,12 +161,14 @@ const createEditForm =
     const crouton = useCrouton();
     const autoSaveEnabled = crouton.autoSave.value;
 
+    const blankData = formData ?? resolveDefaultTokens(form.parseValue({}), { user: crouton.user }) as any;
+
     const sharedProps = {
       schema: form.data,
       uiSchema: form.ui,
       modalSize: formDef.modalSize ?? 'lg',
-      initialData: formData ?? form.parseValue({}),
-      data: formData ?? form.parseValue({}),
+      initialData: blankData,
+      data: blankData,
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
       views: formDef.schemas,

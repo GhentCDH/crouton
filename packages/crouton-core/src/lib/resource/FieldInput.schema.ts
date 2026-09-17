@@ -84,6 +84,11 @@ export const FieldInputSchema = z.object({
    * `parseValue({})` (see `@ghentcdh/crouton-vue`'s `form-def.ts`) applies when
    * opening a blank record. Not applicable to `format: "relation"` fields —
    * relation columns are excluded from the picked data schema entirely.
+   *
+   * Supports dynamic default tokens evaluated at form-open time:
+   * - `"$now"` — current datetime ISO string
+   * - `"$today"` — current date ISO string (date only, e.g. `"2025-03-14"`)
+   * - `"$user.id"` — current user id (requires `user` on `CroutonPlugin` config)
    */
   defaultValue: z.unknown().optional(),
   options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),

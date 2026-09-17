@@ -228,6 +228,71 @@ record cell in the table.
 }
 ```
 
+### `defaultValue` — pre-filling the create form
+
+Set `fieldInput.defaultValue` to pre-fill a field when the user opens a blank create form. The value is applied at
+form-open time, not persisted until the user saves.
+
+```json
+{
+  "status": {
+    "fieldInput": {
+      "type": "select",
+      "defaultValue": "draft"
+    }
+  }
+}
+```
+
+#### Dynamic default tokens
+
+In addition to static values, crouton supports a small set of reserved token strings that are evaluated fresh at
+form-open time (not at build time, so they're always current):
+
+| Token       | Resolves to                                             |
+|-------------|----------------------------------------------------------|
+| `"$now"`    | Current datetime as an ISO 8601 string                  |
+| `"$today"`  | Current date as an ISO 8601 date string (`"2025-03-14"`) |
+| `"$user.id"`| Current user id (requires `user` in `CroutonPlugin` config) |
+
+**Example — default a date field to today:**
+
+```json
+{
+  "date": {
+    "fieldInput": {
+      "type": "date",
+      "defaultValue": "$today"
+    }
+  }
+}
+```
+
+**Example — default a datetime field to now:**
+
+```json
+{
+  "createdAt": {
+    "fieldInput": {
+      "defaultValue": "$now"
+    }
+  }
+}
+```
+
+**Using `$user.id`** requires passing the current user when setting up the plugin:
+
+```ts
+app.use(
+  CroutonPlugin(api, {
+    user: { id: currentUser.id },
+  }),
+);
+```
+
+> **Note:** Token resolution only affects the create form pre-fill. It has no effect on existing records loaded for
+> editing, and it does not run server-side — use `beforeWrite` hooks for server-side defaults.
+
 ### Field variants — `fieldView` / `fieldTable`
 
 By default a single `fieldInput` drives the form, the read-only view, and the table cell. A column may additionally
