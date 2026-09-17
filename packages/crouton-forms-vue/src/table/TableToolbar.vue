@@ -8,12 +8,10 @@
     <div class="navbar-center flex gap-2 items-center">
       <Input
         placeholder="Search..."
-        :value="searchQuery"
+        v-model="searchQuery"
         size="sm"
         width="w-48"
         :clearable="true"
-        @input="onSearchInput(($event.target as HTMLInputElement).value)"
-        @clear="onSearchInput('')"
       />
 
       <TableFilter
@@ -50,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { Btn, Input } from '@ghentcdh/ui';
 
@@ -77,11 +75,10 @@ const searchQuery = ref(props.search ?? '');
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const onSearchInput = (value: string) => {
-  searchQuery.value = value;
+watch(searchQuery, (value) => {
   if (searchTimeout) clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => emit('updateSearch', value), 300);
-};
+});
 
 const onChangeFilters = (filters: string[]) => {
   emit('updateFilters', filters);
