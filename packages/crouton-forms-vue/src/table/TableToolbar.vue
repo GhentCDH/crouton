@@ -13,6 +13,7 @@
         width="w-48"
         :clearable="true"
         @input="onSearchInput(($event.target as HTMLInputElement).value)"
+        @clear="onSearchInput('')"
       />
 
       <TableFilter
