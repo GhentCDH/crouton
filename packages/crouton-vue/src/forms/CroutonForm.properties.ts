@@ -108,7 +108,11 @@ export const CroutonFormProperties = {
   },
   showErrors: {
     type: Boolean,
-    default: false,
+    default: undefined,
+  },
+  debugValue: {
+    type: Boolean,
+    default: undefined,
   },
 };
 

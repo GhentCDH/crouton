@@ -51,6 +51,7 @@ export const useFormLogic = (
         })
       : null;
 
+  const currentValues = ref(properties.data ?? {});
   const userHasEdited = ref(false);
   let isRefreshing = false;
 
@@ -72,6 +73,7 @@ export const useFormLogic = (
     (formRef.value as any)?.getCurrentValues?.() ?? formData.value;
 
   const onChange = (data: any) => {
+    currentValues.value = data;
     if (autoSaver && !isRefreshing) {
       userHasEdited.value = true;
       autoSaver.trigger(data, valid.value);
@@ -177,5 +179,6 @@ export const useFormLogic = (
     uiSchema,
     schema,
     errors,
+    currentValues,
   };
 };

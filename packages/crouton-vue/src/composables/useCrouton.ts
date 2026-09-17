@@ -38,6 +38,8 @@ export const AppConfig = {
    * restore explicit Save/Cancel buttons across the whole application.
    */
   autoSave: true,
+  showErrors: true,
+  debugValue: false,
   /**
    * Whether the connected backend has the visual resource builder enabled
    * (backend env var `CROUTON_SCHEMA_EDITOR`, defaults to `false` when unset).
@@ -129,6 +131,8 @@ const createCrouton = (
     version: computed(() => config.value.VERSION),
     title: computed(() => config.value.title),
     autoSave: computed(() => config.value.autoSave),
+    showErrors: computed(() => config.value.showErrors),
+    debugValue: computed(() => config.value.debugValue),
     isDev: computed(() => config.value.isDev),
     /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
     get renderers() {
@@ -168,6 +172,8 @@ export type UseCrouton = {
   version: ComputedRef<string>;
   title: ComputedRef<string>;
   autoSave: ComputedRef<boolean>;
+  showErrors: ComputedRef<boolean>;
+  debugValue: ComputedRef<boolean>;
   isDev: ComputedRef<boolean>;
   readonly renderers: JsonFormsRendererRegistryEntry[];
   readonly customComponents: CustomComponentEntry[];
