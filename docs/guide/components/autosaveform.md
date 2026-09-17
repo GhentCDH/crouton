@@ -28,7 +28,8 @@ import { CroutonForm } from '@ghentcdh/crouton-vue';
 | `onRefreshData`   | `() => Promise<any>`          | `null`       | Re-fetch parent record after relation changes. Cancels pending auto-save             |
 | `validateOnMount` | `boolean`                     | `false`      | Run validation and show errors immediately on mount                                  |
 | `showButtons`     | `boolean`                     | `true`       | Show footer buttons                                                                  |
-| `showErrors`      | `boolean`                     | `false`      | Show validation errors in the UI                                                     |
+| `showErrors`      | `boolean`                     | global config | Show raw validation errors below the form. Falls back to the `showErrors` option in `CroutonPlugin` (default `true`). |
+| `debugValue`      | `boolean`                     | global config | Show the current form values below the form for debugging. Falls back to the `debugValue` option in `CroutonPlugin` (default `false`). |
 | `readonly`        | `boolean`                     | `false`      | Render form in readonly mode (uses `view` key from `views`)                          |
 | `formMaxWidth`    | `string`                      | `'w-full'`   | Tailwind width class for the form container                                          |
 | `formatBeforeSave`| `(data: any) => any`          | `null`       | Transform form data before saving                                                    |
