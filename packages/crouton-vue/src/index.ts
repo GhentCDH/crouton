@@ -34,6 +34,6 @@ export * from './status';
 export type { ControlElement, JsonSchema } from '@jsonforms/core';
 export { rankWith } from '@jsonforms/core';
 export * from './relation';
-export { TableComponent, useControlBinding } from '@ghentcdh/crouton-forms-vue';
+export { DatePicker, TableComponent, useControlBinding } from '@ghentcdh/crouton-forms-vue';
 export * from './forms';
 export { parseSchema } from '@ghentcdh/crouton-core';
