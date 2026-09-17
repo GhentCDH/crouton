@@ -3,7 +3,6 @@ import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
 
 import type { DefaultTokenContext } from '@ghentcdh/crouton-core';
-
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
   CROUTON_EDITABLE_RENDERERS,
