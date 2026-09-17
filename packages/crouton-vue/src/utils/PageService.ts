@@ -70,7 +70,8 @@ export abstract class PageService {
   }
 
   protected updateRequest = (data: Partial<RequestData>) => {
-    this.requestData.value = { ...this.requestData.value, ...data };
+    const merged = { ...this.requestData.value, ...data };
+    this.requestData.value = Object.fromEntries(Object.entries(merged).filter(([, v]) => v !== undefined));
     this.onRequest(this.requestData.value);
     this.reload();
   };

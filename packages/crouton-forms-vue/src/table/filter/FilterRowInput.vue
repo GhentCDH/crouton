@@ -29,6 +29,7 @@
       :value="modelValue.value"
       :clearable="true"
       @input="update('value', ($event.target as HTMLInputElement).value)"
+      @clear="update('value', '')"
     />
     <div
       v-else
