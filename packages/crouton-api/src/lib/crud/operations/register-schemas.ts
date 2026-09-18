@@ -43,28 +43,13 @@ export const defaultSchemas = (ctx: OperationContext) => {
 const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   if (!sub.views) return null;
   const { config, baseUrl } = ctx;
-  const { route } = config;
   const schemasPayload = buildSubResourceViewsPayload(config, sub, baseUrl);
 
   return {
     route: `${sub.childRoute}/schemas`,
     methodName: `getSchemas_${sub.childRoute}`,
     name: sub.childRoute,
-    schemasFn: async function (this: {
-      configRegistry: ResourceConfigRegistry;
-    }) {
-      const language = getRequestLanguage();
-      if (IS_DEV || language) {
-        const localizedParent = await this.configRegistry.getByRoute(route, language);
-        if (localizedParent) {
-          const localizedSub = (localizedParent.subResources ?? []).find(
-            (s) => s.childRoute === sub.childRoute,
-          );
-          if (localizedSub) {
-            return buildSubResourceViewsPayload(localizedParent, localizedSub, baseUrl) ?? schemasPayload;
-          }
-        }
-      }
+    schemasFn: async function () {
       return schemasPayload;
     },
     decorators: () => {

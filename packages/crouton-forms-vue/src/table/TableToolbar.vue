@@ -7,8 +7,9 @@
     </div>
     <div class="navbar-center flex gap-2 items-center">
       <Input
-        placeholder="Search..."
         v-model="searchQuery"
+        data-testid="search-input"
+        placeholder="Search..."
         size="sm"
         width="w-48"
         :clearable="true"

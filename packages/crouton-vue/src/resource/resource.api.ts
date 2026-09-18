@@ -12,6 +12,7 @@ import { useApi } from '../composables/useApi';
 const paramsSerializer = (params: Record<string, unknown>) => {
   const p = new URLSearchParams();
   Object.entries(params).forEach(([key, val]) => {
+    if (val === undefined || val === null) return;
     if (Array.isArray(val)) val.forEach((v) => p.append(key, String(v)));
     else p.append(key, String(val));
   });

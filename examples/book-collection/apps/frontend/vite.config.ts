@@ -9,16 +9,16 @@ export default defineConfig({
     dedupe: ['vue', 'vue-router'],
   },
   server: {
-    port: 5555,
+    port: 4300,
     proxy: {
       '/api': {
-        target: 'http://localhost:4444',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
   preview: {
-    port: 5555,
+    port: 4300,
   },
 });

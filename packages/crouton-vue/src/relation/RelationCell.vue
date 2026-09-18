@@ -2,6 +2,7 @@
   <Btn
     v-if="label"
     :outline="true"
+    color="custom"
     size="xs"
     class="px-5 text-gray-500 border-gray-300 max-w-96 [&>span]:flex [&>span]:min-w-0"
     @click="openDetails"
@@ -48,7 +49,7 @@ const label = computed(() => {
   if (typeof val === 'undefined' || typeof val === 'undefined' || val === null)
     return undefined;
 
-  const displayKey = props.options?.displayKey ?? 'id';
+  const displayKey = props.options.displayKey ?? 'id';
 
   return getNestedValue(val, displayKey) as string;
 });
@@ -72,7 +73,7 @@ const openDetailsManyToOne = () => {
       ? useResources(config?.value, {
           readonly: true,
           initialLoad: false,
-          defaultUriParams: { parent: props.data as unknown as string },
+          defaultUriParams: { parent: props.data },
         })
       : null;
   });

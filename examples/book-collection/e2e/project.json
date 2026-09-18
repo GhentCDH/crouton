@@ -1,0 +1,27 @@
+{
+  "name": "book-collection-e2e",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "root": "examples/book-collection/e2e",
+  "tags": ["scope:e2e"],
+  "targets": {
+    "e2e": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        { "project": "crouton-api", "target": "build" },
+        { "project": "crouton-vue", "target": "build" }
+      ],
+      "options": {
+        "command": "pnpm exec playwright test",
+        "cwd": "examples/book-collection/e2e"
+      }
+    },
+    "e2e:ui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec playwright test --ui",
+        "cwd": "examples/book-collection/e2e"
+      }
+    }
+  }
+}

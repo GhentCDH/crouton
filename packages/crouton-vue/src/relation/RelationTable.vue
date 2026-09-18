@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RelationTableProperties } from './RelationTable.properties';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ResourceTable from '../resource/ResourceTable.vue';
 import { useFormContext } from 'vee-validate';
@@ -33,7 +33,7 @@ const handleEvent = ({ event, data }: { event: string; data: any }) => {
   router.push({ query: { ...route.query, ...querydata } });
 };
 
-const resourceRef = shallowRef<UseResource | null>(null);
+const resourceRef = ref<UseResource | null>(null);
 
 const applyQueryEvent = (resource: UseResource) => {
   const id = route.query[`${PREFIX}id`] as string | undefined;

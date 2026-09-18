@@ -6,7 +6,7 @@
     >
       <Btn
         @click="onBack"
-        :icon="(ArrowLeftIcon as any)"
+        :icon="ArrowLeftIcon"
         color="blank"
         :outline="true"
         size="sm"
@@ -85,7 +85,7 @@
           :disabled="!valid"
           :aria-label="saveLabel"
           @click="onSubmit"
-          :type="ButtonType.submit"
+          type="submit"
         >
           {{ saveLabel }}
         </Btn>
@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { computed, ref } from 'vue';
-import { Btn, ButtonType } from '@ghentcdh/ui';
+import { Btn } from '@ghentcdh/ui';
 import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
