@@ -1,17 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import { type PrismaClient } from '@prisma/client';
 
 const SCHEMA_SQL = [
-  `CREATE TABLE IF NOT EXISTS "Author" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "bio" TEXT)`,
-  `CREATE TABLE IF NOT EXISTS "Category" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "slug" TEXT NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS "Book" ("id" TEXT NOT NULL PRIMARY KEY, "title" TEXT NOT NULL, "isbn" TEXT, "publishedYear" INTEGER, "status" TEXT NOT NULL DEFAULT 'draft', "summary" TEXT, "authorId" TEXT NOT NULL, CONSTRAINT "Book_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author" ("id") ON DELETE RESTRICT ON UPDATE CASCADE)`,
-  `CREATE TABLE IF NOT EXISTS "User" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "email" TEXT NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS "Loan" ("id" TEXT NOT NULL PRIMARY KEY, "loanedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, "returnedAt" DATETIME, "userId" TEXT NOT NULL, "bookId" TEXT NOT NULL, CONSTRAINT "Loan_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE, CONSTRAINT "Loan_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book" ("id") ON DELETE RESTRICT ON UPDATE CASCADE)`,
-  `CREATE TABLE IF NOT EXISTS "_BookToCategory" ("A" TEXT NOT NULL, "B" TEXT NOT NULL, CONSTRAINT "_BookToCategory_A_fkey" FOREIGN KEY ("A") REFERENCES "Book" ("id") ON DELETE CASCADE ON UPDATE CASCADE, CONSTRAINT "_BookToCategory_B_fkey" FOREIGN KEY ("B") REFERENCES "Category" ("id") ON DELETE CASCADE ON UPDATE CASCADE)`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "Category_slug_key" ON "Category"("slug")`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "Book_isbn_key" ON "Book"("isbn")`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "_BookToCategory_AB_unique" ON "_BookToCategory"("A", "B")`,
-  `CREATE INDEX IF NOT EXISTS "_BookToCategory_B_index" ON "_BookToCategory"("B")`,
+  'CREATE TABLE IF NOT EXISTS "Author" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "bio" TEXT)',
+  'CREATE TABLE IF NOT EXISTS "Category" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "slug" TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS "Book" ("id" TEXT NOT NULL PRIMARY KEY, "title" TEXT NOT NULL, "isbn" TEXT, "publishedYear" INTEGER, "status" TEXT NOT NULL DEFAULT \'draft\', "summary" TEXT, "authorId" TEXT NOT NULL, CONSTRAINT "Book_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author" ("id") ON DELETE RESTRICT ON UPDATE CASCADE)',
+  'CREATE TABLE IF NOT EXISTS "User" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "email" TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS "Loan" ("id" TEXT NOT NULL PRIMARY KEY, "loanedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, "returnedAt" DATETIME, "userId" TEXT NOT NULL, "bookId" TEXT NOT NULL, CONSTRAINT "Loan_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE, CONSTRAINT "Loan_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book" ("id") ON DELETE RESTRICT ON UPDATE CASCADE)',
+  'CREATE TABLE IF NOT EXISTS "_BookToCategory" ("A" TEXT NOT NULL, "B" TEXT NOT NULL, CONSTRAINT "_BookToCategory_A_fkey" FOREIGN KEY ("A") REFERENCES "Book" ("id") ON DELETE CASCADE ON UPDATE CASCADE, CONSTRAINT "_BookToCategory_B_fkey" FOREIGN KEY ("B") REFERENCES "Category" ("id") ON DELETE CASCADE ON UPDATE CASCADE)',
+  'CREATE UNIQUE INDEX IF NOT EXISTS "Category_slug_key" ON "Category"("slug")',
+  'CREATE UNIQUE INDEX IF NOT EXISTS "Book_isbn_key" ON "Book"("isbn")',
+  'CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")',
+  'CREATE UNIQUE INDEX IF NOT EXISTS "_BookToCategory_AB_unique" ON "_BookToCategory"("A", "B")',
+  'CREATE INDEX IF NOT EXISTS "_BookToCategory_B_index" ON "_BookToCategory"("B")',
 ];
 
 export const seedDatabase = async (prisma: PrismaClient) => {

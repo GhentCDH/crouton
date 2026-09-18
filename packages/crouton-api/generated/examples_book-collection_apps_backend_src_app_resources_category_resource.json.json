@@ -1,0 +1,378 @@
+{
+  "basePath": "./examples/book-collection/apps/backend/src/app/resources",
+  "resourcePath": "examples/book-collection/apps/backend/src/app/resources/category",
+  "children": [],
+  "jsonFile": "examples/book-collection/apps/backend/src/app/resources/category/resource.json",
+  "config": {
+    "title": "Categories",
+    "draft": false,
+    "kind": "prisma",
+    "name": "category",
+    "model": "Category",
+    "tag": "Crouton",
+    "sidebar": {
+      "hide": false
+    },
+    "display": {
+      "mode": "modal",
+      "customComponent": null
+    },
+    "columns": [
+      {
+        "id": "id",
+        "hiddenInTable": false,
+        "hiddenInForm": true,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": true,
+        "showInLookup": false,
+        "columnType": "string",
+        "label": "Id"
+      },
+      {
+        "id": "name",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": true,
+        "defaultSort": false,
+        "searchable": true,
+        "filterable": true,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "label": "Name"
+      },
+      {
+        "id": "slug",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": true,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "label": "Slug"
+      }
+    ],
+    "calculatedColumns": [],
+    "actions": [],
+    "tableActions": [],
+    "modalSize": "sm",
+    "include": [],
+    "id": "category",
+    "route": "category",
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "patch": true,
+      "delete": true
+    },
+    "definition": {
+      "findAll": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "patch": true,
+      "delete": true
+    },
+    "views": {
+      "table": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "title": "Id",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "title": "Slug",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "TextCell",
+              "scope": "#/properties/id",
+              "options": {
+                "sortable": false,
+                "label": "Id"
+              }
+            },
+            {
+              "type": "TextCell",
+              "scope": "#/properties/name",
+              "options": {
+                "sortId": "name",
+                "label": "Name"
+              }
+            },
+            {
+              "type": "TextCell",
+              "scope": "#/properties/slug",
+              "options": {
+                "sortId": "slug",
+                "label": "Slug"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "id",
+            "label": "Id",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          },
+          {
+            "id": "slug",
+            "label": "Slug",
+            "sortable": true,
+            "searchable": false
+          }
+        ],
+        "defaultSort": "name"
+      },
+      "form": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "title": "Slug",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Name"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/slug",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Slug"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          },
+          {
+            "id": "slug",
+            "label": "Slug",
+            "sortable": true,
+            "searchable": false
+          }
+        ]
+      },
+      "filter": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Name"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          }
+        ]
+      },
+      "view": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "title": "Id",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "title": "Slug",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/id",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Id"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Name"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/slug",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Slug"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "id",
+            "label": "Id",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          },
+          {
+            "id": "slug",
+            "label": "Slug",
+            "sortable": true,
+            "searchable": false
+          }
+        ]
+      }
+    },
+    "lookup": {
+      "key": "id",
+      "label": "name"
+    }
+  }
+}
