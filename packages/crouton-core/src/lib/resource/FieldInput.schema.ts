@@ -88,7 +88,7 @@ export const FieldInputSchema = z.object({
    * Supports dynamic default tokens evaluated at form-open time:
    * - `"$now"` — current datetime ISO string
    * - `"$today"` — current date ISO string (date only, e.g. `"2025-03-14"`)
-   * - `"$user.id"` — current user id (requires `user` on `CroutonPlugin` config)
+   * - `"$user"` — current user object (requires `defaults: { '$user': ... }` on `CroutonPlugin` config, or `useCrouton().setDefault('$user', ...)`)
    */
   defaultValue: z.unknown().optional(),
   options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),

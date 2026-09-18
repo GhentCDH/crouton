@@ -161,7 +161,7 @@ const createEditForm =
     const crouton = useCrouton();
     const autoSaveEnabled = crouton.autoSave.value;
 
-    const blankData = formData ?? resolveDefaultTokens(form.parseValue({}), { user: crouton.user }) as any;
+    const blankData = formData ?? resolveDefaultTokens(form.parseValue({}), { defaults: crouton.defaults }) as any;
 
     const sharedProps = {
       schema: form.data,

@@ -1,14 +1,14 @@
-export type DynamicDefaultToken = '$now' | '$today' | '$user.id';
+export type DynamicDefaultToken = '$now' | '$today' | '$user';
 
 export type DefaultTokenContext = {
-  user?: { id?: string };
+  defaults?: Record<string, unknown>;
 };
 
 const DYNAMIC_DEFAULTS: Record<string, (ctx: DefaultTokenContext) => unknown> =
   {
     $now: () => new Date().toISOString(),
     $today: () => new Date().toISOString().slice(0, 10),
-    '$user.id': (ctx) => ctx.user?.id,
+    $user: (ctx) => ctx.defaults?.['$user'],
   };
 
 const resolveValue = (value: unknown, ctx: DefaultTokenContext): unknown => {
@@ -19,7 +19,7 @@ const resolveValue = (value: unknown, ctx: DefaultTokenContext): unknown => {
 
 /**
  * Walk a parsed form value object and resolve any dynamic default tokens
- * (e.g. "$today", "$now", "$user.id") to their runtime equivalents.
+ * (e.g. "$today", "$now", "$user") to their runtime equivalents.
  *
  * Must run at form-open time, not at schema-load time, so defaults are fresh.
  */
