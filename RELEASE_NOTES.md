@@ -1,3 +1,19 @@
+## 0.0.1-alpha.64 (2026-09-18)
+
+### 🚀 Features
+
+- add e2e ([4802c02](https://github.com/GhentCDH/crouton/commit/4802c02))
+- **crouton-api:** multi-field OR search via ?q= with manyToOne resolution ([1b1e04c](https://github.com/GhentCDH/crouton/commit/1b1e04c))
+
+### 🩹 Fixes
+
+- **crouton-api:** update tests for new findAll signature without q param ([6340e3c](https://github.com/GhentCDH/crouton/commit/6340e3c))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.63 (2026-09-18)
 
 ### 🚀 Features
