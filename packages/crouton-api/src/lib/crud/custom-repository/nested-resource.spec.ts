@@ -129,10 +129,9 @@ describe('a nested custom resource', () => {
       await boot();
     });
 
-    it('lists only the requested parent’s children', async () => {
+    it("lists only the requested parent's children", async () => {
       const result = await controller.findAll(
         listParams,
-        undefined,
         req({ groupId: 'g1' }),
       );
       expect(result.data.map((r: any) => r.id)).toEqual(['e1', 'e2']);
@@ -142,7 +141,6 @@ describe('a nested custom resource', () => {
     it('scopes a different parent independently', async () => {
       const result = await controller.findAll(
         listParams,
-        undefined,
         req({ groupId: 'g2' }),
       );
       expect(result.data.map((r: any) => r.id)).toEqual(['e3']);
@@ -151,7 +149,6 @@ describe('a nested custom resource', () => {
     it('passes the parent through ctx.parent as well', async () => {
       const result = await controller.findAll(
         listParams,
-        undefined,
         req({ groupId: 'g1' }),
       );
       // The fixture echoes ctx.parent back on the result envelope.
@@ -166,7 +163,7 @@ describe('a nested custom resource', () => {
       });
     });
 
-    it('scopes findOne, so another parent’s row is a 404', async () => {
+    it("scopes findOne, so another parent's row is a 404", async () => {
       await expect(
         controller.findOne('e1', req({ groupId: 'g1' })),
       ).resolves.toMatchObject({ id: 'e1' });
@@ -196,7 +193,7 @@ describe('a nested custom resource', () => {
     it('refuses to run unscoped rather than listing every parent', async () => {
       // No parent id in the request => explicit 400, never a full-table read.
       await expect(
-        controller.findAll(listParams, undefined, req({})),
+        controller.findAll(listParams, req({})),
       ).rejects.toThrow(/no "groupId" was supplied/);
     });
   });
