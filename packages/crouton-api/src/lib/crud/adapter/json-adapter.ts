@@ -28,8 +28,8 @@ import {
   expandExtendColumns,
   resolveColumnFieldVariants,
 } from './column-transforms';
-import { resolveChildResource } from './resource-resolver';
 import { enrichRelationTypes } from './relation-type';
+import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { LookupConfig } from '../resource/lookup.schema';
