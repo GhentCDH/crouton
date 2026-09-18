@@ -19,10 +19,10 @@ export default [
               sourceTag: 'type:util',
               onlyDependOnLibsWithTags: ['type:util'],
             },
-            // backend (NestJS): only util — no Vue, no cli
+            // backend (NestJS): util + other backend libs — no Vue, no cli
             {
               sourceTag: 'type:backend',
-              onlyDependOnLibsWithTags: ['type:util'],
+              onlyDependOnLibsWithTags: ['type:util', 'type:backend'],
             },
             // ui (Vue): util + other ui — no NestJS, no cli
             {
@@ -48,7 +48,7 @@ export default [
   },
   importPlugin.flatConfigs.recommended,
   {
-    ignores: ['**/dist', '**/node_modules', '**/vite.config.*.timestamp*', 'docs/.vuepress/.cache', 'docs/.vuepress/.temp'],
+    ignores: ['**/dist', '**/node_modules', '**/generated/**', '**/vite.config.*.timestamp*', 'docs/.vuepress/.cache', 'docs/.vuepress/.temp'],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

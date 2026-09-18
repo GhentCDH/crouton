@@ -1,0 +1,10 @@
+{
+  "name": "user",
+  "model": "User",
+  "title": "Users",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "name": { "searchable": true, "filterable": true, "sortable": true },
+    "email": { "searchable": true, "filterable": true, "sortable": true }
+  }
+}
