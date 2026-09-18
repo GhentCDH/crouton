@@ -14,21 +14,15 @@ import { childSchemas } from './register-schemas';
 const _findAll = async (
   repo: CrudRepository,
   params: any,
-  q: string | undefined,
-  lookupLabel: string | undefined,
   request?: any,
 ) => {
-  const effectiveParams = { ...params };
-  if (q && lookupLabel) {
-    effectiveParams.filter = [...(params.filter ?? []), `${lookupLabel}:${q}`];
-  }
   // Repositories that cannot count separately (custom repositories backed by a
   // remote API) implement `findAllWithCount` and return both in one round trip.
   const { data, count } = repo.findAllWithCount
-    ? await repo.findAllWithCount(effectiveParams, request)
+    ? await repo.findAllWithCount(params, request)
     : await Promise.all([
-        repo.findAll(effectiveParams, request),
-        repo.count(effectiveParams.filter),
+        repo.findAll(params, request),
+        repo.count(params.filter ?? [], params.q),
       ]).then(([data, count]) => ({ data, count }));
   const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
   return {
@@ -77,14 +71,12 @@ const defaultFindAll = (ctx: OperationContext) => {
   if (isOperationExternal(ctx.definition, 'findAll')) return;
 
   const { config } = ctx;
-  const lookupLabel = config.lookup?.label;
   const findAll = async function (
     this: { repo: CrudRepository },
     params: any,
-    q: string | undefined,
     req: any,
   ) {
-    return _findAll(this.repo, params, q, lookupLabel, req);
+    return _findAll(this.repo, params, req);
   };
 
   return {
@@ -108,7 +100,6 @@ const childFindAll = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   const findAll = async function (
     this: { repo: CrudRepository },
     params: any,
-    q: string | undefined,
     id: string,
     req: any,
   ) {
@@ -116,8 +107,8 @@ const childFindAll = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   };
 
   const decorators = () => {
-    Param('id')(cls.prototype, methodName, 2);
-    Req()(cls.prototype, methodName, 3);
+    Param('id')(cls.prototype, methodName, 1);
+    Req()(cls.prototype, methodName, 2);
   };
 
   return {
@@ -153,8 +144,7 @@ export const registerFindAll = (
     methodName,
     0,
   );
-  Query('q')(cls.prototype, methodName, 1);
-  if (!sub) Req()(cls.prototype, methodName, 2);
+  if (!sub) Req()(cls.prototype, methodName, 1);
   ApiOperation({ summary: `List all ${name}s` })(cls.prototype, methodName, d);
   ApiResponse({
     status: 200,

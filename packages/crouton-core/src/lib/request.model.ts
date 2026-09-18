@@ -12,6 +12,7 @@ export const RequestSchema = z.object({
   sortDir: SortDirEnum.optional().default('asc'),
   // Filter is of the format key:value:operator (e.g. name:john:eq) operator is optional
   filter: StringOrArray().optional().default([]),
+  q: z.string().optional(),
 });
 
 export type ListRequest = z.infer<typeof RequestSchema>;

@@ -14,8 +14,21 @@ const SCHEMA_SQL = [
   'CREATE INDEX IF NOT EXISTS "_BookToCategory_B_index" ON "_BookToCategory"("B")',
 ];
 
+const CLEAR_SQL = [
+  'DELETE FROM "Loan"',
+  'DELETE FROM "_BookToCategory"',
+  'DELETE FROM "Book"',
+  'DELETE FROM "User"',
+  'DELETE FROM "Category"',
+  'DELETE FROM "Author"',
+];
+
 export const seedDatabase = async (prisma: PrismaClient) => {
   for (const sql of SCHEMA_SQL) {
+    await prisma.$executeRawUnsafe(sql);
+  }
+
+  for (const sql of CLEAR_SQL) {
     await prisma.$executeRawUnsafe(sql);
   }
 

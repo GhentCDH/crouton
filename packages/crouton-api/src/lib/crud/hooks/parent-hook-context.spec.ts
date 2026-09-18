@@ -99,7 +99,10 @@ describe('ctx.parent on a nested hook', () => {
           },
         }),
       );
-      writeFileSync(join(expenseDir, 'resource.json'), JSON.stringify(CHILD_JSON));
+      writeFileSync(
+        join(expenseDir, 'resource.json'),
+        JSON.stringify(CHILD_JSON),
+      );
       writeFileSync(join(expenseDir, 'repository.ts'), CHILD_REPOSITORY);
       writeFileSync(join(expenseDir, 'hooks.ts'), HOOKS);
 
@@ -116,23 +119,32 @@ describe('ctx.parent on a nested hook', () => {
     });
 
     it('gives beforeWrite the parent id on create', async () => {
-      await controller.createChild_expense('g1', { label: 'x' }, {
-        params: { id: 'g1' },
-      });
+      await controller.createChild_expense(
+        'g1',
+        { label: 'x' },
+        {
+          params: { id: 'g1' },
+        },
+      );
       const hook = CAPTURED.find((c) => c.where === 'beforeWrite');
       expect(hook.parent).toEqual({ route: 'groups', param: 'id', id: 'g1' });
     });
 
     it('gives beforeWrite the parent id on update', async () => {
-      await controller.updateChild_expense('g1', 'e1', { label: 'y' }, {
-        params: { id: 'g1' },
-      });
+      await controller.updateChild_expense(
+        'g1',
+        'e1',
+        { label: 'y' },
+        {
+          params: { id: 'g1' },
+        },
+      );
       const hook = CAPTURED.find((c) => c.where === 'beforeWrite');
       expect(hook.parent.id).toBe('g1');
     });
 
     it('gives afterRead the parent id on a child list', async () => {
-      await controller.findAllBy_expense(listParams, undefined, 'g2', {
+      await controller.findAllBy_expense(listParams, 'g2', {
         params: { id: 'g2' },
       });
       const hook = CAPTURED.find((c) => c.where === 'afterRead');
@@ -246,7 +258,10 @@ describe('sub-resource hook discovery', () => {
         },
       }),
     );
-    writeFileSync(join(expenseDir, 'resource.json'), JSON.stringify(CHILD_JSON));
+    writeFileSync(
+      join(expenseDir, 'resource.json'),
+      JSON.stringify(CHILD_JSON),
+    );
     writeFileSync(join(expenseDir, 'repository.ts'), CHILD_REPOSITORY);
     if (opts.inChildDir) {
       writeFileSync(join(expenseDir, 'hooks.ts'), opts.inChildDir);
@@ -288,7 +303,7 @@ describe('sub-resource hook discovery', () => {
     delete (globalThis as any).__CAPTURED__;
   });
 
-  it('finds hooks.ts in the child’s own directory', async () => {
+  it('finds hooks.ts in the child`s own directory', async () => {
     write({ inChildDir: marker('child-dir') });
     const c = await boot();
     await c.createChild_expense('g1', { label: 'x' }, { params: { id: 'g1' } });
@@ -303,7 +318,10 @@ describe('sub-resource hook discovery', () => {
   });
 
   it('prefers the parent-scoped one when both exist', async () => {
-    write({ inChildDir: marker('child-dir'), inParentHooks: marker('parent-hooks') });
+    write({
+      inChildDir: marker('child-dir'),
+      inParentHooks: marker('parent-hooks'),
+    });
     const c = await boot();
     await c.createChild_expense('g1', { label: 'x' }, { params: { id: 'g1' } });
     expect(CAPTURED.map((x) => x.where)).toEqual(['parent-hooks']);

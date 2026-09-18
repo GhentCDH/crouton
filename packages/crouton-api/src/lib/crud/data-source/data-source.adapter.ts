@@ -19,6 +19,8 @@ export interface AdapterCrudContext {
   oneSelect?: Record<string, any>;
   /** ResourceConfigRegistry for value-label resolution. */
   configRegistry?: any;
+  /** Free-text search term forwarded from `?q=` for OR search in `ReadRepository`. */
+  q?: string;
 }
 
 /**

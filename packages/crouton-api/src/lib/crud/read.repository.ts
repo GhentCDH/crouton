@@ -313,8 +313,13 @@ export class ReadRepository<T = any> {
       this.config.valueLabelColumns,
       this.configRegistry,
     );
+    const filterWhere = this.buildWhere(params.filter);
+    const searchWhere = this.buildSearchOrWhere((params as any).q);
+    const where = filterWhere && searchWhere
+      ? { AND: [filterWhere, searchWhere] }
+      : filterWhere ?? searchWhere;
     const query: Record<string, any> = {
-      where: this.buildWhere(params.filter),
+      where,
       take: params.pageSize,
       skip: offsetOf(params),
       orderBy: this.safeSort(
@@ -413,9 +418,23 @@ export class ReadRepository<T = any> {
     return withCalc;
   }
 
-  /** Count records matching the given filter strings. */
-  count(filter: string[]): Promise<number> {
-    return this.prismaModel.count({ where: this.buildWhere(filter) });
+  private buildSearchOrWhere(q: string | undefined): Record<string, unknown> | undefined {
+    const lookup = this.config.lookup;
+    const labels = lookup?.labels?.length ? lookup.labels : (lookup?.label ? [lookup.label] : undefined);
+    if (!q || !labels?.length) return undefined;
+    return {
+      OR: labels.map((path) => buildNestedPath(path.split('.'), { contains: q })),
+    };
+  }
+
+  /** Count records matching the given filter strings and optional free-text search. */
+  count(filter: string[], q?: string): Promise<number> {
+    const filterWhere = this.buildWhere(filter);
+    const searchWhere = this.buildSearchOrWhere(q);
+    const where = filterWhere && searchWhere
+      ? { AND: [filterWhere, searchWhere] }
+      : filterWhere ?? searchWhere;
+    return this.prismaModel.count({ where });
   }
 
   /**

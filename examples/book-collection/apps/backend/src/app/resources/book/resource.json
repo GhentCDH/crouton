@@ -11,12 +11,12 @@
     "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
     "authorId": {
       "label": "Author",
+      "searchable": true,
       "fieldInput": {
         "type": "autocomplete",
         "relationType": "manyToOne",
         "resource": "./author.resource"
-      },
-      "showInLookup": true
+      }
     },
     "categories": {
       "label": "Categories",
