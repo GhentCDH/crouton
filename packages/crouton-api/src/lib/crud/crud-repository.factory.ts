@@ -23,7 +23,7 @@ export interface CrudRepository<T = any> {
   /** Raw Prisma client — used by action procedures. */
   readonly prisma: any;
   findAll(params: ListRequest, request?: any): Promise<T[]>;
-  count(filter: string[]): Promise<number>;
+  count(filter: string[], q?: string): Promise<number>;
   /**
    * Fetch rows *and* their total count in a single call.
    *
@@ -204,7 +204,7 @@ export function createCrudRepository<T = any>(
         const { data } = await resolvedAdapter.findAll!(adapterModelKey, effectiveParams, { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) });
         return decorateFindAll(data, request);
       },
-      count: (filter) => resolvedAdapter.count!(adapterModelKey, filter, baseCtx),
+      count: (filter, q) => resolvedAdapter.count!(adapterModelKey, filter, { ...baseCtx, q }),
       findOne: async (id, request) => {
         const row = await resolvedAdapter.findOne!(adapterModelKey, id, ctx(request, 'findOne', id));
         if (row === null || row === undefined) throw new NotFoundException(`${config.name} with id ${id} not found`);

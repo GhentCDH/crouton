@@ -163,19 +163,37 @@ Both forms support the same options:
 | `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                   |
 | `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell                                                                                                                                                 |
 | `sortable` / `defaultSort`                        | Sorting; `sortId` overrides the sort column                                                                                                                                                                                                                                                                                 |
-| `searchable`                                      | Included in free-text search                                                                                                                                                                                                                                                                                                |
+| `searchable`                                      | Marks this column as a `?q=` search target. Multiple `searchable` columns produce an OR search. For `manyToOne` relation columns the search automatically resolves to the related resource's display field (e.g. `authorId` → `author.name`).                                                                               |
 | `filterable`                                      | Gets a filter control                                                                                                                                                                                                                                                                                                       |
 | `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                               |
 | `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable |
 | `showWhen` / `hideWhen` / `disabledWhen`          | Conditional display: `{ "field": "...", "eq"/"neq"/"exists"/"notExists": ... }`                                                                                                                                                                                                                                                         |
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                |
-| `showInLookup`                                    | Shown in autocomplete lookups of this resource                                                                                                                                                                                                                                                                              |
+| `showInLookup`                                    | Sets the display label when **this** resource appears as an option in another resource's autocomplete. Does **not** affect `?q=` search — use `searchable: true` for that.                                                                                                                                                  |
 | `column`                                          | Source column name when it differs from the key/`id` (defaults to `id`)                                                                                                                                                                                                                                                    |
 | `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                        |
 | `extend`                                          | Path to another `resource.json` whose columns are expanded as virtual sub-columns under this key (with a per-sub-column `columns` override map)                                                                                                                                                                             |
 | `fieldInput`                                      | Form control configuration, see below                                                                                                                                                                                                                                                                                       |
 | `fieldView`                                       | Optional per-context override for the read-only view, see below                                                                                                                                                                                                                                                             |
 | `fieldTable`                                      | Optional per-context override for the table cell, see below                                                                                                                                                                                                                                                                 |
+
+### Free-text search (`?q=`)
+
+Mark columns with `searchable: true` to include them in free-text search via `?q=` on the list endpoint.
+
+```json
+{
+  "title": { "searchable": true },
+  "authorId": {
+    "searchable": true,
+    "fieldInput": { "type": "autocomplete", "relationType": "manyToOne", "resource": "./author.resource" }
+  }
+}
+```
+
+- **Multiple `searchable` columns** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author name contains "tolkien".
+- **`manyToOne` relation columns** (e.g. `authorId`) automatically resolve to the related resource's first visible display field (e.g. `author.name`), so you never search against a raw foreign key string.
+- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use `showInLookup` to drive `?q=` search; use `searchable` instead.
 
 #### Nested object and array columns
 

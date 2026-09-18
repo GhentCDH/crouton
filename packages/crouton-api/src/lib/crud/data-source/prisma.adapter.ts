@@ -74,14 +74,14 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
     const reader = new ReadRepository(prismaModel, this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     const [data, count] = await Promise.all([
       reader.findAll(params, ctx.request),
-      reader.count(params.filter ?? []),
+      reader.count(params.filter ?? [], (params as any).q),
     ]);
     return { data, count };
   }
 
   async count(model: string, filter: string[], ctx: AdapterCrudContext): Promise<number> {
     const reader = new ReadRepository(this.prismaModel(model), this, ctx.config, undefined, undefined, ctx.configRegistry);
-    return reader.count(filter);
+    return reader.count(filter, ctx.q);
   }
 
   async findOne(model: string, id: string | number, ctx: AdapterCrudContext): Promise<any | null> {

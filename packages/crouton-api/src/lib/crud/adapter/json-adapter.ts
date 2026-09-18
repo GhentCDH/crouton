@@ -28,6 +28,7 @@ import {
   expandExtendColumns,
   resolveColumnFieldVariants,
 } from './column-transforms';
+import { resolveChildResource } from './resource-resolver';
 import { enrichRelationTypes } from './relation-type';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
@@ -100,7 +101,7 @@ export const fromJson = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns);
+  const lookup = buildLookup(enrichedColumns, dirPath);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
@@ -139,19 +140,28 @@ export const fromJson = (
 
 const buildLookup = (
   columns: JsonColumn[] | undefined,
+  dirPath?: string,
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
 
   const keyCol = columns.find((c) => c.idField);
-  // Prefer explicit showInLookup, then fall back to first searchable column.
-  // Never fall back to the id field — it's typically an integer and doesn't support `contains`.
-  const labelCol =
-    columns.find((c) => c.showInLookup) ?? columns.find((c) => c.searchable);
+  const searchCols = columns.filter((c) => c.showInLookup || c.searchable);
 
-  if (!keyCol && !labelCol) return undefined;
+  if (!keyCol && !searchCols.length) return undefined;
+
+  const labels = searchCols.map((col) => {
+    if (col.fieldInput?.relationType === 'manyToOne' && col.fieldInput?.resource && dirPath) {
+      const relationName = col.id.replace(/Id$/, '');
+      const child = resolveChildResource(col.fieldInput.resource, dirPath);
+      const childColumns = child ? expandExtendColumns(child.json.columns, dirPath) : undefined;
+      const displayCol = childColumns?.find((c) => !c.idField && !c.hiddenInTable);
+      if (displayCol) return `${relationName}.${displayCol.id}`;
+    }
+    return col.id;
+  });
 
   return {
     key: keyCol?.id ?? 'id',
-    ...(labelCol && { label: labelCol.id }),
+    ...(labels.length && { label: labels[0], labels }),
   };
 };
