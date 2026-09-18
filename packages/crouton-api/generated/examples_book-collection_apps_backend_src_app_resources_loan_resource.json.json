@@ -1,0 +1,588 @@
+{
+  "basePath": "./examples/book-collection/apps/backend/src/app/resources",
+  "resourcePath": "examples/book-collection/apps/backend/src/app/resources/loan",
+  "children": [],
+  "jsonFile": "examples/book-collection/apps/backend/src/app/resources/loan/resource.json",
+  "config": {
+    "title": "Loans",
+    "draft": false,
+    "kind": "prisma",
+    "name": "loan",
+    "model": "Loan",
+    "tag": "Crouton",
+    "sidebar": {
+      "hide": false
+    },
+    "display": {
+      "mode": "modal",
+      "customComponent": null
+    },
+    "columns": [
+      {
+        "id": "id",
+        "hiddenInTable": false,
+        "hiddenInForm": true,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": true,
+        "showInLookup": false,
+        "columnType": "string",
+        "label": "Id"
+      },
+      {
+        "id": "loanedAt",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": true,
+        "defaultSort": true,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "type": "string",
+        "columnType": "string",
+        "label": "Loaned at"
+      },
+      {
+        "id": "returnedAt",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "type": "string",
+        "required": false,
+        "columnType": "string",
+        "label": "Returned at"
+      },
+      {
+        "id": "userId",
+        "label": "User",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "fieldInput": {
+          "type": "autocomplete",
+          "resource": "./user.resource",
+          "relationType": "manyToOne"
+        }
+      },
+      {
+        "id": "bookId",
+        "label": "Book",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "fieldInput": {
+          "type": "autocomplete",
+          "resource": "./book.resource",
+          "relationType": "manyToOne"
+        }
+      }
+    ],
+    "calculatedColumns": [],
+    "actions": [],
+    "tableActions": [],
+    "modalSize": "sm",
+    "include": [
+      "user",
+      "book"
+    ],
+    "id": "loan",
+    "route": "loan",
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "patch": true,
+      "delete": true
+    },
+    "definition": {
+      "findAll": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "patch": true,
+      "delete": true
+    },
+    "views": {
+      "table": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "title": "Id",
+              "minLength": 1
+            },
+            "loanedAt": {
+              "type": "string",
+              "title": "Loaned at",
+              "minLength": 1
+            },
+            "returnedAt": {
+              "type": "string",
+              "title": "Returned at",
+              "minLength": 1
+            },
+            "userId": {
+              "title": "User"
+            },
+            "bookId": {
+              "title": "Book"
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "TextCell",
+              "scope": "#/properties/id",
+              "options": {
+                "sortable": false,
+                "label": "Id"
+              }
+            },
+            {
+              "type": "TextCell",
+              "scope": "#/properties/loanedAt",
+              "options": {
+                "sortId": "loanedAt",
+                "label": "Loaned at"
+              }
+            },
+            {
+              "type": "TextCell",
+              "scope": "#/properties/returnedAt",
+              "options": {
+                "sortable": false,
+                "label": "Returned at"
+              }
+            },
+            {
+              "type": "RecordCell",
+              "scope": "#/properties/userId",
+              "options": {
+                "resourceUri": "http://localhost:4444//user",
+                "schemasUri": "http://localhost:4444//user/schemas",
+                "sortable": false,
+                "relationType": "manyToOne",
+                "label": "User"
+              }
+            },
+            {
+              "type": "RecordCell",
+              "scope": "#/properties/bookId",
+              "options": {
+                "resourceUri": "http://localhost:4444//book",
+                "schemasUri": "http://localhost:4444//book/schemas",
+                "sortable": false,
+                "relationType": "manyToOne",
+                "label": "Book"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "id",
+            "label": "Id",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "loanedAt",
+            "label": "Loaned at",
+            "sortable": true,
+            "searchable": false
+          },
+          {
+            "id": "returnedAt",
+            "label": "Returned at",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "userId",
+            "label": "User",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "autocomplete",
+              "resource": "./user.resource",
+              "relationType": "manyToOne",
+              "options": {
+                "resourceUri": "http://localhost:4444//user",
+                "schemasUri": "http://localhost:4444//user/schemas"
+              }
+            }
+          },
+          {
+            "id": "bookId",
+            "label": "Book",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "autocomplete",
+              "resource": "./book.resource",
+              "relationType": "manyToOne",
+              "options": {
+                "resourceUri": "http://localhost:4444//book",
+                "schemasUri": "http://localhost:4444//book/schemas"
+              }
+            }
+          }
+        ],
+        "defaultSort": "loanedAt"
+      },
+      "form": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "loanedAt": {
+              "type": "string",
+              "title": "Loaned at",
+              "minLength": 1
+            },
+            "returnedAt": {
+              "type": "string",
+              "title": "Returned at",
+              "minLength": 1
+            },
+            "userId": {
+              "title": "User"
+            },
+            "bookId": {
+              "title": "Book"
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/loanedAt",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Loaned at"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/returnedAt",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Returned at"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/userId",
+              "options": {
+                "format": "autocomplete",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "resourceUri": "http://localhost:4444//user",
+                "schemasUri": "http://localhost:4444//user/schemas",
+                "colspan": 12,
+                "relationType": "manyToOne",
+                "label": "User"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/bookId",
+              "options": {
+                "format": "autocomplete",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "resourceUri": "http://localhost:4444//book",
+                "schemasUri": "http://localhost:4444//book/schemas",
+                "colspan": 12,
+                "relationType": "manyToOne",
+                "label": "Book"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "loanedAt",
+            "label": "Loaned at",
+            "sortable": true,
+            "searchable": false
+          },
+          {
+            "id": "returnedAt",
+            "label": "Returned at",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "userId",
+            "label": "User",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "autocomplete",
+              "resource": "./user.resource",
+              "relationType": "manyToOne",
+              "options": {
+                "resourceUri": "http://localhost:4444//user",
+                "schemasUri": "http://localhost:4444//user/schemas"
+              }
+            }
+          },
+          {
+            "id": "bookId",
+            "label": "Book",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "autocomplete",
+              "resource": "./book.resource",
+              "relationType": "manyToOne",
+              "options": {
+                "resourceUri": "http://localhost:4444//book",
+                "schemasUri": "http://localhost:4444//book/schemas"
+              }
+            }
+          }
+        ]
+      },
+      "view": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "title": "Id",
+              "minLength": 1
+            },
+            "loanedAt": {
+              "type": "string",
+              "title": "Loaned at",
+              "minLength": 1
+            },
+            "returnedAt": {
+              "type": "string",
+              "title": "Returned at",
+              "minLength": 1
+            },
+            "userId": {
+              "title": "User"
+            },
+            "bookId": {
+              "title": "Book"
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/id",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Id"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/loanedAt",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Loaned at"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/returnedAt",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Returned at"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/userId",
+              "options": {
+                "format": "autocomplete",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "resourceUri": "http://localhost:4444//user",
+                "schemasUri": "http://localhost:4444//user/schemas",
+                "colspan": 12,
+                "relationType": "manyToOne",
+                "label": "User"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/bookId",
+              "options": {
+                "format": "autocomplete",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "resourceUri": "http://localhost:4444//book",
+                "schemasUri": "http://localhost:4444//book/schemas",
+                "colspan": 12,
+                "relationType": "manyToOne",
+                "label": "Book"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "id",
+            "label": "Id",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "loanedAt",
+            "label": "Loaned at",
+            "sortable": true,
+            "searchable": false
+          },
+          {
+            "id": "returnedAt",
+            "label": "Returned at",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "userId",
+            "label": "User",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "autocomplete",
+              "resource": "./user.resource",
+              "relationType": "manyToOne",
+              "options": {
+                "resourceUri": "http://localhost:4444//user",
+                "schemasUri": "http://localhost:4444//user/schemas"
+              }
+            }
+          },
+          {
+            "id": "bookId",
+            "label": "Book",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "autocomplete",
+              "resource": "./book.resource",
+              "relationType": "manyToOne",
+              "options": {
+                "resourceUri": "http://localhost:4444//book",
+                "schemasUri": "http://localhost:4444//book/schemas"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "lookup": {
+      "key": "id"
+    }
+  }
+}

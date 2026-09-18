@@ -4,8 +4,12 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app/app.module.js';
+import prisma from './app/data-sources/default/index.js';
+import { seedDatabase } from './seed.js';
 
 const bootstrap = async () => {
+  await seedDatabase(prisma);
+
   const app = await NestFactory.create(AppModule);
   app.enableCors();
 

@@ -1,0 +1,426 @@
+{
+  "basePath": "./examples/book-collection/apps/backend/src/app/resources",
+  "resourcePath": "examples/book-collection/apps/backend/src/app/resources/author",
+  "children": [
+    {
+      "basePath": "examples/book-collection/apps/backend/src/app/resources/author",
+      "resourcePath": "examples/book-collection/apps/backend/src/app/resources/author/book",
+      "children": [],
+      "jsonFile": "examples/book-collection/apps/backend/src/app/resources/author/book/resource.json"
+    }
+  ],
+  "jsonFile": "examples/book-collection/apps/backend/src/app/resources/author/resource.json",
+  "config": {
+    "title": "Authors",
+    "draft": false,
+    "kind": "prisma",
+    "name": "author",
+    "model": "Author",
+    "tag": "Crouton",
+    "sidebar": {
+      "hide": false
+    },
+    "display": {
+      "mode": "modal",
+      "customComponent": null
+    },
+    "columns": [
+      {
+        "id": "id",
+        "hiddenInTable": false,
+        "hiddenInForm": true,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": true,
+        "showInLookup": false,
+        "columnType": "string",
+        "label": "Id"
+      },
+      {
+        "id": "name",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": true,
+        "defaultSort": false,
+        "searchable": true,
+        "filterable": true,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "label": "Name"
+      },
+      {
+        "id": "bio",
+        "hiddenInTable": true,
+        "hiddenInForm": false,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "fieldInput": {
+          "type": "textarea"
+        },
+        "label": "Bio"
+      },
+      {
+        "id": "books",
+        "label": "Books",
+        "hiddenInTable": true,
+        "hiddenInForm": true,
+        "hiddenInView": false,
+        "sortable": false,
+        "defaultSort": false,
+        "searchable": false,
+        "filterable": false,
+        "createable": true,
+        "updateable": true,
+        "hideLabel": false,
+        "idField": false,
+        "showInLookup": false,
+        "columnType": "string",
+        "fieldInput": {
+          "format": "relation",
+          "resource": "./book.resource",
+          "relationType": "oneToMany"
+        }
+      }
+    ],
+    "calculatedColumns": [],
+    "actions": [],
+    "tableActions": [],
+    "modalSize": "sm",
+    "include": [
+      "books"
+    ],
+    "id": "author",
+    "route": "author",
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "patch": true,
+      "delete": true
+    },
+    "definition": {
+      "findAll": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "patch": true,
+      "delete": true
+    },
+    "views": {
+      "table": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "title": "Id",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "TextCell",
+              "scope": "#/properties/id",
+              "options": {
+                "sortable": false,
+                "label": "Id"
+              }
+            },
+            {
+              "type": "TextCell",
+              "scope": "#/properties/name",
+              "options": {
+                "sortId": "name",
+                "label": "Name"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "id",
+            "label": "Id",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          }
+        ],
+        "defaultSort": "name"
+      },
+      "form": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            },
+            "bio": {
+              "type": "string",
+              "title": "Bio",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Name"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/bio",
+              "options": {
+                "format": "textarea",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Bio"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          },
+          {
+            "id": "bio",
+            "label": "Bio",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "textarea"
+            }
+          }
+        ]
+      },
+      "filter": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Name"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          }
+        ]
+      },
+      "view": {
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "title": "Id",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "title": "Name",
+              "minLength": 1
+            },
+            "bio": {
+              "type": "string",
+              "title": "Bio",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "ui_schema": {
+          "type": "GridLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/id",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Id"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "options": {
+                "format": "text",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Name"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/bio",
+              "options": {
+                "format": "textarea",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "label": "Bio"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/books",
+              "options": {
+                "format": "relation",
+                "styles": {
+                  "width": "full",
+                  "control": {
+                    "wrapper": "input-full"
+                  }
+                },
+                "colspan": 12,
+                "relationType": "oneToMany",
+                "label": "Books"
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "id": "id",
+            "label": "Id",
+            "sortable": false,
+            "searchable": false
+          },
+          {
+            "id": "name",
+            "label": "Name",
+            "sortable": true,
+            "searchable": true
+          },
+          {
+            "id": "bio",
+            "label": "Bio",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "type": "textarea"
+            }
+          },
+          {
+            "id": "books",
+            "label": "Books",
+            "sortable": false,
+            "searchable": false,
+            "fieldInput": {
+              "format": "relation",
+              "resource": "./book.resource",
+              "relationType": "oneToMany"
+            }
+          }
+        ]
+      }
+    },
+    "lookup": {
+      "key": "id",
+      "label": "name"
+    }
+  }
+}
