@@ -129,7 +129,7 @@ describe('a nested custom resource', () => {
       await boot();
     });
 
-    it("lists only the requested parent's children", async () => {
+    it('lists only the requested parent\'s children', async () => {
       const result = await controller.findAll(
         listParams,
         req({ groupId: 'g1' }),
@@ -163,7 +163,7 @@ describe('a nested custom resource', () => {
       });
     });
 
-    it("scopes findOne, so another parent's row is a 404", async () => {
+    it('scopes findOne, so another parent\'s row is a 404', async () => {
       await expect(
         controller.findOne('e1', req({ groupId: 'g1' })),
       ).resolves.toMatchObject({ id: 'e1' });

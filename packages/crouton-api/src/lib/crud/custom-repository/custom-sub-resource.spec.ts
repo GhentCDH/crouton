@@ -155,7 +155,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
       expect(parent.subResources[0].childModel).toBe('');
     });
 
-    it("attaches the child's repository", () => {
+    it('attaches the child\'s repository', () => {
       expect(typeof parent.subResources[0].repository.findAllByParent).toBe(
         'function',
       );
@@ -170,7 +170,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
       expect(methods).toContain('findOneChild_expense');
     });
 
-    it("serves the child's schemas endpoint", async () => {
+    it('serves the child\'s schemas endpoint', async () => {
       const payload = await controller.getSchemas_expense();
       expect(payload.route).toBe('expense');
       expect(Object.keys(payload.schemas)).toContain('table');
@@ -183,7 +183,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
       await boot();
     });
 
-    it("lists only the requested group's expenses", async () => {
+    it('lists only the requested group\'s expenses', async () => {
       const result = await controller.findAllBy_expense(
         listParams,
         'g1',
