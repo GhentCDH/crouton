@@ -1,3 +1,20 @@
+## 0.0.1-alpha.61 (2026-09-18)
+
+### 🚀 Features
+
+- defaults contract ([#132](https://github.com/GhentCDH/crouton/pull/132))
+
+### 🩹 Fixes
+
+- **crouton-vue:** default showErrors to false ([b7d4332](https://github.com/GhentCDH/crouton/commit/b7d4332))
+- **crouton-vue:** export DatePicker from crouton-forms-vue re-export ([c31a8d9](https://github.com/GhentCDH/crouton/commit/c31a8d9))
+- **table:** fix search and filter inputs never firing due to inheritAttrs:false ([93c3c6e](https://github.com/GhentCDH/crouton/commit/93c3c6e))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.60 (2026-09-17)
 
 ### 🚀 Features
