@@ -2,7 +2,6 @@ import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
 
-import type { DefaultTokenContext } from '@ghentcdh/crouton-core';
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
   CROUTON_EDITABLE_RENDERERS,
@@ -57,10 +56,11 @@ export const AppConfig = {
   cellRenderers: [] as CellRendererEntry[],
   customComponents: [] as CustomComponentEntry[],
   /**
-   * Optional user context for resolving the `$user.id` dynamic default token.
-   * Set this to the currently authenticated user when initialising the plugin.
+   * Default token values resolved at form-open time.
+   * Keys match token names (e.g. `"$user"`); values can be any shape.
+   * Pass at plugin init or update at runtime via `useCrouton().setDefault()`.
    */
-  user: undefined as DefaultTokenContext['user'],
+  defaults: {} as Record<string, unknown>,
 };
 
 const sidebar = ref<SidebarNode[]>([]);
@@ -155,8 +155,11 @@ const createCrouton = (
     get cellRenderers() {
       return config.value.cellRenderers;
     },
-    get user() {
-      return config.value.user;
+    get defaults() {
+      return config.value.defaults;
+    },
+    setDefault: (token: string, value: unknown) => {
+      config.value.defaults[token] = value;
     },
     /**
      * @deprecated use getFormDefById
@@ -188,7 +191,8 @@ export type UseCrouton = {
   readonly customComponents: CustomComponentEntry[];
   readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
   readonly cellRenderers: CellRendererEntry[];
-  readonly user: DefaultTokenContext['user'];
+  readonly defaults: Record<string, unknown>;
+  setDefault: (token: string, value: unknown) => void;
   getFormDefById: (formId: string) => Promise<FormDef>;
   getFormByUri: (uri: string) => Promise<FormDef>;
   invalidateFormDef: (formId: string) => void;
