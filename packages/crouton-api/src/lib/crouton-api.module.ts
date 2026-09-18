@@ -5,7 +5,7 @@ import { registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import type { CroutonAppConfig } from './crud/app-config';
 import { createAppLayoutController } from './crud/app-layout';
-import { loadConfig, type LoadedConfig } from './crud/config/read';
+import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
@@ -14,6 +14,7 @@ import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { IS_DEV } from './crud/dev-mode';
 import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
 import { loadEnumRegistry } from './crud/enum-registry';
+import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
@@ -25,7 +26,6 @@ import { createStatusController } from './crud/status';
 import { LanguageInterceptor, TranslationRegistry } from './crud/translation';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
 
 @Module({
   controllers: [],
