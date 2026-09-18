@@ -22,7 +22,7 @@
         :model-value="newValue"
         :hide-label="true"
         :hide-errors="true"
-        :fetch-options="fetchOptions.fetchOptions"
+        :fetch-options="fetchOptions.fetchOptions ?? undefined"
         :label-key="options.labelKey"
         :value-key="options.valueKey"
         :enable-create="fetchOptions.enableCreate"
@@ -30,7 +30,7 @@
         @blur="onBlur"
         @create="onCreate"
       />
-      <Btn icon="Plus" size="xs" @click="create" :disabled="!newValue">
+      <Btn :icon="IconEnum.Plus" size="xs" @click="create" :disabled="!newValue">
         Add
       </Btn>
     </div>
@@ -45,14 +45,14 @@ import {
   useFetchOptions,
   useHttpClient,
 } from '@ghentcdh/crouton-forms-vue';
-import { Autocomplete, Btn } from '@ghentcdh/ui';
+import { Autocomplete, Btn, IconEnum } from '@ghentcdh/ui';
 import { computed, ref, useAttrs } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { useResources } from '../resource';
 import { RelationInlineProperties } from './RelationInline.properties';
 
-const newValue = ref<string>(null);
+const newValue = ref<string | null>(null);
 
 const props = defineProps(RelationInlineProperties);
 
@@ -81,7 +81,7 @@ const detailResource = computed(() =>
     : null,
 );
 const attrs = useAttrs() as RelationHandlers;
-const hasView = computed(() => 'onView' in attrs);
+// onView is handled in operations; attrs.onView presence drives the v-bind spread
 const hasCreate = computed(() => 'onCreate' in attrs);
 const hasEdit = computed(() => 'onEdit' in attrs);
 const hasDelete = computed(() => 'onDelete' in attrs);
@@ -90,6 +90,7 @@ const fetchOptions = computedAsync(() => {
   const resource = props.options.autocompleteResource ?? props.options.resource;
   return useFetchOptions(
     {
+      format: 'autocomplete' as const,
       resource,
     },
     http,
@@ -101,7 +102,7 @@ const operations = computed(() => {
   const ops: Record<string, (value: any) => void> = {
     onView: (value) => {
       const id = formDef.value?.idField;
-      detailResource.value?.view(value[id]);
+      if (id) detailResource.value?.view(value[id]);
     },
   };
 
@@ -146,10 +147,10 @@ const onCreate = () => {
   }
 };
 
-const onChange = (value) => {
+const onChange = (value: string | null) => {
   newValue.value = value;
 };
-const onBlur = (value) => {
+const onBlur = (value: string | null) => {
   newValue.value = value;
 };
 </script>

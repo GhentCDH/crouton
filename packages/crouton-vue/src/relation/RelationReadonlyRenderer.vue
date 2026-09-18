@@ -40,7 +40,7 @@ const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 const { value, wrapper, appliedOptions, isInline, message, resource } =
   useRelationBinding(props.uischema, props.schema, true);
 
-const displayKey = computed(() => {
+const _displayKey = computed(() => {
   return props.uischema.options?.displayKey ?? 'id';
 });
 
