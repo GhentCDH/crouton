@@ -249,11 +249,11 @@ form-open time, not persisted until the user saves.
 In addition to static values, crouton supports a small set of reserved token strings that are evaluated fresh at
 form-open time (not at build time, so they're always current):
 
-| Token       | Resolves to                                             |
-|-------------|----------------------------------------------------------|
-| `"$now"`    | Current datetime as an ISO 8601 string                  |
-| `"$today"`  | Current date as an ISO 8601 date string (`"2025-03-14"`) |
-| `"$user.id"`| Current user id (requires `user` in `CroutonPlugin` config) |
+| Token      | Resolves to                                              |
+|------------|----------------------------------------------------------|
+| `"$now"`   | Current datetime as an ISO 8601 string                   |
+| `"$today"` | Current date as an ISO 8601 date string (`"2025-03-14"`) |
+| `"$user"`  | Current user object (requires `defaults` in `CroutonPlugin` config) |
 
 **Example — default a date field to today:**
 
@@ -280,15 +280,40 @@ form-open time (not at build time, so they're always current):
 }
 ```
 
-**Using `$user.id`** requires passing the current user when setting up the plugin:
+**Using `$user`** requires passing the current user when setting up the plugin:
 
 ```ts
 app.use(
   CroutonPlugin(api, {
-    user: { id: currentUser.id },
+    defaults: {
+      '$user': { id: currentUser.id, name: currentUser.name },
+    },
   }),
 );
 ```
+
+```json
+{
+  "createdBy": {
+    "fieldInput": {
+      "defaultValue": "$user"
+    }
+  }
+}
+```
+
+**Setting defaults at runtime** (e.g. after a backend request) using `useCrouton().setDefault()`:
+
+```ts
+const crouton = useCrouton();
+
+onMounted(async () => {
+  const user = await fetchCurrentUser();
+  crouton.setDefault('$user', user);
+});
+```
+
+Any token in the `defaults` map can be updated this way — the new value is used the next time a create form opens.
 
 > **Note:** Token resolution only affects the create form pre-fill. It has no effect on existing records loaded for
 > editing, and it does not run server-side — use `beforeWrite` hooks for server-side defaults.
