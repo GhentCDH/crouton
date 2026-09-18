@@ -9,7 +9,7 @@ import { findCustomComponent } from '../utils/custom-component';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, field, onBlur, onChange, appliedOptions } =
+const { wrapper, value, field: _field, onBlur, onChange, appliedOptions } =
   useControlBinding(props.uischema, props.schema);
 
 const customComponent = computed(() =>

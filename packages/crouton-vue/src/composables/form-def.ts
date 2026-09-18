@@ -69,7 +69,7 @@ export class FormDefCache {
         if (!safe.success) {
           console.error('Parse failed for ', uri);
           console.error(safe.error);
-          throw new Error(safe.error as string);
+          throw new Error(safe.error as unknown as string);
         }
 
         const result = safe.data ?? res.data;

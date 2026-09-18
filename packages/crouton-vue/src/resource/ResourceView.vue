@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import type { Request } from '../utils/request';
 import ResourceTable from './ResourceTable.vue';
 import { UseResource } from './useResources';
 
@@ -25,7 +26,7 @@ const onRequest = (requestData: Request) => {
   });
 };
 
-const resourceRef = ref<UseResource | null>(null);
+const resourceRef = shallowRef<UseResource | null>(null);
 
 const applyQueryEvent = (resource: UseResource) => {
   const id = route.query['id'] as string | undefined;

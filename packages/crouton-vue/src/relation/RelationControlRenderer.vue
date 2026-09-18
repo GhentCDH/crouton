@@ -52,7 +52,7 @@
       <div>
         <Btn
           v-if="resource.operations?.create"
-          icon="Plus"
+          :icon="IconEnum.Plus"
           size="xs"
           @click="resource.create()"
         >
@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { Btn } from '@ghentcdh/ui';
+import { Btn, IconEnum } from '@ghentcdh/ui';
 import { computed } from 'vue';
 import { useRelationBinding } from './useRelationBinding';
 import RelationButton from './RelationButton.vue';
