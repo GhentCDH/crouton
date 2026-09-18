@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import type { Component } from 'vue';
-import { computed, PropType, ref, shallowRef, toRaw, watch } from 'vue';
+import {
+  Component,
+  computed,
+  PropType,
+  ref,
+  shallowRef,
+  toRaw,
+  watch,
+} from 'vue';
 
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
@@ -82,7 +89,7 @@ watch(
   { once: true },
 );
 
-const form = computed(() => resource.value?.form?.value ?? null);
+const form = computed(() => resource.value?.form);
 
 const reload = () => {
   resource.value?.reload();
@@ -110,7 +117,7 @@ const showSchemaEditor = ref(false);
       </template>
     </component>
   </div>
-  <div v-if="config && resource && !form?.hideTable">
+  <div v-if="config && resource && !form?.hideTable" :data-testid="`resource-${formId}`">
     <template v-if="hideToolbar">
       <legend
         v-if="!hideTitle"
@@ -132,6 +139,7 @@ const showSchemaEditor = ref(false);
           </Btn>
           <Btn
             v-if="config.operations.create"
+            data-testid="btn-create"
             :icon="IconEnum.Plus"
             @click="resource.create"
           >
@@ -165,6 +173,7 @@ const showSchemaEditor = ref(false);
         </Btn>
         <Btn
           v-if="config.operations.create"
+          data-testid="btn-create"
           :icon="IconEnum.Plus"
           @click="resource.create"
         >
@@ -175,8 +184,8 @@ const showSchemaEditor = ref(false);
 
     <component
       :is="props.tableComponent"
-      v-bind="(resource as any)"
       :id="`form_table_${id}`"
+      v-bind="resource"
       @refresh="reload"
     />
 

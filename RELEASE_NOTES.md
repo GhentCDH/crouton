@@ -1,34 +1,3 @@
-## 0.0.1-alpha.63 (2026-09-18)
-
-### 🚀 Features
-
-- **examples:** seed in-memory SQLite on backend startup ([#135](https://github.com/GhentCDH/crouton/pull/135))
-
-### 🩹 Fixes
-
-- **crouton-vue:** add missing externals to rolldown config ([8fee992](https://github.com/GhentCDH/crouton/commit/8fee992))
-
-### ❤️ Thank You
-
-- Bo Vandersteene @bovandersteene
-- Claude Sonnet 4.6
-
-## 0.0.1-alpha.62 (2026-09-18)
-
-### 🚀 Features
-
-- disable browser cache ([#134](https://github.com/GhentCDH/crouton/pull/134))
-- **examples:** add book-collection demo app ([#133](https://github.com/GhentCDH/crouton/pull/133))
-
-### 🩹 Fixes
-
-- demo app ([1fe06bd](https://github.com/GhentCDH/crouton/commit/1fe06bd))
-
-### ❤️ Thank You
-
-- Bo Vandersteene @bovandersteene
-- Claude Sonnet 4.6
-
 ## 0.0.1-alpha.61 (2026-09-18)
 
 ### 🚀 Features

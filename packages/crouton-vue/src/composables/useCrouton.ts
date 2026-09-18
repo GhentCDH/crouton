@@ -200,9 +200,10 @@ export type UseCrouton = {
   refreshLayout: () => Promise<void>;
 };
 
-let _crouton: UseCrouton | null = null;
+let _crouton: UseCrouton = null;
 
 export const useCrouton = (): UseCrouton => {
+  const initialized = false;
 
   if (!_crouton) {
     throw new Error('First init the CroutonPlugin');

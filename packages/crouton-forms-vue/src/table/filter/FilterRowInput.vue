@@ -26,9 +26,10 @@
       v-else-if="!noValue"
       size="sm"
       placeholder="Enter a value"
-      :model-value="modelValue.value"
+      :value="modelValue.value"
       :clearable="true"
-      @update:model-value="update('value', $event)"
+      @input="update('value', ($event.target as HTMLInputElement).value)"
+      @clear="update('value', '')"
     />
     <div
       v-else

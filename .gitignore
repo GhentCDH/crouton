@@ -56,4 +56,12 @@ _tmp_*
 
 # local pnpm store (sandbox/CI envs without a shared global store)
 .pnpm-store/
-:memory:
+
+# Book collection demo
+examples/book-collection/apps/backend/prisma/dev.db
+examples/book-collection/apps/backend/src/app/generated/
+playwright-report/
+test-results/
+examples/book-collection/e2e/playwright-report/
+examples/book-collection/e2e/test-results/
+examples/book-collection/e2e/.playwright/

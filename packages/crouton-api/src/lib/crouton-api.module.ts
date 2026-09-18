@@ -1,4 +1,7 @@
-import { type DynamicModule, Module } from '@nestjs/common';
+import {
+  type DynamicModule,
+  Module,
+} from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { registerResourceExtensions } from '@ghentcdh/crouton-core';
@@ -14,7 +17,6 @@ import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { IS_DEV } from './crud/dev-mode';
 import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
 import { loadEnumRegistry } from './crud/enum-registry';
-import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
 import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
@@ -26,6 +28,7 @@ import { createStatusController } from './crud/status';
 import { LanguageInterceptor, TranslationRegistry } from './crud/translation';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 
 @Module({
   controllers: [],
@@ -123,11 +126,7 @@ export class CroutonApiModule {
         if (!adapterIsCustom && !hasRepository) {
           adapterClient = undefined;
         }
-        const problem = validateCustomRepository(
-          c,
-          c.repository,
-          adapterClient,
-        );
+        const problem = validateCustomRepository(c, c.repository, adapterClient);
         if (problem) {
           resourceLoadErrorsRegistry.record({
             name: c.name,
@@ -145,8 +144,7 @@ export class CroutonApiModule {
         resourceLoadErrorsRegistry.record({
           name: c.name,
           path: c.route,
-          error:
-            `"model" is required for resource "${c.name}" on a Prisma datasource. ` +
+          error: `"model" is required for resource "${c.name}" on a Prisma datasource. ` +
             'Set "model" to the Prisma model name, or set adapter: "custom" on the datasource.',
         });
         continue;
@@ -209,7 +207,6 @@ export class CroutonApiModule {
       controllers,
       exports: [ResourceConfigRegistry],
       providers: [
-        { provide: APP_INTERCEPTOR, useClass: NoCacheInterceptor },
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },

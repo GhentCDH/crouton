@@ -52,8 +52,8 @@ export const relationReadonlyRenderers = [
 ];
 
 /** Matches any cell element that has `options.customComponent` set. */
-const cellHasCustomComponent = (element: { options?: Record<string, unknown> } | any) =>
-  element?.options?.customComponent ? 21 : -1;
+const cellHasCustomComponent = (element: { options?: Record<string, unknown> }) =>
+  element.options?.customComponent ? 21 : -1;
 
 export const customCellRenderers: CellRendererEntry[] = [
   // 'RecordCell' is the legacy wire name emitted by older crouton-api versions;

@@ -4,12 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app/app.module.js';
-import prisma from './app/data-sources/default/index.js';
-import { seedDatabase } from './seed.js';
 
 const bootstrap = async () => {
-  await seedDatabase(prisma);
-
   const app = await NestFactory.create(AppModule);
   app.enableCors();
 
@@ -20,7 +16,7 @@ const bootstrap = async () => {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = process.env['PORT'] || 4444;
+  const port = process.env['PORT'] || 3001;
   await app.listen(port);
   Logger.log(`Application running on http://localhost:${port}`);
 };

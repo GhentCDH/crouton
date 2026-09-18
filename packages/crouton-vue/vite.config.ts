@@ -10,14 +10,21 @@ import * as path from 'path';
 export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/crouton-vue',
+  resolve: {
+    conditions: ['@ghentcdh/crouton'],
+  },
   plugins: [
     vue(),
     tailwindcss(),
     tsconfigPaths(),
-    dts({
-      entryRoot: 'src',
-      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
-    }),
+    ...(process.env['SKIP_DTS']
+      ? []
+      : [
+          dts({
+            entryRoot: 'src',
+            tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+          }),
+        ]),
   ],
   build: {
     outDir: './dist',
@@ -35,8 +42,6 @@ export default defineConfig({
     rolldownOptions: {
       external: [
         '@ghentcdh/ui',
-        '@ghentcdh/crouton-core',
-        '@ghentcdh/crouton-forms-vue',
         '@jsonforms/core',
         'axios',
         'lodash-es',

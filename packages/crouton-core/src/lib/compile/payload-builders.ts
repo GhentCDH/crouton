@@ -17,8 +17,7 @@ const resolveEnvPlaceholders = (value: string): string =>
   value.replace(
     /\{env\.([^}]+)\}/g,
     (match, varName) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof (globalThis as any).process !== 'undefined' ? (globalThis as any).process?.env?.[varName] : undefined) ?? match,
+      (typeof process !== 'undefined' ? process.env?.[varName] : undefined) ?? match,
   );
 
 const RESOURCE_OPS = [

@@ -4,7 +4,7 @@
     v-if="fetchOptions"
     :model-value="displayValue"
     :clearable="true"
-    :fetch-options="fetchOptions.fetchOptions ?? undefined"
+    :fetch-options="fetchOptions.fetchOptions"
     :label-key="labelKeyName"
     :value-key="valueKeyName"
     :enable-create="fetchOptions.enableCreate"
