@@ -16,7 +16,7 @@ export const REPOSITORY_MODULE = 'repository';
 export const loadCustomRepository = async (
   basePath: string,
   resourceName: string,
-): Promise<CustomRepository | undefined> => {
+) => {
   const file = findModule(basePath, REPOSITORY_MODULE);
   if (!file) return undefined;
 
@@ -26,23 +26,21 @@ export const loadCustomRepository = async (
   });
 
   if (failure !== undefined) {
-    resourceLoadErrorsRegistry.record({
+    return {
       name: resourceName,
       path: file,
       error: `Failed to import ${REPOSITORY_MODULE}: ${
         failure instanceof Error ? failure.message : String(failure)
       }`,
-    });
-    return undefined;
+    };
   }
 
   if (repository && typeof repository !== 'object') {
-    resourceLoadErrorsRegistry.record({
+    return {
       name: resourceName,
       path: file,
       error: `${REPOSITORY_MODULE} must default-export an object of operation functions.`,
-    });
-    return undefined;
+    };
   }
 
   return repository;
@@ -60,7 +58,12 @@ export const loadCustomRepository = async (
  * configs by the time the loader can resolve the child directories.
  */
 export const loadSubResourceRepositories = async (
-  subResources: { childKind?: string; childDir?: string; childRoute: string; repository?: unknown }[],
+  subResources: {
+    childKind?: string;
+    childDir?: string;
+    childRoute: string;
+    repository?: unknown;
+  }[],
   parentName: string,
 ): Promise<void> => {
   for (const sub of subResources) {
@@ -79,6 +82,11 @@ export const loadSubResourceRepositories = async (
       sub.childDir,
       `${parentName}.${sub.childRoute}`,
     );
-    if (repository) sub.repository = repository;
+    if (!repository) return;
+    if ('error' in repository) {
+      resourceLoadErrorsRegistry.record(repository);
+      return;
+    }
+    sub.repository = repository;
   }
 };

@@ -16,7 +16,7 @@ import { DevResourcesController } from './crud/dev-tools/dev-resources.controlle
 import { loadEnumRegistry } from './crud/enum-registry';
 import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
-import { loadResourceConfigsFromDir } from './crud/loader/index';
+import { loadResourceConfigsFromDir } from './crud/loader/loadResources';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
 import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';
@@ -239,7 +239,7 @@ export class CroutonApiModule {
   }
 
   static async forResourceDir(
-    dirPath: string,
+    resourcePath: string,
     dataSourcesPath: string,
     appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
@@ -247,12 +247,12 @@ export class CroutonApiModule {
     if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
     const config = await loadConfig();
     const loader = new FileSystemResourceConfigLoader(
-      dirPath,
+      resourcePath,
       appConfig.baseUrl,
       config.enumsFile,
     );
     const configs = await loadResourceConfigsFromDir(
-      dirPath,
+      resourcePath,
       appConfig.baseUrl,
       config.enumsFile,
     );
