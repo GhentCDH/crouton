@@ -1,3 +1,18 @@
+## 0.0.1-alpha.63 (2026-09-18)
+
+### 🚀 Features
+
+- **examples:** seed in-memory SQLite on backend startup ([#135](https://github.com/GhentCDH/crouton/pull/135))
+
+### 🩹 Fixes
+
+- **crouton-vue:** add missing externals to rolldown config ([8fee992](https://github.com/GhentCDH/crouton/commit/8fee992))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.62 (2026-09-18)
 
 ### 🚀 Features
