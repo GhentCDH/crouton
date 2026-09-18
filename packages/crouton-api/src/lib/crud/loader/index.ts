@@ -51,6 +51,7 @@ export const loadResourceConfigsFromDir = async (
   dirPath: string,
   baseUrl?: string,
   enumsFile?: string,
+  onResourceDir?: (route: string, dir: string) => void,
 ): Promise<Resource[]> => {
   if (!existsSync(dirPath)) return [];
 
@@ -129,15 +130,13 @@ export const loadResourceConfigsFromDir = async (
       }
       // Custom resources own their data access; prisma resources never load a
       // repository, so a stray repository.ts on one is simply ignored.
-      const errorsBeforeRepo = resourceLoadErrorsRegistry.getAll().length;
       const repository =
         json.kind === 'custom'
           ? await loadCustomRepository(basePath, json.name)
           : undefined;
       // If the repository.ts file exists but failed to import, an error was already
       // recorded by loadCustomRepository. Skip further validation to avoid a double error.
-      const repositoryImportFailed =
-        resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
+      if (repository != null && 'error' in repository) continue;
 
       const actions = await loadActions(json.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
@@ -156,8 +155,6 @@ export const loadResourceConfigsFromDir = async (
         enums,
         repository,
       );
-
-      if (repositoryImportFailed) continue;
 
       const repositoryFileExistsOnDisk =
         json.kind !== 'custom' && !!findModule(basePath, 'repository');

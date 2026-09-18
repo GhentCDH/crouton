@@ -83,8 +83,8 @@ export const loadSubResourceRepositories = async (
       `${parentName}.${sub.childRoute}`,
     );
     if (!repository) return;
-    if (repository.error) {
-      resourceLoadErrorsRegistry.record(repository.error);
+    if ('error' in repository) {
+      resourceLoadErrorsRegistry.record(repository);
       return;
     }
     sub.repository = repository;

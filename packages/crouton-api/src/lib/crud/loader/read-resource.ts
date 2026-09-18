@@ -30,12 +30,12 @@ const buildResourceObject =
   (basePath: string) => async (resourcePath: string) => {
     const resourceBasePath = getResourcePath(basePath, resourcePath);
     const jsonFile = getResourceJson(basePath, resourcePath);
-    const schemaFile = findModule(basePath, 'schema');
+    const schemaFile = findModule(resourceBasePath, 'schema');
     const schema = schemaFile
       ? await importDefault<ZodObject<ZodRawShape>>(schemaFile)
       : undefined;
 
-    const hooks = await loadResourceHooks(basePath);
+    const hooks = await loadResourceHooks(resourceBasePath);
 
     const children = await ScanForResourceFile(resourceBasePath);
 
@@ -57,6 +57,6 @@ const ScanForResourceFile = (resourcePath: string) => {
   );
 };
 
-export const BuildResourceTree = (resourcePath: string): ResourceFile[] => {
+export const BuildResourceTree = (resourcePath: string): Promise<ResourceFile[]> => {
   return ScanForResourceFile(resourcePath);
 };

@@ -15,28 +15,19 @@ import { migrateResourceJsonFile } from '../resource/MigrateResourceJson';
 import { readResourceJson } from '../resource/ReadResourceJson';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { validateResourceConfig } from '../resource/resource-config.validator';
-import {
-  type ResourceLoadError,
-  resourceLoadErrorsRegistry,
-} from '../resource/resource-load-errors.registry';
-import {
-  type ResourceLoadNotice,
-  resourceLoadReportRegistry,
-} from '../resource/resource-load-report.registry';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { existsSync } from 'node:fs';
 
-const migrateFile = async (resourceObject: ResourceFile) => {
-  const { resource: jsonFile, basePath: dir } = resourceObject;
+const migrateFile = (resourceObject: ResourceFile) => {
+  const { jsonFile, basePath } = resourceObject;
 
-  const migration = migrateResourceJsonFile(jsonFile, {
-    isDev: IS_DEV,
-  });
-  const returnObj = {};
+  const migration = migrateResourceJsonFile(jsonFile, { isDev: IS_DEV });
 
   if (migration.status === 'failed') {
     return {
-      error: true,
-      name: dir,
+      isFailed: true as const,
+      name: basePath,
       path: jsonFile,
       error: migration.error,
       version: migration.version,
@@ -50,7 +41,9 @@ const migrateFile = async (resourceObject: ResourceFile) => {
       `[crouton] migrated ${jsonFile}: v${migration.from} → v${migration.to}`,
     );
     return {
-      name: dir,
+      isFailed: false as const,
+      state: 'migrated' as const,
+      name: basePath,
       path: jsonFile,
       from: migration.from,
       to: migration.to,
@@ -60,67 +53,57 @@ const migrateFile = async (resourceObject: ResourceFile) => {
   return null;
 };
 
-type SchemaReturn =
-  | ({
-      migration?:
-        ResourceLoadNotice | ((ResourceLoadError & { error: true }) | null);
-      messages?: { state: string; message: string }[];
-      errors?: string[];
-      warnings?: string[];
-    } & { state: 'failure' })
-  | { state: 'success'; config: ResourceConfig };
-
 const readFile = async (
-  resourceObject: ResourceFile /** Project enum registry — injected into columns that reference an enum by name. */,
-
-  /** Base URL for generating full URIs in column options (e.g. `http://localhost:3000`). */
+  resourceObject: ResourceFile,
   baseUrl?: string,
   enums: EnumRegistry = {},
-): Promise<SchemaReturn> => {
+): Promise<{ state: 'failure' } | { state: 'success'; config: ResourceConfig }> => {
   const { jsonFile, basePath, hooks, schema } = resourceObject;
-  const migration = await migrateFile(resourceObject);
+  const migration = migrateFile(resourceObject);
 
-  if (migration?.error) {
-    return { migration, state: 'failure' };
+  if (migration?.isFailed) {
+    resourceLoadErrorsRegistry.record(migration);
+    return { state: 'failure' };
+  }
+
+  if (migration?.state === 'migrated') {
+    resourceLoadReportRegistry.record(migration);
   }
 
   const result = readResourceJson(jsonFile);
-
   if (!result || !result.success) {
-    return {
-      migration,
-      state: 'failure',
-      errors: [result?.error ?? `Failed to read ${jsonFile}`],
-    };
+    resourceLoadErrorsRegistry.record({
+      name: basePath,
+      path: jsonFile,
+      error: result?.error ?? `Failed to read ${jsonFile}`,
+    });
+    return { state: 'failure' };
   }
 
   const json = result.data.json;
 
-  const messages = [];
-  if (json.draft)
-    messages.push({
-      version: json.schemaVersion,
+  if (json.draft) {
+    resourceLoadReportRegistry.record({
       state: 'draft',
+      name: basePath,
+      path: jsonFile,
+      version: json.schemaVersion,
     });
+    return { state: 'failure' };
+  }
 
+  const errorsBeforeRepo = resourceLoadErrorsRegistry.getAll().length;
   const repository =
     json.kind === 'custom'
       ? await loadCustomRepository(basePath, json.name)
       : undefined;
+  const repositoryImportFailed =
+    resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
-  if (repository?.error) {
-    return {
-      state: 'failure',
-      errors: [repository.error],
-    };
-  }
+  if (repositoryImportFailed) return { state: 'failure' };
 
   const actions = await loadActions(json.actions ?? [], basePath, 'row');
-  const tableActions = await loadActions(
-    json.tableActions ?? [],
-    basePath,
-    'table',
-  );
+  const tableActions = await loadActions(json.tableActions ?? [], basePath, 'table');
 
   const config = fromJson(
     json,
@@ -140,20 +123,26 @@ const readFile = async (
     repositoryFileExistsOnDisk,
   });
 
+  for (const error of errors) {
+    resourceLoadErrorsRegistry.record({ name: basePath, path: jsonFile, error });
+  }
+  for (const warning of warnings) {
+    resourceLoadReportRegistry.record({
+      state: 'warning',
+      name: config.name,
+      path: jsonFile,
+      warning,
+    });
+  }
+
+  if (errors.length > 0) return { state: 'failure' };
+
   await loadSubResourceHooks(config.subResources ?? [], basePath);
   // A custom sub-resource brings its own data access; the parent's
   // repository delegates to it instead of querying a Prisma model.
   await loadSubResourceRepositories(config.subResources ?? [], config.name);
 
-  return {
-    migration,
-    warnings,
-    messages,
-    state: 'success',
-    name: basePath,
-    path: jsonFile,
-    config,
-  } as SchemaReturn;
+  return { state: 'success', config };
 };
 
 export const loadResourceConfigsFromDir = async (
@@ -167,49 +156,13 @@ export const loadResourceConfigsFromDir = async (
   resourceLoadReportRegistry.clear();
 
   const enums = loadEnumRegistry(resourcePath, enumsFile);
-
   const resourceTree = await BuildResourceTree(resourcePath);
-
   const configs: Resource[] = [];
 
   for (const entry of resourceTree) {
-    const { jsonFile, basePath } = entry;
-    const schema = await readFile(entry, baseUrl, enums);
-
-    if (schema.migration?.state === 'error') {
-      resourceLoadErrorsRegistry.record(schema.migration);
-    } else if (schema.migration) {
-      resourceLoadReportRegistry.record(schema.migration);
-    }
-    schema.errors?.forEach((error) => {
-      resourceLoadErrorsRegistry.record({
-        name: basePath,
-        path: jsonFile,
-        error,
-      });
-      return;
-    });
-    schema.warnings?.forEach((error) => {
-      resourceLoadReportRegistry.record({
-        state: 'warning',
-        name: basePath,
-        path: jsonFile,
-        error,
-      });
-    });
-    schema.messages?.forEach((message) => {
-      resourceLoadReportRegistry.record({
-        name: basePath,
-        path: jsonFile,
-        ...message,
-      });
-    });
-
-    if (schema.state === 'success') {
-      configs.push({
-        ...entry,
-        config: schema.config,
-      });
+    const result = await readFile(entry, baseUrl, enums);
+    if (result.state === 'success') {
+      configs.push({ ...entry, config: result.config });
     }
   }
   return configs;

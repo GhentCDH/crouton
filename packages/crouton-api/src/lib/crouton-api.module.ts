@@ -5,7 +5,7 @@ import { registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import type { CroutonAppConfig } from './crud/app-config';
 import { createAppLayoutController } from './crud/app-layout';
-import { type LoadedConfig, loadConfig } from './crud/config/read';
+import { loadConfig, type LoadedConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
@@ -15,7 +15,7 @@ import { IS_DEV } from './crud/dev-mode';
 import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
 import { loadEnumRegistry } from './crud/enum-registry';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
-import { loadResourceConfigsFromDir } from './crud/loader/index';
+import { loadResourceConfigsFromDir } from './crud/loader/loadResources';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
 import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';
