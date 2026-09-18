@@ -27,10 +27,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 
 import { loadActions } from '../action';
 import { fromJson } from '../adapter';
-import {
-  loadCustomRepository,
-  loadSubResourceRepositories,
-} from '../custom-repository';
+import { loadCustomRepository, loadSubResourceRepositories } from '../custom-repository';
 import { IS_DEV } from '../dev-mode';
 import { loadEnumRegistry } from '../enum-registry';
 import { findModule, importDefault } from './module.loader';
@@ -44,11 +41,16 @@ import { resourceLoadReportRegistry } from '../resource/resource-load-report.reg
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
+/**
+ * @deprecated
+ * @param dirPath
+ * @param baseUrl
+ * @param enumsFile
+ */
 export const loadResourceConfigsFromDir = async (
   dirPath: string,
   baseUrl?: string,
   enumsFile?: string,
-  onResourceDir?: (route: string, dir: string) => void,
 ): Promise<Resource[]> => {
   if (!existsSync(dirPath)) return [];
 
@@ -134,7 +136,8 @@ export const loadResourceConfigsFromDir = async (
           : undefined;
       // If the repository.ts file exists but failed to import, an error was already
       // recorded by loadCustomRepository. Skip further validation to avoid a double error.
-      const repositoryImportFailed = resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
+      const repositoryImportFailed =
+        resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
       const actions = await loadActions(json.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
@@ -158,17 +161,28 @@ export const loadResourceConfigsFromDir = async (
 
       const repositoryFileExistsOnDisk =
         json.kind !== 'custom' && !!findModule(basePath, 'repository');
-      const { errors, warnings } = validateResourceConfig(config, { repositoryFileExistsOnDisk });
+      const { errors, warnings } = validateResourceConfig(config, {
+        repositoryFileExistsOnDisk,
+      });
 
       if (errors.length > 0) {
         for (const error of errors) {
-          resourceLoadErrorsRegistry.record({ name: dir, path: jsonFile, error });
+          resourceLoadErrorsRegistry.record({
+            name: dir,
+            path: jsonFile,
+            error,
+          });
         }
         continue;
       }
 
       for (const warning of warnings) {
-        resourceLoadReportRegistry.record({ state: 'warning', name: config.name, path: jsonFile, warning });
+        resourceLoadReportRegistry.record({
+          state: 'warning',
+          name: config.name,
+          path: jsonFile,
+          warning,
+        });
       }
 
       await loadSubResourceHooks(config.subResources ?? [], basePath);
@@ -187,7 +201,8 @@ export const loadResourceConfigsFromDir = async (
         resourceLoadErrorsRegistry.record({
           name: dir,
           path: tsFile,
-          error: 'resource.ts has no default export — add `export default { name, route, ... }`.',
+          error:
+            'resource.ts has no default export — add `export default { name, route, ... }`.',
         });
         continue;
       }
@@ -212,7 +227,12 @@ export const loadResourceConfigsFromDir = async (
       }
 
       for (const warning of warnings) {
-        resourceLoadReportRegistry.record({ state: 'warning', name: merged.name, path: tsFile, warning });
+        resourceLoadReportRegistry.record({
+          state: 'warning',
+          name: merged.name,
+          path: tsFile,
+          warning,
+        });
       }
 
       configs.push(merged);

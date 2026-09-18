@@ -78,7 +78,10 @@ export const loadDataSourcesFromDir = async (
             continue;
           }
           adapter = instance;
-        } else if (typeof exported === 'object' && typeof exported.kind === 'string') {
+        } else if (
+          typeof exported === 'object' &&
+          typeof exported.kind === 'string'
+        ) {
           adapter = exported as DataSourceAdapter;
         } else {
           resourceLoadErrorsRegistry.record({
