@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import {
-  Component,
-  computed,
-  PropType,
-  ref,
-  shallowRef,
-  toRaw,
-  watch,
-} from 'vue';
+import type { Component } from 'vue';
+import { computed, PropType, ref, shallowRef, toRaw, watch } from 'vue';
 
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';

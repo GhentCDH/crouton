@@ -119,6 +119,30 @@ const patchViewTitles = (
       });
     }
 
+    // Patch ui_schema elements' options.label
+    const patchUiElements = (elements: unknown[]): void => {
+      for (const el of elements) {
+        if (!el || typeof el !== 'object') continue;
+        const element = el as Record<string, unknown>;
+        const scope = element.scope as string | undefined;
+        if (scope) {
+          const match = /^#\/properties\/([^/]+)/.exec(scope);
+          if (match) {
+            const translated = columnLabels.get(match[1]);
+            if (translated) {
+              const opts = element.options as Record<string, unknown> | undefined;
+              if (opts && typeof opts === 'object') opts.label = translated;
+            }
+          }
+        }
+        const nested = element.elements as unknown[] | undefined;
+        if (Array.isArray(nested)) patchUiElements(nested);
+      }
+    };
+    const uiSchema = patchedView.ui_schema as Record<string, unknown> | undefined;
+    const uiElements = uiSchema?.elements as unknown[] | undefined;
+    if (Array.isArray(uiElements)) patchUiElements(uiElements);
+
     patched[viewName] = patchedView;
   }
   return patched;
