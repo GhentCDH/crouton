@@ -160,7 +160,6 @@ export const loadResourceConfigsFromDir = async (
   resourcePath: string,
   baseUrl?: string,
   enumsFile?: string,
-  onResourceDir?: (route: string, dir: string) => void,
 ): Promise<Resource[]> => {
   if (!existsSync(resourcePath)) return [];
 
