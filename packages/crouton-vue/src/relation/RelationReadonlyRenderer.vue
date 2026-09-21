@@ -32,17 +32,12 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { ReadonlyLabel } from '@ghentcdh/crouton-forms-vue';
 import { useRelationBinding } from './useRelationBinding';
-import { computed } from 'vue';
 import RelationButton from './RelationButton.vue';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 const { value, wrapper, appliedOptions, isInline, message, resource } =
   useRelationBinding(props.uischema, props.schema, true);
-
-const _displayKey = computed(() => {
-  return props.uischema.options?.displayKey ?? 'id';
-});
 
 const view = (value: unknown) => {
   resource.value?.view(value);

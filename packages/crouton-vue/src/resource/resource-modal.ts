@@ -66,7 +66,8 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
 export const handleFormEvents = (payload: FormEventPayload) => {
   switch (payload.event) {
     case 'create':
-      openFormModal(payload.type, payload);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      openFormModal(payload.type, { ...payload, onSuccess: payload.onSuccess ?? (() => {}) });
       break;
     // case 'update': ... (when added to FormEventName)
     // case 'delete': ...

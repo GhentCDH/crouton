@@ -19,7 +19,7 @@
     <div v-if="hasCreate && enableCreate" class="flex flex-gap-2 items-center">
       <Autocomplete
         v-if="fetchOptions"
-        :model-value="newValue"
+        :model-value="newValue ?? undefined"
         :hide-label="true"
         :hide-errors="true"
         :fetch-options="fetchOptions.fetchOptions ?? undefined"
@@ -150,7 +150,7 @@ const onCreate = () => {
 const onChange = (value: string | null) => {
   newValue.value = value;
 };
-const onBlur = (value: string | null) => {
-  newValue.value = value;
+const onBlur = (_e: Event) => {
+  // no-op — value already committed via onChange
 };
 </script>

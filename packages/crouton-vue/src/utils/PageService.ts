@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 
 import { RequestSchema } from './request';
+import type { OperationKey } from '../composables/form-def.schema';
 import { useCrouton } from '../composables/useCrouton';
 import { croutonApiCall } from '../resource/resource.api';
 import { type RequestData } from '../resource/resource.types';
@@ -93,13 +94,13 @@ export abstract class PageService {
     this.updateRequest({ pageSize: size, page: 1 });
   };
 
-  getFormDef(formId) {
+  getFormDef(formId: string) {
     return this.crouton.getFormDefById(formId);
   }
 
   async apiCall(
     formDefId: string,
-    method: string,
+    method: OperationKey,
     signal: AbortSignal,
     data?: {
       defaultUriParams?: Record<string, string>;
@@ -108,7 +109,7 @@ export abstract class PageService {
   ) {
     const formDef = await this.getFormDef(formDefId);
     if (!formDef) throw new Error('no form def');
-    const _data = { ...(data?.data ?? {}), ...(data?.query ?? {}) };
+    const _data = { ...(data?.data ?? {}) };
     return croutonApiCall(
       formDef,
       method,
