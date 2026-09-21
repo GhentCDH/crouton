@@ -24,6 +24,8 @@ describe('isDateControl', () => {
     ${'case-insensitive format'}      | ${control({ format: 'DATE' })}    | ${schema()}                             | ${true}
     ${'schema format: date'}          | ${control()}                      | ${schema({ format: 'date' })}           | ${true}
     ${'schema format: date-time'}     | ${control()}                      | ${schema({ format: 'date-time' })}      | ${true}
+    ${'nullable date (anyOf)'}        | ${control()}                      | ${{ anyOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] } as JsonSchema} | ${true}
+    ${'nullable date (anyOf date)'}   | ${control()}                      | ${{ anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] } as JsonSchema}      | ${true}
     ${'plain string control'}         | ${control()}                      | ${schema()}                             | ${false}
     ${'unrelated format'}             | ${control({ format: 'select' })}  | ${schema()}                             | ${false}
     ${'non-control element'}          | ${{ type: 'VerticalLayout' }}     | ${schema({ format: 'date' })}           | ${false}

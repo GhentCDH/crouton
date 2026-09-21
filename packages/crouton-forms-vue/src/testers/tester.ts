@@ -32,6 +32,19 @@ const anyOfTypeIs =
     return s.anyOf.some((sub: any) => sub?.type === type);
   };
 
+// Matches schemas where any variant in anyOf has one of the given formats.
+// Needed for Zod v4 nullable dates: z.date().nullable() →
+// { anyOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] }
+const anyOfFormatIsOneOf =
+  (...formats: string[]) =>
+  (_uischema: UISchemaElement, schema: JsonSchema): boolean => {
+    const s = schema as any;
+    if (!Array.isArray(s?.anyOf)) return false;
+    return s.anyOf.some(
+      (sub: any) => typeof sub?.format === 'string' && formats.includes(sub.format),
+    );
+  };
+
 export const isAutoCompleteControl = and(
   // uiTypeIs('Control'),
   optionIsIgnoreCase('format', ControlType.autocomplete),
@@ -121,6 +134,7 @@ export const isDateControl = and(
     optionIsIgnoreCase('format', ControlType.date),
     optionIsIgnoreCase('format', ControlType.dateTime),
     schemaFormatIsOneOf('date', 'date-time'),
+    anyOfFormatIsOneOf('date', 'date-time'),
   ),
 );
 
