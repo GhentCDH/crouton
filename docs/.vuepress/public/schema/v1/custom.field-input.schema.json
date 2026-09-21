@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "label": {
+      "description": "Override the field label",
+      "type": "string"
+    },
+    "hideLabel": {
+      "description": "Hide the label",
+      "type": "boolean"
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "readonly": {
+      "type": "boolean"
+    },
+    "colspan": {
+      "type": "number"
+    },
+    "width": {
+      "type": "string"
+    },
+    "styles": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "customRender": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": {},
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/custom.field-input.schema.json",
+  "title": "Crouton fieldInput options: custom"
+}

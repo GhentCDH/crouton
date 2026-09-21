@@ -9,4 +9,3 @@ export const DateOptionsSchema = BaseOptionsSchema.extend({
   locale: z.string().optional().describe('BCP-47 locale for month heading and weekday labels').default('en-GB'),
   firstDayOfWeek: z.number().optional().describe('0 = Sunday, 1 = Monday').default(1),
 });
-export type DateOptions = z.infer<typeof DateOptionsSchema>;

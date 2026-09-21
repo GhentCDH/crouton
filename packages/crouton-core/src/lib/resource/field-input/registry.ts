@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 
 import { ArrayOptionsSchema } from './types/array.options';
 import { AutocompleteOptionsSchema } from './types/autocomplete.options';
 import { BooleanOptionsSchema } from './types/boolean.options';
 import { CustomOptionsSchema } from './types/custom.options';
-import { DateOptionsSchema } from './types/date.options';
 import { DateRangeOptionsSchema } from './types/date-range.options';
+import { DateOptionsSchema } from './types/date.options';
 import { MarkdownOptionsSchema } from './types/markdown.options';
 import { NumberOptionsSchema } from './types/number.options';
 import { RelationOptionsSchema } from './types/relation.options';
