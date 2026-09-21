@@ -3,5 +3,5 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/add-crouton/src",
-  "tags": ["scope:crouton", "type:cli", "tech:node"]
+  "tags": ["scope:crouton", "type:cli", "tech:node", "platform:cli"]
 }
