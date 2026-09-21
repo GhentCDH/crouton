@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { injectEnumValues } from './enum-registry.injector';
 import type { JsonColumn } from '@ghentcdh/crouton-core';
+
+import { injectEnumValues } from './enum-registry.injector';
 import type { EnumRegistry } from './enum-registry.types';
 
 const registry: EnumRegistry = {
