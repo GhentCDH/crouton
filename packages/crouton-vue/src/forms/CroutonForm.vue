@@ -38,6 +38,8 @@
           :http="api"
           :renderers="renderers"
           :validateOnMount="validateOnMount"
+          :show-errors="showErrors"
+          :debug-value="debugValue"
           @errors="onErrors"
           @change="onChange"
           @valid="onValid"
@@ -46,13 +48,6 @@
       </div>
       <slot name="content-after" />
     </div>
-    <FormDebug
-      :show-errors="showErrors"
-      :debug-value="debugValue"
-      :errors="errors"
-      :current-values="currentValues"
-    />
-
     <div
       v-if="showButtons && !readonly"
       class="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-300 shrink-0 items-center"
@@ -101,7 +96,7 @@ import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FormComponent, FormDebug } from '@ghentcdh/crouton-forms-vue';
+import { FormComponent } from '@ghentcdh/crouton-forms-vue';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { useFormLogic } from './useFormLogic';
@@ -135,8 +130,6 @@ const {
   renderers,
   schema,
   uiSchema,
-  errors,
-  currentValues,
 } = useFormLogic(properties, emits, formData, formRef);
 
 const onBack = (): void => {

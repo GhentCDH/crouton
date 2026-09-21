@@ -46,6 +46,14 @@ export const JsonFormComponentProperties = {
     type: Boolean,
     default: false,
   },
+  showErrors: {
+    type: Boolean,
+    default: false,
+  },
+  debugValue: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 export type JsonFormComponentProp = ExtractPublicPropTypes<
