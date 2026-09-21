@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { fieldInputRegistry } from './field-input/registry';
 import { RelationOptionsSchema } from './field-input/types/relation.options';
 
 export { RelationOptionsSchema as RelationFieldInputOptionsSchema } from './field-input/types/relation.options';
@@ -31,6 +32,7 @@ export const DetailConfigSchema = z.object({
 
 export type DetailConfig = z.infer<typeof DetailConfigSchema>;
 export const FieldInputSchema = z.object({
+  $schema: z.string().optional(),
   type: z.string().optional(),
   customRender: z.string().optional(),
 
@@ -77,6 +79,15 @@ export const FieldInputSchema = z.object({
 });
 
 export type FieldInput = z.infer<typeof FieldInputSchema>;
+
+/** Parse fieldInput.options through the per-type Zod schema (applies coercion and defaults). */
+export const parseFieldInputOptions = (fi: FieldInput): FieldInput => {
+  if (!fi.type || fi.options == null) return fi;
+  const def = fieldInputRegistry.get(fi.type);
+  if (!def) return fi;
+  const result = def.options.safeParse(fi.options);
+  return result.success ? { ...fi, options: result.data } : fi;
+};
 
 /**
  * A per-context override of a column's field config. Structurally identical to
