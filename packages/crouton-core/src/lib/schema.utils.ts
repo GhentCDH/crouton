@@ -1,6 +1,27 @@
+/**
+ * Browser-safe JSON Schema utilities shared across crouton-core and crouton-api.
+ *
+ * Keep this file free of Node-only imports. Zod-specific conversion lives in
+ * compile/to-json-schema.ts; mutable view-build transforms live in
+ * view/schema-transforms.ts.
+ */
+
 import type { JsonSchema } from '@jsonforms/core';
 
 type Field = { scope: string };
+
+/**
+ * Returns true when a JSON Schema property represents a nullable field.
+ * Handles both Zod v4 (`"type": ["string","null"]`) and the older
+ * anyOf `[{type:"string"},{type:"null"}]` format.
+ */
+export const isNullableProperty = (property: unknown): boolean => {
+  const prop = property as Record<string, unknown> | undefined;
+  if (!prop) return false;
+  if (Array.isArray(prop['type']) && (prop['type'] as string[]).includes('null')) return true;
+  const anyOf = prop['anyOf'];
+  return Array.isArray(anyOf) && anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null');
+};
 
 /**
  * Recursively drop nullable fields from `required`. A nullable field
@@ -12,18 +33,9 @@ export const dropNullableFromRequired = (schema: JsonSchema): JsonSchema => {
   const required = schema.required as string[] | undefined;
   if (!Array.isArray(required) || required.length === 0) return schema;
 
-  const filteredRequired = required.filter((key) => {
-    const prop = schema.properties![key] as Record<string, unknown> | undefined;
-    if (!prop || typeof prop !== 'object') return true;
-    // Zod v4: "type": ["string", "null"]
-    if (Array.isArray(prop['type']) && (prop['type'] as string[]).includes('null')) return false;
-    // Older format: anyOf with { type: "null" }
-    const anyOf = prop['anyOf'];
-    return !(
-      Array.isArray(anyOf) &&
-      anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
-    );
-  });
+  const filteredRequired = required.filter(
+    (key) => !isNullableProperty(schema.properties![key]),
+  );
 
   if (filteredRequired.length === required.length) return schema;
 
