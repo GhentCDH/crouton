@@ -160,7 +160,11 @@ const createEditForm =
     const crouton = useCrouton();
     const autoSaveEnabled = crouton.autoSave.value;
 
-    const blankData = formData ?? resolveDefaultTokens(form.parseValue({}), { defaults: crouton.defaults }) as any;
+    const blankData =
+      formData ??
+      (resolveDefaultTokens(form.parseValue({}), {
+        defaults: crouton.defaults,
+      }) as any);
 
     const sharedProps = {
       schema: form.data,
@@ -171,6 +175,8 @@ const createEditForm =
       modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
       http: useApi(),
       views: formDef.schemas,
+      showErrors: crouton.showErrors.value,
+      debugValue: crouton.debugValue.value,
       onEvents: (event: any) => {
         // Other renderer events (e.g. 'create', 'view') can be handled here.
       },
@@ -197,17 +203,15 @@ const createEditForm =
       return {
         ...sharedProps,
         saveLabel: isUpdate ? 'Save' : 'Create',
-        onClose: (result: FormModalResult) => {
+        onClose: async (result: FormModalResult) => {
           if (result && result.valid) {
             const data = result.data;
-            const promise = isUpdate
+            const response = await (isUpdate
               ? api.save(recordId, data)
-              : api.create(data);
-
-            promise.then((response) => {
-              handleEvent('close', response);
-              if (response) resource.reload();
-            });
+              : api.create(data));
+            if (!response) throw new Error('Save failed');
+            handleEvent('close', response);
+            resource.reload();
           } else {
             handleEvent('close', {});
           }
@@ -354,7 +358,7 @@ export interface ResourceModals {
     hideTable: boolean;
     customComponent: Component | null;
   } | null>;
-  closeForm: (result: any) => void;
+  closeForm: (result: any) => Promise<void>;
   create: () => void;
   edit: (id: unknown) => void;
   view: (id: unknown) => void;
@@ -435,10 +439,16 @@ export const resourceModals = (
       };
     };
 
-  const closeForm = (result: any) => {
+  const closeForm = async (result: any) => {
     const onClose = form.value?.config?.onClose;
+    if (onClose) {
+      try {
+        await onClose(result);
+      } catch {
+        return; // API error — keep modal open
+      }
+    }
     form.value = null;
-    if (onClose) onClose(result);
   };
 
   return {

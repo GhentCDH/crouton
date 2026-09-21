@@ -53,7 +53,7 @@ export interface UseResource {
   edit: (id: unknown) => void;
   view: (id: unknown) => void;
   delete: (id: unknown) => void;
-  closeForm: (result: any) => void;
+  closeForm: (result: any) => Promise<void>;
   form: ResourceModals['form'];
   api: ResourceApiInstance;
   reload: () => void;
