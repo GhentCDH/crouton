@@ -12,4 +12,8 @@ export default defineConfig({
   noExternal: ['@ghentcdh/crouton-codegen', '@ghentcdh/crouton-core'],
   external: ['@prisma/generator-helper', '@prisma/internals', 'node:*'],
   banner: { js: '#!/usr/bin/env node' },
+  esbuildOptions(options) {
+    // Resolve workspace packages via their TS source (same condition crouton-codegen uses)
+    options.conditions = ['@ghentcdh/crouton'];
+  },
 });
