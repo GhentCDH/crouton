@@ -7,6 +7,7 @@ export * from './Sidebar.schema';
 export * from './include.schema';
 export * from './TableAction.schema';
 export * from './CalculatedColumn.schema';
+export * from './field-input';
 export * from './FieldInput.schema';
 export * from './Column';
 export * from './fieldVariants';
