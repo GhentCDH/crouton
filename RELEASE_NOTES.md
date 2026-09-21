@@ -1,3 +1,15 @@
+## 0.0.1-alpha.70 (2026-09-21)
+
+### 🩹 Fixes
+
+- **crouton-forms-vue:** match nullable scalar types in schemaTypeIs ([#153](https://github.com/GhentCDH/crouton/pull/153))
+- **crouton-forms-vue:** match integer renderer for nullable anyOf integer schema ([#154](https://github.com/GhentCDH/crouton/pull/154))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.69 (2026-09-21)
 
 ### 🚀 Features
