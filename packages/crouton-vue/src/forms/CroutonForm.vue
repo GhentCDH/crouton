@@ -46,12 +46,12 @@
       </div>
       <slot name="content-after" />
     </div>
-    <pre v-if="showErrors" class="border p-2 m-2 border-error">
-      {{ errors }}
-    </pre>
-    <pre v-if="debugValue" class="border p-2 m-2 border-info">
-      {{ currentValues }}
-    </pre>
+    <FormDebug
+      :show-errors="showErrors"
+      :debug-value="debugValue"
+      :errors="errors"
+      :current-values="currentValues"
+    />
 
     <div
       v-if="showButtons && !readonly"
@@ -101,7 +101,7 @@ import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FormComponent } from '@ghentcdh/crouton-forms-vue';
+import { FormComponent, FormDebug } from '@ghentcdh/crouton-forms-vue';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { useFormLogic } from './useFormLogic';
