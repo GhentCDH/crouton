@@ -109,7 +109,7 @@ export const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
-/** `prisma generate` (refreshes zod-prisma-types output) for a datasource's config. */
+/** `prisma generate` for a datasource's config (triggers the `crouton-prisma` generator). */
 export const prismaGenerate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const [bin, prefix] = resolveBin('prisma', cwd);
   const { code, stdout, stderr } = await run(bin, [...prefix, 'generate', '--config', prismaConfig], cwd);
@@ -150,7 +150,6 @@ export interface PullAndGenerateInput {
   root: string;
   prismaConfigPath: string;
   schemaPath: string;
-  zodOutputDir: string | undefined;
 }
 
 export interface PullAndGenerateResult {
@@ -160,51 +159,31 @@ export interface PullAndGenerateResult {
   caseFormat?: PrismaRunResult;
   normalizeSchema?: { ok: boolean; renamed: number };
   generate?: PrismaRunResult;
-  zodImportsFixed?: number;
 }
 
 /**
  * Full pull-and-generate pipeline: backup → dbPull → caseFormat →
- * normalizeSchema → generate → fixZodImports.
+ * normalizeSchema → generate.
  *
  * Returns a structured result; callers handle UI / error presentation.
  * `dbPull` failure is fatal (returns early with `ok: false`); subsequent
  * step failures are recorded but non-fatal.
+ *
+ * zod post-processing (fixZodImports) is now owned by the crouton-prisma
+ * generator and runs inside `prismaGenerate`.
  */
 export const pullAndGenerate = async (
   input: PullAndGenerateInput,
 ): Promise<PullAndGenerateResult> => {
-  const { root, prismaConfigPath, schemaPath, zodOutputDir } = input;
-
+  const { root, prismaConfigPath, schemaPath } = input;
   loadDotenv(root);
   const backupPath = await backupSchema(schemaPath);
-
   const dbPull = await prismaDbPull(root, prismaConfigPath);
-  if (!dbPull.ok) {
-    return { ok: false, backupPath, dbPull };
-  }
-
+  if (!dbPull.ok) return { ok: false, backupPath, dbPull };
   const caseFormat = await prismaCaseFormat(root, schemaPath);
-
   const normalized = await normalizeSchema(schemaPath);
-  const normalizeResult = { ok: true, renamed: normalized.renamed };
-
   const generate = await prismaGenerate(root, prismaConfigPath);
-
-  let zodImportsFixed: number | undefined;
-  if (generate.ok && zodOutputDir) {
-    zodImportsFixed = await fixZodImports(zodOutputDir);
-  }
-
-  return {
-    ok: true,
-    backupPath,
-    dbPull,
-    caseFormat,
-    normalizeSchema: normalizeResult,
-    generate,
-    zodImportsFixed,
-  };
+  return { ok: true, backupPath, dbPull, caseFormat, normalizeSchema: { ok: true, renamed: normalized.renamed }, generate };
 };
 
 interface NormalizeConfig {

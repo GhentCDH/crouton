@@ -50,7 +50,7 @@ possible by giving each its own schema and generated outputs.
 | `prismaSchema`         | Path to this datasource's Prisma schema, relative to the project root.                            |
 | `urlEnv`               | Env var holding the connection URL used when the CLI runs `prisma db pull` / `generate`.          |
 | `generatedTypesImport` | Import path for this datasource's generated Zod types. New `schema.ts` files re-export from here. |
-| `zodOutput`            | This datasource's `zod-prisma-types` output dir (project-relative).                               |
+| `zodOutput`            | Zod types output dir (project-relative). Passed to `crouton-prisma` as `zodOutput`.               |
 | `prismaConfig`         | Prisma config file for this datasource. Defaults to `prisma/<name>/prisma.config.ts`.             |
 
 ## index.ts

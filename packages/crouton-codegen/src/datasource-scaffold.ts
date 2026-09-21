@@ -199,16 +199,9 @@ export default client;
   output   = "${relClient}"
 }
 
-generator zod {
-  provider                         = "zod-prisma-types"
-  output                           = "${relZod}"
-  addInputTypeValidation           = "false"
-  createInputTypes                 = "false"
-  createModelTypes                 = "true"
-  createOptionalDefaultValuesTypes = "false"
-  createRelationValuesTypes        = "true"
-  useMultipleFiles                 = "true"
-  writeBarrelFiles                 = "true"
+generator crouton {
+  provider  = "crouton-prisma"
+  zodOutput = "${relZod}"
 }
 
 datasource db {

@@ -7,7 +7,7 @@ export interface DepSet {
 
 export const BACKEND_DEPS: DepSet = {
   deps: ['@ghentcdh/crouton-api', '@ghentcdh/crouton-core', '@prisma/adapter-pg', '@prisma/client', 'dotenv'],
-  devDeps: ['prisma', 'prisma-case-format', 'zod-prisma-types'],
+  devDeps: ['prisma', 'prisma-case-format', '@ghentcdh/crouton-prisma'],
 };
 
 export const FRONTEND_DEPS: DepSet = {
