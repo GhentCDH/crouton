@@ -84,12 +84,21 @@ const loadExample = (key: keyof typeof EXAMPLES) => {
 </script>
 
 <template>
-  <div class="resource-json-validator">
-    <div class="example-buttons">
-      <span class="label">Load example:</span>
-      <button @click="loadExample('valid')">Valid</button>
-      <button @click="loadExample('missingKind')">model on custom resource</button>
-      <button @click="loadExample('missingColumnType')">missing column type</button>
+  <div class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-sm opacity-70">Load example:</span>
+      <button
+        class="text-xs px-2 py-0.5 border border-gray-300 rounded bg-gray-100 hover:bg-blue-50 cursor-pointer"
+        @click="loadExample('valid')"
+      >Valid</button>
+      <button
+        class="text-xs px-2 py-0.5 border border-gray-300 rounded bg-gray-100 hover:bg-blue-50 cursor-pointer"
+        @click="loadExample('missingKind')"
+      >model on custom resource</button>
+      <button
+        class="text-xs px-2 py-0.5 border border-gray-300 rounded bg-gray-100 hover:bg-blue-50 cursor-pointer"
+        @click="loadExample('missingColumnType')"
+      >missing column type</button>
     </div>
 
     <textarea
@@ -97,104 +106,24 @@ const loadExample = (key: keyof typeof EXAMPLES) => {
       placeholder="Paste your resource.json here…"
       rows="18"
       spellcheck="false"
+      class="w-full font-mono text-sm p-3 border border-gray-300 rounded-md bg-gray-50 text-inherit resize-y"
     />
 
-    <div v-if="result.status === 'idle'" class="state idle">
+    <div v-if="result.status === 'idle'" class="px-4 py-3 rounded-md text-sm bg-gray-100 opacity-70">
       Paste a <code>resource.json</code> above to validate it.
     </div>
 
-    <div v-else-if="result.status === 'valid'" class="state valid">
+    <div v-else-if="result.status === 'valid'" class="px-4 py-3 rounded-md text-sm bg-green-50 border border-green-300 text-green-800">
       <strong>✓ Valid</strong>
-      <details>
-        <summary>Normalized output</summary>
-        <pre>{{ JSON.stringify(result.data, null, 2) }}</pre>
+      <details class="mt-1">
+        <summary class="cursor-pointer text-sm">Normalized output</summary>
+        <pre class="mt-2 text-xs whitespace-pre-wrap break-words">{{ JSON.stringify(result.data, null, 2) }}</pre>
       </details>
     </div>
 
-    <div v-else class="state invalid">
+    <div v-else class="px-4 py-3 rounded-md text-sm bg-red-50 border border-red-300 text-red-800">
       <strong>✗ Invalid</strong>
-      <pre class="errors">{{ result.message }}</pre>
+      <pre class="mt-2 text-xs whitespace-pre-wrap break-words">{{ result.message }}</pre>
     </div>
   </div>
 </template>
-
-<style scoped>
-.resource-json-validator {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.example-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.example-buttons .label {
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-.example-buttons button {
-  font-size: 0.8rem;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid var(--vp-c-border, #ccc);
-  border-radius: 4px;
-  background: var(--vp-c-bg-soft, #f6f6f7);
-  cursor: pointer;
-}
-
-.example-buttons button:hover {
-  background: var(--vp-c-brand-soft, #e8f4fd);
-}
-
-textarea {
-  width: 100%;
-  font-family: var(--vp-font-family-mono, monospace);
-  font-size: 0.85rem;
-  padding: 0.75rem;
-  border: 1px solid var(--vp-c-border, #ccc);
-  border-radius: 6px;
-  background: var(--vp-c-bg-soft, #f6f6f7);
-  color: var(--vp-c-text-1, inherit);
-  resize: vertical;
-}
-
-.state {
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-
-.state.idle {
-  background: var(--vp-c-bg-soft, #f6f6f7);
-  opacity: 0.7;
-}
-
-.state.valid {
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  color: #166534;
-}
-
-.state.invalid {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #991b1b;
-}
-
-pre {
-  margin: 0.5rem 0 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 0.8rem;
-}
-
-details summary {
-  cursor: pointer;
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
-}
-</style>
