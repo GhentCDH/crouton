@@ -1,3 +1,27 @@
+## 0.0.1-alpha.69 (2026-09-21)
+
+### 🚀 Features
+
+- **crouton-core,crouton-api:** default emitObject and displayKey for… ([#147](https://github.com/GhentCDH/crouton/pull/147))
+- **crouton-forms-vue:** move CroutonForm logic and add FormDebug component ([#149](https://github.com/GhentCDH/crouton/pull/149))
+- **crouton-forms-vue,crouton-vue:** move FormDebug into FormComponent ([#152](https://github.com/GhentCDH/crouton/pull/152))
+- **crouton-prisma:** add crouton-prisma generator, replace zod-prism… ([#148](https://github.com/GhentCDH/crouton/pull/148))
+- **docs:** add live resource.json validator page ([#150](https://github.com/GhentCDH/crouton/pull/150))
+
+### 🩹 Fixes
+
+- click area button ([#143](https://github.com/GhentCDH/crouton/pull/143))
+- **crouton-api:** derive childModel from linked resource.json model f… ([#142](https://github.com/GhentCDH/crouton/pull/142))
+- **crouton-api,crouton-forms-vue:** ESM loader for .ts files and nullable date rendering ([#151](https://github.com/GhentCDH/crouton/pull/151))
+- **crouton-core:** render number/integer columns with correct control… ([#141](https://github.com/GhentCDH/crouton/pull/141))
+- **crouton-core:** use date/dateTime control format for date columns ([#145](https://github.com/GhentCDH/crouton/pull/145))
+- **nx:** add build targetDefault dependsOn ^build for correct task ordering ([9990497](https://github.com/GhentCDH/crouton/commit/9990497))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.68 (2026-09-21)
 
 ### 🩹 Fixes
