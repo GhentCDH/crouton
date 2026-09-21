@@ -6,7 +6,7 @@
  * order when updating), so re-runs produce minimal git diffs and are idempotent.
  */
 
-import { CURRENT_RESOURCE_VERSION, fieldInputRegistry, type ResourceJsonInput } from '@ghentcdh/crouton-core';
+import { CURRENT_RESOURCE_VERSION, type ResourceJsonInput, fieldInputRegistry } from '@ghentcdh/crouton-core';
 
 /** Canonical, versioned JSON Schema URL — matches the path published by the docs site. */
 export const RESOURCE_SCHEMA_URL = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}/resource.schema.json`;
