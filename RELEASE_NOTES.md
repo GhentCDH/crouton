@@ -1,3 +1,15 @@
+## 0.0.1-alpha.67 (2026-09-21)
+
+### 🩹 Fixes
+
+- crouton vue ts errors ([#138](https://github.com/GhentCDH/crouton/pull/138))
+- crouton vue ts errors 2 ([#139](https://github.com/GhentCDH/crouton/pull/139))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.66 (2026-09-21)
 
 ### 🩹 Fixes
