@@ -4,12 +4,12 @@
     class="border-gray-300 text-primary max-w-full overflow-hidden [&>span]:flex [&>span]:min-w-0 !p-0"
     style="max-width: 200px"
     :tooltip="labelValue"
+    @click="view"
   >
     <div class="flex items-center min-w-0 min-h-8">
       <div
         class="pl-2 flex flex-1 min-w-0 gap-2 items-center font-medium"
         :class="{ 'pr-2': !showIcon }"
-        @click="view"
       >
         <div class="truncate min-w-0 text-gray-700">
           {{ labelValue }}
@@ -27,7 +27,7 @@
       </div>
       <div
         class="shrink-0 hover:bg-gray-100 py-2 px-1"
-        @click="deleteFn($event)"
+        @click.stop="deleteFn($event)"
         v-if="hasDelete"
       >
         <Icon :icon="IconEnum.Delete" size="sm" class="shrink-0" />
