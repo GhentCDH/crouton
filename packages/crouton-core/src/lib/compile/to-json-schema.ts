@@ -9,11 +9,13 @@ export const isZodSchema = (
 ): schema is ZodObject<ZodRawShape> => schema instanceof ZodObject;
 
 const isNullableProperty = (property: unknown): boolean => {
-  const anyOf = (property as Record<string, unknown>)?.['anyOf'];
-  return (
-    Array.isArray(anyOf) &&
-    anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
-  );
+  const prop = property as Record<string, unknown> | undefined;
+  if (!prop) return false;
+  // Zod v4: "type": ["string", "null"]
+  if (Array.isArray(prop['type']) && (prop['type'] as string[]).includes('null')) return true;
+  // Older format: anyOf with { type: "null" }
+  const anyOf = prop['anyOf'];
+  return Array.isArray(anyOf) && anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null');
 };
 
 const dropNullableFromRequired = (jsonSchema: Record<string, any>): void => {

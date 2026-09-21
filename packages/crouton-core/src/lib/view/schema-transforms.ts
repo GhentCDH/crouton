@@ -17,13 +17,14 @@ export const allowAdditionalProperties = (schema: Record<string, unknown>): void
   }
 };
 
-/** A property is nullable when its `anyOf` contains a `{ type: "null" }` branch. */
+/** A property is nullable when it has a null type (any JSON Schema format). */
 const isNullableProperty = (prop: Record<string, unknown> | undefined): boolean => {
-  const anyOf = prop?.['anyOf'];
-  return (
-    Array.isArray(anyOf) &&
-    anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
-  );
+  if (!prop) return false;
+  // Zod v4: "type": ["string", "null"]
+  if (Array.isArray(prop['type']) && (prop['type'] as string[]).includes('null')) return true;
+  // Older format: anyOf with { type: "null" }
+  const anyOf = prop['anyOf'];
+  return Array.isArray(anyOf) && anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null');
 };
 
 /**
