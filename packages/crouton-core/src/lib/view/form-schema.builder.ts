@@ -2,7 +2,7 @@ import { isArrayColumn, isObjectColumn } from './column-predicates';
 import { ControlBuilder } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import type { JsonColumn } from '../resource/Column';
-import { columnTypeName } from '../resource/ColumnType.schema';
+import { columnTypeName, columnTypeToJsonSchema } from '../resource/ColumnType.schema';
 import type { DetailConfig } from '../resource/FieldInput.schema';
 
 // ── Condition / rule builders ─────────────────────────────────────────────
@@ -113,6 +113,9 @@ const defaultControlFormat = (col: JsonColumn): string => {
   if (isArrayColumn(col)) return 'array';
   const typeName = columnTypeName(col.type);
   if (typeName === 'number' || typeName === 'integer') return typeName;
+  const format = columnTypeToJsonSchema(col.type).format;
+  if (format === 'date') return 'date';
+  if (format === 'date-time') return 'dateTime';
   return 'text';
 };
 
