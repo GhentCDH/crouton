@@ -25,6 +25,14 @@ export { useDisplayValue } from './forms/renderers/controls/readonly/useDisplayV
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
 export { useAutoSave } from './composables/useAutoSave';
+export {
+  useCroutonFormLogic,
+} from './composables/useCroutonFormLogic';
+export type {
+  CroutonFormLogicEmitsType,
+  CroutonFormLogicProps,
+  FormResourceApi,
+} from './composables/useCroutonFormLogic';
 export type {
   AutoSaveStatus,
   UseAutoSaveOptions,
@@ -38,6 +46,8 @@ export {
 } from './composables/useRendererProvider';
 
 // Components
+export { default as FormDebug } from './forms/FormDebug.vue';
+export { FormDebugProperties } from './forms/FormDebug.properties';
 export { default as JsonForm } from './forms/FormComponent.vue';
 export { default as JsonFormModal } from './forms/modal/FormModal.vue';
 export { default as FormModal } from './forms/modal/FormModal.vue';
