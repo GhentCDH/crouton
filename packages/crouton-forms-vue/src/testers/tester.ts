@@ -118,13 +118,18 @@ export const isBooleanControl = or(
 );
 export const isNumberFormat = and(
   uiTypeIs('Control'),
-  or(optionIsIgnoreCase('format', ControlType.number), schemaTypeIs('number')),
+  or(
+    optionIsIgnoreCase('format', ControlType.number),
+    schemaTypeIs('number'),
+    anyOfTypeIs('number'),
+  ),
 );
 export const isIntegerFormat = and(
   uiTypeIs('Control'),
   or(
     optionIsIgnoreCase('format', ControlType.integer),
     schemaTypeIs('integer'),
+    anyOfTypeIs('integer'),
   ),
 );
 
