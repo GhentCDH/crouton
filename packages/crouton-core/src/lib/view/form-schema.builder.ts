@@ -2,6 +2,7 @@ import { isArrayColumn, isObjectColumn } from './column-predicates';
 import { ControlBuilder } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import type { JsonColumn } from '../resource/Column';
+import { columnTypeName } from '../resource/ColumnType.schema';
 import type { DetailConfig } from '../resource/FieldInput.schema';
 
 // ── Condition / rule builders ─────────────────────────────────────────────
@@ -110,6 +111,8 @@ const buildDetailLayout = (detail: DetailConfig) => {
 const defaultControlFormat = (col: JsonColumn): string => {
   if (isObjectColumn(col)) return 'object';
   if (isArrayColumn(col)) return 'array';
+  const typeName = columnTypeName(col.type);
+  if (typeName === 'number' || typeName === 'integer') return typeName;
   return 'text';
 };
 
