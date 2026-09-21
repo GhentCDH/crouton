@@ -1,3 +1,14 @@
+## 0.0.1-alpha.68 (2026-09-21)
+
+### 🩹 Fixes
+
+- **crouton-vue:** bundle internal workspace packages instead of marking as external ([f9dc573](https://github.com/GhentCDH/crouton/commit/f9dc573))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.67 (2026-09-21)
 
 ### 🩹 Fixes
