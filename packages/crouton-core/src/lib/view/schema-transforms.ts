@@ -1,3 +1,5 @@
+import { isNullableProperty } from '../schema.utils';
+
 /**
  * Recursively set `additionalProperties: true` on every object in a JSON Schema.
  * Required so Prisma-returned rows (which may contain extra fields) pass validation.
@@ -15,15 +17,6 @@ export const allowAdditionalProperties = (schema: Record<string, unknown>): void
   if (schema['type'] === 'array' && schema['items']) {
     allowAdditionalProperties(schema['items'] as Record<string, unknown>);
   }
-};
-
-/** A property is nullable when its `anyOf` contains a `{ type: "null" }` branch. */
-const isNullableProperty = (prop: Record<string, unknown> | undefined): boolean => {
-  const anyOf = prop?.['anyOf'];
-  return (
-    Array.isArray(anyOf) &&
-    anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
-  );
 };
 
 /**

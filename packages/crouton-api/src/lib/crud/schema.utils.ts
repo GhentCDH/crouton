@@ -5,7 +5,7 @@ import {
   toJSONSchema,
 } from 'zod';
 
-import { jsonSchemaOpts } from '@ghentcdh/crouton-core';
+import { isNullableProperty, jsonSchemaOpts } from '@ghentcdh/crouton-core';
 
 import { type JsonSchemaInput, type SchemaInput } from './resource/json.schema';
 
@@ -14,15 +14,6 @@ export function isZodSchema(
 ): schema is ZodObject<ZodRawShape> {
   return schema instanceof ZodObject;
 }
-
-/** A property is nullable when its `anyOf` contains a `{ type: "null" }` branch. */
-const isNullableProperty = (property: unknown): boolean => {
-  const anyOf = (property as Record<string, unknown>)?.['anyOf'];
-  return (
-    Array.isArray(anyOf) &&
-    anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
-  );
-};
 
 /** Nullable fields are treated as optional: drop them from `required` (keeping the null branch). */
 const dropNullableFromRequired = (jsonSchema: Record<string, any>): void => {
