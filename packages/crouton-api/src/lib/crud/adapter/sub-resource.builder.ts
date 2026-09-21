@@ -154,7 +154,15 @@ export const buildSubResources = (
         // A custom child has no Prisma model. Leave it empty rather than
         // falling back to the column id, which would produce a bogus
         // `prisma[<column>]` lookup at query time.
-        childModel: childKind === 'custom' ? '' : c.id,
+        // Use the child resource's declared model name so plural column ids
+        // (e.g. "books") resolve to the correct Prisma delegate (prisma.book).
+        // ponytail: charAt toLowerCase is cheap; Prisma model names are always PascalCase
+        childModel:
+          childKind === 'custom'
+            ? ''
+            : childJson?.model
+              ? childJson.model.charAt(0).toLowerCase() + childJson.model.slice(1)
+              : c.id,
         foreignKey: c.fieldInput?.foreignKey ?? `${parentModel}Id`,
         name: childJson?.name ?? childRoute,
         title: childJson?.title ?? childJson?.tag ?? childRoute,
