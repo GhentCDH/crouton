@@ -56,7 +56,7 @@ describe('isIntegerFormat', () => {
     description                           | uischema                            | schema                                                          | result
     ${'integer schema type'}              | ${control()}                        | ${schema({ type: 'integer' })}                                  | ${true}
     ${'nullable integer (array type)'}    | ${control()}                        | ${{ type: ['integer', 'null'] } as unknown as JsonSchema}       | ${true}
-    ${'nullable integer (anyOf)'}         | ${control()}                        | ${{ anyOf: [{ type: 'integer' }, { type: 'null' }] } as JsonSchema} | ${false}
+    ${'nullable integer (anyOf)'}         | ${control()}                        | ${{ anyOf: [{ type: 'integer' }, { type: 'null' }] } as JsonSchema} | ${true}
     ${'uischema format: Integer'}         | ${control({ format: 'Integer' })}   | ${schema()}                                                     | ${true}
     ${'plain string'}                     | ${control()}                        | ${schema()}                                                     | ${false}
     ${'non-control element'}              | ${{ type: 'VerticalLayout' }}       | ${schema({ type: 'integer' })}                                  | ${false}
@@ -70,6 +70,7 @@ describe('isNumberFormat', () => {
     description                          | uischema                           | schema                                                         | result
     ${'number schema type'}              | ${control()}                       | ${schema({ type: 'number' })}                                  | ${true}
     ${'nullable number (array type)'}    | ${control()}                       | ${{ type: ['number', 'null'] } as unknown as JsonSchema}       | ${true}
+    ${'nullable number (anyOf)'}         | ${control()}                       | ${{ anyOf: [{ type: 'number' }, { type: 'null' }] } as JsonSchema} | ${true}
     ${'plain string'}                    | ${control()}                       | ${schema()}                                                    | ${false}
   `('$description → $result', ({ uischema, schema: s, result }) => {
     expect(isNumberFormat(uischema, s)).toBe(result);

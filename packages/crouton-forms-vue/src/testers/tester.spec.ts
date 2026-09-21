@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isArrayRenderer,
   isDateRangeControl,
+  isIntegerFormat,
   isObjectControl,
   isStringFormat,
 } from './tester';
@@ -61,6 +62,22 @@ describe('isObjectControl', () => {
         objectSchema,
       ),
     ).toBe(false);
+  });
+});
+
+describe('isIntegerFormat', () => {
+  it('matches a nullable integer anyOf schema with text format', () => {
+    expect(
+      isIntegerFormat(control({ format: 'text' }), {
+        anyOf: [{ type: 'integer' }, { type: 'null' }],
+      } as JsonSchema),
+    ).toBe(true);
+  });
+
+  it('matches a direct integer schema', () => {
+    expect(
+      isIntegerFormat(control({}), { type: 'integer' } as JsonSchema),
+    ).toBe(true);
   });
 });
 
