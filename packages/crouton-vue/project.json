@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/crouton-vue/src",
-  "tags": ["scope:crouton", "type:ui", "tech:vue"],
+  "tags": ["scope:crouton", "type:ui", "tech:vue", "platform:frontend"],
   "targets": {
     "typecheck": {
       "command": "vue-tsc --noEmit -p tsconfig.lib.json",
