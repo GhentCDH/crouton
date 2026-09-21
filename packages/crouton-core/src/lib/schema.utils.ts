@@ -13,9 +13,12 @@ export const dropNullableFromRequired = (schema: JsonSchema): JsonSchema => {
   if (!Array.isArray(required) || required.length === 0) return schema;
 
   const filteredRequired = required.filter((key) => {
-    const prop = schema.properties![key];
+    const prop = schema.properties![key] as Record<string, unknown> | undefined;
     if (!prop || typeof prop !== 'object') return true;
-    const anyOf = (prop as Record<string, unknown>)['anyOf'];
+    // Zod v4: "type": ["string", "null"]
+    if (Array.isArray(prop['type']) && (prop['type'] as string[]).includes('null')) return false;
+    // Older format: anyOf with { type: "null" }
+    const anyOf = prop['anyOf'];
     return !(
       Array.isArray(anyOf) &&
       anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
