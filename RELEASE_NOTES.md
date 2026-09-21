@@ -1,3 +1,14 @@
+## 0.0.1-alpha.71 (2026-09-21)
+
+### 🩹 Fixes
+
+- no close on invalid form ([ff5ad97](https://github.com/GhentCDH/crouton/commit/ff5ad97))
+- no close on invalid form ([af7c158](https://github.com/GhentCDH/crouton/commit/af7c158))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.70 (2026-09-21)
 
 ### 🩹 Fixes
