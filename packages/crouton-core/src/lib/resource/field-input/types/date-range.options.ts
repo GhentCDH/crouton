@@ -8,4 +8,3 @@ export const DateRangeOptionsSchema = BaseOptionsSchema.extend({
   fromField: z.string().optional().describe('JSON object key for the start date. Defaults to "from"'),
   toField: z.string().optional().describe('JSON object key for the end date. Defaults to "to"'),
 });
-export type DateRangeOptions = z.infer<typeof DateRangeOptionsSchema>;

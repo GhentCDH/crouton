@@ -12,4 +12,3 @@ export const ToggleOptionsSchema = BaseOptionsSchema.extend({
   color: z.string().optional().describe('Btn color for the active button').default('primary'),
   size: z.string().optional().describe('Btn size').default('sm'),
 });
-export type ToggleOptions = z.infer<typeof ToggleOptionsSchema>;

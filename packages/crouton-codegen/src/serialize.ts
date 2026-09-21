@@ -6,10 +6,21 @@
  * order when updating), so re-runs produce minimal git diffs and are idempotent.
  */
 
-import { CURRENT_RESOURCE_VERSION, type ResourceJsonInput } from '@ghentcdh/crouton-core';
+import { CURRENT_RESOURCE_VERSION, fieldInputRegistry, type ResourceJsonInput } from '@ghentcdh/crouton-core';
 
 /** Canonical, versioned JSON Schema URL — matches the path published by the docs site. */
 export const RESOURCE_SCHEMA_URL = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}/resource.schema.json`;
+
+const FIELD_INPUT_SCHEMA_BASE = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}`;
+
+const stampFieldInputSchema = (fi: Record<string, unknown>): Record<string, unknown> => {
+  const type = fi.type as string | undefined;
+  if (!type) return fi;
+  const def = fieldInputRegistry.get(type);
+  if (!def) return fi;
+  const { $schema: _old, ...rest } = fi;
+  return { $schema: `${FIELD_INPUT_SCHEMA_BASE}/${def.schemaFile}.field-input.schema.json`, ...rest };
+};
 
 /**
  * Prepend `$schema` / `schemaVersion` (and, when set, `draft` / `kind`) so every generated
@@ -34,6 +45,21 @@ export const withResourceHeader = (
     ...rest
   } = config as Record<string, unknown>;
   const draft = opts.draft !== undefined ? opts.draft : (existingDraft as boolean | undefined);
+
+  if (Array.isArray((rest as Record<string, unknown>).columns)) {
+    (rest as Record<string, unknown>).columns = (
+      (rest as Record<string, unknown>).columns as Record<string, unknown>[]
+    ).map((col) => {
+      const out = { ...col };
+      if (out['fieldInput'] && typeof out['fieldInput'] === 'object')
+        out['fieldInput'] = stampFieldInputSchema(out['fieldInput'] as Record<string, unknown>);
+      if (out['fieldView'] && typeof out['fieldView'] === 'object')
+        out['fieldView'] = stampFieldInputSchema(out['fieldView'] as Record<string, unknown>);
+      if (out['fieldTable'] && typeof out['fieldTable'] === 'object')
+        out['fieldTable'] = stampFieldInputSchema(out['fieldTable'] as Record<string, unknown>);
+      return out;
+    });
+  }
 
   return {
     $schema: RESOURCE_SCHEMA_URL,

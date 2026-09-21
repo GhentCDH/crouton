@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Override the field label",
+          "type": "string"
+        },
+        "hideLabel": {
+          "description": "Hide the label",
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "colspan": {
+          "type": "number"
+        },
+        "width": {
+          "type": "string"
+        },
+        "styles": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "customRender": {
+          "type": "string"
+        },
+        "labelKey": {
+          "type": "string"
+        },
+        "valueKey": {
+          "type": "string"
+        },
+        "freeText": {
+          "type": "boolean"
+        },
+        "enableCreate": {
+          "type": "boolean"
+        },
+        "storeValue": {
+          "type": "boolean"
+        },
+        "options": {
+          "type": "array",
+          "items": {}
+        },
+        "values": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "required": [
+        "options"
+      ],
+      "additionalProperties": {}
+    },
+    {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Override the field label",
+          "type": "string"
+        },
+        "hideLabel": {
+          "description": "Hide the label",
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "colspan": {
+          "type": "number"
+        },
+        "width": {
+          "type": "string"
+        },
+        "styles": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "customRender": {
+          "type": "string"
+        },
+        "labelKey": {
+          "type": "string"
+        },
+        "valueKey": {
+          "type": "string"
+        },
+        "freeText": {
+          "type": "boolean"
+        },
+        "enableCreate": {
+          "type": "boolean"
+        },
+        "storeValue": {
+          "type": "boolean"
+        },
+        "uri": {
+          "type": "string",
+          "description": "Remote endpoint URL"
+        },
+        "dataField": {
+          "description": "Field in response containing the data array",
+          "type": "string"
+        },
+        "skipAuth": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "additionalProperties": {}
+    },
+    {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Override the field label",
+          "type": "string"
+        },
+        "hideLabel": {
+          "description": "Hide the label",
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "colspan": {
+          "type": "number"
+        },
+        "width": {
+          "type": "string"
+        },
+        "styles": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "customRender": {
+          "type": "string"
+        },
+        "labelKey": {
+          "type": "string"
+        },
+        "valueKey": {
+          "type": "string"
+        },
+        "freeText": {
+          "type": "boolean"
+        },
+        "enableCreate": {
+          "type": "boolean"
+        },
+        "storeValue": {
+          "type": "boolean"
+        },
+        "resource": {
+          "type": "string",
+          "description": "Relative path to a resource.json"
+        },
+        "skipAuth": {
+          "type": "boolean"
+        },
+        "dataField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource"
+      ],
+      "additionalProperties": {}
+    },
+    {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Override the field label",
+          "type": "string"
+        },
+        "hideLabel": {
+          "description": "Hide the label",
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "colspan": {
+          "type": "number"
+        },
+        "width": {
+          "type": "string"
+        },
+        "styles": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "customRender": {
+          "type": "string"
+        },
+        "labelKey": {
+          "type": "string"
+        },
+        "valueKey": {
+          "type": "string"
+        },
+        "freeText": {
+          "type": "boolean"
+        },
+        "enableCreate": {
+          "type": "boolean"
+        },
+        "storeValue": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": {}
+    }
+  ],
+  "description": "Autocomplete options: inline array, remote URI, or resource reference",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/autocomplete.field-input.schema.json",
+  "title": "Crouton fieldInput options: autocomplete"
+}

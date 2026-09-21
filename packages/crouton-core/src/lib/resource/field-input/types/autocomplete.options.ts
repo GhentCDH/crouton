@@ -36,4 +36,3 @@ export const AutocompleteOptionsSchema = z
   ])
   .describe('Autocomplete options: inline array, remote URI, or resource reference');
 
-export type AutocompleteOptions = z.infer<typeof AutocompleteOptionsSchema>;

@@ -9,4 +9,3 @@ export const SelectOptionsSchema = BaseOptionsSchema.extend({
   labelKey: z.string().optional(),
   valueKey: z.string().optional(),
 });
-export type SelectOptions = z.infer<typeof SelectOptionsSchema>;

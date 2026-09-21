@@ -977,14 +977,43 @@
                   {
                     "type": "object",
                     "properties": {
+                      "label": {
+                        "description": "Override the field label",
+                        "type": "string"
+                      },
+                      "hideLabel": {
+                        "description": "Hide the label",
+                        "type": "boolean"
+                      },
+                      "placeholder": {
+                        "type": "string"
+                      },
+                      "readonly": {
+                        "type": "boolean"
+                      },
                       "colspan": {
                         "default": 12,
                         "type": "number"
                       },
+                      "width": {
+                        "type": "string"
+                      },
+                      "styles": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      },
+                      "customRender": {
+                        "type": "string"
+                      },
                       "sort": {
+                        "description": "Field to sort related records by",
                         "type": "string"
                       },
                       "sortDir": {
+                        "description": "Sort direction, defaults to asc",
                         "type": "string",
                         "enum": [
                           "asc",
@@ -992,12 +1021,15 @@
                         ]
                       },
                       "direction": {
+                        "description": "CSS flex direction for the button layout",
                         "type": "string"
                       },
                       "displayKey": {
+                        "description": "Key used as display label",
                         "type": "string"
                       },
                       "resource": {
+                        "description": "Path to the related resource",
                         "type": "string"
                       }
                     },
@@ -1096,14 +1128,43 @@
                   {
                     "type": "object",
                     "properties": {
+                      "label": {
+                        "description": "Override the field label",
+                        "type": "string"
+                      },
+                      "hideLabel": {
+                        "description": "Hide the label",
+                        "type": "boolean"
+                      },
+                      "placeholder": {
+                        "type": "string"
+                      },
+                      "readonly": {
+                        "type": "boolean"
+                      },
                       "colspan": {
                         "default": 12,
                         "type": "number"
                       },
+                      "width": {
+                        "type": "string"
+                      },
+                      "styles": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      },
+                      "customRender": {
+                        "type": "string"
+                      },
                       "sort": {
+                        "description": "Field to sort related records by",
                         "type": "string"
                       },
                       "sortDir": {
+                        "description": "Sort direction, defaults to asc",
                         "type": "string",
                         "enum": [
                           "asc",
@@ -1111,12 +1172,15 @@
                         ]
                       },
                       "direction": {
+                        "description": "CSS flex direction for the button layout",
                         "type": "string"
                       },
                       "displayKey": {
+                        "description": "Key used as display label",
                         "type": "string"
                       },
                       "resource": {
+                        "description": "Path to the related resource",
                         "type": "string"
                       }
                     },
@@ -1215,14 +1279,43 @@
                   {
                     "type": "object",
                     "properties": {
+                      "label": {
+                        "description": "Override the field label",
+                        "type": "string"
+                      },
+                      "hideLabel": {
+                        "description": "Hide the label",
+                        "type": "boolean"
+                      },
+                      "placeholder": {
+                        "type": "string"
+                      },
+                      "readonly": {
+                        "type": "boolean"
+                      },
                       "colspan": {
                         "default": 12,
                         "type": "number"
                       },
+                      "width": {
+                        "type": "string"
+                      },
+                      "styles": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      },
+                      "customRender": {
+                        "type": "string"
+                      },
                       "sort": {
+                        "description": "Field to sort related records by",
                         "type": "string"
                       },
                       "sortDir": {
+                        "description": "Sort direction, defaults to asc",
                         "type": "string",
                         "enum": [
                           "asc",
@@ -1230,12 +1323,15 @@
                         ]
                       },
                       "direction": {
+                        "description": "CSS flex direction for the button layout",
                         "type": "string"
                       },
                       "displayKey": {
+                        "description": "Key used as display label",
                         "type": "string"
                       },
                       "resource": {
+                        "description": "Path to the related resource",
                         "type": "string"
                       }
                     },
@@ -1388,14 +1484,43 @@
                   {
                     "type": "object",
                     "properties": {
+                      "label": {
+                        "description": "Override the field label",
+                        "type": "string"
+                      },
+                      "hideLabel": {
+                        "description": "Hide the label",
+                        "type": "boolean"
+                      },
+                      "placeholder": {
+                        "type": "string"
+                      },
+                      "readonly": {
+                        "type": "boolean"
+                      },
                       "colspan": {
                         "default": 12,
                         "type": "number"
                       },
+                      "width": {
+                        "type": "string"
+                      },
+                      "styles": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      },
+                      "customRender": {
+                        "type": "string"
+                      },
                       "sort": {
+                        "description": "Field to sort related records by",
                         "type": "string"
                       },
                       "sortDir": {
+                        "description": "Sort direction, defaults to asc",
                         "type": "string",
                         "enum": [
                           "asc",
@@ -1403,12 +1528,15 @@
                         ]
                       },
                       "direction": {
+                        "description": "CSS flex direction for the button layout",
                         "type": "string"
                       },
                       "displayKey": {
+                        "description": "Key used as display label",
                         "type": "string"
                       },
                       "resource": {
+                        "description": "Path to the related resource",
                         "type": "string"
                       }
                     },
