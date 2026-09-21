@@ -1,0 +1,25 @@
+{
+  "name": "@ghentcdh/crouton-prisma",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": { "crouton-prisma": "./dist/generator.js" },
+  "exports": { ".": "./dist/generator.js" },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@prisma/generator-helper": "^7.8.0"
+  },
+  "peerDependencies": {
+    "prisma": ">=6.0.0",
+    "zod-prisma-types": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@ghentcdh/crouton-codegen": "workspace:*",
+    "@ghentcdh/crouton-core": "workspace:*",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

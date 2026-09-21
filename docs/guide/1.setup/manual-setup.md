@@ -11,7 +11,7 @@ Add crouton to an existing NestJS project without using the CLI scaffolding tool
 pnpm add @ghentcdh/crouton-api @prisma/adapter-pg @prisma/client dotenv tslib zod
 
 # Dev
-pnpm add -D @ghentcdh/crouton-cli prisma zod-prisma-types
+pnpm add -D @ghentcdh/crouton-cli @ghentcdh/crouton-prisma prisma
 ```
 
 ### Frontend (optional, Vue 3)
@@ -65,16 +65,9 @@ generator client {
   output   = "../../generated/default/client/src"
 }
 
-generator zod {
-  provider                         = "zod-prisma-types"
-  output                           = "../../generated/default/types/src"
-  addInputTypeValidation           = "false"
-  createInputTypes                 = "false"
-  createModelTypes                 = "true"
-  createOptionalDefaultValuesTypes = "false"
-  createRelationValuesTypes        = "true"
-  useMultipleFiles                 = "true"
-  writeBarrelFiles                 = "true"
+generator crouton {
+  provider  = "crouton-prisma"
+  zodOutput = "../../generated/default/types/src"
 }
 
 datasource db {
@@ -234,7 +227,7 @@ DATABASE_URL=postgresql://crouton:crouton@localhost:5432/my_app?schema=public
 npx prisma migrate dev --config prisma/default/prisma.config.ts
 ```
 
-This creates the initial migration, generates the Prisma client, and runs zod-prisma-types.
+This creates the initial migration, generates the Prisma client, and runs `crouton-prisma` (which normalizes the schema and generates Zod types).
 
 ## 8. Generate resources
 

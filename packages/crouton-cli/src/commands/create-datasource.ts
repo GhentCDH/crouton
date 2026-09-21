@@ -10,7 +10,7 @@ export const registerCreateDatasourceCommand = (program: Command) => {
     .option('-t, --type <type>', 'datasource type (postgres, mysql, sqlite, …)')
     .option('-e, --url-env <env>', 'env var holding the connection URL')
     .option('-i, --generated-import <path>', 'import path for the generated Zod types')
-    .option('--zod-output <dir>', 'zod-prisma-types output dir (default generated/<name>/src)')
+    .option('--zod-output <dir>', 'crouton-prisma zod output dir (default generated/<name>/src)')
     .option('--prisma-schema <path>', 'Prisma schema path (default prisma/<name>/schema.prisma)')
     .option('--prisma-config <path>', 'Prisma config path (default prisma/<name>/prisma.config.ts)')
     .option('--client-output <dir>', 'Prisma client output dir (default generated/<name>/client)')

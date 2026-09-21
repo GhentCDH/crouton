@@ -23,7 +23,6 @@ import {
   buildResourceDiffs,
   buildTranslationBundle,
   commit,
-  fixZodImports,
   introspect,
   isGitDirty,
   loadConfig,
@@ -386,12 +385,10 @@ export const runUpdateResources = async (
 
       const spin = clack.spinner();
       spin.start(`prisma db pull + generate (${ds.name})`);
-      const zodDir = ds.zodOutput ? resolveFromRoot(loaded.root, ds.zodOutput) : undefined;
       const result = await pullAndGenerate({
         root: loaded.root,
         prismaConfigPath: configAbs,
         schemaPath: schemaAbs,
-        zodOutputDir: zodDir,
       });
       spin.stop(result.ok ? 'Pull + generate complete' : 'db pull failed');
 
@@ -408,9 +405,6 @@ export const runUpdateResources = async (
       if (result.generate && !result.generate.ok) {
         clack.log.warn(result.generate.output);
       }
-      if (result.zodImportsFixed && result.zodImportsFixed > 0) {
-        clack.log.info(`Patched ${result.zodImportsFixed} file(s) with missing zod import`);
-      }
     }
 
     // Generate-only path (pull was skipped but generate wasn't).
@@ -420,14 +414,6 @@ export const runUpdateResources = async (
       const gen = await prismaGenerate(loaded.root, configAbs);
       spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
       if (!gen.ok) clack.log.warn(gen.output);
-
-      if (gen.ok && ds.zodOutput) {
-        const zodDir = resolveFromRoot(loaded.root, ds.zodOutput);
-        const patched = await fixZodImports(zodDir);
-        if (patched > 0) {
-          clack.log.info(`Patched ${patched} file(s) with missing zod import`);
-        }
-      }
     }
 
     // CLI-only scaffold steps (independent of pull vs generate-only).

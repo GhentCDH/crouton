@@ -94,7 +94,7 @@ my-app/
 │       │   └── App.vue
 │       └── package.json
 ├── generated/default/
-│   ├── types/               # zod-prisma-types output
+│   ├── types/               # crouton-prisma zod output
 │   └── client/              # Prisma client output
 ├── prisma/default/
 ├── crouton.json
