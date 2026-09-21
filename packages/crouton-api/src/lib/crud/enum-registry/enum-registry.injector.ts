@@ -15,6 +15,8 @@ export const injectEnumValues = (
     const options =
       (col.fieldInput.options as Record<string, unknown> | undefined) ?? {};
     if (!('values' in options)) options.values = values;
+    if (!('emitObject' in options)) options.emitObject = true;
+    if (!('displayKey' in options)) options.displayKey = 'label';
     col.fieldInput.options = options;
   }
 };
