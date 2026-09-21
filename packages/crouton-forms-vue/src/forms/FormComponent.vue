@@ -7,6 +7,12 @@
     data-form-type="other"
   >
     <Dispatch :uischema="uiSchema" :schema="schema" />
+    <FormDebug
+      :show-errors="properties.showErrors"
+      :debug-value="properties.debugValue"
+      :errors="errors"
+      :current-values="values"
+    />
   </form>
 </template>
 
@@ -22,6 +28,7 @@ import {
 import { myStyles } from '@ghentcdh/ui';
 
 import Dispatch from './Dispatch.vue';
+import FormDebug from './FormDebug.vue';
 import type { Data, SubmitFormEvent } from './FormComponent.properties';
 import {
   JsonFormComponentEmits,
