@@ -55,10 +55,13 @@ const isControl = (uischema: UISchemaElement): boolean =>
 
 /**
  * Matches a control whose (already resolved) schema has the given `type`.
+ * Handles both a plain string (`"string"`) and the Zod v4 nullable array
+ * form (`["string", "null"]`).
  */
 export const schemaTypeIs =
   (expected: string): Tester =>
-  (uischema, schema) =>
-    isControl(uischema) &&
-    !!schema &&
-    (schema as { type?: string }).type === expected;
+  (uischema, schema) => {
+    if (!isControl(uischema) || !schema) return false;
+    const type = (schema as { type?: string | string[] }).type;
+    return type === expected || (Array.isArray(type) && type.includes(expected));
+  };
