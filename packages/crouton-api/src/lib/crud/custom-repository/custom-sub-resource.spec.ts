@@ -295,7 +295,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
       const deleted: any[] = [];
       const prisma: any = {
         Group: { findMany: async () => [], count: async () => 0 },
-        expenses: {
+        expense: {
           findFirst: async () => ({ id: 'e1' }),
           deleteMany: async (args: any) => {
             deleted.push(args);
@@ -329,7 +329,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
       await boot();
       const [sub] = parent.subResources;
       expect(sub.childKind).toBe('prisma');
-      expect(sub.childModel).toBe('expenses');
+      expect(sub.childModel).toBe('expense');
       expect(sub.repository).toBeUndefined();
     });
   });
