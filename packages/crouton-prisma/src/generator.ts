@@ -1,9 +1,12 @@
 import { generatorHandler } from '@prisma/generator-helper';
-import { writeFile, readFile, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname, resolve } from 'node:path';
+
+import { fixZodImports, normalizeSchema } from '@ghentcdh/crouton-codegen';
+
 import { spawn } from 'node:child_process';
-import { normalizeSchema, fixZodImports } from '@ghentcdh/crouton-codegen';
+import { existsSync } from 'node:fs';
+import { readFile, rm, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+
 
 const run = (cmd: string, args: string[], cwd: string): Promise<{ code: number; out: string }> =>
   new Promise((res) => {
