@@ -35,9 +35,6 @@ export default defineConfig({
     rolldownOptions: {
       external: [
         '@ghentcdh/ui',
-        '@ghentcdh/crouton-core',
-        '@ghentcdh/crouton-editor-vue',
-        '@ghentcdh/crouton-forms-vue',
         '@jsonforms/core',
         'axios',
         'lodash-es',
