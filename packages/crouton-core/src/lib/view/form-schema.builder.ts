@@ -1,8 +1,8 @@
 import { isArrayColumn, isObjectColumn } from './column-predicates';
-import { columnTypeName } from '../resource/ColumnType.schema';
 import { ControlBuilder } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import type { JsonColumn } from '../resource/Column';
+import { columnTypeName } from '../resource/ColumnType.schema';
 import type { DetailConfig } from '../resource/FieldInput.schema';
 
 // ── Condition / rule builders ─────────────────────────────────────────────
