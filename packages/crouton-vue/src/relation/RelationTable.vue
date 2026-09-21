@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RelationTableProperties } from './RelationTable.properties';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ResourceTable from '../resource/ResourceTable.vue';
 import { useFormContext } from 'vee-validate';

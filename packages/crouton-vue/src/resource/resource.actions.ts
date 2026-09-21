@@ -110,7 +110,6 @@ const openViewModal =
         ? (data: any) =>
             openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
-      http: useApi(),
       onView: (data: any) => {
         const resource = data.options.resource ?? data.options.schemasUri;
         if (!resource) return;

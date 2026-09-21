@@ -36,6 +36,7 @@ export default defineConfig({
       external: [
         '@ghentcdh/ui',
         '@ghentcdh/crouton-core',
+        '@ghentcdh/crouton-editor-vue',
         '@ghentcdh/crouton-forms-vue',
         '@jsonforms/core',
         'axios',
