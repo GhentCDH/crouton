@@ -48,6 +48,22 @@
     },
     "valueKey": {
       "type": "string"
+    },
+    "uri": {
+      "description": "Remote endpoint URL for fetching options",
+      "type": "string"
+    },
+    "dataField": {
+      "description": "Field in response containing the data array",
+      "type": "string"
+    },
+    "clearable": {
+      "description": "Allow clearing the selected value",
+      "type": "boolean"
+    },
+    "storeValue": {
+      "description": "Store option[valueKey] instead of the whole object",
+      "type": "boolean"
     }
   },
   "additionalProperties": {},

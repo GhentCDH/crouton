@@ -37,30 +37,34 @@ const useSelectInput =
     });
   };
 
+export const SELECT_OPTION_KEYS = [
+  'options',
+  'values',
+  'uri',
+  'resource',
+  'dataField',
+  'labelKey',
+  'valueKey',
+  'clearable',
+  'storeValue',
+] as const;
+
+export const AUTOCOMPLETE_OPTION_KEYS = [
+  'options',
+  'labelKey',
+  'valueKey',
+  'uri',
+  'freeText',
+  'enableCreate',
+  'dataField',
+  'skipAuth',
+] as const;
+
 export const useSelectBinding = useCustomControlBinding<SelectOptions>({
-  useProps: useSelectInput(
-    'options',
-    'values',
-    'uri',
-    'resource',
-    'dataField',
-    'labelKey',
-    'valueKey',
-    'clearable',
-    'storeValue',
-  ),
+  useProps: useSelectInput(...SELECT_OPTION_KEYS),
 });
 
 export const useAutocompleteBinding =
   useCustomControlBinding<AutocompleteAllOptions>({
-    useProps: useSelectInput(
-      'options',
-      'labelKey',
-      'valueKey',
-      'uri',
-      'freeText',
-      'enableCreate',
-      'dataField',
-      'skipAuth',
-    ),
+    useProps: useSelectInput(...AUTOCOMPLETE_OPTION_KEYS),
   });

@@ -37,3 +37,8 @@ export const fieldInputRegistry = new Map<string, FieldInputTypeDef>([
   ['array',       { options: ArrayOptionsSchema,         schemaFile: 'array' }],
   ['custom',      { options: CustomOptionsSchema,        schemaFile: 'custom' }],
 ]);
+
+/** Register a custom control type's options schema. Call from app setup. */
+export const registerFieldInputType = (type: string, def: FieldInputTypeDef): void => {
+  fieldInputRegistry.set(type, def);
+};
