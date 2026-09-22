@@ -5,9 +5,15 @@
     "access": "public"
   },
   "type": "module",
-  "bin": { "crouton-prisma": "./dist/generator.js" },
-  "exports": { ".": "./dist/generator.js" },
-  "files": ["dist"],
+  "bin": {
+    "crouton-prisma": "dist/generator.js"
+  },
+  "exports": {
+    ".": "./dist/generator.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit -p tsconfig.json"
