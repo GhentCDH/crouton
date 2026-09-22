@@ -6,7 +6,7 @@
     >
       <Btn
         @click="onBack"
-        :icon="(ArrowLeftIcon as any)"
+        :icon="ArrowLeftIcon as any"
         color="blank"
         :outline="true"
         size="sm"
@@ -42,12 +42,6 @@
           @change="onChange"
           @valid="onValid"
           @events="onFormEvents"
-        />
-        <FormDebug
-          :show-errors="showErrors"
-          :debug-value="debugValue"
-          :errors="errors"
-          :current-values="currentValues"
         />
       </div>
       <slot name="content-after" />
@@ -100,12 +94,11 @@ import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FORM_MODAL_OPENER_KEY, FormComponent } from '@ghentcdh/crouton-forms-vue';
+import { FORM_MODAL_OPENER_KEY } from '@ghentcdh/crouton-forms-vue';
+import FormComponent from './FormComponent.vue';
 import { useApi } from '../composables/useApi';
-import { useCrouton } from '../composables/useCrouton';
 import { useFormLogic } from './useFormLogic';
 import Message from './Message.vue';
-import FormDebug from './debug/FormDebug.vue';
 import { JsonFormModalService } from './modal/FormModalService';
 
 const properties = defineProps(CroutonFormProperties);
@@ -113,14 +106,6 @@ const emits = defineEmits<CroutonFormEmitsType>();
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
 const api = computed(() => properties.http ?? useApi());
-const { showErrors: globalShowErrors, debugValue: globalDebugValue } =
-  useCrouton();
-const showErrors = computed(
-  () => properties.showErrors ?? globalShowErrors.value,
-);
-const debugValue = computed(
-  () => properties.debugValue ?? globalDebugValue.value,
-);
 
 const {
   id,
@@ -136,8 +121,6 @@ const {
   renderers,
   schema,
   uiSchema,
-  errors,
-  currentValues,
 } = useFormLogic(properties, emits, formData, formRef);
 
 provide(FORM_MODAL_OPENER_KEY, (opts) => JsonFormModalService.openModal(opts));
