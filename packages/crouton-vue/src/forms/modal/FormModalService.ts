@@ -1,14 +1,10 @@
 import type { SizeType } from '@ghentcdh/crouton-core';
-import { ModalService } from '@ghentcdh/ui';
-
-import type {
+import type { FormEventPayload,
   FormModalProp,
-  FormModalResult,
+  FormModalResult , HttpClient , ViewModalResult 
 } from '@ghentcdh/crouton-forms-vue';
-import type { FormEventPayload } from '@ghentcdh/crouton-forms-vue';
-import type { HttpClient } from '@ghentcdh/crouton-forms-vue';
-import type { ViewModalResult } from '@ghentcdh/crouton-forms-vue';
 import { ViewModal } from '@ghentcdh/crouton-forms-vue';
+import { ModalService } from '@ghentcdh/ui';
 
 import FormModal from './FormModal.vue';
 

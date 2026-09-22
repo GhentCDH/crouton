@@ -5,11 +5,11 @@ import {
   type FormModalResult,
   createRepository,
 } from '@ghentcdh/crouton-forms-vue';
-import { JsonFormModalService } from '../forms';
 import { NotificationService } from '@ghentcdh/ui';
 
 import { useApi } from '../composables/useApi';
 import { type FormDef, useCrouton } from '../composables/useCrouton';
+import { JsonFormModalService } from '../forms';
 
 export type OpenFormPayload<TData = any, TResult = any> = {
   data?: TData;
