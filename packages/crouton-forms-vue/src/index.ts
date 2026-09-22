@@ -11,8 +11,8 @@ export { default as ControlLabel } from './forms/renderers/controls/ControlLabel
 export type { ErrorMode } from './forms/errorMode';
 export {
   ERROR_MODE_KEY,
-  FORM_SUBMITTED_KEY,
   FORM_READONLY_KEY,
+  FORM_SUBMITTED_KEY,
 } from './forms/errorMode';
 export { default as Dispatch } from './forms/Dispatch.vue';
 export type { HttpClient } from './http-client';
