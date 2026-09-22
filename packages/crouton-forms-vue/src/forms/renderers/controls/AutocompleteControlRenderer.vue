@@ -23,10 +23,10 @@ import { Autocomplete } from '@ghentcdh/ui';
 
 import { useFormEvents } from '../../../composables/useFormEvents';
 import { useHttpClient } from '../../../composables/useHttpClient';
+import { useModalOpener } from '../../../composables/useModalOpener';
 import { scopeToPath } from '../../scope';
 import { useFetchOptions } from './composables/useFetchOption';
 import { useAutocompleteBinding } from './composables/useSelectBinding';
-import { JsonFormModalService } from '../../modal/FormModalService';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
@@ -106,6 +106,7 @@ const onChange = (val: any) => {
 };
 
 const formEvents = useFormEvents();
+const modalOpener = useModalOpener();
 const path = scopeToPath(props.uischema.scope);
 
 const setValue = (result: Record<string, unknown>) => {
@@ -142,8 +143,8 @@ const setValue = (result: Record<string, unknown>) => {
 const onCreate = () => {
   if (fetchOptions.value?.enableCreate === false) return;
   const form = fetchOptions.value!.form as any;
-  if (form) {
-    JsonFormModalService.openModal({
+  if (form && modalOpener) {
+    modalOpener({
       schema: form.json_schema,
       uiSchema: form.ui_schema,
       modalTitle: `Create new ${wrapper.value.label}`,

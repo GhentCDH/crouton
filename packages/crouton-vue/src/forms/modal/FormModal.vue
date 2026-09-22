@@ -73,10 +73,12 @@
 import { ref } from 'vue';
 
 import { Btn, Color, Modal } from '@ghentcdh/ui';
-
-import { FormModalEmits, FormModalProperties } from './FormModal.properties';
-import FormComponent from '../FormComponent.vue';
-import { useFormLogic } from '../../composables/useFormLogic';
+import {
+  FormComponent,
+  FormModalEmits,
+  FormModalProperties,
+  useFormLogic,
+} from '@ghentcdh/crouton-forms-vue';
 
 const properties = defineProps(FormModalProperties);
 const emits = defineEmits(FormModalEmits);

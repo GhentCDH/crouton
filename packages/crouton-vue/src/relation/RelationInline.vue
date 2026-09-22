@@ -40,11 +40,11 @@
 import RelationButton from './RelationButton.vue';
 
 import {
-  JsonFormModalService,
   ReadonlyLabel,
   useFetchOptions,
   useHttpClient,
 } from '@ghentcdh/crouton-forms-vue';
+import { JsonFormModalService } from '../forms';
 import { Autocomplete, Btn, IconEnum } from '@ghentcdh/ui';
 import { computed, ref, useAttrs } from 'vue';
 import { useCrouton } from '../composables/useCrouton';

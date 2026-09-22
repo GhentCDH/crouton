@@ -38,12 +38,16 @@
           :http="api"
           :renderers="renderers"
           :validateOnMount="validateOnMount"
-          :show-errors="showErrors"
-          :debug-value="debugValue"
           @errors="onErrors"
           @change="onChange"
           @valid="onValid"
           @events="onFormEvents"
+        />
+        <FormDebug
+          :show-errors="showErrors"
+          :debug-value="debugValue"
+          :errors="errors"
+          :current-values="currentValues"
         />
       </div>
       <slot name="content-after" />
@@ -90,17 +94,19 @@
 </template>
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import { computed, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 import { Btn, ButtonType } from '@ghentcdh/ui';
 import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FormComponent } from '@ghentcdh/crouton-forms-vue';
+import { FORM_MODAL_OPENER_KEY, FormComponent } from '@ghentcdh/crouton-forms-vue';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { useFormLogic } from './useFormLogic';
 import Message from './Message.vue';
+import FormDebug from './debug/FormDebug.vue';
+import { JsonFormModalService } from './modal/FormModalService';
 
 const properties = defineProps(CroutonFormProperties);
 const emits = defineEmits<CroutonFormEmitsType>();
@@ -130,7 +136,11 @@ const {
   renderers,
   schema,
   uiSchema,
+  errors,
+  currentValues,
 } = useFormLogic(properties, emits, formData, formRef);
+
+provide(FORM_MODAL_OPENER_KEY, (opts) => JsonFormModalService.openModal(opts));
 
 const onBack = (): void => {
   onCancel();

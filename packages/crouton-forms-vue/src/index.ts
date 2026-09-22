@@ -26,6 +26,11 @@ export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
 export { useAutoSave } from './composables/useAutoSave';
 export {
+  FORM_MODAL_OPENER_KEY,
+  useModalOpener,
+} from './composables/useModalOpener';
+export type { ModalOpenerOptions } from './composables/useModalOpener';
+export {
   useCroutonFormLogic,
 } from './composables/useCroutonFormLogic';
 export type {
@@ -46,11 +51,7 @@ export {
 } from './composables/useRendererProvider';
 
 // Components
-export { default as FormDebug } from './forms/FormDebug.vue';
-export { FormDebugProperties } from './forms/FormDebug.properties';
 export { default as JsonForm } from './forms/FormComponent.vue';
-export { default as JsonFormModal } from './forms/modal/FormModal.vue';
-export { default as FormModal } from './forms/modal/FormModal.vue';
 /**
  * @deprecated Use `CroutonForm` from `@ghentcdh/crouton-vue` instead.
  */
@@ -59,9 +60,8 @@ export {
   FormModalEmits,
   FormModalProperties,
 } from './forms/modal/FormModal.properties';
-
-// Services
-export { JsonFormModalService } from './forms/modal/FormModalService';
+export { default as ViewModal } from './view/modal/ViewModal.vue';
+export type { ViewModalResult } from './view/modal/ViewModal.properties';
 
 // Renderers & testers
 export * from './forms/renderers';

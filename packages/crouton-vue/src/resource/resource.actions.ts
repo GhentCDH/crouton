@@ -1,11 +1,8 @@
 import { type Component, type Ref, markRaw, ref } from 'vue';
 
 import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
-import {
-  FormModal,
-  type FormModalResult,
-  JsonFormModalService,
-} from '@ghentcdh/crouton-forms-vue';
+import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
+import { FormModal, JsonFormModalService } from '../forms';
 import {
   ModalService,
   NotificationService,
