@@ -1,3 +1,15 @@
+## 0.0.1-alpha.71 (2026-09-22)
+
+### 🩹 Fixes
+
+- no close on invalid form ([#155](https://github.com/GhentCDH/crouton/pull/155))
+- docs resourcejson validator ([a1a0ac9](https://github.com/GhentCDH/crouton/commit/a1a0ac9))
+- build ([da4c6d0](https://github.com/GhentCDH/crouton/commit/da4c6d0))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.70 (2026-09-21)
 
 ### 🩹 Fixes
