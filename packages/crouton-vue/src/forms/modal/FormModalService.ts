@@ -1,12 +1,12 @@
 import type { SizeType } from '@ghentcdh/crouton-core';
+import type { FormEventPayload,
+  FormModalProp,
+  FormModalResult , HttpClient , ViewModalResult 
+} from '@ghentcdh/crouton-forms-vue';
+import { ViewModal } from '@ghentcdh/crouton-forms-vue';
 import { ModalService } from '@ghentcdh/ui';
 
-import type { FormModalProp, FormModalResult } from './FormModal.properties';
 import FormModal from './FormModal.vue';
-import type { FormEventPayload } from '../../composables/useFormEvents';
-import type { HttpClient } from '../../http-client';
-import { type ViewModalResult } from '../../view/modal/ViewModal.properties';
-import ViewModal from '../../view/modal/ViewModal.vue';
 
 export class JsonFormModalService {
   static openModal<DATA = any>({
@@ -33,17 +33,9 @@ export class JsonFormModalService {
     onEvents?: (payload: FormEventPayload) => void;
     http?: HttpClient;
     renderers?: any[];
-    /** Enable auto-save mode. Replaces Save/Cancel with Close + status indicator. */
     autoSave?: boolean;
-    /** Called with form data on each debounced save. Required when `autoSave` is true. */
     onAutoSave?: (data: DATA) => Promise<any>;
-    /**
-     * Called when a relation inside the form changes. Should return the fresh
-     * parent record so the form can reload. Any pending auto-save debounce is
-     * cancelled first to prevent stale data from overwriting the server state.
-     */
     onRefreshData?: () => Promise<any>;
-    /** Label for the save button. Defaults to 'Save'. */
     saveLabel?: string;
   }) {
     ModalService.openModal<FormModalProp, FormModalResult>({
@@ -85,21 +77,8 @@ export class JsonFormModalService {
     renderers?: any[];
     modalTitle: string;
     onClose?: () => void;
-    /**
-     * Called when the user clicks Edit.
-     * Passed as `onEdit` so Vue's v-bind spread in modalWrapper wires it as
-     * a listener for the `edit` event emitted by ViewModal.
-     */
     onEdit?: (data: DATA) => void;
-    /**
-     * Called when the user clicks Delete.
-     * Passed as `onDelete` so Vue's v-bind spread in modalWrapper wires it as
-     * a listener for the `delete` event emitted by ViewModal.
-     */
     onDelete?: (data: DATA) => void;
-    /**
-     * Called when the user clicks view in the form.
-     */
     onView?: (data: any) => void;
   }) {
     ModalService.openModal<any, ViewModalResult>({
@@ -115,12 +94,8 @@ export class JsonFormModalService {
           (() => {
             //
           }),
-        // Boolean props drive button visibility — no `on` prefix so Vue passes
-        // them as regular props, not event listeners.
         canEdit: !!onEdit,
         canDelete: !!onDelete,
-        // `onEdit`/`onDelete` are intercepted by Vue's v-bind spread as event
-        // handlers for ViewModal's declared 'edit'/'delete' emits.
         onEdit,
         onDelete,
         renderers,

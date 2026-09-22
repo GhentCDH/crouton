@@ -1,18 +1,14 @@
 import { type Component, type Ref, markRaw, ref } from 'vue';
 
 import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
-import {
-  FormModal,
-  type FormModalResult,
-  JsonFormModalService,
-} from '@ghentcdh/crouton-forms-vue';
+import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
 import {
   ModalService,
   NotificationService,
   type TableAction,
 } from '@ghentcdh/ui';
 
-import { CroutonForm } from '../forms';
+import { CroutonForm, FormModal, JsonFormModalService  } from '../forms';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';

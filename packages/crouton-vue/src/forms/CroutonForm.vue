@@ -6,7 +6,7 @@
     >
       <Btn
         @click="onBack"
-        :icon="(ArrowLeftIcon as any)"
+        :icon="ArrowLeftIcon as any"
         color="blank"
         :outline="true"
         size="sm"
@@ -38,8 +38,6 @@
           :http="api"
           :renderers="renderers"
           :validateOnMount="validateOnMount"
-          :show-errors="showErrors"
-          :debug-value="debugValue"
           @errors="onErrors"
           @change="onChange"
           @valid="onValid"
@@ -90,31 +88,24 @@
 </template>
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import { computed, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 import { Btn, ButtonType } from '@ghentcdh/ui';
 import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FormComponent } from '@ghentcdh/crouton-forms-vue';
+import { FORM_MODAL_OPENER_KEY } from '@ghentcdh/crouton-forms-vue';
+import FormComponent from './FormComponent.vue';
 import { useApi } from '../composables/useApi';
-import { useCrouton } from '../composables/useCrouton';
 import { useFormLogic } from './useFormLogic';
 import Message from './Message.vue';
+import { JsonFormModalService } from './modal/FormModalService';
 
 const properties = defineProps(CroutonFormProperties);
 const emits = defineEmits<CroutonFormEmitsType>();
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
 const api = computed(() => properties.http ?? useApi());
-const { showErrors: globalShowErrors, debugValue: globalDebugValue } =
-  useCrouton();
-const showErrors = computed(
-  () => properties.showErrors ?? globalShowErrors.value,
-);
-const debugValue = computed(
-  () => properties.debugValue ?? globalDebugValue.value,
-);
 
 const {
   id,
@@ -131,6 +122,8 @@ const {
   schema,
   uiSchema,
 } = useFormLogic(properties, emits, formData, formRef);
+
+provide(FORM_MODAL_OPENER_KEY, (opts) => JsonFormModalService.openModal(opts));
 
 const onBack = (): void => {
   onCancel();

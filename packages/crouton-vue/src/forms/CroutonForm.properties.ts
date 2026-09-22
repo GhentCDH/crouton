@@ -1,6 +1,6 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
-import { type ViewDef } from '@ghentcdh/crouton-core';
+import { type ViewConfig } from '@ghentcdh/crouton-core';
 import {
   type ErrorMode,
   type FormEventPayload,
@@ -89,8 +89,8 @@ export const CroutonFormProperties = {
     default: 'w-full',
   },
   views: {
-    type: Object as PropType<ViewDef>,
-    required: true,
+    type: Object as PropType<Record<string, ViewConfig>>,
+    required: true as const,
   },
   formatBeforeSave: {
     type: Function as PropType<(data: any) => Promise<any>>,

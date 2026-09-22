@@ -7,12 +7,18 @@
     data-form-type="other"
   >
     <Dispatch :uischema="uiSchema" :schema="schema" />
+    <FormDebug
+      :show-errors="showErrors"
+      :debug-value="debugValue"
+      :errors="errors"
+      :current-values="currentValues"
+    />
   </form>
 </template>
 
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
-import { nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
+import { computed, nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
 import { fromJSONSchema } from 'zod';
 
 import {
@@ -21,27 +27,32 @@ import {
 } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';
 
-import Dispatch from './Dispatch.vue';
+import type { FormEventPayload } from '@ghentcdh/crouton-forms-vue';
+import {
+  customRenderers,
+  Dispatch,
+  ERROR_MODE_KEY,
+  FORM_READONLY_KEY,
+  FORM_SUBMITTED_KEY,
+  provideFormEvents,
+  provideHttpClient,
+  registerZodErrorMap,
+} from '@ghentcdh/crouton-forms-vue';
+
 import type { Data, SubmitFormEvent } from './FormComponent.properties';
 import {
   JsonFormComponentEmits,
   JsonFormComponentProperties,
 } from './FormComponent.properties';
-import { registerZodErrorMap } from './errorMessages';
-import {
-  ERROR_MODE_KEY,
-  FORM_READONLY_KEY,
-  FORM_SUBMITTED_KEY,
-} from './errorMode';
-import { customRenderers } from './renderers';
-import type { FormEventPayload } from '../composables/useFormEvents';
-import { provideFormEvents } from '../composables/useFormEvents';
-import { provideHttpClient } from '../composables/useHttpClient';
+import FormDebug from './debug/FormDebug.vue';
+import { useCrouton } from '../composables/useCrouton';
 
 registerZodErrorMap();
 
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
+
+const { showErrors, debugValue } = useCrouton();
 
 const patched = enforceRequiredStringMinLength(
   dropNullableFromRequired(properties.schema),
@@ -52,6 +63,8 @@ const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema,
   initialValues: properties.formData as Record<string, unknown>,
 });
+
+const currentValues = computed(() => toRaw(values));
 
 // Merge base renderers with any extras passed via prop.
 // Extras come last so higher-ranked testers override the defaults.

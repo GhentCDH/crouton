@@ -17,10 +17,10 @@
 </template>
 <script setup lang="ts">
 import {
-  JsonFormModalService,
   useFetchOptions,
   useHttpClient,
 } from '@ghentcdh/crouton-forms-vue';
+import { JsonFormModalService } from '../forms';
 import { Autocomplete } from '@ghentcdh/ui';
 import { computed, ref, watch } from 'vue';
 import { computedAsync } from '../utils/computedAsync';

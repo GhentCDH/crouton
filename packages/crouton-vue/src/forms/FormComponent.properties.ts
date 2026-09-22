@@ -1,7 +1,6 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
-import type { HttpClient } from '../http-client';
-import type { ErrorMode } from './errorMode';
+import type { ErrorMode, HttpClient } from '@ghentcdh/crouton-forms-vue';
 
 export type Data = {
   [key: string]: any;

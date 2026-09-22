@@ -3,13 +3,13 @@ import { ZodObject } from 'zod';
 import {
   type FormEventPayload,
   type FormModalResult,
-  JsonFormModalService,
   createRepository,
 } from '@ghentcdh/crouton-forms-vue';
 import { NotificationService } from '@ghentcdh/ui';
 
 import { useApi } from '../composables/useApi';
 import { type FormDef, useCrouton } from '../composables/useCrouton';
+import { JsonFormModalService } from '../forms';
 
 export type OpenFormPayload<TData = any, TResult = any> = {
   data?: TData;
