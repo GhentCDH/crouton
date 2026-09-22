@@ -1,6 +1,9 @@
 {
   "name": "@ghentcdh/crouton-prisma",
   "version": "0.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": { "crouton-prisma": "./dist/generator.js" },
   "exports": { ".": "./dist/generator.js" },
