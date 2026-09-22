@@ -9,7 +9,7 @@
     "crouton-prisma": "dist/generator.js"
   },
   "exports": {
-    ".": "./dist/generator.js"
+    ".": "./dist/generator.cjs"
   },
   "files": [
     "dist"

@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   entry: ['src/generator.ts'],
   outDir: './dist',
-  format: ['esm'],
+  format: ['cjs'],
   dts: false,
   splitting: false,
   sourcemap: false,
