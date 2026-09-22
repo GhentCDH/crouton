@@ -40,7 +40,7 @@ export default defineConfig({
     {
       command: 'node --import tsx/esm src/main.ts',
       url: 'http://localhost:4444/_app/layout',
-      reuseExistingServer: !process.env['CI'],
+      reuseExistingServer: false,
       cwd: backendDir,
       env: { DATABASE_URL: `file:${dbPath}`, PORT: '4444' },
       stdout: 'pipe',
