@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { z } from 'zod';
-import { buildResourceJsonSchema, runResourceMigrations } from '@ghentcdh/crouton-core';
+import {
+  buildResourceJsonSchema,
+  runResourceMigrations,
+} from '@ghentcdh/crouton-core';
 
 type ValidationState =
   | { status: 'idle' }
@@ -58,18 +61,25 @@ const validate = (raw: string) => {
     return;
   }
   let parsed: unknown;
+  console.log(raw);
   try {
     parsed = JSON.parse(raw);
   } catch {
-    result.value = { status: 'invalid', message: 'Invalid JSON — cannot parse.' };
+    result.value = {
+      status: 'invalid',
+      message: 'Invalid JSON — cannot parse.',
+    };
     return;
   }
   const migrated = runResourceMigrations(parsed as Record<string, unknown>);
-  const outcome = buildResourceJsonSchema().safeParse(migrated);
+  const outcome = buildResourceJsonSchema().safeParse(migrated.raw);
   if (outcome.success) {
     result.value = { status: 'valid', data: outcome.data };
   } else {
-    result.value = { status: 'invalid', message: z.prettifyError(outcome.error) };
+    result.value = {
+      status: 'invalid',
+      message: z.prettifyError(outcome.error),
+    };
   }
 };
 
@@ -90,15 +100,21 @@ const loadExample = (key: keyof typeof EXAMPLES) => {
       <button
         class="text-xs px-2 py-0.5 border border-gray-300 rounded bg-gray-100 hover:bg-blue-50 cursor-pointer"
         @click="loadExample('valid')"
-      >Valid</button>
+      >
+        Valid
+      </button>
       <button
         class="text-xs px-2 py-0.5 border border-gray-300 rounded bg-gray-100 hover:bg-blue-50 cursor-pointer"
         @click="loadExample('missingKind')"
-      >model on custom resource</button>
+      >
+        model on custom resource
+      </button>
       <button
         class="text-xs px-2 py-0.5 border border-gray-300 rounded bg-gray-100 hover:bg-blue-50 cursor-pointer"
         @click="loadExample('missingColumnType')"
-      >missing column type</button>
+      >
+        missing column type
+      </button>
     </div>
 
     <textarea
@@ -109,21 +125,34 @@ const loadExample = (key: keyof typeof EXAMPLES) => {
       class="w-full font-mono text-sm p-3 border border-gray-300 rounded-md bg-gray-50 text-inherit resize-y"
     />
 
-    <div v-if="result.status === 'idle'" class="px-4 py-3 rounded-md text-sm bg-gray-100 opacity-70">
+    <div
+      v-if="result.status === 'idle'"
+      class="px-4 py-3 rounded-md text-sm bg-gray-100 opacity-70"
+    >
       Paste a <code>resource.json</code> above to validate it.
     </div>
 
-    <div v-else-if="result.status === 'valid'" class="px-4 py-3 rounded-md text-sm bg-green-50 border border-green-300 text-green-800">
+    <div
+      v-else-if="result.status === 'valid'"
+      class="px-4 py-3 rounded-md text-sm bg-green-50 border border-green-300 text-green-800"
+    >
       <strong>✓ Valid</strong>
       <details class="mt-1">
         <summary class="cursor-pointer text-sm">Normalized output</summary>
-        <pre class="mt-2 text-xs whitespace-pre-wrap break-words">{{ JSON.stringify(result.data, null, 2) }}</pre>
+        <pre class="mt-2 text-xs whitespace-pre-wrap break-words">{{
+          JSON.stringify(result.data, null, 2)
+        }}</pre>
       </details>
     </div>
 
-    <div v-else class="px-4 py-3 rounded-md text-sm bg-red-50 border border-red-300 text-red-800">
+    <div
+      v-else
+      class="px-4 py-3 rounded-md text-sm bg-red-50 border border-red-300 text-red-800"
+    >
       <strong>✗ Invalid</strong>
-      <pre class="mt-2 text-xs whitespace-pre-wrap break-words">{{ result.message }}</pre>
+      <pre class="mt-2 text-xs whitespace-pre-wrap break-words">{{
+        result.message
+      }}</pre>
     </div>
   </div>
 </template>
