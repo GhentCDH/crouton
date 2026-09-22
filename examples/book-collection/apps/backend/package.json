@@ -10,6 +10,7 @@
     "prisma:reset": "prisma migrate reset --force && tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@book-collection/types": "workspace:*",
     "@ghentcdh/crouton-api": "workspace:*",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
@@ -23,10 +24,13 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@ghentcdh/crouton-prisma": "workspace:*",
     "@swc/core": "1.16.1",
     "@types/node": "^22.0.0",
+    "nodemon": "^3.1.14",
     "prisma": "^6.0.0",
     "tsx": "^4.0.0",
-    "typescript": "~5.9.0"
+    "typescript": "~5.9.0",
+    "zod-prisma-types": "^3.3.11"
   }
 }

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "name": "author",
   "model": "Author",
   "title": "Authors",
@@ -11,9 +12,13 @@
       "hiddenInTable": true,
       "hiddenInForm": true,
       "fieldInput": {
+        "foreignKey": "authorId",
         "format": "relation",
         "relationType": "oneToMany",
-        "resource": "./book.resource"
+        "resource": "../book/resource.json",
+        "options": {
+          "displayKey": "title"
+        }
       }
     }
   },

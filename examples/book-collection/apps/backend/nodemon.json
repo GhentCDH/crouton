@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts,json,js",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "tsx --tsconfig tsconfig.json src/main.ts"
+  "exec": "node --import tsx/esm src/main.ts"
 }

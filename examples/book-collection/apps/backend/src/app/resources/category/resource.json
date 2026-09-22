@@ -1,4 +1,5 @@
 {
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "name": "category",
   "model": "Category",
   "title": "Categories",
