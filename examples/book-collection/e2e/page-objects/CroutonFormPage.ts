@@ -20,6 +20,7 @@ export class CroutonFormPage {
     await this.page.getByTestId('btn-save').click();
     await this.page.getByTestId('form-modal').waitFor({ state: 'hidden' });
     await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(400);
   };
 
   waitForAutoSave = async () => {

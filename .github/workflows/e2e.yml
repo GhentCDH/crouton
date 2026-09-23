@@ -40,9 +40,8 @@ jobs:
         run: npx nx run-many -t build --projects=crouton-prisma,crouton-api,crouton-vue --parallel
         env:
           SKIP_DTS: '1'
-      - name: Build frontend
-        run: pnpm build
-        working-directory: examples/book-collection/apps/frontend
+      - name: Build packages
+        run: pnpm nx run-many -t build
       - name: Run E2E tests
         run: pnpm nx run book-collection-e2e:e2e
         env:
