@@ -61,7 +61,6 @@ _tmp_*
 examples/book-collection/apps/backend/prisma/dev.db
 examples/book-collection/apps/backend/prisma/e2e.db
 examples/book-collection/apps/backend/prisma/prisma/dev.db
-examples/book-collection/apps/backend/prisma/prisma/e2e.db
 examples/book-collection/apps/backend/src/app/generated/
 playwright-report/
 test-results/

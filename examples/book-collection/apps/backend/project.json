@@ -49,7 +49,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["prisma:generate"],
       "options": {
-        "command": "rm -f prisma/prisma/e2e.db && prisma migrate deploy && tsx prisma/seed.ts",
+        "command": "rm -f prisma/e2e.db && prisma migrate deploy && tsx prisma/seed.ts",
         "cwd": "examples/book-collection/apps/backend",
         "env": {
           "DATABASE_URL": "file:./e2e.db",

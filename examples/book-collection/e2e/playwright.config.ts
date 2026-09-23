@@ -7,7 +7,7 @@ const _dirname = dirname(fileURLToPath(import.meta.url));
 const bookCollectionDir = resolve(_dirname, '..');
 const backendDir = resolve(_dirname, '../apps/backend');
 const frontendDir = resolve(_dirname, '../apps/frontend');
-const dbPath = resolve(backendDir, 'prisma', 'prisma', 'e2e.db');
+const dbPath = resolve(backendDir, 'prisma', 'e2e.db');
 
 export default defineConfig({
   testDir: './tests',
