@@ -1,3 +1,13 @@
+## 0.0.1-alpha.75 (2026-09-23)
+
+### 🩹 Fixes
+
+- optional ([cfad8a9](https://github.com/GhentCDH/crouton/commit/cfad8a9))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.74 (2026-09-23)
 
 ### 🩹 Fixes
