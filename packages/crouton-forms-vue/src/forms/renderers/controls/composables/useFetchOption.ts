@@ -129,11 +129,12 @@ const useResourceOptions = async (
   formValues: any,
 ) => {
   const resource = await getResourceSchema(options.resource, http);
-  const lookup = resource.operations.lookup!;
+  const lookup = resource.operations.lookup! ?? resource.operations.findAll;
   const { findOne, findAll } = resource.operations;
   const valueKey = (options.valueKey as string) ?? 'id';
   const labelKey = options.labelKey as string | undefined;
 
+  // TODO use the crouton logic for resources
   const fetchRecordByValue = async (value: unknown) => {
     // Preferred: findOne with an `{id}`-style placeholder in its uri.
     if (findOne?.uri && /\{[^}]+\}/.test(findOne.uri)) {

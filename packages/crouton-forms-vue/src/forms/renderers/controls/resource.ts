@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { uiFromJsonSchema } from '@ghentcdh/crouton-core';
+import { parseSchema, uiFromJsonSchema } from '@ghentcdh/crouton-core';
 
 import type { HttpClient } from '../../../http-client';
 
@@ -137,6 +137,7 @@ export const clearResourceSchemaCache = () => {
   resourceSchemaCache.clear();
 };
 
+// TODO this should be moved to usecrouton
 export const getResourceSchema = async (
   resourceUri: string,
   http: HttpClient,
@@ -147,7 +148,13 @@ export const getResourceSchema = async (
   const request = http
     .get(resourceUri)
     .then((response) => {
-      const resource = ResourceSchema.safeParse(response.data);
+      let resourceSchema = response.data;
+
+      if (resourceSchema.columns) {
+        resourceSchema = parseSchema(resourceSchema, {});
+      }
+
+      const resource = ResourceSchema.safeParse(resourceSchema);
       if (!resource.success) {
         console.error(resource.error);
         throw new Error(`Invalid resource schema: ${resourceUri}`);
