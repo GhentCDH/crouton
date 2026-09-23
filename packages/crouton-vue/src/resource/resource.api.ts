@@ -32,7 +32,7 @@ const apiCall = (
     );
   }
   const uri = replaceUriParams(request.uri, defaultUriParams);
-  const method = request.method;
+  const method = request.method.toLowerCase() as any;
 
   const fetch = useApi();
 
@@ -134,6 +134,7 @@ export const resourceApi = (
   };
 
   return {
+    findAll: loadData,
     loadData,
     getOneById,
     save,

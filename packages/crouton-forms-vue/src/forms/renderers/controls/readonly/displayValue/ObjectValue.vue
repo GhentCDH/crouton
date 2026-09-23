@@ -43,9 +43,8 @@ const record = computed<Record<string, unknown> | null>(() => {
 });
 
 const singleValue = computed<string | null>(() => {
-  const displayKey = (props.options as Record<string, unknown> | undefined)?.[
-    'displayKey'
-  ];
+  const options = props.options as Record<string, unknown> | undefined;
+  const displayKey = options?.['displayKey'] ?? options?.['labelKey'];
   if (typeof displayKey !== 'string' || !record.value) return null;
   const resolved = displayKey
     .split('.')

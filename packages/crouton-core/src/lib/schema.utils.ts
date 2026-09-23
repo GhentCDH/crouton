@@ -42,6 +42,33 @@ export const dropNullableFromRequired = (schema: JsonSchema): JsonSchema => {
   return { ...schema, required: filteredRequired } as JsonSchema;
 };
 
+/**
+ * For every property NOT in the schema's `required` array, add `null` to its
+ * allowed types. This prevents Zod (via `fromJSONSchema`) from emitting a type
+ * error — mapped to "This field is required" — when an optional field's current
+ * value is `null`.
+ */
+export const makeOptionalPropertiesNullable = (schema: JsonSchema): JsonSchema => {
+  if (!schema?.properties) return schema;
+  const requiredSet = new Set<string>(
+    Array.isArray(schema.required) ? (schema.required as string[]) : [],
+  );
+  const patched = { ...schema.properties };
+  let changed = false;
+  for (const key of Object.keys(patched)) {
+    if (requiredSet.has(key)) continue;
+    const prop = patched[key];
+    if (!prop || typeof prop !== 'object') continue;
+    if (isNullableProperty(prop)) continue;
+    const type = (prop as Record<string, unknown>)['type'];
+    if (typeof type === 'string' && type !== 'null') {
+      patched[key] = { ...prop, type: [type, 'null'] } as JsonSchema;
+      changed = true;
+    }
+  }
+  return changed ? ({ ...schema, properties: patched } as JsonSchema) : schema;
+};
+
 export const enforceRequiredStringMinLength = (schema: JsonSchema): JsonSchema => {
   if (!schema?.properties) return schema;
   const patchedProperties = { ...schema.properties };

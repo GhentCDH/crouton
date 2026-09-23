@@ -24,6 +24,7 @@ import { fromJSONSchema } from 'zod';
 import {
   dropNullableFromRequired,
   enforceRequiredStringMinLength,
+  makeOptionalPropertiesNullable,
 } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/ui';
 
@@ -55,7 +56,9 @@ const emits = defineEmits(JsonFormComponentEmits);
 const { showErrors, debugValue } = useCrouton();
 
 const patched = enforceRequiredStringMinLength(
-  dropNullableFromRequired(properties.schema),
+  makeOptionalPropertiesNullable(
+    dropNullableFromRequired(properties.schema),
+  ),
 );
 const validationSchema = fromJSONSchema(patched as any);
 

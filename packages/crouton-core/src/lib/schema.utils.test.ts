@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { enforceRequiredStringMinLength } from './schema.utils';
+import { enforceRequiredStringMinLength, makeOptionalPropertiesNullable } from './schema.utils';
 
 describe('enforceRequiredStringMinLength', () => {
   it('returns schema unchanged when there are no properties', () => {
@@ -86,5 +86,56 @@ describe('enforceRequiredStringMinLength', () => {
     } as any;
     const result = enforceRequiredStringMinLength(schema);
     expect(result.properties.address.properties.city.minLength).toBe(1);
+  });
+});
+
+describe('makeOptionalPropertiesNullable', () => {
+  it('returns schema unchanged when there are no properties', () => {
+    const schema = { type: 'object' } as any;
+    expect(makeOptionalPropertiesNullable(schema)).toBe(schema);
+  });
+
+  it('adds null to type of optional property', () => {
+    const schema = {
+      type: 'object',
+      properties: { accentuation: { type: 'object' } },
+    } as any;
+    const result = makeOptionalPropertiesNullable(schema);
+    expect(result.properties.accentuation.type).toEqual(['object', 'null']);
+  });
+
+  it('does not change a required property', () => {
+    const schema = {
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+    } as any;
+    const result = makeOptionalPropertiesNullable(schema);
+    expect(result.properties.name.type).toBe('string');
+  });
+
+  it('does not double-add null when property is already nullable', () => {
+    const schema = {
+      type: 'object',
+      properties: { tag: { type: ['string', 'null'] } },
+    } as any;
+    const result = makeOptionalPropertiesNullable(schema);
+    expect(result).toBe(schema); // unchanged reference
+  });
+
+  it('leaves required properties in nested objects unchanged', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        address: {
+          type: 'object',
+          properties: { city: { type: 'string' } },
+          required: ['city'],
+        },
+      },
+    } as any;
+    // address is optional at top level → gets null added; city inside is required → unchanged
+    const result = makeOptionalPropertiesNullable(schema);
+    expect(result.properties.address.type).toEqual(['object', 'null']);
   });
 });
