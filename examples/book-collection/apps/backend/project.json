@@ -47,6 +47,7 @@
     },
     "db:e2e-setup": {
       "executor": "nx:run-commands",
+      "cache": false,
       "dependsOn": ["prisma:generate"],
       "options": {
         "command": "rm -f prisma/e2e.db && prisma migrate deploy && tsx prisma/seed.ts",
