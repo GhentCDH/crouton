@@ -40,9 +40,6 @@ jobs:
         run: npx nx run-many -t build --projects=crouton-prisma,crouton-api,crouton-vue --parallel
         env:
           SKIP_DTS: '1'
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate
-        working-directory: examples/book-collection/apps/backend
       - name: Build frontend
         run: pnpm build
         working-directory: examples/book-collection/apps/frontend

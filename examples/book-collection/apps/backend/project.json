@@ -61,7 +61,7 @@
         "command": "rm -f prisma/e2e.db && prisma generate && prisma migrate deploy && tsx prisma/seed.ts",
         "cwd": "examples/book-collection/apps/backend",
         "env": {
-          "DATABASE_URL": "file:./e2e.db",
+          "DATABASE_URL": "file:./prisma/e2e.db",
           "PORT": "4444"
         }
       }
