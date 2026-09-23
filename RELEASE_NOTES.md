@@ -1,3 +1,16 @@
+## 0.0.1-alpha.74 (2026-09-23)
+
+### 🩹 Fixes
+
+- publish crouton prisma ([60e0053](https://github.com/GhentCDH/crouton/commit/60e0053))
+- publish crouton prisma ([babb906](https://github.com/GhentCDH/crouton/commit/babb906))
+- **crouton-core:** normalize JSON Schema fragment shorthands in colum… ([#157](https://github.com/GhentCDH/crouton/pull/157))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.73 (2026-09-22)
 
 ### 🩹 Fixes
