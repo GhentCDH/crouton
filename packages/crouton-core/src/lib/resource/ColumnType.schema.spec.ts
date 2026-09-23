@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   ColumnTypeSchema,
+  type JsonSchemaFragment,
   columnTypeName,
   columnTypeToJsonSchema,
   isArrayColumnType,
@@ -70,6 +71,35 @@ describe('ColumnTypeSchema', () => {
       }).success,
     ).toBe(false);
   });
+
+  it('accepts required:true on individual properties', () => {
+    expect(
+      ColumnTypeSchema.safeParse({
+        type: 'object',
+        properties: {
+          start: { type: 'integer', required: true },
+          end: { type: 'integer', required: true },
+          label: { type: 'string' },
+        },
+      }).success,
+    ).toBe(true);
+  });
+
+  it('accepts nested schema object as type value', () => {
+    expect(
+      ColumnTypeSchema.safeParse({
+        type: 'object',
+        properties: {
+          sourceText: {
+            type: {
+              type: 'object',
+              properties: { id: { type: 'integer' }, label: { type: 'string' } },
+            },
+          },
+        },
+      }).success,
+    ).toBe(true);
+  });
 });
 
 describe('columnTypeToJsonSchema', () => {
@@ -106,6 +136,36 @@ describe('columnTypeToJsonSchema', () => {
     const first = columnTypeToJsonSchema('string');
     (first as Record<string, unknown>).mutated = true;
     expect(columnTypeToJsonSchema('string')).toEqual({ type: 'string' });
+  });
+
+  it('hoists required:true from properties into parent required array', () => {
+    const result = columnTypeToJsonSchema({
+      type: 'object',
+      properties: {
+        start: { type: 'integer', required: true } as JsonSchemaFragment,
+        end: { type: 'integer', required: true } as JsonSchemaFragment,
+        label: { type: 'string' },
+      },
+    });
+    expect(result.required).toEqual(expect.arrayContaining(['start', 'end']));
+    expect(result.properties?.['start']).not.toHaveProperty('required');
+    expect(result.properties?.['end']).not.toHaveProperty('required');
+  });
+
+  it('flattens nested schema used as type value', () => {
+    const result = columnTypeToJsonSchema({
+      type: 'object',
+      properties: {
+        sourceText: {
+          type: {
+            type: 'object',
+            properties: { id: { type: 'integer' }, label: { type: 'string' } },
+          } as unknown as JsonSchemaFragment,
+        },
+      },
+    });
+    expect(result.properties?.['sourceText'].type).toBe('object');
+    expect(result.properties?.['sourceText'].properties).toHaveProperty('id');
   });
 });
 

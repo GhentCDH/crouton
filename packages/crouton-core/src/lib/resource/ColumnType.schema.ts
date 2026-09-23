@@ -31,13 +31,13 @@ export type ColumnTypeShorthand = z.infer<typeof ColumnTypeShorthandSchema>;
  * fragment can carry vendor extensions (`x-*`).
  */
 export type JsonSchemaFragment = {
-  type?: string | string[];
+  type?: string | string[] | JsonSchemaFragment;
   format?: string;
   enum?: unknown[];
   const?: unknown;
   nullable?: boolean;
   properties?: Record<string, JsonSchemaFragment>;
-  required?: string[];
+  required?: string[] | boolean;
   items?: JsonSchemaFragment;
   additionalProperties?: boolean | JsonSchemaFragment;
   title?: string;
@@ -55,13 +55,15 @@ export const JsonSchemaFragmentSchema: z.ZodType<JsonSchemaFragment> = z.lazy(
   () =>
     z
       .object({
-        type: z.union([z.string(), z.array(z.string())]).optional(),
+        type: z
+          .union([z.string(), z.array(z.string()), z.lazy(() => JsonSchemaFragmentSchema)])
+          .optional(),
         format: z.string().optional(),
         enum: z.array(z.unknown()).optional(),
         const: z.unknown().optional(),
         nullable: z.boolean().optional(),
         properties: z.record(z.string(), JsonSchemaFragmentSchema).optional(),
-        required: z.array(z.string()).optional(),
+        required: z.union([z.array(z.string()), z.boolean()]).optional(),
         items: JsonSchemaFragmentSchema.optional(),
         additionalProperties: z
           .union([z.boolean(), JsonSchemaFragmentSchema])
@@ -139,17 +141,39 @@ const normalizeFragment = (
     }
   }
 
-  if (out.properties) {
-    out.properties = Object.fromEntries(
-      Object.entries(out.properties).map(([key, value]) => [
-        key,
-        normalizeFragment(value),
-      ]),
-    );
+  // Flatten nested-schema-as-type: { type: { type: "object", properties: {...} } }
+  // → { type: "object", properties: {...}, ...other_fields }
+  if (out.type && typeof out.type === 'object' && !Array.isArray(out.type)) {
+    Object.assign(out, out.type);
   }
-  if (out.items) out.items = normalizeFragment(out.items);
+
+  if (out.properties) {
+    const existingRequired = Array.isArray(out.required) ? out.required : [];
+    const hoistedRequired: string[] = [...existingRequired];
+
+    out.properties = Object.fromEntries(
+      Object.entries(out.properties).map(([key, value]) => {
+        let v = { ...value };
+        // Hoist required: true from individual property into parent required array
+        if (v.required === true) {
+          hoistedRequired.push(key);
+          const { required: _r, ...rest } = v;
+          v = rest as JsonSchemaFragment;
+        }
+        return [key, normalizeFragment(v)];
+      }),
+    );
+
+    if (hoistedRequired.length > 0) {
+      out.required = hoistedRequired;
+    } else {
+      delete out.required;
+    }
+  }
+
+  if (out.items) out.items = normalizeFragment(out.items as JsonSchemaFragment);
   if (out.additionalProperties && typeof out.additionalProperties === 'object') {
-    out.additionalProperties = normalizeFragment(out.additionalProperties);
+    out.additionalProperties = normalizeFragment(out.additionalProperties as JsonSchemaFragment);
   }
 
   return out;
