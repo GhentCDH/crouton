@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+import { RelationOptionsSchema } from './field-input/types/relation.options';
+
+export { RelationOptionsSchema as RelationFieldInputOptionsSchema } from './field-input/types/relation.options';
+export type { RelationOptions as RelationFieldInputOptions } from './field-input/types/relation.options';
+
 export const RelationType = z.enum([
   'oneToOne',
   'manyToOne',
@@ -25,31 +30,6 @@ export const DetailConfigSchema = z.object({
 });
 
 export type DetailConfig = z.infer<typeof DetailConfigSchema>;
-
-/**
- * Options for relation field inputs (`fieldInput.format === "relation"`).
- * These are injected into the frontend control and — for `sort`/`sortDir` —
- * also used by the backend to apply `orderBy` on included relation records.
- */
-export const RelationFieldInputOptionsSchema = z
-  .object({
-    colspan: z.number().optional().default(12),
-    /** Field to sort related records by, e.g. `"title"` or `"author.name"`. */
-    sort: z.string().optional(),
-    /** Sort direction. Defaults to `"asc"` when omitted. */
-    sortDir: z.enum(['asc', 'desc']).optional(), // default: 'asc'
-    /** CSS flex direction for the relation control button layout. */
-    direction: z.string().optional(),
-    /** Key used as the display label in the relation control. */
-    displayKey: z.string().optional(),
-    /** Path to the related resource (resolved to a URI at load time). */
-    resource: z.string().optional(),
-  })
-  .catchall(z.unknown()); // arbitrary extra keys allowed (e.g. colspan, emitObject, values)
-
-export type RelationFieldInputOptions = z.infer<
-  typeof RelationFieldInputOptionsSchema
->;
 export const FieldInputSchema = z.object({
   type: z.string().optional(),
   customRender: z.string().optional(),
@@ -91,7 +71,7 @@ export const FieldInputSchema = z.object({
    * - `"$user"` — current user object (requires `defaults: { '$user': ... }` on `CroutonPlugin` config, or `useCrouton().setDefault('$user', ...)`)
    */
   defaultValue: z.unknown().optional(),
-  options: z.union([RelationFieldInputOptionsSchema, z.unknown()]).optional(),
+  options: z.union([RelationOptionsSchema, z.unknown()]).optional(),
   /** Nested array detail layout (renders via `detailFixed`). */
   detail: DetailConfigSchema.optional(),
 });
