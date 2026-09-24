@@ -31,7 +31,7 @@ const defaultUpdate = (ctx: OperationContext) => {
     },
     decorators: () => {
       Param('id')(cls.prototype, methodName, 0);
-      bodyDecorator(updateSchema)(cls.prototype, methodName, 1);
+      bodyDecorator(updateSchema, { valueLabelColumns: config.valueLabelColumns })(cls.prototype, methodName, 1);
       Req()(cls.prototype, methodName, 2);
     },
   };

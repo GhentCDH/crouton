@@ -1,0 +1,45 @@
+{
+  "name": "book-collection-e2e",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "root": "examples/book-collection/e2e",
+  "tags": ["scope:e2e"],
+  "implicitDependencies": ["book-collection-backend"],
+  "targets": {
+    "e2e": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        { "project": "crouton-api", "target": "build" },
+        { "project": "crouton-vue", "target": "build" },
+        { "project": "book-collection-backend", "target": "build" },
+        { "project": "book-collection-frontend", "target": "build" },
+        { "project": "book-collection-frontend", "target": "db-reset" }
+      ],
+      "options": {
+        "command": "pnpm exec playwright test",
+        "cwd": "examples/book-collection/e2e"
+      }
+    },
+    "e2e:ui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec playwright test --ui",
+        "cwd": "examples/book-collection/e2e"
+      }
+    },
+    "e2e:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec playwright test --config=playwright.config.dev.ts",
+        "cwd": "examples/book-collection/e2e"
+      }
+    },
+    "e2e:dev:ui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec playwright test --config=playwright.config.dev.ts --ui",
+        "cwd": "examples/book-collection/e2e"
+      }
+    }
+  }
+}

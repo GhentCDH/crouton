@@ -21,7 +21,7 @@ const defaultCreate = (ctx: OperationContext) => {
       return this.repo.create(body, req);
     },
     decorators: () => {
-      bodyDecorator(createSchema, { coerceNullableUndefinedToNull: true })(
+      bodyDecorator(createSchema, { coerceNullableUndefinedToNull: true, valueLabelColumns: config.valueLabelColumns })(
         cls.prototype,
         methodName,
         0,

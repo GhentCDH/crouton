@@ -4,6 +4,7 @@
     :open="true"
     :disable-close="false"
     :width="modalSize"
+    data-testid="form-modal"
     @close-modal="onCancel"
   >
     <template #content>
@@ -33,6 +34,7 @@
           {{ autoSaveStatusLabel }}
         </span>
         <Btn
+          data-testid="btn-retry"
           v-if="autoSaveStatus === 'error'"
           :color="Color.secondary"
           :outline="true"
@@ -42,6 +44,7 @@
           Retry
         </Btn>
         <Btn
+          data-testid="btn-close"
           :color="Color.secondary"
           :outline="true"
           aria-label="Close"
@@ -54,6 +57,7 @@
       <!-- Normal mode: Cancel + Save -->
       <template v-else>
         <Btn
+          data-testid="btn-cancel"
           :color="Color.secondary"
           :outline="true"
           :aria-label="cancelLabel"
@@ -61,7 +65,12 @@
         >
           {{ cancelLabel }}
         </Btn>
-        <Btn :disabled="!valid" :aria-label="saveLabel" @click="onSubmit">
+        <Btn
+          :disabled="!valid"
+          :aria-label="saveLabel"
+          @click="onSubmit"
+          data-testid="btn-save"
+        >
           {{ saveLabel }}
         </Btn>
       </template>

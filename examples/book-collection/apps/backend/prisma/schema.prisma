@@ -2,6 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator crouton {
+  provider  = "node ../../../../packages/crouton-prisma/dist/generator.cjs"
+  output    = "../../generated/default/types/src"
+  zodOutput = "../../generated/default/types/src"
+}
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")

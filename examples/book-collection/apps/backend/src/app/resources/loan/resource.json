@@ -1,25 +1,75 @@
 {
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "name": "loan",
   "model": "Loan",
   "title": "Loans",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "loanedAt": { "type": "string", "sortable": true, "defaultSort": true },
-    "returnedAt": { "type": "string", "required": false },
+    "loanedAt": {  "sortable": true, "defaultSort": true, "fieldInput": {
+      "defaultValue":"$now",
+      "type":"date"
+    } },
+    "returnedAt": {  "required": false },
     "userId": {
+      "hiddenInTable": true,
+      "hiddenInView": true,
       "label": "User",
       "fieldInput": {
+        "position": 0,
         "type": "autocomplete",
         "relationType": "manyToOne",
-        "resource": "./user.resource"
+        "options": {
+          "resource": "/user/schemas",
+          "labelKey": "name",
+          "valueKey": "id",
+          "storeValue": true
+        }
       }
     },
     "bookId": {
+      "hiddenInTable": true,
+      "hiddenInView": true,
       "label": "Book",
       "fieldInput": {
+        "position": 0,
         "type": "autocomplete",
         "relationType": "manyToOne",
-        "resource": "./book.resource"
+        "options": {
+          "resource": "/book/schemas",
+          "labelKey": "title",
+          "valueKey": "id",
+          "storeValue": true
+        }
+      }
+    },
+    "book": {
+      "label": "Book",
+      "hiddenInTable": false,
+      "hiddenInForm": true,
+      "fieldInput": {
+        "foreignKey": "bookId",
+        "format": "relation",
+        "resource": "../book/resource.json",
+        "position": 0,
+        "relationType": "manyToOne",
+        "options": {
+          "displayKey": "title"
+        }
+      }
+    },
+    "user": {
+      "label": "User",
+      "hiddenInTable": false,
+      "hiddenInForm": true,
+      "fieldInput": {
+        "foreignKey": "userId",
+        "format": "relation",
+        "resource": "../user/resource.json",
+        "position": 0,
+        "relationType": "manyToOne",
+        "options": {
+          "displayKey": "name"
+        }
       }
     }
   },
