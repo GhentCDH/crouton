@@ -1,3 +1,20 @@
+## 0.0.1-alpha.76 (2026-09-29)
+
+### 🚀 Features
+
+- support resource in autocomplete ([e08352a](https://github.com/GhentCDH/crouton/commit/e08352a))
+- add annotation-editor adapter ([7f6cdd8](https://github.com/GhentCDH/crouton/commit/7f6cdd8))
+
+### 🩹 Fixes
+
+- add repository url to package.json ([0be2d86](https://github.com/GhentCDH/crouton/commit/0be2d86))
+- hiddenInForm columns must not appear in form JSON schema ([#158](https://github.com/GhentCDH/crouton/pull/158))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+- Claude Sonnet 4.6
+
 ## 0.0.1-alpha.75 (2026-09-23)
 
 ### 🩹 Fixes
