@@ -48,7 +48,8 @@ export const useCroutonFormLogic = (
   formRef: { value: ComponentPublicInstance | null | undefined },
 ) => {
   const viewType = properties.readonly ? 'view' : 'form';
-  const view = ((properties.views as any)?.[viewType] ?? null) as ViewConfig | null;
+  const view = ((properties.views as any)?.[viewType] ??
+    null) as ViewConfig | null;
   const uiSchema = view?.ui_schema ?? view?.ui ?? null;
   const schema = view?.json_schema ?? view?.data ?? null;
   const errors = ref(null);
@@ -58,6 +59,16 @@ export const useCroutonFormLogic = (
   if (properties.data) {
     formData.value = properties.data;
   }
+
+  watch(
+    () => properties.data,
+    async () => {
+      formData.value = properties.data;
+      await nextTick();
+      const result = await (formRef.value as any)?.validate?.();
+      if (result) valid.value = result.valid;
+    },
+  );
 
   const renderers = useDefaultRenderers(
     properties.renderers as JsonFormsRendererRegistryEntry[] | null,

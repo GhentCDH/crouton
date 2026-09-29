@@ -172,5 +172,5 @@ const markSubmitted = () => {
 /** Returns a plain-object snapshot of the current vee-validate values. */
 const getCurrentValues = (): Data => toRaw(values) as Data;
 
-defineExpose({ markSubmitted, getCurrentValues });
+defineExpose({ markSubmitted, getCurrentValues, validate });
 </script>
