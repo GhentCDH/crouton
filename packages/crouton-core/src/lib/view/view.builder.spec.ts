@@ -65,6 +65,30 @@ describe('buildViews — no schema fallback to column types', () => {
   });
 });
 
+describe('buildViews — hiddenInForm is absolute even when updateable', () => {
+  const schema = z.object({
+    id: z.string(),
+    title: z.string(),
+    modified: z.string().date(),
+  });
+
+  const columns = parse([
+    { id: 'id', idField: true, hiddenInForm: true },
+    { id: 'title' },
+    { id: 'modified', type: 'date', hiddenInForm: true, updateable: true },
+  ]);
+
+  const views = buildViews(schema, columns);
+
+  it('excludes hiddenInForm column from form schema even when updateable', () => {
+    expect((views?.form?.json_schema as any).properties.modified).toBeUndefined();
+  });
+
+  it('still includes non-hidden columns', () => {
+    expect((views?.form?.json_schema as any).properties.title).toBeDefined();
+  });
+});
+
 describe('buildViewsFromColumns — fieldInput.defaultValue (sub-resource path)', () => {
   const columns = parse([
     { id: 'role', column: 'role', fieldInput: { type: 'select', defaultValue: 'admin' } },

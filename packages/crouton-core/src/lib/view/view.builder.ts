@@ -337,7 +337,7 @@ export const buildViewsWithSource = (
     (c) => !c.hiddenInForm,
     formUiBuilder,
     true,
-    (c) => !c.idField && (c.createable === true || c.updateable === true),
+    (c) => !c.idField && !c.hiddenInForm && (c.createable === true || c.updateable === true),
   );
   if (form) {
     applyRequiredColumns(form.json_schema as Record<string, unknown>, columns);
