@@ -1,6 +1,6 @@
 import { generatorHandler } from '@prisma/generator-helper';
 
-import { fixZodImports, normalizeSchema } from '@ghentcdh/crouton-codegen';
+import { fixEsmBarrels, fixZodImports, normalizeSchema } from '@ghentcdh/crouton-codegen';
 
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -93,5 +93,8 @@ generatorHandler({
 
     // 4. Fix missing zod imports in generated output
     await fixZodImports(absZodOutput);
+
+    // 5. Fix ESM directory imports and ensure barrel index files exist
+    await fixEsmBarrels(absZodOutput);
   },
 });

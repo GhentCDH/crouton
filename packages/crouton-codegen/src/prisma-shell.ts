@@ -8,7 +8,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { type Dirent, existsSync, readdirSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -144,6 +144,62 @@ export const fixZodImports = async (zodOutputDir: string): Promise<number> => {
   };
   await walk(zodOutputDir);
   return fixed;
+};
+
+/**
+ * After zod-prisma-types generates multi-file output, two ESM issues can occur:
+ * 1. `src/index.ts` imports subdirs as bare directories (`from './modelSchema'`)
+ *    which fails in Node ESM strip-only mode — needs explicit `./modelSchema/index`.
+ * 2. Subdir barrel files (`modelSchema/index.ts`) may be absent entirely.
+ *
+ * This walks the output tree, patches directory imports in each `index.ts`, and
+ * creates any missing barrel file by re-exporting all `.ts` siblings.
+ */
+export const fixEsmBarrels = async (outputDir: string): Promise<void> => {
+  const walk = async (dir: string): Promise<void> => {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    const subdirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+
+    // Patch directory imports in index.ts
+    const indexPath = join(dir, 'index.ts');
+    if (existsSync(indexPath)) {
+      let content = await readFile(indexPath, 'utf-8');
+      let changed = false;
+      for (const sub of subdirs) {
+        const bare = `from './${sub}'`;
+        const explicit = `from './${sub}/index'`;
+        if (content.includes(bare)) {
+          content = content.split(bare).join(explicit);
+          changed = true;
+        }
+      }
+      if (changed) await writeFile(indexPath, content, 'utf-8');
+    }
+
+    // Ensure each subdir has a barrel index.ts
+    for (const sub of subdirs) {
+      const subDir = join(dir, sub);
+      const subIndex = join(subDir, 'index.ts');
+      if (!existsSync(subIndex)) {
+        let subEntries: Dirent[] = [];
+        try {
+          subEntries = await readdir(subDir, { withFileTypes: true });
+        } catch { /* ignore */ }
+        const barrel = subEntries
+          .filter((e) => !e.isDirectory() && e.name.endsWith('.ts') && e.name !== 'index.ts')
+          .map((e) => `export * from './${e.name.replace(/\.ts$/, '')}';`)
+          .join('\n');
+        await writeFile(subIndex, barrel ? `${barrel}\n` : '', 'utf-8');
+      }
+      await walk(subDir);
+    }
+  };
+  await walk(outputDir);
 };
 
 export interface PullAndGenerateInput {
