@@ -10,7 +10,10 @@ import { router } from './router.js';
 loadRuntimeConfig().then(() => {
   const api = useApi();
   const app = createApp(App);
-  app.use(CroutonPlugin(api));
+  app.use(CroutonPlugin(api,{
+    debugValue: true,
+    showErrors: true
+  }));
   app.use(router);
   app.mount('#app');
 });

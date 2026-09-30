@@ -1,4 +1,5 @@
 {
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "name": "book",
   "model": "Book",
   "title": "Books",
@@ -6,26 +7,64 @@
     "id": { "idField": true, "hiddenInForm": true },
     "title": { "searchable": true, "filterable": true, "sortable": true },
     "isbn": { "sortable": true },
-    "publishedYear": { "type": "integer", "sortable": true },
-    "status": { "enum": "bookStatus", "filterable": true },
+    "publishedYear": {
+      "sortable": true
+    },
+    "status": {
+      "displayKey": "label",
+      "enum": "bookStatus",
+      "filterable": true,
+      "fieldInput": {
+        "type": "select",
+        "options": {
+          "clearable": false,
+          "storeValue": true
+        }
+      }
+    },
     "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
     "authorId": {
+      "hiddenInTable": true,
+      "hiddenInView": true,
       "label": "Author",
       "searchable": true,
+      "displayKey": "name",
       "fieldInput": {
         "type": "autocomplete",
+        "options": {
+          "resource": "/author/schemas",
+          "labelKey": "name",
+          "valueKey": "id",
+          "storeValue": true
+        }
+      }
+    },
+    "author": {
+      "label": "Author",
+      "hiddenInTable": false,
+      "hiddenInForm": true,
+      "fieldInput": {
+        "foreignKey": "authorId",
+        "format": "relation",
+        "resource": "../author/resource.json",
+        "position": 1,
         "relationType": "manyToOne",
-        "resource": "./author.resource"
+        "options": {
+          "displayKey": "name"
+        }
       }
     },
     "categories": {
       "label": "Categories",
+      "hiddenInTable": true,
       "fieldInput": {
         "format": "relation",
+        "resource": "../category/resource.json",
         "relationType": "manyToMany",
-        "resource": "./category.resource"
-      },
-      "hiddenInTable": true
+        "options": {
+          "displayKey": "name"
+        }
+      }
     }
   },
   "include": ["author", "categories"]

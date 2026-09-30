@@ -31,7 +31,7 @@ const defaultPatch = (ctx: OperationContext) => {
     },
     decorators: () => {
       Param('id')(cls.prototype, methodName, 0);
-      bodyDecorator(patchSchema)(cls.prototype, methodName, 1);
+      bodyDecorator(patchSchema, { valueLabelColumns: config.valueLabelColumns })(cls.prototype, methodName, 1);
       Req()(cls.prototype, methodName, 2);
     },
   };

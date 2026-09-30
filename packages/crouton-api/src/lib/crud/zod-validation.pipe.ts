@@ -1,9 +1,12 @@
+
 import { type PipeTransform } from '@nestjs/common';
 import { type ZodError, type ZodObject, type ZodRawShape, type ZodType } from 'zod';
 
-import { isDecimalField } from '@ghentcdh/crouton-core';
 
 import { CroutonValidationError } from './crouton-validation.error';
+import type { ValueLabelColumn } from './resource/valueLabel';
+import { normalizeValueLabels } from './resource/valueLabel.apply';
+import { createRequire } from 'node:module';
 
 export interface ZodValidationPipeOptions {
   /**
@@ -14,6 +17,7 @@ export interface ZodValidationPipeOptions {
    * an omitted field means "leave unchanged".
    */
   coerceNullableUndefinedToNull?: boolean;
+  valueLabelColumns?: ValueLabelColumn[];
 }
 
 export class ZodValidationPipe implements PipeTransform {
@@ -25,6 +29,7 @@ export class ZodValidationPipe implements PipeTransform {
   private readonly decimalCtor: (new (v: number | string) => object) | null;
   /** Whether to coerce `undefined` → `null` on nullable fields (create/upsert only). */
   private readonly coerceUndefinedToNull: boolean;
+  private readonly valueLabelColumns: ValueLabelColumn[] | undefined;
 
   constructor(
     private readonly schema: ZodObject<ZodRawShape>,
@@ -36,25 +41,36 @@ export class ZodValidationPipe implements PipeTransform {
       .map(([key]) => key);
 
     // Resolve Decimal ctor once; skip coercion entirely if @prisma/client is unavailable.
-     
+    // createRequire works in ESM contexts where bare require() is undefined.
     let decimalCtor: (new (v: number | string) => object) | null = null;
     try {
-      decimalCtor = require('@prisma/client/runtime/client').Decimal;
+      const _require = createRequire(import.meta.url);
+      decimalCtor = _require('@prisma/client/runtime/client').Decimal;
     } catch {
       // @prisma/client not available — Decimal coercion disabled, falls back to today's behaviour
     }
     this.decimalCtor = decimalCtor;
 
+    // Probe each field: does a new Decimal(1) pass validation? Avoids class-name checks
+    // that break when Prisma minifies the class (e.g. class 'i' instead of 'Decimal').
     this.decimalKeys = decimalCtor
       ? Object.entries(schema.shape)
-          .filter(([, field]) => isDecimalField(field as ZodType))
+          .filter(([, field]) => {
+            try {
+              return (field as ZodType).safeParse(new decimalCtor!(1)).success;
+            } catch {
+              return false;
+            }
+          })
           .map(([key]) => key)
       : [];
     this.coerceUndefinedToNull = options.coerceNullableUndefinedToNull ?? false;
+    this.valueLabelColumns = options.valueLabelColumns;
   }
 
   transform(value: unknown) {
-    const stripped = this.stripEmptyStrings(value);
+    const denormalized = normalizeValueLabels(value, this.valueLabelColumns);
+    const stripped = this.stripEmptyStrings(denormalized);
     const coerced = this.coerceNullable(stripped);
     const input = this.coerceDecimals(coerced);
     const result = this.schema.safeParse(input);

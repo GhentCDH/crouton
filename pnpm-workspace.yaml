@@ -1,17 +1,13 @@
 packages:
   - packages/*
   - examples/book-collection/apps/*
+  - examples/book-collection/apps/generated/default/types
 
 minimumReleaseAge: 0
 
 overrides:
   '@ghentcdh/create-crouton': link:packages/create-crouton
   '@ghentcdh/ui': ^3.0.6
-  '@vue/runtime-core': 3.5.42
-  '@vue/runtime-dom': 3.5.42
-  '@vue/reactivity': 3.5.42
-  '@vue/compiler-dom': 3.5.42
-  '@vue/shared': 3.5.42
 
 allowBuilds:
   '@parcel/watcher': true
