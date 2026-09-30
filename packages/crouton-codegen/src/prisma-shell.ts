@@ -176,7 +176,7 @@ export const pullAndGenerate = async (
   input: PullAndGenerateInput,
 ): Promise<PullAndGenerateResult> => {
   const { root, prismaConfigPath, schemaPath } = input;
-  loadDotenv(root);
+  loadDotenv(dirname(schemaPath));
   const backupPath = await backupSchema(schemaPath);
   const dbPull = await prismaDbPull(root, prismaConfigPath);
   if (!dbPull.ok) return { ok: false, backupPath, dbPull };
