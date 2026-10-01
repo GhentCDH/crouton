@@ -16,6 +16,11 @@ export default defineUserConfig({
   bundler: viteBundler({
     viteOptions: {
       plugins: [tailwindcss()],
+      build: {
+        rollupOptions: {
+          external: ['@tiptap/vue-3', '@tiptap/starter-kit', '@tiptap/pm', 'tiptap-markdown'],
+        },
+      },
       resolve: {
         alias: {
           '@ghentcdh/crouton-vue/styles.css': fileURLToPath(

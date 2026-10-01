@@ -33,7 +33,7 @@
     "@ghentcdh/crouton-codegen": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "tsup": "^8.0.0",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
   "peerDependencies": {
     "nestjs-zod": ">=5.0.0",

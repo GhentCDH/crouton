@@ -170,7 +170,7 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
         await installDeps(pm, cwd);
         s.stop('Dependencies installed');
       } catch {
-        s.stop('Install failed — run manually');
+        s.error('Install failed — run manually');
       }
     }
 

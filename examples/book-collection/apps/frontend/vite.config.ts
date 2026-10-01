@@ -8,6 +8,11 @@ export default defineConfig({
     conditions: ['@ghentcdh/crouton'],
     dedupe: ['vue', 'vue-router'],
   },
+  build: {
+    rollupOptions: {
+      external: ['@tiptap/vue-3', '@tiptap/starter-kit', '@tiptap/pm', 'tiptap-markdown'],
+    },
+  },
   server: {
     port: 5555,
     proxy: {

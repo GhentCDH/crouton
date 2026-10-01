@@ -425,7 +425,7 @@ const postScaffold = async (
       });
       s.stop('Git repository initialized');
     } catch {
-      s.stop('Git init failed (non-fatal)');
+      s.error('Git init failed (non-fatal)');
     }
   }
 
@@ -437,7 +437,7 @@ const postScaffold = async (
       await installDeps(pm, targetDir);
       s.stop('Dependencies installed');
     } catch {
-      s.stop('Install failed — run manually');
+      s.error('Install failed — run manually');
     }
 
     // Run crouton update resources (best-effort, requires DB to be running)
