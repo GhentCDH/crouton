@@ -12,6 +12,7 @@ import { validateCustomRepository } from './crud/custom-repository';
 import type { DataSourceAdapter, DataSourceEntry } from './crud/data-source';
 import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-source';
 import { IS_DEV } from './crud/dev-mode';
+import { warnMissingUniqueConstraints } from './crud/unique-validation';
 import { DevResourcesController } from './crud/dev-tools/dev-resources.controller';
 import { loadEnumRegistry } from './crud/enum-registry';
 import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
@@ -161,6 +162,8 @@ export class CroutonApiModule {
       }
       validConfigs.push(c);
     }
+
+    warnMissingUniqueConstraints(validConfigs, dataSourceRegistry);
 
     const configRegistry = new ResourceConfigRegistry(loader, validConfigs);
 

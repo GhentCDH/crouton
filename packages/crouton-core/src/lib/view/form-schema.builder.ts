@@ -1,7 +1,7 @@
 import { isArrayColumn, isObjectColumn } from './column-predicates';
 import { ControlBuilder } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
-import type { JsonColumn } from '../resource/Column';
+import { type JsonColumn, normalizeUnique } from '../resource/Column';
 import { columnTypeName, columnTypeToJsonSchema } from '../resource/ColumnType.schema';
 import type { DetailConfig } from '../resource/FieldInput.schema';
 
@@ -168,6 +168,9 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
     control.control(type, options).width('full');
   }
 
+  // Carry declared uniqueness into the control options so the renderer can
+  // attach an async 'is this value already taken?' validator.
+  if (col.unique) control.opt({ unique: normalizeUnique(col.unique) });
   if (fieldInput?.customRender)
     control.setCustomRender(fieldInput?.customRender);
   if (col.hideLabel) control.hideLabel();

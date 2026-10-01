@@ -133,6 +133,41 @@ export const resourceApi = (
       });
   };
 
+  /**
+   * Check whether `value` is still free for a declared-unique `field`.
+   * Derives the endpoint from the collection (`findAll`) uri. Fail-open: any
+   * error resolves `true`, since the API enforces uniqueness on write anyway.
+   */
+  const checkUnique = (
+    field: string,
+    value: string,
+    excludeId?: string,
+    scope?: Record<string, unknown>,
+  ): Promise<boolean> => {
+    const findAll = formDef.operations['findAll'] as Operation | undefined;
+    if (!findAll) return Promise.resolve(true);
+    const base = replaceUriParams(findAll.uri, defaultUriParams).replace(
+      /\/+$/,
+      '',
+    );
+    const fetch = useApi();
+    return fetch
+      .get(`${base}/unique`, {
+        params: {
+          field,
+          value,
+          ...(excludeId != null ? { excludeId } : {}),
+          ...(scope ? { scope: JSON.stringify(scope) } : {}),
+        },
+        paramsSerializer,
+      })
+      .then((response: any) => response.data?.unique !== false)
+      .catch((error: unknown) => {
+        console.error(error);
+        return true;
+      });
+  };
+
   return {
     findAll: loadData,
     loadData,
@@ -141,6 +176,7 @@ export const resourceApi = (
     patch: patchData,
     create,
     delete: deleteData,
+    checkUnique,
   };
 };
 

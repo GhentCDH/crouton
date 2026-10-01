@@ -911,6 +911,30 @@
             "default": false,
             "type": "boolean"
           },
+          "unique": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "caseInsensitive": {
+                    "type": "boolean"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
           "type": {
             "anyOf": [
               {

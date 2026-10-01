@@ -37,6 +37,11 @@ import { customRenderers } from './renderers';
 import type { FormEventPayload } from '../composables/useFormEvents';
 import { provideFormEvents } from '../composables/useFormEvents';
 import { provideHttpClient } from '../composables/useHttpClient';
+import {
+  collectUniqueFields,
+  useUniqueCheckFn,
+  withUniqueChecks,
+} from '../composables/useUniqueValidator';
 
 registerZodErrorMap();
 
@@ -46,7 +51,17 @@ const emits = defineEmits(JsonFormComponentEmits);
 const patched = enforceRequiredStringMinLength(
   dropNullableFromRequired(properties.schema),
 );
-const validationSchema = fromJSONSchema(patched as any);
+// Async "is this value already taken?" validation for columns declared unique.
+// Layered onto the generated schema so it runs through vee-validate's standard
+// validation path (field-level rules are unreliable under a form schema).
+const uniqueFields = collectUniqueFields(properties.uiSchema);
+const uniqueCheck = useUniqueCheckFn();
+const validationSchema = withUniqueChecks(
+  fromJSONSchema(patched as any),
+  uniqueFields,
+  uniqueCheck,
+  (properties.formData as Record<string, unknown> | undefined) ?? undefined,
+);
 
 const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema,

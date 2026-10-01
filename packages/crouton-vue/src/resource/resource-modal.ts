@@ -3,6 +3,7 @@ import { ZodObject } from 'zod';
 import {
   type FormEventPayload,
   type FormModalResult,
+  type UniqueCheckFn,
   createRepository,
 } from '@ghentcdh/crouton-forms-vue';
 import { NotificationService } from '@ghentcdh/ui';
@@ -33,12 +34,25 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
   const formDef = await useCrouton().getFormDefById(key);
   if (!formDef) throw new Error(`Form "${key}" not found`);
   const formSchema = formDef.schemas.form;
+  const base = String(formDef.route).replace(/\/+$/, '');
+  const uniqueCheck: UniqueCheckFn = (field, value, scope) =>
+    useApi()
+      .get(`${base}/unique`, {
+        params: {
+          field,
+          value,
+          ...(scope ? { scope: JSON.stringify(scope) } : {}),
+        },
+      })
+      .then((r: any) => r.data?.unique !== false)
+      .catch(() => true);
   JsonFormModalService.openModal({
     initialData: payload.data ?? {},
     schema: formSchema.data,
     uiSchema: formSchema.ui,
     modalSize: formDef.modalSize ?? 'sm',
     modalTitle: `Create ${formDef.title}`,
+    uniqueCheck,
     onClose: (result: FormModalResult) => {
       const repository = useFormDefRepository(formDef);
       if (result && result.valid) {
