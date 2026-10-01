@@ -1,6 +1,13 @@
 export const CROUTON_PREFIX = 'crouton';
 export const CROUTON_FORM = `${CROUTON_PREFIX}/form`;
 export const CROUTON_DEV_RESOURCES = `${CROUTON_PREFIX}/dev-resources`;
+export const CROUTON_STATUS = `${CROUTON_PREFIX}/status`;
+
+const statusRoute = {
+  path: 'crouton-status',
+  name: CROUTON_STATUS,
+  component: () => import('./status/StatusView.vue'),
+};
 
 export const CroutonRouter = [
   {
@@ -49,8 +56,9 @@ export const CroutonRouter = [
       },
     ],
   },
+  statusRoute,
   {
     path: 'status',
-    component: () => import('./status/StatusView.vue'),
+    redirect: { name: CROUTON_STATUS },
   },
 ];
