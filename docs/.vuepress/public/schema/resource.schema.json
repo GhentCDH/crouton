@@ -941,6 +941,9 @@
           "fieldInput": {
             "type": "object",
             "properties": {
+              "$schema": {
+                "type": "string"
+              },
               "type": {
                 "type": "string"
               },
@@ -1092,6 +1095,9 @@
           "fieldView": {
             "type": "object",
             "properties": {
+              "$schema": {
+                "type": "string"
+              },
               "type": {
                 "type": "string"
               },
@@ -1243,6 +1249,9 @@
           "fieldTable": {
             "type": "object",
             "properties": {
+              "$schema": {
+                "type": "string"
+              },
               "type": {
                 "type": "string"
               },
@@ -1448,6 +1457,9 @@
           "fieldInput": {
             "type": "object",
             "properties": {
+              "$schema": {
+                "type": "string"
+              },
               "type": {
                 "type": "string"
               },
