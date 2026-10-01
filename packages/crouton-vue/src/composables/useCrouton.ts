@@ -2,7 +2,7 @@ import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
 import type { Router } from 'vue-router';
-import { CROUTON_STATUS } from '../router';
+
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
@@ -10,6 +10,7 @@ import {
   CROUTON_READONLY_RENDERERS,
 } from '@ghentcdh/crouton-forms-vue';
 
+import { CROUTON_STATUS } from '../router';
 import { FormDefCache } from './form-def';
 import type { FormDef } from './form-def.types';
 import type { SidebarNode } from './sidebar';
