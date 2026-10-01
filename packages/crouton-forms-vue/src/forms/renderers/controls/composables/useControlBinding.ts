@@ -73,6 +73,8 @@ export const useCustomControlBinding = <
       field,
       onBlur,
       onChange,
+      // True while an async field validation (e.g. a unique check) is in flight.
+      isValidating: computed(() => !!(field.meta as any)?.pending),
       appliedOptions: computed(
         () => uischema.options ?? ({} as CONTROL_OPTION),
       ),

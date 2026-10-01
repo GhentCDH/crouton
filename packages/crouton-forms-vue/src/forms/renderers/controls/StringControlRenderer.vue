@@ -8,7 +8,7 @@ import { useControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, onBlur, onChange } = useControlBinding(
+const { wrapper, value, onBlur, onChange, isValidating } = useControlBinding(
   props.uischema,
   props.schema,
 );
@@ -21,4 +21,7 @@ const { wrapper, value, onBlur, onChange } = useControlBinding(
     @blur="onBlur"
     @change="onChange"
   />
+  <span v-if="isValidating" class="text-xs text-gray-400 mt-1 block">
+    Checking availability…
+  </span>
 </template>

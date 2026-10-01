@@ -1,5 +1,7 @@
 import type { UISchemaElement } from '@jsonforms/core';
 
+import type { NormalizedUnique } from '../resource/Column';
+
 import { ElementBuilder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
 
@@ -170,6 +172,8 @@ export interface ControlOption {
   customRender?: any;
   colspan?: number;
   rowspan?: number;
+  /** Async uniqueness validation descriptor, from a column's `unique` flag. */
+  unique?: NormalizedUnique;
 }
 
 export type ControlTypes = {

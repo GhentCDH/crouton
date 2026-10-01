@@ -1,7 +1,7 @@
 import type { SizeType } from '@ghentcdh/crouton-core';
 import type { FormEventPayload,
   FormModalProp,
-  FormModalResult , HttpClient , ViewModalResult 
+  FormModalResult , HttpClient , UniqueCheckFn , ViewModalResult 
 } from '@ghentcdh/crouton-forms-vue';
 import { ViewModal } from '@ghentcdh/crouton-forms-vue';
 import { ModalService } from '@ghentcdh/ui';
@@ -23,6 +23,7 @@ export class JsonFormModalService {
     onAutoSave,
     onRefreshData,
     saveLabel,
+    uniqueCheck,
   }: {
     initialData?: DATA;
     schema: any;
@@ -37,6 +38,7 @@ export class JsonFormModalService {
     onAutoSave?: (data: DATA) => Promise<any>;
     onRefreshData?: () => Promise<any>;
     saveLabel?: string;
+    uniqueCheck?: UniqueCheckFn | null;
   }) {
     ModalService.openModal<FormModalProp, FormModalResult>({
       component: FormModal,
@@ -53,6 +55,7 @@ export class JsonFormModalService {
         autoSave: autoSave ?? false,
         onAutoSave,
         onRefreshData,
+        uniqueCheck: uniqueCheck ?? null,
         ...(saveLabel && { saveLabel }),
       },
     });
