@@ -17,6 +17,7 @@ import {
   registerResourceJsonRawPutEndpoint,
 } from './register-schema-endpoints';
 import { registerSchemas } from './register-schemas';
+import { registerUniqueCheck } from './register-unique-check';
 import { registerUpdate } from './register-update';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
@@ -34,6 +35,8 @@ export const registerEndpoints = (ctx: OperationContext): void => {
   registerResourceColumnsEndpoint(ctx);
 
   registerDefinitionEndpoint(ctx);
+  // Static `/unique` check must be registered before the `:id` routes below.
+  registerUniqueCheck(ctx);
   registerEndpoint(ctx);
 
   registerActionRoutes(ctx);

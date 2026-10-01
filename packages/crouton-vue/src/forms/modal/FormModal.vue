@@ -78,12 +78,16 @@ import {
   FormModalProperties,
   useFormLogic,
 } from '@ghentcdh/crouton-forms-vue';
+import { provideUniqueCheck } from '@ghentcdh/crouton-forms-vue';
+
 import FormComponent from '../FormComponent.vue';
 
 const properties = defineProps(FormModalProperties);
 const emits = defineEmits(FormModalEmits);
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
+
+provideUniqueCheck(properties.uniqueCheck ?? null);
 
 const {
   id,
