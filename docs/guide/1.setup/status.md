@@ -1,7 +1,8 @@
 # Status page
 
 Crouton ships a built-in status endpoint and frontend page that report version info, environment, database connectivity,
-and resource load health.
+and resource load health. **Problems are surfaced first** — errors and warnings appear in a summary panel at the top;
+healthy rows are visible below.
 
 ## Backend — `GET /crouton/status.json`
 
@@ -33,10 +34,16 @@ interface CroutonStatus {
     version?: number;          // loaded/expected schema version
     expectedVersion?: number;  // set when the file's version differs from what crouton expects
     draft?: boolean;           // present in the repo but intentionally not loaded/served
-    kind?: 'prisma' | 'custom';   // where the data comes from
-    customOperations?: string[];  // operations a custom resource's repository.ts implements
-    warnings?: string[];       // non-fatal issues detected at load time
+    hidden?: boolean;          // in the repo but hidden from the sidebar
+    kind?: 'prisma' | 'custom';
+    customOperations?: string[];
+    warnings?: string[];
   }[];
+  i18n?: {
+    active: boolean;
+    defaultLanguage: string;
+    bundles: { language: string; emptyKeys: number }[];
+  };
 }
 ```
 
@@ -75,28 +82,94 @@ Each loaded resource reports its `version`. Two more states show up here:
 - **Needs migration** — a `resource.json` whose `schemaVersion` differs from what crouton expects. It carries
   `expectedVersion` and is `valid: false`; the fix is to migrate it (automatic in dev).
   See [Versioning & migrations](../resource/resource-versioning.md).
-- **Draft** — a resource with `draft: true` is present but intentionally not served. It reports `draft: true` and
-  `valid: true`, and does **not** count as a resource error.
-  See [Draft resources](../resource/resource-versioning.md#draft-resources).
+- **Draft** — a resource with `draft: true` is present but intentionally not served. It does **not** count as a
+  resource error. See [Draft resources](../resource/resource-versioning.md#draft-resources).
 
 ## Frontend — `/crouton/status`
 
-The `StatusView` is included in `CroutonRouter` by default, so any app using crouton gets it at the `/crouton/status`
-path (relative to wherever `CroutonRouter` is mounted).
+The status page is included in `CroutonRouter` by default, at `crouton-status` (named route `CROUTON_STATUS`). It is
+mounted **outside** `AdminView` so it renders even when the backend is broken — exactly when you need it most.
 
-The page shows:
+### Layout
 
-- **Backend connectivity** — green "Running" / red "Down" based on whether the fetch succeeds
-- **Summary banner** — "All systems operational", "Operational with N warning(s)", or "N issue(s) detected"
-- **Version badges** — app version, crouton version, environment
-- **Databases list** — green/red dot per data source, with error text on failure
-- **Resources list** — a dot per resource (green loaded, amber when warnings exist, red failed, gray draft), a `v{version}`
-  badge, amber warning lines for non-fatal issues, an amber "needs migration" line for out-of-date files, and a
-  "draft — not loaded" badge for drafts
+```
+┌────────────────────────────────────────────────────────────────┐
+│ ● Crouton status     app v1.2 · crouton v0.0.1 · dev           │
+│   3 errors · 2 warnings       checked 12:04:31 [↻] [auto ▢]   │
+├────────────────────────────────────────────────────────────────┤
+│ [DB 1/2]  [Resources 14/16]  [Warnings 2]  [i18n 12 missing]  │
+├────────────────────────────────────────────────────────────────┤
+│ ✖ database  main      connection refused (ECONNREFUSED)    →   │
+│ ✖ resource  books     Unknown field "autor" in columns     →   │
+│ ▲ resource  authors   needs migration to v3                →   │
+│ ▲ i18n      nl        12 untranslated keys                 →   │
+├────────────────────────────────────────────────────────────────┤
+│ Databases                                                      │
+│ Resources  [All|Errors|Warnings|Draft|Hidden] [search…]        │
+│   ▸ books   ✖ error   v2  prisma                               │
+│   ▸ authors ▲ migrate v2→v3                                    │
+│ Enums (collapsed)                                              │
+│ Translations                                                   │
+│ Raw JSON  [copy] [download]   (collapsed)                      │
+└────────────────────────────────────────────────────────────────┘
+```
+
+**Issues panel** (top): hidden when everything is healthy ("All good" card shown instead). Each row links to the
+relevant section below and auto-expands that row.
+
+**Stat tiles**: clickable — sets the resource filter or scrolls to the section.
+
+**Resource rows**: collapsed by default; **error rows auto-expand**. The expanded body shows path, kind, custom
+operations, version, the full error in a copy-able `<pre>`, warnings, and dev actions (Publish / Add to menu / Remove
+from menu).
+
+**Backend down**: a full-width error card with the fetch error and a Retry button replaces the rest of the page.
+
+### URL state
+
+Filter and search are kept in the query string so links can be shared:
+
+```
+/crouton/status?filter=errors&q=book
+```
+
+`filter` accepts: `all` (default), `errors`, `warnings`, `draft`, `hidden`.
+
+### Auto-refresh
+
+Toggle the **auto** checkbox in the header to poll `GET /crouton/status.json` every 10 seconds. Polling stops
+automatically when the component is unmounted.
+
+### Named route
+
+Navigate programmatically with the exported constant:
+
+```ts
+import { CROUTON_STATUS } from '@ghentcdh/crouton-vue';
+
+router.push({ name: CROUTON_STATUS });
+```
+
+### Auto-register via `CroutonPlugin`
+
+Pass the router to `CroutonPlugin` and the status page is registered automatically at `/crouton/status`:
+
+```ts
+import { CroutonPlugin } from '@ghentcdh/crouton-vue';
+
+app.use(
+  CroutonPlugin(api, {
+    router,
+  }),
+);
+app.use(router);
+```
+
+This calls `router.addRoute` during plugin installation, so the route is in place before the router initialises.
 
 ### Standalone route
 
-If you prefer to mount it at a different path, import `CroutonStatusRoutes` instead:
+To mount the status page at a custom path, import `CroutonStatusRoutes` instead:
 
 ```ts
 import { CroutonStatusRoutes } from '@ghentcdh/crouton-vue';
@@ -109,3 +182,32 @@ const routes = [
   },
 ];
 ```
+
+### `useCroutonStatus` composable
+
+The data layer is exposed as a composable for custom status views or sidebar health indicators:
+
+```ts
+import { useCroutonStatus } from '@ghentcdh/crouton-vue';
+
+const {
+  status,       // Ref<CroutonStatus | null>
+  loading,      // Ref<boolean>
+  error,        // Ref<string | null>
+  backendUp,    // Ref<boolean>
+  lastChecked,  // Ref<Date | null>
+  autoRefresh,  // Ref<boolean>
+  refresh,      // () => Promise<void>
+  toggleAutoRefresh,
+  publishResource,   // (name: string) => Promise<void>  — dev only
+  addToMenu,         // (name: string) => Promise<void>  — dev only
+  removeFromMenu,    // (name: string) => Promise<void>  — dev only
+} = useCroutonStatus();
+
+await refresh();
+```
+
+### Raw JSON
+
+The bottom of the page has a collapsible `<pre>` with the full JSON. The **download** button saves
+`crouton-status-<env>-<timestamp>.json` — handy for bug reports.
