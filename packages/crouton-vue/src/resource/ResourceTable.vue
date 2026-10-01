@@ -82,7 +82,7 @@ watch(
   { once: true },
 );
 
-const form = computed(() => resource.value?.form?.value ?? null);
+const form = computed(() => resource.value?.form ?? null);
 
 const reload = () => {
   resource.value?.reload();
@@ -175,7 +175,7 @@ const showSchemaEditor = ref(false);
 
     <component
       :is="props.tableComponent"
-      v-bind="(resource as any)"
+      v-bind="resource as any"
       :id="`form_table_${id}`"
       @refresh="reload"
     />
