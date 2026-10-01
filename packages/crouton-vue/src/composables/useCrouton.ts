@@ -1,6 +1,8 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
+import type { Router } from 'vue-router';
+import { CROUTON_STATUS } from '../router';
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
@@ -215,7 +217,7 @@ export const useCrouton = (): UseCrouton => {
 
 export const CroutonPlugin = (
   api: AxiosInstance,
-  options: Partial<typeof AppConfig> = {},
+  options: Partial<typeof AppConfig> & { router?: Router } = {},
 ) => ({
   install(app: App) {
     // useCrouton(); //.init(api, options);
@@ -231,6 +233,13 @@ export const CroutonPlugin = (
       CROUTON_READONLY_RENDERERS,
       [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
     );
+    if (options.router) {
+      options.router.addRoute({
+        path: '/crouton/status',
+        name: CROUTON_STATUS,
+        component: () => import('../status/StatusView.vue'),
+      });
+    }
     _crouton = createCrouton(api, options);
   },
 });

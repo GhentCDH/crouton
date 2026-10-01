@@ -70,8 +70,8 @@ const stateSortOrder: Record<ResourceState, number> = {
   ok: 5,
 };
 
-export const sortResources = (resources: ResourceStatus[]): ResourceStatus[] =>
-  [...resources].sort((a, b) => {
+export const sortResources = (resources: ResourceStatus[] | undefined): ResourceStatus[] =>
+  [...(resources ?? [])].sort((a, b) => {
     const diff = stateSortOrder[resourceState(a)] - stateSortOrder[resourceState(b)];
     return diff !== 0 ? diff : a.name.localeCompare(b.name);
   });
@@ -79,7 +79,7 @@ export const sortResources = (resources: ResourceStatus[]): ResourceStatus[] =>
 export const collectIssues = (status: CroutonStatus): StatusIssue[] => {
   const issues: StatusIssue[] = [];
 
-  for (const db of status.databases) {
+  for (const db of status.databases ?? []) {
     if (!db.connected) {
       issues.push({
         severity: 'error',
@@ -91,7 +91,7 @@ export const collectIssues = (status: CroutonStatus): StatusIssue[] => {
     }
   }
 
-  for (const res of status.resources) {
+  for (const res of status.resources ?? []) {
     if (res.draft) continue;
     if (!res.valid) {
       issues.push({

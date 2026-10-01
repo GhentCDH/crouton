@@ -150,6 +150,23 @@ import { CROUTON_STATUS } from '@ghentcdh/crouton-vue';
 router.push({ name: CROUTON_STATUS });
 ```
 
+### Auto-register via `CroutonPlugin`
+
+Pass the router to `CroutonPlugin` and the status page is registered automatically at `/crouton/status`:
+
+```ts
+import { CroutonPlugin } from '@ghentcdh/crouton-vue';
+
+app.use(
+  CroutonPlugin(api, {
+    router,
+  }),
+);
+app.use(router);
+```
+
+This calls `router.addRoute` during plugin installation, so the route is in place before the router initialises.
+
 ### Standalone route
 
 To mount the status page at a custom path, import `CroutonStatusRoutes` instead:

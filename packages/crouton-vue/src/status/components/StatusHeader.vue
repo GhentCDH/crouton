@@ -65,11 +65,11 @@ const emit = defineEmits<{
 }>();
 
 const errorCount = computed(() => {
-  if (!props.status) return 0;
+  if (!props.status?.summary) return 0;
   return props.status.summary.databaseErrors + props.status.summary.resourceErrors;
 });
 
-const warningCount = computed(() => props.status?.summary.warningCount ?? 0);
+const warningCount = computed(() => props.status?.summary?.warningCount ?? 0);
 
 const worstState = computed(() => {
   if (errorCount.value > 0) return 'error';

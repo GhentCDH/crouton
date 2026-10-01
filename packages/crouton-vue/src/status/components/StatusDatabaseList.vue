@@ -1,12 +1,12 @@
 <template>
   <section id="databases">
     <h2 class="text-lg font-semibold mb-2 text-base-content">Databases</h2>
-    <p v-if="props.databases.length === 0" class="text-sm text-base-content/60">
+    <p v-if="(props.databases ?? []).length === 0" class="text-sm text-base-content/60">
       No databases configured.
     </p>
     <ul v-else class="rounded-lg border border-base-300 divide-y divide-base-300 overflow-hidden">
       <li
-        v-for="db in props.databases"
+        v-for="db in (props.databases ?? [])"
         :key="db.name"
         :id="`db-${db.name}`"
         class="flex items-start gap-3 p-3"

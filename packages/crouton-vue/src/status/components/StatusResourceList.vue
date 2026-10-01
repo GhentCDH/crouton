@@ -110,7 +110,7 @@ const expandedSet = ref<Set<string>>(new Set());
 watch(
   () => props.resources,
   (resources) => {
-    for (const r of resources) {
+    for (const r of resources ?? []) {
       if (resourceState(r) === 'error') expandedSet.value.add(r.name);
     }
   },

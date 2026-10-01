@@ -7,7 +7,7 @@
     >
       <div class="text-xs text-base-content/60 mb-1">Databases</div>
       <div class="font-semibold" :class="dbOk ? 'text-success' : 'text-error'">
-        {{ dbConnected }}/{{ props.status.databases.length }}
+        {{ dbConnected }}/{{ databases.length }}
       </div>
       <div class="text-xs text-base-content/60">connected</div>
     </button>
@@ -19,7 +19,7 @@
     >
       <div class="text-xs text-base-content/60 mb-1">Resources</div>
       <div class="font-semibold" :class="resourceOk ? 'text-success' : 'text-error'">
-        {{ resourceValid }}/{{ props.status.resources.length }}
+        {{ resourceValid }}/{{ resources.length }}
       </div>
       <div class="text-xs text-base-content/60">valid</div>
     </button>
@@ -61,11 +61,13 @@ const emit = defineEmits<{
   'scroll-to': [section: string];
 }>();
 
-const dbConnected = computed(() => props.status.databases.filter((d) => d.connected).length);
-const dbOk = computed(() => dbConnected.value === props.status.databases.length);
-const resourceValid = computed(() => props.status.resources.filter((r) => r.valid && !r.draft).length);
-const resourceOk = computed(() => props.status.summary.resourceErrors === 0);
-const warningCount = computed(() => props.status.summary.warningCount);
+const databases = computed(() => props.status.databases ?? []);
+const resources = computed(() => props.status.resources ?? []);
+const dbConnected = computed(() => databases.value.filter((d) => d.connected).length);
+const dbOk = computed(() => dbConnected.value === databases.value.length);
+const resourceValid = computed(() => resources.value.filter((r) => r.valid && !r.draft).length);
+const resourceOk = computed(() => (props.status.summary?.resourceErrors ?? 0) === 0);
+const warningCount = computed(() => props.status.summary?.warningCount ?? 0);
 const i18nMissing = computed(() =>
   props.status.i18n?.bundles.reduce((sum, b) => sum + b.emptyKeys, 0) ?? 0,
 );
