@@ -208,7 +208,6 @@ export const sanitizeValueLabelSort = (
 export const orderableChildSort = (
   sort: string | undefined,
   childModel: any,
-  _sub: SubResourceConfig,
 ): string | undefined => {
   if (!sort) return undefined;
   const scalarFields = new Set(
@@ -371,16 +370,27 @@ export class ReadRepository<T = any> {
         .map((s) => s.relation),
     ]);
     const filteredConfigInclude = configInclude
-      ? Object.fromEntries(Object.entries(configInclude).filter(([key]) => !countableRelations.has(key)))
+      ? Object.fromEntries(
+          Object.entries(configInclude).filter(
+            ([key]) => !countableRelations.has(key),
+          ),
+        )
       : undefined;
-    const safeConfigInclude = filteredConfigInclude && Object.keys(filteredConfigInclude).length ? filteredConfigInclude : undefined;
+    const safeConfigInclude =
+      filteredConfigInclude && Object.keys(filteredConfigInclude).length
+        ? filteredConfigInclude
+        : undefined;
     const mergedInclude =
       flatIncludes || safeConfigInclude
         ? { ...flatIncludes, ...safeConfigInclude }
         : undefined;
 
     const countClause = countableSubResources.length
-      ? { select: Object.fromEntries(countableSubResources.map((s) => [s.relation, true])) }
+      ? {
+          select: Object.fromEntries(
+            countableSubResources.map((s) => [s.relation, true]),
+          ),
+        }
       : undefined;
 
     if (projection.select) {
@@ -401,7 +411,10 @@ export class ReadRepository<T = any> {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
-            countableSubResources.map((s) => [s.column, _count[s.relation] ?? 0]),
+            countableSubResources.map((s) => [
+              s.column,
+              _count[s.relation] ?? 0,
+            ]),
           );
           return { ...rest, ...counts };
         })
@@ -553,9 +566,7 @@ export class ReadRepository<T = any> {
         sub.childRoute,
       );
       const labeled = subVlCols?.length
-        ? decorated.map((r: any) =>
-            applyValueLabelColumns(r, subVlCols),
-          )
+        ? decorated.map((r: any) => applyValueLabelColumns(r, subVlCols))
         : decorated;
       return { data: labeled, count: result?.count ?? labeled.length };
     }
@@ -578,7 +589,6 @@ export class ReadRepository<T = any> {
     const childSort = orderableChildSort(
       sanitizeValueLabelSort(params.sort, subVlCols),
       childModel,
-      sub,
     );
 
     const [data, count] = await Promise.all([
@@ -619,9 +629,7 @@ export class ReadRepository<T = any> {
       : withCalc;
 
     const labeled = subVlCols?.length
-      ? decorated.map((r: any) =>
-          applyValueLabelColumns(r, subVlCols),
-        )
+      ? decorated.map((r: any) => applyValueLabelColumns(r, subVlCols))
       : decorated;
     return { data: labeled, count };
   }

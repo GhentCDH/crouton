@@ -5,9 +5,9 @@ import {
   JsonActionSchema,
   JsonDisplaySchema,
   JsonIncludeEntrySchema,
-  JsonOperationsSchema, ViewConfigSchema
+  JsonOperationsSchema,
+  ViewConfigSchema,
 } from '@ghentcdh/crouton-core';
-
 
 import { ValueLabelColumnSchema } from './valueLabel';
 import { CustomRepositorySchema } from '../custom-repository/custom-repository.types';
