@@ -2919,6 +2919,12 @@ packages:
     cpu: [x64]
     os: [freebsd]
 
+  '@rollup/rollup-linux-arm-gnueabihf@4.63.6':
+    resolution: {integrity: sha512-hV+W1r8HM84PER4If94QuzrrD0DNk4CxobNhVUiz9ZiiWHDzJss4Jra2AYGH1a7GOTzjS1sIyZ35yYEhw/aq+g==}
+    cpu: [arm]
+    os: [linux]
+    libc: [glibc]
+
   '@rollup/rollup-linux-arm-musleabihf@4.63.6':
     resolution: {integrity: sha512-5dWs/GENZufRph8PEfl0TrNH/R3DHJA+VxF/dqlfV2oUZfxRtN3qmFXg2DZj8DYM8d+Vd3dgZtuVmoBE/nb2YQ==}
     cpu: [arm]
@@ -2955,6 +2961,12 @@ packages:
     os: [linux]
     libc: [glibc]
 
+  '@rollup/rollup-linux-ppc64-musl@4.63.6':
+    resolution: {integrity: sha512-LvjnulezHjiaM5Ga9MPCDLTVddjvcrJhZc6vEz9fxeFRGPJsPAX9HuTuPTUQ3l8d+nYpZB/xWzUpuKJlLQm3VQ==}
+    cpu: [ppc64]
+    os: [linux]
+    libc: [musl]
+
   '@rollup/rollup-linux-riscv64-gnu@4.63.6':
     resolution: {integrity: sha512-YmhSBeYZwJ937s8tKpYAhms48N+tj7e+oFkbkVVxfMRdAiynK2AxqRapJXB4utyXxc/iYTkMfPRQ+7ZP0IO78w==}
     cpu: [riscv64]
@@ -2970,6 +2982,12 @@ packages:
   '@rollup/rollup-linux-s390x-gnu@4.63.6':
     resolution: {integrity: sha512-9G5AtEkpN/A89BILHHEL9aYRYTuFjwa8PUQqoEg8SDrwOZBKpwYqNlQCBNI5QPwGrf7qFlb6LNFilo8FCSA3Wg==}
     cpu: [s390x]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-x64-gnu@4.63.6':
+    resolution: {integrity: sha512-Ezx2E5D6Siz805j41x91JiGbzuCm8i2U98U37SQ7ytY737+wsJq+P9nPL6UmqDww491zO7MTivYOTrtmTTeCSw==}
+    cpu: [x64]
     os: [linux]
     libc: [glibc]
 
@@ -10439,6 +10457,9 @@ snapshots:
   '@rollup/rollup-freebsd-x64@4.63.6':
     optional: true
 
+  '@rollup/rollup-linux-arm-gnueabihf@4.63.6':
+    optional: true
+
   '@rollup/rollup-linux-arm-musleabihf@4.63.6':
     optional: true
 
@@ -10457,6 +10478,9 @@ snapshots:
   '@rollup/rollup-linux-ppc64-gnu@4.63.6':
     optional: true
 
+  '@rollup/rollup-linux-ppc64-musl@4.63.6':
+    optional: true
+
   '@rollup/rollup-linux-riscv64-gnu@4.63.6':
     optional: true
 
@@ -10464,6 +10488,9 @@ snapshots:
     optional: true
 
   '@rollup/rollup-linux-s390x-gnu@4.63.6':
+    optional: true
+
+  '@rollup/rollup-linux-x64-gnu@4.63.6':
     optional: true
 
   '@rollup/rollup-linux-x64-musl@4.63.6':
@@ -15023,15 +15050,18 @@ snapshots:
       '@rollup/rollup-darwin-x64': 4.63.6
       '@rollup/rollup-freebsd-arm64': 4.63.6
       '@rollup/rollup-freebsd-x64': 4.63.6
+      '@rollup/rollup-linux-arm-gnueabihf': 4.63.6
       '@rollup/rollup-linux-arm-musleabihf': 4.63.6
       '@rollup/rollup-linux-arm64-gnu': 4.63.6
       '@rollup/rollup-linux-arm64-musl': 4.63.6
       '@rollup/rollup-linux-loong64-gnu': 4.63.6
       '@rollup/rollup-linux-loong64-musl': 4.63.6
       '@rollup/rollup-linux-ppc64-gnu': 4.63.6
+      '@rollup/rollup-linux-ppc64-musl': 4.63.6
       '@rollup/rollup-linux-riscv64-gnu': 4.63.6
       '@rollup/rollup-linux-riscv64-musl': 4.63.6
       '@rollup/rollup-linux-s390x-gnu': 4.63.6
+      '@rollup/rollup-linux-x64-gnu': 4.63.6
       '@rollup/rollup-linux-x64-musl': 4.63.6
       '@rollup/rollup-openbsd-x64': 4.63.6
       '@rollup/rollup-openharmony-arm64': 4.63.6
