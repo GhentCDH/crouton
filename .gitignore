@@ -57,3 +57,4 @@ _tmp_*
 # local pnpm store (sandbox/CI envs without a shared global store)
 .pnpm-store/
 :memory:
+/packages/crouton-api/generated/

@@ -1,7 +1,10 @@
-import { type JsonResourceOperations, type SecurityConfig } from '@ghentcdh/crouton-core';
+import {
+  type JsonResourceOperations,
+  type ResourceConfig,
+  type SecurityConfig,
+} from '@ghentcdh/crouton-core';
 
 import { type Resource } from './resource/ResourceConfig.schema';
-import type { SubResourceConfig } from './resource/SubResource.schema';
 import { type ResourceDefinition } from './resource/defintion.schema';
 import { type SchemaInput } from './resource/json.schema';
 
@@ -58,6 +61,8 @@ const opSecurity = (entry: unknown): SecurityConfig | undefined => {
   return (entry as { security?: SecurityConfig }).security;
 };
 
+type ResourceOperations = Pick<ResourceConfig, 'operations'>;
+
 /** Effective security for one operation: op-level → resource global → module default. */
 export const securityFor = (
   config: Resource,
@@ -70,7 +75,7 @@ export const securityFor = (
 /** Same precedence for sub-resources: op-level → parent global → module default. */
 export const securityForSub = (
   config: Resource,
-  sub: SubResourceConfig,
+  sub: ResourceOperations,
   op: CrudOperation,
   moduleDefault?: SecurityConfig,
 ): SecurityConfig | undefined => {
