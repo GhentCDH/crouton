@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "label": {
+      "description": "Override the field label",
+      "type": "string"
+    },
+    "hideLabel": {
+      "description": "Hide the label",
+      "type": "boolean"
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "readonly": {
+      "type": "boolean"
+    },
+    "colspan": {
+      "type": "number"
+    },
+    "width": {
+      "type": "string"
+    },
+    "styles": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "customRender": {
+      "type": "string"
+    },
+    "withTime": {
+      "description": "Force time input on/off, overrides format",
+      "type": "boolean"
+    },
+    "min": {
+      "description": "Earliest selectable date, ISO or yyyy-MM-dd",
+      "type": "string"
+    },
+    "max": {
+      "description": "Latest selectable date, ISO or yyyy-MM-dd",
+      "type": "string"
+    },
+    "locale": {
+      "default": "en-GB",
+      "description": "BCP-47 locale for month heading and weekday labels",
+      "type": "string"
+    },
+    "firstDayOfWeek": {
+      "default": 1,
+      "description": "0 = Sunday, 1 = Monday",
+      "type": "number"
+    }
+  },
+  "additionalProperties": {},
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date.field-input.schema.json",
+  "title": "Crouton fieldInput options: date"
+}

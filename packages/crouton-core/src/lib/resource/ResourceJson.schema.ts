@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
+import { parseFieldInputOptions } from './FieldInput.schema';
 import { LayoutSchema } from './Layout.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
@@ -219,7 +220,13 @@ export const buildResourceJsonSchema = () => {
         id: (obj.id ?? obj.name) as string,
         route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
         schemaVersion,
-        columns: normalizeColumns(obj.columns),
+        columns: normalizeColumns(obj.columns)?.map((col) => {
+          const out = { ...col };
+          if (out.fieldInput) out.fieldInput = parseFieldInputOptions(out.fieldInput);
+          if (out.fieldView) out.fieldView = parseFieldInputOptions(out.fieldView);
+          if (out.fieldTable) out.fieldTable = parseFieldInputOptions(out.fieldTable);
+          return out;
+        }),
         operations: obj.operations ?? defaultOps,
       };
     }),

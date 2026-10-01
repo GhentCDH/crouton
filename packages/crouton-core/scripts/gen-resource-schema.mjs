@@ -12,7 +12,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Imported from the built ESM output (tsup runs before this via onSuccess).
-import { CURRENT_RESOURCE_VERSION, ResourceJsonShape } from '../dist/index.js';
+import { CURRENT_RESOURCE_VERSION, ResourceJsonShape, fieldInputRegistry } from '../dist/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..');
@@ -66,3 +66,45 @@ console.info(
   `[crouton-core] wrote resource.schema.json + ${versionedName}` +
     (inRepoWithDocs ? ' (+ docs public)' : ''),
 );
+
+// Per-type field-input option schemas
+const emittedSchemaFiles = new Set();
+for (const [_type, def] of fieldInputRegistry) {
+  if (emittedSchemaFiles.has(def.schemaFile)) continue;
+  emittedSchemaFiles.add(def.schemaFile);
+
+  let typeSchema;
+  try {
+    typeSchema = z.toJSONSchema(def.options, {
+      target: 'draft-7',
+      io: 'input',
+      unrepresentable: 'any',
+    });
+  } catch {
+    typeSchema = {};
+  }
+  typeSchema.$id = `https://ghentcdh.github.io/crouton/schema/v${CURRENT_RESOURCE_VERSION}/${def.schemaFile}.field-input.schema.json`;
+  typeSchema.title = `Crouton fieldInput options: ${def.schemaFile}`;
+
+  const typeOut = `${JSON.stringify(typeSchema, null, 2)}\n`;
+  const fileName = `${def.schemaFile}.field-input.schema.json`;
+  const versionedFileName = `${def.schemaFile}.field-input.schema.v${CURRENT_RESOURCE_VERSION}.json`;
+
+  const fieldInputDistDir = join(distDir, 'field-input-schemas');
+  const fieldInputSrcDir = join(committedDir, 'field-input-schemas');
+  mkdirSync(fieldInputDistDir, { recursive: true });
+  mkdirSync(fieldInputSrcDir, { recursive: true });
+  for (const dir of [fieldInputDistDir, fieldInputSrcDir]) {
+    writeFileSync(join(dir, fileName), typeOut);
+    writeFileSync(join(dir, versionedFileName), typeOut);
+  }
+
+  if (inRepoWithDocs) {
+    const schemaDir = join(vuepressDir, 'public', 'schema');
+    const versionedDir = join(schemaDir, `v${CURRENT_RESOURCE_VERSION}`);
+    mkdirSync(versionedDir, { recursive: true });
+    writeFileSync(join(versionedDir, fileName), typeOut);
+  }
+}
+
+console.info(`[crouton-core] wrote ${emittedSchemaFiles.size} field-input schema files`);
