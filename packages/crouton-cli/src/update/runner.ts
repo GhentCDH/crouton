@@ -390,7 +390,8 @@ export const runUpdateResources = async (
         prismaConfigPath: configAbs,
         schemaPath: schemaAbs,
       });
-      spin.stop(result.ok ? 'Pull + generate complete' : 'db pull failed');
+      if (result.ok) spin.stop('Pull + generate complete');
+      else spin.error('db pull failed');
 
       if (!result.ok) {
         clack.log.error(result.dbPull.output);
@@ -412,7 +413,8 @@ export const runUpdateResources = async (
       const spin = clack.spinner();
       spin.start('prisma generate');
       const gen = await prismaGenerate(loaded.root, configAbs);
-      spin.stop(gen.ok ? 'Types generated' : 'generate failed (continuing)');
+      if (gen.ok) spin.stop('Types generated');
+      else spin.error('generate failed (continuing)');
       if (!gen.ok) clack.log.warn(gen.output);
     }
 

@@ -35,10 +35,10 @@
     "@prisma/internals": "^7.10.0"
   },
   "devDependencies": {
-    "@clack/prompts": "^0.11.0",
+    "@clack/prompts": "^1.8.1",
     "@ghentcdh/crouton-cli": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
-    "commander": "^14.0.0",
+    "commander": "^15.0.0",
     "picocolors": "^1.1.0",
     "tsup": "^8.0.0"
   }
