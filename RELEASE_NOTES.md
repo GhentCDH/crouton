@@ -1,3 +1,13 @@
+## 0.0.1-alpha.78 (2026-10-01)
+
+### 🩹 Fixes
+
+- create form ([a442174](https://github.com/GhentCDH/crouton/commit/a442174))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.77 (2026-10-01)
 
 ### 🚀 Features
