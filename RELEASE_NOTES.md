@@ -1,3 +1,19 @@
+## 0.0.1-alpha.77 (2026-10-01)
+
+### 🚀 Features
+
+- **crouton-core:** type-safe fieldInput registry with per-type Zod schemas and $schema stamping ([#144](https://github.com/GhentCDH/crouton/pull/144))
+- **crouton-vue:** redesign status page with issues-first layout ([#161](https://github.com/GhentCDH/crouton/pull/161))
+
+### 🩹 Fixes
+
+- **codegen:** load .env from schema dir so --prefix datasources are found ([#160](https://github.com/GhentCDH/crouton/pull/160))
+- **codegen:** fix ESM barrel files after zod-prisma-types generation ([#159](https://github.com/GhentCDH/crouton/pull/159))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.76 (2026-09-29)
 
 ### 🚀 Features
