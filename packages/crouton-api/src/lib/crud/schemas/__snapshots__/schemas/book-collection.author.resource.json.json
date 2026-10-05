@@ -1,0 +1,66 @@
+{
+  "id": "author",
+  "uri": "http://localhost:3000/author",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/author?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "minLength": 1
+        },
+        "bio": {
+          "type": "string",
+          "title": "Bio",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/name",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Name"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/bio",
+          "options": {
+            "format": "textarea",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Bio"
+          }
+        }
+      ]
+    }
+  }
+}

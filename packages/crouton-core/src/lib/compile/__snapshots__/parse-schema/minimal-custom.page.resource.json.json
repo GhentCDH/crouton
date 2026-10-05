@@ -1,0 +1,46 @@
+{
+  "id": "page",
+  "uri": "http://localhost:3000/pages",
+  "operations": {
+    "findAll": false,
+    "findOne": false,
+    "create": false,
+    "update": false,
+    "patch": false,
+    "delete": false,
+    "lookup": "http://localhost:3000/pages?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/name",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Name"
+          }
+        }
+      ]
+    }
+  }
+}

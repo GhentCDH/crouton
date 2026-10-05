@@ -1,0 +1,108 @@
+{
+  "id": "loan",
+  "uri": "http://localhost:3000/loan",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/loan?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "loanedAt": {
+          "type": "string",
+          "title": "Loaned at",
+          "minLength": 1
+        },
+        "returnedAt": {
+          "type": "string",
+          "title": "Returned at",
+          "minLength": 1
+        },
+        "userId": {
+          "title": "User"
+        },
+        "bookId": {
+          "title": "Book"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/loanedAt",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Loaned at"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/returnedAt",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Returned at"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/userId",
+          "options": {
+            "format": "autocomplete",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "resourceUri": "http://localhost:3000/user",
+            "schemasUri": "http://localhost:3000/user/schemas",
+            "colspan": 12,
+            "relationType": "manyToOne",
+            "label": "User"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/bookId",
+          "options": {
+            "format": "autocomplete",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "resourceUri": "http://localhost:3000/book",
+            "schemasUri": "http://localhost:3000/book/schemas",
+            "colspan": 12,
+            "relationType": "manyToOne",
+            "label": "Book"
+          }
+        }
+      ]
+    }
+  }
+}

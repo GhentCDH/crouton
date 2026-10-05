@@ -1,0 +1,12 @@
+{
+  "name": "page",
+  "route": "pages",
+  "idType": "string",
+  "tag": "Crouton",
+  "operations": [],
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {}
+}

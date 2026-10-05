@@ -1,0 +1,327 @@
+{
+  "id": "item",
+  "name": "item",
+  "route": "items",
+  "uri": "http://localhost:3000/items",
+  "title": "Item",
+  "idField": "id",
+  "idType": "string",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/items",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/items",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Created at",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortable": false,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/name",
+            "options": {
+              "sortId": "name",
+              "label": "Name"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/createdAt",
+            "options": {
+              "sortable": false,
+              "label": "Created at"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/price",
+            "options": {
+              "sortable": false,
+              "label": "Price"
+            }
+          }
+        ]
+      },
+      "defaultSort": "name"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/description",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Description"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Price"
+            }
+          }
+        ]
+      }
+    },
+    "filter": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Created at",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/description",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Description"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/createdAt",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Created at"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Price"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "actions": [],
+  "tableActions": []
+}

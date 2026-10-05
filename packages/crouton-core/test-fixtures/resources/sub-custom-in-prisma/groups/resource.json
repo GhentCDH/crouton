@@ -1,0 +1,19 @@
+{
+  "name": "groups",
+  "model": "Group",
+  "route": "groups",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "name": { "searchable": true },
+    "expenses": {
+      "label": "Expenses",
+      "hiddenInTable": true,
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "oneToMany",
+        "resource": "./expense/resource.json",
+        "foreignKey": "group_id"
+      }
+    }
+  }
+}

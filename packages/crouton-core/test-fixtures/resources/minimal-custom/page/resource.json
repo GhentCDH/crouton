@@ -1,0 +1,9 @@
+{
+  "name": "page",
+  "kind": "custom",
+  "route": "pages",
+  "columns": {
+    "id": { "type": "string", "idField": true, "hiddenInForm": true },
+    "name": { "type": "string", "searchable": true }
+  }
+}

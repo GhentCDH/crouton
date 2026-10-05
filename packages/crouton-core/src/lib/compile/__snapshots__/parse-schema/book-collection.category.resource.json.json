@@ -1,0 +1,66 @@
+{
+  "id": "category",
+  "uri": "http://localhost:3000/category",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/category?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "minLength": 1
+        },
+        "slug": {
+          "type": "string",
+          "title": "Slug",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/name",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Name"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/slug",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Slug"
+          }
+        }
+      ]
+    }
+  }
+}

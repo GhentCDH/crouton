@@ -1,0 +1,87 @@
+{
+  "id": "book",
+  "uri": "http://localhost:3000/books",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/books?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "enum": [
+            "draft",
+            "published",
+            "archived"
+          ],
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/title",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Title"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/status",
+          "options": {
+            "format": "select",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "values": [
+              {
+                "value": "draft",
+                "label": "Draft"
+              },
+              {
+                "value": "published",
+                "label": "Published"
+              },
+              {
+                "value": "archived",
+                "label": "Archived"
+              }
+            ],
+            "emitObject": true,
+            "displayKey": "label",
+            "colspan": 12,
+            "label": "Status"
+          }
+        }
+      ]
+    }
+  }
+}

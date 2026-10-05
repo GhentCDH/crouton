@@ -1,0 +1,26 @@
+{
+  "name": "article",
+  "model": "Article",
+  "route": "articles",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "searchable": true, "sortable": true },
+    "authorId": {
+      "label": "Author",
+      "fieldInput": {
+        "type": "autocomplete",
+        "relationType": "manyToOne",
+        "resource": "./author.resource"
+      }
+    },
+    "tags": {
+      "label": "Tags",
+      "hiddenInTable": true,
+      "hiddenInForm": true
+    }
+  },
+  "include": [
+    "author",
+    { "relation": "tags", "include": ["category"] }
+  ]
+}

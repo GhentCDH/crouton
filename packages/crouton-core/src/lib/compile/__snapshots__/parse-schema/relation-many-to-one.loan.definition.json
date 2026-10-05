@@ -1,0 +1,19 @@
+{
+  "name": "loan",
+  "route": "loans",
+  "idType": "string",
+  "tag": "Crouton",
+  "operations": [
+    "findAll",
+    "findOne",
+    "create",
+    "update",
+    "patch",
+    "delete"
+  ],
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {}
+}

@@ -1,0 +1,21 @@
+{
+  "name": "author",
+  "model": "Author",
+  "title": "Authors",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "name": { "searchable": true, "filterable": true, "sortable": true },
+    "bio": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "books": {
+      "label": "Books",
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "oneToMany",
+        "resource": "./book.resource"
+      }
+    }
+  },
+  "include": ["books"]
+}

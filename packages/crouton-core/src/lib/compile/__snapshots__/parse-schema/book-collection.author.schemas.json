@@ -1,0 +1,260 @@
+{
+  "id": "author",
+  "name": "author",
+  "route": "author",
+  "uri": "http://localhost:3000/author",
+  "title": "Authors",
+  "idField": "id",
+  "idType": "string",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/author",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/author/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/author",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/author/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/author/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/author/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/author?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortable": false,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/name",
+            "options": {
+              "sortId": "name",
+              "label": "Name"
+            }
+          }
+        ]
+      },
+      "defaultSort": "name"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "bio": {
+            "type": "string",
+            "title": "Bio",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/bio",
+            "options": {
+              "format": "textarea",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Bio"
+            }
+          }
+        ]
+      }
+    },
+    "filter": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "bio": {
+            "type": "string",
+            "title": "Bio",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/bio",
+            "options": {
+              "format": "textarea",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Bio"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/books",
+            "options": {
+              "format": "relation",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "oneToMany",
+              "label": "Books"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "actions": [],
+  "tableActions": []
+}

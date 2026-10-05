@@ -1,0 +1,18 @@
+{
+  "name": "loan",
+  "model": "Loan",
+  "route": "loans",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "loanedAt": { "type": "string", "sortable": true, "defaultSort": true },
+    "bookId": {
+      "label": "Book",
+      "fieldInput": {
+        "type": "autocomplete",
+        "relationType": "manyToOne",
+        "resource": "./book.resource"
+      }
+    }
+  },
+  "include": ["book"]
+}

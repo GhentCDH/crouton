@@ -1,0 +1,10 @@
+{
+  "name": "book",
+  "model": "Book",
+  "route": "books",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "searchable": true, "sortable": true },
+    "status": { "enum": "bookStatus", "filterable": true }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "item",
+  "model": "Item",
+  "route": "items",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "name": { "searchable": true, "sortable": true, "filterable": true },
+    "description": { "hiddenInTable": true },
+    "createdAt": { "defaultSort": true, "hiddenInForm": true },
+    "price": { "type": "number", "required": false }
+  }
+}
