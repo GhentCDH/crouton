@@ -122,11 +122,19 @@ watch(
   values,
   (newValues) => {
     if (syncing) return;
-    const isValid = meta.value.valid;
-    emits('valid', isValid);
     emits('change', toRaw(newValues) as Data);
   },
   { deep: true },
+);
+
+// meta.valid lags behind value changes: vee-validate validation is async, so
+// `values` watcher reads a stale meta.valid before the promise resolves.
+// Watch meta.valid directly so the parent always gets the settled validity.
+watch(
+  () => meta.value.valid,
+  (isValid) => {
+    if (!syncing) emits('valid', isValid);
+  },
 );
 
 // Emit errors when they change
