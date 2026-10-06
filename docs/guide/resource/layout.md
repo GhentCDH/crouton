@@ -68,8 +68,8 @@ A control entry is either a plain column id string or an object with overrides:
   "type": "grid",
   "columns": 12,
   "controls": [
-    { "id": "id", "colspan": 3 },
-    { "id": "label", "colspan": 9 },
+    { "id": "label", "colspan": 3 },
+    { "id": "title", "colspan": 9 },
     "description"
   ]
 }

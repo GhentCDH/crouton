@@ -10,31 +10,33 @@ export type ExampleKey =
 
 type Preset = { columns: unknown[]; layout: Record<string, unknown>; label: string; description: string };
 
-const BASE_COLUMNS = [
-  { id: 'id', type: 'string', idField: true, hiddenInForm: true, hiddenInTable: true },
-  { id: 'label', type: 'string', label: 'Label' },
-  { id: 'description', type: 'string', label: 'Description' },
-  { id: 'title', type: 'string', label: 'Title' },
-  { id: 'body', type: 'string', label: 'Body', fieldInput: { type: 'markdown' } },
-  { id: 'status', type: 'string', label: 'Status', fieldInput: { type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] } },
-  { id: 'authorName', type: 'string', label: 'Author name' },
-  { id: 'authorEmail', type: 'string', label: 'Author email' },
-  { id: 'createdAt', type: 'string', label: 'Created', fieldInput: { type: 'date' } },
-  { id: 'updatedAt', type: 'string', label: 'Updated', fieldInput: { type: 'date' } },
-];
+const col = (id: string, label: string, extra: Record<string, unknown> = {}) => ({
+  id,
+  type: 'string',
+  label,
+  ...extra,
+});
+
+const SELECT_STATUS = { type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] };
 
 export const EXAMPLES: Record<ExampleKey, Preset> = {
   'grid-colspan': {
     label: 'Grid with colspan',
-    description: '3/9 split on id+label, full-width description row',
-    columns: BASE_COLUMNS,
+    description: '3/9 split on label+title, full-width description row',
+    columns: [
+      col('label', 'Label'),
+      col('title', 'Title'),
+      col('description', 'Description'),
+      col('authorName', 'Author name'),
+      col('authorEmail', 'Author email'),
+    ],
     layout: {
       form: {
         type: 'grid',
         columns: 12,
         controls: [
-          { id: 'id', colspan: 3 },
-          { id: 'label', colspan: 9 },
+          { id: 'label', colspan: 3 },
+          { id: 'title', colspan: 9 },
           'description',
           'authorName',
           'authorEmail',
@@ -45,7 +47,14 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
   collapse: {
     label: 'Collapse section',
     description: 'Collapsible Metadata section at bottom',
-    columns: BASE_COLUMNS,
+    columns: [
+      col('title', 'Title'),
+      col('body', 'Body', { fieldInput: { type: 'markdown' } }),
+      col('authorName', 'Author name'),
+      col('authorEmail', 'Author email'),
+      col('createdAt', 'Created', { fieldInput: { type: 'date' } }),
+      col('updatedAt', 'Updated', { fieldInput: { type: 'date' } }),
+    ],
     layout: {
       form: {
         controls: ['title', 'body'],
@@ -62,7 +71,12 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
   group: {
     label: 'Group section',
     description: 'Non-collapsible titled block',
-    columns: BASE_COLUMNS,
+    columns: [
+      col('title', 'Title'),
+      col('body', 'Body', { fieldInput: { type: 'markdown' } }),
+      col('authorName', 'Author name'),
+      col('authorEmail', 'Author email'),
+    ],
     layout: {
       form: {
         controls: ['title', 'body'],
@@ -78,26 +92,39 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
   },
   'table-order': {
     label: 'Table column order',
-    description: 'Reordered headers with appended unlisted columns',
-    columns: BASE_COLUMNS,
+    description: 'Declared columns appear first; unlisted columns appended',
+    columns: [
+      col('title', 'Title'),
+      col('status', 'Status', { fieldInput: SELECT_STATUS }),
+      col('authorName', 'Author name'),
+      col('createdAt', 'Created', { fieldInput: { type: 'date' } }),
+    ],
     layout: {
-      table: { controls: ['title', 'status', 'createdAt'] },
+      table: { controls: ['status', 'createdAt', 'title'] },
     },
   },
   'missing-extra': {
     label: 'Missing / extra columns',
-    description: 'Warnings shown for unknown and unreferenced columns',
-    columns: BASE_COLUMNS,
+    description: 'Warnings panel shows unknown and unreferenced columns',
+    columns: [
+      col('title', 'Title'),
+      col('body', 'Body', { fieldInput: { type: 'markdown' } }),
+      col('status', 'Status', { fieldInput: SELECT_STATUS }),
+    ],
     layout: {
       form: {
-        controls: ['title', 'body', 'nonExistentColumn'],
+        controls: ['title', 'nonExistentColumn'],
       },
     },
   },
   rowspan: {
     label: 'Rowspan',
     description: 'Body spanning 2 rows next to 2 stacked inputs',
-    columns: BASE_COLUMNS,
+    columns: [
+      col('body', 'Body', { fieldInput: { type: 'markdown' } }),
+      col('title', 'Title'),
+      col('status', 'Status', { fieldInput: SELECT_STATUS }),
+    ],
     layout: {
       form: {
         type: 'grid',
@@ -112,8 +139,12 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
   },
   overrides: {
     label: 'Control overrides',
-    description: 'label, hideLabel, type, options overrides',
-    columns: BASE_COLUMNS,
+    description: 'label, hideLabel, options overrides on existing controls',
+    columns: [
+      col('title', 'Title'),
+      col('body', 'Body', { fieldInput: { type: 'markdown' } }),
+      col('status', 'Status', { fieldInput: SELECT_STATUS }),
+    ],
     layout: {
       form: {
         controls: [
@@ -127,7 +158,12 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
   nested: {
     label: 'Nested sections',
     description: 'Grid → collapse → grid with colspan',
-    columns: BASE_COLUMNS,
+    columns: [
+      col('title', 'Title'),
+      col('status', 'Status', { fieldInput: SELECT_STATUS }),
+      col('authorName', 'Author name'),
+      col('authorEmail', 'Author email'),
+    ],
     layout: {
       form: {
         type: 'grid',
