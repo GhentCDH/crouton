@@ -61,6 +61,7 @@
       "type": "string"
     },
     "unique": {
+      "description": "Async uniqueness validation: present when the column declares `unique`.",
       "type": "object",
       "properties": {
         "enabled": {

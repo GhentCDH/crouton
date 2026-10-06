@@ -2,4 +2,8 @@
 
 **Used by:** `string`
 
-_All common options apply; no type-specific options._
+**Also available:** all [common options](../common-options.md).
+
+| Option | Type | Required | Default | Description | Example |
+|--------|------|----------|---------|-------------|---------|
+| `unique` | object | No |  | Async uniqueness validation: present when the column declares `unique`. |  |
