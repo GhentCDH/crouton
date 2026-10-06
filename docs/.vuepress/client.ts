@@ -1,6 +1,7 @@
 import { defineClientConfig } from 'vuepress/client';
 
 import AutoSaveFormDemo from './components/AutoSaveFormDemo.vue';
+import LayoutDemo from './components/LayoutDemo.vue';
 import ResourceJsonEditorDemo from './components/ResourceJsonEditorDemo.vue';
 import ResourceJsonValidator from './components/ResourceJsonValidator.vue';
 
@@ -11,5 +12,6 @@ export default defineClientConfig({
     app.component('ResourceJsonEditorDemo', ResourceJsonEditorDemo);
     app.component('AutoSaveFormDemo', AutoSaveFormDemo);
     app.component('ResourceJsonValidator', ResourceJsonValidator);
+    app.component('LayoutDemo', LayoutDemo);
   },
 });

@@ -11,7 +11,7 @@ export const orderTableColumnsFromLayout = (
   node: LayoutNode,
   warn: (msg: string) => void = console.warn,
 ): ViewConfig => {
-  const orderedIds = flattenLayoutControlIds(node);
+  const orderedIds = flattenLayoutControlIds(node, warn);
   if (!orderedIds.length) return view;
 
   const elements: any[] = (view.ui_schema as any)?.elements ?? [];

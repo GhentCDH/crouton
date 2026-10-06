@@ -87,7 +87,7 @@ export const fromJson = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  let views = buildViews(schema, enrichedColumns);
+  let views = buildViews(schema, enrichedColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = {
       ...views,
