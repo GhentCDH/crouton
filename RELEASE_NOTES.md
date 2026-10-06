@@ -1,3 +1,20 @@
+## 0.0.1-alpha.79 (2026-10-06)
+
+### 🚀 Features
+
+- make layout available in the frontend ([#167](https://github.com/GhentCDH/crouton/pull/167))
+- unique async validation ([#165](https://github.com/GhentCDH/crouton/pull/165))
+- **crouton-core,crouton-api:** fixture-driven tests for parseSchema ([#166](https://github.com/GhentCDH/crouton/pull/166))
+- **crouton-core,docs:** generate field-input option docs from Zod .m… ([#168](https://github.com/GhentCDH/crouton/pull/168))
+
+### 🩹 Fixes
+
+- **crouton-forms-vue:** revalidate form after autocomplete selection ([3ade783](https://github.com/GhentCDH/crouton/commit/3ade783))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.78 (2026-10-01)
 
 ### 🩹 Fixes
