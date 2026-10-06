@@ -24,6 +24,7 @@ import { ResourceConfigRegistry } from './crud/resource-config.registry';
 import { CroutonSecurityGuard, SecurityGuardRegistry } from './crud/security';
 import { createStatusController } from './crud/status';
 import { LanguageInterceptor, TranslationRegistry } from './crud/translation';
+import { warnMissingUniqueConstraints } from './crud/unique-validation';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -161,6 +162,8 @@ export class CroutonApiModule {
       }
       validConfigs.push(c);
     }
+
+    warnMissingUniqueConstraints(validConfigs, dataSourceRegistry);
 
     const configRegistry = new ResourceConfigRegistry(loader, validConfigs);
 

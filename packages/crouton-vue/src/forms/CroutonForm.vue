@@ -94,7 +94,10 @@ import {
   type CroutonFormEmitsType,
   CroutonFormProperties,
 } from './CroutonForm.properties';
-import { FORM_MODAL_OPENER_KEY } from '@ghentcdh/crouton-forms-vue';
+import {
+  FORM_MODAL_OPENER_KEY,
+  provideUniqueCheck,
+} from '@ghentcdh/crouton-forms-vue';
 import FormComponent from './FormComponent.vue';
 import { useApi } from '../composables/useApi';
 import { useFormLogic } from './useFormLogic';
@@ -124,6 +127,20 @@ const {
 } = useFormLogic(properties, emits, formData, formRef);
 
 provide(FORM_MODAL_OPENER_KEY, (opts) => JsonFormModalService.openModal(opts));
+
+// Give form controls a resource-aware uniqueness check (for `unique` columns).
+// `saveId` excludes the record being edited so it doesn't clash with itself.
+provideUniqueCheck(
+  properties.resourceApi
+    ? (field, value, scope) =>
+        properties.resourceApi!.checkUnique(
+          field,
+          value,
+          properties.saveId ?? undefined,
+          scope,
+        )
+    : null,
+);
 
 const onBack = (): void => {
   onCancel();

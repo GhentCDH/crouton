@@ -1,6 +1,16 @@
-import { type z } from 'zod';
+import { z } from 'zod';
 
 import { BaseOptionsSchema } from '../base.options';
 
-export const StringOptionsSchema = BaseOptionsSchema.extend({});
+const NormalizedUniqueSchema = z.object({
+  enabled: z.boolean(),
+  scope: z.array(z.string()).optional(),
+  caseInsensitive: z.boolean().optional(),
+  message: z.string().optional(),
+});
+
+export const StringOptionsSchema = BaseOptionsSchema.extend({
+  /** Async uniqueness validation: present when the column declares `unique`. */
+  unique: NormalizedUniqueSchema.optional(),
+});
 export type StringOptions = z.infer<typeof StringOptionsSchema>;

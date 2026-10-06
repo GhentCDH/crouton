@@ -1,3 +1,5 @@
+import { type JsonColumn, normalizeUnique } from '@ghentcdh/crouton-core';
+
 import { type CrudOperation, isOperationEnabled, resolveDefinition } from '../crud.config';
 import type { Resource } from './ResourceConfig.schema';
 import { validateCustomRepository } from '../custom-repository/custom-repository.validate';
@@ -48,6 +50,28 @@ export const validateResourceConfig = (
         'repository.ts is present on a prisma resource and will be ignored — ' +
           'set kind: "custom" if you want to use it for data access.',
       );
+    }
+  }
+
+  // ── Uniqueness checks ──────────────────────────────────────────────────
+  // A real DB `@unique` constraint can't be seen from the config, so that
+  // prerequisite is only documented — but a bad `scope` reference is catchable.
+  const columns = (config.columns as unknown as JsonColumn[] | undefined) ?? [];
+  const columnIds = new Set(columns.map((c) => c.id));
+  for (const col of columns) {
+    const unique = normalizeUnique(col.unique);
+    if (!unique) continue;
+    if (col.idField) {
+      warnings.push(
+        `Column "${col.id}" is the id field; "unique" is redundant there.`,
+      );
+    }
+    for (const scopeId of unique.scope ?? []) {
+      if (!columnIds.has(scopeId)) {
+        errors.push(
+          `Column "${col.id}" has unique.scope referencing unknown column "${scopeId}".`,
+        );
+      }
     }
   }
 

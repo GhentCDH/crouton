@@ -30,6 +30,18 @@ export * from './forms/renderers/controls/composables/useReadonlyBinding';
 export { useDisplayValue } from './forms/renderers/controls/readonly/useDisplayValue';
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
+export {
+  collectUniqueFields,
+  createUniqueChecker,
+  provideUniqueCheck,
+  useUniqueCheckFn,
+  withUniqueChecks,
+} from './composables/useUniqueValidator';
+export type {
+  UniqueCheckFn,
+  UniqueField,
+  UniqueScope,
+} from './composables/useUniqueValidator';
 export { useAutoSave } from './composables/useAutoSave';
 export {
   FORM_MODAL_OPENER_KEY,

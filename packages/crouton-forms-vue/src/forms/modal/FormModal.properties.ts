@@ -3,6 +3,7 @@ import type { ExtractPublicPropTypes, PropType } from 'vue';
 import type { SizeType } from '@ghentcdh/crouton-core';
 
 import type { FormEventPayload } from '../../composables/useFormEvents';
+import type { UniqueCheckFn } from '../../composables/useUniqueValidator';
 import type { HttpClient } from '../../http-client';
 import type { ErrorMode } from '../errorMode';
 
@@ -86,6 +87,11 @@ export const FormModalProperties = {
   readonly: {
     type: Boolean,
     default: false,
+  },
+  /** Resource-aware uniqueness check for `unique` columns. */
+  uniqueCheck: {
+    type: Function as PropType<UniqueCheckFn>,
+    default: null,
   },
 };
 

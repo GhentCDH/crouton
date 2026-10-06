@@ -3,6 +3,46 @@ import { z } from 'zod';
 import { ColumnTypeSchema } from './ColumnType.schema';
 import { FieldInputSchema, FieldVariantSchema } from './FieldInput.schema';
 
+// -- Uniqueness ------------------------------------------------------------
+
+/**
+ * Rich form of `unique`. Lets a column be unique across a composite scope,
+ * compared case-insensitively, and carry a custom violation message.
+ */
+export const UniqueConfigSchema = z.object({
+  /** Other column ids the uniqueness is scoped by (composite unique). */
+  scope: z.array(z.string()).optional(),
+  /** Compare case-insensitively (maps to Prisma `mode: 'insensitive'`). */
+  caseInsensitive: z.boolean().optional(),
+  /** Message shown on the field when the value is already taken. */
+  message: z.string().optional(),
+});
+export type UniqueConfig = z.infer<typeof UniqueConfigSchema>;
+
+/** Declared uniqueness on a column: `true` for the simple case, or a config object. */
+export const UniqueSchema = z.union([z.boolean(), UniqueConfigSchema]);
+export type Unique = z.infer<typeof UniqueSchema>;
+
+/** Uniqueness normalized to a single object shape consumed by API + form layers. */
+export interface NormalizedUnique {
+  enabled: boolean;
+  scope?: string[];
+  caseInsensitive?: boolean;
+  message?: string;
+}
+
+/**
+ * Collapse the boolean / object `unique` forms into one shape (or `undefined`
+ * when uniqueness is off), so every consumer reads the same fields.
+ */
+export const normalizeUnique = (
+  unique: Unique | undefined,
+): NormalizedUnique | undefined => {
+  if (!unique) return undefined;
+  if (unique === true) return { enabled: true };
+  return { enabled: true, ...unique };
+};
+
 // Used by showWhen / hideWhen / disabledWhen
 export const WhenConditionSchema = z.object({
   field: z.string(), // required
@@ -42,6 +82,17 @@ export const JsonColumnSchema = z.object({
   enum: z.string().optional(), // name of a shared enum in crouton.enums.json
   idField: z.boolean().default(false), // default: false — exactly one column should set this
   showInLookup: z.boolean().default(false), // default: false
+  /**
+   * Enforce that this column's value is unique across the resource. `true` is
+   * simple single-column uniqueness; the object form allows a composite
+   * `scope`, case-insensitive comparison, and a custom `message`.
+   *
+   * Requires a matching DB unique constraint (`@unique` in Prisma) to be
+   * actually enforceable - the flag alone does not create one. The form uses it
+   * to validate as-you-type against a lightweight check endpoint; the API maps
+   * a Prisma unique violation back to this field on write.
+   */
+  unique: UniqueSchema.optional(),
   /**
    * Data type of the column, as a shorthand name (`"string"`, `"integer"`, …)
    * or a full JSON Schema fragment:

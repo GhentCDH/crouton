@@ -2,6 +2,7 @@ import type { UISchemaElement } from '@jsonforms/core';
 
 import { ElementBuilder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
+import type { NormalizedUnique } from '../resource/Column';
 
 export const ControlType = {
   number: 'number',
@@ -170,6 +171,8 @@ export interface ControlOption {
   customRender?: any;
   colspan?: number;
   rowspan?: number;
+  /** Async uniqueness validation descriptor, from a column's `unique` flag. */
+  unique?: NormalizedUnique;
 }
 
 export type ControlTypes = {

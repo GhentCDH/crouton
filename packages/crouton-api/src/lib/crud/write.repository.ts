@@ -12,6 +12,7 @@ import type { DataSourceAdapter } from './data-source/data-source.adapter';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { normalizeValueLabels } from './resource/valueLabel.apply';
+import { mapPrismaUniqueError } from './unique-validation';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (
@@ -116,7 +117,11 @@ export class WriteRepository<T = any> {
    * normalized, and run through `beforeWrite` by the factory wrapper.
    */
   async create(data: unknown, _request?: any): Promise<T> {
-    return this.prismaModel.create({ data });
+    try {
+      return await this.prismaModel.create({ data });
+    } catch (e: any) {
+      throw mapPrismaUniqueError(e, this.config) ?? e;
+    }
   }
 
   /**
@@ -132,6 +137,8 @@ export class WriteRepository<T = any> {
       });
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+      const uniqueError = mapPrismaUniqueError(e, this.config);
+      if (uniqueError) throw uniqueError;
       throw e;
     }
   }
@@ -148,6 +155,8 @@ export class WriteRepository<T = any> {
       });
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+      const uniqueError = mapPrismaUniqueError(e, this.config);
+      if (uniqueError) throw uniqueError;
       throw e;
     }
   }
@@ -160,6 +169,8 @@ export class WriteRepository<T = any> {
       });
     } catch (e: any) {
       if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+      const uniqueError = mapPrismaUniqueError(e, this.config);
+      if (uniqueError) throw uniqueError;
       throw e;
     }
   }
