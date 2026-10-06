@@ -1,8 +1,8 @@
-import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 
-import { fieldInputRegistry } from './registry';
 import { BaseOptionsSchema } from './base.options';
+import { fieldInputRegistry } from './registry';
 
 const getProperties = (schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> => {
   if (schema instanceof z.ZodObject) return schema.shape as Record<string, z.ZodTypeAny>;
