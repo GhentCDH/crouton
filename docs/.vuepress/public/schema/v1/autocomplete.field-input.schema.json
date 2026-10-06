@@ -6,25 +6,49 @@
       "properties": {
         "label": {
           "description": "Override the field label",
+          "examples": [
+            "My label"
+          ],
           "type": "string"
         },
         "hideLabel": {
-          "description": "Hide the label",
+          "description": "Hide the field label",
           "type": "boolean"
         },
         "placeholder": {
+          "description": "Placeholder text shown inside the input when empty",
+          "examples": [
+            "Search..."
+          ],
           "type": "string"
         },
         "readonly": {
+          "description": "Render the field in read-only mode",
           "type": "boolean"
         },
         "colspan": {
+          "description": "Grid column span (1–12)",
+          "examples": [
+            6,
+            12
+          ],
           "type": "number"
         },
         "width": {
+          "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+          "examples": [
+            "md",
+            "240px"
+          ],
           "type": "string"
         },
         "styles": {
+          "description": "Inline CSS style object applied to the field wrapper",
+          "examples": [
+            {
+              "color": "red"
+            }
+          ],
           "type": "object",
           "propertyNames": {
             "type": "string"
@@ -32,28 +56,56 @@
           "additionalProperties": {}
         },
         "customRender": {
+          "description": "Name of a globally registered Vue component to render instead of the default input",
+          "examples": [
+            "MyCustomInput"
+          ],
           "type": "string"
         },
         "labelKey": {
+          "description": "Object key used as the display label in the dropdown",
+          "examples": [
+            "label",
+            "name"
+          ],
           "type": "string"
         },
         "valueKey": {
+          "description": "Object key used as the stored value",
+          "examples": [
+            "value",
+            "id"
+          ],
           "type": "string"
         },
         "freeText": {
+          "description": "Allow the user to type a value not in the options list",
           "type": "boolean"
         },
         "enableCreate": {
+          "description": "Show a \"create\" action when no matching option is found",
           "type": "boolean"
         },
         "storeValue": {
+          "description": "Store option[valueKey] instead of the whole option object",
           "type": "boolean"
         },
         "options": {
           "type": "array",
-          "items": {}
+          "items": {},
+          "description": "Inline array of option items",
+          "examples": [
+            [
+              {
+                "label": "Active",
+                "value": "active"
+              }
+            ]
+          ]
         },
         "values": {
+          "description": "Alias for options (deprecated — prefer options)",
+          "deprecated": true,
           "type": "array",
           "items": {}
         }
@@ -61,32 +113,58 @@
       "required": [
         "options"
       ],
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "title": "Inline autocomplete",
+      "description": "Options provided as an inline array"
     },
     {
       "type": "object",
       "properties": {
         "label": {
           "description": "Override the field label",
+          "examples": [
+            "My label"
+          ],
           "type": "string"
         },
         "hideLabel": {
-          "description": "Hide the label",
+          "description": "Hide the field label",
           "type": "boolean"
         },
         "placeholder": {
+          "description": "Placeholder text shown inside the input when empty",
+          "examples": [
+            "Search..."
+          ],
           "type": "string"
         },
         "readonly": {
+          "description": "Render the field in read-only mode",
           "type": "boolean"
         },
         "colspan": {
+          "description": "Grid column span (1–12)",
+          "examples": [
+            6,
+            12
+          ],
           "type": "number"
         },
         "width": {
+          "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+          "examples": [
+            "md",
+            "240px"
+          ],
           "type": "string"
         },
         "styles": {
+          "description": "Inline CSS style object applied to the field wrapper",
+          "examples": [
+            {
+              "color": "red"
+            }
+          ],
           "type": "object",
           "propertyNames": {
             "type": "string"
@@ -94,64 +172,115 @@
           "additionalProperties": {}
         },
         "customRender": {
+          "description": "Name of a globally registered Vue component to render instead of the default input",
+          "examples": [
+            "MyCustomInput"
+          ],
           "type": "string"
         },
         "labelKey": {
+          "description": "Object key used as the display label in the dropdown",
+          "examples": [
+            "label",
+            "name"
+          ],
           "type": "string"
         },
         "valueKey": {
+          "description": "Object key used as the stored value",
+          "examples": [
+            "value",
+            "id"
+          ],
           "type": "string"
         },
         "freeText": {
+          "description": "Allow the user to type a value not in the options list",
           "type": "boolean"
         },
         "enableCreate": {
+          "description": "Show a \"create\" action when no matching option is found",
           "type": "boolean"
         },
         "storeValue": {
+          "description": "Store option[valueKey] instead of the whole option object",
           "type": "boolean"
         },
         "uri": {
           "type": "string",
-          "description": "Remote endpoint URL"
+          "description": "Remote endpoint URL that returns option items",
+          "examples": [
+            "/api/authors"
+          ]
         },
         "dataField": {
-          "description": "Field in response containing the data array",
+          "description": "Field in the API response containing the data array",
+          "examples": [
+            "data",
+            "results"
+          ],
           "type": "string"
         },
         "skipAuth": {
+          "description": "Send the request without authentication headers",
           "type": "boolean"
         }
       },
       "required": [
         "uri"
       ],
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "title": "Remote autocomplete",
+      "description": "Options fetched from a remote endpoint"
     },
     {
       "type": "object",
       "properties": {
         "label": {
           "description": "Override the field label",
+          "examples": [
+            "My label"
+          ],
           "type": "string"
         },
         "hideLabel": {
-          "description": "Hide the label",
+          "description": "Hide the field label",
           "type": "boolean"
         },
         "placeholder": {
+          "description": "Placeholder text shown inside the input when empty",
+          "examples": [
+            "Search..."
+          ],
           "type": "string"
         },
         "readonly": {
+          "description": "Render the field in read-only mode",
           "type": "boolean"
         },
         "colspan": {
+          "description": "Grid column span (1–12)",
+          "examples": [
+            6,
+            12
+          ],
           "type": "number"
         },
         "width": {
+          "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+          "examples": [
+            "md",
+            "240px"
+          ],
           "type": "string"
         },
         "styles": {
+          "description": "Inline CSS style object applied to the field wrapper",
+          "examples": [
+            {
+              "color": "red"
+            }
+          ],
           "type": "object",
           "propertyNames": {
             "type": "string"
@@ -159,63 +288,115 @@
           "additionalProperties": {}
         },
         "customRender": {
+          "description": "Name of a globally registered Vue component to render instead of the default input",
+          "examples": [
+            "MyCustomInput"
+          ],
           "type": "string"
         },
         "labelKey": {
+          "description": "Object key used as the display label in the dropdown",
+          "examples": [
+            "label",
+            "name"
+          ],
           "type": "string"
         },
         "valueKey": {
+          "description": "Object key used as the stored value",
+          "examples": [
+            "value",
+            "id"
+          ],
           "type": "string"
         },
         "freeText": {
+          "description": "Allow the user to type a value not in the options list",
           "type": "boolean"
         },
         "enableCreate": {
+          "description": "Show a \"create\" action when no matching option is found",
           "type": "boolean"
         },
         "storeValue": {
+          "description": "Store option[valueKey] instead of the whole option object",
           "type": "boolean"
         },
         "resource": {
           "type": "string",
-          "description": "Relative path to a resource.json"
+          "description": "Relative path to a resource.json used to populate the options",
+          "examples": [
+            "./author.resource.json"
+          ]
         },
         "skipAuth": {
+          "description": "Send the request without authentication headers",
           "type": "boolean"
         },
         "dataField": {
+          "description": "Field in the API response containing the data array",
+          "examples": [
+            "data",
+            "results"
+          ],
           "type": "string"
         }
       },
       "required": [
         "resource"
       ],
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "title": "Resource autocomplete",
+      "description": "Options populated from a crouton resource"
     },
     {
       "type": "object",
       "properties": {
         "label": {
           "description": "Override the field label",
+          "examples": [
+            "My label"
+          ],
           "type": "string"
         },
         "hideLabel": {
-          "description": "Hide the label",
+          "description": "Hide the field label",
           "type": "boolean"
         },
         "placeholder": {
+          "description": "Placeholder text shown inside the input when empty",
+          "examples": [
+            "Search..."
+          ],
           "type": "string"
         },
         "readonly": {
+          "description": "Render the field in read-only mode",
           "type": "boolean"
         },
         "colspan": {
+          "description": "Grid column span (1–12)",
+          "examples": [
+            6,
+            12
+          ],
           "type": "number"
         },
         "width": {
+          "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+          "examples": [
+            "md",
+            "240px"
+          ],
           "type": "string"
         },
         "styles": {
+          "description": "Inline CSS style object applied to the field wrapper",
+          "examples": [
+            {
+              "color": "red"
+            }
+          ],
           "type": "object",
           "propertyNames": {
             "type": "string"
@@ -223,28 +404,47 @@
           "additionalProperties": {}
         },
         "customRender": {
+          "description": "Name of a globally registered Vue component to render instead of the default input",
+          "examples": [
+            "MyCustomInput"
+          ],
           "type": "string"
         },
         "labelKey": {
+          "description": "Object key used as the display label in the dropdown",
+          "examples": [
+            "label",
+            "name"
+          ],
           "type": "string"
         },
         "valueKey": {
+          "description": "Object key used as the stored value",
+          "examples": [
+            "value",
+            "id"
+          ],
           "type": "string"
         },
         "freeText": {
+          "description": "Allow the user to type a value not in the options list",
           "type": "boolean"
         },
         "enableCreate": {
+          "description": "Show a \"create\" action when no matching option is found",
           "type": "boolean"
         },
         "storeValue": {
+          "description": "Store option[valueKey] instead of the whole option object",
           "type": "boolean"
         }
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "title": "Common autocomplete options",
+      "description": "Shared options available on all autocomplete variants"
     }
   ],
+  "title": "Crouton fieldInput options: autocomplete",
   "description": "Autocomplete options: inline array, remote URI, or resource reference",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/autocomplete.field-input.schema.json",
-  "title": "Crouton fieldInput options: autocomplete"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/autocomplete.field-input.schema.json"
 }

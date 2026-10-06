@@ -4,26 +4,50 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
       "default": 12,
+      "description": "Grid column span (1–12); defaults to 12 for relation controls",
+      "examples": [
+        12,
+        6
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -31,14 +55,27 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "sort": {
       "description": "Field to sort related records by",
+      "examples": [
+        "name",
+        "createdAt"
+      ],
       "type": "string"
     },
     "sortDir": {
-      "description": "Sort direction, defaults to asc",
+      "description": "Sort direction",
+      "default": "asc",
+      "examples": [
+        "asc",
+        "desc"
+      ],
       "type": "string",
       "enum": [
         "asc",
@@ -47,18 +84,30 @@
     },
     "direction": {
       "description": "CSS flex direction for the button layout",
+      "examples": [
+        "row",
+        "column"
+      ],
       "type": "string"
     },
     "displayKey": {
-      "description": "Key used as display label",
+      "description": "Key used as the display label for related records",
+      "examples": [
+        "name",
+        "title"
+      ],
       "type": "string"
     },
     "resource": {
-      "description": "Path to the related resource",
+      "description": "Path to the related resource.json",
+      "examples": [
+        "./author.resource.json"
+      ],
       "type": "string"
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/relation.field-input.schema.json",
-  "title": "Crouton fieldInput options: relation"
+  "title": "Crouton fieldInput options: relation",
+  "description": "Options for the sub-resource relation control",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/relation.field-input.schema.json"
 }

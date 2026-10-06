@@ -4,25 +4,49 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -30,43 +54,80 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "options": {
+      "description": "Inline array of option items",
+      "examples": [
+        [
+          {
+            "label": "Active",
+            "value": "active"
+          }
+        ]
+      ],
       "type": "array",
       "items": {}
     },
     "values": {
+      "description": "Alias for options (deprecated — prefer options)",
+      "deprecated": true,
       "type": "array",
       "items": {}
     },
     "resource": {
+      "description": "Relative path to a resource.json used to populate the options",
+      "examples": [
+        "./status.resource.json"
+      ],
       "type": "string"
     },
     "labelKey": {
+      "description": "Object key used as the display label",
+      "examples": [
+        "label",
+        "name"
+      ],
       "type": "string"
     },
     "valueKey": {
+      "description": "Object key used as the stored value",
+      "examples": [
+        "value",
+        "id"
+      ],
       "type": "string"
     },
     "uri": {
       "description": "Remote endpoint URL for fetching options",
+      "examples": [
+        "/api/statuses"
+      ],
       "type": "string"
     },
     "dataField": {
-      "description": "Field in response containing the data array",
+      "description": "Field in the API response containing the data array",
+      "examples": [
+        "data",
+        "results"
+      ],
       "type": "string"
     },
     "clearable": {
-      "description": "Allow clearing the selected value",
+      "description": "Show a clear button to remove the selected value",
       "type": "boolean"
     },
     "storeValue": {
-      "description": "Store option[valueKey] instead of the whole object",
+      "description": "Store option[valueKey] instead of the whole option object",
       "type": "boolean"
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json",
-  "title": "Crouton fieldInput options: select"
+  "title": "Crouton fieldInput options: select",
+  "description": "Options for the select dropdown and multi-select (mutliSelect alias)",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json"
 }

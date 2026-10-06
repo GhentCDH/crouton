@@ -4,25 +4,49 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -30,32 +54,51 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "withTime": {
-      "description": "Force time input on/off, overrides format",
+      "description": "Force time input on/off, overrides format detection",
       "type": "boolean"
     },
     "min": {
-      "description": "Earliest selectable date, ISO or yyyy-MM-dd",
+      "description": "Earliest selectable date (ISO 8601 or yyyy-MM-dd)",
+      "examples": [
+        "2020-01-01"
+      ],
       "type": "string"
     },
     "max": {
-      "description": "Latest selectable date, ISO or yyyy-MM-dd",
+      "description": "Latest selectable date (ISO 8601 or yyyy-MM-dd)",
+      "examples": [
+        "2099-12-31"
+      ],
       "type": "string"
     },
     "locale": {
       "default": "en-GB",
       "description": "BCP-47 locale for month heading and weekday labels",
+      "examples": [
+        "en-GB",
+        "nl-BE"
+      ],
       "type": "string"
     },
     "firstDayOfWeek": {
       "default": 1,
-      "description": "0 = Sunday, 1 = Monday",
+      "description": "First day of the week: 0 = Sunday, 1 = Monday",
+      "examples": [
+        0,
+        1
+      ],
       "type": "number"
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date.field-input.schema.json",
-  "title": "Crouton fieldInput options: date"
+  "title": "Crouton fieldInput options: date",
+  "description": "Options for the date picker (and dateTime alias)",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date.field-input.schema.json"
 }
