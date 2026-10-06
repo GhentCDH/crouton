@@ -89,6 +89,8 @@
             "type": "TextCell",
             "scope": "#/properties/status",
             "options": {
+              "format": "keyValue",
+              "key": "label",
               "values": [
                 {
                   "value": "draft",
