@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { bootCase, type BootedCase } from './test-utils';
+
+import { type BootedCase, bootCase } from './test-utils';
 
 describe('schema endpoint smoke test — minimal-prisma', () => {
   let ctx: BootedCase;

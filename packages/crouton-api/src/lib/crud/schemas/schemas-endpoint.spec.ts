@@ -8,7 +8,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { bootCase, type BootedCase } from './test-utils';
+
+import { type BootedCase, bootCase } from './test-utils';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 
 describe('prefix configuration', () => {

@@ -9,11 +9,12 @@
  * Cases marked apiOnly (none yet) would be handled separately in sub-resource tests.
  */
 
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { bootCase, FIXTURES_ROOT, type BootedCase } from './test-utils';
+import { type BootedCase, FIXTURES_ROOT, bootCase } from './test-utils';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
 
 // Endpoints × path suffix
 const ENDPOINTS = [

@@ -7,7 +7,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { bootCase, type BootedCase } from './test-utils';
+
+import { type BootedCase, bootCase } from './test-utils';
 
 describe('case 18: prisma child in prisma parent (sub-prisma-in-prisma)', () => {
   let ctx: BootedCase;

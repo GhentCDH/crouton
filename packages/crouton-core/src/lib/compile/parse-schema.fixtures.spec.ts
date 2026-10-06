@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -8,6 +6,8 @@ import { EnumRegistrySchema } from './enum-registry';
 import type { ParseSchemaView } from './parse-schema';
 import { parseSchema } from './parse-schema';
 import { clearResourceExtensions } from '../resource';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
 const FIXTURES_ROOT = resolve(__dirname, '../../../test-fixtures/resources');
 const VIEWS: ParseSchemaView[] = ['schemas', 'definition', 'resource.json'];

@@ -7,21 +7,22 @@
  * Cleanup (app.close, rmSync) is the caller's responsibility — put it in afterAll/afterEach.
  */
 
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
-import { vi } from 'vitest';
 import supertest from 'supertest';
+import { vi } from 'vitest';
+
+import { clearResourceExtensions } from '@ghentcdh/crouton-core';
+
+import { CroutonApiModule } from '../../crouton-api.module';
+import type { DataSourceEntry } from '../data-source';
+import { loadResourceConfigsFromDir } from '../loader';
+import { FileSystemResourceConfigLoader } from '../loader/fs-resource-config.loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-
-import type { NestExpressApplication } from '@nestjs/platform-express';
-import { CroutonApiModule } from '../../crouton-api.module';
-import { FileSystemResourceConfigLoader } from '../loader/fs-resource-config.loader';
-import { loadResourceConfigsFromDir } from '../loader';
-import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { clearResourceExtensions } from '@ghentcdh/crouton-core';
-import type { DataSourceEntry } from '../data-source';
-import type { Resource } from '../resource/ResourceConfig.schema';
 
 export const FIXTURES_ROOT = resolve(
   __dirname,
