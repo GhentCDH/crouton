@@ -390,8 +390,11 @@ export class ReadRepository<T = any> {
         ...mergedInclude,
       };
     } else {
-      if (countClause) query._count = countClause;
-      if (mergedInclude) query.include = mergedInclude;
+      const includeClause = {
+        ...(mergedInclude ?? {}),
+        ...(countClause ? { _count: countClause } : {}),
+      };
+      if (Object.keys(includeClause).length) query.include = includeClause;
     }
 
     const rows = await this.prismaModel.findMany(query);
