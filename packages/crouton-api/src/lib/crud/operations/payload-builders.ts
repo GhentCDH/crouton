@@ -231,7 +231,7 @@ export const buildViewsPayload = (
     display: config.display,
     schemas,
     actions: resolveActions(baseAction, config.actions),
-    tableActions: resolveActions(baseAction, config.tableActions),
+    tableActions: resolveTableActions(baseAction, config.tableActions),
     ...pickExtensions(config),
   };
 };
