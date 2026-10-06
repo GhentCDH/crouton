@@ -1,4 +1,7 @@
+import axios from 'axios';
 import { defineClientConfig } from 'vuepress/client';
+
+import { CroutonPlugin } from '@ghentcdh/crouton-vue';
 
 import AutoSaveFormDemo from './components/AutoSaveFormDemo.vue';
 import LayoutDemo from './components/LayoutDemo.vue';
@@ -9,6 +12,7 @@ import './styles/app.css';
 
 export default defineClientConfig({
   enhance({ app }) {
+    app.use(CroutonPlugin(axios));
     app.component('ResourceJsonEditorDemo', ResourceJsonEditorDemo);
     app.component('AutoSaveFormDemo', AutoSaveFormDemo);
     app.component('ResourceJsonValidator', ResourceJsonValidator);

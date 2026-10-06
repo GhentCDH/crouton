@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import axios from 'axios';
 import { buildViewsFromColumnTypes, JsonColumnSchema, LayoutSchema } from '@ghentcdh/crouton-core';
 import CroutonForm from '../../../packages/crouton-vue/src/forms/CroutonForm.vue';
 import { LayoutDemoProperties } from './LayoutDemo.properties';
@@ -7,7 +8,7 @@ import { EXAMPLES } from './layout-examples';
 
 const props = defineProps(LayoutDemoProperties);
 
-type Tab = 'form' | 'table' | 'json' | 'uischema';
+type Tab = 'form' | 'view' | 'table' | 'json' | 'uischema';
 const activeTab = ref<Tab>('form');
 const warnings = ref<string[]>([]);
 const parseErrors = ref<string[]>([]);
@@ -56,15 +57,13 @@ const views = computed(() => {
   return result;
 });
 
-const formSchema = computed(() => (views.value as any)?.form?.json_schema);
-const formUiSchema = computed(() => (views.value as any)?.form?.ui_schema);
 const tableColumns = computed(() => (views.value as any)?.table?.columns ?? []);
+const formUiSchema = computed(() => (views.value as any)?.form?.ui_schema);
 
 const onTabClick = (tab: Tab) => { activeTab.value = tab; };
 const onLayoutInput = (e: Event) => {
   layoutJson.value = (e.target as HTMLTextAreaElement).value;
 };
-const onFormUpdate = (v: unknown) => { formData.value = v as Record<string, unknown>; };
 </script>
 
 <template>
@@ -72,7 +71,7 @@ const onFormUpdate = (v: unknown) => { formData.value = v as Record<string, unkn
     <div class="layout-demo border border-base-300 rounded-lg overflow-hidden my-4 not-content">
       <div class="bg-base-200 px-4 py-2 flex gap-1 text-sm font-medium flex-wrap">
         <button
-          v-for="tab in (['form', 'table', 'json', 'uischema'] as Tab[])"
+          v-for="tab in (['form', 'view', 'table', 'json', 'uischema'] as Tab[])"
           :key="tab"
           :class="['px-3 py-1 rounded cursor-pointer border-0 bg-transparent', activeTab === tab ? 'bg-white shadow font-semibold' : 'opacity-60 hover:opacity-100']"
           @click="onTabClick(tab)"
@@ -81,13 +80,25 @@ const onFormUpdate = (v: unknown) => { formData.value = v as Record<string, unkn
       <div class="p-4 min-h-32">
         <template v-if="activeTab === 'form'">
           <CroutonForm
-            v-if="formSchema && formUiSchema"
-            :schema="formSchema"
-            :ui-schema="formUiSchema"
-            :model-value="formData"
-            @update:model-value="onFormUpdate"
+            v-if="views"
+            :views="(views as any)"
+            :data="formData"
+            v-model="formData"
+            :http="axios"
+            :show-buttons="false"
           />
           <p v-else class="text-sm opacity-50 italic">No form schema generated.</p>
+        </template>
+        <template v-if="activeTab === 'view'">
+          <CroutonForm
+            v-if="views"
+            :views="(views as any)"
+            :data="formData"
+            :http="axios"
+            :readonly="true"
+            :show-buttons="false"
+          />
+          <p v-else class="text-sm opacity-50 italic">No view schema generated.</p>
         </template>
         <template v-if="activeTab === 'table'">
           <p class="text-sm font-medium mb-2">Column order:</p>
