@@ -1,0 +1,85 @@
+{
+  "id": "item",
+  "uri": "http://localhost:3000/items",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "minLength": 1
+        },
+        "price": {
+          "type": "number",
+          "title": "Price"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/name",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Name"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/description",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Description"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/price",
+          "options": {
+            "format": "number",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Price"
+          }
+        }
+      ]
+    }
+  }
+}

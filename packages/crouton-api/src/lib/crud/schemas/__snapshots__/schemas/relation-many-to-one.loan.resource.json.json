@@ -1,0 +1,67 @@
+{
+  "id": "loan",
+  "uri": "http://localhost:3000/loans",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/loans?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "loanedAt": {
+          "type": "string",
+          "title": "Loaned at",
+          "minLength": 1
+        },
+        "bookId": {
+          "title": "Book"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/loanedAt",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Loaned at"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/bookId",
+          "options": {
+            "format": "autocomplete",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "resourceUri": "http://localhost:3000/book",
+            "schemasUri": "http://localhost:3000/book/schemas",
+            "colspan": 12,
+            "relationType": "manyToOne",
+            "label": "Book"
+          }
+        }
+      ]
+    }
+  }
+}

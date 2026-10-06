@@ -1,0 +1,14 @@
+{
+  "name": "product",
+  "kind": "custom",
+  "route": "products",
+  "columns": {
+    "id": { "type": "string", "idField": true, "hiddenInForm": true },
+    "name": { "type": "string", "searchable": true },
+    "quantity": { "type": "integer" },
+    "price": { "type": "number" },
+    "available": { "type": "boolean" },
+    "listedAt": { "type": "date" },
+    "notes": { "type": "string", "fieldInput": { "type": "textarea" } }
+  }
+}

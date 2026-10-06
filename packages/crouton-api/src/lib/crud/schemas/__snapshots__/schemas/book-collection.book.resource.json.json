@@ -1,0 +1,186 @@
+{
+  "id": "book",
+  "uri": "http://localhost:3000/book",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/book?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "minLength": 1
+        },
+        "isbn": {
+          "type": "string",
+          "title": "Isbn",
+          "minLength": 1
+        },
+        "publishedYear": {
+          "type": "integer",
+          "title": "Published year"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "enum": [
+            "draft",
+            "published",
+            "archived"
+          ],
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "title": "Summary",
+          "minLength": 1
+        },
+        "authorId": {
+          "title": "Author"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/title",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Title"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/isbn",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Isbn"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/publishedYear",
+          "options": {
+            "format": "integer",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Published year"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/status",
+          "options": {
+            "format": "select",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "values": [
+              {
+                "value": "draft",
+                "label": "Draft"
+              },
+              {
+                "value": "published",
+                "label": "Published"
+              },
+              {
+                "value": "archived",
+                "label": "Archived"
+              }
+            ],
+            "emitObject": true,
+            "displayKey": "label",
+            "colspan": 12,
+            "label": "Status"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/summary",
+          "options": {
+            "format": "textarea",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Summary"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/authorId",
+          "options": {
+            "format": "autocomplete",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "resourceUri": "http://localhost:3000/author",
+            "schemasUri": "http://localhost:3000/author/schemas",
+            "colspan": 12,
+            "relationType": "manyToOne",
+            "label": "Author"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/categories",
+          "options": {
+            "format": "relation",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "uri": "http://localhost:3000/book/{id}/category",
+            "resourceUri": "http://localhost:3000/category",
+            "resource": "http://localhost:3000/book/category/schemas",
+            "colspan": 12,
+            "relationType": "manyToMany",
+            "label": "Categories"
+          }
+        }
+      ]
+    }
+  }
+}

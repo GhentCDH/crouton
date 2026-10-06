@@ -1,0 +1,144 @@
+{
+  "id": "product",
+  "uri": "http://localhost:3000/products",
+  "operations": {
+    "findAll": false,
+    "findOne": false,
+    "create": false,
+    "update": false,
+    "patch": false,
+    "delete": false,
+    "lookup": "http://localhost:3000/products?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "integer",
+          "title": "Quantity"
+        },
+        "price": {
+          "type": "number",
+          "title": "Price"
+        },
+        "available": {
+          "type": "boolean",
+          "title": "Available"
+        },
+        "listedAt": {
+          "type": "string",
+          "format": "date",
+          "title": "Listed at",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string",
+          "title": "Notes",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/name",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Name"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/quantity",
+          "options": {
+            "format": "integer",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Quantity"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/price",
+          "options": {
+            "format": "number",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Price"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/available",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Available"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/listedAt",
+          "options": {
+            "format": "date",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Listed at"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/notes",
+          "options": {
+            "format": "textarea",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Notes"
+          }
+        }
+      ]
+    }
+  }
+}

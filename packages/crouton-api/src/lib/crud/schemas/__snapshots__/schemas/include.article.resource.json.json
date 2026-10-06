@@ -1,0 +1,67 @@
+{
+  "id": "article",
+  "uri": "http://localhost:3000/articles",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/articles?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "minLength": 1
+        },
+        "authorId": {
+          "title": "Author"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/title",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Title"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/authorId",
+          "options": {
+            "format": "autocomplete",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "resourceUri": "http://localhost:3000/author",
+            "schemasUri": "http://localhost:3000/author/schemas",
+            "colspan": 12,
+            "relationType": "manyToOne",
+            "label": "Author"
+          }
+        }
+      ]
+    }
+  }
+}

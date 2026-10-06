@@ -1,0 +1,203 @@
+{
+  "id": "groups",
+  "name": "groups",
+  "route": "groups",
+  "uri": "http://localhost:3000/groups",
+  "title": "Groups",
+  "idField": "id",
+  "idType": "string",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/groups",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/groups/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/groups",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/groups/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/groups/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/groups/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/groups?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortable": false,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/name",
+            "options": {
+              "sortable": false,
+              "label": "Name"
+            }
+          }
+        ]
+      },
+      "defaultSort": "id"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/expenses",
+            "options": {
+              "format": "relation",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "oneToMany",
+              "label": "Expenses"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/expenses",
+            "options": {
+              "format": "relation",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "oneToMany",
+              "label": "Expenses"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "actions": [],
+  "tableActions": []
+}

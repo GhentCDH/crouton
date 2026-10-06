@@ -1,0 +1,599 @@
+{
+  "id": "book",
+  "name": "book",
+  "route": "book",
+  "uri": "http://localhost:3000/book",
+  "title": "Books",
+  "idField": "id",
+  "idType": "string",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/book",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/book/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/book",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/book/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/book/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/book/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/book?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "isbn": {
+            "type": "string",
+            "title": "Isbn",
+            "minLength": 1
+          },
+          "publishedYear": {
+            "type": "integer",
+            "title": "Published year"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "minLength": 1
+          },
+          "authorId": {
+            "title": "Author"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortable": false,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title",
+              "label": "Title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/isbn",
+            "options": {
+              "sortId": "isbn",
+              "label": "Isbn"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/publishedYear",
+            "options": {
+              "sortId": "publishedYear",
+              "label": "Published year"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/status",
+            "options": {
+              "values": [
+                {
+                  "value": "draft",
+                  "label": "Draft"
+                },
+                {
+                  "value": "published",
+                  "label": "Published"
+                },
+                {
+                  "value": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "sortable": false,
+              "label": "Status"
+            }
+          },
+          {
+            "type": "RecordCell",
+            "scope": "#/properties/authorId",
+            "options": {
+              "sortable": false,
+              "relationType": "manyToOne",
+              "label": "Author"
+            }
+          }
+        ]
+      },
+      "defaultSort": "title"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "isbn": {
+            "type": "string",
+            "title": "Isbn",
+            "minLength": 1
+          },
+          "publishedYear": {
+            "type": "integer",
+            "title": "Published year"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "minLength": 1
+          },
+          "authorId": {
+            "title": "Author"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/isbn",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Isbn"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/publishedYear",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Published year"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "select",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "values": [
+                {
+                  "value": "draft",
+                  "label": "Draft"
+                },
+                {
+                  "value": "published",
+                  "label": "Published"
+                },
+                {
+                  "value": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "emitObject": true,
+              "displayKey": "label",
+              "colspan": 12,
+              "label": "Status"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/summary",
+            "options": {
+              "format": "textarea",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Summary"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/authorId",
+            "options": {
+              "format": "autocomplete",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "manyToOne",
+              "label": "Author"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/categories",
+            "options": {
+              "format": "relation",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "manyToMany",
+              "label": "Categories"
+            }
+          }
+        ]
+      }
+    },
+    "filter": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "minLength": 1,
+            "x-values": [
+              {
+                "value": "draft",
+                "label": "Draft"
+              },
+              {
+                "value": "published",
+                "label": "Published"
+              },
+              {
+                "value": "archived",
+                "label": "Archived"
+              }
+            ],
+            "x-field-type": "enum"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "select",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "values": [
+                {
+                  "value": "draft",
+                  "label": "Draft"
+                },
+                {
+                  "value": "published",
+                  "label": "Published"
+                },
+                {
+                  "value": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "emitObject": true,
+              "displayKey": "label",
+              "colspan": 12,
+              "label": "Status"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "isbn": {
+            "type": "string",
+            "title": "Isbn",
+            "minLength": 1
+          },
+          "publishedYear": {
+            "type": "integer",
+            "title": "Published year"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "minLength": 1
+          },
+          "authorId": {
+            "title": "Author"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/isbn",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Isbn"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/publishedYear",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Published year"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "select",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "values": [
+                {
+                  "value": "draft",
+                  "label": "Draft"
+                },
+                {
+                  "value": "published",
+                  "label": "Published"
+                },
+                {
+                  "value": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "emitObject": true,
+              "displayKey": "label",
+              "colspan": 12,
+              "label": "Status"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/summary",
+            "options": {
+              "format": "textarea",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Summary"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/authorId",
+            "options": {
+              "format": "autocomplete",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "manyToOne",
+              "label": "Author"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/categories",
+            "options": {
+              "format": "relation",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "relationType": "manyToMany",
+              "label": "Categories"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "actions": [],
+  "tableActions": []
+}

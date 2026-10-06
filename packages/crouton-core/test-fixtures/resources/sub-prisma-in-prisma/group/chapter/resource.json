@@ -1,0 +1,10 @@
+{
+  "name": "chapter",
+  "model": "Chapter",
+  "route": "chapter",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "searchable": true, "sortable": true, "defaultSort": true },
+    "order": { "type": "integer", "sortable": true }
+  }
+}

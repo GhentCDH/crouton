@@ -1,0 +1,404 @@
+{
+  "id": "product",
+  "name": "product",
+  "route": "products",
+  "uri": "http://localhost:3000/products",
+  "title": "Product",
+  "idField": "id",
+  "idType": "string",
+  "modalSize": "sm",
+  "operations": {},
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "listedAt": {
+            "type": "string",
+            "format": "date",
+            "title": "Listed at",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortable": false,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/name",
+            "options": {
+              "sortable": false,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/quantity",
+            "options": {
+              "sortable": false,
+              "label": "Quantity"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/price",
+            "options": {
+              "sortable": false,
+              "label": "Price"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/available",
+            "options": {
+              "sortable": false,
+              "label": "Available"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/listedAt",
+            "options": {
+              "sortable": false,
+              "label": "Listed at"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/notes",
+            "options": {
+              "sortable": false,
+              "label": "Notes"
+            }
+          }
+        ]
+      },
+      "defaultSort": "id"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "listedAt": {
+            "type": "string",
+            "format": "date",
+            "title": "Listed at",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/quantity",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Quantity"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Price"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/available",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Available"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/listedAt",
+            "options": {
+              "format": "date",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Listed at"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/notes",
+            "options": {
+              "format": "textarea",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Notes"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "listedAt": {
+            "type": "string",
+            "format": "date",
+            "title": "Listed at",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Name"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/quantity",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Quantity"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Price"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/available",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Available"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/listedAt",
+            "options": {
+              "format": "date",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Listed at"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/notes",
+            "options": {
+              "format": "textarea",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Notes"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "actions": [],
+  "tableActions": []
+}
