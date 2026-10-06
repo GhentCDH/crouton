@@ -31,5 +31,10 @@ export const injectEnumValues = (
     if (!('emitObject' in options)) options.emitObject = true;
     if (!('displayKey' in options)) options.displayKey = 'label';
     col.fieldInput.options = options;
+    // Propagate displayKey to the column level so the table cell extracts
+    // the right key from the {value, label} envelope emitted by the API.
+    if (options.emitObject !== false && !col.displayKey) {
+      col.displayKey = options.displayKey as string;
+    }
   }
 };

@@ -5,7 +5,7 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { access, readFile } from 'node:fs/promises';
-import { dirname, join, resolve, resolve as pathResolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve, resolve as pathResolve } from 'node:path';
 
 const fileExists = async (p: string): Promise<boolean> => {
   try {
@@ -58,5 +58,9 @@ export const loadConfig = async (): Promise<LoadedConfig> => {
   }
 
   const parsed = CroutonConfigSchema.parse(config);
-  return { ...parsed, configDir: dirname(path) };
+  const configDir = dirname(path);
+  const enumsFile = isAbsolute(parsed.enumsFile)
+    ? parsed.enumsFile
+    : resolve(configDir, parsed.enumsFile);
+  return { ...parsed, configDir, enumsFile };
 };
