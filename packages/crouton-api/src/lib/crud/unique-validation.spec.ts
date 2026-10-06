@@ -23,6 +23,7 @@ describe('uniqueColumns / findUniqueColumn', () => {
     expect(uniqueColumns(config).map((e) => e.column.id)).toEqual([
       'email',
       'slug',
+      'code',
     ]);
   });
 
