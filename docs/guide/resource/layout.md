@@ -68,12 +68,14 @@ A control entry is either a plain column id string or an object with overrides:
   "type": "grid",
   "columns": 12,
   "controls": [
-    { "id": "id", "colspan": 3 },
-    { "id": "label", "colspan": 9 },
+    { "id": "label", "colspan": 3 },
+    { "id": "title", "colspan": 9 },
     "description"
   ]
 }
 ```
+
+<LayoutDemo example="grid-colspan" />
 
 ### Collapse section
 
@@ -90,6 +92,8 @@ A control entry is either a plain column id string or an object with overrides:
 }
 ```
 
+<LayoutDemo example="collapse" />
+
 ### Group section (non-collapsible)
 
 ```json
@@ -104,6 +108,8 @@ A control entry is either a plain column id string or an object with overrides:
 }
 ```
 
+<LayoutDemo example="group" />
+
 ### Table column order
 
 ```json
@@ -114,7 +120,82 @@ A control entry is either a plain column id string or an object with overrides:
 
 Columns present in the table but not listed here are appended at the end in their original order. `colspan`/`rowspan` on table controls are ignored (tables are flat, not CSS grids).
 
+<LayoutDemo example="table-order" />
+
+### Rowspan
+
+A control can span multiple CSS grid rows using `rowspan` (max 6):
+
+```json
+"form": {
+  "type": "grid",
+  "columns": 12,
+  "controls": [
+    { "id": "body", "colspan": 6, "rowspan": 2 },
+    { "id": "title", "colspan": 6 },
+    { "id": "status", "colspan": 6 }
+  ]
+}
+```
+
+<LayoutDemo example="rowspan" />
+
+### Control overrides
+
+Override the label, input type, or options for a specific placement:
+
+```json
+"form": {
+  "controls": [
+    { "id": "title", "label": "Custom Title Label", "colspan": 6 },
+    { "id": "body", "options": { "minHeight": "6rem" } },
+    { "id": "status", "hideLabel": true }
+  ]
+}
+```
+
+<LayoutDemo example="overrides" />
+
+### Nested sections
+
+```json
+"form": {
+  "type": "grid",
+  "columns": 12,
+  "controls": [
+    { "id": "title", "colspan": 6 },
+    { "id": "status", "colspan": 6 }
+  ],
+  "items": [
+    {
+      "type": "collapse",
+      "title": "Author details",
+      "items": [
+        {
+          "type": "grid",
+          "columns": 12,
+          "controls": [
+            { "id": "authorName", "colspan": 6 },
+            { "id": "authorEmail", "colspan": 6 }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+<LayoutDemo example="nested" />
+
 ## Missing / extra columns
 
 - A control id that doesn't match a visible column → **skipped, dev warning logged**.
 - Visible columns not referenced anywhere in the layout → **appended at the end, dev warning logged** (nothing silently disappears).
+
+<LayoutDemo example="missing-extra" />
+
+## Playground
+
+Edit the layout JSON live and see the result update:
+
+<LayoutDemo example="grid-colspan" />

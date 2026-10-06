@@ -80,6 +80,14 @@ describe('buildFormUiSchemaFromLayout – control overrides', () => {
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(byScope(ui, 'name').options.hideLabel).toBe(true);
   });
+
+  it('preserves format when only options are overridden (no type)', () => {
+    const markdownCols = parse([{ id: 'body', fieldInput: { type: 'markdown' } }]);
+    const node: LayoutNode = { controls: [{ id: 'body', options: { minHeight: '8rem' } }] };
+    const ui = buildFormUiSchemaFromLayout(node, markdownCols) as any;
+    expect(ui.elements[0].options.format).toBe('markdown');
+    expect(ui.elements[0].options.minHeight).toBe('8rem');
+  });
 });
 
 // ── Nested sections ────────────────────────────────────────────────────────

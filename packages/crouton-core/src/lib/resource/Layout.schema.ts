@@ -5,7 +5,7 @@ export const LayoutControlSchema = z.union([
   z.object({
     id: z.string(),
     colspan: z.number().int().min(1).max(12).optional(),
-    rowspan: z.number().int().min(1).optional(),
+    rowspan: z.number().int().min(1).max(6).optional(),
     width: z.string().optional(),
     label: z.string().optional(),
     hideLabel: z.boolean().optional(),
@@ -35,7 +35,7 @@ export const LayoutNodeSchema: z.ZodType<LayoutNode> = z.lazy(() =>
     title: z.string().optional(),
     titleKey: z.string().optional(),
     colspan: z.number().int().min(1).max(12).optional(),
-    rowspan: z.number().int().min(1).optional(),
+    rowspan: z.number().int().min(1).max(6).optional(),
     label: z.string().optional(),
     controls: z.array(LayoutControlSchema).optional(),
     items: z.array(LayoutNodeSchema).optional(),

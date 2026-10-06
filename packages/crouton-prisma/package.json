@@ -11,7 +11,7 @@
   },
   "type": "module",
   "bin": {
-    "crouton-prisma": "dist/generator.js"
+    "crouton-prisma": "dist/generator.cjs"
   },
   "exports": {
     ".": "./dist/generator.cjs"

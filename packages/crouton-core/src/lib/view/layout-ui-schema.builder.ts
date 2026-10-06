@@ -45,8 +45,11 @@ const applyControlOverrides = (
   if (ctrl.width !== undefined) base.width(ctrl.width as any);
   if (ctrl.label !== undefined) base.label(ctrl.label);
   if (ctrl.hideLabel) base.hideLabel();
-  if (ctrl.type !== undefined || ctrl.options !== undefined) {
-    base.control(ctrl.type ?? 'text', ctrl.options as any);
+  if (ctrl.type !== undefined) {
+    base.control(ctrl.type, ctrl.options as any);
+  } else if (ctrl.options !== undefined) {
+    // ponytail: shallow merge — styles deep-merge not needed yet
+    (base as any).opt(ctrl.options);
   }
   return base;
 };
@@ -67,11 +70,6 @@ const buildNodeInto = (
       if (!col) {
         warn(`layout: unknown or hidden column id "${id}" — skipping`);
         continue;
-      }
-      if (typeof ctrl !== 'string') {
-        if (ctrl.colspan !== undefined && (ctrl as any).rowspan !== undefined) {
-          // table context: warn on span overrides
-        }
       }
       seenIds.add(id);
       const control = buildFormControl(col);
@@ -119,15 +117,18 @@ export const buildFormUiSchemaFromLayout = (
  * Flatten the layout node tree depth-first into an ordered list of control ids.
  * Used by the table ordering step.
  */
-export const flattenLayoutControlIds = (node: LayoutNode): string[] => {
+export const flattenLayoutControlIds = (
+  node: LayoutNode,
+  warn: (msg: string) => void = console.warn,
+): string[] => {
   const ids: string[] = [];
   const visit = (n: LayoutNode): void => {
     for (const ctrl of n.controls ?? []) {
       const id = typeof ctrl === 'string' ? ctrl : ctrl.id;
       if (typeof ctrl !== 'string') {
         const c = ctrl as { colspan?: number; rowspan?: number };
-        if ((c.colspan !== undefined || c.rowspan !== undefined)) {
-          // ponytail: span on table controls silently ignored — table is flat
+        if (c.colspan !== undefined || c.rowspan !== undefined) {
+          warn(`layout: colspan/rowspan on table control "${id}" — ignored, table is flat`);
         }
       }
       ids.push(id);
