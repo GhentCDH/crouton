@@ -111,7 +111,7 @@ describe('the _count clause skips a relation column that resolved to nothing', (
       filter: [],
     });
 
-    const count = queries[0].select?._count ?? queries[0]._count;
+    const count = queries[0].select?._count ?? queries[0].include?._count ?? queries[0]._count;
     expect(Object.keys(count.select)).toEqual(['expenses']);
   });
 
@@ -124,7 +124,7 @@ describe('the _count clause skips a relation column that resolved to nothing', (
       filter: [],
     });
 
-    const count = queries[0].select?._count ?? queries[0]._count;
+    const count = queries[0].select?._count ?? queries[0].include?._count ?? queries[0]._count;
     expect(count.select).not.toHaveProperty('expense');
   });
 

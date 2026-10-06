@@ -91,7 +91,7 @@ describe('_count skips relations hidden from the table', () => {
 
   const countOf = () => {
     const q = queries[0];
-    return q.select?._count ?? q._count;
+    return q.select?._count ?? q.include?._count ?? q._count;
   };
 
   beforeEach(() => {
