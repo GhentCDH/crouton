@@ -2,9 +2,9 @@ import { Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { z } from 'zod';
 
-import { isOperationEnabled } from '../crud.config';
-import type { CrudRepository } from '../crud-repository.factory';
 import { CroutonValidationError } from '../crouton-validation.error';
+import type { CrudRepository } from '../crud-repository.factory';
+import { isOperationEnabled } from '../crud.config';
 import {
   columnDbName,
   dbNameForId,
@@ -77,7 +77,7 @@ export const registerUniqueCheck = (ctx: OperationContext): void => {
 
     // Composite uniqueness: constrain the check to the same scope values.
     if (entry.unique.scope?.length && query.scope) {
-      let parsed: Record<string, unknown> = {};
+      let parsed: Record<string, unknown>;
       try {
         parsed = JSON.parse(query.scope) as Record<string, unknown>;
       } catch {

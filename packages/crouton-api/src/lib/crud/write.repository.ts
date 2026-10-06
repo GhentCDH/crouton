@@ -3,7 +3,6 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
-import { mapPrismaUniqueError } from './unique-validation';
 import {
   childCtx,
   childRepositoryFn,
@@ -13,6 +12,7 @@ import type { DataSourceAdapter } from './data-source/data-source.adapter';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { normalizeValueLabels } from './resource/valueLabel.apply';
+import { mapPrismaUniqueError } from './unique-validation';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (

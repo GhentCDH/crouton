@@ -31,11 +31,11 @@ export { useDisplayValue } from './forms/renderers/controls/readonly/useDisplayV
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
 export {
+  collectUniqueFields,
+  createUniqueChecker,
   provideUniqueCheck,
   useUniqueCheckFn,
-  createUniqueChecker,
   withUniqueChecks,
-  collectUniqueFields,
 } from './composables/useUniqueValidator';
 export type {
   UniqueCheckFn,

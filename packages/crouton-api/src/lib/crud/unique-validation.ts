@@ -194,7 +194,7 @@ export const warnMissingUniqueConstraints = (
           console.warn(
             `[crouton] WARNING: column "${column.id}" on resource "${config.name}" declares ` +
               `unique: true but Prisma model "${config.model}" has no @unique on "${dbName}". ` +
-              `Add @unique to the Prisma schema to enforce the race-condition guarantee.`,
+              'Add @unique to the Prisma schema to enforce the race-condition guarantee.',
           );
         }
       } else {
