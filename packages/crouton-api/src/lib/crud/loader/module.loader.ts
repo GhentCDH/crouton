@@ -9,11 +9,10 @@ import { pathToFileURL } from 'node:url';
 // so fall back to __filename which is always available in CJS.
 const _require = createRequire(import.meta.url ?? __filename);
 
-// True when running under an ESM loader that handles .ts files (e.g. tsx/esm via
-// `node --import tsx/esm`). In this context require() does NOT handle .ts files —
-// only import() does. In a plain CJS context (import.meta.url undefined),
-// require() is patched by @swc-node/register and is the correct choice.
-const IS_ESM = typeof import.meta !== 'undefined' && typeof import.meta.url === 'string';
+// True when running under a real ESM loader. __filename is always defined in CJS
+// (even after tsup bundles it), but never defined in native ESM — so this check
+// survives tsup's `import_meta = {}` shim which makes import.meta checks always true.
+const IS_ESM = typeof __filename === 'undefined';
 
 /** Find a module file by trying `.ts` then `.js` extensions. */
 export const findModule = (dir: string, name: string): string | undefined => {
