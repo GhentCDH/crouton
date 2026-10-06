@@ -1,3 +1,4 @@
+export * from './option-meta';
 export * from './base.options';
 export * from './types/string.options';
 export * from './types/number.options';

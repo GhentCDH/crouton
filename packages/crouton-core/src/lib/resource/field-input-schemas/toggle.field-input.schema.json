@@ -4,25 +4,49 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -30,43 +54,80 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "options": {
+      "description": "Array of option items rendered as toggle buttons",
+      "examples": [
+        [
+          {
+            "label": "Yes",
+            "value": true
+          },
+          {
+            "label": "No",
+            "value": false
+          }
+        ]
+      ],
       "type": "array",
       "items": {}
     },
     "values": {
+      "description": "Alias for options (deprecated — prefer options)",
+      "deprecated": true,
       "type": "array",
       "items": {}
     },
     "labelKey": {
+      "description": "Object key used as the button label",
+      "examples": [
+        "label"
+      ],
       "type": "string"
     },
     "valueKey": {
+      "description": "Object key used as the stored value",
+      "examples": [
+        "value"
+      ],
       "type": "string"
     },
     "storeValue": {
-      "description": "Store option[valueKey] instead of the whole object",
+      "description": "Store option[valueKey] instead of the whole option object",
       "type": "boolean"
     },
     "clearable": {
       "default": true,
-      "description": "Clicking active button clears the value",
+      "description": "Clicking the active button again clears the value",
       "type": "boolean"
     },
     "color": {
       "default": "primary",
-      "description": "Btn color for the active button",
+      "description": "Color token applied to the active button",
+      "examples": [
+        "primary",
+        "secondary"
+      ],
       "type": "string"
     },
     "size": {
       "default": "sm",
-      "description": "Btn size",
+      "description": "Size token for the buttons",
+      "examples": [
+        "sm",
+        "md",
+        "lg"
+      ],
       "type": "string"
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/toggle.field-input.schema.json",
-  "title": "Crouton fieldInput options: toggle"
+  "title": "Crouton fieldInput options: toggle",
+  "description": "Options for the toggle button-group control",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/toggle.field-input.schema.json"
 }

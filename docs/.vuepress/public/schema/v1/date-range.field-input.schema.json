@@ -4,25 +4,49 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -30,26 +54,51 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "fromLabel": {
-      "description": "Label above the start date input. Defaults to \"From\"",
+      "description": "Label above the start date input",
+      "default": "From",
+      "examples": [
+        "From",
+        "Start date"
+      ],
       "type": "string"
     },
     "toLabel": {
-      "description": "Label above the end date input. Defaults to \"To\"",
+      "description": "Label above the end date input",
+      "default": "To",
+      "examples": [
+        "To",
+        "End date"
+      ],
       "type": "string"
     },
     "fromField": {
-      "description": "JSON object key for the start date. Defaults to \"from\"",
+      "description": "JSON object key for the start date",
+      "default": "from",
+      "examples": [
+        "from",
+        "startDate"
+      ],
       "type": "string"
     },
     "toField": {
-      "description": "JSON object key for the end date. Defaults to \"to\"",
+      "description": "JSON object key for the end date",
+      "default": "to",
+      "examples": [
+        "to",
+        "endDate"
+      ],
       "type": "string"
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date-range.field-input.schema.json",
-  "title": "Crouton fieldInput options: date-range"
+  "title": "Crouton fieldInput options: date-range",
+  "description": "Options for the from/to date range picker",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date-range.field-input.schema.json"
 }

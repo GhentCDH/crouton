@@ -11,7 +11,7 @@ export default defineUserConfig({
   title: 'Crouton',
   description:
     'Configure Resources Once, Use Them Over and Over, Naturally — schema-driven CRUD for NestJS + Vue',
-  pagePatterns: ['**/*.md', '!.vuepress', '!**/node_modules'],
+  pagePatterns: ['**/*.md', '!.vuepress', '!**/node_modules', '!**/_generated/**'],
   lastUpdated: true,
   bundler: viteBundler({
     viteOptions: {
@@ -75,6 +75,7 @@ export default defineUserConfig({
     colorMode: 'light',
     markdown: {
       mermaid: true,
+      include: true,
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/GhentCDH/crouton' },

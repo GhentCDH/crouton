@@ -4,25 +4,49 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -30,6 +54,10 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "unique": {
@@ -57,6 +85,7 @@
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/string.field-input.schema.json",
-  "title": "Crouton fieldInput options: string"
+  "title": "Crouton fieldInput options: string",
+  "description": "Plain text input. All common options apply; no type-specific options.",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/string.field-input.schema.json"
 }

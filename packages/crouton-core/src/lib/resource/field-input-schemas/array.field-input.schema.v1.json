@@ -4,25 +4,49 @@
   "properties": {
     "label": {
       "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
       "type": "string"
     },
     "hideLabel": {
-      "description": "Hide the label",
+      "description": "Hide the field label",
       "type": "boolean"
     },
     "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
       "type": "string"
     },
     "readonly": {
+      "description": "Render the field in read-only mode",
       "type": "boolean"
     },
     "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
       "type": "number"
     },
     "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
       "type": "string"
     },
     "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -30,9 +54,18 @@
       "additionalProperties": {}
     },
     "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
       "type": "string"
     },
     "layout": {
+      "description": "Direction in which array items are stacked",
+      "examples": [
+        "row",
+        "column"
+      ],
       "type": "string",
       "enum": [
         "row",
@@ -40,13 +73,20 @@
       ]
     },
     "elementLabelProp": {
+      "description": "Property of each array item used as its label in the UI",
+      "examples": [
+        "name",
+        "title"
+      ],
       "type": "string"
     },
     "hideActions": {
+      "description": "Hide the add/remove action buttons",
       "type": "boolean"
     }
   },
   "additionalProperties": {},
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/array.field-input.schema.json",
-  "title": "Crouton fieldInput options: array"
+  "title": "Crouton fieldInput options: array",
+  "description": "Options for the detail/array layout control",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/array.field-input.schema.json"
 }

@@ -3,7 +3,7 @@ import path from 'path';
 
 const docsPath = 'docs/';
 
-const EXCLUDE_ALWAYS = ['node_modules', 'dist', '.vuepress'];
+const EXCLUDE_ALWAYS = ['node_modules', 'dist', '.vuepress', '_generated'];
 
 function writeSidebarFile(dir, sidebar) {
   fs.writeFileSync(

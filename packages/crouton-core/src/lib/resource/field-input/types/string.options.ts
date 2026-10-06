@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 
 import { BaseOptionsSchema } from '../base.options';
 
@@ -11,6 +11,11 @@ const NormalizedUniqueSchema = z.object({
 
 export const StringOptionsSchema = BaseOptionsSchema.extend({
   /** Async uniqueness validation: present when the column declares `unique`. */
-  unique: NormalizedUniqueSchema.optional(),
+  unique: NormalizedUniqueSchema.optional().meta({
+    description: 'Async uniqueness validation: present when the column declares `unique`.'
+  }),
+}).meta({
+  title: 'String options',
+  description: 'Plain text input. All common options apply; no type-specific options.',
 });
 export type StringOptions = z.infer<typeof StringOptionsSchema>;
