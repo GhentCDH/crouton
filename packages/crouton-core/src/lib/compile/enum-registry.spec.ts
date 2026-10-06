@@ -49,6 +49,27 @@ describe('injectEnumValues', () => {
     expect((col.fieldInput!.options as any).values).toEqual(registry.bookStatus);
   });
 
+  it('sets col.displayKey to label so table cell extracts from {value,label} envelope', () => {
+    const col = enumCol();
+    injectEnumValues([col], registry);
+    expect(col.displayKey).toBe('label');
+  });
+
+  it('does not set col.displayKey when emitObject: false', () => {
+    const col: JsonColumn = {
+      ...enumCol(),
+      fieldInput: { type: 'select', options: { emitObject: false } },
+    };
+    injectEnumValues([col], registry);
+    expect(col.displayKey).toBeUndefined();
+  });
+
+  it('respects existing col.displayKey', () => {
+    const col: JsonColumn = { ...enumCol(), displayKey: 'value' };
+    injectEnumValues([col], registry);
+    expect(col.displayKey).toBe('value');
+  });
+
   it('skips columns with no enum ref', () => {
     const col: JsonColumn = { id: 'name', type: 'string' };
     injectEnumValues([col], registry);
