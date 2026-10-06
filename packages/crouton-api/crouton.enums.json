@@ -1,0 +1,7 @@
+{
+  "bookStatus": {
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived"
+  }
+}

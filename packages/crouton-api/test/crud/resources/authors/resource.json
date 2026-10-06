@@ -1,0 +1,12 @@
+{
+  "name": "author",
+  "route": "authors",
+  "tag": "Authors",
+  "kind": "prisma",
+  "model": "author",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "name": { "type": "string", "searchable": true, "sortable": true, "required": true }
+  }
+}
