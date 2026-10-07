@@ -16,19 +16,30 @@ settings** — datasources are described in their own folders (see [Data sources
 
 ```json
 {
+  "title": "My App",
   "resourcesDir": "apps/backend/src/app/resources",
   "dataSourcesDir": "apps/backend/src/app/data-sources",
   "schemaExportName": "{Model}WithRelationsSchema",
-  "enumsFile": "crouton.enums.json"
+  "enumsFile": "crouton.enums.json",
+  "sidebarGroups": [
+    { "id": "catalogue", "label": "Catalogue", "position": 1 }
+  ],
+  "autoSave": false,
+  "i18n": { "languages": ["en", "nl"], "defaultLanguage": "en" }
 }
 ```
 
 | Field              | Description                                                                                                            |
 |--------------------|------------------------------------------------------------------------------------------------------------------------|
+| `title`            | App title shown in the admin UI (required).                                                                            |
 | `resourcesDir`     | Where resource directories live, relative to the project root.                                                         |
 | `dataSourcesDir`   | Where datasource folders live. The CLI scans this to discover datasources.                                             |
 | `schemaExportName` | Optional. Template for a model's Zod export name; `{Model}` → Prisma model name. Default `{Model}WithRelationsSchema`. |
 | `enumsFile`        | Optional. Path to the shared [enum registry](#enum-registry). Default `crouton.enums.json`.                            |
+| `sidebarGroups`    | Optional. Groups for the sidebar navigation — `id`, `label`, `position`. Resources reference them by `id`.             |
+| `autoSave`         | Optional. Enable autosave globally for all forms. Default `false`.                                                     |
+| `i18n`             | Optional. Translation settings: `languages` array, `defaultLanguage`.                                                  |
+| `rules`            | Optional. Global validation rules applied to all resources.                                                            |
 
 If no `crouton.json` is found, the CLI proposes one (and a `data-source.json` per detected datasource) and offers to
 write it.
@@ -118,7 +129,7 @@ Useful flags:
 | `--dry-run`                       | Show the plan without writing.                                  |
 | `--yes`                           | Non-interactive; accept recommended choices.                    |
 | `--skip-pull` / `--skip-generate` | Skip the Prisma steps.                                          |
-| `--no-draft`                      | Write new resources without `draft: true` (served immediately). |
+| `--draft`                         | Write new resources with `draft: true` (hidden until reviewed). |
 
 ### What gets generated
 
@@ -132,8 +143,8 @@ the current version.
 
 Defaults applied during generation:
 
-- new resources are written with **`draft: true`** so a generated-but-unreviewed resource isn't served by accident —
-  flip it to `false` (or remove it) when ready, or pass `--no-draft` to skip it.
+- new resources are written **without `draft: true`** by default and served immediately — pass `--draft` to mark them
+  as hidden until reviewed, then flip `draft` to `false` (or remove it) when ready.
   See [Draft resources](../resource/resource-versioning.md#draft-resources);
 - relations are **ignored** (not added as columns) unless explicitly enabled;
 - `id`, and create/update timestamps are hidden in the table;

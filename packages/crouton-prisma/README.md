@@ -73,5 +73,5 @@ Or via the Crouton CLI when using the full Crouton setup.
 
 | Package            | Version   |
 |--------------------|-----------|
-| `prisma`           | `>=6.0.0` |
+| `prisma`           | `>=7.0.0` |
 | `zod-prisma-types` | `>=3.0.0` |

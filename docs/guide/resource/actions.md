@@ -29,10 +29,7 @@ Implement it in `actions/<procedure>.ts` inside the resource directory. The defa
 // resources/book/actions/publish.ts
 import type { PrismaClient } from '@prisma/client';
 
-export default async function publish(
-  prisma: PrismaClient,
-  id: string | number,
-) {
+const publish = async (prisma: PrismaClient, id: string | number) => {
   const book = await prisma.book.findUnique({ where: { id: Number(id) } });
   if (!book) throw new Error(`Book ${id} not found`);
 
@@ -42,17 +39,21 @@ export default async function publish(
   });
 
   return { success: true, message: `"${book.title}" published` };
-}
+};
+
+export default publish;
 ```
 
 Table-level procedures work the same, but receive only the Prisma client (no record id):
 
 ```ts
 // resources/book/actions/reindex.ts
-export default async function reindex(prisma: PrismaClient) {
+const reindex = async (prisma: PrismaClient) => {
   // operate on the whole table
   return { success: true };
-}
+};
+
+export default reindex;
 ```
 
 ```json
@@ -91,7 +92,7 @@ Row-level actions accept a `condition` that is evaluated per row, so the button 
       "id": "publish",
       "label": "Publish",
       "procedure": "publish",
-      "condition": { "field": "published_at", "exists": false }
+      "condition": { "field": "published_at", "op": "notExists" }
     }
   ]
 }

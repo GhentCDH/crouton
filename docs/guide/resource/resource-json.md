@@ -61,6 +61,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `schemaVersion`     | `number`                       | resource.json shape version; auto-migrated in dev — see [Versioning](resource-versioning.md)                                                                                                  |
 | `draft`             | `boolean`                      | When `true`, kept in the repo but not loaded/served — see [Draft resources](resource-versioning.md#draft-resources)                                                                             |
 | `kind`              | `'prisma' \| 'custom'`         | Where the data comes from. Default `prisma`. `custom` means no Prisma model and no `schema.ts` — you implement data access in `repository.ts`, see [Custom resources](custom-resource.md)     |
+| `idType`            | `'string' \| 'number'`         | Type of the id field. Default `'number'`. Use `'string'` for UUID primary keys.                                                                                                               |
 | `name`              | `string`                       | Unique resource name (used as form id in the frontend)                                                                                                                                        |
 | `id`                | `string`                       | Internal id; `route` falls back to it when omitted, and it falls back to `name`. Rarely set by hand                                                        |
 | `route`             | `string`                       | URL segment for the generated endpoints                                                                                                                                                       |
@@ -80,6 +81,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `tableActions`      | array                          | Table-level [actions](actions.md)                                                                                                                                                             |
 | `modalSize`         | `'xs' \| 'sm' \| 'lg' \| 'xl'` | Size of the create/edit modal (default `sm`)                                                                                                                                                                 |
 | `include`           | array                          | Relations to eagerly load, see below                                                                                                                                                          |
+| `layout`            | object                         | Form layout configuration — controls column spans and section grouping                                                                                                                         |
 
 ## Operations
 
@@ -398,12 +400,12 @@ directory:
   "fieldInput": {
     "format": "relation",
     "relationType": "manyToOne",
-    "resource": "./resource.author"
+    "resource": "./author.resource"
   }
 }
 ```
 
-`resource.author.json` then describes the related resource (its columns, operations, and lookup display). Supported
+`author.resource.json` then describes the related resource (its columns, operations, and lookup display). Supported
 `relationType` values: `oneToOne`, `manyToOne`, `oneToMany`, `manyToMany`.
 
 The frontend picks the matching control automatically — an autocomplete for `manyToOne`, an editable nested table for
@@ -455,7 +457,7 @@ places:
   "label": "Sections",
   "hiddenInForm": true,
   "fieldInput": {
-    "type": "relation",
+    "format": "relation",
     "resource": "./section/resource.json",
     "options": {
       "sort": "title",
@@ -579,7 +581,7 @@ add `customComponent` to `fieldInput.options`. This works with any format — in
     "resource": "../section/resource.json",
     "options": {
       "customComponent": "work-sections",
-      "sortDir": "section_number",
+      "sort": "section_number",
       "displayKey": "title"
     }
   }
@@ -604,7 +606,7 @@ component receives `wrapper`, `value` (v-model), `appliedOptions`, `schema`, and
 
 #### Table cells
 
-Add `customComponent` to `tableView.options` (or `fieldTable.options`) to override the table cell renderer:
+Add `customComponent` to `fieldTable.options` to override the table cell renderer:
 
 ```json
 {
@@ -613,7 +615,7 @@ Add `customComponent` to `tableView.options` (or `fieldTable.options`) to overri
     "type": "number",
     "position": 0
   },
-  "tableView": {
+  "fieldTable": {
     "options": {
       "customComponent": "moveUpDown"
     }

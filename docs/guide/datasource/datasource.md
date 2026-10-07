@@ -36,8 +36,9 @@ These are read by `crouton-api` at startup:
 
 | Field     | Description                                                                                                               |
 |-----------|---------------------------------------------------------------------------------------------------------------------------|
-| `name`    | Name used by resources to select this data source (the `database` field in `resource.json`). Defaults to the folder name. |
-| `type`    | Client type — currently Prisma.                                                                                           |
+| `name`    | **Required.** Unique identifier used by resources to select this data source (the `database` field in `resource.json`).   |
+| `type`    | Client type — currently `"postgres"`.                                                                                     |
+| `adapter` | Optional. Adapter type override (e.g. `"prisma-pg"`). Defaults to the type's built-in adapter.                           |
 | `default` | Used by resources that don't specify a `database`. Exactly one datasource may be `default`.                               |
 
 ### Codegen fields
@@ -51,6 +52,7 @@ possible by giving each its own schema and generated outputs.
 | `urlEnv`               | Env var holding the connection URL used when the CLI runs `prisma db pull` / `generate`.          |
 | `generatedTypesImport` | Import path for this datasource's generated Zod types. New `schema.ts` files re-export from here. |
 | `zodOutput`            | Zod types output dir (project-relative). Passed to `crouton-prisma` as `zodOutput`.               |
+| `clientOutput`         | Prisma client output dir (project-relative). Should match the `output` in the generator block.    |
 | `prismaConfig`         | Prisma config file for this datasource. Defaults to `prisma/<name>/prisma.config.ts`.             |
 
 ## index.ts

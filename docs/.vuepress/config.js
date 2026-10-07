@@ -34,7 +34,7 @@ export default defineUserConfig({
           ),
           '@ghentcdh/crouton-forms-vue/styles.css': fileURLToPath(
             new URL(
-              '../../packages/crouton-forms-vue/src/styles.ts',
+              '../../packages/crouton-forms-vue/src/styles.css',
               import.meta.url,
             ),
           ),

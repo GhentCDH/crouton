@@ -34,23 +34,6 @@ Override the global block for a single operation:
 }
 ```
 
-### Typed resource config (`.ts`)
-
-Same shape in TypeScript:
-
-```ts
-import { defineResource } from '@ghentcdh/crouton-api';
-
-export default defineResource({
-  // ...
-  security: { guard: 'admin' },
-  definition: {
-    findAll: { security: { public: true } },
-    create:  { security: { guard: 'editor' } },
-  },
-});
-```
-
 ## Options
 
 | Shape | Meaning |
@@ -153,7 +136,7 @@ module config
 
 These routes never receive a guard, regardless of configuration:
 
-- `GET /crouton/status.json` — system health check
+- `GET /crouton/status.json` — system health check (path changes when a `prefix` is set in `CroutonAppConfig`)
 - `GET /_app/layout` — frontend bootstrap data
 
 ## Schema and definition endpoints

@@ -29,6 +29,7 @@ Create `crouton.json` at the project root (or workspace root for Nx):
 
 ```json
 {
+  "title": "My App",
   "resourcesDir": "src/app/resources",
   "dataSourcesDir": "src/app/data-sources",
   "enumsFile": "crouton.enums.json"
@@ -39,6 +40,7 @@ For Nx monorepos with apps in subdirectories, adjust paths accordingly:
 
 ```json
 {
+  "title": "My App",
   "resourcesDir": "apps/backend/src/app/resources",
   "dataSourcesDir": "apps/backend/src/app/data-sources",
   "enumsFile": "crouton.enums.json"
@@ -131,7 +133,7 @@ export default client;
 
 ### Standalone project
 
-In `../../../tsconfig.json`, add path aliases for the generated types and client:
+In `tsconfig.json`, add path aliases for the generated types and client:
 
 ```json
 {
@@ -150,7 +152,7 @@ In `../../../tsconfig.json`, add path aliases for the generated types and client
 
 ### Nx monorepo
 
-In `../../../tsconfig.base.json` at the workspace root:
+In `tsconfig.base.json` at the workspace root:
 
 ```json
 {
@@ -302,7 +304,7 @@ Create `src/main.ts`:
 ```ts
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import { useCrouton, CroutonRouter } from '@ghentcdh/crouton-vue';
+import { CroutonPlugin, CroutonRouter } from '@ghentcdh/crouton-vue';
 import '@ghentcdh/crouton-vue/styles.css';
 import { api } from './api';
 import App from './App.vue';
@@ -318,13 +320,10 @@ const router = createRouter({
   ],
 });
 
-useCrouton()
-  .init(api, { title: 'My App' })
-  .then(() => {
-    const app = createApp(App);
-    app.use(router);
-    app.mount('#app');
-  });
+const app = createApp(App);
+app.use(CroutonPlugin(api, { title: 'My App', router }));
+app.use(router);
+app.mount('#app');
 ```
 
 ### App component

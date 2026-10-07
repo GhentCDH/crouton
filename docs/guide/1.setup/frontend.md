@@ -21,30 +21,34 @@ import '@ghentcdh/crouton-vue/styles.css';
 
 ## Bootstrap
 
-Initialize crouton with an axios instance **before** mounting the app. `init()` configures the API client and fetches
+Initialize crouton via `CroutonPlugin` **before** mounting the app. The plugin configures the API client and fetches
 `/_app/layout` from the backend to build the sidebar:
 
 ```ts
 // main.ts
 import { createApp } from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
 import axios from 'axios';
-import { useCrouton } from '@ghentcdh/crouton-vue';
+import { CroutonPlugin, CroutonRouter } from '@ghentcdh/crouton-vue';
 
 import App from './app/App.vue';
-import router from './router';
 
 const api = axios.create({ baseURL: 'http://localhost:3000' });
 
-useCrouton()
-  .init(api, { title: 'My App' })
-  .then(() => {
-    const app = createApp(App);
-    app.use(router);
-    app.mount('#root');
-  });
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/admin', children: [...CroutonRouter] },
+  ],
+});
+
+const app = createApp(App);
+app.use(CroutonPlugin(api, { title: 'My App', router }));
+app.use(router);
+app.mount('#root');
 ```
 
-::: tip Any pre-configured `AxiosInstance` works — add your auth interceptors to it before passing it to `init()`.
+::: tip Any pre-configured `AxiosInstance` works — add your auth interceptors to it before passing it to `CroutonPlugin`.
 :::
 
 ## Mount the routes
@@ -71,7 +75,7 @@ const router = createRouter({
 export default router;
 ```
 
-Navigating to `/admin/form/<resource>` now renders the complete admin view — table, filters, and forms — for that
+Navigating to `/admin/crouton/<resource>` now renders the complete admin view — table, filters, and forms — for that
 resource. Nothing else to configure.
 
 Navigate programmatically with the named route:
@@ -93,6 +97,9 @@ const { sidebar } = useCrouton();
 Use it to render your own navigation, or hide resources from it via `sidebar.hide` in
 their [resource.json](../resource/resource-json.md).
 
+::: tip Pass `router` to `CroutonPlugin` and the status page is registered automatically. See [Status page](status.md).
+:::
+
 ## Plugin options
 
 `CroutonPlugin` accepts an optional second argument to configure global defaults:
@@ -101,8 +108,12 @@ their [resource.json](../resource/resource-json.md).
 app.use(
   CroutonPlugin(api, {
     title: 'My App',          // App title (overridden by backend if not set)
-    showErrors: true,         // Show raw validation errors below every CroutonForm (default: true)
+    router,                   // Vue Router instance — registers crouton routes (status page, etc.)
+    showErrors: false,        // Show raw validation errors below every CroutonForm (default: false)
     debugValue: false,        // Show live form values below every CroutonForm (default: false)
+    autoSave: false,          // Enable autosave globally for all CroutonForms (default: false)
+    defaults: {},             // Default form values injected for $user and other dynamic tokens
+    isDev: false,             // Enable dev-only features (resource editor, publish button, etc.)
     renderers: [],            // Extra JsonForms control renderers
     readonlyRenderers: [],    // Extra renderers for readonly/view mode
     cellRenderers: [],        // Extra table cell renderers

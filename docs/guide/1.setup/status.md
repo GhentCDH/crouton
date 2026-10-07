@@ -39,9 +39,12 @@ interface CroutonStatus {
     customOperations?: string[];
     warnings?: string[];
   }[];
+  enums?: Record<string, { value: string; label: string }[]>;
   i18n?: {
     active: boolean;
     defaultLanguage: string;
+    languages: string[];
+    keyCount: number;
     bundles: { language: string; emptyKeys: number }[];
   };
 }
@@ -184,7 +187,11 @@ const routes = [
 
 ### `useCroutonStatus` composable
 
-The data layer is exposed as a composable for custom status views or sidebar health indicators:
+::: warning Internal API
+`useCroutonStatus` is not exported from `@ghentcdh/crouton-vue` and is not part of the public API. Use the status page component via `CroutonStatusRoutes` or `CroutonPlugin` instead.
+:::
+
+The data layer is exposed internally for the built-in status page:
 
 ```ts
 import { useCroutonStatus } from '@ghentcdh/crouton-vue';

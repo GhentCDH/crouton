@@ -20,6 +20,14 @@ const hooks: ResourceHooks = {
     // runs after Prisma create / update / delete
     return result;
   },
+  beforeFindAll: async (query, ctx) => {
+    // runs before the list query — modify filters, add scopes, etc.
+    return query;
+  },
+  afterFindAll: async (rows, ctx) => {
+    // runs after the list query returns — decorate or filter rows
+    return rows;
+  },
   afterRead: async (row, ctx) => {
     // runs on every row returned by findAll / findOne
     return row;
@@ -34,6 +42,7 @@ export default hooks;
 ```ts
 beforeWrite ? : (data, ctx: {
   prisma;
+  dataSource;
   op: 'create' | 'update' | 'patch' | 'delete';
   id?;
   request?;
@@ -73,6 +82,7 @@ const hooks: ResourceHooks = {
 ```ts
 afterWrite ? : (result, ctx: {
   prisma;
+  dataSource;
   op: 'create' | 'update' | 'patch' | 'delete';
   id?;
   request?;
@@ -99,7 +109,7 @@ const hooks: ResourceHooks = {
 ## afterRead
 
 ```ts
-afterRead ? : (row, ctx: { prisma; op: 'findAll' | 'findOne'; request?; parent? }) => any;
+afterRead ? : (row, ctx: { prisma; dataSource; op: 'findAll' | 'findOne'; request?; parent? }) => any;
 ```
 
 Called for **every row** returned by the list and detail endpoints. Use it to add derived fields:
@@ -117,6 +127,22 @@ const hooks: ResourceHooks = {
 `afterRead` runs per row — keep it cheap. Avoid extra queries inside it for list endpoints; prefer [
 `include`](resource-json.md#includes) or [calculated columns](resource-json.md#calculated-columns) to fetch related data
 in the main query.
+:::
+
+## beforeFindAll / afterFindAll
+
+```ts
+beforeFindAll ? : (query, ctx: { prisma; dataSource; request?; parent? }) => any;
+afterFindAll  ? : (rows,  ctx: { prisma; dataSource; request?; parent? }) => any;
+```
+
+`beforeFindAll` receives the query object before it is sent to Prisma, letting you add filters or scopes.
+`afterFindAll` receives the full result array and lets you add or remove rows.
+
+::: tip
+For row-level decoration prefer `afterRead`, which runs per row and is called for both `findAll` and `findOne`.
+Use `afterFindAll` only when you need access to the whole page at once (e.g. to set a sort key that depends on
+sibling rows).
 :::
 
 ## Sub-resource hooks

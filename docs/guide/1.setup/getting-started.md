@@ -37,7 +37,9 @@ node packages/create-crouton/dist/index.js my-test-app
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--nx` | prompt | Use Nx monorepo layout (backend + frontend + shared libs). |
+| `--no-nx` | — | Skip Nx layout (scaffold a regular single-app project). |
 | `--no-frontend` | — | Skip Vue frontend generation (Nx layout only). |
+| `--no-postgres` | — | Skip PostgreSQL setup (Prisma schema, adapter, Docker). |
 | `--sample` | — | Include a sample resource. |
 | `--pm <manager>` | prompt | Package manager: `pnpm`, `npm`, `yarn`, or `bun`. |
 | `--no-install` | — | Skip dependency installation. |
@@ -172,7 +174,7 @@ npx @ghentcdh/add-crouton --cwd /path/to/project
 
 ### What it does
 
-1. **Detects project type** — checks for `../../../nx.json` to distinguish Nx workspaces from regular projects.
+1. **Detects project type** — checks for `nx.json` at or above the current directory to distinguish Nx workspaces from regular projects.
 2. **Discovers apps** (Nx only) — scans `apps/` subdirs, classifies them as backend (`@nestjs/core` in deps) or frontend (`vue`/`vite` in deps), and prompts which to use.
 3. **Detects package manager** — from lockfile presence (pnpm-lock.yaml, package-lock.json, yarn.lock, bun.lockb).
 4. **Scans dependencies** — reports missing backend deps (`@ghentcdh/crouton-api`, `@ghentcdh/crouton-core`, `prisma`, etc.).

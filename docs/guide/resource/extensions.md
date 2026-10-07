@@ -18,17 +18,7 @@ served schema payloads.
 }
 ```
 
-Extensions are **validated** against a Zod schema you register at startup, and **normalized** into a single
-`extensions` object on every payload:
-
-```json
-{
-  "id": "example",
-  "extensions": {
-    "annotation": { "color": "#4fff66", "isRoot": false, "allowedChildren": ["lemma"], "allowedLinks": [] }
-  }
-}
-```
+Extensions are **validated** against a Zod schema you register at startup. They appear at the top level of every schema payload, exactly as authored:
 
 ::: tip Fully backward-compatible
 No extension registered → behaviour is byte-identical to before. No `schemaVersion` bump required.
@@ -95,25 +85,24 @@ Write the extension key at the top level, as a sibling of `columns`:
 }
 ```
 
-- An extension key with a registered schema → validated; appears in `extensions` on all payloads.
+- An extension key with a registered schema → validated; appears under its key on all payloads.
 - An unregistered top-level key → silently stripped (same as today).
-- A registered key with the wrong type → parse error recorded in the resource load errors registry; the resource is
-  still served, but the extension block is absent.
+- A registered key with the wrong type → **the entire `resource.json` parse fails**; the resource is recorded as invalid and not served. A wrong-typed extension is not silently skipped.
 - A key that collides with a core key (`columns`, `name`, `route`, …) → `registerResourceExtension` throws at startup.
 
 ## Read extensions on the frontend
 
-Extensions appear under `extensions` on the three crouton payloads:
+Extension keys appear **flat at the top level** of the three crouton payloads (no wrapping `extensions` object):
 
-| Endpoint | Field |
-|----------|-------|
-| `GET /<route>/schemas` | `extensions` |
-| `GET /<route>/definition` | `extensions` |
-| `GET /<route>/resource.json` | `extensions` |
+| Endpoint | Where to find them |
+|----------|--------------------|
+| `GET /<route>/schemas` | top-level key, e.g. `data.annotation` |
+| `GET /<route>/definition` | top-level key |
+| `GET /<route>/resource.json` | top-level key |
 
 ```ts
 const { data } = await fetch('/lemmas/schemas').then(r => r.json());
-const annotation = data.extensions?.annotation;
+const annotation = data.annotation;
 // { color: '#4fff66', isRoot: true, allowedChildren: ['sense'], allowedLinks: [] }
 ```
 
