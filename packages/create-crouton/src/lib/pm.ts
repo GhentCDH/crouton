@@ -37,6 +37,9 @@ export const installDeps = (pm: PackageManager, cwd: string): Promise<void> =>
     child.on('error', reject);
   });
 
+export const pmExec = (pm: PackageManager, bin: string): string =>
+  ({ pnpm: `pnpm exec ${bin}`, yarn: `yarn ${bin}`, bun: `bunx ${bin}`, npm: `npx ${bin}` })[pm];
+
 /**
  * Return the prefix needed to run a package.json script:
  * `pnpm` / `npm run` / `yarn` / `bun run`.

@@ -27,6 +27,7 @@ import {
   isGitDirty,
   loadConfig,
   loadDatasources,
+  loadDotenv,
   makeRelationResolver,
   makeSchemaExportName,
   mergeEnumRegistry,
@@ -356,6 +357,7 @@ export const runUpdateResources = async (
 
   try {
     const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes);
+    loadDotenv(loaded.root);
     const datasources = await loadDatasources(loaded);
     const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
 

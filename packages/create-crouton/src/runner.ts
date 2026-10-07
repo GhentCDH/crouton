@@ -5,7 +5,7 @@ import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
 import type { PackageManager } from './lib/detect';
 import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
-import { checkPnpmVersion, installDeps } from './lib/pm';
+import { checkPnpmVersion, installDeps, pmExec } from './lib/pm';
 import { CancelledError, assertNotCancel } from './lib/prompts';
 import { render } from './lib/render';
 import { execSync } from 'node:child_process';
@@ -86,7 +86,7 @@ export const runCreate = async (
 
     const dbUrl = await resolveDbUrl(opts);
     const postgres =
-      opts.docker !== false ? await resolvePostgres(opts) : false;
+      opts.docker !== false && !dbUrl ? await resolvePostgres(opts) : false;
 
     // 3. Resolve tokens
     const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
@@ -225,7 +225,7 @@ export const runCreate = async (
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
 
       // 7. Post-scaffold steps
-      await postScaffold(opts, targetDir, pm, dbUrl, prefix);
+      const { resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl, prefix);
     } else {
       // Regular layout — no prefix support
       const templateDir = resolve(templateRoot, 'regular');
@@ -275,7 +275,7 @@ export const runCreate = async (
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
 
       // Post-scaffold steps
-      await postScaffold(opts, targetDir, pm, dbUrl);
+      const { resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl);
     }
 
     // 8. Next steps
@@ -283,12 +283,9 @@ export const runCreate = async (
     const prefixFlag = prefix ? ` --prefix ${prefix}` : '';
     clack.note(
       [
-        opts.docker !== false && postgres
-          ? 'docker compose up -d          # start postgres'
-          : null,
-        `${pmRun} prisma:migrate          # create initial migration`,
-        `crouton update resources${prefixFlag}        # generate resource CRUD`,
-        `${pmRun} dev                     # start dev server`,
+        postgres ? 'docker compose up -d                 # start postgres' : null,
+        !resourcesUpdated ? `${pmExec(pm, 'crouton')} update resources${prefixFlag}  # generate resource CRUD` : null,
+        `${pmRun} dev                            # start dev server`,
       ]
         .filter(Boolean)
         .join('\n'),
@@ -413,7 +410,7 @@ const postScaffold = async (
   pm: PackageManager,
   dbUrl: string,
   prefix?: string,
-): Promise<void> => {
+): Promise<{ resourcesUpdated: boolean }> => {
   // git init
   if (opts.git !== false) {
     const s = clack.spinner();
@@ -428,6 +425,8 @@ const postScaffold = async (
       s.error('Git init failed (non-fatal)');
     }
   }
+
+  let resourcesUpdated = false;
 
   // Install deps
   if (opts.install !== false) {
@@ -448,24 +447,28 @@ const postScaffold = async (
         // In an Nx monorepo the CLI must run from the workspace root and target
         // the app via --prefix, so it can resolve nx.json / the pnpm workspace.
         const prefixArg = prefix ? ` --prefix ${prefix}` : '';
-        execSync(`npx crouton update resources --yes${prefixArg}`, {
+        execSync(`${pmExec(pm, 'crouton')} update resources --yes${prefixArg}`, {
           cwd: targetDir,
           stdio: 'pipe',
           env: { ...process.env, DATABASE_URL: dbUrl },
         });
+        resourcesUpdated = true;
         s2.stop('Resources updated');
       } catch (err) {
         const stderr =
           err instanceof Error && 'stderr' in err
             ? String((err as { stderr: unknown }).stderr).trim()
             : '';
+        const firstLine = stderr.split('\n').find((l) => l.trim()) ?? '';
         clack.log.warn(
-          'crouton update resources failed — run it manually after setting up your database.' +
-            (stderr ? `\n${pc.dim(stderr)}` : ''),
+          'crouton update resources failed — run it manually after setting up your database.',
         );
+        if (firstLine) clack.log.error(firstLine);
       }
     }
   }
+
+  return { resourcesUpdated };
 };
 
 const resolveLayout = async (

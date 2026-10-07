@@ -1,11 +1,14 @@
 {
   "name": "@ghentcdh/crouton-cli",
-  "version": "0.0.1-alpha.48",
+  "version": "0.0.1-alpha.80",
   "publishConfig": {
     "access": "public",
     "tag": "alpha"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
   "exports": {
     ".": {
       "@ghentcdh/crouton": "./src/index.ts",
