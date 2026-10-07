@@ -1,282 +1,61 @@
 import {
   type FieldInput,
   type JsonColumn,
-  buildSubResourceOperations,
-  getResourceExtensions,
   resolveTableField,
   resolveViewField,
 } from '@ghentcdh/crouton-core';
-
-import { type ResourceRowAction } from '../action';
 import {
-  externalRouteFor,
-  isOperationEnabled,
-  isOperationExternal,
-  resolveDefinition,
-  schemaFor,
-} from '../crud.config';
+  buildDefinitionPayload as _buildDefinitionPayload,
+  buildResourceJsonPayload as _buildResourceJsonPayload,
+  buildResourceOperations,
+  buildSubResourceViewsPayload as _buildSubResourceViewsPayload,
+  buildViewsPayload as _buildViewsPayload,
+  resolveActions as _resolveActions,
+  resolveTableActions as _resolveTableActions,
+} from '@ghentcdh/crouton-core';
+
+import type { ResourceRowAction, ResourceTableAction } from '../action';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
-import { toJsonSchema } from '../schema.utils';
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+export { buildResourceOperations };
 
-const pickExtensions = (config: Resource) =>
-  Object.fromEntries([...getResourceExtensions().keys()].filter(k => (config as Record<string, unknown>)[k] !== undefined).map(k => [k, (config as Record<string, unknown>)[k]]));
-
-/**
- * Replace `{env.VAR_NAME}` placeholders with `process.env.VAR_NAME`.
- * Unknown variables are left as-is.
- */
-export const resolveEnvPlaceholders = (value: string): string =>
-  value.replace(
-    /\{env\.([^}]+)\}/g,
-    (match, varName) => process.env[varName] ?? match,
-  );
-
-const RESOURCE_OPS = [
-  'findAll',
-  'findOne',
-  'create',
-  'update',
-  'patch',
-  'delete',
-] as const;
-type ResourceOp = (typeof RESOURCE_OPS)[number];
-
-const OP_METHOD: Record<ResourceOp, string> = {
-  findAll: 'get',
-  findOne: 'get',
-  create: 'post',
-  update: 'put',
-  patch: 'patch',
-  delete: 'delete',
-};
-const OP_SUFFIX: Record<ResourceOp, string> = {
-  findAll: '',
-  findOne: '/{id}',
-  create: '',
-  update: '/{id}',
-  patch: '/{id}',
-  delete: '/{id}',
-};
-
-/** Build an operations map for a top-level resource with full URIs. */
-export const buildResourceOperations = (
-  definition: ReturnType<typeof resolveDefinition>,
-  baseUri: string,
-): Record<string, unknown> =>
-  Object.fromEntries(
-    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map((op) => {
-      const extUri = externalRouteFor(definition, op);
-      const uri = extUri ? resolveEnvPlaceholders(extUri) : `${baseUri}${OP_SUFFIX[op]}`;
-      const entry = definition[op];
-      const method =
-        (extUri && typeof entry === 'object' && entry !== null && 'method' in entry
-          ? (entry as { method?: string }).method
-          : undefined) ?? OP_METHOD[op];
-      return [op, { uri, method }];
-    }),
-  );
-
-// ── Public payload builders ───────────────────────────────────────────────
-
-/** Build the payload for `GET /definition` — enabled operations and their JSON Schemas. */
-export const buildDefinitionPayload = (
-  config: Resource,
-): Record<string, unknown> => {
-  const { route, name, tag, idType = 'string' } = config;
-  const definition = resolveDefinition(config);
-  const listSchema = schemaFor(definition, 'findAll');
-  const oneSchema = schemaFor(definition, 'findOne') ?? listSchema;
-  const createSchema = schemaFor(definition, 'create');
-  const updateSchema = schemaFor(definition, 'update');
-  const patchSchema = schemaFor(definition, 'patch');
-  const operations = (
-    [
-      'findAll',
-      'findOne',
-      'create',
-      'update',
-      'patch',
-      'delete',
-    ] as const
-  ).filter((op) => isOperationEnabled(definition, op));
-
-  return {
-    name,
-    route,
-    idType,
-    tag,
-    operations,
-    display: config.display,
-    schemas: {
-      ...(listSchema && { findAll: toJsonSchema(listSchema) }),
-      ...(oneSchema && { findOne: toJsonSchema(oneSchema) }),
-      ...(createSchema && { create: toJsonSchema(createSchema) }),
-      ...(updateSchema && { update: toJsonSchema(updateSchema) }),
-      ...(patchSchema && { patch: toJsonSchema(patchSchema) }),
-    },
-    ...pickExtensions(config),
-  };
-};
-
-/** Build the payload for `GET /resource.json` — URI, enabled operations, and optional form schema. */
-export const buildResourceJsonPayload = (
-  config: Resource,
-  baseUrl?: string,
-): Record<string, unknown> => {
-  const { name, route } = config;
-  const definition = resolveDefinition(config);
-  const uri = `${baseUrl}/${route}`;
-  const operations: any = Object.fromEntries(
-    RESOURCE_OPS.map((op) => [op, isOperationEnabled(definition, op)]),
-  );
-  if (!isOperationExternal(definition, 'findAll')) {
-    operations.lookup = `${uri}?q={text}`;
-  }
-
-  const form = config.views?.['form'];
-  const schema = form?.json_schema
-    ? { data: form.json_schema, ui: form.ui_schema }
-    : null;
-
-  return {
-    id: config.id ?? route,
-    uri,
-    operations,
-    schema,
-    ...pickExtensions(config),
-  };
-};
-
-const _resolveActions = (
-  baseUrl: string[],
-  actions: ResourceRowAction[] | undefined,
-) => {
-  if (!actions?.length) return [];
-  const resolved = actions.map((a) =>
-    a.type === 'link'
-      ? {
-          ...a,
-          href: resolveEnvPlaceholders(a.href),
-        }
-      : {
-          ...a,
-          uri: baseUrl.map((b) => (b === '{actionId}' ? a.id : b)).join('/'),
-          method: a.method ?? 'post',
-        },
-  );
-  return resolved;
-};
+// Typed wrappers so callers pass Resource/ResourceRowAction instead of the
+// crouton-core CompiledResource/JsonAction types (structurally compatible at
+// runtime; `as any` is contained to this boundary).
 
 export const resolveActions = (
   baseUrl: string,
   actions: ResourceRowAction[] | undefined,
-) => {
-  return _resolveActions([baseUrl, 'procedure', '{actionId}', '{id}'], actions);
-};
+) => _resolveActions(baseUrl, actions as any);
 
 export const resolveTableActions = (
   baseUrl: string,
-  actions: ResourceRowAction[] | undefined,
-) => {
-  return _resolveActions([baseUrl, 'table-action', '{actionId}'], actions);
-};
+  actions: ResourceTableAction[] | undefined,
+) => _resolveTableActions(baseUrl, actions as any);
 
-/**
- * Build the payload for `GET /schemas` — view schemas (table/form), operations, and actions.
- * Returns `undefined` when the resource has no views configured.
- */
+export const buildDefinitionPayload = (
+  config: Resource,
+): Record<string, unknown> => _buildDefinitionPayload(config as any);
+
+export const buildResourceJsonPayload = (
+  config: Resource,
+  baseUrl?: string,
+): Record<string, unknown> => _buildResourceJsonPayload(config as any, baseUrl);
+
 export const buildViewsPayload = (
   config: Resource,
   baseUrl?: string,
-): Record<string, unknown> | undefined => {
-  if (!config.views || !Object.keys(config.views).length) return undefined;
-  const definition = resolveDefinition(config);
-  // A nested resource is served under its parent, so its URIs carry the parent
-  // id as a `{param}` placeholder — the same substitution the frontend already
-  // performs for sub-resource URIs via replaceUriParams.
-  const baseUri = config.parent
-    ? `${baseUrl}/${config.parent.route}/{${config.parent.param}}/${config.route}`
-    : `${baseUrl}/${config.route}`;
-  const operations: Record<string, unknown> = buildResourceOperations(
-    definition,
-    baseUri,
-  );
-  if (isOperationEnabled(definition, 'findAll') && !isOperationExternal(definition, 'findAll')) {
-    operations['lookup'] = `${baseUri}?q={text}`;
-  }
-  const schemas = Object.fromEntries(
-    Object.entries(config.views).map(([key, v]) => [
-      key,
-      {
-        data: v.json_schema,
-        ui: v.ui_schema,
-        ...(v.defaultSort !== undefined && { defaultSort: v.defaultSort }),
-      },
-    ]),
-  );
-  const baseAction = `${baseUri}${config.route}`;
-  return {
-    id: config.id ?? config.route,
-    name: config.name,
-    route: config.route,
-    uri: baseUri,
-    title: config.title ?? config.tag,
-    idField: config.lookup?.key ?? 'id',
-    idType: config.idType ?? 'string',
-    ...(config.modalSize && { modalSize: config.modalSize }),
-    operations,
-    display: config.display,
-    schemas,
-    actions: resolveActions(baseAction, config.actions),
-    tableActions: resolveTableActions(baseAction, config.tableActions),
-    ...pickExtensions(config),
-  };
-};
+): Record<string, unknown> | undefined => _buildViewsPayload(config as any, baseUrl);
 
-/**
- * Build the payload for a sub-resource's `GET /<child>/schemas` endpoint.
- * Returns `undefined` when the sub-resource has no views configured.
- */
 export const buildSubResourceViewsPayload = (
   config: Resource,
   sub: SubResourceConfig,
   baseUrl?: string,
-): Record<string, unknown> | undefined => {
-  if (!sub.views) return undefined;
-  const { route } = config;
-  const childUri = `${baseUrl}/${route}/{parent.id}/${sub.childRoute}`;
+): Record<string, unknown> | undefined =>
+  _buildSubResourceViewsPayload(config as any, sub as any, baseUrl);
 
-  return {
-    id: `${route}/${sub.childRoute}`,
-    name: sub.name ?? sub.childRoute,
-    route: sub.childRoute,
-    uri: childUri,
-    title: sub.title ?? sub.childRoute,
-    idField: sub.idField ?? 'id',
-    idType: sub.idType ?? 'string',
-    ...(sub.modalSize && { modalSize: sub.modalSize }),
-    ...(sub.display && { display: sub.display }),
-    operations: buildSubResourceOperations(
-      sub.operations,
-      childUri,
-      sub.idField ?? 'id',
-    ),
-    schemas: Object.fromEntries(
-      Object.entries(sub.views).map(([key, v]) => [
-        key,
-        {
-          data: v.json_schema,
-          ui: v.ui_schema,
-          ...(v.defaultSort !== undefined && { defaultSort: v.defaultSort }),
-        },
-      ]),
-    ),
-    actions: resolveActions(`${baseUrl}/${sub.childRoute}`, sub.actions),
-  };
-};
+// ── crouton-api only ──────────────────────────────────────────────────────
 
 /**
  * A rendering-context's field config as exposed to the visual builder: the

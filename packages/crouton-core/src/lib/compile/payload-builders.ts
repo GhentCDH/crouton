@@ -176,7 +176,6 @@ export const buildViewsPayload = (
       },
     ]),
   );
-  const baseAction = `${baseUri}${config.route}`;
   return {
     id: config.id ?? config.route,
     name: config.name,
@@ -189,8 +188,8 @@ export const buildViewsPayload = (
     operations,
     display: config.display,
     schemas,
-    actions: resolveActions(baseAction, config.actions),
-    tableActions: resolveTableActions(baseAction, config.tableActions),
+    actions: resolveActions(baseUri, config.actions),
+    tableActions: resolveTableActions(baseUri, config.tableActions),
     ...pickExtensions(config),
   };
 };
@@ -213,6 +212,7 @@ export const buildSubResourceViewsPayload = (
     idField: sub.idField ?? 'id',
     idType: sub.idType ?? 'string',
     ...(sub.modalSize && { modalSize: sub.modalSize }),
+    ...(sub.display && { display: sub.display }),
     // ponytail: cast because JsonOperationsSchema uses boolean|{security?} but buildSubResourceOperations wants boolean
     operations: buildSubResourceOperations(sub.operations as any, childUri, sub.idField ?? 'id'),
     schemas: Object.fromEntries(
