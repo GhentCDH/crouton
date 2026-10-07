@@ -12,7 +12,7 @@ npx crouton update resources
 ## crouton.json
 
 A `crouton.json` file at the project root tells the CLI where things live. It holds **only project-wide paths and
-settings** — datasources are described in their own folders (see [Data sources](../datasource/datasource.md)), not here.
+settings** — datasources are described in their own folders (see [Data sources](../3.backend/data-sources.md)), not here.
 
 ```json
 {
@@ -46,7 +46,7 @@ write it.
 
 ## crouton create-datasource
 
-Scaffold a new [datasource](../datasource/datasource.md) — interactively, or fully via flags:
+Scaffold a new [datasource](../3.backend/data-sources.md) — interactively, or fully via flags:
 
 ```sh
 npx crouton create-datasource
@@ -76,7 +76,7 @@ paths / workspace, then run `crouton update resources --datasource <name>`.
 
 ## crouton create-resource
 
-Scaffold a [custom resource](../resource/custom-resource.md) — one whose form, table and view are configured
+Scaffold a [custom resource](../2.resources/custom-resource.md) — one whose form, table and view are configured
 declaratively while you implement the data access.
 
 ```bash
@@ -138,21 +138,21 @@ sibling `schema.ts` that re-exports the generated Zod schema from the datasource
 hand-written `schema.ts` is never overwritten.
 
 Every generated `resource.json` is stamped with a `$schema` URL and the current `schemaVersion`
-(see [Versioning](../resource/resource-versioning.md)), so it validates and autocompletes in your editor and starts at
+(see [Versioning](../2.resources/versioning.md)), so it validates and autocompletes in your editor and starts at
 the current version.
 
 Defaults applied during generation:
 
 - new resources are written **without `draft: true`** by default and served immediately — pass `--draft` to mark them
   as hidden until reviewed, then flip `draft` to `false` (or remove it) when ready.
-  See [Draft resources](../resource/resource-versioning.md#draft-resources);
+  See [Draft resources](../2.resources/versioning.md#draft-resources);
 - relations are **ignored** (not added as columns) unless explicitly enabled;
 - `id`, and create/update timestamps are hidden in the table;
 - `description`-style string fields default to a `textarea` input;
 - enum columns become `{ value, label }` selects backed by the shared registry.
 
 ::: tip
-`crouton update resources` ignores [custom resources](../resource/custom-resource.md). They have no Prisma model, so
+`crouton update resources` ignores [custom resources](../2.resources/custom-resource.md). They have no Prisma model, so
 introspection would see every column as missing from the database and offer to remove it.
 :::
 
@@ -208,7 +208,7 @@ the scalar value. `crouton update resources` merges newly discovered enum values
 and order you've edited by hand and never dropping existing entries.
 
 The registry is loaded by walking up from the resources directory, or via the `enumsFile` option to `forResourceDir`
-(see [Backend setup](../1.setup/backend.md)). In production, deploy `crouton.enums.json` somewhere that walk-up can
+(see [Backend setup](../3.backend/index.md)). In production, deploy `crouton.enums.json` somewhere that walk-up can
 reach, or pass `enumsFile` explicitly.
 
 ## Keeping the CLI fresh

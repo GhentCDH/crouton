@@ -1,5 +1,7 @@
 # Getting started
 
+> Last verified against crouton `0.0.1-alpha.81`
+
 Two ways to start with crouton: **create a new project** from scratch, or **add crouton** to an existing one.
 
 ## @ghentcdh/create-crouton

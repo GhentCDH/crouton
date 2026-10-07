@@ -81,15 +81,36 @@ FORM -->|CRUD requests|CRUD
 
 ## In this guide
 
-- [Getting started](1.setup/getting-started.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set
-  up a new or existing project
-- [Manual setup](1.setup/manual-setup.md) — add crouton to an existing project step by step, without the CLI
-- [CLI & project config](cli/cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`
-- [Backend setup](1.setup/backend.md) — register crouton in your NestJS application
-- [Frontend setup](1.setup/frontend.md) — bootstrap crouton in your Vue application
-- [resource.json](resource/resource-json.md) — the resource configuration reference
-- [Data sources](datasource/datasource.md) — connecting one or more databases
-- [Actions](resource/actions.md) — custom row and table actions
-- [Hooks](resource/hooks.md) — lifecycle hooks around reads and writes
-- [Custom styling](1.setup/styling.md) — theming with Tailwind and daisyUI
-- [Status page](1.setup/status.md) — built-in health checks and diagnostics at `/crouton/status.json`
+### Getting started
+- [Getting started](1.getting-started/index.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set up a new or existing project
+- [Project structure](1.getting-started/project-structure.md) — what lives where after scaffolding
+- [Manual setup](1.getting-started/manual-setup.md) — add crouton to an existing project step by step, without the CLI
+
+### Resources
+- [resource.json](2.resources/index.md) — the resource configuration reference
+- [Columns](2.resources/columns.md) — column definitions, fieldInput, calculated columns
+- [Relations](2.resources/relations.md) — relation columns and sorting
+- [Operations](2.resources/operations.md) — CRUD operations and external operation URIs
+- [Actions](2.resources/actions.md) — custom row and table actions
+- [Hooks](2.resources/hooks.md) — lifecycle hooks around reads and writes
+
+### Backend
+- [Backend setup](3.backend/index.md) — register crouton in your NestJS application
+- [Data sources](3.backend/data-sources.md) — connecting one or more databases, custom adapters
+- [Status page](3.backend/status.md) — built-in health checks and diagnostics
+
+### Frontend
+- [Frontend setup](4.frontend/index.md) — bootstrap crouton in your Vue application
+- [Custom renderers](4.frontend/custom-renderers.md) — custom Vue components for fields, cells, and full forms
+- [Custom styling](4.frontend/styling.md) — theming with Tailwind and daisyUI
+- [Translations](4.frontend/translations.md) — server-side i18n
+
+### Tooling
+- [CLI & project config](5.tooling/cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`
+- [Resource editor](5.tooling/resource-editor.md) — dev-mode visual builder and ResourceJsonEditor component
+
+### Reference
+- [crouton.json](reference/crouton-json.md) — all crouton.json keys in one place
+- [HTTP endpoints](reference/endpoints.md) — all routes in one place
+- [Packages](reference/packages.md) — what each package is and when to install it
+- [parseSchema](reference/parse-schema.md) — offline schema compilation

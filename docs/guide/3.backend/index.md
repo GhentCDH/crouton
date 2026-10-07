@@ -1,5 +1,7 @@
 # Backend setup
 
+> Last verified against crouton `0.0.1-alpha.81`
+
 Add crouton to a NestJS application.
 
 ## Install
@@ -36,8 +38,8 @@ export class AppModule {
 }
 ```
 
-Every subdirectory of `resources/` is loaded as one resource (see [resource.json](./resource-json.md)); every
-subdirectory of `data-sources/` provides a database client (see [Data sources](../datasource/datasource.md)).
+Every subdirectory of `resources/` is loaded as one resource (see [resource.json](../2.resources/index.md)); every
+subdirectory of `data-sources/` provides a database client (see [Data sources](data-sources.md)).
 
 The config object accepts the following fields:
 
@@ -46,7 +48,7 @@ The config object accepts the following fields:
 | `baseUrl`    | `string` | Absolute base URL prepended to operation URIs returned to the frontend (e.g. `https://api.example.com`). |
 | `prefix`     | `string` | Optional URL path prefix prepended to every crouton controller route (e.g. `'api'`). See [Route prefix](#route-prefix). |
 | `enumsFile`  | `string` | Path to the shared [enum registry](../cli/cli.md#enum-registry). When omitted, found by walking up from the resources directory. |
-| `security`   | object   | Named NestJS guards and an optional module-level default. See [Security](../resource/security.md). |
+| `security`   | object   | Named NestJS guards and an optional module-level default. See [Security](../2.resources/security.md). |
 
 ### Other registration styles
 
@@ -81,8 +83,8 @@ For a resource with `"route": "books"`, crouton registers (depending on the enab
 | `DELETE /books/:id`                         | Delete                                                |
 | `GET /books/schemas`                        | Table / form / view / filter schemas for the frontend |
 | `GET /books/definition`                     | Enabled operations + schemas                          |
-| `POST /books/procedure/:actionId/:recordId` | Row-level [actions](../resource/actions.md)           |
-| `POST /books/table-action/:actionId`        | Table-level [actions](../resource/actions.md)         |
+| `POST /books/procedure/:actionId/:recordId` | Row-level [actions](../2.resources/actions.md)           |
+| `POST /books/table-action/:actionId`        | Table-level [actions](../2.resources/actions.md)         |
 
 One application-wide endpoint feeds the frontend navigation:
 

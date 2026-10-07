@@ -52,7 +52,7 @@ interface CroutonStatus {
 
 ### Custom resources
 
-A [custom resource](../resource/custom-resource.md) is tagged `kind: 'custom'` and lists the operations its
+A [custom resource](../2.resources/custom-resource.md) is tagged `kind: 'custom'` and lists the operations its
 `repository.ts` implements. A resource whose repository is missing, broken, or does not cover an enabled operation is
 reported as **invalid** (`valid: false`) and skipped at boot, rather than failing silently on the first request.
 
@@ -83,9 +83,9 @@ Each loaded resource reports its `version`. Two more states show up here:
 
 - **Needs migration** — a `resource.json` whose `schemaVersion` differs from what crouton expects. It carries
   `expectedVersion` and is `valid: false`; the fix is to migrate it (automatic in dev).
-  See [Versioning & migrations](../resource/resource-versioning.md).
+  See [Versioning & migrations](../2.resources/versioning.md).
 - **Draft** — a resource with `draft: true` is present but intentionally not served. It does **not** count as a
-  resource error. See [Draft resources](../resource/resource-versioning.md#draft-resources).
+  resource error. See [Draft resources](../2.resources/versioning.md#draft-resources).
 
 ## Frontend — `/crouton/status`
 

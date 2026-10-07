@@ -14,7 +14,7 @@ and hooks — but defines columns explicitly.
 - `kind: "custom"` → schema from `columns` in `resource.json`
 
 A resource on a **non-Prisma backend** does not need `kind: "custom"`. Point it at a
-[custom-adapter datasource](../datasource/adapters.md) and use a normal `kind: "prisma"`
+[custom-adapter datasource](../3.backend/data-sources.md#custom-adapter) and use a normal `kind: "prisma"`
 resource with a `model`. The adapter handles CRUD; no `repository.ts` needed.
 
 Use `kind: "custom"` when:
@@ -321,7 +321,7 @@ You implement the fetch; the framework keeps its usual guarantees:
 ## Validation
 
 A custom resource is checked at load time, not on first request. Problems appear on
-the [status page](../1.setup/status.md) and the resource is skipped rather than crashing the server:
+the [status page](../3.backend/status.md) and the resource is skipped rather than crashing the server:
 
 - `model` present, or a column missing its `type`;
 - `calculatedColumns` used — they run raw SQL against a real table, so compute the value in `findAll` instead;
@@ -462,5 +462,4 @@ the relation column to keep the child's own nested controller.
 - [resource.json reference](resource-json.md)
 - [Hooks](hooks.md) — apply to custom resources too
 - [Actions](actions.md)
-- [Datasources & Adapters](../datasource/adapters.md) — use a custom-adapter datasource for non-Prisma backends without per-resource repository.ts
-- [Datasources](../datasource/datasource.md)
+- [Data sources & Adapters](../3.backend/data-sources.md) — use a custom-adapter datasource for non-Prisma backends without per-resource repository.ts

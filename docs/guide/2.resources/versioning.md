@@ -2,7 +2,7 @@
 
 Every `resource.json` carries a `schemaVersion`. When crouton evolves the shape of `resource.json`, older files are
 **auto-migrated** to the current version in the dev environment; anything that can't be brought current is reported on
-the [status page](../1.setup/status.md) rather than crashing boot. A generated JSON Schema gives you editor autocomplete
+the [status page](../3.backend/status.md) rather than crashing boot. A generated JSON Schema gives you editor autocomplete
 and inline validation, and a `draft` flag lets a resource live in the repo without being served.
 
 ## `schemaVersion`
@@ -28,7 +28,7 @@ by the CLI are stamped with it automatically (see [`$schema` and stamping](#sche
 When crouton loads resources, each `resource.json` is checked against `CURRENT_RESOURCE_VERSION` **before** it is
 parsed. Migration only runs in the **dev environment** — it rewrites the checked-in file, so it needs a writable,
 version-controlled checkout where the change can be reviewed and committed. Dev mode is enabled with the
-`CROUTON_SCHEMA_EDITOR` env var (the same flag that powers the [visual resource builder](visual-resource-builder.md)).
+`CROUTON_SCHEMA_EDITOR` env var (the same flag that powers the [visual resource builder](../5.tooling/resource-editor.md)).
 
 | File version vs current | Dev (`CROUTON_SCHEMA_EDITOR=true`)                                             | Non-dev                                |
 |-------------------------|--------------------------------------------------------------------------------|----------------------------------------|
@@ -47,8 +47,8 @@ still out of date shows up on the status page as failed — a signal that the mi
 ### What "failed" looks like
 
 A file that can't be brought current (a missing migration step, a step that throws, or a post-migration validation
-error) is skipped — that resource is not served — and listed on the [status page](../1.setup/status.md) with its
-version, the expected version, and the error. See [Resource load health](../1.setup/status.md#resource-load-errors).
+error) is skipped — that resource is not served — and listed on the [status page](../3.backend/status.md) with its
+version, the expected version, and the error. See [Resource load health](../3.backend/status.md#resource-load-errors).
 
 ## Authoring a migration
 
@@ -146,7 +146,7 @@ Set `draft: true` to keep a resource in the repo without serving it:
 
 A draft is excluded from the loaded set entirely — it doesn't appear in the sidebar, has no CRUD or schema endpoints,
 and its route 404s like any unknown resource. It is still auto-migrated in dev (so it stays current while you work on
-it), and it shows on the [status page](../1.setup/status.md) as an informational "draft — not loaded" row so it's
+it), and it shows on the [status page](../3.backend/status.md) as an informational "draft — not loaded" row so it's
 visible but clearly excluded rather than silently missing.
 
 New resources scaffolded by `crouton update resources` default to `draft: true`, so a generated-but-unreviewed resource

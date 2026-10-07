@@ -161,6 +161,8 @@ export const runCreate = async (
     const templateRoot = resolveTemplateDir();
     const skipPaths = !frontend ? ['apps/frontend'] : [];
 
+    let resourcesUpdated = false;
+
     if (layout === 'nx') {
       // Root templates → targetDir
       const rootTemplateDir = resolve(templateRoot, 'nx', 'root');
@@ -225,7 +227,7 @@ export const runCreate = async (
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
 
       // 7. Post-scaffold steps
-      const { resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl, prefix);
+      ({ resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl, prefix));
     } else {
       // Regular layout — no prefix support
       const templateDir = resolve(templateRoot, 'regular');
@@ -275,7 +277,7 @@ export const runCreate = async (
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
 
       // Post-scaffold steps
-      const { resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl);
+      ({ resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl));
     }
 
     // 8. Next steps
