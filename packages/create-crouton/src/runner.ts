@@ -5,7 +5,7 @@ import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
 
 import type { PackageManager } from './lib/detect';
 import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
-import { checkPnpmVersion, installDeps } from './lib/pm';
+import { checkPnpmVersion, installDeps, pmExec } from './lib/pm';
 import { CancelledError, assertNotCancel } from './lib/prompts';
 import { render } from './lib/render';
 import { execSync } from 'node:child_process';
@@ -284,7 +284,7 @@ export const runCreate = async (
     clack.note(
       [
         postgres ? 'docker compose up -d                 # start postgres' : null,
-        !resourcesUpdated ? `crouton update resources${prefixFlag}  # generate resource CRUD` : null,
+        !resourcesUpdated ? `${pmExec(pm, 'crouton')} update resources${prefixFlag}  # generate resource CRUD` : null,
         `${pmRun} dev                            # start dev server`,
       ]
         .filter(Boolean)
@@ -447,7 +447,7 @@ const postScaffold = async (
         // In an Nx monorepo the CLI must run from the workspace root and target
         // the app via --prefix, so it can resolve nx.json / the pnpm workspace.
         const prefixArg = prefix ? ` --prefix ${prefix}` : '';
-        execSync(`npx crouton update resources --yes${prefixArg}`, {
+        execSync(`${pmExec(pm, 'crouton')} update resources --yes${prefixArg}`, {
           cwd: targetDir,
           stdio: 'pipe',
           env: { ...process.env, DATABASE_URL: dbUrl },
