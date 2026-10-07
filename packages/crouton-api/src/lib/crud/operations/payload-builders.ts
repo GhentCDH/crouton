@@ -1,15 +1,15 @@
 import {
   type FieldInput,
   type JsonColumn,
-  resolveViewField,
   resolveTableField,
+  resolveViewField,
 } from '@ghentcdh/crouton-core';
 import {
   buildDefinitionPayload as _buildDefinitionPayload,
   buildResourceJsonPayload as _buildResourceJsonPayload,
-  buildViewsPayload as _buildViewsPayload,
-  buildSubResourceViewsPayload as _buildSubResourceViewsPayload,
   buildResourceOperations,
+  buildSubResourceViewsPayload as _buildSubResourceViewsPayload,
+  buildViewsPayload as _buildViewsPayload,
   resolveActions as _resolveActions,
   resolveTableActions as _resolveTableActions,
 } from '@ghentcdh/crouton-core';
