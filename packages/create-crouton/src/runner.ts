@@ -459,10 +459,11 @@ const postScaffold = async (
           err instanceof Error && 'stderr' in err
             ? String((err as { stderr: unknown }).stderr).trim()
             : '';
+        const firstLine = stderr.split('\n').find((l) => l.trim()) ?? '';
         clack.log.warn(
-          'crouton update resources failed — run it manually after setting up your database.' +
-            (stderr ? `\n${pc.dim(stderr)}` : ''),
+          'crouton update resources failed — run it manually after setting up your database.',
         );
+        if (firstLine) clack.log.error(firstLine);
       }
     }
   }
