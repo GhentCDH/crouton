@@ -86,7 +86,7 @@ export const runCreate = async (
 
     const dbUrl = await resolveDbUrl(opts);
     const postgres =
-      opts.docker !== false ? await resolvePostgres(opts) : false;
+      opts.docker !== false && !dbUrl ? await resolvePostgres(opts) : false;
 
     // 3. Resolve tokens
     const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
