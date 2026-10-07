@@ -1,3 +1,13 @@
+## 0.0.1-alpha.81 (2026-10-07)
+
+### 🚀 Features
+
+- **cli:** crouton db flow ([#177](https://github.com/GhentCDH/crouton/pull/177))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.80 (2026-10-07)
 
 ### 🚀 Features
