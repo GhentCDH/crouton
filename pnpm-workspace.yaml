@@ -30,9 +30,12 @@ allowBuilds:
   '@prisma/engines': true
   '@scarf/scarf': true
   '@swc/core': true
+  cpu-features: true
   esbuild: true
   nx: true
   prisma: true
+  protobufjs: true
+  ssh2: true
   unrs-resolver: true
 
 ignoredBuiltDependencies:
@@ -42,3 +45,6 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - '@scarf/scarf'
+  - cpu-features
+  - protobufjs
+  - ssh2

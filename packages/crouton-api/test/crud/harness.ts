@@ -1,11 +1,13 @@
 import { Test } from '@nestjs/testing';
 import supertest from 'supertest';
-import { join } from 'node:path';
+
+import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
 import { CroutonApiModule } from '../../src/lib/crouton-api.module';
 import { PrismaDataSourceAdapter } from '../../src/lib/crud/data-source/prisma.adapter';
 import { FileSystemResourceConfigLoader } from '../../src/lib/crud/loader/fs-resource-config.loader';
-import { DataSourceSchema } from '@ghentcdh/crouton-core';
+import { join } from 'node:path';
+
 
 const RESOURCES_DIR = join(import.meta.dirname, 'resources');
 

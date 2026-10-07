@@ -1,8 +1,9 @@
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
+
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
-let container: Awaited<ReturnType<typeof new PostgreSqlContainer().start>>;
+let container: Awaited<ReturnType<PostgreSqlContainer['start']>>;
 
 export const setup = async () => {
   container = await new PostgreSqlContainer('postgres:16').start();
