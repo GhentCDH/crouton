@@ -11,6 +11,12 @@
       "options": {
         "cwd": "{projectRoot}"
       }
+    },
+    "test-e2e": {
+      "command": "vitest run --config vitest.e2e.config.ts",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
     }
   }
 }

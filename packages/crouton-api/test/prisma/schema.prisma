@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TEST_DATABASE_URL")
+}
+
+model Author {
+  id    String @id @default(cuid())
+  name  String
+  books Book[]
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String
+  slug  String @unique
+  books Book[]
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  label    String
+  bookTags BookTag[]
+}
+
+model Book {
+  id            String    @id @default(cuid())
+  title         String
+  isbn          String?   @unique
+  publishedYear Int?
+  status        String    @default("draft")
+  authorId      String
+  author        Author    @relation(fields: [authorId], references: [id])
+  categories    Category[]
+  bookTags      BookTag[]
+  loans         Loan[]
+  reviews       Review[]
+}
+
+model BookTag {
+  bookId  String
+  tagId   Int
+  addedAt DateTime @default(now())
+  book    Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  tag     Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([bookId, tagId])
+}
+
+model Loan {
+  id         String    @id @default(cuid())
+  loanedAt   DateTime  @default(now())
+  returnedAt DateTime?
+  bookId     String
+  book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id     String @id @default(cuid())
+  rating Int
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id])
+}
+
+model Shelf {
+  code String @id
+  name String
+
+  @@map("shelves")
+}

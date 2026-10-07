@@ -1,0 +1,14 @@
+{
+  "name": "loan",
+  "route": "loans",
+  "tag": "Loans",
+  "kind": "prisma",
+  "model": "loan",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "loanedAt": { "type": "string" },
+    "returnedAt": { "type": "string" },
+    "bookId": { "type": "string", "hiddenInTable": true }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "shelf",
+  "route": "shelves",
+  "tag": "Shelves",
+  "kind": "prisma",
+  "model": "shelf",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "columns": {
+    "code": { "type": "string", "idField": true },
+    "name": { "type": "string", "searchable": true, "sortable": true, "required": true }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "book",
+  "route": "books",
+  "tag": "Books",
+  "kind": "prisma",
+  "model": "book",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "patch": true, "delete": true },
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "title": { "type": "string", "searchable": true, "sortable": true, "required": true },
+    "isbn": { "type": "string", "sortable": true, "unique": true },
+    "publishedYear": { "type": "integer", "sortable": true },
+    "status": { "type": "string", "sortable": true, "enum": "bookStatus" },
+    "authorId": { "type": "string", "hiddenInTable": true },
+    "author": {
+      "searchable": true,
+      "sortable": true,
+      "fieldInput": {
+        "type": "autocomplete",
+        "relationType": "manyToOne",
+        "relation": "author",
+        "resource": "../authors/resource.json"
+      }
+    },
+    "categories": {
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "manyToMany",
+        "relation": "categories",
+        "resource": "../categories/resource.json"
+      }
+    },
+    "loans": {
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "oneToMany",
+        "relation": "loans",
+        "resource": "../loans/resource.json"
+      }
+    },
+    "reviews": {
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "oneToMany",
+        "relation": "reviews",
+        "resource": "../reviews/resource.json"
+      }
+    }
+  }
+}

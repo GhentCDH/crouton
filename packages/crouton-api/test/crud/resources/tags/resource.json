@@ -1,0 +1,13 @@
+{
+  "name": "tag",
+  "route": "tags",
+  "tag": "Tags",
+  "kind": "prisma",
+  "model": "tag",
+  "idType": "number",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "columns": {
+    "id": { "type": "integer", "idField": true },
+    "label": { "type": "string", "searchable": true, "sortable": true, "required": true }
+  }
+}
