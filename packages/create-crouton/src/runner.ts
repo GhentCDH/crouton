@@ -225,7 +225,7 @@ export const runCreate = async (
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
 
       // 7. Post-scaffold steps
-      await postScaffold(opts, targetDir, pm, dbUrl, prefix);
+      const { resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl, prefix);
     } else {
       // Regular layout — no prefix support
       const templateDir = resolve(templateRoot, 'regular');
@@ -275,7 +275,7 @@ export const runCreate = async (
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
 
       // Post-scaffold steps
-      await postScaffold(opts, targetDir, pm, dbUrl);
+      const { resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl);
     }
 
     // 8. Next steps
@@ -283,12 +283,9 @@ export const runCreate = async (
     const prefixFlag = prefix ? ` --prefix ${prefix}` : '';
     clack.note(
       [
-        opts.docker !== false && postgres
-          ? 'docker compose up -d          # start postgres'
-          : null,
-        `${pmRun} prisma:migrate          # create initial migration`,
-        `crouton update resources${prefixFlag}        # generate resource CRUD`,
-        `${pmRun} dev                     # start dev server`,
+        postgres ? 'docker compose up -d                 # start postgres' : null,
+        !resourcesUpdated ? `crouton update resources${prefixFlag}  # generate resource CRUD` : null,
+        `${pmRun} dev                            # start dev server`,
       ]
         .filter(Boolean)
         .join('\n'),
@@ -413,7 +410,7 @@ const postScaffold = async (
   pm: PackageManager,
   dbUrl: string,
   prefix?: string,
-): Promise<void> => {
+): Promise<{ resourcesUpdated: boolean }> => {
   // git init
   if (opts.git !== false) {
     const s = clack.spinner();
@@ -428,6 +425,8 @@ const postScaffold = async (
       s.error('Git init failed (non-fatal)');
     }
   }
+
+  let resourcesUpdated = false;
 
   // Install deps
   if (opts.install !== false) {
@@ -453,6 +452,7 @@ const postScaffold = async (
           stdio: 'pipe',
           env: { ...process.env, DATABASE_URL: dbUrl },
         });
+        resourcesUpdated = true;
         s2.stop('Resources updated');
       } catch (err) {
         const stderr =
@@ -466,6 +466,8 @@ const postScaffold = async (
       }
     }
   }
+
+  return { resourcesUpdated };
 };
 
 const resolveLayout = async (
