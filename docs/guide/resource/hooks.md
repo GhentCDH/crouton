@@ -13,11 +13,11 @@ import type { ResourceHooks } from '@ghentcdh/crouton-api';
 
 const hooks: ResourceHooks = {
   beforeWrite: async (data, ctx) => {
-    // runs before Prisma create / update / upsert / delete
+    // runs before Prisma create / update / delete
     return data;
   },
   afterWrite: async (result, ctx) => {
-    // runs after Prisma create / update / upsert / delete
+    // runs after Prisma create / update / delete
     return result;
   },
   afterRead: async (row, ctx) => {
@@ -34,7 +34,7 @@ export default hooks;
 ```ts
 beforeWrite ? : (data, ctx: {
   prisma;
-  op: 'create' | 'update' | 'patch' | 'upsert' | 'delete';
+  op: 'create' | 'update' | 'patch' | 'delete';
   id?;
   request?;
   parent?
@@ -73,7 +73,7 @@ const hooks: ResourceHooks = {
 ```ts
 afterWrite ? : (result, ctx: {
   prisma;
-  op: 'create' | 'update' | 'patch' | 'upsert' | 'delete';
+  op: 'create' | 'update' | 'patch' | 'delete';
   id?;
   request?;
   parent?
@@ -82,9 +82,6 @@ afterWrite ? : (result, ctx: {
 
 Called with the persisted record right after Prisma writes it. Whatever you return is sent as the response. `ctx.id` is
 set for updates and deletes, `undefined` for creates.
-
-For upsert operations the `op` is resolved to `'create'` or `'update'` based on whether a matching record existed before
-the operation — so your hook always receives a specific op, never `'upsert'`.
 
 Typical use: trigger side-effects after a write, such as sending a notification or invalidating a cache:
 

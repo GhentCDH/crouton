@@ -8,7 +8,7 @@ import { CroutonValidationError } from './crouton-validation.error';
 export interface ZodValidationPipeOptions {
   /**
    * Coerce `undefined` → `null` on top-level fields that accept `null`.
-   * Use for create/upsert: once nullable fields are optional in the JSON
+   * Use for create: once nullable fields are optional in the JSON
    * Schema the client may omit them, and an omitted nullable field should be
    * stored as `null` rather than rejected. Do NOT use for PATCH/update, where
    * an omitted field means "leave unchanged".
@@ -23,7 +23,7 @@ export class ZodValidationPipe implements PipeTransform {
   private readonly decimalKeys: readonly string[];
   /** Prisma Decimal constructor resolved once per pipe instance; null if unavailable. */
   private readonly decimalCtor: (new (v: number | string) => object) | null;
-  /** Whether to coerce `undefined` → `null` on nullable fields (create/upsert only). */
+  /** Whether to coerce `undefined` → `null` on nullable fields (create only). */
   private readonly coerceUndefinedToNull: boolean;
 
   constructor(
@@ -84,7 +84,7 @@ export class ZodValidationPipe implements PipeTransform {
     return out;
   }
 
-  /** Replace `undefined` with `null` on nullable fields (create/upsert only). */
+  /** Replace `undefined` with `null` on nullable fields (create only). */
   private coerceNullable(value: unknown): unknown {
     if (
       !this.coerceUndefinedToNull ||
