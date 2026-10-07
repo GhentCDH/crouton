@@ -207,8 +207,6 @@ export const hooks = {
 
 - **Sub-resources** — implement `findAllByParent`, `findOneChild`, `createChild`, `updateChild`,
   `deleteChild` on the adapter; or expose each child collection as its own top-level resource.
-- **Upsert** — `upsert` / `upsertMany` are not part of the adapter interface; a resource that
-  enables `upsert` on a custom adapter will throw `NotImplementedException`.
 - **Introspection** — `crouton update resources` runs Prisma `db pull`; it skips datasources
   with `adapter: "custom"` automatically.
 - **Migrations** — a custom datasource owns its own schema lifecycle; crouton does not manage

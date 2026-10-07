@@ -452,7 +452,6 @@ the relation column to keep the child's own nested controller.
   custom resource still *render* — autocomplete against another resource works — but they register no child routes,
   because the parent has no model to hang them off. Expose that child as its own resource instead.
 - **No `calculatedColumns`.** They are raw SQL against a table.
-- **No `upsert`.** Not part of the repository contract.
 - **`crouton update resources` skips custom resources.** They have no model to introspect, so the pipeline would
   otherwise offer to delete every column.
 - **`relationType` is worth being explicit about** on a `manyToOne` relation column of a custom resource: there is no

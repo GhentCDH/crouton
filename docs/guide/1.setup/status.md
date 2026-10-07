@@ -61,7 +61,6 @@ do **not** set `valid: false` or increment `resourceErrors`. Current sources:
 | Warning | Cause |
 |---------|-------|
 | `"database" is set alongside kind: "custom"` | `database` selects `ctx.prisma`; data still comes from `repository.ts`. Usually harmless, but the field is redundant. |
-| `"upsert" enabled on a custom resource` | Custom resources have no PUT handler for upsert — disable the operation or implement it. |
 | `repository.ts present on a prisma resource` | The file is ignored. Set `kind: "custom"` if you intended to use it. |
 | `All operations disabled` | The resource serves no endpoints. |
 

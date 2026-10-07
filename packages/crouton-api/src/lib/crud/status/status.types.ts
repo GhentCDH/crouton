@@ -24,7 +24,7 @@ export interface ResourceStatus {
   draft?: boolean;
   /** Loaded and served, but hidden from the admin sidebar menu. */
   hidden?: boolean;
-  /** Non-fatal warnings recorded during load (e.g. stray repository.ts, disabled upsert). */
+  /** Non-fatal warnings recorded during load (e.g. stray repository.ts, all ops disabled). */
   warnings?: string[];
 }
 
