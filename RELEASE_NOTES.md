@@ -1,3 +1,23 @@
+## 0.0.1-alpha.80 (2026-10-07)
+
+### 🚀 Features
+
+- update status view ([#174](https://github.com/GhentCDH/crouton/pull/174))
+- **crouton-api:** add CRUD E2E test suite with Testcontainers ([#173](https://github.com/GhentCDH/crouton/pull/173))
+
+### 🩹 Fixes
+
+- form-def.schema ([1255ce6](https://github.com/GhentCDH/crouton/commit/1255ce6))
+- table actions ([#175](https://github.com/GhentCDH/crouton/pull/175))
+- **crouton-api:** use resolveTableActions for tableActions in buildViewsPayload ([#169](https://github.com/GhentCDH/crouton/pull/169))
+- **crouton-api:** use __filename check for IS_ESM instead of import.meta ([#171](https://github.com/GhentCDH/crouton/pull/171))
+- **crouton-api:** move _count into include instead of top-level findM… ([#170](https://github.com/GhentCDH/crouton/pull/170))
+- **enum-registry:** resolve enumsFile relative to configDir and propa… ([#172](https://github.com/GhentCDH/crouton/pull/172))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.79 (2026-10-06)
 
 ### 🚀 Features
