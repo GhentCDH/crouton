@@ -6,6 +6,9 @@
     "tag": "alpha"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
   "exports": {
     ".": {
       "@ghentcdh/crouton": "./src/index.ts",

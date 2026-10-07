@@ -8,7 +8,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { type Dirent, existsSync, readdirSync } from 'node:fs';
+import { type Dirent, existsSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -16,23 +16,24 @@ import { dirname, join } from 'node:path';
 /**
  * Load a .env file from `dir` (or the nearest parent that has one) into
  * `process.env` so that prisma commands inherit DATABASE_URL etc.
- * Uses `dotenv` if available; skips silently otherwise.
+ * Uses Node ≥ 20.12 process.loadEnvFile — no dotenv dependency needed.
+ * Does not override already-set env vars (process.loadEnvFile semantics).
  */
-const loadDotenv = (dir: string): void => {
-  try {
-    const _require = createRequire(import.meta.url);
-    const dotenv = _require('dotenv') as { config: (opts?: { path?: string }) => void };
-    let d = dir;
-    for (let i = 0; i < 6; i++) {
-      if (readdirSync(d).includes('.env')) {
-        dotenv.config({ path: join(d, '.env') });
-        return;
-      }
-      const parent = dirname(d);
-      if (parent === d) break;
-      d = parent;
+export const loadDotenv = (dir: string): void => {
+  let d = dir;
+  for (let i = 0; i < 6; i++) {
+    const file = join(d, '.env');
+    if (existsSync(file)) {
+      process.loadEnvFile(file);
+      return;
     }
-  } catch { /* dotenv not available or no .env — prisma will read env vars directly */ }
+    const parent = dirname(d);
+    if (parent === d) break;
+    d = parent;
+  }
+  if (!process.env['DATABASE_URL']) {
+    console.warn('[crouton] No .env found and DATABASE_URL is not set — prisma commands may fail');
+  }
 };
 
 /**
@@ -58,7 +59,7 @@ const run = (
   cwd: string,
 ): Promise<{ code: number; stdout: string; stderr: string }> =>
   new Promise((resolve) => {
-    const child = spawn(cmd, args, { cwd, shell: process.platform === 'win32' });
+    const child = spawn(cmd, args, { cwd, shell: process.platform === 'win32', env: process.env });
     let stdout = '';
     let stderr = '';
     child.stdout?.on('data', (d) => (stdout += d.toString()));
