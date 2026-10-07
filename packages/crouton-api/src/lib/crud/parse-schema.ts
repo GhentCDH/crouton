@@ -1,17 +1,15 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { buildResourceJsonSchema, registerResourceExtensions } from '@ghentcdh/crouton-core';
+import {
+  buildDefinitionPayload,
+  buildResourceJsonPayload, buildResourceJsonSchema,
+  buildViewsPayload, registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from './action';
 import { fromJson } from './adapter';
 import type { CroutonAppConfig } from './app-config';
 import type { EnumRegistry } from './enum-registry';
 import type { ResourceHooks } from './hooks';
-import {
-  buildDefinitionPayload,
-  buildResourceJsonPayload,
-  buildViewsPayload,
-} from './operations/payload-builders';
 
 export type ParseSchemaView = 'schemas' | 'definition' | 'resource.json';
 
@@ -79,11 +77,11 @@ export const parseSchema = (
 
   let payload: Record<string, unknown> | undefined;
   if (view === 'schemas') {
-    payload = buildViewsPayload(resource, appConfig.baseUrl);
+    payload = buildViewsPayload(resource as any, appConfig.baseUrl);
   } else if (view === 'definition') {
-    payload = buildDefinitionPayload(resource);
+    payload = buildDefinitionPayload(resource as any);
   } else {
-    payload = buildResourceJsonPayload(resource, appConfig.baseUrl);
+    payload = buildResourceJsonPayload(resource as any, appConfig.baseUrl);
   }
 
   if (payload && appConfig.schemaEnricher) {

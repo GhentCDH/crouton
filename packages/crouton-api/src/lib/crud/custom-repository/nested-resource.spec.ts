@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { buildViewsPayload } from '@ghentcdh/crouton-core';
+
 import { validateCustomRepository } from './custom-repository.validate';
 import { buildLayoutPayload } from '../app-layout/app-layout.builder';
 import { createCrudController } from '../crud-controller.factory';
 import { loadResourceConfigsFromDir } from '../loader';
-import { buildViewsPayload } from '../operations/payload-builders';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -110,7 +111,7 @@ describe('a nested custom resource', () => {
     });
 
     it('reports nested URIs with the parent id as a placeholder', () => {
-      const payload = buildViewsPayload(config, '/api') as any;
+      const payload = buildViewsPayload(config as any, '/api') as any;
       expect(payload.uri).toBe('/api/group/{groupId}/expense');
       expect(payload.operations.findOne.uri).toBe(
         '/api/group/{groupId}/expense/{id}',

@@ -10,6 +10,11 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+import {
+  buildDefinitionPayload,
+  buildResourceJsonPayload,
+} from '@ghentcdh/crouton-core';
+
 import { IS_DEV } from '../dev-mode';
 import {
   type PatchResourceJson,
@@ -25,11 +30,7 @@ import { type ResourceConfigRegistry } from '../resource-config.registry';
 import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
-import {
-  buildDefinitionPayload,
-  buildEditableColumnsPayload,
-  buildResourceJsonPayload,
-} from './payload-builders';
+import { buildEditableColumnsPayload } from './payload-builders';
 import { getRequestLanguage } from '../translation/language.context';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { join } from 'node:path';
@@ -41,7 +42,7 @@ import { join } from 'node:path';
 export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
   const { cls, config, schemaEnricher } = ctx;
   const { route, name } = config;
-  const definitionPayload = buildDefinitionPayload(config);
+  const definitionPayload = buildDefinitionPayload(config as any);
 
   def(
     cls,
@@ -51,7 +52,7 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
       let payload = definitionPayload;
       if (IS_DEV || language) {
         const fresh = await this.configRegistry.getByRoute(route, language);
-        if (fresh) payload = buildDefinitionPayload(fresh);
+        if (fresh) payload = buildDefinitionPayload(fresh as any);
       }
       if (!schemaEnricher) return payload;
       return { ...payload, ...schemaEnricher(payload) };
@@ -82,7 +83,7 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
 export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
   const { cls, config, baseUrl, schemaEnricher } = ctx;
   const { route, name } = config;
-  const resourceJsonPayload = buildResourceJsonPayload(config, baseUrl);
+  const resourceJsonPayload = buildResourceJsonPayload(config as any, baseUrl);
 
   def(
     cls,
@@ -92,7 +93,7 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
       let payload = resourceJsonPayload;
       if (IS_DEV || language) {
         const fresh = await this.configRegistry.getByRoute(route, language);
-        if (fresh) payload = buildResourceJsonPayload(fresh, baseUrl);
+        if (fresh) payload = buildResourceJsonPayload(fresh as any, baseUrl);
       }
       if (!schemaEnricher) return payload;
       return { ...payload, ...schemaEnricher(payload) };

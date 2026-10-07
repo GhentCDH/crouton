@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import z from 'zod';
 
-import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
-
-import { fromJson } from './adapter';
-import {
+import { ResourceJsonSchema,
   buildDefinitionPayload,
   buildResourceJsonPayload,
-  buildViewsPayload,
-} from './operations/payload-builders';
+  buildViewsPayload } from '@ghentcdh/crouton-core';
+
+import { fromJson } from './adapter';
 import { parseSchema } from './parse-schema';
 
 const BASE_URL = 'http://localhost:3000';
@@ -44,7 +42,7 @@ const CUSTOM_RAW = {
 describe('parseSchema', () => {
   it('prisma resource → schemas view matches buildViewsPayload', () => {
     const expected = buildViewsPayload(
-      fromJson(PRISMA_JSON, PRISMA_SCHEMA, undefined),
+      fromJson(PRISMA_JSON, PRISMA_SCHEMA, undefined) as any,
       BASE_URL,
     );
     const result = parseSchema(
@@ -63,7 +61,7 @@ describe('parseSchema', () => {
 
   it('definition view matches buildDefinitionPayload', () => {
     const expected = buildDefinitionPayload(
-      fromJson(PRISMA_JSON, PRISMA_SCHEMA, undefined),
+      fromJson(PRISMA_JSON, PRISMA_SCHEMA, undefined) as any,
     );
     const result = parseSchema(
       { json: PRISMA_RAW, schema: PRISMA_SCHEMA },
@@ -75,7 +73,7 @@ describe('parseSchema', () => {
 
   it('resource.json view matches buildResourceJsonPayload', () => {
     const expected = buildResourceJsonPayload(
-      fromJson(PRISMA_JSON, PRISMA_SCHEMA, undefined),
+      fromJson(PRISMA_JSON, PRISMA_SCHEMA, undefined) as any,
       BASE_URL,
     );
     const result = parseSchema(
@@ -118,7 +116,7 @@ describe('parseSchema', () => {
     });
     const resource = fromJson(noViewsJson, undefined, undefined);
     // Manually wipe views to simulate a no-views Resource
-    const result = buildViewsPayload({ ...resource, views: undefined }, BASE_URL);
+    const result = buildViewsPayload({ ...resource, views: undefined } as any, BASE_URL);
     expect(result).toBeUndefined();
   });
 

@@ -1,12 +1,13 @@
 import { Get, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-import { def, desc } from './decorator.utils';
-import type { OperationContext } from './operation-context';
 import {
   buildSubResourceViewsPayload,
   buildViewsPayload,
-} from './payload-builders';
+} from '@ghentcdh/crouton-core';
+
+import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
@@ -16,7 +17,7 @@ import { getRequestLanguage } from '../translation/language.context';
 export const defaultSchemas = (ctx: OperationContext) => {
   const { config, baseUrl, schemaEnricher } = ctx;
   const { route, name } = config;
-  const viewsPayload = buildViewsPayload(config, baseUrl);
+  const viewsPayload = buildViewsPayload(config as any, baseUrl);
 
   return {
     route: 'schemas',
@@ -29,7 +30,7 @@ export const defaultSchemas = (ctx: OperationContext) => {
       let payload = viewsPayload;
       if (IS_DEV || language) {
         const fresh = await this.configRegistry.getByRoute(route, language);
-        if (fresh) payload = buildViewsPayload(fresh, baseUrl) ?? viewsPayload;
+        if (fresh) payload = buildViewsPayload(fresh as any, baseUrl) ?? viewsPayload;
       }
       if (!payload || !schemaEnricher) return payload;
       return { ...payload, ...schemaEnricher(payload) };
@@ -44,7 +45,7 @@ const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   if (!sub.views) return null;
   const { config, baseUrl } = ctx;
   const { route } = config;
-  const schemasPayload = buildSubResourceViewsPayload(config, sub, baseUrl);
+  const schemasPayload = buildSubResourceViewsPayload(config as any, sub as any, baseUrl);
 
   return {
     route: `${sub.childRoute}/schemas`,
@@ -61,7 +62,7 @@ const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
             (s) => s.childRoute === sub.childRoute,
           );
           if (localizedSub) {
-            return buildSubResourceViewsPayload(localizedParent, localizedSub, baseUrl) ?? schemasPayload;
+            return buildSubResourceViewsPayload(localizedParent as any, localizedSub as any, baseUrl) ?? schemasPayload;
           }
         }
       }

@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { JsonOperationsSchema } from '@ghentcdh/crouton-core';
+import { JsonOperationsSchema, buildResourceOperations  } from '@ghentcdh/crouton-core';
 
 import { buildResourceDefinitions } from '../builder/schema.helpers';
 import { resolveDefinition } from '../crud.config';
-import { buildResourceOperations } from './payload-builders';
 
 const BASE = 'http://host/example';
 
