@@ -1,3 +1,7 @@
+## 0.0.1-alpha.82 (2026-10-08)
+
+This was a version bump only, there were no code changes.
+
 ## 0.0.1-alpha.81 (2026-10-07)
 
 ### 🚀 Features
