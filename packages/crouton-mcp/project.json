@@ -1,0 +1,25 @@
+{
+  "name": "crouton-mcp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/crouton-mcp/src",
+  "tags": ["scope:crouton", "type:cli", "tech:node", "platform:cli"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "packages/crouton-mcp/dist",
+        "main": "packages/crouton-mcp/src/index.ts",
+        "tsConfig": "packages/crouton-mcp/tsconfig.json"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "packages/crouton-mcp"
+      }
+    }
+  }
+}
