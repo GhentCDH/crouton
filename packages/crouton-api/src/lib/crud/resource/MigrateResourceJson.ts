@@ -18,11 +18,12 @@ import {
   MigrationStepError,
   resourceVersionOf,
   runResourceMigrations,
+  serializeResourceJson,
+  withResourceHeader,
 } from '@ghentcdh/crouton-core';
 
 import {
   readRawResourceJson,
-  serializeResourceJson,
   validateResourceJson,
 } from './WriteResourceJson';
 import { writeFileSync } from 'node:fs';
@@ -74,7 +75,7 @@ export const migrateResourceJsonFile = (
         error: `migrated resource.json (v${from}→v${result.to}) is invalid: ${validation.error.message}`,
       };
     }
-    writeFileSync(jsonPath, serializeResourceJson(result.raw), 'utf-8');
+    writeFileSync(jsonPath, serializeResourceJson(withResourceHeader(result.raw)), 'utf-8');
     return { status: 'migrated', from: result.from, to: result.to, written: true };
   } catch (err) {
     // MigrationPathError / MigrationStepError (or anything unexpected) → surfaced on status page.

@@ -4,6 +4,8 @@ import {
   type FieldVariant,
   buildResourceJsonSchema,
   mergeFieldVariant,
+  serializeResourceJson,
+  withResourceHeader,
 } from '@ghentcdh/crouton-core';
 
 import type {
@@ -106,16 +108,6 @@ export const applyColumnPatch = (
   return raw;
 };
 
-/**
- * Mirrors `@ghentcdh/crouton-codegen`'s `serializeResourceJson` (2-space JSON,
- * trailing newline, relies on object key insertion order for minimal diffs).
- * Kept inline here rather than adding crouton-api's first runtime dependency
- * on crouton-codegen (which brings in `@prisma/internals`) for a one-line
- * formatter — see the "reuse" note in `VISUAL_RESOURCE_BUILDER_PLAN.md`.
- */
-export const serializeResourceJson = (config: unknown): string =>
-  `${JSON.stringify(config, null, 2)}\n`;
-
 /** Validates a merged raw resource.json before it's written to disk. */
 export const validateResourceJson = (raw: unknown) =>
   buildResourceJsonSchema().safeParse(raw);
@@ -124,5 +116,5 @@ export const writeRawResourceJson = (
   jsonPath: string,
   raw: RawResourceJson,
 ): void => {
-  writeFileSync(jsonPath, serializeResourceJson(raw), 'utf-8');
+  writeFileSync(jsonPath, serializeResourceJson(withResourceHeader(raw)), 'utf-8');
 };

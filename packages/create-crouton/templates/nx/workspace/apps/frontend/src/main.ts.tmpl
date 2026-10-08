@@ -1,16 +1,20 @@
 import './style.css';
 import { createApp } from 'vue';
-import { CroutonPlugin, getRuntimeConfig, loadRuntimeConfig } from '@ghentcdh/crouton-vue';
+import { CroutonPlugin, loadRuntimeConfig } from '@ghentcdh/crouton-vue';
 import { router } from './router';
 import App from './App.vue';
 import { useApi } from './api';
 
 loadRuntimeConfig().then(() => {
-  const env = getRuntimeConfig();
   const api = useApi();
   const app = createApp(App);
 
-  app.use(CroutonPlugin(api));
+  app.use(
+    CroutonPlugin(api, {
+      title: '{{Name}}',
+      router,
+    }),
+  );
   app.use(router);
   app.mount('#app');
 });
