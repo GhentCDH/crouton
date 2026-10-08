@@ -101,12 +101,19 @@ See [Operations](operations.md) for external operations, per-op security, and PU
 
 ## Display
 
-The `display` object controls how the create/edit form is presented. Both fields are optional.
+The `display` object controls how the create/edit form is presented.
 
-| Field             | Type                | Description                                                                             |
-|-------------------|---------------------|-----------------------------------------------------------------------------------------|
-| `mode`            | `'page' \| 'modal'` | Render the form as a full page or a modal. Default `'modal'`.                           |
-| `customComponent` | `string \| null`    | Name of a custom Vue component to render instead of the generated form. Default `null`. |
+| Field             | Type                | Default    | Description                                                                                      |
+|-------------------|---------------------|------------|--------------------------------------------------------------------------------------------------|
+| `mode`            | `'page' \| 'modal'` | `'modal'`  | Render the form inline on the page or in a pop-up modal.                                         |
+| `customComponent` | `string \| null`    | `null`     | Name of a registered custom Vue component to render alongside the form. See below.               |
+
+### `mode: "modal"` (default)
+
+Clicking a row or **Add** opens a modal dialog. The table stays visible behind it. `modalSize` controls the dialog
+width (`xs` / `sm` / `lg` / `xl`, default `sm`).
+
+### `mode: "page"`
 
 ```json
 {
@@ -116,11 +123,49 @@ The `display` object controls how the create/edit form is presented. Both fields
 }
 ```
 
-When `mode` is `'page'`, the form renders inline (replacing the table) instead of opening a modal. Page mode uses
-`CroutonForm` with autosave enabled by default when editing.
+Clicking a row or **Add** hides the table and renders `CroutonForm` inline on the same page. Closing the form brings
+the table back. Both edit and view (read-only) actions use the inline form in page mode — no separate view modal opens.
 
-To replace the entire form with a custom Vue component, set `display.customComponent` to the component's registered
-name. See [Custom renderers](../4.frontend/custom-renderers.md) for how to register it.
+Use page mode when the record has many fields, needs a rich layout, or when you want to show extra content alongside
+the form (see `customComponent` below).
+
+### `display.customComponent`
+
+Set to the name of a Vue component registered in `CroutonPlugin({ customComponents })`. When set, the component is
+rendered **after** the form (in the `#content-after` slot), receiving the `resource` object and all form config as
+props.
+
+```json
+{
+  "display": {
+    "mode": "page",
+    "customComponent": "BalanceStats"
+  }
+}
+```
+
+Register the component the same way as any other custom component:
+
+```ts
+import { customComponentIs, type CustomComponentEntry } from '@ghentcdh/crouton-vue';
+import { markRaw } from 'vue';
+import BalanceStats from './BalanceStats.vue';
+
+export const customComponents: CustomComponentEntry[] = [
+  { tester: customComponentIs('BalanceStats', 10), renderer: markRaw(BalanceStats) },
+];
+```
+
+The component receives:
+
+| Prop       | Type         | Description                                                                                 |
+|------------|--------------|---------------------------------------------------------------------------------------------|
+| `resource` | `Resource`   | Resource instance — has `loadData`, `getOneById`, `save`, `create`, `delete`, `closeForm` |
+| form config props | various | Same props bound to the form component (form data, schema, etc.)                    |
+
+`customComponent` works in both `modal` and `page` mode, but is most useful combined with `mode: "page"` where the
+extra content sits naturally beside the form. See [Custom renderers](../4.frontend/custom-renderers.md) for the full
+registration API.
 
 ## Sidebar
 
