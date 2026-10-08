@@ -569,7 +569,7 @@ export class ReadRepository<T = any> {
 
     const where = {
       ...this.buildWhere(params.filter),
-      [sub.foreignKey]: this.toId(parentId),
+      ...(sub.relationType !== 'manyToMany' && { [sub.foreignKey]: this.toId(parentId) }),
     };
     const includeClause = buildIncludeClause(sub.include);
     const subVlCols = await resolveValueLabelColumns(
@@ -682,7 +682,7 @@ export class ReadRepository<T = any> {
       (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
     const idField = sub.idField ?? 'id';
     const where: Record<string, unknown> = { [idField]: id };
-    if (parentId !== undefined) where[sub.foreignKey] = this.toId(parentId);
+    if (parentId !== undefined && sub.relationType !== 'manyToMany') where[sub.foreignKey] = this.toId(parentId);
 
     const includeClause = buildIncludeClause(sub.include);
     const record = await childModel.findFirst({
