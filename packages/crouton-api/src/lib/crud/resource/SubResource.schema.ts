@@ -80,7 +80,7 @@ export const SubResourceConfigSchema = z.object({
   /** Columns serialized as `{ value, label }` on read / unwrapped on write. */
   valueLabelColumns: z.array(ValueLabelColumnSchema).optional(),
   /** Relation type: `oneToMany` (countable) or `manyToOne` (not countable). */
-  relationType: z.enum(['oneToMany', 'manyToOne']).optional(),
+  relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany']).optional(),
 });
 
 export type SubResourceConfig = z.infer<typeof SubResourceConfigSchema>;

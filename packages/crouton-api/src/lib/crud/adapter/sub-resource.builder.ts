@@ -163,7 +163,7 @@ export const buildSubResources = (
             : childJson?.model
               ? childJson.model.charAt(0).toLowerCase() + childJson.model.slice(1)
               : c.id,
-        foreignKey: c.fieldInput?.foreignKey ?? `${parentModel}Id`,
+        foreignKey: c.fieldInput?.foreignKey ?? `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
         name: childJson?.name ?? childRoute,
         title: childJson?.title ?? childJson?.tag ?? childRoute,
         idField: childLookupKey,
