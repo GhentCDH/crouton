@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "colspan": {
       "description": "Grid column span (1–12)",
@@ -30,7 +34,8 @@
         6,
         12
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -38,7 +43,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -51,18 +57,21 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
     "customRender": {
       "description": "Name of the globally registered Vue component to render (overrides the base option)",
       "examples": [
         "MyWidget"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of the globally registered Vue component to render (overrides the base option)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: custom",
   "description": "Options for app-registered custom renderer components",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/custom.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/custom.field-input.schema.json",
+  "markdownDescription": "Options for app-registered custom renderer components\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
 }

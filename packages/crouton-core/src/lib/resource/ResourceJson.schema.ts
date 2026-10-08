@@ -27,8 +27,8 @@ const ColumnsSchema = JsonColumnsMapSchema;
 // ── Display / sidebar ────────────────────────────────────────────────
 
 export const JsonDisplaySchema = z.object({
-  mode: z.enum(['page', 'modal']).default('modal'), // default: 'modal'
-  customComponent: z.string().nullable().optional().default(null), // default: null
+  mode: z.enum(['page', 'modal']).default('modal').describe('How a record opens when clicked. "modal" (default) opens a dialog; "page" navigates to a dedicated route.'),
+  customComponent: z.string().nullable().optional().default(null).describe('Import path to a custom Vue component for the record detail view. When set, the default view is replaced.'),
 });
 
 export type JsonDisplay = z.infer<typeof JsonDisplaySchema>;
@@ -55,65 +55,45 @@ export const ResourceJsonShape = z.object({
    * key is *allowed* (not stripped, and not flagged by the very schema it points at).
    * Ignored at runtime.
    */
-  $schema: z.string().optional(),
-  /**
-   * resource.json shape version. Missing ⇒ baseline (see `./version`). Auto-migrated
-   * toward `CURRENT_RESOURCE_VERSION` on load in the dev environment.
-   */
-  schemaVersion: z.number().int().positive().optional(),
-  /** When `true`, the resource lives in the repo but is NOT loaded/served (work in progress). */
-  draft: z.boolean().optional().default(false),
+  $schema: z.string().optional().describe('URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.'),
+  schemaVersion: z.number().int().positive().optional().describe('resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.'),
+  draft: z.boolean().optional().default(false).describe('When true, the resource is present in the repo but NOT loaded or served. Use for work-in-progress resources.'),
   /**
    * Where the data comes from. `prisma` (the default) is backed by a Prisma
    * model plus a `schema.ts`; `custom` is configuration only and the developer
    * supplies a `repository.ts`. See `./ResourceKind`.
    */
   kind: ResourceKindSchema,
-  name: z.string(), // required — unique id, used as the frontend form id
-  route: z.string().optional(), //  URL segment for generated endpoints - default id is used
-  id: z.string().optional(), //  URL segment for generated endpoints - default id is used
+  name: z.string().describe('Unique resource identifier. Used as the frontend form id and as the default route/id when those are not explicitly set.'),
+  route: z.string().optional().describe('URL segment for generated API endpoints. Defaults to "name" when omitted.'),
+  id: z.string().optional().describe('Internal resource id used in frontend routing. Defaults to "name" when omitted.'),
   /**
    * Prisma model name. Required when `kind` is `prisma` (enforced by the
    * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
    * `custom` — there is no Prisma delegate to address.
    */
-  model: z.string().optional(),
-  tag: z.string().optional().default('Crouton'), // required — OpenAPI tag
-  title: z.string().optional(), // no computed default — used as UI display title
-  table: z.string().optional(), // default: same as `model`
-  /**
-   * Type of the resource's primary key, used to coerce `:id` route params.
-   * Written by codegen from the Prisma model; defaults to `'string'`.
-   */
-  idType: z.enum(['string', 'number']).optional(),
-  database: z.string().optional(), // default: project's default data source
+  model: z.string().optional().describe('Prisma model name. Required when kind is "prisma"; must be absent when kind is "custom".'),
+  tag: z.string().optional().default('Crouton').describe('OpenAPI tag grouping for generated endpoints. Defaults to "Crouton".'),
+  title: z.string().optional().describe('Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of "name".'),
+  table: z.string().optional().describe('Database table name override. Defaults to the Prisma model\'s table name.'),
+  idType: z.enum(['string', 'number']).optional().describe('Data type of the resource\'s primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to "string".'),
+  database: z.string().optional().describe('Name of the datasource this resource uses. Defaults to the project\'s default datasource.'),
   /**
    * Mount this resource under a parent route instead of at the top level —
    * see `./ParentRef.schema`. Only valid on a `kind: "custom"` resource.
    */
-  parent: ParentRefSchema.optional(),
-  sidebar: SidebarSchema.default(SidebarSchema.parse({})), // default: shown, alphabetically ordered, ungrouped
-  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})), // default: { mode: 'modal', customComponent: null }
-  /** Global security block — applies to every operation unless overridden per-operation. */
-  security: SecuritySchema.optional(),
-  operations: JsonOperationsSchema.optional(), // default applied in transform: custom → all false, prisma → all true
-  columns: ColumnsSchema.optional().default(ColumnsSchema.parse({})), //  id-keyed map; omit for a columnless resource
-  calculatedColumns: z.array(CalculatedColumnSchema).default([]),
-  actions: z.array(JsonActionSchema).default([]),
-  /** Global table-level actions (no record id). Shown as toolbar buttons. */
-  tableActions: z.array(JsonActionSchema).default([]),
-  /** Modal width when opening a form for this resource. */
-  modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).default('sm'), // default: 'sm' for create/edit modal
-  /**
-   * Relations to include when querying this resource.
-   * Each entry is either a plain relation name (`"author"` → `include: { author: true }`)
-   * or an object for nested includes:
-   * `{ "relation": "text_author", "include": ["author"] }` →
-   *   `include: { text_author: { include: { author: true } } }`
-   */
-  include: z.array(JsonIncludeEntrySchema).default([]),
-  /** Explicit layout for generated views (`form`, `view`, `table`). When absent, source-order grid is used. */
-  layout: LayoutSchema.optional(),
+  parent: ParentRefSchema.optional().describe('Mount this resource under a parent route instead of at the top level. Only valid on kind:"custom" resources. See ParentRef for the full config.'),
+  sidebar: SidebarSchema.default(SidebarSchema.parse({})).describe('Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.'),
+  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})).describe('How records open when clicked. Default: modal dialog.'),
+  security: SecuritySchema.optional().describe('Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.'),
+  operations: JsonOperationsSchema.optional().describe('CRUD operation flags. Defaults: all true for "prisma" resources, all false for "custom" resources.'),
+  columns: ColumnsSchema.optional().default(ColumnsSchema.parse({})).describe('Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.'),
+  calculatedColumns: z.array(CalculatedColumnSchema).default([]).describe('Columns computed from raw SQL expressions. Not supported on "custom" resources.'),
+  actions: z.array(JsonActionSchema).default([]).describe('Per-record row actions shown in the table. Each action receives the record id.'),
+  tableActions: z.array(JsonActionSchema).default([]).describe('Global table-level actions with no record id. Shown as toolbar buttons.'),
+  modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).default('sm').describe('Width of the create/edit modal dialog. "xs", "sm" (default), "lg", or "xl".'),
+  include: z.array(JsonIncludeEntrySchema).default([]).describe('Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.'),
+  layout: LayoutSchema.optional().describe('Explicit layout for generated views (form, view, table). When absent, source-order grid is used.'),
 });
 
 /**

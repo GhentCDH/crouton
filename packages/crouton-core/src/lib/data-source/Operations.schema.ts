@@ -4,29 +4,27 @@ import { SecuritySchema } from './Security.schema';
 
 // ── Operations ────────────────────────────────────────────────────────
 
-/** An operation served by an external API instead of crouton. */
 const ExternalOpEntry = z.object({
-  uri: z.string(),
-  method: z.string().optional(),
-  security: SecuritySchema.optional(),
+  uri: z.string().describe('Full URL of the external API endpoint that handles this operation.'),
+  method: z.string().optional().describe('HTTP method for the external endpoint. Defaults to the standard method for each operation.'),
+  security: SecuritySchema.optional().describe('Security override for this specific external operation.'),
 });
 
 export type ExternalOpEntry = z.infer<typeof ExternalOpEntry>;
 
-/** A standard operation entry: plain boolean, external route object, or security config. */
 const OpEntry = z.union([
   z.boolean(),
   ExternalOpEntry,
-  z.object({ security: SecuritySchema.optional() }),
+  z.object({ security: SecuritySchema.optional().describe('Security override for this specific operation. Overrides the resource-level global security block.') }),
 ]);
 
 export const JsonOperationsSchema = z.object({
-  findAll: OpEntry.default(true), // default: true — only explicit `false` disables it
-  findOne: OpEntry.default(true), // default: true
-  create: OpEntry.default(true), // default: true
-  update: OpEntry.default(true), // default: true
-  patch: OpEntry.default(true), // default: true
-  delete: OpEntry.default(true), // default: true
+  findAll: OpEntry.default(true).describe('GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.'),
+  findOne: OpEntry.default(true).describe('GET single record endpoint. true = enabled, false = disabled, object = external URI or security override.'),
+  create: OpEntry.default(true).describe('POST create endpoint. true = enabled, false = disabled, object = external URI or security override.'),
+  update: OpEntry.default(true).describe('PUT full-update endpoint. true = enabled, false = disabled, object = external URI or security override.'),
+  patch: OpEntry.default(true).describe('PATCH partial-update endpoint. true = enabled, false = disabled, object = external URI or security override.'),
+  delete: OpEntry.default(true).describe('DELETE endpoint. true = enabled, false = disabled, object = external URI or security override.'),
 });
 
 export type JsonResourceOperations = z.infer<typeof JsonOperationsSchema>;

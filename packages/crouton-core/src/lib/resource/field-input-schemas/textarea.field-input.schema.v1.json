@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "colspan": {
       "description": "Grid column span (1–12)",
@@ -30,7 +34,8 @@
         6,
         12
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -38,7 +43,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -51,18 +57,21 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     },
     "customRender": {
       "description": "Name of a globally registered Vue component to render instead of the default input",
       "examples": [
         "MyCustomInput"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: textarea",
   "description": "Multi-line text input. All common options apply; no type-specific options.",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/textarea.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/textarea.field-input.schema.json",
+  "markdownDescription": "Multi-line text input. All common options apply; no type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
 }

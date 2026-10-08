@@ -1,0 +1,897 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.",
+      "type": "string",
+      "markdownDescription": "URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Application title served to the frontend via GET /_app/layout. Displayed in the admin sidebar header.",
+      "markdownDescription": "Application title served to the frontend via GET /_app/layout. Displayed in the admin sidebar header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "resourcesDir": {
+      "type": "string",
+      "description": "Path to resource directories, relative to the project root. Each sub-directory contains a resource.json.",
+      "markdownDescription": "Path to resource directories, relative to the project root. Each sub-directory contains a resource.json.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "dataSourcesDir": {
+      "type": "string",
+      "description": "Path to datasource folders, relative to the project root. Each sub-directory contains a data-source.json.",
+      "markdownDescription": "Path to datasource folders, relative to the project root. Each sub-directory contains a data-source.json.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "schemaExportName": {
+      "default": "{Model}WithRelationsSchema",
+      "description": "Template for a Prisma model's Zod export name. {Model} is replaced by the Prisma model name. Default matches the zod-prisma-types \"createRelationValuesTypes\" output.",
+      "type": "string",
+      "markdownDescription": "Template for a Prisma model's Zod export name. {Model} is replaced by the Prisma model name. Default matches the zod-prisma-types \"createRelationValuesTypes\" output.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "enumsFile": {
+      "default": "crouton.enums.json",
+      "description": "Path to the shared enum registry, relative to the project root. Defaults to \"crouton.enums.json\".",
+      "type": "string",
+      "markdownDescription": "Path to the shared enum registry, relative to the project root. Defaults to \"crouton.enums.json\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "rules": {
+      "default": {
+        "hideIdInTable": true,
+        "hideIdInForm": true,
+        "hideIdInView": true,
+        "hideTimestamps": true,
+        "hideForeignKeys": true,
+        "includeRelations": true,
+        "hideRelationsInTable": true,
+        "showRelationsInForm": true,
+        "enumValueLabel": true,
+        "sharedEnums": true,
+        "defaultOperations": {
+          "findAll": true,
+          "findOne": true,
+          "create": true,
+          "update": true,
+          "patch": true,
+          "delete": true
+        }
+      },
+      "description": "Optional overrides of the default visibility and behaviour ruleset applied to all resources.",
+      "type": "object",
+      "properties": {
+        "hideIdInTable": {
+          "default": true,
+          "description": "When true (default), the id column is hidden in the table view.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), the id column is hidden in the table view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "hideIdInForm": {
+          "default": true,
+          "description": "When true (default), the id column is hidden in the create/edit form.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), the id column is hidden in the create/edit form.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "hideIdInView": {
+          "default": true,
+          "description": "When true (default), the id column is hidden in the detail view.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), the id column is hidden in the detail view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "hideTimestamps": {
+          "default": true,
+          "description": "When true (default), createdAt/updatedAt columns are hidden from all views.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), createdAt/updatedAt columns are hidden from all views.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "hideForeignKeys": {
+          "default": true,
+          "description": "When true (default), foreign key columns (e.g. authorId) are hidden — the relation column shows instead.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), foreign key columns (e.g. authorId) are hidden — the relation column shows instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "includeRelations": {
+          "default": true,
+          "description": "When true (default), relations are auto-included in Prisma queries.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), relations are auto-included in Prisma queries.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "hideRelationsInTable": {
+          "default": true,
+          "description": "When true (default), relation columns are hidden in the table view.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), relation columns are hidden in the table view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "showRelationsInForm": {
+          "default": true,
+          "description": "When true (default), relation columns are shown in the create/edit form.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), relation columns are shown in the create/edit form.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "enumValueLabel": {
+          "default": true,
+          "description": "When true (default), enum values are displayed as their label rather than their raw value.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), enum values are displayed as their label rather than their raw value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "sharedEnums": {
+          "default": true,
+          "description": "When true (default), shared enums from crouton.enums.json are merged into resource columns automatically.",
+          "type": "boolean",
+          "markdownDescription": "When true (default), shared enums from crouton.enums.json are merged into resource columns automatically.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "defaultOperations": {
+          "default": {
+            "findAll": true,
+            "findOne": true,
+            "create": true,
+            "update": true,
+            "patch": true,
+            "delete": true
+          },
+          "description": "Default CRUD operations enabled for all resources. Individual resources can override via their operations block.",
+          "type": "object",
+          "properties": {
+            "findAll": {
+              "default": true,
+              "description": "GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "uri": {
+                      "type": "string",
+                      "description": "Full URL of the external API endpoint that handles this operation."
+                    },
+                    "method": {
+                      "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
+                      "type": "string"
+                    },
+                    "security": {
+                      "description": "Security override for this specific external operation.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uri"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "security": {
+                      "description": "Security override for this specific operation. Overrides the resource-level global security block.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "markdownDescription": "GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            },
+            "findOne": {
+              "default": true,
+              "description": "GET single record endpoint. true = enabled, false = disabled, object = external URI or security override.",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "uri": {
+                      "type": "string",
+                      "description": "Full URL of the external API endpoint that handles this operation."
+                    },
+                    "method": {
+                      "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
+                      "type": "string"
+                    },
+                    "security": {
+                      "description": "Security override for this specific external operation.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uri"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "security": {
+                      "description": "Security override for this specific operation. Overrides the resource-level global security block.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "markdownDescription": "GET single record endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            },
+            "create": {
+              "default": true,
+              "description": "POST create endpoint. true = enabled, false = disabled, object = external URI or security override.",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "uri": {
+                      "type": "string",
+                      "description": "Full URL of the external API endpoint that handles this operation."
+                    },
+                    "method": {
+                      "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
+                      "type": "string"
+                    },
+                    "security": {
+                      "description": "Security override for this specific external operation.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uri"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "security": {
+                      "description": "Security override for this specific operation. Overrides the resource-level global security block.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "markdownDescription": "POST create endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            },
+            "update": {
+              "default": true,
+              "description": "PUT full-update endpoint. true = enabled, false = disabled, object = external URI or security override.",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "uri": {
+                      "type": "string",
+                      "description": "Full URL of the external API endpoint that handles this operation."
+                    },
+                    "method": {
+                      "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
+                      "type": "string"
+                    },
+                    "security": {
+                      "description": "Security override for this specific external operation.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uri"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "security": {
+                      "description": "Security override for this specific operation. Overrides the resource-level global security block.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "markdownDescription": "PUT full-update endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            },
+            "patch": {
+              "default": true,
+              "description": "PATCH partial-update endpoint. true = enabled, false = disabled, object = external URI or security override.",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "uri": {
+                      "type": "string",
+                      "description": "Full URL of the external API endpoint that handles this operation."
+                    },
+                    "method": {
+                      "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
+                      "type": "string"
+                    },
+                    "security": {
+                      "description": "Security override for this specific external operation.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uri"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "security": {
+                      "description": "Security override for this specific operation. Overrides the resource-level global security block.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "markdownDescription": "PATCH partial-update endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            },
+            "delete": {
+              "default": true,
+              "description": "DELETE endpoint. true = enabled, false = disabled, object = external URI or security override.",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "uri": {
+                      "type": "string",
+                      "description": "Full URL of the external API endpoint that handles this operation."
+                    },
+                    "method": {
+                      "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
+                      "type": "string"
+                    },
+                    "security": {
+                      "description": "Security override for this specific external operation.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uri"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "security": {
+                      "description": "Security override for this specific operation. Overrides the resource-level global security block.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "public": {
+                              "type": "boolean",
+                              "const": true,
+                              "description": "When true, the route is public and requires no authentication."
+                            }
+                          },
+                          "required": [
+                            "public"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "guard": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              ],
+                              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
+                            }
+                          },
+                          "required": [
+                            "guard"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "markdownDescription": "DELETE endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            }
+          },
+          "markdownDescription": "Default CRUD operations enabled for all resources. Individual resources can override via their operations block.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        }
+      },
+      "markdownDescription": "Optional overrides of the default visibility and behaviour ruleset applied to all resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "sidebarGroups": {
+      "default": {},
+      "description": "Sidebar group definitions, keyed by group slug (e.g. \"metadata\"). Resources reference a group via sidebar.group in their resource.json.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "description": "Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug.",
+            "type": "string",
+            "markdownDescription": "Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+          },
+          "position": {
+            "description": "Controls the order of this group among top-level sidebar items.",
+            "type": "number",
+            "markdownDescription": "Controls the order of this group among top-level sidebar items.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+          }
+        }
+      },
+      "markdownDescription": "Sidebar group definitions, keyed by group slug (e.g. \"metadata\"). Resources reference a group via sidebar.group in their resource.json.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "autoSave": {
+      "default": true,
+      "description": "Whether form fields are saved automatically as the user edits them. Default true.",
+      "type": "boolean",
+      "markdownDescription": "Whether form fields are saved automatically as the user edits them. Default true.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "i18n": {
+      "description": "Optional i18n / translation configuration. Omit if the app is single-language.",
+      "type": "object",
+      "properties": {
+        "defaultLanguage": {
+          "default": "en",
+          "description": "Default / fallback language code (e.g. \"en\").",
+          "type": "string",
+          "markdownDescription": "Default / fallback language code (e.g. \"en\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "languages": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "All supported language codes. At least one is required.",
+          "markdownDescription": "All supported language codes. At least one is required.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "translationsDir": {
+          "default": "translations",
+          "description": "Directory containing <lang>.json bundles, relative to the project root.",
+          "type": "string",
+          "markdownDescription": "Directory containing <lang>.json bundles, relative to the project root.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        }
+      },
+      "required": [
+        "languages"
+      ],
+      "markdownDescription": "Optional i18n / translation configuration. Omit if the app is single-language.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    }
+  },
+  "required": [
+    "title",
+    "resourcesDir",
+    "dataSourcesDir"
+  ],
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/crouton.schema.json",
+  "title": "Crouton crouton.json",
+  "description": "Generated from CroutonConfigSchema (crouton-core). Do not edit by hand.",
+  "$comment": "Use \"crouton validate\" for strict validation of all referenced resources.",
+  "examples": [
+    {
+      "$schema": "https://ghentcdh.github.io/crouton/schema/v1/crouton.schema.json",
+      "title": "My App",
+      "resourcesDir": "src/resources",
+      "dataSourcesDir": "src/data-sources"
+    }
+  ],
+  "markdownDescription": "Generated from CroutonConfigSchema (crouton-core). Do not edit by hand.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+}

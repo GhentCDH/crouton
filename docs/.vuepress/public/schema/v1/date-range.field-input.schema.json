@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "colspan": {
       "description": "Grid column span (1–12)",
@@ -30,7 +34,8 @@
         6,
         12
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -38,7 +43,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -51,14 +57,16 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "customRender": {
       "description": "Name of a globally registered Vue component to render instead of the default input",
       "examples": [
         "MyCustomInput"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "fromLabel": {
       "description": "Label above the start date input",
@@ -67,7 +75,8 @@
         "From",
         "Start date"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Label above the start date input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "toLabel": {
       "description": "Label above the end date input",
@@ -76,7 +85,8 @@
         "To",
         "End date"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Label above the end date input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "fromField": {
       "description": "JSON object key for the start date",
@@ -85,7 +95,8 @@
         "from",
         "startDate"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "JSON object key for the start date\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     },
     "toField": {
       "description": "JSON object key for the end date",
@@ -94,11 +105,13 @@
         "to",
         "endDate"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "JSON object key for the end date\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: date-range",
   "description": "Options for the from/to date range picker",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date-range.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date-range.field-input.schema.json",
+  "markdownDescription": "Options for the from/to date range picker\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
 }

@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "colspan": {
       "description": "Grid column span (1–12)",
@@ -30,7 +34,8 @@
         6,
         12
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -38,7 +43,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -51,14 +57,16 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "customRender": {
       "description": "Name of a globally registered Vue component to render instead of the default input",
       "examples": [
         "MyCustomInput"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "layout": {
       "description": "Direction in which array items are stacked",
@@ -70,7 +78,8 @@
       "enum": [
         "row",
         "column"
-      ]
+      ],
+      "markdownDescription": "Direction in which array items are stacked\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "elementLabelProp": {
       "description": "Property of each array item used as its label in the UI",
@@ -78,15 +87,18 @@
         "name",
         "title"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Property of each array item used as its label in the UI\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     },
     "hideActions": {
       "description": "Hide the add/remove action buttons",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the add/remove action buttons\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: array",
   "description": "Options for the detail/array layout control",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/array.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/array.field-input.schema.json",
+  "markdownDescription": "Options for the detail/array layout control\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
 }

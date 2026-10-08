@@ -10,7 +10,15 @@ import { z } from 'zod';
  *   `schema.ts`; the JSON model is assembled from the column `type`s, and the
  *   developer implements the operations in a sibling `repository.ts`.
  */
-export const ResourceKindSchema = z.enum(['prisma', 'custom']).default('prisma');
+export const ResourceKindSchema = z
+  .enum(['prisma', 'custom'])
+  .default('prisma')
+  .describe(
+    'Where the resource\'s data comes from. ' +
+    '"prisma" (default) is backed by a Prisma model and a schema.ts; ' +
+    '"custom" is configuration-only — supply a repository.ts and use the data source "adapter" field for non-Prisma sources. ' +
+    'Use "custom" only for config-only resources; for a non-Prisma data source prefer the data source adapter instead.',
+  );
 
 export type ResourceKind = z.infer<typeof ResourceKindSchema>;
 
