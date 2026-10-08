@@ -166,9 +166,11 @@ Register it for the table cell via `fieldTable`:
 }
 ```
 
-## Example: replace the entire form (`display.customComponent`)
+## Example: extra content alongside the form (`display.customComponent`)
 
-To replace the whole create/edit form for a resource:
+`display.customComponent` renders a custom Vue component **after** the generated form (in the `#content-after` slot).
+It does not replace the form. Combine it with `mode: "page"` when you want to show related stats, a preview, or any
+extra UI next to the edit form.
 
 ```json
 // resources/book/resource.json
@@ -194,7 +196,8 @@ app.use(
 );
 ```
 
-`BookEditor.vue` receives the form configuration as props and is rendered inside the crouton form wrapper.
+`BookEditor.vue` receives a `resource` prop (with `loadData`, `save`, `closeForm`, etc.) and all form config props.
+See [resource.json → Display](../2.resources/index.md#display) for the full field reference.
 
 ## Custom JsonForms renderers
 
