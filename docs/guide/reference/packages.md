@@ -26,14 +26,10 @@ Crouton is split into focused packages. Most projects need only two: `@ghentcdh/
 | NestJS backend only | `@ghentcdh/crouton-api` + `@ghentcdh/crouton-prisma` (dev) + `@ghentcdh/crouton-cli` (dev) |
 | Vue 3 frontend only | `@ghentcdh/crouton-vue` |
 | Full stack | `@ghentcdh/crouton-api` + `@ghentcdh/crouton-vue` + `@ghentcdh/crouton-prisma` (dev) + `@ghentcdh/crouton-cli` (dev) |
-| Use `ResourceJsonEditor` without the full admin UI | `@ghentcdh/crouton-editor-vue` directly |
-| Use forms without the admin UI | `@ghentcdh/crouton-forms-vue` directly |
-
 ## `crouton-vue` bundles `crouton-forms-vue` + `crouton-editor-vue`
 
-Installing `@ghentcdh/crouton-vue` gives you both — you do not need to install the sub-packages separately. Install
-the sub-packages directly only if you need them in isolation (e.g. you have a custom admin shell and just want the
-form component).
+Installing `@ghentcdh/crouton-vue` gives you everything — you do not need to install the sub-packages separately.
+`crouton-forms-vue` and `crouton-editor-vue` are internal sub-packages; import everything from `@ghentcdh/crouton-vue`.
 
 ## Peer dependencies
 

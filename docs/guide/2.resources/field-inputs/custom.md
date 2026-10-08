@@ -4,7 +4,17 @@ Register a Vue component as a custom form field renderer. Uses the [JsonForms](h
 
 ## 1. Create the component
 
-The component receives `uischema` and `schema` props from JsonForms. Use `useControlBinding` to read and write the field value:
+The component uses a standard v-model interface: receive `modelValue`, emit `update:modelValue`. Define props in a
+sibling `.properties.ts` file:
+
+```ts
+// RatingInput.properties.ts
+import type { PropType } from 'vue';
+
+export const RatingInputProperties = {
+  modelValue: { type: Number as PropType<number | null>, default: null },
+};
+```
 
 ```vue
 <!-- RatingInput.vue -->
@@ -14,8 +24,9 @@ The component receives `uischema` and `schema` props from JsonForms. Use `useCon
       v-for="star in 5"
       :key="star"
       type="button"
-      @click="value = star"
-      :class="star <= value ? 'text-yellow-400' : 'text-gray-300'"
+      @click="emit('update:modelValue', star)"
+      :class="star <= (modelValue ?? 0) ? 'text-yellow-400' : 'text-gray-300'"
+      style="font-size: 1.5rem; background: none; border: none; cursor: pointer;"
     >
       ★
     </button>
@@ -23,30 +34,26 @@ The component receives `uischema` and `schema` props from JsonForms. Use `useCon
 </template>
 
 <script lang="ts" setup>
-import { type ControlElement, type JsonSchema, useControlBinding } from '@ghentcdh/crouton-forms-vue';
+import { RatingInputProperties } from './RatingInput.properties.js';
 
-const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
-const { value } = useControlBinding(props.uischema, props.schema);
-// value.value is the current field value; assign to update it
+const props = defineProps(RatingInputProperties);
+const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
 </script>
 ```
 
-`useControlBinding` also exposes `formValues` (all fields on the form, reactive) when you need to read sibling fields.
-
 ## 2. Register the renderer
 
-Pass a `renderers` array to `CroutonPlugin`. Use `rankWith` + `isCustomControlRender` from the respective packages:
+Pass a `customComponents` array to `CroutonPlugin`. Use `customComponentIs` to create the tester:
 
 ```ts
-// src/renderers.ts
-import { rankWith } from '@jsonforms/core';
-import { isCustomControlRender } from '@ghentcdh/crouton-forms-vue';
+// src/custom-components.ts
+import { customComponentIs, type CustomComponentEntry } from '@ghentcdh/crouton-vue';
 import { markRaw } from 'vue';
 import RatingInput from './RatingInput.vue';
 
-export const customRenderers = [
+export const customComponents: CustomComponentEntry[] = [
   {
-    tester: rankWith(10, isCustomControlRender('rating')),
+    tester: customComponentIs('rating', 10),
     renderer: markRaw(RatingInput),
   },
 ];
@@ -55,22 +62,24 @@ export const customRenderers = [
 ```ts
 // main.ts
 import { CroutonPlugin } from '@ghentcdh/crouton-vue';
-import { customRenderers } from './renderers';
+import { customComponents } from './custom-components';
 
-app.use(CroutonPlugin(api, { router, renderers: customRenderers }));
+app.use(CroutonPlugin(api, { router, customComponents }));
 ```
 
-The second argument to `rankWith` is the priority. Higher wins when multiple renderers match. Built-in crouton renderers use ranks 1–15; use 10+ for custom ones.
+The second argument to `customComponentIs` is the priority. Higher wins when multiple renderers match.
 
 ## 3. Wire it in resource.json
 
-Set `fieldInput.options.customRender` to the name you passed to `isCustomControlRender`:
+Set `fieldInput.options.customComponent` to the name you passed to `customComponentIs`:
 
 ```jsonc
-"fieldInput": {
-  "type": "custom",
-  "options": {
-    "customRender": "rating"
+"rating": {
+  "fieldInput": {
+    "type": "custom",
+    "options": {
+      "customComponent": "rating"
+    }
   }
 }
 ```

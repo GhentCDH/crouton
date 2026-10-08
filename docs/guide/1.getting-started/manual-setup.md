@@ -17,7 +17,7 @@ pnpm add -D @ghentcdh/crouton-cli @ghentcdh/crouton-prisma prisma
 ### Frontend (optional, Vue 3)
 
 ```sh
-pnpm add @ghentcdh/crouton-vue @ghentcdh/crouton-forms-vue vue
+pnpm add @ghentcdh/crouton-vue vue
 pnpm add -D vite @vitejs/plugin-vue
 ```
 
@@ -264,7 +264,7 @@ per resource.
 ### Install dependencies
 
 ```sh
-pnpm add @ghentcdh/crouton-vue @ghentcdh/crouton-forms-vue axios vue vue-router
+pnpm add @ghentcdh/crouton-vue axios vue vue-router
 pnpm add -D vite @vitejs/plugin-vue @types/node typescript
 ```
 

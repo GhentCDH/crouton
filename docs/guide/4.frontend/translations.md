@@ -1,5 +1,11 @@
 # Translations (i18n)
 
+::: warning Work in progress
+The i18n system is not yet fully functional. Translation keys may not resolve correctly in all contexts, and some
+parts of the UI are not yet translated. The API described here reflects the intended design — not everything is
+working end to end. Use with caution and expect breaking changes.
+:::
+
 Crouton supports server-side translations for column labels, resource titles, sidebar entries, enum option labels,
 UI chrome, and validation messages. The frontend never owns a translation catalogue — it sends `Accept-Language`, and
 the API responds in that language.

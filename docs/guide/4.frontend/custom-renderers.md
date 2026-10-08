@@ -35,15 +35,15 @@ component name. The priority (second arg) determines which tester wins when mult
 
 ```ts
 // src/custom-components.ts
-import { type CustomComponentEntry, customComponentIs } from '@ghentcdh/crouton-vue';
+import { customComponentIs, type CustomComponentEntry } from '@ghentcdh/crouton-vue';
 import { markRaw } from 'vue';
-import BookCoverRenderer from './BookCoverRenderer.vue';
+import RatingInput from './RatingInput.vue';
 import RatingStarsRenderer from './RatingStarsRenderer.vue';
 
 export const customComponents: CustomComponentEntry[] = [
   {
-    tester: customComponentIs('BookCover', 10),
-    renderer: markRaw(BookCoverRenderer),
+    tester: customComponentIs('rating', 10),
+    renderer: markRaw(RatingInput),
   },
   {
     tester: customComponentIs('RatingStars', 10),
@@ -66,57 +66,56 @@ app.use(
 );
 ```
 
-## Example: custom field renderer (BookCoverRenderer)
+## Example: custom field renderer (RatingInput)
 
-A field renderer receives the current field value and all form values. Use `useControlBinding` to connect to the form:
+A field renderer uses a standard v-model interface: `modelValue` prop + `update:modelValue` emit. Define props in a
+sibling `.properties.ts` file following the project convention:
 
-```vue
-<!-- src/BookCoverRenderer.vue -->
-<script lang="ts" setup>
-import { ControlElement, JsonSchema, useControlBinding } from '@ghentcdh/crouton-vue';
+```ts
+// src/RatingInput.properties.ts
+import type { PropType } from 'vue';
 
-const props = defineProps<{
-  uischema: ControlElement;
-  schema: JsonSchema;
-}>();
-
-const { value, formValues } = useControlBinding(props.uischema, props.schema);
-// value.value  — the current field value (reactive)
-// formValues   — all form field values (reactive)
-</script>
-
-<template>
-  <div class="book-cover">
-    <img v-if="value.value" :src="value.value" :alt="formValues.title" class="cover-image" />
-    <p v-else class="no-cover">No cover image set</p>
-    <input
-      :value="value.value"
-      type="url"
-      placeholder="https://example.com/cover.jpg"
-      @input="value.value = ($event.target as HTMLInputElement).value"
-    />
-    <p v-if="formValues.title" class="book-title">{{ formValues.title }}</p>
-  </div>
-</template>
+export const RatingInputProperties = {
+  modelValue: { type: Number as PropType<number | null>, default: null },
+};
 ```
 
-Register it for the `cover_url` field of the `book` resource:
+```vue
+<!-- src/RatingInput.vue -->
+<template>
+  <div class="flex gap-1">
+    <button
+      v-for="star in 5"
+      :key="star"
+      type="button"
+      @click="emit('update:modelValue', star)"
+      :class="star <= (modelValue ?? 0) ? 'text-yellow-400' : 'text-gray-300'"
+      style="font-size: 1.5rem; background: none; border: none; cursor: pointer;"
+    >
+      ★
+    </button>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { RatingInputProperties } from './RatingInput.properties.js';
+
+const props = defineProps(RatingInputProperties);
+const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
+</script>
+```
+
+Wire it to the `rating` field in `resource.json`:
 
 ```json
-// resources/book/resource.json
 {
-  "name": "book",
   "columns": {
-    "title":     { "searchable": true },
-    "author":    {},
-    "isbn":      {},
-    "rating":    { "type": "number" },
-    "cover_url": {
-      "label": "Cover image",
+    "rating": {
+      "hiddenInTable": false,
       "fieldInput": {
-        "type": "string",
+        "type": "custom",
         "options": {
-          "customComponent": "BookCover"
+          "customComponent": "rating"
         }
       }
     }
@@ -124,7 +123,8 @@ Register it for the `cover_url` field of the `book` resource:
 }
 ```
 
-The name in `options.customComponent` (`"BookCover"`) must match the first argument to `customComponentIs('BookCover', 10)`.
+The name in `options.customComponent` (`"rating"`) must match the first argument to `customComponentIs('rating', 10)`.
+`fieldInput.type` must be `"custom"` — omitting it or using another type disables the custom renderer.
 
 ## Example: custom table cell renderer (RatingStarsRenderer)
 
