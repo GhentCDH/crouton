@@ -1,3 +1,4 @@
+Status: implemented
 # Field Input Schema Plan
 
 Make `fieldInput` type-safe per control type, self-describing via a per-type

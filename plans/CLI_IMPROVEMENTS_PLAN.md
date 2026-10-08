@@ -1,3 +1,4 @@
+Status: planned
 # Crouton CLI — Improvement Plan
 
 Goal: turn `@ghentcdh/crouton-cli` from a thin set of scaffold/update commands into

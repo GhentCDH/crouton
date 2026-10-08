@@ -1,3 +1,4 @@
+Status: implemented
 # parseSchema Tests Plan — fixture-driven tests for core and api
 
 ## Goal

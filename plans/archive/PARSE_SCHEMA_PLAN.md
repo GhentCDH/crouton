@@ -1,3 +1,4 @@
+Status: implemented
 # ParseSchema Plan — compile one resource to a schema payload without a Nest module
 
 ## Goal

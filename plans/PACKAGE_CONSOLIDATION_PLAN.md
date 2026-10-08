@@ -1,3 +1,4 @@
+Status: planned
 # Package Consolidation Plan
 
 ## Goal

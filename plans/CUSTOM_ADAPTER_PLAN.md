@@ -1,3 +1,4 @@
+Status: planned
 # Custom Adapter Plan
 
 Refines `DATASOURCE_ADAPTER_PLAN.md` with one decision and one invariant:

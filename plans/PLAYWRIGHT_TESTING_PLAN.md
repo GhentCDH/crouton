@@ -1,3 +1,4 @@
+Status: planned
 # Playwright E2E + Demo App Plan
 
 > Status: proposal. Goal: add an end-to-end testing layer on top of the existing

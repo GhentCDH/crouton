@@ -1,3 +1,4 @@
+Status: planned
 # Unify Root & Child Resource Build Logic — Phase Plan
 
 ## Goal

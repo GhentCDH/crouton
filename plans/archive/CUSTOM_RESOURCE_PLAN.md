@@ -1,3 +1,4 @@
+Status: implemented
 # Plan — Config-only resources (`kind: "custom"`) with a user-implemented `repository.ts`
 
 ## Goal

@@ -1,3 +1,4 @@
+Status: planned
 # External-route operations — proxy a resource operation to an external service
 
 Status: **planned, not implemented** · Author handoff for Bo · 2026-09-09

@@ -1,3 +1,4 @@
+Status: implemented
 # Resource Extensions Plan (registered top-level sections in `resource.json`)
 
 ## Goal

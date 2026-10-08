@@ -1,3 +1,4 @@
+Status: implemented
 # Plan: create-crouton DB flow + `crouton update resources` env fix
 
 Issues seen running `npx @ghentcdh/create-crouton planning` (alpha.80) with a DB URL.

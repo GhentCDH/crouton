@@ -1,3 +1,4 @@
+Status: planned
 # Plan: autocomplete shows the raw id on edit
 
 ## Symptom

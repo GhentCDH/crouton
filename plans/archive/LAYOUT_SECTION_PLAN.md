@@ -1,3 +1,4 @@
+Status: implemented
 # Layout Section Plan (`layout` in `resource.json`)
 
 ## Goal

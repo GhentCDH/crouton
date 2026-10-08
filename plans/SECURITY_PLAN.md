@@ -1,3 +1,4 @@
+Status: planned
 # Plan: feat/security — resource guards
 
 Brand-new authorization layer for crouton. Each resource declares a

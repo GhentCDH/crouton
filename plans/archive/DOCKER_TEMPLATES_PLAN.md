@@ -1,3 +1,4 @@
+Status: implemented
 # Docker Templates Update Plan (create-crouton)
 
 Goal: bring the Docker templates emitted by `create-crouton` in line with the working

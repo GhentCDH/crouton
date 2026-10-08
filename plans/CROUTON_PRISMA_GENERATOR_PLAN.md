@@ -1,3 +1,4 @@
+Status: planned
 # Crouton Prisma Generator Plan (`crouton-prisma`)
 
 ## Goal

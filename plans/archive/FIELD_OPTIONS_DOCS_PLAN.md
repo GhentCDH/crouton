@@ -1,3 +1,4 @@
+Status: implemented
 # Field Input Options Docs (generated from Zod) — Plan
 
 ## Goal

@@ -1,3 +1,4 @@
+Status: planned
 # Crouton — Clean Code Plan
 
 Audit of structure, conventions, and code quality across `crouton-core`, `crouton-api`, `crouton-vue`. Findings ordered

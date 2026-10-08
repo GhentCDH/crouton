@@ -1,3 +1,4 @@
+Status: planned
 # create-crouton — Template Cleanup & Consolidation Plan
 
 Hand this to Claude Code in a **fresh worktree created from `main`**. Do each step as

@@ -1,3 +1,4 @@
+Status: planned
 # Plan — `schema.ts` obsolete when columns declare their `type` (any `kind`)
 
 ## Problem

@@ -30,3 +30,4 @@ export * from './enum-registry';
 export * from './translations';
 export { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
 export * from './prisma-shell';
+export * from './validate';

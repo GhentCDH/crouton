@@ -1,3 +1,4 @@
+Status: implemented
 # Plan: VuePress documentation for crouton
 
 Mirror the ghentcdh-monorepo docs setup, simplified to a **single docs site** (crouton has 2 packages vs ghentcdh's multi-site split). Note: `.github/workflows/publish-docs.yml` already exists in crouton and expects an nx `docs:build` target and a `docs/` site — this plan fills in the missing pieces.

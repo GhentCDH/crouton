@@ -1,6 +1,6 @@
 // Generate Markdown docs for field-input options from Zod schemas via z.toJSONSchema().
 // Runs after gen-resource-schema.mjs (same tsup onSuccess chain), imports from ../dist/index.js.
-// Writes docs/guide/resource/field-inputs/_generated/<schemaFile>.md (committed, drift-checked).
+// Writes docs/guide/2.resources/field-inputs/_generated/<schemaFile>.md (committed, drift-checked).
 import { z } from 'zod';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -15,7 +15,7 @@ const docsGeneratedDir = join(
   repoRoot,
   'docs',
   'guide',
-  'resource',
+  '2.resources',
   'field-inputs',
   '_generated',
 );

@@ -1,3 +1,4 @@
+Status: planned
 # Publish Drafts & Add Unlisted Resources to the Menu — Plan
 
 Two closely-related dev-only capabilities, one mechanism:

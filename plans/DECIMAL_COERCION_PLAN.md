@@ -1,3 +1,4 @@
+Status: planned
 # Decimal Coercion Plan
 
 Coerce inbound `number` / `string` values into `Prisma.Decimal` centrally, so

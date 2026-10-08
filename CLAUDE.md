@@ -1,3 +1,6 @@
+# Plans directory
+`plans/` contains design notes and proposals — **not** documentation. Source of truth = code + `docs/guide`. Agents: ignore `plans/archive/`.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 

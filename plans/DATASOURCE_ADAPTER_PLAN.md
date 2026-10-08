@@ -1,3 +1,4 @@
+Status: planned
 # Datasource Adapter Plan
 
 Turn the datasource from "a Prisma client" into an **adapter** that provides CRUD. Prisma
