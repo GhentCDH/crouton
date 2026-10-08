@@ -18,16 +18,92 @@ crouton.sidebar  // SidebarNode[] (reactive getter)
 crouton.isDev    // boolean — true when backend reports CROUTON_SCHEMA_EDITOR=true
 ```
 
-## `getFormDef`
+## `getFormDefById`
 
-Fetch (and cache) the compiled form definition for a resource:
+Fetch (and cache) the compiled form definition for a resource by its route id:
 
 ```ts
-const { getFormDef } = useCrouton();
+const crouton = useCrouton();
 
-const formDef = await getFormDef('book'); // GET /book/schemas (cached per language)
+const formDef = await crouton.getFormDefById('book');
+// → GET /book/schemas, result cached per language
 // formDef.schemas.table / .form / .view / .filter
+// formDef.operations   — endpoint map (findAll, findOne, create, update, patch, delete)
+// formDef.idField      — primary key field name
 ```
+
+For sub-resources or nested routes, pass the full path segment:
+
+```ts
+const formDef = await crouton.getFormDefById('balance/stats');
+// → GET /balance/stats/schemas
+```
+
+`getFormByUri` fetches by an arbitrary URI instead of a route id. `invalidateFormDef(id)` drops the cache entry for
+a specific resource; `invalidateAllFormDefs()` clears the entire cache (called automatically on language change).
+
+::: tip
+`getFormDef` is a deprecated alias for `getFormDefById`. Use `getFormDefById`.
+:::
+
+## `resourceApi`
+
+`resourceApi` turns a `FormDef` into a typed set of API methods. Use it when you need to call a resource endpoint
+outside of the standard table/form UI — custom pages, stats aggregations, parent-scoped sub-resources.
+
+```ts
+import { resourceApi } from '@ghentcdh/crouton-vue';
+
+const crouton = useCrouton();
+const formDef = await crouton.getFormDefById('balance/stats');
+
+// Pass URI param defaults — merged into every request for this instance.
+// Use { parent: { id: '...' } } for nested routes that expect a parent id.
+const api = resourceApi(formDef, { parent: { id: balanceId } });
+```
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `loadData` / `findAll` | `(requestData, signal?) → Promise<PagedResult \| null>` | `GET` list — maps to the `findAll` operation |
+| `getOneById` | `(id) → Promise<Record \| null>` | `GET` single record — maps to `findOne` |
+| `create` | `(data) → Promise<Record \| null>` | `POST` — maps to `create` |
+| `save` | `(id, data) → Promise<Record \| null>` | `PUT` — maps to `update` |
+| `patch` | `(id, data) → Promise<Record \| null>` | `PATCH` — maps to `patch` |
+| `delete` | `(data) → Promise<unknown \| null>` | `DELETE` — maps to `delete` |
+| `checkUnique` | `(field, value, excludeId?, scope?) → Promise<boolean>` | Uniqueness check via `GET .../unique` |
+
+All methods return `null` on error (toast notification shown automatically). `loadData` and `findAll` are the same
+function — `findAll` is the alias.
+
+### Example: sub-resource stats
+
+```ts
+const getStats = async (balanceId: string) => {
+  const formDef = await crouton.getFormDefById('balance/stats');
+  const api = resourceApi(formDef, { parent: { id: balanceId } });
+  const data = await api.loadData({});
+
+  const first = data?.data[0] ?? { groupTotal: 0 };
+  return { allBalance: data?.data, groupBalance: { total: first.groupTotal } };
+};
+```
+
+`defaultUriParams` passed to `resourceApi` are merged with any per-call params. URI template placeholders like
+`{parent.id}` in the resource's operation URIs are replaced with the matching key from `defaultUriParams`.
+
+### `croutonApiCall`
+
+Lower-level escape hatch — call a specific operation by name directly:
+
+```ts
+import { croutonApiCall } from '@ghentcdh/crouton-vue';
+
+await croutonApiCall(formDef, 'findAll', { parent: { id: '123' } }, { params: {} });
+```
+
+Use `resourceApi` unless you need an operation not covered by its methods.
 
 ## `setDefault`
 
