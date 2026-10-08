@@ -8,7 +8,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { type Dirent, existsSync } from 'node:fs';
+import { type Dirent, existsSync, readFileSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -203,6 +203,20 @@ export const fixEsmBarrels = async (outputDir: string): Promise<void> => {
   await walk(outputDir);
 };
 
+const guardCroutonPrisma = (root: string, schemaPath: string): void => {
+  let schema: string;
+  try { schema = readFileSync(schemaPath, 'utf-8'); } catch { return; }
+  if (!schema.includes('provider = "crouton-prisma"')) return;
+  let d = root;
+  for (let i = 0; i < 6; i++) {
+    if (existsSync(join(d, 'node_modules', '.bin', 'crouton-prisma'))) return;
+    const parent = dirname(d);
+    if (parent === d) break;
+    d = parent;
+  }
+  throw new Error('crouton-prisma generator not installed — run: <pm> add -D @ghentcdh/crouton-prisma');
+};
+
 export interface PullAndGenerateInput {
   root: string;
   prismaConfigPath: string;
@@ -239,6 +253,7 @@ export const pullAndGenerate = async (
   if (!dbPull.ok) return { ok: false, backupPath, dbPull };
   const caseFormat = await prismaCaseFormat(root, schemaPath);
   const normalized = await normalizeSchema(schemaPath);
+  guardCroutonPrisma(root, schemaPath);
   const generate = await prismaGenerate(root, prismaConfigPath);
   return { ok: true, backupPath, dbPull, caseFormat, normalizeSchema: { ok: true, renamed: normalized.renamed }, generate };
 };

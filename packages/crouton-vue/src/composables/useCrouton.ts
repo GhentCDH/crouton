@@ -230,10 +230,6 @@ export const CroutonPlugin = (
       CROUTON_READONLY_RENDERERS,
       [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
     );
-    app.provide(
-      CROUTON_READONLY_RENDERERS,
-      [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
-    );
     if (options.router) {
       options.router.addRoute({
         path: '/crouton/status',
