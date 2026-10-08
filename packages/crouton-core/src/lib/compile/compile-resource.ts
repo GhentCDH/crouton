@@ -1,6 +1,6 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import type { CalculatedColumn, JsonAction, JsonColumn, ResourceJson } from '../resource';
+import type { CalculatedColumn, JsonAction, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
 import { getResourceExtensions } from '../resource';
 import {
   buildViews,
@@ -31,9 +31,20 @@ const pickExtensions = (obj: Record<string, unknown>) =>
 const buildLookup = (columns: JsonColumn[] | undefined): LookupConfig | undefined => {
   if (!columns) return undefined;
   const keyCol = columns.find((c) => c.idField);
-  const labelCol = columns.find((c) => c.showInLookup) ?? columns.find((c) => c.searchable);
-  if (!keyCol && !labelCol) return undefined;
-  return { key: keyCol?.id ?? 'id', ...(labelCol && { label: labelCol.id }) };
+  const searchableCols = columns.filter((c) => c.showInLookup || c.searchable);
+  if (!keyCol && !searchableCols.length) return undefined;
+  const labels = searchableCols.map((c) => {
+    if (c.fieldInput?.format === 'relation') {
+      const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
+      if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
+    }
+    return c.id;
+  });
+  return {
+    key: keyCol?.id ?? 'id',
+    ...(labels.length === 1 && { label: labels[0] }),
+    ...(labels.length > 0 && { labels }),
+  };
 };
 
 /**

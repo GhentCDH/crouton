@@ -43,6 +43,7 @@ export const patchFilterProperties = (
     // `date_range->from` / `date_range->to`. The frontend filter dropdown
     // reads these straight from `properties` and emits `key:value:operator`.
     if (col.fieldInput?.format === 'date-range') {
+
       delete properties[col.id];
       const opts =
         (col.fieldInput?.options as Record<string, unknown> | undefined) ?? {};
@@ -62,6 +63,12 @@ export const patchFilterProperties = (
         (opts['toLabel'] as string) ?? `${base} (to)`,
       );
       continue;
+    }
+
+    // Relation columns are excluded from the schema pick — inject a string
+    // property so the filter UI can render a text input for them.
+    if (!properties[col.id] && isRelation(col)) {
+      properties[col.id] = { type: 'string', title: col.label ?? col.id };
     }
 
     const prop = properties[col.id];

@@ -45,7 +45,7 @@ const handleEvent = (event: string, data: any) => {
   emits('handleEvent', { event, data });
 };
 
-const onRequest = (requestData: Request) => emits('onRequest', { requestData });
+const onRequest = (requestData: Request) => emits('onRequest', requestData);
 
 const resource = shallowRef(
   useResources(config.value, {

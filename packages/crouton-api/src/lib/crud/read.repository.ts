@@ -266,7 +266,21 @@ export class ReadRepository<T = any> {
   }
 
   private buildWhere(filter: string[] | undefined) {
-    return buildFilterWhere(filter);
+    if (!filter?.length) return undefined;
+    const manyToOneSubs = (this.config.subResources ?? []).filter(
+      (s) => s.relationType === 'manyToOne' && s.displayKey,
+    );
+    const remapped = manyToOneSubs.length
+      ? filter.map((f) => {
+          const parsed = parseFilterString(f);
+          if (!parsed) return f;
+          const sub = manyToOneSubs.find((s) => s.column === parsed.field);
+          return sub?.displayKey
+            ? `${parsed.field}.${sub.displayKey}:${parsed.value}:${parsed.operator}`
+            : f;
+        })
+      : filter;
+    return buildFilterWhere(remapped);
   }
 
   private projection(op: 'findAll' | 'findOne') {

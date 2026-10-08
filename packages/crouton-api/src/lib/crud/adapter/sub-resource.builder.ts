@@ -197,6 +197,10 @@ export const buildSubResources = (
           valueLabelColumns: buildValueLabelColumns(childColumns),
         }),
         relationType: c.fieldInput?.relationType ?? deriveRelationTypeFromColumns(c, columns!),
+        ...(() => {
+          const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
+          return opts?.displayKey ? { displayKey: opts.displayKey } : {};
+        })(),
       } satisfies SubResourceConfig;
     });
 };
