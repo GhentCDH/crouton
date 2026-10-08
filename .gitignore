@@ -50,7 +50,10 @@ Thumbs.db
 
 # pnpm temp files
 _tmp_*
-*_PLAN.md
+# Plan files live in plans/ — ignore loose plan files at root only
+/*_PLAN.md
+/github-issue-autosave.md
+/FEATURE_REQUEST_AUTH.md
 
 .nx/migrate-runs
 

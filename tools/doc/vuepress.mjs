@@ -13,7 +13,21 @@ function writeSidebarFile(dir, sidebar) {
 }
 
 function formatText(text) {
-  return text.charAt(0).toUpperCase() + text.replaceAll('-', ' ').slice(1);
+  const stripped = text.replace(/^\d+\./, '');
+  return stripped.charAt(0).toUpperCase() + stripped.replaceAll('-', ' ').slice(1);
+}
+
+function readIndexTitle(dirPath) {
+  for (const name of ['index.md', 'README.md']) {
+    const file = path.join(dirPath, name);
+    if (!fs.existsSync(file)) continue;
+    const content = fs.readFileSync(file, 'utf8');
+    const frontmatter = content.match(/^---\s*\n[\s\S]*?^title:\s*(.+?)\s*$/m);
+    if (frontmatter) return frontmatter[1];
+    const h1 = content.match(/^#\s+(.+)/m);
+    if (h1) return h1[1];
+  }
+  return null;
 }
 
 // fsDir   = path on disk relative to docsPath (e.g. 'crouton-api')
@@ -33,6 +47,7 @@ function generateDirectoryObject(fsDir, linkDir, exclude) {
 
     if (stat.isFile()) {
       if (!file.endsWith('.md')) return;
+      if (file.startsWith('_')) return;
       if (file === 'index.md') {
         indexFile = 'index.md';
         return;
@@ -58,8 +73,9 @@ function generateDirectoryObject(fsDir, linkDir, exclude) {
   });
 
   const dirName = path.basename(dirPath);
+  const indexTitle = readIndexTitle(dirPath);
   return {
-    text: formatText(dirName),
+    text: indexTitle ?? formatText(dirName),
     children: items,
     items: items,
     collapsed: true,
