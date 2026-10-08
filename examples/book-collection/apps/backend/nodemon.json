@@ -1,6 +1,6 @@
 {
-  "watch": ["src"],
+  "watch": ["src", "../../../../packages/crouton-api/src", "../../../../packages/crouton-core/src"],
   "ext": "ts,json,js",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "tsx --tsconfig tsconfig.json src/main.ts"
+  "exec": "node --conditions @ghentcdh/crouton --import tsx/esm src/main.ts"
 }

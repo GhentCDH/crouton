@@ -10,12 +10,17 @@
     "bio": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
     "books": {
       "label": "Books",
-      "hiddenInTable": true,
-      "hiddenInForm": true,
+      "hiddenInTable": false,
+      "hiddenInForm": false,
       "fieldInput": {
+        "foreignKey": "authorId",
         "format": "relation",
         "relationType": "oneToMany",
-        "resource": "./book.resource"
+        "resource": "../book/resource.json",
+        "options": {
+          "type": "table",
+          "displayKey": "title"
+        }
       }
     }
   },
