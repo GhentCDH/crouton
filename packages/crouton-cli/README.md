@@ -36,7 +36,7 @@ Best for: changes to the scaffold flow (prompts, templates, next-steps output).
 ```bash
 pnpm nx build create-crouton
 cd ~/project/workshop_crouton
-node ~/path/to/crouton/packages/create-crouton/dist/index.js planning-test
+node ~/path/to/crouton/packages/create-crouton/dist/index.js my-app
 ```
 
 Local templates are bundled into `dist`, so you get your edits. The generated `package.json` still references `@ghentcdh/*@<version>`, so `pnpm install` pulls from npm — fine for testing prompts and templates. Pass `--no-install` to skip the install step.
@@ -59,7 +59,7 @@ pnpm nx run-many -t build
 
 # scaffold using only the local registry
 cd ~/project/workshop_crouton
-npm_config_registry=http://localhost:4873 npx @ghentcdh/create-crouton@latest planning-test
+npm_config_registry=http://localhost:4873 npx @ghentcdh/create-crouton@latest my-app
 ```
 
 Before republishing the same version, either bump it (e.g. `0.0.1-local.2`) or unpublish first:
