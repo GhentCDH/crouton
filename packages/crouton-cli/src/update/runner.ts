@@ -23,6 +23,7 @@ import {
   buildResourceDiffs,
   buildTranslationBundle,
   commit,
+  ensureClaudeMd,
   introspect,
   isGitDirty,
   loadConfig,
@@ -45,6 +46,7 @@ import {
   scaffoldConfigFromProject,
   serializeEnumRegistry,
   serializeTranslationBundle,
+  upsertAgentBlock,
 } from '@ghentcdh/crouton-codegen';
 import { type DataSource, type TranslationBundle } from '@ghentcdh/crouton-core';
 
@@ -607,6 +609,16 @@ export const runUpdateResources = async (
       await writeFile(tp.absPath, tp.content, 'utf-8');
       written += 1;
     }
+    const agentBlock =
+      `<!-- Leave the start & end comments to automatically receive updates. -->\n` +
+      `# crouton\n` +
+      `- Resources live in \`${loaded.config.resourcesDir}\`, data sources in \`${loaded.config.dataSourcesDir}\` (see \`crouton.json\`).\n` +
+      `- Use the \`crouton\` skill for any resource/datasource change.\n` +
+      `- After editing any \`resource.json\` or \`crouton.json\`, run \`crouton validate\`.\n` +
+      `- Docs for the installed version: \`node_modules/@ghentcdh/crouton-core/agent-docs/README.md\``;
+    await upsertAgentBlock(join(cwd, 'AGENTS.md'), agentBlock);
+    await ensureClaudeMd(join(cwd, 'CLAUDE.md'));
+
     clack.outro(
       pc.green(`Done — ${written} written, ${skipped} skipped (existing).`),
     );
