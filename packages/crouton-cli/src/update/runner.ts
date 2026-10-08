@@ -610,12 +610,12 @@ export const runUpdateResources = async (
       written += 1;
     }
     const agentBlock =
-      `<!-- Leave the start & end comments to automatically receive updates. -->\n` +
-      `# crouton\n` +
+      '<!-- Leave the start & end comments to automatically receive updates. -->\n' +
+      '# crouton\n' +
       `- Resources live in \`${loaded.config.resourcesDir}\`, data sources in \`${loaded.config.dataSourcesDir}\` (see \`crouton.json\`).\n` +
-      `- Use the \`crouton\` skill for any resource/datasource change.\n` +
-      `- After editing any \`resource.json\` or \`crouton.json\`, run \`crouton validate\`.\n` +
-      `- Docs for the installed version: \`node_modules/@ghentcdh/crouton-core/agent-docs/README.md\``;
+      '- Use the `crouton` skill for any resource/datasource change.\n' +
+      '- After editing any `resource.json` or `crouton.json`, run `crouton validate`.\n' +
+      '- Docs for the installed version: `node_modules/@ghentcdh/crouton-core/agent-docs/README.md`';
     await upsertAgentBlock(join(cwd, 'AGENTS.md'), agentBlock);
     await ensureClaudeMd(join(cwd, 'CLAUDE.md'));
 
