@@ -1,3 +1,7 @@
+---
+description: Complete reference for resource.json — the single file that drives API endpoints, validation, table columns, form fields, and filters for a Crouton resource.
+---
+
 # resource.json
 
 Each resource is described by a `resource.json` file in its own directory under `resources/`. This one file drives the

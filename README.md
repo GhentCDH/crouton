@@ -14,7 +14,7 @@
 [![crouton-cli](https://img.shields.io/npm/v/@ghentcdh/crouton-cli.svg?label=crouton-cli)](https://www.npmjs.com/package/@ghentcdh/crouton-cli)
 [![create-crouton](https://img.shields.io/npm/v/@ghentcdh/create-crouton.svg?label=create-crouton)](https://www.npmjs.com/package/@ghentcdh/create-crouton)
 
-[Documentation](https://ghentcdh.github.io/crouton/)
+[Documentation](https://ghentcdh.github.io/crouton/) · [llms.txt](https://ghentcdh.github.io/crouton/llms.txt) · [llms-full.txt](https://ghentcdh.github.io/crouton/llms-full.txt)
 </div>
 
 ---

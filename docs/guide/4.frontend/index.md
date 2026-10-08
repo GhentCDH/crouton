@@ -1,3 +1,7 @@
+---
+description: Bootstrap the Crouton admin UI in a Vue 3 application — install crouton-vue, register the plugin, and configure the router.
+---
+
 # Frontend setup
 
 > Last verified against crouton `0.0.1-alpha.81`
