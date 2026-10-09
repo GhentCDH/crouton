@@ -4,6 +4,7 @@ import { defineClientConfig } from 'vuepress/client';
 import { CroutonPlugin } from '@ghentcdh/crouton-vue';
 
 import AutoSaveFormDemo from './components/AutoSaveFormDemo.vue';
+import ComponentGallery from './components/ComponentGallery.vue';
 import LayoutDemo from './components/LayoutDemo.vue';
 import ResourceJsonEditorDemo from './components/ResourceJsonEditorDemo.vue';
 import ResourceJsonValidator from './components/ResourceJsonValidator.vue';
@@ -17,5 +18,6 @@ export default defineClientConfig({
     app.component('AutoSaveFormDemo', AutoSaveFormDemo);
     app.component('ResourceJsonValidator', ResourceJsonValidator);
     app.component('LayoutDemo', LayoutDemo);
+    app.component('ComponentGallery', ComponentGallery);
   },
 });
