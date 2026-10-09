@@ -16,11 +16,11 @@
         @change="onChange"
         @focus="onFocus"
         @blur="onBlur"
-      >
+      />
       <button
         v-if="clearable && model"
         type="button"
-        class="absolute inset-y-0 right-0 flex items-center pr-2 btn btn-ghost btn-xs btn-circle opacity-60 hover:opacity-100"
+        class="absolute top-1/2 -translate-y-1/2 right-1 btn btn-ghost btn-xs btn-circle opacity-60 hover:opacity-100"
         tabindex="-1"
         aria-label="Clear"
         @mousedown.prevent="onClear"

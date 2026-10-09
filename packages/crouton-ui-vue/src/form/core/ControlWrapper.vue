@@ -1,8 +1,5 @@
 <template>
-  <fieldset
-    class="fieldset"
-    :class="[width, mergedStyles.control.wrapper]"
-  >
+  <fieldset class="fieldset" :class="[width, mergedStyles.control.wrapper]">
     <legend
       class="w-full inline-block"
       :class="[
@@ -11,7 +8,7 @@
       ]"
     >
       <template v-if="!hideLabel">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between">
           <div>
             <span>{{ label }}</span>
             <span v-if="showAsterisk">*</span>

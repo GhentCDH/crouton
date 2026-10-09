@@ -17,6 +17,7 @@ export default defineConfig({
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+      rollupTypes: true,
     }),
   ],
   build: {
@@ -32,9 +33,7 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
-    // FIX 1: Must be rollupOptions, not rolldownOptions
-    rollupOptions: {
-      // FIX 2: Added common sub-dependencies you likely need externalized
+    rolldownOptions: {
       external: [
         '@jsonforms/core',
         'axios',
@@ -45,14 +44,7 @@ export default defineConfig({
         'zod',
       ],
       output: {
-        globals: { vue: 'Vue' },
-        // Emits compiled Tailwind code as 'styles.css' inside your dist folder
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-            return 'styles.css';
-          }
-          return '[name][extname]';
-        },
+        assetFileNames: 'styles[extname]',
       },
     },
   },
