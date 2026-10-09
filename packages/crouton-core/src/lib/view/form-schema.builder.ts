@@ -165,6 +165,7 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
     // named. Without this an object/array column falls through to `text`, whose
     // tester requires a string schema, and no renderer matches at all.
     const type = fieldInput?.type ?? defaultControlFormat(col);
+    // ponytail: options not in branches above are dropped; add a branch if your type needs custom option forwarding
     control.control(type, options).width('full');
   }
 

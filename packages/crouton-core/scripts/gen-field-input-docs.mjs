@@ -1,10 +1,13 @@
 // Generate Markdown docs for field-input options from Zod schemas via z.toJSONSchema().
 // Runs after gen-resource-schema.mjs (same tsup onSuccess chain), imports from ../dist/index.js.
 // Writes docs/guide/2.resources/field-inputs/_generated/<schemaFile>.md (committed, drift-checked).
+// --ci flag: exits 1 if any generated file differs from what's on disk (for local drift checks).
 import { z } from 'zod';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const CI_MODE = process.argv.includes('--ci');
 
 import { BaseOptionsSchema, fieldInputRegistry } from '../dist/index.js';
 
@@ -144,16 +147,31 @@ if (!inRepoWithDocs) {
 
 mkdirSync(docsGeneratedDir, { recursive: true });
 
-// base.md — common options table
-writeFileSync(join(docsGeneratedDir, 'base.md'), generateBaseDoc());
+const writes = new Map();
+writes.set(join(docsGeneratedDir, 'base.md'), generateBaseDoc());
 
-// Per-type docs
 const emitted = new Set();
-for (const [_type, def] of fieldInputRegistry) {
+for (const [, def] of fieldInputRegistry) {
   if (emitted.has(def.schemaFile)) continue;
   emitted.add(def.schemaFile);
-  const content = generateTypeDoc(def.schemaFile, def);
-  writeFileSync(join(docsGeneratedDir, `${def.schemaFile}.md`), content);
+  writes.set(join(docsGeneratedDir, `${def.schemaFile}.md`), generateTypeDoc(def.schemaFile, def));
+}
+
+const drifted = [];
+for (const [filePath, content] of writes) {
+  if (CI_MODE) {
+    const existing = existsSync(filePath) ? readFileSync(filePath, 'utf8') : null;
+    if (existing !== content) drifted.push(filePath);
+  }
+  writeFileSync(filePath, content);
+}
+
+if (CI_MODE && drifted.length > 0) {
+  console.error(
+    `[crouton-core] --ci: ${drifted.length} file(s) are out of date:\n${drifted.map((f) => `  ${f}`).join('\n')}`,
+  );
+  console.error('Run pnpm nx run crouton-core:build to regenerate.');
+  process.exit(1);
 }
 
 console.info(

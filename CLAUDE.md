@@ -1,6 +1,13 @@
 # Plans directory
 `plans/` contains design notes and proposals — **not** documentation. Source of truth = code + `docs/guide`. Agents: ignore `plans/archive/`.
 
+# After implementing any change
+Always run lint before committing:
+```
+pnpm nx run-many --target=lint --projects=<affected-packages>
+```
+Or for all packages: `pnpm nx run-many --target=lint`. Lint errors in CI are not caught by typecheck — run lint explicitly.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
@@ -24,6 +31,38 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+# Development patterns
+
+## Adding an option to an existing field input
+
+1. Open `packages/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` and add the field using `opt()` from `../option-meta`.
+2. If the option needs custom handling in codegen, open `packages/crouton-codegen/src/lib/view/form-schema.builder.ts` in `buildFormControl` and update the relevant branch.
+3. Run `pnpm nx run crouton-core:build` — this regenerates JSON schemas and the `_generated/` docs.
+4. Verify no drift: `git diff docs/guide/2.resources/field-inputs/_generated/`.
+
+## Adding a new field input type (all 10 steps)
+
+1. **Create options schema** — `packages/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` (extend `BaseOptionsSchema` from `../base.options`, use `opt` from `../option-meta`).
+2. **Register in registry** — `packages/crouton-core/src/lib/resource/field-input/registry.ts`: add import and add entry `['<type>', { options: <Type>OptionsSchema, schemaFile: '<type>' }]`.
+3. **Add to ControlType** — `packages/crouton-core/src/lib/layout/control.builder.ts`: add `<type>: '<type>'` to the `ControlType` const.
+4. **Create Vue renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/<Type>ControlRenderer.vue`.
+5. **Add tester** — `packages/crouton-forms-vue/src/testers/tester.ts`: export `const is<Type>Control = and(uiTypeIs('Control'), optionIsIgnoreCase('format', ControlType.<type>))`.
+6. **Register renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/index.ts`: import tester + component, add entry to `controlRenderers`.
+7. **Add to CANVAS_SUPPORTED_TYPES** — `packages/crouton-editor-vue/src/canvas/type-swaps.ts`: add `'<type>'` to the `CANVAS_SUPPORTED_TYPES` Set.
+8. **Add Prisma mapping** (if applicable) — `packages/crouton-codegen/src/naming.ts`: add a `case '<PrismaType>':` in `fieldInputType`.
+9. **Add form-schema branch** (if options need forwarding) — `packages/crouton-core/src/lib/view/form-schema.builder.ts`: add an `else if` branch in `buildFormControl` before the generic `else`.
+10. **Create docs stub** — `docs/guide/2.resources/field-inputs/<type>.md` with `<!-- @include: ./_generated/<type>.md -->`, then add a row to `docs/guide/2.resources/field-inputs/index.md`.
+
+After all steps: `pnpm nx run crouton-core:build` + `pnpm nx run crouton-core:test`.
+
+## Adding a resource-level option
+
+1. Find the resource JSON schema — `packages/crouton-core/src/lib/resource/` (look for the relevant `*.schema.ts` or Column-level schema).
+2. Add the field to the Zod schema, then run `pnpm nx run crouton-core:build` to regenerate `packages/crouton-core/src/lib/resource/resource.schema*.json` and `docs/.vuepress/public/schema/crouton.schema.json`.
+3. If the API needs to read/forward the option, update `packages/crouton-api/src/lib/crud/adapter/` loader(s).
+4. Update or add a test in `packages/crouton-core/src/lib/view/form-schema.builder.spec.ts` (for UI-schema effects) or the relevant codegen spec.
+5. Verify no drift: `git diff packages/crouton-core/src/lib/resource/resource.schema*.json docs/.vuepress/public/schema/`.
 
 # Package Boundaries
 

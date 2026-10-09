@@ -27,6 +27,10 @@
     "build": {
       "dependsOn": ["build-agent-docs", "^build"]
     },
+    "scaffold-field-input": {
+      "command": "node scripts/scaffold-field-input.mjs {args.type}",
+      "options": { "cwd": "{workspaceRoot}" }
+    },
     "nx-release-publish": {
       "dependsOn": ["build"],
       "command": "npm publish --access public",

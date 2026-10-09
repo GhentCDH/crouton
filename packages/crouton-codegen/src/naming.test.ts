@@ -71,6 +71,25 @@ describe('fieldInputType', () => {
   });
 });
 
+// Verifies every known Prisma scalar type maps to a fieldInput type.
+// Fails if naming.ts:fieldInputType has a gap.
+describe('fieldInputType — complete Prisma scalar coverage', () => {
+  it.each<[string, string]>([
+    ['String',   'string'],
+    ['Int',      'number'],
+    ['BigInt',   'number'],
+    ['Float',    'number'],
+    ['Decimal',  'number'],
+    ['Boolean',  'boolean'],
+    ['DateTime', 'date'],
+    ['Json',     'json'],
+    // Bytes has no dedicated field input; falls through to the default 'string' renderer.
+    ['Bytes',    'string'],
+  ])('Prisma %s → fieldInput %s', (prismaType, expected) => {
+    expect(fieldInputType(prismaType, false)).toBe(expected);
+  });
+});
+
 describe('scalarFieldInputType', () => {
   it('defaults description string fields to textarea', () => {
     expect(scalarFieldInputType('description', 'String')).toBe('textarea');
