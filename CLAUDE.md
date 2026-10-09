@@ -56,6 +56,19 @@ Or for all packages: `pnpm nx run-many --target=lint`. Lint errors in CI are not
 
 After all steps: `pnpm nx run crouton-core:build` + `pnpm nx run crouton-core:test`.
 
+## Adding a new UI component to crouton-ui-vue
+
+After creating the component and exporting it from `packages/crouton-ui-vue/src/index.ts`:
+
+1. **Add to gallery component** — open `docs/.vuepress/components/ComponentGallery.vue`, import the component, and add a `<section>` demonstrating it with representative props.
+2. **Register in docs client** — open `docs/.vuepress/client.ts` and add:
+   ```ts
+   import MyNewDemo from './components/MyNewDemo.vue'; // if creating a separate demo file
+   app.component('MyNewDemo', MyNewDemo);
+   ```
+   For small additions, adding directly to `ComponentGallery.vue` is preferred over a separate file.
+3. **No sidebar change needed** — `docs/guide/components/index.md` already embeds `<ComponentGallery />` and the sidebar is auto-generated from the file system.
+
 ## Adding a resource-level option
 
 1. Find the resource JSON schema — `packages/crouton-core/src/lib/resource/` (look for the relevant `*.schema.ts` or Column-level schema).
