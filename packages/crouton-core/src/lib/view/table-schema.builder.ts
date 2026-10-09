@@ -1,4 +1,3 @@
-
 import {
   isBoolean,
   isDateRange,
@@ -7,7 +6,11 @@ import {
 } from './column-predicates';
 import { deriveSortId } from './sort.helpers';
 import type { JsonColumn } from '../resource/Column';
-import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '../table/table.builder';
+import {
+  BooleanCellBuilder,
+  TableBuilder,
+  TextCellBuilder,
+} from '../table/table.builder';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 
@@ -18,22 +21,37 @@ import { BooleanCellBuilder, TableBuilder, TextCellBuilder } from '../table/tabl
  * - `values` / `storeValue` — select options
  * - `uri` / `resourceUri` / `schemasUri` — injected resource references
  */
-const SHARED_CELL_OPTION_KEYS = ['values', 'storeValue', 'uri', 'resourceUri', 'schemasUri', 'customComponent'] as const;
+const SHARED_CELL_OPTION_KEYS = [
+  'values',
+  'storeValue',
+  'uri',
+  'resourceUri',
+  'schemasUri',
+  'customComponent',
+] as const;
 
 /** Pick the shared (form <-> table) option keys from a column's `fieldInput.options`. */
-export const pickSharedCellOptions = (col: JsonColumn): Record<string, unknown> => {
+export const pickSharedCellOptions = (
+  col: JsonColumn,
+): Record<string, unknown> => {
   const options = (col.fieldInput?.options ?? {}) as Record<string, unknown>;
   return Object.fromEntries(
-    SHARED_CELL_OPTION_KEYS.filter((key) => options[key] !== undefined).map((key) => [key, options[key]]),
+    SHARED_CELL_OPTION_KEYS.filter((key) => options[key] !== undefined).map(
+      (key) => [key, options[key]],
+    ),
   );
 };
 
 /** Build the TableBuilder UI schema — one TextCell / BooleanCell per visible column. */
-export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> => {
+export const buildTableUiSchema = (
+  cols: JsonColumn[],
+): Record<string, unknown> => {
   const layout = TableBuilder.init<any>()
     .addControls(
       ...cols.map((col) => {
-        const cellBuilder = isBoolean(col) ? BooleanCellBuilder : TextCellBuilder;
+        const cellBuilder = isBoolean(col)
+          ? BooleanCellBuilder
+          : TextCellBuilder;
         let builder = cellBuilder.properties<any>(col.id as keyof any);
         if (col.displayKey) builder = builder.key(col.displayKey);
         if (col.sortId) builder = builder.setSortId(col.sortId);
@@ -53,12 +71,16 @@ export const buildTableUiSchema = (cols: JsonColumn[]): Record<string, unknown> 
     // (format, fromField/toField, labels).
     const fieldInputOptions =
       isRecordCell(col) || isDateRange(col) || isObjectCell(col)
-        ? (col.fieldInput?.options as object ?? {})
+        ? ((col.fieldInput?.options as object) ?? {})
         : pickSharedCellOptions(col);
     const dataPathOption = col.column ? { dataPath: col.column } : {};
-    const derivedSortId = isRecordCell(col) || isDateRange(col) ? null : deriveSortId(col);
-    const sortOptions = derivedSortId ? { sortId: derivedSortId } : { sortable: false };
-    const relationTypeOption = col.fieldInput?.relationType ? { relationType: col.fieldInput.relationType } : {};
+    const derivedSortId = isDateRange(col) ? null : deriveSortId(col);
+    const sortOptions = derivedSortId
+      ? { sortId: derivedSortId }
+      : { sortable: false };
+    const relationTypeOption = col.fieldInput?.relationType
+      ? { relationType: col.fieldInput.relationType }
+      : {};
     return {
       ...el,
       options: {
