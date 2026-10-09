@@ -32,7 +32,7 @@ export default defineConfig({
         index: 'src/index.ts',
         testing: 'src/testing/index.ts',
       },
-      name: 'crouton-forms-vue',
+      name: 'crouton-ui-vue',
       fileName: (_format, entryName) => `${entryName}.js`,
       formats: ['es'],
     },
