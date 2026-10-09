@@ -7,6 +7,7 @@
     </div>
     <div class="navbar-center flex gap-2 items-center">
       <Input
+        data-testid="search-input"
         placeholder="Search..."
         v-model="searchQuery"
         size="sm"
