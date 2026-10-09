@@ -65,6 +65,11 @@
 @source '../crouton-ui-vue/src';
 @source './';
 
+/* Force-include all DaisyUI component classes used by crouton-ui-vue.
+   @source on external packages is not reliably picked up when building
+   this package in isolation, so we safelist them explicitly here. */
+@source inline("btn btn-xs btn-sm btn-lg btn-xl btn-square btn-circle btn-ghost btn-outline btn-soft btn-active btn-disabled btn-primary btn-secondary btn-accent btn-neutral btn-info btn-success btn-warning btn-error btn-link badge badge-xs badge-sm badge-lg badge-primary badge-secondary badge-accent badge-neutral badge-ghost badge-outline badge-info badge-success badge-warning badge-error menu menu-title modal modal-box loading loading-bars loading-xs alert alert-info alert-success alert-warning alert-error tooltip input select textarea label join divider collapse");
+
 /* Card */
 .card {
   @apply border border-gray-300;
@@ -150,3 +155,4 @@
     @apply text-neutral no-underline;
   }
 }
+
