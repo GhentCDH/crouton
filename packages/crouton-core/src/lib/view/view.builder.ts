@@ -1,4 +1,4 @@
-import { toJSONSchema, type ZodObject, type ZodRawShape } from 'zod';
+import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import { isRelation } from './column-predicates';
 import {
