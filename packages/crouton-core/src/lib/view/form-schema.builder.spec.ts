@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFormUiSchema } from './form-schema.builder';
+import { buildFormControl, buildFormUiSchema } from './form-schema.builder';
 import { JsonColumnSchema } from '../resource/Column';
 
 
@@ -56,5 +56,52 @@ describe('buildFormUiSchema (golden output)', () => {
 
   it('does not emit a rule for fields without conditions', () => {
     expect(byScope(uiSchema, 'name').rule).toBeUndefined();
+  });
+});
+
+describe('buildFormControl option forwarding', () => {
+  it('forwards date options (withTime, min, max, locale) into uischema', () => {
+    const col = JsonColumnSchema.parse({
+      id: 'start',
+      fieldInput: { type: 'date', options: { withTime: true, min: '2020-01-01', locale: 'nl-BE' } },
+    });
+    const built = buildFormControl(col).build() as any;
+    expect(built.options.format).toBe('date');
+    expect(built.options.withTime).toBe(true);
+    expect(built.options.min).toBe('2020-01-01');
+    expect(built.options.locale).toBe('nl-BE');
+  });
+
+  it('forwards autocomplete options including storeValue into uischema', () => {
+    const col = JsonColumnSchema.parse({
+      id: 'author',
+      fieldInput: { type: 'autocomplete', options: { resource: './author.resource.json', storeValue: true, labelKey: 'name' } },
+    });
+    const built = buildFormControl(col).build() as any;
+    expect(built.options.format).toBe('autocomplete');
+    // ponytail: unit test only; full round-trip (write→read→assert scalar) needs an API integration test
+    expect(built.options.storeValue).toBe(true);
+    expect(built.options.labelKey).toBe('name');
+  });
+
+  it('forwards select options into uischema via generic else branch', () => {
+    const col = JsonColumnSchema.parse({
+      id: 'status',
+      fieldInput: { type: 'select', options: { options: [{ label: 'Active', value: 'active' }] } },
+    });
+    const built = buildFormControl(col).build() as any;
+    expect(built.options.format).toBe('select');
+    expect(built.options.options).toEqual([{ label: 'Active', value: 'active' }]);
+  });
+
+  it('forwards date-range options into uischema', () => {
+    const col = JsonColumnSchema.parse({
+      id: 'period',
+      fieldInput: { format: 'date-range', options: { fromLabel: 'Start', toLabel: 'End' } },
+    });
+    const built = buildFormControl(col).build() as any;
+    expect(built.options.format).toBe('date-range');
+    expect(built.options.fromLabel).toBe('Start');
+    expect(built.options.toLabel).toBe('End');
   });
 });
