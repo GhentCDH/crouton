@@ -1,4 +1,4 @@
-import type { ShellMenu } from '@ghentcdh/ui';
+import type { ShellMenu } from '@ghentcdh/crouton-ui-vue';
 
 import { CROUTON_FORM } from '../router';
 

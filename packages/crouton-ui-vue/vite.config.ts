@@ -1,0 +1,55 @@
+/// <reference types='vitest' />
+import tailwindcss from '@tailwindcss/vite';
+import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import tsconfigPaths from 'vite-tsconfig-paths';
+
+import * as path from 'path';
+
+export default defineConfig({
+  root: __dirname,
+  cacheDir: '../../node_modules/.vite/packages/crouton-ui-vue',
+  plugins: [
+    vue(),
+    tailwindcss(),
+    tsconfigPaths(),
+    dts({
+      entryRoot: 'src',
+      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+      rollupTypes: true,
+    }),
+  ],
+  build: {
+    outDir: './dist',
+    emptyOutDir: true,
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+    lib: {
+      entry: {
+        index: 'src/index.ts',
+        testing: 'src/testing/index.ts',
+      },
+      name: 'crouton-forms-vue',
+      fileName: (_format, entryName) => `${entryName}.js`,
+      formats: ['es'],
+    },
+    rolldownOptions: {
+      external: [
+        '@jsonforms/core',
+        '@playwright/test',
+        'vee-validate',
+        'vue',
+        'vue-router',
+        'zod',
+      ],
+      output: {
+        globals: { vue: 'Vue' },
+        // Emit the compiled CSS as styles.css (matches the package export)
+        assetFileNames: 'styles[extname]',
+      },
+    },
+  },
+});

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { Btn } from '@ghentcdh/ui';
+import { Btn } from '@ghentcdh/crouton-ui-vue';
 
 import AddFieldMenu from './AddFieldMenu.vue';
 import CanvasDetailPanel from './CanvasDetailPanel.vue';
@@ -17,7 +17,7 @@ const emits = defineEmits<{
 
 const selectedCol = computed(() =>
   props.selectedFieldId
-    ? props.columns.find((c) => c.id === props.selectedFieldId) ?? null
+    ? (props.columns.find((c) => c.id === props.selectedFieldId) ?? null)
     : null,
 );
 </script>
@@ -69,7 +69,9 @@ const selectedCol = computed(() =>
 <style scoped>
 .slide-right-enter-active,
 .slide-right-leave-active {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 .slide-right-enter-from,
 .slide-right-leave-to {

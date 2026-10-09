@@ -6,9 +6,9 @@ import {
   ModalService,
   NotificationService,
   type TableAction,
-} from '@ghentcdh/ui';
+} from '@ghentcdh/crouton-ui-vue';
 
-import { CroutonForm, FormModal, JsonFormModalService  } from '../forms';
+import { CroutonForm, FormModal, JsonFormModalService } from '../forms';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';

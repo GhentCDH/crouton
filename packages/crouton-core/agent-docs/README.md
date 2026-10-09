@@ -47,6 +47,13 @@ Read this file to find the right doc for your task.
 | 5.tooling/cli.md | using the crouton CLI (update, validate, etc.) |
 | 5.tooling/resource-editor.md | using the resource editor UI |
 | 5.tooling/validator.md | understanding crouton validate output |
+| 6.recipes/add-enum-select.md | working with add enum select |
+| 6.recipes/add-relation.md | working with add relation |
+| 6.recipes/add-resource.md | working with add resource |
+| 6.recipes/common-mistakes.md | working with common mistakes |
+| 6.recipes/config-only-resource.md | working with config only resource |
+| 6.recipes/custom-field-input.md | working with custom field input |
+| 6.recipes/decision-tables.md | working with decision tables |
 | README.md | getting a high-level overview of the docs |
 | reference/crouton-json.md | editing or understanding crouton.json |
 | reference/endpoints.md | reference for REST endpoints |

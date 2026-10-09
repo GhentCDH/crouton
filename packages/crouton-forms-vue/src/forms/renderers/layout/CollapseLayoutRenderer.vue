@@ -4,12 +4,12 @@
       <div
         v-for="(child, i) in (uischema as Layout).elements"
         :key="i"
-        :class="[COLSPAN[(child as any).options?.colspan ?? 12], ROWSPAN[(child as any).options?.rowspan ?? 0]]"
+        :class="[
+          COLSPAN[(child as any).options?.colspan ?? 12],
+          ROWSPAN[(child as any).options?.rowspan ?? 0],
+        ]"
       >
-        <Dispatch
-          :uischema="child"
-          :schema="schema"
-        />
+        <Dispatch :uischema="child" :schema="schema" />
       </div>
     </div>
   </Collapse>
@@ -20,7 +20,7 @@ import type { JsonSchema, Layout, UISchemaElement } from '@jsonforms/core';
 import { useFieldValue } from 'vee-validate';
 import { computed, inject } from 'vue';
 
-import { Collapse } from '@ghentcdh/ui';
+import { Collapse } from '@ghentcdh/crouton-ui-vue';
 
 import { COLSPAN, ROWSPAN } from './colspan';
 import Dispatch from '../../Dispatch.vue';

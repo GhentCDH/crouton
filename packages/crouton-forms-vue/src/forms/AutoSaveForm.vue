@@ -81,7 +81,7 @@
  */
 import { onMounted, ref } from 'vue';
 
-import { Btn, Color } from '@ghentcdh/ui';
+import { Btn, Color } from '@ghentcdh/crouton-ui-vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import {
   FormModalEmits,

@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
 import { ResourceJsonEditor } from '@ghentcdh/crouton-editor-vue';
-import { Btn, Modal } from '@ghentcdh/ui';
+import { Btn, Modal } from '@ghentcdh/crouton-ui-vue';
 
 import { computedAsync } from '../utils/computedAsync';
 import { useApi } from '../composables/useApi';

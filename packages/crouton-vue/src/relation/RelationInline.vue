@@ -30,7 +30,12 @@
         @blur="onBlur"
         @create="onCreate"
       />
-      <Btn :icon="IconEnum.Plus" size="xs" @click="create" :disabled="!newValue">
+      <Btn
+        :icon="IconEnum.Plus"
+        size="xs"
+        @click="create"
+        :disabled="!newValue"
+      >
         Add
       </Btn>
     </div>
@@ -45,7 +50,7 @@ import {
   useHttpClient,
 } from '@ghentcdh/crouton-forms-vue';
 import { JsonFormModalService } from '../forms';
-import { Autocomplete, Btn, IconEnum } from '@ghentcdh/ui';
+import { Autocomplete, Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { computed, ref, useAttrs } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';

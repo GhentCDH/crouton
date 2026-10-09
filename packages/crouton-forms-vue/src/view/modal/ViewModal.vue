@@ -29,11 +29,7 @@
       <slot name="content-after" />
     </template>
     <template #actions>
-      <Btn
-        v-if="canEdit"
-        :aria-label="editLabel"
-        @click="onEditClick"
-      >
+      <Btn v-if="canEdit" :aria-label="editLabel" @click="onEditClick">
         {{ editLabel }}
       </Btn>
       <Btn
@@ -61,7 +57,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { Btn, Color, IconEnum, Modal } from '@ghentcdh/ui';
+import { Btn, Color, IconEnum, Modal } from '@ghentcdh/crouton-ui-vue';
 
 import { ViewModalEmits, ViewModalProperties } from './ViewModal.properties';
 import FormComponent from '../../forms/FormComponent.vue';

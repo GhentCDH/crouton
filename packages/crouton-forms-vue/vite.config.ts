@@ -38,7 +38,7 @@ export default defineConfig({
     },
     rolldownOptions: {
       external: [
-        '@ghentcdh/ui',
+        '@ghentcdh/crouton-ui-vue',
         '@jsonforms/core',
         '@playwright/test',
         'vee-validate',

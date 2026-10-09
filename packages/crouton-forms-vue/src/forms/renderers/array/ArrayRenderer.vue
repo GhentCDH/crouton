@@ -48,7 +48,7 @@ import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { useFieldArray } from 'vee-validate';
 import { computed, inject } from 'vue';
 
-import { Btn, IconEnum } from '@ghentcdh/ui';
+import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import Dispatch from '../../Dispatch.vue';
 import { resolveSchema, scopeToPath } from '../../scope';

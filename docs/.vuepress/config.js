@@ -11,14 +11,24 @@ export default defineUserConfig({
   title: 'Crouton',
   description:
     'Configure Resources Once, Use Them Over and Over, Naturally — schema-driven CRUD for NestJS + Vue',
-  pagePatterns: ['**/*.md', '!.vuepress', '!**/node_modules', '!**/_generated/**'],
+  pagePatterns: [
+    '**/*.md',
+    '!.vuepress',
+    '!**/node_modules',
+    '!**/_generated/**',
+  ],
   lastUpdated: true,
   bundler: viteBundler({
     viteOptions: {
       plugins: [tailwindcss()],
       build: {
         rollupOptions: {
-          external: ['@tiptap/vue-3', '@tiptap/starter-kit', '@tiptap/pm', 'tiptap-markdown'],
+          external: [
+            '@tiptap/vue-3',
+            '@tiptap/starter-kit',
+            '@tiptap/pm',
+            'tiptap-markdown',
+          ],
         },
       },
       resolve: {
@@ -41,6 +51,18 @@ export default defineUserConfig({
           '@ghentcdh/crouton-forms-vue': fileURLToPath(
             new URL(
               '../../packages/crouton-forms-vue/src/index.ts',
+              import.meta.url,
+            ),
+          ),
+          '@ghentcdh/crouton-ui-vue': fileURLToPath(
+            new URL(
+              '../../packages/crouton-ui-vue/src/index.ts',
+              import.meta.url,
+            ),
+          ),
+          '@ghentcdh/crouton-ui-vue/styles.css': fileURLToPath(
+            new URL(
+              '../../packages/crouton-ui-vue/src/styles.css',
               import.meta.url,
             ),
           ),

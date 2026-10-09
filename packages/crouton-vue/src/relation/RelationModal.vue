@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Btn, IconEnum, Modal } from '@ghentcdh/ui';
+import { Btn, IconEnum, Modal } from '@ghentcdh/crouton-ui-vue';
 import { computedAsync } from '../utils/computedAsync';
 import { useResources } from '../resource';
 import { TableComponent } from '@ghentcdh/crouton-forms-vue';
@@ -93,7 +93,11 @@ const id = Date.now();
 
         <div class="navbar-center" />
         <div class="navbar-end">
-          <Btn v-if="config.operations.create" :icon="IconEnum.Plus" @click="create">
+          <Btn
+            v-if="config.operations.create"
+            :icon="IconEnum.Plus"
+            @click="create"
+          >
             <span class="whitespace-nowrap"> Add record</span>
           </Btn>
         </div>
@@ -102,7 +106,7 @@ const id = Date.now();
     <template #content>
       <TableComponent
         v-if="resource"
-        v-bind="(resource as any)"
+        v-bind="resource as any"
         :id="`form_table_${id}`"
         :cell-renderers="customCellRenderers"
       />

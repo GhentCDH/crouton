@@ -1,11 +1,11 @@
 import type { PropType } from 'vue';
 
-import { ControlWrapperProperties } from '@ghentcdh/ui';
+import { ControlWrapperProperties } from '@ghentcdh/crouton-ui-vue';
 
 /**
  * Local copy of `ControlWrapper`'s prop contract.
  *
- * `@ghentcdh/ui` only started exporting `ControlWrapperProperties` in v2 — v1.1.1
+ * `@ghentcdh/crouton-ui-vue` only started exporting `ControlWrapperProperties` in v2 — v1.1.1
  * exports the `ControlWrapper` *component* but not its properties object. Against
  * v1 the import is `undefined`, so spreading it alone declared no props at all
  * and left `enabled` undefined, which rendered the control permanently disabled.

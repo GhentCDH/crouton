@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Btn } from '@ghentcdh/ui';
+import { Btn } from '@ghentcdh/crouton-ui-vue';
 
 import { FieldOptionsMenuProperties } from './FieldOptionsMenu.properties';
 

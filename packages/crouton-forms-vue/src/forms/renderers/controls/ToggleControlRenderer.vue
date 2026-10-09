@@ -6,7 +6,9 @@
         :key="optionValue(opt) ?? i"
         class="join-item"
         :size="(appliedOptions as any).size ?? 'sm'"
-        :color="isActive(opt) ? ((appliedOptions as any).color ?? 'primary') : 'blank'"
+        :color="
+          isActive(opt) ? ((appliedOptions as any).color ?? 'primary') : 'blank'
+        "
         :outline="!isActive(opt)"
         :disabled="wrapper.enabled === false"
         @click="onSelect(opt)"
@@ -21,7 +23,7 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
-import { Btn, ControlWrapper } from '@ghentcdh/ui';
+import { Btn, ControlWrapper } from '@ghentcdh/crouton-ui-vue';
 
 import { useSelectBinding } from './composables/useSelectBinding';
 
@@ -35,8 +37,12 @@ const {
   appliedOptions,
 } = useSelectBinding(props.uischema, props.schema);
 
-const labelKey = computed(() => (appliedOptions.value as any).labelKey ?? 'label');
-const valueKey = computed(() => (appliedOptions.value as any).valueKey ?? 'value');
+const labelKey = computed(
+  () => (appliedOptions.value as any).labelKey ?? 'label',
+);
+const valueKey = computed(
+  () => (appliedOptions.value as any).valueKey ?? 'value',
+);
 
 const toggleOptions = computed<any[]>(() => {
   const opts = appliedOptions.value as any;

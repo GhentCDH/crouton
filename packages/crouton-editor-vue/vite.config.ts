@@ -36,7 +36,13 @@ export default defineConfig({
       formats: ['es'],
     },
     rolldownOptions: {
-      external: ['@ghentcdh/crouton-forms-vue', '@ghentcdh/ui', 'vue', 'vuedraggable', 'zod'],
+      external: [
+        '@ghentcdh/crouton-forms-vue',
+        '@ghentcdh/crouton-ui-vue',
+        'vue',
+        'vuedraggable',
+        'zod',
+      ],
       output: {
         globals: { vue: 'Vue' },
         // Emit the compiled CSS as styles.css (matches the package export)

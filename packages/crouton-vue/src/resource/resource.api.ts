@@ -1,4 +1,4 @@
-import { NotificationService } from '@ghentcdh/ui';
+import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';

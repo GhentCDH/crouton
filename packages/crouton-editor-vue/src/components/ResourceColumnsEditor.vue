@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue';
 
-import { Btn, Checkbox, IconEnum, Input } from '@ghentcdh/ui';
+import { Btn, Checkbox, IconEnum, Input } from '@ghentcdh/crouton-ui-vue';
 
 const FormCanvasEditor = defineAsyncComponent(
   () => import('../canvas/FormCanvasEditor.vue'),
@@ -60,11 +60,18 @@ watch(
 
 <template>
   <div class="flex flex-col gap-3">
-    <div role="tablist" class="flex gap-1 rounded-lg bg-base-200 p-1 text-sm w-fit">
+    <div
+      role="tablist"
+      class="flex gap-1 rounded-lg bg-base-200 p-1 text-sm w-fit"
+    >
       <button
         role="tab"
         class="rounded-md px-3 py-1.5 font-medium transition-colors"
-        :class="viewMode === 'table' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
+        :class="
+          viewMode === 'table'
+            ? 'bg-base-100 shadow-sm'
+            : 'hover:bg-base-300/50'
+        "
         @click="viewMode = 'table'"
       >
         Table
@@ -72,29 +79,50 @@ watch(
       <button
         role="tab"
         class="rounded-md px-3 py-1.5 font-medium transition-colors"
-        :class="viewMode === 'visual-form' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
+        :class="
+          viewMode === 'visual-form'
+            ? 'bg-base-100 shadow-sm'
+            : 'hover:bg-base-300/50'
+        "
         @click="viewMode = 'visual-form'"
       >
         Form
-        <span class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content">beta</span>
+        <span
+          class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content"
+          >beta</span
+        >
       </button>
       <button
         role="tab"
         class="rounded-md px-3 py-1.5 font-medium transition-colors"
-        :class="viewMode === 'visual-view' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
+        :class="
+          viewMode === 'visual-view'
+            ? 'bg-base-100 shadow-sm'
+            : 'hover:bg-base-300/50'
+        "
         @click="viewMode = 'visual-view'"
       >
         View
-        <span class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content">beta</span>
+        <span
+          class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content"
+          >beta</span
+        >
       </button>
       <button
         role="tab"
         class="rounded-md px-3 py-1.5 font-medium transition-colors"
-        :class="viewMode === 'visual-table' ? 'bg-base-100 shadow-sm' : 'hover:bg-base-300/50'"
+        :class="
+          viewMode === 'visual-table'
+            ? 'bg-base-100 shadow-sm'
+            : 'hover:bg-base-300/50'
+        "
         @click="viewMode = 'visual-table'"
       >
         Columns
-        <span class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content">beta</span>
+        <span
+          class="ml-1.5 inline-flex items-center rounded-full bg-warning px-1.5 py-0.5 text-xs text-warning-content"
+          >beta</span
+        >
       </button>
     </div>
 

@@ -21,10 +21,7 @@
         @change-filters="onChangeFilters"
       />
 
-      <div
-        v-if="actions"
-        class="flex gap-2"
-      >
+      <div v-if="actions" class="flex gap-2">
         <Btn
           v-for="action in actions"
           :key="action.label ?? action.tooltip"
@@ -50,7 +47,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { Btn, Input } from '@ghentcdh/ui';
+import { Btn, Input } from '@ghentcdh/crouton-ui-vue';
 
 import TableFilter from './filter/TableFilter.vue';
 

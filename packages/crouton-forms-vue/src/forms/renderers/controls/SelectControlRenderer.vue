@@ -15,7 +15,7 @@ import { useFormContext } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 
 import type { AutocompleteAllOptions } from '@ghentcdh/crouton-core';
-import { SelectComponent } from '@ghentcdh/ui';
+import { SelectComponent } from '@ghentcdh/crouton-ui-vue';
 
 import { useFetchOptions } from './composables/useFetchOption';
 import { useSelectBinding } from './composables/useSelectBinding';

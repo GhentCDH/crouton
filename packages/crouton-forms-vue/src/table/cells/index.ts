@@ -1,7 +1,7 @@
 import type { Component } from 'vue';
 
 import type { TextCellType } from '@ghentcdh/crouton-core';
-import { BooleanCell, TextCell } from '@ghentcdh/ui';
+import { BooleanCell, TextCell } from '@ghentcdh/crouton-ui-vue';
 
 import TableCellRender from '../TableCellRender.vue';
 

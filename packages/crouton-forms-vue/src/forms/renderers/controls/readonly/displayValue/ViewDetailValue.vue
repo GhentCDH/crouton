@@ -7,16 +7,13 @@
   >
     <span class="px-2 flex gap-2 items-center">
       <span class="truncate">{{ displayValue }}</span>
-      <Icon
-        :icon="IconEnum.View"
-        size="sm"
-      />
+      <Icon :icon="IconEnum.View" size="sm" />
     </span>
   </Btn>
 </template>
 
 <script setup lang="ts">
-import { Btn, Icon, IconEnum } from '@ghentcdh/ui';
+import { Btn, Icon, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import { DisplayValueProperties } from './displayValue.properties';
 import { useFormEvents } from '../../../../../composables/useFormEvents';

@@ -6,7 +6,7 @@ import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { computedAsync } from '../utils/computedAsync';
 import { useCrouton } from '../composables/useCrouton';
 
-import { Btn, IconEnum } from '@ghentcdh/ui';
+import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { useResources } from './useResources';
 import { Request } from '../utils/request';
 import ResourceSchemaEditor from './ResourceSchemaEditor.vue';

@@ -16,12 +16,9 @@
   />
 </template>
 <script setup lang="ts">
-import {
-  useFetchOptions,
-  useHttpClient,
-} from '@ghentcdh/crouton-forms-vue';
+import { useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
 import { JsonFormModalService } from '../forms';
-import { Autocomplete } from '@ghentcdh/ui';
+import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 import { computed, ref, watch } from 'vue';
 import { computedAsync } from '../utils/computedAsync';
 import { RelationAutocompleteProperties } from './RelationAutocomplete.properties';
@@ -64,7 +61,12 @@ const displayValue = ref<any>(props.value);
 const hydrateDisplayValue = async (val: unknown) => {
   const config = fetchOptions.value;
 
-  if (val === null || val === undefined || val === '' || typeof val === 'object') {
+  if (
+    val === null ||
+    val === undefined ||
+    val === '' ||
+    typeof val === 'object'
+  ) {
     displayValue.value = val;
     return;
   }
@@ -92,11 +94,9 @@ const hydrateDisplayValue = async (val: unknown) => {
   displayValue.value = record ?? val;
 };
 
-watch(
-  [() => props.value, fetchOptions],
-  ([val]) => hydrateDisplayValue(val),
-  { immediate: true },
-);
+watch([() => props.value, fetchOptions], ([val]) => hydrateDisplayValue(val), {
+  immediate: true,
+});
 
 const extractValue = (selected: unknown): unknown => {
   if (!selected || typeof selected !== 'object') return selected;

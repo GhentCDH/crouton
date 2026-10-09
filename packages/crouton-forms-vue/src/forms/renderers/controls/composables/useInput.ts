@@ -2,7 +2,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
 import { computed, inject, ref } from 'vue';
 
-import { type MyStyles, mergeStyles } from '@ghentcdh/ui';
+import { type MyStyles, mergeStyles } from '@ghentcdh/crouton-ui-vue';
 
 import { formatError } from '../../../errorMessages';
 import {

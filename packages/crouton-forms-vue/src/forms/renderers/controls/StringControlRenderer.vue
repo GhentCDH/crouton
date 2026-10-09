@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
-import { Input } from '@ghentcdh/ui';
+import { Input } from '@ghentcdh/crouton-ui-vue';
 
 import { useControlBinding } from './composables/useControlBinding';
 
@@ -15,12 +15,7 @@ const { wrapper, value, onBlur, onChange, isValidating } = useControlBinding(
 </script>
 
 <template>
-  <Input
-    v-bind="wrapper"
-    v-model="value"
-    @blur="onBlur"
-    @change="onChange"
-  />
+  <Input v-bind="wrapper" v-model="value" @blur="onBlur" @change="onChange" />
   <span v-if="isValidating" class="text-xs text-gray-400 mt-1 block">
     Checking availability…
   </span>

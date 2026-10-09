@@ -72,13 +72,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { Btn, Color, Modal } from '@ghentcdh/ui';
+import { Btn, Color, Modal } from '@ghentcdh/crouton-ui-vue';
 import {
   FormModalEmits,
   FormModalProperties,
+  provideUniqueCheck,
   useFormLogic,
 } from '@ghentcdh/crouton-forms-vue';
-import { provideUniqueCheck } from '@ghentcdh/crouton-forms-vue';
 
 import FormComponent from '../FormComponent.vue';
 

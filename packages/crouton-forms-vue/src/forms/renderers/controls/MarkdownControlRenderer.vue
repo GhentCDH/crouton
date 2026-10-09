@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
-import { Markdown } from '@ghentcdh/ui';
+import { Markdown } from '@ghentcdh/crouton-ui-vue';
 
 import { useControlBinding } from './composables/useControlBinding';
 

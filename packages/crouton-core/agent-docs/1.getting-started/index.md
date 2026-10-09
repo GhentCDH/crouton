@@ -1,3 +1,7 @@
+---
+description: Scaffold a new Crouton project with create-crouton, or add Crouton to an existing NestJS + Vue app using add-crouton.
+---
+
 # Getting started
 
 > Last verified against crouton `0.0.1-alpha.81`

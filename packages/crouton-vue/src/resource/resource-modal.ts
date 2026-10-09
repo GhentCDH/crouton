@@ -6,7 +6,7 @@ import {
   type UniqueCheckFn,
   createRepository,
 } from '@ghentcdh/crouton-forms-vue';
-import { NotificationService } from '@ghentcdh/ui';
+import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 import { useApi } from '../composables/useApi';
 import { type FormDef, useCrouton } from '../composables/useCrouton';
@@ -80,8 +80,14 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
 export const handleFormEvents = (payload: FormEventPayload) => {
   switch (payload.event) {
     case 'create':
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      openFormModal(payload.type, { ...payload, onSuccess: payload.onSuccess ?? (() => {}) });
+      openFormModal(payload.type, {
+        ...payload,
+        onSuccess:
+          payload.onSuccess ??
+          (() => {
+            //
+          }),
+      });
       break;
     // case 'update': ... (when added to FormEventName)
     // case 'delete': ...

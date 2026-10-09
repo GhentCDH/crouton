@@ -30,10 +30,7 @@
       :clearable="true"
       @update:model-value="update('value', $event)"
     />
-    <div
-      v-else
-      class="flex-1 min-w-0"
-    />
+    <div v-else class="flex-1 min-w-0" />
     <Btn
       :icon="IconEnum.Delete"
       size="xs"
@@ -57,7 +54,12 @@ import {
   OperatorsByType,
   type OperatorType,
 } from '@ghentcdh/crouton-core';
-import { Btn, IconEnum, Input, SelectComponent } from '@ghentcdh/ui';
+import {
+  Btn,
+  IconEnum,
+  Input,
+  SelectComponent,
+} from '@ghentcdh/crouton-ui-vue';
 
 export type EnumValue = { value: unknown; label: string };
 
@@ -100,8 +102,15 @@ const onFieldChange = (key: string) => {
   const type = field?.type ?? 'string';
   const validOps = OperatorsByType[type];
   const currentOp = props.modelValue.operator;
-  const op: OperatorType = validOps.includes(currentOp) ? currentOp : validOps[0];
-  emit('update:modelValue', { ...props.modelValue, key, operator: op, value: '' });
+  const op: OperatorType = validOps.includes(currentOp)
+    ? currentOp
+    : validOps[0];
+  emit('update:modelValue', {
+    ...props.modelValue,
+    key,
+    operator: op,
+    value: '',
+  });
 };
 
 /** When switching to a no-value operator, clear the value field. */
