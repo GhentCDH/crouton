@@ -1,3 +1,4 @@
+Status: planned
 # Create-Crouton — "Create a New Project" Improvement Plan
 
 Goal: make `create-crouton` scaffold a project that is as close as possible to a

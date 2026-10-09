@@ -1,3 +1,4 @@
+Status: planned
 # Plan: docs improvement
 
 Audit date: 2026-10-07 (against `2869659`, 0.0.1-alpha.80). Scope: `docs/guide`, root `README.md`, `packages/*/docs`, `packages/crouton-prisma/README.md`, the demo components.

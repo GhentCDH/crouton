@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "colspan": {
       "description": "Grid column span (1–12)",
@@ -30,7 +34,8 @@
         6,
         12
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -38,7 +43,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -51,32 +57,37 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "customRender": {
       "description": "Name of a globally registered Vue component to render instead of the default input",
       "examples": [
         "MyCustomInput"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "withTime": {
       "description": "Force time input on/off, overrides format detection",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Force time input on/off, overrides format detection\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "min": {
       "description": "Earliest selectable date (ISO 8601 or yyyy-MM-dd)",
       "examples": [
         "2020-01-01"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Earliest selectable date (ISO 8601 or yyyy-MM-dd)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "max": {
       "description": "Latest selectable date (ISO 8601 or yyyy-MM-dd)",
       "examples": [
         "2099-12-31"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Latest selectable date (ISO 8601 or yyyy-MM-dd)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "locale": {
       "default": "en-GB",
@@ -85,7 +96,8 @@
         "en-GB",
         "nl-BE"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "BCP-47 locale for month heading and weekday labels\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     },
     "firstDayOfWeek": {
       "default": 1,
@@ -94,11 +106,13 @@
         0,
         1
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "First day of the week: 0 = Sunday, 1 = Monday\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: date",
   "description": "Options for the date picker (and dateTime alias)",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date.field-input.schema.json",
+  "markdownDescription": "Options for the date picker (and dateTime alias)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
 }

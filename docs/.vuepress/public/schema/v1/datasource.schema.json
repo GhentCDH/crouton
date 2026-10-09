@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.",
+      "type": "string",
+      "markdownDescription": "URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Datasource name. Matches the folder name and the \"name\" field in data-source.json.",
+      "markdownDescription": "Datasource name. Matches the folder name and the \"name\" field in data-source.json.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "urlEnv": {
+      "description": "Environment variable holding the database connection URL. Required for Prisma adapters; optional for custom adapters that use a different connection config (secrets file, SDK key, etc.).",
+      "type": "string",
+      "markdownDescription": "Environment variable holding the database connection URL. Required for Prisma adapters; optional for custom adapters that use a different connection config (secrets file, SDK key, etc.).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "generatedTypesImport": {
+      "description": "Import path for this datasource's generated Zod types, used in resource schema.ts files. Defaults to \"@your-scope/generated/<name>\".",
+      "type": "string",
+      "markdownDescription": "Import path for this datasource's generated Zod types, used in resource schema.ts files. Defaults to \"@your-scope/generated/<name>\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "type": {
+      "default": "postgres",
+      "description": "Datasource type tag used for codegen hints. Default \"postgres\".",
+      "type": "string",
+      "markdownDescription": "Datasource type tag used for codegen hints. Default \"postgres\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "default": {
+      "default": false,
+      "description": "Mark this as the default datasource. Default false. Exactly one datasource should set this to true.",
+      "type": "boolean",
+      "markdownDescription": "Mark this as the default datasource. Default false. Exactly one datasource should set this to true.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "adapter": {
+      "default": "prisma",
+      "description": "\"prisma\" (default) expects index.ts to default-export a PrismaClient. \"custom\" expects it to default-export a DataSourceAdapter. Use \"custom\" for non-Prisma data sources instead of kind:\"custom\" on the resource.",
+      "type": "string",
+      "enum": [
+        "prisma",
+        "custom"
+      ],
+      "markdownDescription": "\"prisma\" (default) expects index.ts to default-export a PrismaClient. \"custom\" expects it to default-export a DataSourceAdapter. Use \"custom\" for non-Prisma data sources instead of kind:\"custom\" on the resource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "prismaSchema": {
+      "description": "Path to the Prisma schema file, relative to the project root. Defaults to \"prisma/<name>/schema.prisma\".",
+      "type": "string",
+      "markdownDescription": "Path to the Prisma schema file, relative to the project root. Defaults to \"prisma/<name>/schema.prisma\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "prismaConfig": {
+      "description": "Path to the Prisma config file, relative to the project root. Defaults to \"prisma/<name>/prisma.config.ts\".",
+      "type": "string",
+      "markdownDescription": "Path to the Prisma config file, relative to the project root. Defaults to \"prisma/<name>/prisma.config.ts\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "zodOutput": {
+      "description": "zod-prisma-types output directory, relative to the project root. Defaults to \"generated/<name>/src\".",
+      "type": "string",
+      "markdownDescription": "zod-prisma-types output directory, relative to the project root. Defaults to \"generated/<name>/src\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "clientOutput": {
+      "description": "Prisma client output directory, relative to the project root. Defaults to \"generated/<name>/client\".",
+      "type": "string",
+      "markdownDescription": "Prisma client output directory, relative to the project root. Defaults to \"generated/<name>/client\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/datasource.schema.json",
+  "title": "Crouton data-source.json",
+  "description": "Generated from DataSourceShape (crouton-core). Do not edit by hand.",
+  "examples": [
+    {
+      "name": "default",
+      "type": "postgres",
+      "urlEnv": "DATABASE_URL",
+      "default": true,
+      "adapter": "prisma"
+    }
+  ],
+  "markdownDescription": "Generated from DataSourceShape (crouton-core). Do not edit by hand.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+}

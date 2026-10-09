@@ -18,6 +18,13 @@
         "command": "vuepress build docs"
       }
     },
+    "build-llms": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node tools/doc/build-llms.mjs"
+      }
+    },
     "serve": {
       "executor": "nx:run-commands",
       "dependsOn": ["build:menu"],

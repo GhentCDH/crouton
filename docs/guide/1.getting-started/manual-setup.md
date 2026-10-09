@@ -1,3 +1,7 @@
+---
+description: Step-by-step guide to add Crouton to an existing NestJS project without using the CLI scaffolding tools.
+---
+
 # Manual setup
 
 Add crouton to an existing NestJS project without using the CLI scaffolding tools (`create-crouton` or `add-crouton`).

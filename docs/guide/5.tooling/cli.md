@@ -1,3 +1,7 @@
+---
+description: Reference for the Crouton CLI — crouton.json config, crouton create-datasource, and crouton update resources to keep resource.json files in sync with the database schema.
+---
+
 # CLI & project config
 
 The `crouton` CLI keeps your `resource.json` files in sync with your database. It introspects a datasource's Prisma

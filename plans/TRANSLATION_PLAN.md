@@ -1,3 +1,4 @@
+Status: planned
 # Translation / i18n Plan
 
 Goal: translate everything the admin UI shows — column labels, resource titles,

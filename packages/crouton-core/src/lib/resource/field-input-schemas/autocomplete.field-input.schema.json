@@ -446,5 +446,6 @@
   ],
   "title": "Crouton fieldInput options: autocomplete",
   "description": "Autocomplete options: inline array, remote URI, or resource reference",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/autocomplete.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/autocomplete.field-input.schema.json",
+  "markdownDescription": "Autocomplete options: inline array, remote URI, or resource reference\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/autocomplete)"
 }

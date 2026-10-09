@@ -5,6 +5,28 @@
   "sourceRoot": "packages/crouton-core/src",
   "tags": ["scope:crouton", "type:util", "tech:typescript", "platform:shared"],
   "targets": {
+    "check-schema-coverage": {
+      "dependsOn": ["build"],
+      "command": "node scripts/check-schema-coverage.mjs",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
+    "build-agent-docs": {
+      "command": "node tools/doc/build-agent-docs.mjs",
+      "options": {
+        "cwd": "{workspaceRoot}"
+      },
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/guide/**/*.md",
+        "{workspaceRoot}/tools/doc/build-agent-docs.mjs"
+      ],
+      "outputs": ["{projectRoot}/agent-docs"]
+    },
+    "build": {
+      "dependsOn": ["build-agent-docs", "^build"]
+    },
     "nx-release-publish": {
       "dependsOn": ["build"],
       "command": "npm publish --access public",

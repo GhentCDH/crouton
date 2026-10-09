@@ -1,3 +1,4 @@
+Status: planned
 # `npx create-crouton-app` — Implementation Plan
 
 Goal: turn the `create-crouton-app` placeholder into an interactive scaffolder that creates a runnable crouton project

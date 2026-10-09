@@ -1,3 +1,4 @@
+Status: planned
 # Live `resource.json` Validation in the Docs — Plan
 
 ## Goal

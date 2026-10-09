@@ -23,15 +23,9 @@ import { z } from 'zod';
  * from relation columns on the parent instead — see `buildSubResources`.
  */
 export const ParentRefSchema = z.object({
-  /** Route segment of the parent, e.g. `"group"`. */
-  route: z.string(),
-  /**
-   * Name of the path parameter carrying the parent id, e.g. `"groupId"`.
-   * Avoid `"id"` — that is the child's own id in `/:id` routes.
-   */
-  param: z.string().default('parentId'),
-  /** Type of the parent id, used to coerce the path param. Defaults to `'string'`. */
-  idType: z.enum(['string', 'number']).optional(),
+  route: z.string().describe('Route segment of the parent resource, e.g. "group". The child mounts at <parent.route>/:<parent.param>/<route>.'),
+  param: z.string().default('parentId').describe('Path parameter name carrying the parent id (e.g. "groupId"). Avoid "id" — that is the child\'s own id in /:id routes.'),
+  idType: z.enum(['string', 'number']).optional().describe('Type of the parent id, used to coerce the path param. Defaults to "string".'),
 });
 
 export type ParentRef = z.infer<typeof ParentRefSchema>;

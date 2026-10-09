@@ -1,3 +1,4 @@
+Status: planned
 # Plan: feat/authentication
 
 Add per-operation authentication and role-based access control to crouton.

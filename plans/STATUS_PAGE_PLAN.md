@@ -1,3 +1,4 @@
+Status: planned
 # Status Page Redesign Plan
 
 Goal: turn `GET /crouton/status.json` into a frontend page where **what goes wrong is visible at a glance** — problems first, details second, raw JSON as a fallback. Tailwind only (using the daisyUI theme tokens already exposed in `crouton-vue/src/styles.css`).

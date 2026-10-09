@@ -15,51 +15,46 @@ export const RelationType = z.enum([
 export type RelationType = z.infer<typeof RelationType>;
 
 export const DetailControlSchema = z.object({
-  property: z.string(), // required
-  type: z.string().optional(), // default: 'text'
-  options: z.record(z.string(), z.unknown()).optional(),
-  hideLabel: z.boolean().optional(), // default: false
-  width: z.string().optional(),
+  property: z.string().describe('Field property key within the array item object.'),
+  type: z.string().optional().describe('Renderer type for this detail control. Defaults to "text".'),
+  options: z.record(z.string(), z.unknown()).optional().describe('Renderer-specific options for this control.'),
+  hideLabel: z.boolean().optional().describe('When true, the label is hidden for this control.'),
+  width: z.string().optional().describe('CSS width of this control in the detail layout (e.g. "200px" or "30%").'),
 });
 
 export type DetailControl = z.infer<typeof DetailControlSchema>;
 
 export const DetailConfigSchema = z.object({
-  layout: z.enum(['collapse', 'row']), // required
-  titleKey: z.string().optional(),
-  controls: z.array(DetailControlSchema), // required
+  layout: z.enum(['collapse', 'row']).describe('Layout style for the nested array detail. "collapse" shows items in a collapsible section; "row" shows them inline.'),
+  titleKey: z.string().optional().describe('Property key used as the heading for each array item in "collapse" mode.'),
+  controls: z.array(DetailControlSchema).describe('Controls to render for each array item. Each control maps to a property of the item object.'),
 });
 
 export type DetailConfig = z.infer<typeof DetailConfigSchema>;
 export const FieldInputSchema = z.object({
-  $schema: z.string().optional(),
-  type: z.string().optional(),
-  customRender: z.string().optional(),
+  $schema: z.string().optional().describe('JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.'),
+  type: z.string().optional().describe(
+    'Field input type — determines which renderer and options schema apply. ' +
+    'Known values: "string" (text), "textarea" (multi-line text), "markdown" (markdown editor), ' +
+    '"number" (decimal), "Integer" (whole number), "boolean" (checkbox), "toggle" (toggle switch), ' +
+    '"select" (single-select dropdown), "multiSelect" (multi-select), "autocomplete" (relation lookup), ' +
+    '"date" (date picker), "dateTime" (date+time picker), "date-range" (date range), ' +
+    '"relation" (sub-resource table), "array" (array editor), "custom" (custom renderer). ' +
+    'Use "fieldInput.type" to override the display format derived from "columns[*].format".',
+  ),
+  customRender: z.string().optional().describe('Import path to a custom Vue component used as the field renderer. Only used when type is "custom".'),
 
-  /**
-   * Render format hint for the frontend (e.g. `"relation"` for sub-resource
-   * relations). When `format` is `"relation"`, `resource` must also be set.
-   */
-  format: z.string().optional(), // 'relation' triggers relation handling; requires `resource`
-  /**
-   * Relative path to the child resource definition, e.g. `"./author.resource"`.
-   * Only used when `format` is `"relation"`. Resolved at load time to inject
-   * sub-resource URIs into `options`.
-   */
-  resource: z.string().optional(), // required when format === 'relation'
-  /**
-   * Cardinality of the relation. Used by the frontend to determine the correct
-   * renderer and behaviour (e.g. single-select vs multi-select).
-   * - `manyToOne` / `oneToOne`   — single FK reference (autocomplete / relation control)
-   * - `oneToMany` / `manyToMany` — collection (sub-resource table / multi-select)
-   */
-  relationType: RelationType.optional(), // auto-derived from the Zod model/sibling FK column if omitted
-  /** FK field on the child model pointing back to the parent, e.g. `"workId"`. Defaults to `${parentModel}Id`. */
-  foreignKey: z.string().optional(),
-  /** Override the Prisma relation field name when it differs from the column id. */
-  relation: z.string().optional(),
-  /** Override the display order in form views. Lower values come first. */
-  position: z.number().optional(), // default: source order
+  format: z.string().optional().describe('Render format hint for the frontend. Use "relation" for sub-resource relations (requires "resource"). The display format; determines which field input is used. Use "fieldInput.type" to override.'),
+  resource: z.string().optional().describe('Relative path to the child resource definition (e.g. "./author.resource"). Required when format is "relation". Resolved at load time to inject sub-resource URIs into options.'),
+  relationType: RelationType.optional().describe(
+    'Cardinality of the relation. ' +
+    '"manyToOne" or "oneToOne" — single FK reference rendered as autocomplete or relation control. ' +
+    '"oneToMany" or "manyToMany" — collection rendered as a sub-resource table or multi-select. ' +
+    'Auto-derived from the Zod model or a sibling FK column when omitted.',
+  ),
+  foreignKey: z.string().optional().describe('FK field on the child model pointing back to the parent (e.g. "workId"). Defaults to "${parentModel}Id".'),
+  relation: z.string().optional().describe('Override the Prisma relation field name when it differs from the column id.'),
+  position: z.number().optional().describe('Override the display order in form views. Lower values come first. Defaults to source order.'),
   /**
    * Value to pre-fill this field with on the create form. Injected into the
    * generated form view's JSON Schema as `properties[id].default`, which
@@ -72,10 +67,9 @@ export const FieldInputSchema = z.object({
    * - `"$today"` — current date ISO string (date only, e.g. `"2025-03-14"`)
    * - `"$user"` — current user object (requires `defaults: { '$user': ... }` on `CroutonPlugin` config, or `useCrouton().setDefault('$user', ...)`)
    */
-  defaultValue: z.unknown().optional(),
-  options: z.union([RelationOptionsSchema, z.unknown()]).optional(),
-  /** Nested array detail layout (renders via `detailFixed`). */
-  detail: DetailConfigSchema.optional(),
+  defaultValue: z.unknown().optional().describe('Value to pre-fill this field with on the create form. Supports dynamic tokens: "$now" (current datetime), "$today" (current date), "$user" (current user object). Not applicable to format:"relation" fields.'),
+  options: z.union([RelationOptionsSchema, z.unknown()]).optional().describe('Type-specific options for the field input. Shape depends on "type" — see the field-input-specific JSON Schema ($schema) for the full options contract.'),
+  detail: DetailConfigSchema.optional().describe('Nested array detail layout configuration. Renders via the detailFixed renderer.'),
 });
 
 export type FieldInput = z.infer<typeof FieldInputSchema>;

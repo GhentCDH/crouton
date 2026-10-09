@@ -1,3 +1,4 @@
+Status: planned
 # File upload control — implementation plan
 
 **Goal**: a `file` control renderer (single + multiple, drag & drop, progress) whose value is a structured object.

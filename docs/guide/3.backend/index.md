@@ -1,3 +1,7 @@
+---
+description: How to register the CroutonModule in a NestJS application, configure data sources, and wire up the Crouton resource registry.
+---
+
 # Backend setup
 
 > Last verified against crouton `0.0.1-alpha.81`

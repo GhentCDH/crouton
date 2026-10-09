@@ -1,3 +1,4 @@
+Status: planned
 # Feature Request: Per-operation authentication & role-based access control
 
 **Package:** `crouton-api` / `crouton-core`

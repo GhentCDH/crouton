@@ -1,3 +1,4 @@
+Status: planned
 # CRUD Operations Tests Plan — generated endpoints over real HTTP + real database
 
 ## Goal

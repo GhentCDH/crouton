@@ -1,3 +1,4 @@
+Status: planned
 # Unique Async Validation Plan
 
 Let a column declare `unique: true` (e.g. an email) so that, while the user

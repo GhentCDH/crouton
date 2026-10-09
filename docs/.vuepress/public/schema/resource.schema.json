@@ -3,132 +3,184 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string"
+      "description": "URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.",
+      "type": "string",
+      "markdownDescription": "URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "schemaVersion": {
+      "description": "resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.",
       "type": "integer",
       "exclusiveMinimum": 0,
-      "maximum": 9007199254740991
+      "maximum": 9007199254740991,
+      "markdownDescription": "resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "draft": {
       "default": false,
-      "type": "boolean"
+      "description": "When true, the resource is present in the repo but NOT loaded or served. Use for work-in-progress resources.",
+      "type": "boolean",
+      "markdownDescription": "When true, the resource is present in the repo but NOT loaded or served. Use for work-in-progress resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "kind": {
       "default": "prisma",
+      "description": "Where the resource's data comes from. \"prisma\" (default) is backed by a Prisma model and a schema.ts; \"custom\" is configuration-only — supply a repository.ts and use the data source \"adapter\" field for non-Prisma sources. Use \"custom\" only for config-only resources; for a non-Prisma data source prefer the data source adapter instead.",
       "type": "string",
       "enum": [
         "prisma",
         "custom"
-      ]
+      ],
+      "markdownDescription": "Where the resource's data comes from. \"prisma\" (default) is backed by a Prisma model and a schema.ts; \"custom\" is configuration-only — supply a repository.ts and use the data source \"adapter\" field for non-Prisma sources. Use \"custom\" only for config-only resources; for a non-Prisma data source prefer the data source adapter instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "description": "Unique resource identifier. Used as the frontend form id and as the default route/id when those are not explicitly set.",
+      "markdownDescription": "Unique resource identifier. Used as the frontend form id and as the default route/id when those are not explicitly set.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "route": {
-      "type": "string"
+      "description": "URL segment for generated API endpoints. Defaults to \"name\" when omitted.",
+      "type": "string",
+      "markdownDescription": "URL segment for generated API endpoints. Defaults to \"name\" when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "id": {
-      "type": "string"
+      "description": "Internal resource id used in frontend routing. Defaults to \"name\" when omitted.",
+      "type": "string",
+      "markdownDescription": "Internal resource id used in frontend routing. Defaults to \"name\" when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "model": {
-      "type": "string"
+      "description": "Prisma model name. Required when kind is \"prisma\"; must be absent when kind is \"custom\".",
+      "type": "string",
+      "markdownDescription": "Prisma model name. Required when kind is \"prisma\"; must be absent when kind is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "tag": {
       "default": "Crouton",
-      "type": "string"
+      "description": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".",
+      "type": "string",
+      "markdownDescription": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "title": {
-      "type": "string"
+      "description": "Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of \"name\".",
+      "type": "string",
+      "markdownDescription": "Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of \"name\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "table": {
-      "type": "string"
+      "description": "Database table name override. Defaults to the Prisma model's table name.",
+      "type": "string",
+      "markdownDescription": "Database table name override. Defaults to the Prisma model's table name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "idType": {
+      "description": "Data type of the resource's primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to \"string\".",
       "type": "string",
       "enum": [
         "string",
         "number"
-      ]
+      ],
+      "markdownDescription": "Data type of the resource's primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to \"string\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "database": {
-      "type": "string"
+      "description": "Name of the datasource this resource uses. Defaults to the project's default datasource.",
+      "type": "string",
+      "markdownDescription": "Name of the datasource this resource uses. Defaults to the project's default datasource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "parent": {
+      "description": "Mount this resource under a parent route instead of at the top level. Only valid on kind:\"custom\" resources. See ParentRef for the full config.",
       "type": "object",
       "properties": {
         "route": {
-          "type": "string"
+          "type": "string",
+          "description": "Route segment of the parent resource, e.g. \"group\". The child mounts at <parent.route>/:<parent.param>/<route>.",
+          "markdownDescription": "Route segment of the parent resource, e.g. \"group\". The child mounts at <parent.route>/:<parent.param>/<route>.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "param": {
           "default": "parentId",
-          "type": "string"
+          "description": "Path parameter name carrying the parent id (e.g. \"groupId\"). Avoid \"id\" — that is the child's own id in /:id routes.",
+          "type": "string",
+          "markdownDescription": "Path parameter name carrying the parent id (e.g. \"groupId\"). Avoid \"id\" — that is the child's own id in /:id routes.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "idType": {
+          "description": "Type of the parent id, used to coerce the path param. Defaults to \"string\".",
           "type": "string",
           "enum": [
             "string",
             "number"
-          ]
+          ],
+          "markdownDescription": "Type of the parent id, used to coerce the path param. Defaults to \"string\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
       },
       "required": [
         "route"
-      ]
+      ],
+      "markdownDescription": "Mount this resource under a parent route instead of at the top level. Only valid on kind:\"custom\" resources. See ParentRef for the full config.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "sidebar": {
       "default": {
         "hide": false
       },
+      "description": "Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.",
       "type": "object",
       "properties": {
         "hide": {
           "default": false,
-          "type": "boolean"
+          "description": "When true, this resource is not shown in the sidebar navigation.",
+          "type": "boolean",
+          "markdownDescription": "When true, this resource is not shown in the sidebar navigation.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "position": {
-          "type": "number"
+          "description": "Explicit position number. Lower values appear higher. Resources without a position are sorted alphabetically after positioned entries.",
+          "type": "number",
+          "markdownDescription": "Explicit position number. Lower values appear higher. Resources without a position are sorted alphabetically after positioned entries.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "label": {
-          "type": "string"
+          "description": "Override label in the sidebar. Defaults to the resource title.",
+          "type": "string",
+          "markdownDescription": "Override label in the sidebar. Defaults to the resource title.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "group": {
-          "type": "string"
+          "description": "Slug of the sidebar group this resource belongs to. Must match a key in sidebarGroups in crouton.json. Resources in the same group are nested under a shared collapsible section.",
+          "type": "string",
+          "markdownDescription": "Slug of the sidebar group this resource belongs to. Must match a key in sidebarGroups in crouton.json. Resources in the same group are nested under a shared collapsible section.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
-      }
+      },
+      "markdownDescription": "Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "display": {
       "default": {
         "mode": "modal",
         "customComponent": null
       },
+      "description": "How records open when clicked. Default: modal dialog.",
       "type": "object",
       "properties": {
         "mode": {
           "default": "modal",
+          "description": "How a record opens when clicked. \"modal\" (default) opens a dialog; \"page\" navigates to a dedicated route.",
           "type": "string",
           "enum": [
             "page",
             "modal"
-          ]
+          ],
+          "markdownDescription": "How a record opens when clicked. \"modal\" (default) opens a dialog; \"page\" navigates to a dedicated route.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "customComponent": {
           "default": null,
+          "description": "Import path to a custom Vue component for the record detail view. When set, the default view is replaced.",
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "markdownDescription": "Import path to a custom Vue component for the record detail view. When set, the default view is replaced.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
-      }
+      },
+      "markdownDescription": "How records open when clicked. Default: modal dialog.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "security": {
+      "description": "Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.",
       "anyOf": [
         {
           "type": "object",
           "properties": {
             "public": {
               "type": "boolean",
-              "const": true
+              "const": true,
+              "description": "When true, the route is public and requires no authentication."
             }
           },
           "required": [
@@ -150,20 +202,24 @@
                     "type": "string"
                   }
                 }
-              ]
+              ],
+              "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
             }
           },
           "required": [
             "guard"
           ]
         }
-      ]
+      ],
+      "markdownDescription": "Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "operations": {
+      "description": "CRUD operation flags. Defaults: all true for \"prisma\" resources, all false for \"custom\" resources.",
       "type": "object",
       "properties": {
         "findAll": {
           "default": true,
+          "description": "GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.",
           "anyOf": [
             {
               "type": "boolean"
@@ -172,19 +228,23 @@
               "type": "object",
               "properties": {
                 "uri": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Full URL of the external API endpoint that handles this operation."
                 },
                 "method": {
+                  "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
                   "type": "string"
                 },
                 "security": {
+                  "description": "Security override for this specific external operation.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -206,7 +266,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -224,13 +285,15 @@
               "type": "object",
               "properties": {
                 "security": {
+                  "description": "Security override for this specific operation. Overrides the resource-level global security block.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -252,7 +315,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -263,10 +327,12 @@
                 }
               }
             }
-          ]
+          ],
+          "markdownDescription": "GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "findOne": {
           "default": true,
+          "description": "GET single record endpoint. true = enabled, false = disabled, object = external URI or security override.",
           "anyOf": [
             {
               "type": "boolean"
@@ -275,19 +341,23 @@
               "type": "object",
               "properties": {
                 "uri": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Full URL of the external API endpoint that handles this operation."
                 },
                 "method": {
+                  "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
                   "type": "string"
                 },
                 "security": {
+                  "description": "Security override for this specific external operation.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -309,7 +379,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -327,13 +398,15 @@
               "type": "object",
               "properties": {
                 "security": {
+                  "description": "Security override for this specific operation. Overrides the resource-level global security block.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -355,7 +428,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -366,10 +440,12 @@
                 }
               }
             }
-          ]
+          ],
+          "markdownDescription": "GET single record endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "create": {
           "default": true,
+          "description": "POST create endpoint. true = enabled, false = disabled, object = external URI or security override.",
           "anyOf": [
             {
               "type": "boolean"
@@ -378,19 +454,23 @@
               "type": "object",
               "properties": {
                 "uri": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Full URL of the external API endpoint that handles this operation."
                 },
                 "method": {
+                  "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
                   "type": "string"
                 },
                 "security": {
+                  "description": "Security override for this specific external operation.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -412,7 +492,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -430,13 +511,15 @@
               "type": "object",
               "properties": {
                 "security": {
+                  "description": "Security override for this specific operation. Overrides the resource-level global security block.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -458,7 +541,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -469,10 +553,12 @@
                 }
               }
             }
-          ]
+          ],
+          "markdownDescription": "POST create endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "update": {
           "default": true,
+          "description": "PUT full-update endpoint. true = enabled, false = disabled, object = external URI or security override.",
           "anyOf": [
             {
               "type": "boolean"
@@ -481,19 +567,23 @@
               "type": "object",
               "properties": {
                 "uri": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Full URL of the external API endpoint that handles this operation."
                 },
                 "method": {
+                  "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
                   "type": "string"
                 },
                 "security": {
+                  "description": "Security override for this specific external operation.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -515,7 +605,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -533,13 +624,15 @@
               "type": "object",
               "properties": {
                 "security": {
+                  "description": "Security override for this specific operation. Overrides the resource-level global security block.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -561,7 +654,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -572,10 +666,12 @@
                 }
               }
             }
-          ]
+          ],
+          "markdownDescription": "PUT full-update endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "patch": {
           "default": true,
+          "description": "PATCH partial-update endpoint. true = enabled, false = disabled, object = external URI or security override.",
           "anyOf": [
             {
               "type": "boolean"
@@ -584,19 +680,23 @@
               "type": "object",
               "properties": {
                 "uri": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Full URL of the external API endpoint that handles this operation."
                 },
                 "method": {
+                  "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
                   "type": "string"
                 },
                 "security": {
+                  "description": "Security override for this specific external operation.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -618,7 +718,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -636,13 +737,15 @@
               "type": "object",
               "properties": {
                 "security": {
+                  "description": "Security override for this specific operation. Overrides the resource-level global security block.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -664,7 +767,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -675,10 +779,12 @@
                 }
               }
             }
-          ]
+          ],
+          "markdownDescription": "PATCH partial-update endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "delete": {
           "default": true,
+          "description": "DELETE endpoint. true = enabled, false = disabled, object = external URI or security override.",
           "anyOf": [
             {
               "type": "boolean"
@@ -687,19 +793,23 @@
               "type": "object",
               "properties": {
                 "uri": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Full URL of the external API endpoint that handles this operation."
                 },
                 "method": {
+                  "description": "HTTP method for the external endpoint. Defaults to the standard method for each operation.",
                   "type": "string"
                 },
                 "security": {
+                  "description": "Security override for this specific external operation.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -721,7 +831,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -739,13 +850,15 @@
               "type": "object",
               "properties": {
                 "security": {
+                  "description": "Security override for this specific operation. Overrides the resource-level global security block.",
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "public": {
                           "type": "boolean",
-                          "const": true
+                          "const": true,
+                          "description": "When true, the route is public and requires no authentication."
                         }
                       },
                       "required": [
@@ -767,7 +880,8 @@
                                 "type": "string"
                               }
                             }
-                          ]
+                          ],
+                          "description": "Named guard(s) that must all pass (AND logic). A single string or an array of guard names."
                         }
                       },
                       "required": [
@@ -778,12 +892,15 @@
                 }
               }
             }
-          ]
+          ],
+          "markdownDescription": "DELETE endpoint. true = enabled, false = disabled, object = external URI or security override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
-      }
+      },
+      "markdownDescription": "CRUD operation flags. Defaults: all true for \"prisma\" resources, all false for \"custom\" resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "columns": {
       "default": {},
+      "description": "Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -792,126 +909,203 @@
         "type": "object",
         "properties": {
           "column": {
-            "type": "string"
+            "description": "Prisma model field name. Defaults to \"id\" when omitted. Override when the resource key differs from the model field.",
+            "type": "string",
+            "markdownDescription": "Prisma model field name. Defaults to \"id\" when omitted. Override when the resource key differs from the model field.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "label": {
-            "type": "string"
+            "description": "Human-readable label shown in forms and table headers. Defaults to a title-cased version of \"id\".",
+            "type": "string",
+            "markdownDescription": "Human-readable label shown in forms and table headers. Defaults to a title-cased version of \"id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hiddenInTable": {
             "default": false,
-            "type": "boolean"
+            "description": "When true, this column is not rendered in the list/table view.",
+            "type": "boolean",
+            "markdownDescription": "When true, this column is not rendered in the list/table view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hiddenInForm": {
             "default": false,
-            "type": "boolean"
+            "description": "When true, this column is not rendered in the create/edit form.",
+            "type": "boolean",
+            "markdownDescription": "When true, this column is not rendered in the create/edit form.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hiddenInView": {
             "default": false,
-            "type": "boolean"
+            "description": "When true, this column is not rendered in the read-only detail view.",
+            "type": "boolean",
+            "markdownDescription": "When true, this column is not rendered in the read-only detail view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "sortable": {
             "default": false,
-            "type": "boolean"
+            "description": "Enables a sort toggle on the table column header.",
+            "type": "boolean",
+            "markdownDescription": "Enables a sort toggle on the table column header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "defaultSort": {
             "default": false,
-            "type": "boolean"
+            "description": "When true, the table is sorted by this column by default. At most one column should set this.",
+            "type": "boolean",
+            "markdownDescription": "When true, the table is sorted by this column by default. At most one column should set this.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "searchable": {
             "default": false,
-            "type": "boolean"
+            "description": "Includes this field in global search queries.",
+            "type": "boolean",
+            "markdownDescription": "Includes this field in global search queries.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "filterable": {
             "default": false,
-            "type": "boolean"
+            "description": "Adds a filter control for this column in the table toolbar.",
+            "type": "boolean",
+            "markdownDescription": "Adds a filter control for this column in the table toolbar.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "createable": {
             "default": true,
-            "type": "boolean"
+            "description": "When false, this column is excluded from the create form. Useful for system-managed fields.",
+            "type": "boolean",
+            "markdownDescription": "When false, this column is excluded from the create form. Useful for system-managed fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "updateable": {
             "default": true,
-            "type": "boolean"
+            "description": "When false, this column is excluded from the edit form after creation. Useful for immutable fields.",
+            "type": "boolean",
+            "markdownDescription": "When false, this column is excluded from the edit form after creation. Useful for immutable fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hideLabel": {
             "default": false,
-            "type": "boolean"
+            "description": "When true, the label is hidden in the form (useful for boolean toggles or when the context makes the label redundant).",
+            "type": "boolean",
+            "markdownDescription": "When true, the label is hidden in the form (useful for boolean toggles or when the context makes the label redundant).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "showWhen": {
+            "description": "Conditionally show this column in the form when the condition matches another field value.",
             "type": "object",
             "properties": {
               "field": {
-                "type": "string"
+                "type": "string",
+                "description": "The other column id whose value is evaluated for the condition.",
+                "markdownDescription": "The other column id whose value is evaluated for the condition.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "eq": {},
-              "neq": {},
+              "eq": {
+                "description": "Show/hide/disable when the field value equals this value.",
+                "markdownDescription": "Show/hide/disable when the field value equals this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "neq": {
+                "description": "Show/hide/disable when the field value does NOT equal this value.",
+                "markdownDescription": "Show/hide/disable when the field value does NOT equal this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "exists": {
-                "type": "boolean"
+                "description": "When true, show/hide/disable when the field has a non-empty value.",
+                "type": "boolean",
+                "markdownDescription": "When true, show/hide/disable when the field has a non-empty value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "notExists": {
-                "type": "boolean"
+                "description": "When true, show/hide/disable when the field has no value.",
+                "type": "boolean",
+                "markdownDescription": "When true, show/hide/disable when the field has no value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
             "required": [
               "field"
-            ]
+            ],
+            "markdownDescription": "Conditionally show this column in the form when the condition matches another field value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hideWhen": {
+            "description": "Conditionally hide this column in the form when the condition matches another field value.",
             "type": "object",
             "properties": {
               "field": {
-                "type": "string"
+                "type": "string",
+                "description": "The other column id whose value is evaluated for the condition.",
+                "markdownDescription": "The other column id whose value is evaluated for the condition.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "eq": {},
-              "neq": {},
+              "eq": {
+                "description": "Show/hide/disable when the field value equals this value.",
+                "markdownDescription": "Show/hide/disable when the field value equals this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "neq": {
+                "description": "Show/hide/disable when the field value does NOT equal this value.",
+                "markdownDescription": "Show/hide/disable when the field value does NOT equal this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "exists": {
-                "type": "boolean"
+                "description": "When true, show/hide/disable when the field has a non-empty value.",
+                "type": "boolean",
+                "markdownDescription": "When true, show/hide/disable when the field has a non-empty value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "notExists": {
-                "type": "boolean"
+                "description": "When true, show/hide/disable when the field has no value.",
+                "type": "boolean",
+                "markdownDescription": "When true, show/hide/disable when the field has no value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
             "required": [
               "field"
-            ]
+            ],
+            "markdownDescription": "Conditionally hide this column in the form when the condition matches another field value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "disabledWhen": {
+            "description": "Conditionally disable this column in the form when the condition matches another field value.",
             "type": "object",
             "properties": {
               "field": {
-                "type": "string"
+                "type": "string",
+                "description": "The other column id whose value is evaluated for the condition.",
+                "markdownDescription": "The other column id whose value is evaluated for the condition.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "eq": {},
-              "neq": {},
+              "eq": {
+                "description": "Show/hide/disable when the field value equals this value.",
+                "markdownDescription": "Show/hide/disable when the field value equals this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "neq": {
+                "description": "Show/hide/disable when the field value does NOT equal this value.",
+                "markdownDescription": "Show/hide/disable when the field value does NOT equal this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "exists": {
-                "type": "boolean"
+                "description": "When true, show/hide/disable when the field has a non-empty value.",
+                "type": "boolean",
+                "markdownDescription": "When true, show/hide/disable when the field has a non-empty value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "notExists": {
-                "type": "boolean"
+                "description": "When true, show/hide/disable when the field has no value.",
+                "type": "boolean",
+                "markdownDescription": "When true, show/hide/disable when the field has no value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
             "required": [
               "field"
-            ]
+            ],
+            "markdownDescription": "Conditionally disable this column in the form when the condition matches another field value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "displayKey": {
-            "type": "string"
+            "description": "Dot-path to display a nested property (e.g. \"author.name\"). Used when the raw field value is an object.",
+            "type": "string",
+            "markdownDescription": "Dot-path to display a nested property (e.g. \"author.name\"). Used when the raw field value is an object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "sortId": {
-            "type": "string"
+            "description": "Overrides which field is sent to the API as the sort key (when the sort column differs from the display column).",
+            "type": "string",
+            "markdownDescription": "Overrides which field is sent to the API as the sort key (when the sort column differs from the display column).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "enum": {
-            "type": "string"
+            "description": "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.",
+            "type": "string",
+            "markdownDescription": "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "idField": {
             "default": false,
-            "type": "boolean"
+            "description": "Marks this column as the primary-key field. Exactly one column per resource should set this to true.",
+            "type": "boolean",
+            "markdownDescription": "Marks this column as the primary-key field. Exactly one column per resource should set this to true.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "showInLookup": {
             "default": false,
-            "type": "boolean"
+            "description": "When true, this column appears in autocomplete/lookup dropdowns referencing this resource.",
+            "type": "boolean",
+            "markdownDescription": "When true, this column appears in autocomplete/lookup dropdowns referencing this resource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "unique": {
+            "description": "Enforce that this column's value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.",
             "anyOf": [
               {
                 "type": "boolean"
@@ -920,22 +1114,27 @@
                 "type": "object",
                 "properties": {
                   "scope": {
+                    "description": "Other column ids the uniqueness is scoped by (composite unique constraint).",
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
                   },
                   "caseInsensitive": {
+                    "description": "When true, the uniqueness check is case-insensitive (maps to Prisma mode: \"insensitive\").",
                     "type": "boolean"
                   },
                   "message": {
+                    "description": "Custom message shown on the field when the value is already taken.",
                     "type": "string"
                   }
                 }
               }
-            ]
+            ],
+            "markdownDescription": "Enforce that this column's value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "type": {
+            "description": "Data type of the column. A shorthand string (\"string\", \"integer\", \"boolean\", \"date\", \"date-time\", \"number\", \"object\", \"array\") or a JSON Schema fragment. Required on every column of a kind:\"custom\" resource. On a \"prisma\" resource this overrides the Prisma-derived type.",
             "anyOf": [
               {
                 "type": "string",
@@ -953,53 +1152,81 @@
               {
                 "$ref": "#/definitions/__schema0"
               }
-            ]
+            ],
+            "markdownDescription": "Data type of the column. A shorthand string (\"string\", \"integer\", \"boolean\", \"date\", \"date-time\", \"number\", \"object\", \"array\") or a JSON Schema fragment. Required on every column of a kind:\"custom\" resource. On a \"prisma\" resource this overrides the Prisma-derived type.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "required": {
-            "type": "boolean"
+            "description": "Whether the form requires a value. On a \"prisma\" resource this overrides the Prisma-derived required state; on \"custom\" resources it is the only way to mark a field required. Applies to forms only.",
+            "type": "boolean",
+            "markdownDescription": "Whether the form requires a value. On a \"prisma\" resource this overrides the Prisma-derived required state; on \"custom\" resources it is the only way to mark a field required. Applies to forms only.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "columnType": {
             "default": "string",
-            "type": "string"
+            "description": "@deprecated — use \"type\" instead.",
+            "type": "string",
+            "markdownDescription": "@deprecated — use \"type\" instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "fieldInput": {
+            "description": "Configures the UI control used in create/edit forms and the display format. Use \"type\" to pick the input widget; \"format\" to pick a special renderer (e.g. \"relation\").",
             "type": "object",
             "properties": {
               "$schema": {
-                "type": "string"
+                "description": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.",
+                "type": "string",
+                "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "type": {
-                "type": "string"
+                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
+                "type": "string",
+                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "customRender": {
-                "type": "string"
+                "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
+                "type": "string",
+                "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "format": {
-                "type": "string"
+                "description": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.",
+                "type": "string",
+                "markdownDescription": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "resource": {
-                "type": "string"
+                "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.",
+                "type": "string",
+                "markdownDescription": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relationType": {
+                "description": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.",
                 "type": "string",
                 "enum": [
                   "oneToOne",
                   "manyToOne",
                   "oneToMany",
                   "manyToMany"
-                ]
+                ],
+                "markdownDescription": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "foreignKey": {
-                "type": "string"
+                "description": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".",
+                "type": "string",
+                "markdownDescription": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relation": {
-                "type": "string"
+                "description": "Override the Prisma relation field name when it differs from the column id.",
+                "type": "string",
+                "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "position": {
-                "type": "number"
+                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
+                "type": "number",
+                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "defaultValue": {},
+              "defaultValue": {
+                "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
+                "markdownDescription": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "options": {
+                "description": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.",
                 "anyOf": [
                   {
                     "type": "object",
@@ -1113,9 +1340,11 @@
                     "description": "Options for the sub-resource relation control"
                   },
                   {}
-                ]
+                ],
+                "markdownDescription": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "detail": {
+                "description": "Nested array detail layout configuration. Renders via the detailFixed renderer.",
                 "type": "object",
                 "properties": {
                   "layout": {
@@ -1123,10 +1352,14 @@
                     "enum": [
                       "collapse",
                       "row"
-                    ]
+                    ],
+                    "description": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.",
+                    "markdownDescription": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "titleKey": {
-                    "type": "string"
+                    "description": "Property key used as the heading for each array item in \"collapse\" mode.",
+                    "type": "string",
+                    "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "controls": {
                     "type": "array",
@@ -1134,76 +1367,113 @@
                       "type": "object",
                       "properties": {
                         "property": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Field property key within the array item object.",
+                          "markdownDescription": "Field property key within the array item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "type": {
-                          "type": "string"
+                          "description": "Renderer type for this detail control. Defaults to \"text\".",
+                          "type": "string",
+                          "markdownDescription": "Renderer type for this detail control. Defaults to \"text\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "options": {
+                          "description": "Renderer-specific options for this control.",
                           "type": "object",
                           "propertyNames": {
                             "type": "string"
                           },
-                          "additionalProperties": {}
+                          "additionalProperties": {},
+                          "markdownDescription": "Renderer-specific options for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "hideLabel": {
-                          "type": "boolean"
+                          "description": "When true, the label is hidden for this control.",
+                          "type": "boolean",
+                          "markdownDescription": "When true, the label is hidden for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "width": {
-                          "type": "string"
+                          "description": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").",
+                          "type": "string",
+                          "markdownDescription": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         }
                       },
                       "required": [
                         "property"
                       ]
-                    }
+                    },
+                    "description": "Controls to render for each array item. Each control maps to a property of the item object.",
+                    "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   }
                 },
                 "required": [
                   "layout",
                   "controls"
-                ]
+                ],
+                "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
-            }
+            },
+            "markdownDescription": "Configures the UI control used in create/edit forms and the display format. Use \"type\" to pick the input widget; \"format\" to pick a special renderer (e.g. \"relation\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "fieldView": {
+            "description": "Per-context override for the read-only detail view. Same shape as fieldInput; only the keys you provide are overridden. Falls back to fieldInput.",
             "type": "object",
             "properties": {
               "$schema": {
-                "type": "string"
+                "description": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.",
+                "type": "string",
+                "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "type": {
-                "type": "string"
+                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
+                "type": "string",
+                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "customRender": {
-                "type": "string"
+                "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
+                "type": "string",
+                "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "format": {
-                "type": "string"
+                "description": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.",
+                "type": "string",
+                "markdownDescription": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "resource": {
-                "type": "string"
+                "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.",
+                "type": "string",
+                "markdownDescription": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relationType": {
+                "description": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.",
                 "type": "string",
                 "enum": [
                   "oneToOne",
                   "manyToOne",
                   "oneToMany",
                   "manyToMany"
-                ]
+                ],
+                "markdownDescription": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "foreignKey": {
-                "type": "string"
+                "description": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".",
+                "type": "string",
+                "markdownDescription": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relation": {
-                "type": "string"
+                "description": "Override the Prisma relation field name when it differs from the column id.",
+                "type": "string",
+                "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "position": {
-                "type": "number"
+                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
+                "type": "number",
+                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "defaultValue": {},
+              "defaultValue": {
+                "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
+                "markdownDescription": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "options": {
+                "description": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.",
                 "anyOf": [
                   {
                     "type": "object",
@@ -1317,9 +1587,11 @@
                     "description": "Options for the sub-resource relation control"
                   },
                   {}
-                ]
+                ],
+                "markdownDescription": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "detail": {
+                "description": "Nested array detail layout configuration. Renders via the detailFixed renderer.",
                 "type": "object",
                 "properties": {
                   "layout": {
@@ -1327,10 +1599,14 @@
                     "enum": [
                       "collapse",
                       "row"
-                    ]
+                    ],
+                    "description": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.",
+                    "markdownDescription": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "titleKey": {
-                    "type": "string"
+                    "description": "Property key used as the heading for each array item in \"collapse\" mode.",
+                    "type": "string",
+                    "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "controls": {
                     "type": "array",
@@ -1338,76 +1614,113 @@
                       "type": "object",
                       "properties": {
                         "property": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Field property key within the array item object.",
+                          "markdownDescription": "Field property key within the array item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "type": {
-                          "type": "string"
+                          "description": "Renderer type for this detail control. Defaults to \"text\".",
+                          "type": "string",
+                          "markdownDescription": "Renderer type for this detail control. Defaults to \"text\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "options": {
+                          "description": "Renderer-specific options for this control.",
                           "type": "object",
                           "propertyNames": {
                             "type": "string"
                           },
-                          "additionalProperties": {}
+                          "additionalProperties": {},
+                          "markdownDescription": "Renderer-specific options for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "hideLabel": {
-                          "type": "boolean"
+                          "description": "When true, the label is hidden for this control.",
+                          "type": "boolean",
+                          "markdownDescription": "When true, the label is hidden for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "width": {
-                          "type": "string"
+                          "description": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").",
+                          "type": "string",
+                          "markdownDescription": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         }
                       },
                       "required": [
                         "property"
                       ]
-                    }
+                    },
+                    "description": "Controls to render for each array item. Each control maps to a property of the item object.",
+                    "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   }
                 },
                 "required": [
                   "layout",
                   "controls"
-                ]
+                ],
+                "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
-            }
+            },
+            "markdownDescription": "Per-context override for the read-only detail view. Same shape as fieldInput; only the keys you provide are overridden. Falls back to fieldInput.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "fieldTable": {
+            "description": "Per-context override for the table cell renderer. Same shape as fieldInput; only the keys you provide are overridden. Falls back to fieldView, then fieldInput.",
             "type": "object",
             "properties": {
               "$schema": {
-                "type": "string"
+                "description": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.",
+                "type": "string",
+                "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "type": {
-                "type": "string"
+                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
+                "type": "string",
+                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "customRender": {
-                "type": "string"
+                "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
+                "type": "string",
+                "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "format": {
-                "type": "string"
+                "description": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.",
+                "type": "string",
+                "markdownDescription": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "resource": {
-                "type": "string"
+                "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.",
+                "type": "string",
+                "markdownDescription": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relationType": {
+                "description": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.",
                 "type": "string",
                 "enum": [
                   "oneToOne",
                   "manyToOne",
                   "oneToMany",
                   "manyToMany"
-                ]
+                ],
+                "markdownDescription": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "foreignKey": {
-                "type": "string"
+                "description": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".",
+                "type": "string",
+                "markdownDescription": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relation": {
-                "type": "string"
+                "description": "Override the Prisma relation field name when it differs from the column id.",
+                "type": "string",
+                "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "position": {
-                "type": "number"
+                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
+                "type": "number",
+                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "defaultValue": {},
+              "defaultValue": {
+                "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
+                "markdownDescription": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "options": {
+                "description": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.",
                 "anyOf": [
                   {
                     "type": "object",
@@ -1521,9 +1834,11 @@
                     "description": "Options for the sub-resource relation control"
                   },
                   {}
-                ]
+                ],
+                "markdownDescription": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "detail": {
+                "description": "Nested array detail layout configuration. Renders via the detailFixed renderer.",
                 "type": "object",
                 "properties": {
                   "layout": {
@@ -1531,10 +1846,14 @@
                     "enum": [
                       "collapse",
                       "row"
-                    ]
+                    ],
+                    "description": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.",
+                    "markdownDescription": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "titleKey": {
-                    "type": "string"
+                    "description": "Property key used as the heading for each array item in \"collapse\" mode.",
+                    "type": "string",
+                    "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "controls": {
                     "type": "array",
@@ -1542,42 +1861,59 @@
                       "type": "object",
                       "properties": {
                         "property": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Field property key within the array item object.",
+                          "markdownDescription": "Field property key within the array item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "type": {
-                          "type": "string"
+                          "description": "Renderer type for this detail control. Defaults to \"text\".",
+                          "type": "string",
+                          "markdownDescription": "Renderer type for this detail control. Defaults to \"text\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "options": {
+                          "description": "Renderer-specific options for this control.",
                           "type": "object",
                           "propertyNames": {
                             "type": "string"
                           },
-                          "additionalProperties": {}
+                          "additionalProperties": {},
+                          "markdownDescription": "Renderer-specific options for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "hideLabel": {
-                          "type": "boolean"
+                          "description": "When true, the label is hidden for this control.",
+                          "type": "boolean",
+                          "markdownDescription": "When true, the label is hidden for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "width": {
-                          "type": "string"
+                          "description": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").",
+                          "type": "string",
+                          "markdownDescription": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         }
                       },
                       "required": [
                         "property"
                       ]
-                    }
+                    },
+                    "description": "Controls to render for each array item. Each control maps to a property of the item object.",
+                    "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   }
                 },
                 "required": [
                   "layout",
                   "controls"
-                ]
+                ],
+                "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
-            }
+            },
+            "markdownDescription": "Per-context override for the table cell renderer. Same shape as fieldInput; only the keys you provide are overridden. Falls back to fieldView, then fieldInput.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "extend": {
-            "type": "string"
+            "description": "Relative path to another resource.json whose columns are expanded as virtual sub-columns under this column key. Example: \"../author/resource.json\" on a column \"author\" generates columns like \"author_name\".",
+            "type": "string",
+            "markdownDescription": "Relative path to another resource.json whose columns are expanded as virtual sub-columns under this column key. Example: \"../author/resource.json\" on a column \"author\" generates columns like \"author_name\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "columns": {
+            "description": "Per-sub-column overrides when using \"extend\". Key is the virtual column id (\"{extendId}_{refColId}\") or the referenced column id. Value is any JsonColumn fields to merge.",
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -1588,84 +1924,126 @@
                 "type": "string"
               },
               "additionalProperties": {}
-            }
+            },
+            "markdownDescription": "Per-sub-column overrides when using \"extend\". Key is the virtual column id (\"{extendId}_{refColId}\") or the referenced column id. Value is any JsonColumn fields to merge.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "additionalProperties": {}
-      }
+      },
+      "markdownDescription": "Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "calculatedColumns": {
+      "description": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Column identifier used in the response payload and UI schema.",
+            "markdownDescription": "Column identifier used in the response payload and UI schema.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "alias": {
-            "type": "string"
+            "type": "string",
+            "description": "SQL alias for the subquery result — must match \"id\".",
+            "markdownDescription": "SQL alias for the subquery result — must match \"id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "label": {
-            "type": "string"
+            "description": "Human-readable label shown in the table header. Defaults to a title-cased version of \"id\".",
+            "type": "string",
+            "markdownDescription": "Human-readable label shown in the table header. Defaults to a title-cased version of \"id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "sqlExpression": {
-            "type": "string"
+            "type": "string",
+            "description": "Raw SQL subquery computing the column value. Use \"main\" as the alias for the parent table row, e.g. \"SELECT COUNT(*) FROM child WHERE child.parent_id = main.id\".",
+            "markdownDescription": "Raw SQL subquery computing the column value. Use \"main\" as the alias for the parent table row, e.g. \"SELECT COUNT(*) FROM child WHERE child.parent_id = main.id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "type": {
+            "description": "Cast type for the computed value. \"number\" (default) or \"boolean\" applies a SQL CAST; \"string\" skips it.",
             "type": "string",
             "enum": [
               "number",
               "boolean",
               "string"
-            ]
+            ],
+            "markdownDescription": "Cast type for the computed value. \"number\" (default) or \"boolean\" applies a SQL CAST; \"string\" skips it.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "position": {
-            "type": "number"
+            "description": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).",
+            "type": "number",
+            "markdownDescription": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hiddenInTable": {
-            "type": "boolean"
+            "description": "When true, this column is hidden in the table view.",
+            "type": "boolean",
+            "markdownDescription": "When true, this column is hidden in the table view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "hiddenInView": {
-            "type": "boolean"
+            "description": "When true, this column is hidden in the detail view.",
+            "type": "boolean",
+            "markdownDescription": "When true, this column is hidden in the detail view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "fieldInput": {
+            "description": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.",
             "type": "object",
             "properties": {
               "$schema": {
-                "type": "string"
+                "description": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.",
+                "type": "string",
+                "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "type": {
-                "type": "string"
+                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
+                "type": "string",
+                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "customRender": {
-                "type": "string"
+                "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
+                "type": "string",
+                "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "format": {
-                "type": "string"
+                "description": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.",
+                "type": "string",
+                "markdownDescription": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "resource": {
-                "type": "string"
+                "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.",
+                "type": "string",
+                "markdownDescription": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relationType": {
+                "description": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.",
                 "type": "string",
                 "enum": [
                   "oneToOne",
                   "manyToOne",
                   "oneToMany",
                   "manyToMany"
-                ]
+                ],
+                "markdownDescription": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "foreignKey": {
-                "type": "string"
+                "description": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".",
+                "type": "string",
+                "markdownDescription": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "relation": {
-                "type": "string"
+                "description": "Override the Prisma relation field name when it differs from the column id.",
+                "type": "string",
+                "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "position": {
-                "type": "number"
+                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
+                "type": "number",
+                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
-              "defaultValue": {},
+              "defaultValue": {
+                "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
+                "markdownDescription": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "options": {
+                "description": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.",
                 "anyOf": [
                   {
                     "type": "object",
@@ -1779,9 +2157,11 @@
                     "description": "Options for the sub-resource relation control"
                   },
                   {}
-                ]
+                ],
+                "markdownDescription": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "detail": {
+                "description": "Nested array detail layout configuration. Renders via the detailFixed renderer.",
                 "type": "object",
                 "properties": {
                   "layout": {
@@ -1789,10 +2169,14 @@
                     "enum": [
                       "collapse",
                       "row"
-                    ]
+                    ],
+                    "description": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.",
+                    "markdownDescription": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "titleKey": {
-                    "type": "string"
+                    "description": "Property key used as the heading for each array item in \"collapse\" mode.",
+                    "type": "string",
+                    "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
                   "controls": {
                     "type": "array",
@@ -1800,37 +2184,51 @@
                       "type": "object",
                       "properties": {
                         "property": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Field property key within the array item object.",
+                          "markdownDescription": "Field property key within the array item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "type": {
-                          "type": "string"
+                          "description": "Renderer type for this detail control. Defaults to \"text\".",
+                          "type": "string",
+                          "markdownDescription": "Renderer type for this detail control. Defaults to \"text\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "options": {
+                          "description": "Renderer-specific options for this control.",
                           "type": "object",
                           "propertyNames": {
                             "type": "string"
                           },
-                          "additionalProperties": {}
+                          "additionalProperties": {},
+                          "markdownDescription": "Renderer-specific options for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "hideLabel": {
-                          "type": "boolean"
+                          "description": "When true, the label is hidden for this control.",
+                          "type": "boolean",
+                          "markdownDescription": "When true, the label is hidden for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         },
                         "width": {
-                          "type": "string"
+                          "description": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").",
+                          "type": "string",
+                          "markdownDescription": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                         }
                       },
                       "required": [
                         "property"
                       ]
-                    }
+                    },
+                    "description": "Controls to render for each array item. Each control maps to a property of the item object.",
+                    "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   }
                 },
                 "required": [
                   "layout",
                   "controls"
-                ]
+                ],
+                "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
-            }
+            },
+            "markdownDescription": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "required": [
@@ -1838,9 +2236,11 @@
           "alias",
           "sqlExpression"
         ]
-      }
+      },
+      "markdownDescription": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "actions": {
+      "description": "Per-record row actions shown in the table. Each action receives the record id.",
       "type": "array",
       "items": {
         "anyOf": [
@@ -1849,29 +2249,37 @@
             "properties": {
               "type": {
                 "default": "procedure",
+                "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
                 "type": "string",
                 "const": "procedure"
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "Unique identifier for the action, used as the button key and endpoint name."
               },
               "label": {
-                "type": "string"
+                "type": "string",
+                "description": "Human-readable button label shown in the UI."
               },
               "icon": {
+                "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
                 "type": "string"
               },
               "tooltip": {
+                "description": "Tooltip text on hover. Defaults to the label.",
                 "type": "string"
               },
               "condition": {
+                "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
                 "type": "object",
                 "properties": {
                   "field": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Row field name to evaluate for the condition."
                   },
                   "op": {
                     "default": "eq",
+                    "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
                     "type": "string",
                     "enum": [
                       "eq",
@@ -1884,20 +2292,25 @@
                       "notExists"
                     ]
                   },
-                  "value": {}
+                  "value": {
+                    "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                  }
                 },
                 "required": [
                   "field"
                 ]
               },
               "procedure": {
-                "type": "string"
+                "type": "string",
+                "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
               },
               "method": {
                 "default": "post",
+                "description": "HTTP method for the frontend request. Defaults to \"post\".",
                 "type": "string"
               },
               "data": {
+                "description": "Static query or body params passed to the procedure endpoint.",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
@@ -1916,29 +2329,37 @@
             "properties": {
               "type": {
                 "default": "link",
+                "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
                 "type": "string",
                 "const": "link"
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "Unique identifier for the action, used as the button key and endpoint name."
               },
               "label": {
-                "type": "string"
+                "type": "string",
+                "description": "Human-readable button label shown in the UI."
               },
               "icon": {
+                "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
                 "type": "string"
               },
               "tooltip": {
+                "description": "Tooltip text on hover. Defaults to the label.",
                 "type": "string"
               },
               "condition": {
+                "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
                 "type": "object",
                 "properties": {
                   "field": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Row field name to evaluate for the condition."
                   },
                   "op": {
                     "default": "eq",
+                    "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
                     "type": "string",
                     "enum": [
                       "eq",
@@ -1951,17 +2372,21 @@
                       "notExists"
                     ]
                   },
-                  "value": {}
+                  "value": {
+                    "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                  }
                 },
                 "required": [
                   "field"
                 ]
               },
               "href": {
-                "type": "string"
+                "type": "string",
+                "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
               },
               "blank": {
                 "default": true,
+                "description": "When true (default), the link opens in a new browser tab.",
                 "type": "boolean"
               }
             },
@@ -1972,9 +2397,11 @@
             ]
           }
         ]
-      }
+      },
+      "markdownDescription": "Per-record row actions shown in the table. Each action receives the record id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "tableActions": {
+      "description": "Global table-level actions with no record id. Shown as toolbar buttons.",
       "type": "array",
       "items": {
         "anyOf": [
@@ -1983,29 +2410,37 @@
             "properties": {
               "type": {
                 "default": "procedure",
+                "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
                 "type": "string",
                 "const": "procedure"
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "Unique identifier for the action, used as the button key and endpoint name."
               },
               "label": {
-                "type": "string"
+                "type": "string",
+                "description": "Human-readable button label shown in the UI."
               },
               "icon": {
+                "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
                 "type": "string"
               },
               "tooltip": {
+                "description": "Tooltip text on hover. Defaults to the label.",
                 "type": "string"
               },
               "condition": {
+                "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
                 "type": "object",
                 "properties": {
                   "field": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Row field name to evaluate for the condition."
                   },
                   "op": {
                     "default": "eq",
+                    "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
                     "type": "string",
                     "enum": [
                       "eq",
@@ -2018,20 +2453,25 @@
                       "notExists"
                     ]
                   },
-                  "value": {}
+                  "value": {
+                    "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                  }
                 },
                 "required": [
                   "field"
                 ]
               },
               "procedure": {
-                "type": "string"
+                "type": "string",
+                "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
               },
               "method": {
                 "default": "post",
+                "description": "HTTP method for the frontend request. Defaults to \"post\".",
                 "type": "string"
               },
               "data": {
+                "description": "Static query or body params passed to the procedure endpoint.",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
@@ -2050,29 +2490,37 @@
             "properties": {
               "type": {
                 "default": "link",
+                "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
                 "type": "string",
                 "const": "link"
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "Unique identifier for the action, used as the button key and endpoint name."
               },
               "label": {
-                "type": "string"
+                "type": "string",
+                "description": "Human-readable button label shown in the UI."
               },
               "icon": {
+                "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
                 "type": "string"
               },
               "tooltip": {
+                "description": "Tooltip text on hover. Defaults to the label.",
                 "type": "string"
               },
               "condition": {
+                "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
                 "type": "object",
                 "properties": {
                   "field": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Row field name to evaluate for the condition."
                   },
                   "op": {
                     "default": "eq",
+                    "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
                     "type": "string",
                     "enum": [
                       "eq",
@@ -2085,17 +2533,21 @@
                       "notExists"
                     ]
                   },
-                  "value": {}
+                  "value": {
+                    "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                  }
                 },
                 "required": [
                   "field"
                 ]
               },
               "href": {
-                "type": "string"
+                "type": "string",
+                "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
               },
               "blank": {
                 "default": true,
+                "description": "When true (default), the link opens in a new browser tab.",
                 "type": "boolean"
               }
             },
@@ -2106,50 +2558,63 @@
             ]
           }
         ]
-      }
+      },
+      "markdownDescription": "Global table-level actions with no record id. Shown as toolbar buttons.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "modalSize": {
       "default": "sm",
+      "description": "Width of the create/edit modal dialog. \"xs\", \"sm\" (default), \"lg\", or \"xl\".",
       "type": "string",
       "enum": [
         "xs",
         "sm",
         "lg",
         "xl"
-      ]
+      ],
+      "markdownDescription": "Width of the create/edit modal dialog. \"xs\", \"sm\" (default), \"lg\", or \"xl\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "include": {
       "default": [],
+      "description": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/__schema1"
-      }
+      },
+      "markdownDescription": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "layout": {
+      "description": "Explicit layout for generated views (form, view, table). When absent, source-order grid is used.",
       "type": "object",
       "properties": {
         "form": {
+          "description": "Explicit layout for the create/edit form. When absent, columns are rendered in source order in a grid.",
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
             }
-          ]
+          ],
+          "markdownDescription": "Explicit layout for the create/edit form. When absent, columns are rendered in source order in a grid.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "view": {
+          "description": "Explicit layout for the read-only detail view. When absent, columns are rendered in source order.",
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
             }
-          ]
+          ],
+          "markdownDescription": "Explicit layout for the read-only detail view. When absent, columns are rendered in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "table": {
+          "description": "Explicit layout for the table view columns. When absent, all non-hidden columns are shown in source order.",
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
             }
-          ]
+          ],
+          "markdownDescription": "Explicit layout for the table view columns. When absent, all non-hidden columns are shown in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
-      }
+      },
+      "markdownDescription": "Explicit layout for generated views (form, view, table). When absent, source-order grid is used.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     }
   },
   "required": [
@@ -2289,6 +2754,7 @@
       "type": "object",
       "properties": {
         "type": {
+          "description": "Layout container type. \"grid\" arranges controls in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.",
           "type": "string",
           "enum": [
             "grid",
@@ -2296,33 +2762,47 @@
             "horizontal",
             "collapse",
             "group"
-          ]
+          ],
+          "markdownDescription": "Layout container type. \"grid\" arranges controls in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "columns": {
+          "description": "Number of grid columns (1–12). Only applies when type is \"grid\".",
           "type": "integer",
           "minimum": 1,
-          "maximum": 12
+          "maximum": 12,
+          "markdownDescription": "Number of grid columns (1–12). Only applies when type is \"grid\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "title": {
-          "type": "string"
+          "description": "Static title shown above the layout section.",
+          "type": "string",
+          "markdownDescription": "Static title shown above the layout section.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "titleKey": {
-          "type": "string"
+          "description": "Column id whose value is used as the dynamic section title.",
+          "type": "string",
+          "markdownDescription": "Column id whose value is used as the dynamic section title.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "colspan": {
+          "description": "Column span of this node within its parent grid (1–12).",
           "type": "integer",
           "minimum": 1,
-          "maximum": 12
+          "maximum": 12,
+          "markdownDescription": "Column span of this node within its parent grid (1–12).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "rowspan": {
+          "description": "Row span of this node within its parent grid (1–6).",
           "type": "integer",
           "minimum": 1,
-          "maximum": 6
+          "maximum": 6,
+          "markdownDescription": "Row span of this node within its parent grid (1–6).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "label": {
-          "type": "string"
+          "description": "Label shown on the section or group header.",
+          "type": "string",
+          "markdownDescription": "Label shown on the section or group header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "controls": {
+          "description": "Leaf controls in this layout node. Each entry is a column id string or a control config object.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2370,18 +2850,68 @@
                 ]
               }
             ]
-          }
+          },
+          "markdownDescription": "Leaf controls in this layout node. Each entry is a column id string or a control config object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "items": {
+          "description": "Nested layout nodes. Use for nested grids, groups, or collapsible sections.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/__schema2"
-          }
+          },
+          "markdownDescription": "Nested layout nodes. Use for nested grids, groups, or collapsible sections.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
       }
     }
   },
   "$id": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "title": "Crouton resource.json",
-  "description": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 1."
+  "description": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 1.",
+  "$comment": "Use \"crouton validate\" for strict validation including refineByKind checks.",
+  "examples": [
+    {
+      "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
+      "name": "book",
+      "model": "Book",
+      "title": "Books",
+      "columns": {
+        "id": {
+          "idField": true,
+          "hiddenInForm": true
+        },
+        "title": {
+          "searchable": true,
+          "filterable": true,
+          "sortable": true
+        },
+        "publishedYear": {
+          "type": "integer",
+          "sortable": true
+        },
+        "authorId": {
+          "label": "Author",
+          "searchable": true,
+          "fieldInput": {
+            "type": "autocomplete",
+            "relationType": "manyToOne",
+            "resource": "./author.resource"
+          }
+        },
+        "categories": {
+          "label": "Categories",
+          "fieldInput": {
+            "format": "relation",
+            "relationType": "manyToMany",
+            "resource": "./category.resource"
+          },
+          "hiddenInTable": true
+        }
+      },
+      "include": [
+        "author",
+        "categories"
+      ]
+    }
+  ],
+  "markdownDescription": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 1.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
 }

@@ -5,25 +5,17 @@ import z from 'zod';
  * Keyed by the group slug (e.g. `"metadata"`).
  */
 export const SidebarGroupSchema = z.object({
-  /** Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug. */
-  label: z.string().optional(),
-  /** Controls the order of this group among top-level sidebar items. */
-  position: z.number().optional(),
+  label: z.string().optional().describe('Human-readable heading shown in the sidebar. Defaults to a title-cased version of the slug.'),
+  position: z.number().optional().describe('Controls the order of this group among top-level sidebar items.'),
 });
 
 export type SidebarGroupConfig = z.infer<typeof SidebarGroupSchema>;
 
 export const SidebarSchema = z.object({
-  hide: z.boolean().default(false), // default: false
-  position: z.number().optional(), // default: sorted alphabetically after positioned entries
-  label: z.string().optional(), // default: resource `title`
-
-  /**
-   * Slug of the group this resource belongs to.
-   * Must match a key in `sidebarGroups` in `crouton.json`.
-   * Resources with the same `group` are nested under a shared collapsible section.
-   */
-  group: z.string().optional(), // must match a key in `sidebarGroups` (crouton.json)
+  hide: z.boolean().default(false).describe('When true, this resource is not shown in the sidebar navigation.'),
+  position: z.number().optional().describe('Explicit position number. Lower values appear higher. Resources without a position are sorted alphabetically after positioned entries.'),
+  label: z.string().optional().describe('Override label in the sidebar. Defaults to the resource title.'),
+  group: z.string().optional().describe('Slug of the sidebar group this resource belongs to. Must match a key in sidebarGroups in crouton.json. Resources in the same group are nested under a shared collapsible section.'),
 });
 
 export type Sidebar = z.infer<typeof SidebarSchema>;

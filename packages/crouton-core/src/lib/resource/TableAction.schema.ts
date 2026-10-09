@@ -3,57 +3,36 @@ import { z } from 'zod';
 
 // Used by row-action / table-action `condition`
 const ActionConditionSchema = z.object({
-  /** Row field to evaluate. */
-  field: z.string(), //
-  /**
-   * Comparison operator. Defaults to `"eq"`.
-   * - `eq` / `neq`         — strict equality
-   * - `gt` / `gte` / `lt` / `lte` — numeric or date comparison
-   * - `exists`             — field is not null / undefined / empty string
-   * - `notExists`          — field is null / undefined / empty string
-   */
+  field: z.string().describe('Row field name to evaluate for the condition.'),
   op: z
     .enum(['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'notExists'])
-    .default('eq'), // default: 'eq'
-  /** Comparison value. Not required for `exists` / `notExists`. */
-  value: z.unknown().optional(), // not required for exists/notExists
+    .default('eq')
+    .describe('Comparison operator. "eq"/"neq" for equality, "gt"/"gte"/"lt"/"lte" for numeric/date, "exists"/"notExists" for null checks. Defaults to "eq".'),
+  value: z.unknown().optional().describe('Comparison value. Not required for "exists" or "notExists" operators.'),
 });
 
 const ActionSchema = z.object({
-  type: z.string(),
-  /** Unique identifier for the action. */
-  id: z.string(), // required
-  /** Human-readable button label. */
-  label: z.string(),
-  /** MDI icon name, e.g. `"mdi:open-in-new"`. */
-  icon: z.string().optional(),
-  /** Tooltip text. Falls back to `label` when omitted. */
-  tooltip: z.string().optional(), // default: falls back to `label`
-  condition: ActionConditionSchema.optional(),
+  type: z.string().describe('Action type discriminator. Use "procedure" for backend calls or "link" for URL navigation.'),
+  id: z.string().describe('Unique identifier for the action, used as the button key and endpoint name.'),
+  label: z.string().describe('Human-readable button label shown in the UI.'),
+  icon: z.string().optional().describe('MDI icon name (e.g. "mdi:open-in-new"). Shown on the action button.'),
+  tooltip: z.string().optional().describe('Tooltip text on hover. Defaults to the label.'),
+  condition: ActionConditionSchema.optional().describe('Optional condition evaluated per row. Button is hidden when the condition is false.'),
 });
 
 type Action = z.infer<typeof ActionSchema>;
 
 export const JsonProcedureActionSchema = ActionSchema.extend({
-  type: z.literal('procedure').default('procedure'), // default: 'procedure'
-  /**
-   * Filename (without extension) inside the resource's `actions/` directory
-   * that exports the table-action procedure, e.g. `"syncZotero"`.
-   */
-  procedure: z.string(), // required
-  /** HTTP method for the frontend. Defaults to `"post"`. */
-  method: z.string().optional().default('post'), // default: 'post'
-  /** Static query / body params passed to the endpoint. */
-  data: z.record(z.string(), z.unknown()).optional(),
+  type: z.literal('procedure').default('procedure').describe('Action type: "procedure" triggers a backend call to the resource\'s actions/ directory.'),
+  procedure: z.string().describe('Filename (without extension) inside the resource\'s actions/ directory that exports the procedure handler (e.g. "syncZotero").'),
+  method: z.string().optional().default('post').describe('HTTP method for the frontend request. Defaults to "post".'),
+  data: z.record(z.string(), z.unknown()).optional().describe('Static query or body params passed to the procedure endpoint.'),
 });
 
-/** Action that opens a URL in a new browser tab — no backend call. */
 export const JsonLinkActionSchema = ActionSchema.extend({
-  /** Optional condition evaluated per row. Button is hidden when the condition is false. */
-  type: z.literal('link').default('link'), // required
-  /** URL to open. May contain `{env.VAR}` placeholders. */
-  href: z.string(), // required,
-  blank: z.boolean().optional().default(true),
+  type: z.literal('link').default('link').describe('Action type: "link" opens a URL in a new browser tab without a backend call.'),
+  href: z.string().describe('URL to open. May contain {env.VAR} placeholders substituted at runtime.'),
+  blank: z.boolean().optional().default(true).describe('When true (default), the link opens in a new browser tab.'),
 });
 
 const transformAction = <A extends Action>(action: A) => {

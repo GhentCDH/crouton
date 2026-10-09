@@ -1,3 +1,4 @@
+Status: planned
 # `create-crouton` & `add-crouton` — Implementation Plan
 
 Two CLI tools covering the full crouton onboarding lifecycle:

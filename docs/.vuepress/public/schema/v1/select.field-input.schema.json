@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "colspan": {
       "description": "Grid column span (1–12)",
@@ -30,7 +34,8 @@
         6,
         12
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -38,7 +43,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -51,14 +57,16 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "customRender": {
       "description": "Name of a globally registered Vue component to render instead of the default input",
       "examples": [
         "MyCustomInput"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "options": {
       "description": "Inline array of option items",
@@ -71,20 +79,23 @@
         ]
       ],
       "type": "array",
-      "items": {}
+      "items": {},
+      "markdownDescription": "Inline array of option items\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "values": {
       "description": "Alias for options (deprecated — prefer options)",
       "deprecated": true,
       "type": "array",
-      "items": {}
+      "items": {},
+      "markdownDescription": "Alias for options (deprecated — prefer options)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "resource": {
       "description": "Relative path to a resource.json used to populate the options",
       "examples": [
         "./status.resource.json"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Relative path to a resource.json used to populate the options\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "labelKey": {
       "description": "Object key used as the display label",
@@ -92,7 +103,8 @@
         "label",
         "name"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Object key used as the display label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "valueKey": {
       "description": "Object key used as the stored value",
@@ -100,14 +112,16 @@
         "value",
         "id"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Object key used as the stored value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "uri": {
       "description": "Remote endpoint URL for fetching options",
       "examples": [
         "/api/statuses"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Remote endpoint URL for fetching options\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "dataField": {
       "description": "Field in the API response containing the data array",
@@ -115,19 +129,23 @@
         "data",
         "results"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Field in the API response containing the data array\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "clearable": {
       "description": "Show a clear button to remove the selected value",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Show a clear button to remove the selected value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "storeValue": {
       "description": "Store option[valueKey] instead of the whole option object",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Store option[valueKey] instead of the whole option object\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: select",
   "description": "Options for the select dropdown and multi-select (mutliSelect alias)",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json",
+  "markdownDescription": "Options for the select dropdown and multi-select (mutliSelect alias)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
 }

@@ -1,3 +1,4 @@
+Status: planned
 # Layout — Live Examples & Verification Plan
 
 ## Verification result (2026-10-06)

@@ -7,22 +7,26 @@
       "examples": [
         "My label"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "hideLabel": {
       "description": "Hide the field label",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "placeholder": {
       "description": "Placeholder text shown inside the input when empty",
       "examples": [
         "Search..."
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "readonly": {
       "description": "Render the field in read-only mode",
-      "type": "boolean"
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "colspan": {
       "default": 12,
@@ -31,7 +35,8 @@
         12,
         6
       ],
-      "type": "number"
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12); defaults to 12 for relation controls\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "width": {
       "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
@@ -39,7 +44,8 @@
         "md",
         "240px"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "styles": {
       "description": "Inline CSS style object applied to the field wrapper",
@@ -52,14 +58,16 @@
       "propertyNames": {
         "type": "string"
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "customRender": {
       "description": "Name of a globally registered Vue component to render instead of the default input",
       "examples": [
         "MyCustomInput"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "sort": {
       "description": "Field to sort related records by",
@@ -67,7 +75,8 @@
         "name",
         "createdAt"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Field to sort related records by\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "sortDir": {
       "description": "Sort direction",
@@ -80,7 +89,8 @@
       "enum": [
         "asc",
         "desc"
-      ]
+      ],
+      "markdownDescription": "Sort direction\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "direction": {
       "description": "CSS flex direction for the button layout",
@@ -88,7 +98,8 @@
         "row",
         "column"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "CSS flex direction for the button layout\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "displayKey": {
       "description": "Key used as the display label for related records",
@@ -96,18 +107,21 @@
         "name",
         "title"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Key used as the display label for related records\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     },
     "resource": {
       "description": "Path to the related resource.json",
       "examples": [
         "./author.resource.json"
       ],
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Path to the related resource.json\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: relation",
   "description": "Options for the sub-resource relation control",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/relation.field-input.schema.json"
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/relation.field-input.schema.json",
+  "markdownDescription": "Options for the sub-resource relation control\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
 }
