@@ -6,7 +6,6 @@ settings:
 
 overrides:
   '@ghentcdh/create-crouton': link:packages/create-crouton
-  '@ghentcdh/ui': ^3.0.6
   '@vue/runtime-core': 3.5.42
   '@vue/runtime-dom': 3.5.42
   '@vue/reactivity': 3.5.42
@@ -27,9 +26,6 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.12.0(jiti@2.7.0))
-      '@ghentcdh/ui':
-        specifier: ^3.0.6
-        version: 3.1.1(@playwright/test@1.64.0)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.27.7)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3)))(vue@3.5.43(typescript@6.0.3))
       '@jsonforms/core':
         specifier: ^3.8.0
         version: 3.8.0
@@ -202,9 +198,6 @@ importers:
       '@ghentcdh/crouton-vue':
         specifier: workspace:*
         version: link:../../../../packages/crouton-vue
-      '@ghentcdh/ui':
-        specifier: ^3.0.6
-        version: 3.1.1(@playwright/test@1.64.0)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))
       axios:
         specifier: ^1.7.0
         version: 1.20.0
@@ -1753,28 +1746,6 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
-
-  '@ghentcdh/ui@3.1.1':
-    resolution: {integrity: sha512-pL9UsUvwMhERHMna77gz1cootocokYgvRu3it7rzLzXEe+em32gXVphn5yz6Pdkp21UzNKjO3UrQXX7RRCelfQ==}
-    peerDependencies:
-      '@playwright/test': '>=1.50.0'
-      '@tiptap/pm': ^3.0.0
-      '@tiptap/starter-kit': ^3.0.0
-      '@tiptap/vue-3': ^3.0.0
-      tiptap-markdown: ^0.9.0
-      vue: ^3.5.0
-      vue-router: ^5.0.0
-    peerDependenciesMeta:
-      '@playwright/test':
-        optional: true
-      '@tiptap/pm':
-        optional: true
-      '@tiptap/starter-kit':
-        optional: true
-      '@tiptap/vue-3':
-        optional: true
-      tiptap-markdown:
-        optional: true
 
   '@grpc/grpc-js@1.14.6':
     resolution: {integrity: sha512-SgC/B3/VZ8lTyOZ4Cwk6f1skWhmkNAaVfiX90qd5u1rRXGKk1//8FTUEN9GvOUq7rfWIqAYkA3CoyumYVpOS6g==}
@@ -10221,28 +10192,6 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@ghentcdh/ui@3.1.1(@playwright/test@1.64.0)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))':
-    dependencies:
-      vue: 3.5.43(typescript@5.9.3)
-      vue-router: 5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3))
-    optionalDependencies:
-      '@playwright/test': 1.64.0
-      '@tiptap/pm': 3.27.1
-      '@tiptap/starter-kit': 3.27.1
-      '@tiptap/vue-3': 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3))
-      tiptap-markdown: 0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))
-
-  '@ghentcdh/ui@3.1.1(@playwright/test@1.64.0)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.27.7)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3)))(vue@3.5.43(typescript@6.0.3))':
-    dependencies:
-      vue: 3.5.43(typescript@6.0.3)
-      vue-router: 5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.27.7)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
-    optionalDependencies:
-      '@playwright/test': 1.64.0
-      '@tiptap/pm': 3.27.1
-      '@tiptap/starter-kit': 3.27.1
-      '@tiptap/vue-3': 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3))
-      tiptap-markdown: 0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))
-
   '@grpc/grpc-js@1.14.6':
     dependencies:
       '@grpc/proto-loader': 0.8.1
@@ -12107,28 +12056,6 @@ snapshots:
     optionalDependencies:
       '@tiptap/extension-bubble-menu': 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
       '@tiptap/extension-floating-menu': 3.31.4(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-
-  '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3))':
-    dependencies:
-      '@floating-ui/dom': 1.8.0
-      '@tiptap/core': 3.31.4(@tiptap/pm@3.27.1)
-      '@tiptap/pm': 3.27.1
-      vue: 3.5.43(typescript@5.9.3)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-      '@tiptap/extension-floating-menu': 3.31.4(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-    optional: true
-
-  '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3))':
-    dependencies:
-      '@floating-ui/dom': 1.8.0
-      '@tiptap/core': 3.31.4(@tiptap/pm@3.27.1)
-      '@tiptap/pm': 3.27.1
-      vue: 3.5.43(typescript@6.0.3)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-      '@tiptap/extension-floating-menu': 3.31.4(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-    optional: true
 
   '@tokenizer/inflate@0.4.1':
     dependencies:

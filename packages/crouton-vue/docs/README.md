@@ -9,8 +9,7 @@ by the schemas exposed by `@ghentcdh/crouton-api`.
 pnpm add @ghentcdh/crouton-vue
 ```
 
-Peer dependencies: `vue` (>=3), `vue-router` (>=4), `axios`, `@jsonforms/core`, `@ghentcdh/ui`,
-`@ghentcdh/json-forms-vue`, `zod`.
+Peer dependencies: `vue` (>=3), `vue-router` (>=4), `axios`, `@jsonforms/core`, `zod`.
 
 ## Quick start
 

@@ -17,7 +17,6 @@ supportedArchitectures:
 
 overrides:
   '@ghentcdh/create-crouton': link:packages/create-crouton
-  '@ghentcdh/ui': ^3.0.6
   '@vue/runtime-core': 3.5.42
   '@vue/runtime-dom': 3.5.42
   '@vue/reactivity': 3.5.42

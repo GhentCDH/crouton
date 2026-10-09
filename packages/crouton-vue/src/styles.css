@@ -1,35 +1,14 @@
-/*
- * Compiled stylesheet for @ghentcdh/crouton-vue — bundled into a single
- * dist/styles.css at build time.
- *
- * 1. Inlines the pre-compiled @ghentcdh/ui/index.css (Tailwind preflight,
- *    theme, daisyUI components + ugent theme, ui component styles).
- * 2. Generates crouton's own Tailwind utilities from the crouton-vue
- *    sources only (no second preflight).
- *
- * Note: daisyUI component classes come pre-compiled from @ghentcdh/ui.
- * If crouton ever uses a daisyUI component that @ghentcdh/ui does not,
- * add `daisyui` as a devDependency and `@plugin 'daisyui' { themes: false; }`
- * here.
- */
-@import '@ghentcdh/ui/index.css';
-/*@import '@ghentcdh/crouton-forms-vue/styles.css';*/
-/*@import '@ghentcdh/crouton-editor-vue/styles.css';*/
+/* Replace individual theme/utility imports with the unified v4 import */
+@import 'tailwindcss' source(none);
 
-/* Crouton's own Tailwind theme + utilities (preflight already provided by @ghentcdh/ui) */
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@import '../../crouton-ui-vue/src/styles.scss';
 
 /* Only scan the crouton-vue sources for class usage */
 @source './';
 @source '../../crouton-forms-vue/src';
 @source '../../crouton-editor-vue/src';
+@source '../../crouton-ui-vue/src';
 
-/*
- * Expose the daisyUI theme colors (defined at runtime by the ugent theme in
- * @ghentcdh/ui/index.css) as Tailwind tokens, so utilities like
- * `text-secondary` or `bg-base-100` compile to var() references.
- */
 @theme inline {
     --color-base-100: var(--color-base-100);
     --color-base-200: var(--color-base-200);
