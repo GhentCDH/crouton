@@ -11,6 +11,16 @@
   --ugent-border-gray-light: #dddddd;
   --ugent-inactive-gray: #b4b4b4;
 
+  /* DaisyUI appearance variables — not emitted by @plugin "daisyui/theme" */
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+  --radius-selector: 0rem;
+  --radius-field: 0rem;
+  --radius-box: 0rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
   font-family: "PannoTextMedium", "Arial", sans-serif;
 }
 

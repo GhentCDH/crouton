@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+:root {
+  /* DaisyUI appearance variables — not emitted by @plugin "daisyui/theme" */
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+  --radius-selector: 0rem;
+  --radius-field: 0rem;
+  --radius-box: 0rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+}
+
 @plugin "daisyui" {
   themes: ghentcdh --default;
   darkTheme: false;
