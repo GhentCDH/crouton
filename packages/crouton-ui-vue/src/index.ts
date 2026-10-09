@@ -1,3 +1,5 @@
+import './styles.css';
+
 export { default as ShellComponent } from './shell/shell.component.vue';
 export * from './shell/menu.type';
 
@@ -6,8 +8,6 @@ export * from './button';
 export * from './table';
 
 export * from './const';
-
-import './styles.scss';
 
 export { default as Card } from './card/card.vue';
 

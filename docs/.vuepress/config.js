@@ -35,18 +35,12 @@ export default defineUserConfig({
         alias: {
           '@ghentcdh/crouton-vue/styles.css': fileURLToPath(
             new URL(
-              '../../packages/crouton-vue/src/styles.css',
+              '../../packages/crouton-vue/src/styles.scss',
               import.meta.url,
             ),
           ),
           '@ghentcdh/crouton-vue': fileURLToPath(
             new URL('../../packages/crouton-vue/src/index.ts', import.meta.url),
-          ),
-          '@ghentcdh/crouton-forms-vue/styles.css': fileURLToPath(
-            new URL(
-              '../../packages/crouton-forms-vue/src/styles.css',
-              import.meta.url,
-            ),
           ),
           '@ghentcdh/crouton-forms-vue': fileURLToPath(
             new URL(
@@ -57,18 +51,6 @@ export default defineUserConfig({
           '@ghentcdh/crouton-ui-vue': fileURLToPath(
             new URL(
               '../../packages/crouton-ui-vue/src/index.ts',
-              import.meta.url,
-            ),
-          ),
-          '@ghentcdh/crouton-ui-vue/styles.css': fileURLToPath(
-            new URL(
-              '../../packages/crouton-ui-vue/src/styles.css',
-              import.meta.url,
-            ),
-          ),
-          '@ghentcdh/crouton-editor-vue/styles.css': fileURLToPath(
-            new URL(
-              '../../packages/crouton-editor-vue/src/styles.css',
               import.meta.url,
             ),
           ),

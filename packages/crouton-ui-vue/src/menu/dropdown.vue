@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import type { MenuWithItems } from './menu.type';
 import SubMenu from './sub-menu.vue';
@@ -19,5 +19,4 @@ defineProps<{
 }>();
 
 const open = ref(true);
-
 </script>

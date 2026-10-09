@@ -1,6 +1,6 @@
 # `@ghentcdh/crouton-ui-vue/testing`
 
-Playwright harnesses for `@ghentcdh/ui` components. Each harness wraps a
+Playwright harnesses for `@ghentcdh/crouton-ui-vue` components. Each harness wraps a
 `Locator` and exposes the actions a test would perform on that one widget —
 no knowledge of routes, forms, or fixtures.
 
@@ -8,7 +8,7 @@ no knowledge of routes, forms, or fixtures.
 
 | Suffix     | Where it lives                                      | Knows about                                 |
 |------------|-----------------------------------------------------|---------------------------------------------|
-| `*Harness` | `@ghentcdh/ui/testing`                              | one `Locator`, one UI component             |
+| `*Harness` | `@ghentcdh/crouton-ui-vue/testing`                  | one `Locator`, one UI component             |
 | `*Fixture` | `@ghentcdh/json-forms-vue-test`                     | a JsonForm-bound entity, composes harnesses |
 | `*Page`    | the consuming e2e suite (`ui-e2e`, `vue-e2e`, mela) | a route + page-level navigation             |
 

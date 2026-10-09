@@ -1,0 +1,7 @@
+{
+  "name": "book-collection-types",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "root": "examples/book-collection/apps/generated/default/types",
+  "tags": ["scope:backend", "type:util"]
+}

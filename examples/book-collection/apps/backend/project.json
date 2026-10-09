@@ -5,11 +5,13 @@
   "sourceRoot": "examples/book-collection/apps/backend/src",
   "root": "examples/book-collection/apps/backend",
   "tags": ["scope:backend", "type:backend"],
+  "implicitDependencies": ["crouton-prisma"],
   "targets": {
     "serve": {
       "executor": "nx:run-commands",
+      "dependsOn": [{ "project": "crouton-prisma", "target": "build" }, "prisma:generate"],
       "options": {
-        "command": "node --import tsx/esm src/main.ts",
+        "command": "nodemon",
         "cwd": "examples/book-collection/apps/backend",
         "envFile": "examples/book-collection/.env"
       }
@@ -37,8 +39,18 @@
     },
     "prisma:generate": {
       "executor": "nx:run-commands",
+      "dependsOn": [{ "projects": ["crouton-prisma"], "target": "build" }],
       "options": {
         "command": "prisma generate",
+        "cwd": "examples/book-collection/apps/backend"
+      }
+    },
+    "db:e2e-setup": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["prisma:generate"],
+      "options": {
+        "command": "rm -f /tmp/e2e.db /tmp/e2e.db-wal /tmp/e2e.db-shm",
         "cwd": "examples/book-collection/apps/backend"
       }
     }

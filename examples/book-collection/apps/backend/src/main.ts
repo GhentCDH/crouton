@@ -3,15 +3,29 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import { AppModule } from './app/app.module.js';
-import prisma from './app/data-sources/default/index.js';
 import { seedDatabase } from './seed.js';
 
 const bootstrap = async () => {
+  // Dynamic import so default/index.ts (the db singleton) loads here, not at
+  // module-parse time. This ensures the singleton opens the db file BEFORE seeding,
+  // and we use the SAME connection for seeding — no WAL handoff between two clients.
+  const { AppModule } = await import('./app/app.module.js');
+  const { default: prisma } = await import('./app/data-sources/default/index.js');
+
   await seedDatabase(prisma);
 
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+
+  if (process.env['NODE_ENV'] !== 'production') {
+    app.use('/_test/reset', async (req: any, res: any) => {
+      if (req.method !== 'POST') { res.status(405).end(); return; }
+      await prisma.$disconnect();
+      await prisma.$connect();
+      await seedDatabase(prisma);
+      res.json({ ok: true });
+    });
+  }
 
   const config = new DocumentBuilder()
     .setTitle('Book Collection')

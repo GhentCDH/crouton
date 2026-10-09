@@ -1,6 +1,8 @@
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaLibSql({ url: process.env['DATABASE_URL'] ?? 'file:./prisma/dev.db' });
+const prisma = new PrismaClient({ adapter });
 
 const seed = async () => {
   await prisma.$transaction([
@@ -42,6 +44,7 @@ const seed = async () => {
         publishedYear: 1970 + i,
         status,
         summary: `Summary of book ${i}. A compelling story.`,
+        rating: (i - 1) % 6,
         authorId,
         categories: {
           connect: [

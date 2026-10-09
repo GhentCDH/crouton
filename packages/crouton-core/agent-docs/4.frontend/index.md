@@ -14,7 +14,7 @@ Add the crouton admin UI to a Vue 3 application.
 pnpm add @ghentcdh/crouton-vue
 ```
 
-Peer dependencies (`vue`, `vue-router`, `axios`, `@ghentcdh/ui`, …) are installed automatically by pnpm and npm.
+Peer dependencies (`vue`, `vue-router`, `axios`, …) are installed automatically by pnpm and npm.
 
 ## Styles
 
@@ -54,7 +54,8 @@ app.use(router);
 app.mount('#root');
 ```
 
-::: tip Any pre-configured `AxiosInstance` works — add your auth interceptors to it before passing it to `CroutonPlugin`.
+::: tip Any pre-configured `AxiosInstance` works — add your auth interceptors to it before passing it to
+`CroutonPlugin`.
 :::
 
 ## Mount the routes

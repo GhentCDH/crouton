@@ -1,0 +1,64 @@
+@use "tailwindcss";
+
+// 1. Initialize daisyUI and isolate it ONLY to your custom theme
+@plugin "daisyui" {
+  themes: ghentcdh --default;
+  darkTheme: false;
+}
+
+:root {
+  --ugent-corporate-blue: #1e64c8;
+  --ugent-corporate-blue-light: #e9f0fa;
+  --ugent-corporate-yellow: #ffd200;
+  --ugent-corporate-yellow-light: #fffae5;
+  --ugent-corporate-text-black: #202020;
+  --ugent-corporate-text-gray: #646464;
+  --ugent-border-gray: #CCCCCC;
+  --ugent-border-gray-light: #DDDDDD;
+  --ugent-inactive-gray: #B4B4B4;
+
+  font-family: "PannoTextMedium", "Arial", sans-serif;
+}
+
+
+// 2. Map your custom ghentcdh theme properties explicitly
+@plugin "daisyui/theme" {
+  name: "ghentcdh";
+  default: true;
+  prefersdark: false;       // Prevents system dark modes from latching onto it
+  color-scheme: "light";    // Forces native browser mechanics to stay in light mode
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(98% 0 0);
+  --color-base-300: oklch(95% 0 0);
+  --color-base-content: var(--ugent-corporate-text-black);
+
+  --color-primary: var(--ugent-corporate-blue);
+  --color-primary-content: var(--ugent-corporate-blue-light);
+  --color-secondary: var(--ugent-corporate-yellow-light);
+  --color-secondary-content: var(--ugent-corporate-yellow);
+
+  --color-accent: oklch(77% 0.152 181.912);
+  --color-accent-content: oklch(38% 0.063 188.416);
+  --color-neutral: var(--ugent-corporate-text-black);
+  --color-neutral-content: oklch(92% 0.004 286.32);
+
+  --color-info: oklch(74% 0.16 232.661);
+  --color-info-content: oklch(29% 0.066 243.157);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(37% 0.077 168.94);
+  --color-warning: var(--ugent-corporate-yellow);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(65% 0.25 27.0);
+}
+
+// 3. Tailor core Tailwind typography rules
+@theme {
+  --font-sans: "PannoTextMedium", "Arial", sans-serif;
+  --font-display: "PannoTextMedium", "Arial", sans-serif;
+}
+
+/* Only scan the crouton-vue sources for class usage */
+@source './';
+@source '../../crouton-forms-vue/src';
+@source '../../crouton-editor-vue/src';
+@source '../../crouton-ui-vue/src';

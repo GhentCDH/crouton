@@ -1,0 +1,44 @@
+@reference "tailwindcss";
+
+
+/* Tiptap / ProseMirror editor */
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+
+  p {
+    margin: 0.5em 0;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.input-xs {
+  @apply w-12;
+}
+
+.input-sm {
+  @apply w-24;
+}
+
+.input-md {
+  @apply w-36;
+}
+
+.input-lg {
+  @apply w-48;
+}
+
+.input-xl {
+  @apply w-64;
+}
+
+.input-full {
+  @apply flex-grow-1;
+}
+
+.min-w-input {
+  @apply w-full min-w-48;
+}

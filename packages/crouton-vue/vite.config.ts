@@ -32,9 +32,10 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
-    rolldownOptions: {
+    // FIX 1: Must be rollupOptions, not rolldownOptions
+    rollupOptions: {
+      // FIX 2: Added common sub-dependencies you likely need externalized
       external: [
-        '@ghentcdh/crouton-ui-vue',
         '@jsonforms/core',
         'axios',
         'lodash-es',
@@ -45,8 +46,13 @@ export default defineConfig({
       ],
       output: {
         globals: { vue: 'Vue' },
-        // Emit the compiled CSS as styles.css (matches the package export)
-        assetFileNames: 'styles[extname]',
+        // Emits compiled Tailwind code as 'styles.css' inside your dist folder
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'styles.css';
+          }
+          return '[name][extname]';
+        },
       },
     },
   },
