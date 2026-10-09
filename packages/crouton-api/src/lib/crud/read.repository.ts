@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import {
+  type JsonColumn,
   type ListRequest,
   Operator,
   type OperatorType,
@@ -270,14 +271,23 @@ export class ReadRepository<T = any> {
     const manyToOneSubs = (this.config.subResources ?? []).filter(
       (s) => s.relationType === 'manyToOne' && s.displayKey,
     );
-    const remapped = manyToOneSubs.length
+    const manyToOneCols = (
+      (this.config.columns as unknown as JsonColumn[] | undefined) ?? []
+    ).filter((c) => c.fieldInput?.relationType === 'manyToOne' && c.displayKey);
+    const needsRemap = manyToOneSubs.length || manyToOneCols.length;
+    const remapped = needsRemap
       ? filter.map((f) => {
           const parsed = parseFilterString(f);
           if (!parsed) return f;
           const sub = manyToOneSubs.find((s) => s.column === parsed.field);
-          return sub?.displayKey
-            ? `${parsed.field}.${sub.displayKey}:${parsed.value}:${parsed.operator}`
-            : f;
+          if (sub?.displayKey) {
+            return `${parsed.field}.${sub.displayKey}:${parsed.value}:${parsed.operator}`;
+          }
+          const col = manyToOneCols.find((c) => c.id === parsed.field);
+          if (col?.displayKey) {
+            return `${parsed.field}.${col.displayKey}:${parsed.value}:${parsed.operator}`;
+          }
+          return f;
         })
       : filter;
     return buildFilterWhere(remapped);
@@ -290,7 +300,8 @@ export class ReadRepository<T = any> {
 
   private safeSort(sort: string | undefined, sortDir: string | undefined) {
     if (!sort) return undefined;
-    if (this.listSelect && !(sort in this.listSelect)) return undefined;
+    if (this.listSelect && !(sort.split('.')[0] in this.listSelect))
+      return undefined;
     return buildSort(sort, sortDir);
   }
 
@@ -329,9 +340,10 @@ export class ReadRepository<T = any> {
     );
     const filterWhere = this.buildWhere(params.filter);
     const searchWhere = this.buildSearchOrWhere((params as any).q);
-    const where = filterWhere && searchWhere
-      ? { AND: [filterWhere, searchWhere] }
-      : filterWhere ?? searchWhere;
+    const where =
+      filterWhere && searchWhere
+        ? { AND: [filterWhere, searchWhere] }
+        : (filterWhere ?? searchWhere);
     const query: Record<string, any> = {
       where,
       take: params.pageSize,
@@ -385,16 +397,27 @@ export class ReadRepository<T = any> {
         .map((s) => s.relation),
     ]);
     const filteredConfigInclude = configInclude
-      ? Object.fromEntries(Object.entries(configInclude).filter(([key]) => !countableRelations.has(key)))
+      ? Object.fromEntries(
+          Object.entries(configInclude).filter(
+            ([key]) => !countableRelations.has(key),
+          ),
+        )
       : undefined;
-    const safeConfigInclude = filteredConfigInclude && Object.keys(filteredConfigInclude).length ? filteredConfigInclude : undefined;
+    const safeConfigInclude =
+      filteredConfigInclude && Object.keys(filteredConfigInclude).length
+        ? filteredConfigInclude
+        : undefined;
     const mergedInclude =
       flatIncludes || safeConfigInclude
         ? { ...flatIncludes, ...safeConfigInclude }
         : undefined;
 
     const countClause = countableSubResources.length
-      ? { select: Object.fromEntries(countableSubResources.map((s) => [s.relation, true])) }
+      ? {
+          select: Object.fromEntries(
+            countableSubResources.map((s) => [s.relation, true]),
+          ),
+        }
       : undefined;
 
     if (projection.select) {
@@ -418,7 +441,10 @@ export class ReadRepository<T = any> {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
-            countableSubResources.map((s) => [s.column, _count[s.relation] ?? 0]),
+            countableSubResources.map((s) => [
+              s.column,
+              _count[s.relation] ?? 0,
+            ]),
           );
           return { ...rest, ...counts };
         })
@@ -435,12 +461,20 @@ export class ReadRepository<T = any> {
     return withCalc;
   }
 
-  private buildSearchOrWhere(q: string | undefined): Record<string, unknown> | undefined {
+  private buildSearchOrWhere(
+    q: string | undefined,
+  ): Record<string, unknown> | undefined {
     const lookup = this.config.lookup;
-    const labels = lookup?.labels?.length ? lookup.labels : (lookup?.label ? [lookup.label] : undefined);
+    const labels = lookup?.labels?.length
+      ? lookup.labels
+      : lookup?.label
+        ? [lookup.label]
+        : undefined;
     if (!q || !labels?.length) return undefined;
     return {
-      OR: labels.map((path) => buildNestedPath(path.split('.'), { contains: q })),
+      OR: labels.map((path) =>
+        buildNestedPath(path.split('.'), { contains: q }),
+      ),
     };
   }
 
@@ -448,9 +482,10 @@ export class ReadRepository<T = any> {
   count(filter: string[], q?: string): Promise<number> {
     const filterWhere = this.buildWhere(filter);
     const searchWhere = this.buildSearchOrWhere(q);
-    const where = filterWhere && searchWhere
-      ? { AND: [filterWhere, searchWhere] }
-      : filterWhere ?? searchWhere;
+    const where =
+      filterWhere && searchWhere
+        ? { AND: [filterWhere, searchWhere] }
+        : (filterWhere ?? searchWhere);
     return this.prismaModel.count({ where });
   }
 
@@ -570,9 +605,7 @@ export class ReadRepository<T = any> {
         sub.childRoute,
       );
       const labeled = subVlCols?.length
-        ? decorated.map((r: any) =>
-            applyValueLabelColumns(r, subVlCols),
-          )
+        ? decorated.map((r: any) => applyValueLabelColumns(r, subVlCols))
         : decorated;
       return { data: labeled, count: result?.count ?? labeled.length };
     }
@@ -583,7 +616,9 @@ export class ReadRepository<T = any> {
 
     const where = {
       ...this.buildWhere(params.filter),
-      ...(sub.relationType !== 'manyToMany' && { [sub.foreignKey]: this.toId(parentId) }),
+      ...(sub.relationType !== 'manyToMany' && {
+        [sub.foreignKey]: this.toId(parentId),
+      }),
     };
     const includeClause = buildIncludeClause(sub.include);
     const subVlCols = await resolveValueLabelColumns(
@@ -636,9 +671,7 @@ export class ReadRepository<T = any> {
       : withCalc;
 
     const labeled = subVlCols?.length
-      ? decorated.map((r: any) =>
-          applyValueLabelColumns(r, subVlCols),
-        )
+      ? decorated.map((r: any) => applyValueLabelColumns(r, subVlCols))
       : decorated;
     return { data: labeled, count };
   }
@@ -696,7 +729,8 @@ export class ReadRepository<T = any> {
       (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
     const idField = sub.idField ?? 'id';
     const where: Record<string, unknown> = { [idField]: id };
-    if (parentId !== undefined && sub.relationType !== 'manyToMany') where[sub.foreignKey] = this.toId(parentId);
+    if (parentId !== undefined && sub.relationType !== 'manyToMany')
+      where[sub.foreignKey] = this.toId(parentId);
 
     const includeClause = buildIncludeClause(sub.include);
     const record = await childModel.findFirst({

@@ -35,7 +35,11 @@ import { type Resource } from '../resource/ResourceConfig.schema';
 import type { LookupConfig } from '../resource/lookup.schema';
 
 const pickExtensions = (obj: Record<string, unknown>) =>
-  Object.fromEntries([...getResourceExtensions().keys()].filter(k => obj[k] !== undefined).map(k => [k, obj[k]]));
+  Object.fromEntries(
+    [...getResourceExtensions().keys()]
+      .filter((k) => obj[k] !== undefined)
+      .map((k) => [k, obj[k]]),
+  );
 
 export const fromJson = (
   json: ResourceJson,
@@ -150,12 +154,21 @@ const buildLookup = (
   if (!keyCol && !searchCols.length) return undefined;
 
   const labels = searchCols.map((col) => {
-    if (col.fieldInput?.relationType === 'manyToOne' && col.fieldInput?.resource && dirPath) {
+    if (col.fieldInput?.relationType === 'manyToOne') {
       const relationName = col.id.replace(/Id$/, '');
-      const child = resolveChildResource(col.fieldInput.resource, dirPath);
-      const childColumns = child ? expandExtendColumns(child.json.columns, dirPath) : undefined;
-      const displayCol = childColumns?.find((c) => !c.idField && !c.hiddenInTable);
-      if (displayCol) return `${relationName}.${displayCol.id}`;
+      if (col.fieldInput?.resource && dirPath) {
+        const child = resolveChildResource(col.fieldInput.resource, dirPath);
+        const childColumns = child
+          ? expandExtendColumns(child.json.columns, dirPath)
+          : undefined;
+        const displayCol = childColumns?.find(
+          (c) => !c.idField && !c.hiddenInTable,
+        );
+        if (displayCol) return `${relationName}.${displayCol.id}`;
+      }
+      const displayKey =
+        col.displayKey ?? (col.fieldInput?.options as any)?.displayKey;
+      if (displayKey) return `${relationName}.${displayKey}`;
     }
     return col.id;
   });

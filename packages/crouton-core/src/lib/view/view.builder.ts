@@ -1,6 +1,5 @@
 import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
-
 import { isRelation } from './column-predicates';
 import {
   columnToJsonSchemaProperty,
@@ -43,7 +42,6 @@ export const patchFilterProperties = (
     // `date_range->from` / `date_range->to`. The frontend filter dropdown
     // reads these straight from `properties` and emits `key:value:operator`.
     if (col.fieldInput?.format === 'date-range') {
-
       delete properties[col.id];
       const opts =
         (col.fieldInput?.options as Record<string, unknown> | undefined) ?? {};
@@ -65,9 +63,9 @@ export const patchFilterProperties = (
       continue;
     }
 
-    // Relation columns are excluded from the schema pick — inject a string
-    // property so the filter UI can render a text input for them.
-    if (!properties[col.id] && isRelation(col)) {
+    // Columns absent from the schema pick (relations, manyToOne autocompletes, etc.)
+    // need a string property so the filter UI can render a text input for them.
+    if (!properties[col.id]) {
       properties[col.id] = { type: 'string', title: col.label ?? col.id };
     }
 
@@ -116,8 +114,7 @@ const injectFieldDefaults = (
   columns: JsonColumn[],
 ): void => {
   const properties = jsonSchema.properties as
-    | Record<string, Record<string, unknown>>
-    | undefined;
+    Record<string, Record<string, unknown>> | undefined;
   if (!properties) return;
   for (const col of columns) {
     if (col.fieldInput?.defaultValue === undefined) continue;
@@ -197,8 +194,7 @@ const applyRequiredColumns = (
 ): void => {
   if (!columns?.length) return;
   const properties = jsonSchema['properties'] as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   if (!properties) return;
 
   const required = new Set(
@@ -255,9 +251,10 @@ const buildView = (
   // the schema pick so their complex Zod definitions (z.lazy arrays) don't
   // produce validation constraints on the parent. With additionalProperties
   // enabled, relation data in the payload still passes validation.
-  const schemaCols = (schemaVisible
-    ? columns.filter((c) => visible(c) || schemaVisible(c))
-    : visibleCols
+  const schemaCols = (
+    schemaVisible
+      ? columns.filter((c) => visible(c) || schemaVisible(c))
+      : visibleCols
   ).filter((c) => !isRelation(c));
 
   const jsonSchema = source(schemaCols);
@@ -270,7 +267,10 @@ const buildView = (
   if (schemaVisible) {
     const nonEditableIds = new Set(
       schemaCols
-        .filter((c) => c.idField || (c.createable === false && c.updateable === false))
+        .filter(
+          (c) =>
+            c.idField || (c.createable === false && c.updateable === false),
+        )
         .map((c) => c.id),
     );
     const required = jsonSchema['required'] as string[] | undefined;
@@ -344,7 +344,10 @@ export const buildViewsWithSource = (
     (c) => !c.hiddenInForm,
     formUiBuilder,
     true,
-    (c) => !c.idField && !c.hiddenInForm && (c.createable === true || c.updateable === true),
+    (c) =>
+      !c.idField &&
+      !c.hiddenInForm &&
+      (c.createable === true || c.updateable === true),
   );
   if (form) {
     applyRequiredColumns(form.json_schema as Record<string, unknown>, columns);
@@ -394,7 +397,11 @@ export const buildViews = (
   columns: JsonColumn[] | undefined,
   layout?: Layout,
 ): Record<string, ViewConfig> | undefined =>
-  buildViewsWithSource(schema ? zodSchemaSource(schema) : columnTypeSchemaSource, columns, layout);
+  buildViewsWithSource(
+    schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
+    columns,
+    layout,
+  );
 
 /**
  * Build table / form / filter / view schemas for a resource with no Zod model
@@ -520,7 +527,9 @@ export const buildViewsFromColumns = (
   const views: Record<string, ViewConfig> = {};
 
   const tableCols = sortByPosition(
-    columns.filter((c) => !c.hiddenInTable).map((c) => columnForContext(c, 'table')),
+    columns
+      .filter((c) => !c.hiddenInTable)
+      .map((c) => columnForContext(c, 'table')),
   );
   const table = makeView(tableCols, buildTableUiSchema);
   if (table) {
@@ -538,7 +547,9 @@ export const buildViewsFromColumns = (
   }
 
   const viewCols = sortByPosition(
-    columns.filter((c) => !c.hiddenInView).map((c) => columnForContext(c, 'view')),
+    columns
+      .filter((c) => !c.hiddenInView)
+      .map((c) => columnForContext(c, 'view')),
   );
   const viewView = makeView(viewCols, buildFormUiSchema);
   if (viewView) views.view = viewView;
