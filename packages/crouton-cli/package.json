@@ -41,6 +41,7 @@
   "devDependencies": {
     "@clack/prompts": "^1.8.1",
     "@ghentcdh/crouton-codegen": "workspace:*",
+    "@ghentcdh/crouton-core": "workspace:*",
     "commander": "^15.0.0",
     "picocolors": "^1.1.0",
     "tsup": "^8.0.0"

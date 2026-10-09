@@ -31,6 +31,8 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
   },
   "peerDependencies": {
+    "@ghentcdh/crouton-forms-vue": ">=0.0.1-alpha",
+    "@ghentcdh/crouton-ui-vue": ">=0.0.1-alpha",
     "vue": ">=3.0.0",
     "vuedraggable": "^4.1.0",
     "zod": "^4.0.0"

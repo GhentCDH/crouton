@@ -330,10 +330,10 @@ importers:
         specifier: '>=7.0.0'
         version: 12.0.2(@nestjs/common@12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.2)(reflect-metadata@0.2.2)(typescript@6.0.3)
       '@prisma/client':
-        specifier: '>=5.0.0'
+        specifier: '>=7.0.0'
         version: 7.10.0(prisma@7.10.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@6.0.3))(typescript@6.0.3)
       '@prisma/internals':
-        specifier: '>=5.0.0'
+        specifier: '>=7.0.0'
         version: 7.10.0(typescript@6.0.3)
       nestjs-zod:
         specifier: '>=5.0.0'
@@ -394,6 +394,9 @@ importers:
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
         version: link:../crouton-codegen
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -419,6 +422,9 @@ importers:
       vitest:
         specifier: ^5.0.3
         version: 5.0.3(@types/node@26.6.4)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.5
 
   packages/crouton-core:
     dependencies:
@@ -464,13 +470,13 @@ importers:
         specifier: '>=3.0.0'
         version: 3.8.0
       vee-validate:
-        specifier: 5.0.0-beta.1
+        specifier: '>=5.0.0-beta.1'
         version: 5.0.0-beta.1(vue@3.5.43(typescript@6.0.3))
       vue:
         specifier: '>=3.0.0'
         version: 3.5.43(typescript@6.0.3)
       vue-router:
-        specifier: '>=4.0.0'
+        specifier: ^5.0.0
         version: 5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
       zod:
         specifier: ^4.0.0
@@ -482,6 +488,9 @@ importers:
       '@ghentcdh/crouton-ui-vue':
         specifier: workspace:*
         version: link:../crouton-ui-vue
+      '@heroicons/vue':
+        specifier: ^2.2.0
+        version: 2.2.0(vue@3.5.43(typescript@6.0.3))
       vitest:
         specifier: ^5.0.3
         version: 5.0.3(@types/node@26.6.4)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))
@@ -494,6 +503,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.32.1(zod@4.6.5)
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.5
     devDependencies:
       typescript:
         specifier: ^5.0.0
@@ -525,10 +537,6 @@ importers:
         version: 5.9.3
 
   packages/crouton-ui-vue:
-    dependencies:
-      tiptap-markdown:
-        specifier: ^0.9.0
-        version: 0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))
     devDependencies:
       '@playwright/test':
         specifier: '>=1.50.0'
@@ -546,11 +554,14 @@ importers:
         specifier: 3.27.1
         version: 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.39(typescript@6.0.3))
       daisyui:
-        specifier: 5.5.23
-        version: 5.5.23
+        specifier: ^5.7.47
+        version: 5.7.47
       tailwindcss:
         specifier: 4.3.1
         version: 4.3.1
+      tiptap-markdown:
+        specifier: ^0.9.0
+        version: 0.9.0(@tiptap/core@3.31.4(@tiptap/pm@3.27.1))
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@6.0.3)
@@ -570,13 +581,13 @@ importers:
         specifier: ^4.17.21
         version: 4.18.1
       vee-validate:
-        specifier: 5.0.0-beta.1
+        specifier: '>=5.0.0-beta.1'
         version: 5.0.0-beta.1(vue@3.5.43(typescript@6.0.3))
       vue:
         specifier: '>=3.0.0'
         version: 3.5.43(typescript@6.0.3)
       vue-router:
-        specifier: '>=4.0.0'
+        specifier: ^5.0.0
         version: 5.4.0(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(rolldown@1.2.13)(rollup@4.64.3)(vite@8.3.1(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
       zod:
         specifier: ^4.0.0
@@ -594,6 +605,9 @@ importers:
       '@ghentcdh/crouton-ui-vue':
         specifier: workspace:*
         version: link:../crouton-ui-vue
+      '@heroicons/vue':
+        specifier: ^2.2.0
+        version: 2.2.0(vue@3.5.43(typescript@6.0.3))
       daisyui:
         specifier: ^5.7.47
         version: 5.7.47
@@ -5656,9 +5670,6 @@ packages:
 
   dagre-d3-es@7.0.14:
     resolution: {integrity: sha512-P4rFMVq9ESWqmOgK+dlXvOtLwYg0i7u0HBGJER0LZDJT2VHIPAMZ/riPxqJceWMStH5+E61QxFra9kIS3AqdMg==}
-
-  daisyui@5.5.23:
-    resolution: {integrity: sha512-xuheNUSL4T6ZVtWXoioqcNkjoyGX85QTDz4HTw2aBPfqk4fuMjax5HDo8qCmpV6M1YN8bGvfx5BpYCoDeRlt+A==}
 
   daisyui@5.7.47:
     resolution: {integrity: sha512-NOl4vPifelRqB3CMzoU751zc44KCDD9HdHMTTqQ30uiYVpIyK7+s94/ySDWgYqjdl1tQCaCrgGBx4KCizm+a3Q==}
@@ -14680,8 +14691,6 @@ snapshots:
     dependencies:
       d3: 7.9.0
       lodash-es: 4.18.1
-
-  daisyui@5.5.23: {}
 
   daisyui@5.7.47: {}
 

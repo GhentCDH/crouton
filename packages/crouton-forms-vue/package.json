@@ -36,13 +36,12 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json",
     "test": "vitest run"
   },
-  "dependencies": {
-    "vee-validate": "5.0.0-beta.1"
-  },
   "peerDependencies": {
+    "@ghentcdh/crouton-ui-vue": ">=0.0.1-alpha",
     "@jsonforms/core": ">=3.0.0",
+    "vee-validate": ">=5.0.0-beta.1",
     "vue": ">=3.0.0",
-    "vue-router": ">=4.0.0",
+    "vue-router": "^5.0.0",
     "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {
@@ -53,6 +52,7 @@
   "devDependencies": {
     "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
+    "@heroicons/vue": "^2.2.0",
     "vitest": "^5.0.3"
   }
 }

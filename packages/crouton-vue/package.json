@@ -31,14 +31,14 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21",
-    "vee-validate": "5.0.0-beta.1"
+    "lodash-es": "^4.17.21"
   },
   "peerDependencies": {
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
+    "vee-validate": ">=5.0.0-beta.1",
     "vue": ">=3.0.0",
-    "vue-router": ">=4.0.0",
+    "vue-router": "^5.0.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
@@ -46,6 +46,7 @@
     "@ghentcdh/crouton-editor-vue": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*",
     "@ghentcdh/crouton-ui-vue": "workspace:*",
+    "@heroicons/vue": "^2.2.0",
     "daisyui": "^5.7.47"
   }
 }
