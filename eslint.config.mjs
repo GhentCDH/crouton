@@ -48,7 +48,7 @@ export default [
   },
   importPlugin.flatConfigs.recommended,
   {
-    ignores: ['**/dist', '**/node_modules', '**/generated/**', '**/vite.config.*.timestamp*', 'docs/.vuepress/.cache', 'docs/.vuepress/.temp'],
+    ignores: ['**/dist', '**/node_modules', '**/generated/**', '**/vite.config.*.timestamp*', 'docs/.vuepress/.cache', 'docs/.vuepress/.temp', '**/playwright-report/**', '**/test-results/**'],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
