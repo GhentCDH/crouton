@@ -19,7 +19,7 @@ import { useFormContext } from 'vee-validate';
 import { ref, watch } from 'vue';
 
 import type { AutocompleteAllOptions } from '@ghentcdh/crouton-core';
-import { Autocomplete } from '@ghentcdh/ui';
+import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 
 import { useFormEvents } from '../../../composables/useFormEvents';
 import { useHttpClient } from '../../../composables/useHttpClient';
@@ -41,14 +41,20 @@ const {
 
 const http = useHttpClient();
 const { values: formValues } = useFormContext();
-const fetchOptions = ref<Awaited<ReturnType<typeof useFetchOptions>> | null>(null);
+const fetchOptions = ref<Awaited<ReturnType<typeof useFetchOptions>> | null>(
+  null,
+);
 
 // `formValues` is the reactive form state object; the fetch closures read it at
 // call time, so this only needs to re-run when the control options change.
 watch(
   appliedOptions,
   async (opts) => {
-    fetchOptions.value = await useFetchOptions(opts as AutocompleteAllOptions, http, formValues);
+    fetchOptions.value = await useFetchOptions(
+      opts as AutocompleteAllOptions,
+      http,
+      formValues,
+    );
   },
   { immediate: true, deep: true },
 );
@@ -66,7 +72,12 @@ const hydrateDisplayValue = async (val: unknown) => {
   const config = fetchOptions.value;
 
   // Nothing to resolve: empty, or the full object is already stored.
-  if (val === null || val === undefined || val === '' || typeof val === 'object') {
+  if (
+    val === null ||
+    val === undefined ||
+    val === '' ||
+    typeof val === 'object'
+  ) {
     displayValue.value = val;
     return;
   }
@@ -87,7 +98,10 @@ const hydrateDisplayValue = async (val: unknown) => {
   // Keep what is on screen while resolving, unless it shows something else.
   const current = displayValue.value as Record<string, unknown> | null;
   const showsSameValue =
-    !!current && typeof current === 'object' && !!valueKey && current[valueKey] === val;
+    !!current &&
+    typeof current === 'object' &&
+    !!valueKey &&
+    current[valueKey] === val;
   if (!showsSameValue) displayValue.value = val;
 
   const record = await config.fetchByValue(val);
@@ -135,7 +149,9 @@ const setValue = (result: Record<string, unknown>) => {
     return;
   }
 
-  const stripped = Object.fromEntries(keys.filter((k) => k in result).map((k) => [k, result[k]]));
+  const stripped = Object.fromEntries(
+    keys.filter((k) => k in result).map((k) => [k, result[k]]),
+  );
   displayValue.value = stripped;
   field.setValue(stripped);
 };

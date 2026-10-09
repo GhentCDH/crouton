@@ -18,7 +18,16 @@
 
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
-import { computed, nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
+import {
+  computed,
+  nextTick,
+  onMounted,
+  provide,
+  ref,
+  toRaw,
+  toRef,
+  watch,
+} from 'vue';
 import { fromJSONSchema } from 'zod';
 
 import {
@@ -26,7 +35,7 @@ import {
   enforceRequiredStringMinLength,
   makeOptionalPropertiesNullable,
 } from '@ghentcdh/crouton-core';
-import { myStyles } from '@ghentcdh/ui';
+import { myStyles } from '@ghentcdh/crouton-ui-vue';
 
 import type { FormEventPayload } from '@ghentcdh/crouton-forms-vue';
 import {
@@ -56,9 +65,7 @@ const emits = defineEmits(JsonFormComponentEmits);
 const { showErrors, debugValue } = useCrouton();
 
 const patched = enforceRequiredStringMinLength(
-  makeOptionalPropertiesNullable(
-    dropNullableFromRequired(properties.schema),
-  ),
+  makeOptionalPropertiesNullable(dropNullableFromRequired(properties.schema)),
 );
 const validationSchema = fromJSONSchema(patched as any);
 

@@ -136,7 +136,7 @@ import {
   addClickOutsideEventListener,
   ControlWrapper,
   removeClickOutsideEventListener,
-} from '@ghentcdh/ui';
+} from '@ghentcdh/crouton-ui-vue';
 
 import {
   DATE_PICKER_OWN_PROPS,
@@ -182,7 +182,7 @@ const view = ref(initialView());
  * Everything except this component's own props, so the label / error /
  * description / width behaviour is handled by ControlWrapper and nothing leaks
  * onto the fieldset as a stray attribute. Filtering by our own key list keeps
- * this independent of what `@ghentcdh/ui` exports at runtime.
+ * this independent of what `@ghentcdh/crouton-ui-vue` exports at runtime.
  */
 const OWN_PROPS = new Set<string>(DATE_PICKER_OWN_PROPS);
 
@@ -338,7 +338,6 @@ const onGridKeydown = (event: KeyboardEvent) => {
     inputRef.value?.focus();
   }
 };
-
 
 /** Keep DOM focus on whichever cell the roving tabindex points at. */
 watch([focusKey, cells], async () => {

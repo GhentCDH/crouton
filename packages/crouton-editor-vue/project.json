@@ -10,13 +10,6 @@
       "options": {
         "cwd": "{projectRoot}"
       }
-    },
-    "nx-release-publish": {
-      "dependsOn": ["build"],
-      "command": "npm publish --access public",
-      "options": {
-        "cwd": "{projectRoot}"
-      }
     }
   }
 }

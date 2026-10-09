@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import { Btn, IconEnum } from '@ghentcdh/ui';
+import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';

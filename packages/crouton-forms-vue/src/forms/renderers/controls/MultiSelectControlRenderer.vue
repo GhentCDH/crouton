@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
-import { MultiSelect } from '@ghentcdh/ui';
+import { MultiSelect } from '@ghentcdh/crouton-ui-vue';
 
 import { useSelectBinding } from './composables/useSelectBinding';
 
@@ -28,9 +28,12 @@ const {
 const onChange = (val: any) => {
   const opts = appliedOptions.value as any;
   const valueKey = opts.valueKey ?? 'value';
-  const stored = opts.storeValue && Array.isArray(val)
-    ? val.map((item: any) => (item && typeof item === 'object' ? item[valueKey] : item))
-    : val;
+  const stored =
+    opts.storeValue && Array.isArray(val)
+      ? val.map((item: any) =>
+          item && typeof item === 'object' ? item[valueKey] : item,
+        )
+      : val;
   field.setValue(stored);
   onFieldChange();
 };

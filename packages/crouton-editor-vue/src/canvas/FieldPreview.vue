@@ -9,7 +9,7 @@ import {
   MultiSelect,
   SelectComponent,
   Textarea,
-} from '@ghentcdh/ui';
+} from '@ghentcdh/crouton-ui-vue';
 
 import { FieldPreviewProperties } from './FieldPreview.properties';
 
@@ -91,19 +91,14 @@ const previewValue = ref<unknown>(
     "
     :enabled="false"
   />
-  <div
-    v-else-if="type === 'toggle'"
-    class="join"
-  >
+  <div v-else-if="type === 'toggle'" class="join">
     <Btn
-      v-for="(opt, i) in (
-        selectOptions.length
-          ? selectOptions
-          : [
-              { label: 'Option A', value: 'a' },
-              { label: 'Option B', value: 'b' },
-            ]
-      )"
+      v-for="(opt, i) in selectOptions.length
+        ? selectOptions
+        : [
+            { label: 'Option A', value: 'a' },
+            { label: 'Option B', value: 'b' },
+          ]"
       :key="i"
       class="join-item"
       size="sm"

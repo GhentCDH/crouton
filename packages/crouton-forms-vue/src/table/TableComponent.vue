@@ -15,7 +15,7 @@ import { computed } from 'vue';
 
 import type { ColumnDef, TextCellType } from '@ghentcdh/crouton-core';
 import { findColumnDef } from '@ghentcdh/crouton-core';
-import { Table } from '@ghentcdh/ui';
+import { Table } from '@ghentcdh/crouton-ui-vue';
 
 import {
   TableComponentEmits,

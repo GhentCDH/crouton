@@ -1,0 +1,38 @@
+@layer utilities {
+  h1 {
+    @apply text-primary mb-3 text-5xl;
+    font-size: 50px;
+    font-weight: 500;
+  }
+
+  h2 {
+
+    @apply text-primary mb-3;
+    font-size: 20px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  h3 {
+    @apply mb-3;
+    font-size: 19px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  a {
+    @apply text-primary underline;
+
+    &:hover {
+      @apply no-underline;
+    }
+
+    &.btn {
+      @apply no-underline;
+    }
+
+    .menu & {
+      @apply text-neutral no-underline;
+    }
+  }
+}

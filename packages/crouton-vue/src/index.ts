@@ -2,8 +2,6 @@ import './styles.css';
 
 export { default as ResourceTable } from './resource/ResourceTable.vue';
 
-export { Table } from '@ghentcdh/ui';
-
 export { isCustomFormat } from './resource/renderers';
 
 export { croutonApiCall, resourceApi } from './resource/resource.api';
@@ -34,6 +32,11 @@ export * from './status';
 export type { ControlElement, JsonSchema } from '@jsonforms/core';
 export { rankWith } from '@jsonforms/core';
 export * from './relation';
-export { DatePicker, TableComponent, useControlBinding } from '@ghentcdh/crouton-forms-vue';
+export * from '@ghentcdh/crouton-ui-vue';
+export {
+  DatePicker,
+  TableComponent,
+  useControlBinding,
+} from '@ghentcdh/crouton-forms-vue';
 export * from './forms';
 export { parseSchema } from '@ghentcdh/crouton-core';

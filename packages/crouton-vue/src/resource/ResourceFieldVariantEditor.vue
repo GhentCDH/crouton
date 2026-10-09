@@ -7,7 +7,7 @@ import {
   InputNumber,
   SelectComponent,
   Textarea,
-} from '@ghentcdh/ui';
+} from '@ghentcdh/crouton-ui-vue';
 
 import { ResourceFieldVariantEditorProperties } from './ResourceFieldVariantEditor.properties';
 import {

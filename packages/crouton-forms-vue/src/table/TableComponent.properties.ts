@@ -1,7 +1,11 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
 import type { PropType } from 'vue';
 
-import type { TableAction, TablePage, TableSort } from '@ghentcdh/ui';
+import type {
+  TableAction,
+  TablePage,
+  TableSort,
+} from '@ghentcdh/crouton-ui-vue';
 
 import type { CellRendererEntry } from './cells';
 

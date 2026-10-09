@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { computed, provide, ref } from 'vue';
-import { Btn, ButtonType } from '@ghentcdh/ui';
+import { Btn, ButtonType } from '@ghentcdh/crouton-ui-vue';
 import {
   type CroutonFormEmitsType,
   CroutonFormProperties,

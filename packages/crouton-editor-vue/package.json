@@ -31,13 +31,12 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
   },
   "peerDependencies": {
-    "@ghentcdh/crouton-forms-vue": "workspace:^",
-    "@ghentcdh/ui": "^3.0.6",
     "vue": ">=3.0.0",
     "vuedraggable": "^4.1.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*"
   }

@@ -40,7 +40,6 @@
     "vee-validate": "5.0.0-beta.1"
   },
   "peerDependencies": {
-    "@ghentcdh/ui": "^3.0.6",
     "@jsonforms/core": ">=3.0.0",
     "vue": ">=3.0.0",
     "vue-router": ">=4.0.0",
@@ -52,6 +51,7 @@
     }
   },
   "devDependencies": {
+    "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "vitest": "^5.0.3"
   }

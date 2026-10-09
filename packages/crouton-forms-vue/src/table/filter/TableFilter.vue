@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="containerRef"
-    class="relative inline-flex"
-  >
+  <div ref="containerRef" class="relative inline-flex">
     <Btn
       size="xs"
       color="ghost"
@@ -10,11 +7,7 @@
       @click="showFilters = !showFilters"
     >
       <span class="px-2 flex gap-2 items-center">
-        <Icon
-          :icon="IconEnum.Filter"
-          size="sm"
-          class="text-base-500"
-        />
+        <Icon :icon="IconEnum.Filter" size="sm" class="text-base-500" />
         Filters
         <span
           v-if="appliedCount"
@@ -42,24 +35,13 @@
       <div class="divider my-3" />
 
       <div class="flex items-center justify-between">
-        <Btn
-          :icon="IconEnum.Plus"
-          :color="'ghost'"
-          @click="addRow"
-        >
+        <Btn :icon="IconEnum.Plus" :color="'ghost'" @click="addRow">
           Add filter
         </Btn>
 
         <div class="flex gap-2">
-          <Btn
-            :color="'ghost'"
-            @click="onReset"
-          >
-            Reset
-          </Btn>
-          <Btn @click="onApply">
-            Apply
-          </Btn>
+          <Btn :color="'ghost'" @click="onReset"> Reset </Btn>
+          <Btn @click="onApply"> Apply </Btn>
         </div>
       </div>
     </div>
@@ -70,8 +52,12 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import type { FieldType, Filter } from '@ghentcdh/crouton-core';
-import { extractFilters, filterToString, OperatorNoValue } from '@ghentcdh/crouton-core';
-import { Btn, Icon, IconEnum } from '@ghentcdh/ui';
+import {
+  extractFilters,
+  filterToString,
+  OperatorNoValue,
+} from '@ghentcdh/crouton-core';
+import { Btn, Icon, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import FilterRowInput, { type FieldOption } from './FilterRowInput.vue';
 
@@ -107,7 +93,13 @@ const emit = defineEmits<{
 /** Map an x-field-type hint (or JSON schema type/format) to a FieldType. */
 const resolveFieldType = (schema: Record<string, any>): FieldType => {
   const hint = schema['x-field-type'];
-  if (hint === 'enum' || hint === 'number' || hint === 'date' || hint === 'boolean') return hint;
+  if (
+    hint === 'enum' ||
+    hint === 'number' ||
+    hint === 'date' ||
+    hint === 'boolean'
+  )
+    return hint;
   if (schema.type === 'number' || schema.type === 'integer') return 'number';
   if (schema.format === 'date-time' || schema.format === 'date') return 'date';
   if (schema.type === 'boolean') return 'boolean';
@@ -117,8 +109,7 @@ const resolveFieldType = (schema: Record<string, any>): FieldType => {
 /** Field options derived from the filterSchema properties */
 const fields = computed<FieldOption[]>(() => {
   const properties = props.filterSchema?.properties as
-    | Record<string, any>
-    | undefined;
+    Record<string, any> | undefined;
   if (!properties) return [];
   return Object.entries(properties).map(([key, schema]) => ({
     value: key,

@@ -19,7 +19,7 @@ import {
   dropNullableFromRequired,
   enforceRequiredStringMinLength,
 } from '@ghentcdh/crouton-core';
-import { myStyles } from '@ghentcdh/ui';
+import { myStyles } from '@ghentcdh/crouton-ui-vue';
 
 import Dispatch from './Dispatch.vue';
 import type { Data, SubmitFormEvent } from './FormComponent.properties';

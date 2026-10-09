@@ -1,6 +1,7 @@
 # Crouton Vue
 
-`@ghentcdh/crouton-vue` renders complete admin UIs — data tables, forms, filters, and relation editors — driven entirely by the schemas exposed by `@ghentcdh/crouton-api`.
+`@ghentcdh/crouton-vue` renders complete admin UIs — data tables, forms, filters, and relation editors — driven entirely
+by the schemas exposed by `@ghentcdh/crouton-api`.
 
 ## Installation
 
@@ -8,13 +9,8 @@
 pnpm add @ghentcdh/crouton-vue
 ```
 
-Peer dependencies: `vue` (>=3), `vue-router` (>=4), `axios`, `@jsonforms/core`, `@ghentcdh/ui`, `@ghentcdh/json-forms-vue`, `zod`.
-
-Import the styles of `@ghentcdh/ui` once in your application entry:
-
-```ts
-import '@ghentcdh/ui/index.css';
-```
+Peer dependencies: `vue` (>=3), `vue-router` (>=4), `axios`, `@jsonforms/core`, `@ghentcdh/ui`,
+`@ghentcdh/json-forms-vue`, `zod`.
 
 ## Quick start
 
@@ -34,7 +30,8 @@ const router = createRouter({
 });
 ```
 
-Navigating to `/admin/form/<resource>` renders the full admin view (table + filters + forms) for that resource — no extra configuration.
+Navigating to `/admin/form/<resource>` renders the full admin view (table + filters + forms) for that resource — no
+extra configuration.
 
 ## Topics
 

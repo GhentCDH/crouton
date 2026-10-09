@@ -15,7 +15,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
-import { Textarea } from '@ghentcdh/ui';
+import { Textarea } from '@ghentcdh/crouton-ui-vue';
 
 import { useControlBinding } from './composables/useControlBinding';
 
@@ -36,7 +36,9 @@ const { values: formValues } = useFormContext();
 
 const dir = computed<'ltr' | 'rtl'>(() => {
   if (!opts.directionField) return (opts.direction as 'ltr' | 'rtl') ?? 'ltr';
-  const key = pathPrefix ? `${pathPrefix}.${opts.directionField}` : opts.directionField;
+  const key = pathPrefix
+    ? `${pathPrefix}.${opts.directionField}`
+    : opts.directionField;
   const val = key.split('.').reduce((o: any, k: string) => o?.[k], formValues);
   return (val as 'ltr' | 'rtl') ?? 'ltr';
 });

@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { Btn, Icon, IconEnum } from '@ghentcdh/ui';
+import { Btn, Icon, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { computed, PropType, useAttrs } from 'vue';
 
 const props = defineProps({

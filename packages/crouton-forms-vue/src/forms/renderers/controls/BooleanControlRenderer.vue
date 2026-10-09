@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
-import { Checkbox } from '@ghentcdh/ui';
+import { Checkbox } from '@ghentcdh/crouton-ui-vue';
 
 import { useCustomControlBinding } from './composables/useControlBinding';
 
@@ -22,8 +22,13 @@ const useBooleanBinding = useCustomControlBinding({
   },
 });
 
-const { wrapper, value, field, onBlur, onChange: onFieldChange } =
-  useBooleanBinding(props.uischema, props.schema);
+const {
+  wrapper,
+  value,
+  field,
+  onBlur,
+  onChange: onFieldChange,
+} = useBooleanBinding(props.uischema, props.schema);
 
 const onChange = (val: boolean) => {
   field.setValue(Boolean(val) ?? false);

@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { Btn, IconEnum } from '@ghentcdh/ui';
+import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { computed } from 'vue';
 import { useRelationBinding } from './useRelationBinding';
 import RelationButton from './RelationButton.vue';

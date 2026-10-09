@@ -88,7 +88,7 @@
   </Drawer>
 </template>
 <script setup lang="ts">
-import { Drawer } from '@ghentcdh/ui';
+import { Drawer } from '@ghentcdh/crouton-ui-vue';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 

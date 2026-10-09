@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ControlWrapperProperties } from '@ghentcdh/ui';
+import { ControlWrapperProperties } from '@ghentcdh/crouton-ui-vue';
 
 defineProps(ControlWrapperProperties);
 </script>

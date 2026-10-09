@@ -114,3 +114,42 @@ The custom component receives `wrapper`, `value` (v-model), `appliedOptions`, `s
 All `fieldInput.options` are available via `appliedOptions`.
 
 See [Custom renderers](../4.frontend/custom-renderers.md) for how to register the component.
+
+## Complete example
+
+A full `resource.json` showing manyToOne (autocomplete) and manyToMany (embedded table) relations together:
+
+```json
+{
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
+  "schemaVersion": 1,
+  "name": "book",
+  "model": "Book",
+  "title": "Books",
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "searchable": true, "filterable": true, "sortable": true },
+    "authorId": {
+      "label": "Author",
+      "searchable": true,
+      "fieldInput": {
+        "type": "autocomplete",
+        "relationType": "manyToOne",
+        "resource": "./author.resource"
+      }
+    },
+    "categories": {
+      "label": "Categories",
+      "hiddenInTable": true,
+      "fieldInput": {
+        "format": "relation",
+        "relationType": "manyToMany",
+        "resource": "./category.resource"
+      }
+    }
+  },
+  "include": ["author", "categories"]
+}
+```
+
+For a step-by-step walkthrough see [Add relations](../6.recipes/add-relation.md).

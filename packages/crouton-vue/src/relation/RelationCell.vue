@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { Btn, ModalService } from '@ghentcdh/ui';
+import { Btn, ModalService } from '@ghentcdh/crouton-ui-vue';
 import RelationModal from './RelationModal.vue';
 import { useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
