@@ -55,11 +55,9 @@
       "filterable": true,
       "sortable": true,
       "searchable": true,
+      "displayKey": "name",
       "fieldInput": {
-        "foreignKey": "authorId",
-        "format": "relation",
-        "resource": "../author/resource.json",
-        "position": 1,
+        "type": "autocomplete",
         "relationType": "manyToOne",
         "options": {
           "displayKey": "name"

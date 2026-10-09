@@ -1,4 +1,5 @@
-@use './_scss/index' as *;
+@reference "tailwindcss";
+
 
 /* Tiptap / ProseMirror editor */
 .ProseMirror {

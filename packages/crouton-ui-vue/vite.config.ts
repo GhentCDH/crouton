@@ -46,8 +46,6 @@ export default defineConfig({
         'zod',
       ],
       output: {
-        globals: { vue: 'Vue' },
-        // Emit the compiled CSS as styles.css (matches the package export)
         assetFileNames: 'styles[extname]',
       },
     },

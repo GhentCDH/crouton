@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: ghentcdh --default;
+  darkTheme: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "ghentcdh";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(98% 0 0);
+  --color-base-300: oklch(95% 0 0);
+  --color-base-content: #202020;
+  --color-primary: #1e64c8;
+  --color-primary-content: #e9f0fa;
+  --color-secondary: #fffae5;
+  --color-secondary-content: #ffd200;
+  --color-accent: oklch(77% 0.152 181.912);
+  --color-accent-content: oklch(38% 0.063 188.416);
+  --color-neutral: #202020;
+  --color-neutral-content: oklch(92% 0.004 286.32);
+  --color-info: oklch(74% 0.16 232.661);
+  --color-info-content: oklch(29% 0.066 243.157);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(37% 0.077 168.94);
+  --color-warning: #ffd200;
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(65% 0.25 27.0);
+}
+
+@source './';
+
+.card {
+  @apply border border-gray-300;
+}
+
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+
+  & p {
+    margin: 0.5em 0;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.input-xs { @apply w-12; }
+.input-sm { @apply w-24; }
+.input-md { @apply w-36; }
+.input-lg { @apply w-48; }
+.input-xl { @apply w-64; }
+.input-full { @apply flex-grow; }
+.min-w-input { @apply w-full min-w-48; }
+
+@layer utilities {
+  h1 {
+    @apply text-primary mb-3 text-5xl;
+    font-size: 50px;
+    font-weight: 500;
+  }
+
+  h2 {
+    @apply text-primary mb-3;
+    font-size: 20px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  h3 {
+    @apply mb-3;
+    font-size: 19px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  a {
+    @apply text-primary underline;
+
+    &:hover {
+      @apply no-underline;
+    }
+
+    &.btn {
+      @apply no-underline;
+    }
+  }
+
+  .menu a {
+    @apply text-neutral no-underline;
+  }
+}

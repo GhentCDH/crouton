@@ -2,9 +2,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator crouton {
+  provider  = "node ../../../../packages/crouton-prisma/dist/generator.cjs"
+  output    = "../../generated/default/types/src"
+  zodOutput = "../../generated/default/types/src"
+}
+
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model Author {
@@ -28,6 +33,7 @@ model Book {
   publishedYear Int?
   status        String     @default("draft")
   summary       String?
+  rating        Int?
   authorId      String
   author        Author     @relation(fields: [authorId], references: [id])
   categories    Category[]
