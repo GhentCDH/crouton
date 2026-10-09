@@ -151,13 +151,13 @@ const writes = new Map();
 writes.set(join(docsGeneratedDir, 'base.md'), generateBaseDoc());
 
 const emitted = new Set();
-for (const [_type, def] of fieldInputRegistry) {
+for (const [, def] of fieldInputRegistry) {
   if (emitted.has(def.schemaFile)) continue;
   emitted.add(def.schemaFile);
   writes.set(join(docsGeneratedDir, `${def.schemaFile}.md`), generateTypeDoc(def.schemaFile, def));
 }
 
-let drifted = [];
+const drifted = [];
 for (const [filePath, content] of writes) {
   if (CI_MODE) {
     const existing = existsSync(filePath) ? readFileSync(filePath, 'utf8') : null;

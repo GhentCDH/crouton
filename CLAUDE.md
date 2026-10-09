@@ -1,6 +1,13 @@
 # Plans directory
 `plans/` contains design notes and proposals — **not** documentation. Source of truth = code + `docs/guide`. Agents: ignore `plans/archive/`.
 
+# After implementing any change
+Always run lint before committing:
+```
+pnpm nx run-many --target=lint --projects=<affected-packages>
+```
+Or for all packages: `pnpm nx run-many --target=lint`. Lint errors in CI are not caught by typecheck — run lint explicitly.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
