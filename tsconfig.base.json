@@ -17,8 +17,6 @@
     "target": "es2022",
     "customConditions": ["@ghentcdh/crouton"],
     "noUncheckedSideEffectImports": false,
-    "types": ["*"],
-    "esModuleInterop": false,
-    "ignoreDeprecations": "6.0"
+    "types": ["node"]
   }
 }

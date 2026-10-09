@@ -8,7 +8,6 @@
     "lib": ["es2022", "dom", "dom.iterable"],
     "noEmit": true,
     "resolveJsonModule": true,
-    "ignoreDeprecations": "6.0"
   },
   "files": [],
   "include": [],
