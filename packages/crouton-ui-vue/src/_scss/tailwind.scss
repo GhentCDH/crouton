@@ -9,11 +9,24 @@
   --ugent-corporate-text-gray: #646464;
   --ugent-border-gray: #CCCCCC;
   --ugent-border-gray-light: #DDDDDD;
-  --ugent-inactive-gray: #B4B4B4
+  --ugent-inactive-gray: #B4B4B4;
+
+  /* 1. Explicit native fallback assignment */
+  font-family: "PannoTextMedium", "Arial", sans-serif;
 }
 
-@theme{
-  --font-display: "PannoTextMedium", Arial, sans-serif;
+/* 2. Wrap font variable overrides inside Tailwind's native theme layer to guarantee priority over daisyUI base injections */
+@layer theme {
+  :root, :host {
+    --font-sans: "PannoTextMedium", "Arial", sans-serif;
+    --font-display: "PannoTextMedium", "Arial", sans-serif;
+  }
+}
+
+@theme {
+  /* This maps Tailwind's theme mapping utilities, but layer theme ensures actual root variable persistence */
+  --font-sans: "PannoTextMedium", "Arial", sans-serif;
+  --font-display: "PannoTextMedium", "Arial", sans-serif;
 }
 
 @plugin "daisyui/theme" {
@@ -55,4 +68,3 @@
   themes: ugent --default;
 }
 @source "../../../libs";
-
