@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash-es';
 import { type Ref, reactive, shallowRef } from 'vue';
 
 import type { Action, ResourceDefinition } from '@ghentcdh/crouton-core';
@@ -97,7 +98,7 @@ export const useResources = (
 ): UseResource | null => {
   if (!formDef) return null;
 
-  const _formDef = structuredClone(formDef);
+  const _formDef = cloneDeep(formDef);
   const api = resourceApi(_formDef, defaultUriParams);
   const resource = new Resource(
     _formDef,
