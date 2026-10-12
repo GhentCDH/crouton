@@ -2,11 +2,8 @@ import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import {
-  type Operation,
-  type OperationKey,
-} from '../composables/form-def.schema';
-import type { FormDef } from '../composables/form-def.types';
+import type { FormDef } from '@ghentcdh/crouton-core';
+import { type Operation, type OperationKey } from '@ghentcdh/crouton-core';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 

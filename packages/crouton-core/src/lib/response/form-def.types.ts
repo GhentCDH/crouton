@@ -1,9 +1,7 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
 import type { ZodType } from 'zod';
-
-import type { LayoutNode } from '@ghentcdh/crouton-core';
-
-import type { FormDefResponse } from './form-def.schema';
+import { FormDefResponse } from './form-def.schema';
+import { LayoutNode } from '../resource';
 
 export type FormSchema = {
   data: JsonSchema;
@@ -68,7 +66,8 @@ export type FormDefTableLinkAction = {
   href: string;
 };
 
-export type FormDefTableAction = FormDefTableProcedureAction | FormDefTableLinkAction;
+export type FormDefTableAction =
+  FormDefTableProcedureAction | FormDefTableLinkAction;
 
 /**
  * Parsed form definition: the raw {@link FormDefResponse} with every view

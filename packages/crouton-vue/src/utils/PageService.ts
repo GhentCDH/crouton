@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 
 import { RequestSchema } from './request';
-import type { OperationKey } from '../composables/form-def.schema';
+import type { OperationKey } from '@ghentcdh/crouton-core';
 import { useCrouton } from '../composables/useCrouton';
 import { croutonApiCall } from '../resource/resource.api';
 import { type RequestData } from '../resource/resource.types';
@@ -72,7 +72,9 @@ export abstract class PageService {
 
   protected updateRequest = (data: Partial<RequestData>) => {
     const merged = { ...this.requestData.value, ...data };
-    this.requestData.value = Object.fromEntries(Object.entries(merged).filter(([, v]) => v !== undefined));
+    this.requestData.value = Object.fromEntries(
+      Object.entries(merged).filter(([, v]) => v !== undefined),
+    );
     this.onRequest(this.requestData.value);
     this.reload();
   };

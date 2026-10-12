@@ -1,6 +1,11 @@
-import { type Component, type Ref, markRaw, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
-import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
+import type { FormDef, FormDefActionCondition } from '@ghentcdh/crouton-core';
+import {
+  type Action,
+  resolveDefaultTokens,
+  type TableAction as TableActionDef,
+} from '@ghentcdh/crouton-core';
 import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
 import {
   ModalService,
@@ -14,14 +19,6 @@ import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
-import {
-  type Action,
-  type TableAction as TableActionDef,
-} from '../composables/form-def.schema';
-import type {
-  FormDef,
-  FormDefActionCondition,
-} from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { findCustomComponent } from '../utils/custom-component';

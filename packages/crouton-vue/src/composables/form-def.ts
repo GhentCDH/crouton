@@ -1,7 +1,7 @@
 import { fromJSONSchema, z } from 'zod';
 
-import { FormDefResponseZ } from './form-def.schema';
-import type { FormDef, FormSchema } from './form-def.types';
+import type { FormDef, FormSchema } from '@ghentcdh/crouton-core';
+import { FormDefResponseZ } from '@ghentcdh/crouton-core';
 import { useApi } from './useApi';
 import { useLanguage } from './useLanguage';
 

@@ -1,6 +1,11 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { buildResourceJsonSchema, registerResourceExtensions } from '@ghentcdh/crouton-core';
+import {
+  buildResourceJsonSchema,
+  FormDef,
+  FormDefResponseZ,
+  registerResourceExtensions,
+} from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from './action';
 import { fromJson } from './adapter';
@@ -44,25 +49,21 @@ export type ParseAppConfig = Pick<
  * Without `dirPath`, features that read sibling files are skipped: extend columns,
  * resource-ref column options, and sub-resource views.
  */
-export const parseSchema = (
+export const parseSchema = <PARSED extends FormDef = FormDef>(
   input: ParseSchemaInput | unknown,
   appConfig: ParseAppConfig,
   view: ParseSchemaView = 'schemas',
-): Record<string, unknown> | undefined => {
+): PARSED | undefined => {
   if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
 
   const normalized: ParseSchemaInput =
-    input !== null &&
-    typeof input === 'object' &&
-    'json' in (input as object)
+    input !== null && typeof input === 'object' && 'json' in (input as object)
       ? (input as ParseSchemaInput)
       : { json: input };
 
   const parseResult = buildResourceJsonSchema().safeParse(normalized.json);
   if (!parseResult.success) {
-    throw new Error(
-      `Resource cannot be parsed: ${parseResult.error.message}`,
-    );
+    throw new Error(`Resource cannot be parsed: ${parseResult.error.message}`);
   }
 
   const resource = fromJson(
@@ -86,8 +87,10 @@ export const parseSchema = (
     payload = buildResourceJsonPayload(resource, appConfig.baseUrl);
   }
 
+  const formDef = FormDefResponseZ.parse(payload);
+
   if (payload && appConfig.schemaEnricher) {
-    payload = { ...payload, ...appConfig.schemaEnricher(payload) };
+    payload = { ...formDef, ...appConfig.schemaEnricher(payload) };
   }
 
   return payload;

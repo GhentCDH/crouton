@@ -1,8 +1,7 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
-import { type App, type ComputedRef, computed, ref } from 'vue';
+import { type App, computed, type ComputedRef, ref } from 'vue';
 import type { Router } from 'vue-router';
-
 
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
@@ -12,7 +11,7 @@ import {
 
 import { CROUTON_STATUS } from '../router';
 import { FormDefCache } from './form-def';
-import type { FormDef } from './form-def.types';
+import type { FormDef } from '@ghentcdh/crouton-core';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
@@ -29,7 +28,7 @@ import { type CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
-export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
+export type { FormDef, FormSchema, FormSchemas } from '@ghentcdh/crouton-core';
 
 export const AppConfig = {
   VERSION: 'unknown',
@@ -206,7 +205,6 @@ export type UseCrouton = {
 let _crouton: UseCrouton | null = null;
 
 export const useCrouton = (): UseCrouton => {
-
   if (!_crouton) {
     throw new Error('First init the CroutonPlugin');
   }

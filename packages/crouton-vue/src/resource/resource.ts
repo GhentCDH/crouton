@@ -2,7 +2,7 @@ import { ref } from 'vue';
 
 import type { ResourceApiInstance } from './resource.api';
 import type { RequestData } from './resource.types';
-import type { FormDef } from '../composables/form-def.types';
+import type { FormDef } from '@ghentcdh/crouton-core';
 import { type Request, RequestSchema } from '../utils/request';
 
 export class Resource {
