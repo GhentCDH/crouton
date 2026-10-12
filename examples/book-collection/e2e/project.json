@@ -9,6 +9,7 @@
     "e2e": {
       "executor": "nx:run-commands",
       "dependsOn": [
+        { "project": "crouton-prisma", "target": "build" },
         { "project": "crouton-api", "target": "build" },
         { "project": "crouton-vue", "target": "build" },
         { "project": "book-collection-frontend", "target": "build" }
@@ -21,6 +22,7 @@
     "e2e:ui": {
       "executor": "nx:run-commands",
       "dependsOn": [
+        { "project": "crouton-prisma", "target": "build" },
         { "project": "crouton-api", "target": "build" },
         { "project": "crouton-vue", "target": "build" },
         { "project": "book-collection-frontend", "target": "build" }
@@ -33,6 +35,7 @@
     "e2e:update-snapshots": {
       "executor": "nx:run-commands",
       "dependsOn": [
+        { "project": "crouton-prisma", "target": "build" },
         { "project": "crouton-api", "target": "build" },
         { "project": "crouton-vue", "target": "build" },
         { "project": "book-collection-frontend", "target": "build" }

@@ -18,9 +18,11 @@ services:
       - FRONTEND_PORT=14300
     command:
       - |
+        set -e
         corepack enable
         corepack prepare pnpm@12.8.1 --activate
         pnpm install --frozen-lockfile
+        pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api
         pnpm --filter @book-collection/backend exec prisma generate
         pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts
 
@@ -33,9 +35,11 @@ services:
       - FRONTEND_PORT=14300
     command:
       - |
+        set -e
         corepack enable
         corepack prepare pnpm@12.8.1 --activate
         pnpm install --frozen-lockfile
+        pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api
         pnpm --filter @book-collection/backend exec prisma generate
         pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts --ui --ui-port=8077 --ui-host=localhost
 
@@ -48,9 +52,11 @@ services:
       - FRONTEND_PORT=14300
     command:
       - |
+        set -e
         corepack enable
         corepack prepare pnpm@12.8.1 --activate
         pnpm install --frozen-lockfile
+        pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api
         pnpm --filter @book-collection/backend exec prisma generate
         pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts --update-snapshots
 
