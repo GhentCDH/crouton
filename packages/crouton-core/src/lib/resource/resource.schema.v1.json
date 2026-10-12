@@ -2751,117 +2751,248 @@
       ]
     },
     "__schema2": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "description": "Layout container type. \"grid\" arranges controls in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.",
-          "type": "string",
-          "enum": [
-            "grid",
-            "vertical",
-            "horizontal",
-            "collapse",
-            "group"
-          ],
-          "markdownDescription": "Layout container type. \"grid\" arranges controls in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "columns": {
-          "description": "Number of grid columns (1–12). Only applies when type is \"grid\".",
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 12,
-          "markdownDescription": "Number of grid columns (1–12). Only applies when type is \"grid\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "title": {
-          "description": "Static title shown above the layout section.",
-          "type": "string",
-          "markdownDescription": "Static title shown above the layout section.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "titleKey": {
-          "description": "Column id whose value is used as the dynamic section title.",
-          "type": "string",
-          "markdownDescription": "Column id whose value is used as the dynamic section title.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "colspan": {
-          "description": "Column span of this node within its parent grid (1–12).",
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 12,
-          "markdownDescription": "Column span of this node within its parent grid (1–12).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "rowspan": {
-          "description": "Row span of this node within its parent grid (1–6).",
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 6,
-          "markdownDescription": "Row span of this node within its parent grid (1–6).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "label": {
-          "description": "Label shown on the section or group header.",
-          "type": "string",
-          "markdownDescription": "Label shown on the section or group header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "controls": {
-          "description": "Leaf controls in this layout node. Each entry is a column id string or a control config object.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "table"
+            },
+            "columns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "title": {
+              "type": "string"
+            },
+            "titleKey": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "controls": {
+              "description": "Leaf controls in this layout node. Each entry is a column id string, a control config object, or a component reference.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "colspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                          },
+                          "rowspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 6
+                          },
+                          "width": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "hideLabel": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {}
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      }
+                    ]
                   },
-                  "colspan": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 12
-                  },
-                  "rowspan": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 6
-                  },
-                  "width": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  },
-                  "hideLabel": {
-                    "type": "boolean"
-                  },
-                  "type": {
-                    "type": "string"
-                  },
-                  "options": {
+                  {
                     "type": "object",
-                    "propertyNames": {
-                      "type": "string"
+                    "properties": {
+                      "component": {
+                        "type": "string"
+                      },
+                      "colspan": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 12
+                      },
+                      "rowspan": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 6
+                      },
+                      "width": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
                     },
-                    "additionalProperties": {}
+                    "required": [
+                      "component"
+                    ]
                   }
-                },
-                "required": [
-                  "id"
                 ]
               }
-            ]
-          },
-          "markdownDescription": "Leaf controls in this layout node. Each entry is a column id string or a control config object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+            }
+          }
         },
-        "items": {
-          "description": "Nested layout nodes. Use for nested grids, groups, or collapsible sections.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/__schema2"
-          },
-          "markdownDescription": "Nested layout nodes. Use for nested grids, groups, or collapsible sections.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "description": "Layout container type. \"grid\" arranges controls in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.",
+              "type": "string",
+              "enum": [
+                "grid",
+                "vertical",
+                "horizontal",
+                "collapse",
+                "group"
+              ]
+            },
+            "columns": {
+              "description": "Number of grid columns (1–12). Only applies when type is \"grid\".",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "title": {
+              "description": "Static title shown above the layout section.",
+              "type": "string"
+            },
+            "titleKey": {
+              "description": "Column id whose value is used as the dynamic section title.",
+              "type": "string"
+            },
+            "colspan": {
+              "description": "Column span of this node within its parent grid (1–12).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "rowspan": {
+              "description": "Row span of this node within its parent grid (1–6).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6
+            },
+            "label": {
+              "description": "Label shown on the section or group header.",
+              "type": "string"
+            },
+            "controls": {
+              "description": "Leaf controls in this layout node. Each entry is a column id string or a control config object.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "colspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                          },
+                          "rowspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 6
+                          },
+                          "width": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "hideLabel": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {}
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "component": {
+                        "type": "string"
+                      },
+                      "colspan": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 12
+                      },
+                      "rowspan": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 6
+                      },
+                      "width": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "component"
+                    ]
+                  }
+                ]
+              }
+            },
+            "items": {
+              "description": "Nested layout nodes. Use for nested grids, groups, or collapsible sections.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/__schema2"
+              }
+            }
+          }
         }
-      }
+      ]
     }
   },
   "$id": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",

@@ -1,6 +1,8 @@
 import { buildFormControl } from './form-schema.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
+import { LayoutType } from '../layout/layout.options';
 import type { JsonColumn } from '../resource/Column';
+import { isComponentControl } from '../resource/Layout.schema';
 import type { LayoutControl, LayoutNode } from '../resource/Layout.schema';
 
 const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
@@ -32,14 +34,17 @@ const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
   return builder;
 };
 
-const resolveControlId = (ctrl: LayoutControl): string =>
-  typeof ctrl === 'string' ? ctrl : ctrl.id;
+const resolveControlId = (ctrl: LayoutControl): string | null => {
+  if (typeof ctrl === 'string') return ctrl;
+  if (isComponentControl(ctrl)) return null;
+  return ctrl.id;
+};
 
 const applyControlOverrides = (
   base: ReturnType<typeof buildFormControl>,
   ctrl: LayoutControl,
 ): ReturnType<typeof buildFormControl> => {
-  if (typeof ctrl === 'string') return base;
+  if (typeof ctrl === 'string' || isComponentControl(ctrl)) return base;
   if (ctrl.colspan !== undefined) base.colspan(ctrl.colspan);
   if (ctrl.rowspan !== undefined) base.rowspan(ctrl.rowspan);
   if (ctrl.width !== undefined) base.width(ctrl.width as any);
@@ -65,7 +70,22 @@ const buildNodeInto = (
   // Controls first, then nested items
   if (node.controls?.length) {
     for (const ctrl of node.controls) {
-      const id = resolveControlId(ctrl);
+      if (isComponentControl(ctrl)) {
+        container.addControl({
+          build: () => ({
+            type: LayoutType.ComponentElement,
+            options: {
+              component: ctrl.component,
+              ...(ctrl.colspan !== undefined && { colspan: ctrl.colspan }),
+              ...(ctrl.rowspan !== undefined && { rowspan: ctrl.rowspan }),
+              ...(ctrl.width !== undefined && { width: ctrl.width }),
+              ...(ctrl.label !== undefined && { label: ctrl.label }),
+            },
+          }),
+        });
+        continue;
+      }
+      const id = resolveControlId(ctrl)!;
       const col = colMap.get(id);
       if (!col) {
         warn(`layout: unknown or hidden column id "${id}" — skipping`);
@@ -113,28 +133,33 @@ export const buildFormUiSchemaFromLayout = (
   return root.build() as unknown as Record<string, unknown>;
 };
 
+/** Flatten the layout node tree depth-first into an ordered list of all controls (including component controls). */
+export const flattenLayoutControls = (node: LayoutNode): LayoutControl[] => {
+  const controls: LayoutControl[] = [];
+  const visit = (n: LayoutNode): void => {
+    for (const ctrl of n.controls ?? []) controls.push(ctrl);
+    for (const item of n.items ?? []) visit(item);
+  };
+  visit(node);
+  return controls;
+};
+
 /**
- * Flatten the layout node tree depth-first into an ordered list of control ids.
- * Used by the table ordering step.
+ * Flatten the layout node tree depth-first into an ordered list of column ids only.
+ * Used by the table ordering step when component controls are not needed.
  */
 export const flattenLayoutControlIds = (
   node: LayoutNode,
   warn: (msg: string) => void = console.warn,
 ): string[] => {
   const ids: string[] = [];
-  const visit = (n: LayoutNode): void => {
-    for (const ctrl of n.controls ?? []) {
-      const id = typeof ctrl === 'string' ? ctrl : ctrl.id;
-      if (typeof ctrl !== 'string') {
-        const c = ctrl as { colspan?: number; rowspan?: number };
-        if (c.colspan !== undefined || c.rowspan !== undefined) {
-          warn(`layout: colspan/rowspan on table control "${id}" — ignored, table is flat`);
-        }
-      }
-      ids.push(id);
+  for (const ctrl of flattenLayoutControls(node)) {
+    if (isComponentControl(ctrl)) continue;
+    const id = resolveControlId(ctrl)!;
+    if (typeof ctrl !== 'string' && (ctrl.colspan !== undefined || ctrl.rowspan !== undefined)) {
+      warn(`layout: colspan/rowspan on table control "${id}" — ignored, table is flat`);
     }
-    for (const item of n.items ?? []) visit(item);
-  };
-  visit(node);
+    ids.push(id);
+  }
   return ids;
 };

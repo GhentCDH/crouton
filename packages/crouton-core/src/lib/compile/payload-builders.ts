@@ -5,6 +5,7 @@ import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 import { externalRouteFor, isOperationEnabled, isOperationExternal, resolveDefinition, schemaFor } from './crud-config';
 import { toJsonSchema } from './to-json-schema';
+import { isTableWrapperLayout } from '../view/layout-table-order';
 
 const pickExtensions = (config: CompiledResource) =>
   Object.fromEntries(
@@ -190,6 +191,9 @@ export const buildViewsPayload = (
     schemas,
     actions: resolveActions(baseUri, config.actions),
     tableActions: resolveTableActions(baseUri, config.tableActions),
+    ...(config.layout?.table && isTableWrapperLayout(config.layout.table) && {
+      tableLayout: config.layout.table,
+    }),
     ...pickExtensions(config),
   };
 };

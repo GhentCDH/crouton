@@ -8,6 +8,7 @@ import {
 } from '../composables/form-def.schema';
 import type { FormDef } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
+import { useCrouton } from '../composables/useCrouton';
 
 const paramsSerializer = (params: Record<string, unknown>) => {
   const p = new URLSearchParams();
@@ -178,6 +179,15 @@ export const resourceApi = (
     delete: deleteData,
     checkUnique,
   };
+};
+
+export const useResourceApi = async (
+  formDefId: string,
+  defaultUriParams: Record<string, string> = {},
+) => {
+  const formDef = await useCrouton().getFormDefById(formDefId);
+
+  return resourceApi(formDef, defaultUriParams);
 };
 
 export type ResourceApiInstance = ReturnType<typeof resourceApi>;

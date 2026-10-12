@@ -4,9 +4,12 @@ import { markRaw } from 'vue';
 import {
   type CellRendererEntry,
   cellTypeIs,
+  isComponentElement,
   optionIsIgnoreCase,
 } from '@ghentcdh/crouton-forms-vue';
 
+import ComponentCellRenderer from './ComponentCellRenderer.vue';
+import ComponentLayoutRenderer from './ComponentLayoutRenderer.vue';
 import CustomCellRenderer from './CustomCellRenderer.vue';
 import CustomFormatRenderer from './CustomFormatRenderer.vue';
 import RelationCell from '../relation/RelationCell.vue';
@@ -42,12 +45,20 @@ export const customControlRenderers = [
     tester: rankWith(17, hasCustomComponent),
     renderer: markRaw(CustomFormatRenderer),
   },
+  {
+    tester: rankWith(15, isComponentElement),
+    renderer: markRaw(ComponentLayoutRenderer),
+  },
 ];
 
 export const relationReadonlyRenderers = [
   {
     tester: rankWith(16, isRelationControl),
     renderer: markRaw(RelationReadonlyRenderer),
+  },
+  {
+    tester: rankWith(15, isComponentElement),
+    renderer: markRaw(ComponentLayoutRenderer),
   },
 ];
 
@@ -60,5 +71,6 @@ export const customCellRenderers: CellRendererEntry[] = [
   // 'RelationCell' is the unified name. Both are accepted for compatibility.
   { tester: cellTypeIs('RecordCell', 20), renderer: markRaw(RelationCell) },
   { tester: cellTypeIs('RelationCell', 20), renderer: markRaw(RelationCell) },
+  { tester: cellTypeIs('ComponentCell', 20), renderer: markRaw(ComponentCellRenderer) },
   { tester: cellHasCustomComponent, renderer: markRaw(CustomCellRenderer) },
 ];
