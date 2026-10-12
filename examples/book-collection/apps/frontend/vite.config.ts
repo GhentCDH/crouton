@@ -21,10 +21,10 @@ const backendResourceWatcher = (): Plugin => ({
   },
 });
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue(), tailwindcss(), backendResourceWatcher()],
   resolve: {
-    conditions: ['@ghentcdh/crouton'],
+    conditions: command === 'serve' ? ['@ghentcdh/crouton'] : [],
     dedupe: ['vue', 'vue-router'],
   },
   build: {
@@ -52,4 +52,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
