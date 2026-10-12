@@ -11,6 +11,7 @@ permissions:
 
 env:
   DEPENDENCIES_CACHE: cache-node-modules
+  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.64.0-jammy
 
 jobs:
   install-deps:
@@ -65,6 +66,19 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build packages for E2E
         run: pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api,crouton-vue,book-collection-frontend --parallel --max-parallel=4
+      - name: Cache Playwright Docker image
+        uses: actions/cache@v5
+        with:
+          path: /tmp/playwright-docker.tar
+          key: playwright-docker-${{ env.PLAYWRIGHT_IMAGE }}
+      - name: Load or pull Playwright Docker image
+        run: |
+          if [ -f /tmp/playwright-docker.tar ]; then
+            docker load -i /tmp/playwright-docker.tar
+          else
+            docker pull ${{ env.PLAYWRIGHT_IMAGE }}
+            docker save ${{ env.PLAYWRIGHT_IMAGE }} -o /tmp/playwright-docker.tar
+          fi
       - name: Run E2E tests
         run: docker compose -f examples/book-collection/e2e/docker-compose.playwright.ci.yml run --rm playwright
       - name: Upload Playwright report
