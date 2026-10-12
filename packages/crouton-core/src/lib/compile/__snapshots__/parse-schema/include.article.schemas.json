@@ -5,7 +5,6 @@
   "uri": "http://localhost:3000/articles",
   "title": "Article",
   "idField": "id",
-  "idType": "string",
   "modalSize": "sm",
   "operations": {
     "findAll": {

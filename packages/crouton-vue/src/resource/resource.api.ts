@@ -1,12 +1,12 @@
+import type {
+  Operation,
+  OperationKey,
+  ResourceDefinition,
+} from '@ghentcdh/crouton-core';
 import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import {
-  type Operation,
-  type OperationKey,
-} from '../composables/form-def.schema';
-import type { FormDef } from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
@@ -20,7 +20,7 @@ const paramsSerializer = (params: Record<string, unknown>) => {
 };
 
 const apiCall = (
-  formDef: Pick<FormDef, 'id' | 'operations'>,
+  formDef: Pick<ResourceDefinition, 'id' | 'operations'>,
   operation: OperationKey,
   defaultUriParams: Record<string, string>,
   data?: any,
@@ -29,7 +29,7 @@ const apiCall = (
   const request = formDef.operations[operation] as Operation;
   if (!request) {
     throw new Error(
-      `FormDef ${formDef.id} does not have a ${operation} operation`,
+      `ResourceDefinition ${formDef.id} does not have a ${operation} operation`,
     );
   }
   const uri = replaceUriParams(request.uri, defaultUriParams);
@@ -47,7 +47,7 @@ const apiCall = (
 export const croutonApiCall = apiCall;
 
 export const resourceApi = (
-  formDef: Pick<FormDef, 'id' | 'operations' | 'idField'>,
+  formDef: Pick<ResourceDefinition, 'id' | 'operations' | 'idField'>,
   defaultUriParams: Record<string, string> = {},
 ) => {
   const loadData = (requestData: RequestData, signal?: AbortSignal) =>

@@ -27,7 +27,7 @@ export const BooleanOperationSchema = z
   .optional()
   .default(false);
 
-const Operations = z.object({
+const CrudOperations = z.object({
   create: BooleanOperationSchema,
   delete: BooleanOperationSchema,
   findAll: BooleanOperationSchema,
@@ -36,8 +36,12 @@ const Operations = z.object({
   patch: BooleanOperationSchema,
 });
 
+const Operations = CrudOperations.extend({
+  lookup: z.string().optional(),
+});
+
 export type Operation = z.infer<typeof OperationSchema>;
-export type OperationKey = keyof z.infer<typeof Operations>;
+export type OperationKey = keyof z.infer<typeof CrudOperations>;
 const OperationMap: Record<OperationKey, Method> = {
   create: 'post',
   delete: 'delete',
@@ -130,7 +134,7 @@ export const Display = z.object({
 });
 
 export type FormDevSchema = z.infer<typeof FormDevSchemas>;
-export const FormDefResponseZ = z
+export const ResourceDefinitionResponseZ = z
   .object({
     id: z.string(),
     name: z.string(),
@@ -179,8 +183,11 @@ export const FormDefResponseZ = z
     return {
       ...data,
       display: data.display ?? { mode: 'modal' },
-      operations,
+      operations: {
+        ...operations,
+        ...(data.operations.lookup !== undefined && { lookup: data.operations.lookup }),
+      },
     };
   });
 
-export type FormDefResponse = z.infer<typeof FormDefResponseZ>;
+export type ResourceDefinitionResponse = z.infer<typeof ResourceDefinitionResponseZ>;

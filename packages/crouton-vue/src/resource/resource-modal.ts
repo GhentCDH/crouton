@@ -9,7 +9,7 @@ import {
 import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 import { useApi } from '../composables/useApi';
-import { type FormDef, useCrouton } from '../composables/useCrouton';
+import { type ResourceDefinition, useCrouton } from '../composables/useCrouton';
 import { JsonFormModalService } from '../forms';
 
 export type OpenFormPayload<TData = any, TResult = any> = {
@@ -18,7 +18,7 @@ export type OpenFormPayload<TData = any, TResult = any> = {
   onError?: (error: unknown) => void;
 };
 
-export const useFormDefRepository = (formDef: FormDef) => {
+export const useFormDefRepository = (formDef: ResourceDefinition) => {
   const repository = createRepository({ uri: formDef.route }, useApi(), {
     notification: {
       show: true,

@@ -1,7 +1,6 @@
 {
   "name": "category",
   "route": "category",
-  "idType": "string",
   "tag": "Crouton",
   "operations": [
     "findAll",

@@ -1,0 +1,22 @@
+services:
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.64.0-jammy
+    working_dir: /app
+    volumes:
+      - ../../../:/app
+      - ../../../node_modules:/app/node_modules
+    network_mode: host
+    ipc: host
+    entrypoint: /bin/sh -c
+    environment:
+      - CI=true
+      - USE_PREVIEW_SERVER=true
+      - BACKEND_PORT=14444
+      - FRONTEND_PORT=14300
+    command:
+      - |
+        set -e
+        corepack enable
+        corepack prepare pnpm@12.8.1 --activate
+        pnpm --filter @book-collection/backend exec prisma generate
+        pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts

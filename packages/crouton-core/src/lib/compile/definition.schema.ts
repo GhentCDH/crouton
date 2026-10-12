@@ -24,7 +24,7 @@ export type OperationDef = z.infer<typeof OperationDefSchema>;
 
 export type PatchOperationDef = z.infer<typeof OperationDefSchema>;
 
-export const ResourceDefinitionSchema = z.object({
+export const CrudDefinitionSchema = z.object({
   findAll: OperationDefSchema.optional(),
   findOne: OperationDefSchema.optional(),
   create: OperationDefSchema.optional(),
@@ -33,16 +33,16 @@ export const ResourceDefinitionSchema = z.object({
   delete: OperationDefSchema.optional(),
 });
 
-export type ResourceDefinition = z.infer<typeof ResourceDefinitionSchema>;
+export type CrudDefinition = z.infer<typeof CrudDefinitionSchema>;
 
 const DefinitionCallbackSchema = z.function({
   input: [],
-  output: ResourceDefinitionSchema,
+  output: CrudDefinitionSchema,
 });
 
-export type DefinitionCallback = () => ResourceDefinition;
+export type DefinitionCallback = () => CrudDefinition;
 
 export const DefinitionSchema = z.union([
-  ResourceDefinitionSchema,
+  CrudDefinitionSchema,
   DefinitionCallbackSchema,
 ]);

@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
 import type { Router } from 'vue-router';
 
-
+import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
   CROUTON_EDITABLE_RENDERERS,
@@ -11,8 +11,7 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 
 import { CROUTON_STATUS } from '../router';
-import { FormDefCache } from './form-def';
-import type { FormDef } from './form-def.types';
+import { ResourceDefinitionCache } from './resource-definition';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
@@ -29,7 +28,7 @@ import { type CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, isSidebarLeaf, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
-export type { FormDef, FormSchema, FormSchemas } from './form-def.types';
+export type { ResourceDefinition, ResourceViewSchema, ResourceViewSchemas } from '@ghentcdh/crouton-core';
 
 export const AppConfig = {
   VERSION: 'unknown',
@@ -67,7 +66,7 @@ export const AppConfig = {
 };
 
 const sidebar = ref<SidebarNode[]>([]);
-const formDefCache = new FormDefCache();
+const formDefCache = new ResourceDefinitionCache();
 const config = ref({ ...AppConfig });
 
 const createCrouton = (
@@ -168,9 +167,9 @@ const createCrouton = (
      * @deprecated use getFormDefById
      * @param formId
      */
-    getFormDef: (formId: string) => formDefCache.getFormDefById(formId),
-    getFormDefById: (formId: string) => formDefCache.getFormDefById(formId),
-    getFormByUri: (uri: string) => formDefCache.getFormDefByUri(uri),
+    getFormDef: (formId: string) => formDefCache.getById(formId),
+    getFormDefById: (formId: string) => formDefCache.getById(formId),
+    getFormByUri: (uri: string) => formDefCache.getByUri(uri),
     invalidateFormDef: (formId: string) => formDefCache.invalidate(formId),
     invalidateAllFormDefs: () => formDefCache.invalidateAll(),
     /**
@@ -196,8 +195,8 @@ export type UseCrouton = {
   readonly cellRenderers: CellRendererEntry[];
   readonly defaults: Record<string, unknown>;
   setDefault: (token: string, value: unknown) => void;
-  getFormDefById: (formId: string) => Promise<FormDef>;
-  getFormByUri: (uri: string) => Promise<FormDef>;
+  getFormDefById: (formId: string) => Promise<ResourceDefinition>;
+  getFormByUri: (uri: string) => Promise<ResourceDefinition>;
   invalidateFormDef: (formId: string) => void;
   invalidateAllFormDefs: () => void;
   refreshLayout: () => Promise<void>;
@@ -206,7 +205,6 @@ export type UseCrouton = {
 let _crouton: UseCrouton | null = null;
 
 export const useCrouton = (): UseCrouton => {
-
   if (!_crouton) {
     throw new Error('First init the CroutonPlugin');
   }

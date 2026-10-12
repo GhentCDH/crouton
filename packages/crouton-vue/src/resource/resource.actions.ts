@@ -1,5 +1,11 @@
 import { type Component, type Ref, markRaw, ref } from 'vue';
 
+import type {
+  Action,
+  ResourceActionCondition,
+  ResourceDefinition,
+  TableAction as TableActionDef,
+} from '@ghentcdh/crouton-core';
 import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
 import {
@@ -14,20 +20,12 @@ import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
-import {
-  type Action,
-  type TableAction as TableActionDef,
-} from '../composables/form-def.schema';
-import type {
-  FormDef,
-  FormDefActionCondition,
-} from '../composables/form-def.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { findCustomComponent } from '../utils/custom-component';
 
 const evaluateCondition = (
-  condition: FormDefActionCondition | undefined,
+  condition: ResourceActionCondition | undefined,
   row: any,
 ): boolean => {
   if (!condition) return true;
@@ -75,7 +73,7 @@ const openViewModal =
   (
     api: ResourceApiInstance,
     resource: Resource,
-    formDef: FormDef,
+    formDef: ResourceDefinition,
     handleEvent: HandleEvent,
   ) =>
   (formData: any) => {
@@ -128,7 +126,7 @@ const openEditModal =
   (
     api: ResourceApiInstance,
     resource: Resource,
-    formDef: FormDef,
+    formDef: ResourceDefinition,
     handleEvent: HandleEvent,
   ) =>
   (formData?: any) => {
@@ -141,7 +139,7 @@ const createEditForm =
   (
     api: ResourceApiInstance,
     resource: Resource,
-    formDef: FormDef,
+    formDef: ResourceDefinition,
     handleEvent: HandleEvent,
   ) =>
   (formData?: any) => {
@@ -218,7 +216,7 @@ const createEditForm =
 
 export const backendAction = (
   resource: Resource,
-  formDef: FormDef,
+  formDef: ResourceDefinition,
   defaultUriParams: Record<string, string>,
   action: Action,
 ) => {
@@ -258,7 +256,7 @@ export const backendAction = (
 export const actions = (
   api: ResourceApiInstance,
   resource: Resource,
-  formDef: FormDef | null | undefined,
+  formDef: ResourceDefinition | null | undefined,
   defaultUriParams: Record<string, string>,
   handleEvent: HandleEvent,
   readonly: boolean,
@@ -311,7 +309,7 @@ export const actions = (
  */
 export const tableActions = (
   resource: Resource,
-  formDef: FormDef | null | undefined,
+  formDef: ResourceDefinition | null | undefined,
 ): TableAction[] => {
   if (!formDef || !formDef.tableActions?.length) return [];
 
@@ -364,7 +362,7 @@ export interface ResourceModals {
 export const resourceModals = (
   api: ResourceApiInstance,
   resource: Resource,
-  formDef: FormDef,
+  formDef: ResourceDefinition,
   handleEvent: HandleEvent,
   inline: boolean,
 ): ResourceModals => {
@@ -398,7 +396,7 @@ export const resourceModals = (
     (
       api: ResourceApiInstance,
       resource: Resource,
-      formDef: FormDef,
+      formDef: ResourceDefinition,
       handleEvent: HandleEvent,
     ) =>
     (formData?: any) => {

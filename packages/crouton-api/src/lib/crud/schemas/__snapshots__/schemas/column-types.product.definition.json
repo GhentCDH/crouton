@@ -1,7 +1,6 @@
 {
   "name": "product",
   "route": "products",
-  "idType": "string",
   "tag": "Crouton",
   "operations": [],
   "display": {

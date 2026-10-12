@@ -1,7 +1,6 @@
 {
   "name": "article",
   "route": "articles",
-  "idType": "string",
   "tag": "Crouton",
   "operations": [
     "findAll",

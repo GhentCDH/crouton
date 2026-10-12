@@ -1,6 +1,11 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { buildResourceJsonSchema, registerResourceExtensions } from '@ghentcdh/crouton-core';
+import {
+  type ResourceDefinitionResponse,
+  ResourceDefinitionResponseZ,
+  buildResourceJsonSchema,
+  registerResourceExtensions,
+} from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from './action';
 import { fromJson } from './adapter';
@@ -48,21 +53,17 @@ export const parseSchema = (
   input: ParseSchemaInput | unknown,
   appConfig: ParseAppConfig,
   view: ParseSchemaView = 'schemas',
-): Record<string, unknown> | undefined => {
+): ResourceDefinitionResponse | undefined => {
   if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
 
   const normalized: ParseSchemaInput =
-    input !== null &&
-    typeof input === 'object' &&
-    'json' in (input as object)
+    input !== null && typeof input === 'object' && 'json' in (input as object)
       ? (input as ParseSchemaInput)
       : { json: input };
 
   const parseResult = buildResourceJsonSchema().safeParse(normalized.json);
   if (!parseResult.success) {
-    throw new Error(
-      `Resource cannot be parsed: ${parseResult.error.message}`,
-    );
+    throw new Error(`Resource cannot be parsed: ${parseResult.error.message}`);
   }
 
   const resource = fromJson(
@@ -80,15 +81,23 @@ export const parseSchema = (
   let payload: Record<string, unknown> | undefined;
   if (view === 'schemas') {
     payload = buildViewsPayload(resource, appConfig.baseUrl);
+    if (!payload) return undefined;
+    const formDef = ResourceDefinitionResponseZ.parse(payload);
+    if (appConfig.schemaEnricher) {
+      return { ...formDef, ...appConfig.schemaEnricher(formDef) } as ResourceDefinitionResponse;
+    }
+    return formDef;
   } else if (view === 'definition') {
     payload = buildDefinitionPayload(resource);
   } else {
     payload = buildResourceJsonPayload(resource, appConfig.baseUrl);
   }
 
-  if (payload && appConfig.schemaEnricher) {
-    payload = { ...payload, ...appConfig.schemaEnricher(payload) };
+  if (!payload) return undefined;
+
+  if (appConfig.schemaEnricher) {
+    return { ...payload, ...appConfig.schemaEnricher(payload) } as ResourceDefinitionResponse;
   }
 
-  return payload;
+  return payload as unknown as ResourceDefinitionResponse;
 };
