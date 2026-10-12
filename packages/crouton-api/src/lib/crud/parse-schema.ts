@@ -81,6 +81,12 @@ export const parseSchema = (
   let payload: Record<string, unknown> | undefined;
   if (view === 'schemas') {
     payload = buildViewsPayload(resource, appConfig.baseUrl);
+    if (!payload) return undefined;
+    const formDef = ResourceDefinitionResponseZ.parse(payload);
+    if (appConfig.schemaEnricher) {
+      return { ...formDef, ...appConfig.schemaEnricher(formDef) } as ResourceDefinitionResponse;
+    }
+    return formDef;
   } else if (view === 'definition') {
     payload = buildDefinitionPayload(resource);
   } else {
@@ -89,11 +95,9 @@ export const parseSchema = (
 
   if (!payload) return undefined;
 
-  const formDef = ResourceDefinitionResponseZ.parse(payload);
-
   if (appConfig.schemaEnricher) {
-    return { ...formDef, ...appConfig.schemaEnricher(formDef) } as ResourceDefinitionResponse;
+    return { ...payload, ...appConfig.schemaEnricher(payload) } as ResourceDefinitionResponse;
   }
 
-  return formDef;
+  return payload as unknown as ResourceDefinitionResponse;
 };
