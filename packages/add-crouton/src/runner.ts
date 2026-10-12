@@ -2,18 +2,18 @@ import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
 import {
-  assertNotCancel,
   BACKEND_DEPS,
   CancelledError,
+  type DiscoveredApp,
+  type FileEntry,
+  type PackageManager,
+  assertNotCancel,
   computeMissing,
   detectPackageManager,
-  type DiscoveredApp,
   discoverNxApps,
-  type FileEntry,
   fileExists,
   installDeps,
   isNxProject,
-  type PackageManager,
   writeFiles,
   writeIfAbsent,
 } from '@ghentcdh/create-crouton/lib';
