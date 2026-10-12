@@ -59,7 +59,7 @@ export class JsonFormModalService {
         autoSave: autoSave ?? false,
         onAutoSave,
         onRefreshData,
-        uniqueCheck: uniqueCheck ?? null,
+        uniqueCheck: uniqueCheck ?? undefined,
         ...(saveLabel && { saveLabel }),
       },
     });

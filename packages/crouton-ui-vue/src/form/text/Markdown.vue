@@ -67,7 +67,7 @@ const editor = useEditor({
       html: false,
       transformPastedText: true, // parse markdown on paste
     }),
-  ],
+  ] as any[],
   onUpdate({ editor }) {
     const markdown = (editor.storage as any).markdown.getMarkdown();
     model.value = markdown;

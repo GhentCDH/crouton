@@ -58,12 +58,10 @@ const props = defineProps<{
   schemas: FormDevSchema;
   uiSchema: any;
   actions?: any[];
-  options: any[];
+  options: any;
   // Accept but ignore the rest of the resource spread props
   [key: string]: any;
 }>();
-
-const schema = computed(() => props.schemas?.view);
 
 console.log(props);
 /** Extract display columns from the table UI schema elements (includes calculated columns). */
@@ -87,19 +85,7 @@ const valueKey = computed(() => {
   return props.options.valueKey;
 });
 
-/** Resolve the display value for a row cell, respecting dataPath and key options. */
-const resolveValue = (
-  row: any,
-  col?: { scope: string; dataPath?: string; key?: string },
-) => {
+const resolveValue = (row: any, _col?: unknown) => {
   return row[displayKey.value];
-
-  const field = col.dataPath ?? col.scope.replace('#/properties/', '');
-  const raw = row[field];
-  if (raw === null || raw === undefined) return '-';
-  if (col.key && typeof raw === 'object') return raw[col.key] ?? '-';
-  if (typeof raw === 'boolean') return raw ? '✓' : '✗';
-  if (typeof raw === 'object') return JSON.stringify(raw);
-  return String(raw);
 };
 </script>

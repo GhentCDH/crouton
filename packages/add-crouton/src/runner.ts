@@ -5,7 +5,6 @@ import {
   BACKEND_DEPS,
   CancelledError,
   type DiscoveredApp,
-  FRONTEND_DEPS,
   type FileEntry,
   type PackageManager,
   assertNotCancel,

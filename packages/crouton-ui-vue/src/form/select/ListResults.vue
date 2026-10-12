@@ -144,7 +144,7 @@ defineExpose({ handleKeydown });
 
 <script lang="ts">
 // ─── Highlight helper (outside setup so it's available in template) ───────────
-export function highlight(isActive: boolean, text: string, query: string) {
+export function highlight(isActive: boolean, text: string, query: string | undefined) {
   if (isActive || !query) return text;
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return text.replace(

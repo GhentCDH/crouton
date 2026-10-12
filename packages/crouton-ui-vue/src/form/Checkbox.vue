@@ -26,7 +26,6 @@
 import { computed } from 'vue';
 
 import { CheckboxEmits, CheckboxProperties } from './Checkbox.properties';
-import Input from './Input.vue';
 import ControlWrapper from './core/ControlWrapper.vue';
 import { buildInputStyle } from './core/utils/style';
 

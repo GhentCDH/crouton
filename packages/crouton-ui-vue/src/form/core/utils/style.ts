@@ -1,9 +1,8 @@
 import type { ControlProperties } from '../properties';
 
-type StyleControlProperties = Pick<
-  ControlProperties,
-  'errors' | 'isTouched' | 'size'
->;
+type StyleControlProperties = Pick<ControlProperties, 'errors' | 'isTouched'> & {
+  size?: string;
+};
 
 export const showErrors = ({ isTouched, errors }: StyleControlProperties) => {
   return !!(isTouched && errors);
