@@ -1,5 +1,5 @@
 import type { JsonResourceOperations } from '../data-source';
-import type { ResourceDefinition } from './definition.schema';
+import type { CrudDefinition } from './definition.schema';
 import type { SchemaInput } from './schema-input';
 
 export type CrudOperation =
@@ -11,19 +11,19 @@ export type CrudOperation =
   | 'delete';
 
 export const resolveDefinition = (config: {
-  definition: ResourceDefinition | (() => ResourceDefinition);
-}): ResourceDefinition => {
+  definition: CrudDefinition | (() => CrudDefinition);
+}): CrudDefinition => {
   const def = config.definition;
   return typeof def === 'function' ? def() : def;
 };
 
 export const isOperationEnabled = (
-  def: ResourceDefinition | JsonResourceOperations,
+  def: CrudDefinition | JsonResourceOperations,
   op: CrudOperation,
 ): boolean => def[op] != null;
 
 export const schemaFor = (
-  def: ResourceDefinition,
+  def: CrudDefinition,
   op: CrudOperation,
 ): SchemaInput | undefined => {
   const entry = def[op];
@@ -32,7 +32,7 @@ export const schemaFor = (
 };
 
 export const isOperationExternal = (
-  def: ResourceDefinition | JsonResourceOperations,
+  def: CrudDefinition | JsonResourceOperations,
   op: CrudOperation,
 ): boolean => {
   const entry = def[op];
@@ -40,7 +40,7 @@ export const isOperationExternal = (
 };
 
 export const externalRouteFor = (
-  def: ResourceDefinition | JsonResourceOperations,
+  def: CrudDefinition | JsonResourceOperations,
   op: CrudOperation,
 ): string | undefined => {
   const entry = def[op];

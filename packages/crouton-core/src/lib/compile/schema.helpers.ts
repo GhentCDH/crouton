@@ -3,7 +3,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type { JsonResourceOperations } from '../data-source';
 import type { JsonColumn } from '../resource';
 import { isRelation } from '../view';
-import type { OperationDef, ResourceDefinition } from './definition.schema';
+import type { CrudDefinition, OperationDef } from './definition.schema';
 import type { SchemaInput } from './schema-input';
 
 export const pickByColumns = (
@@ -37,7 +37,7 @@ export const buildResourceDefinitions = (
   schema: ZodObject<ZodRawShape> | undefined,
   operations: JsonResourceOperations,
   enrichedColumns: JsonColumn[] | undefined,
-): ResourceDefinition => {
+): CrudDefinition => {
   const picked = pickByColumns(schema, enrichedColumns);
   const createSchema = pickByColumns(
     schema,
