@@ -60,9 +60,9 @@
   --color-error: oklch(65% 0.25 27.0);
 }
 
-@source '../crouton-forms-vue/src';
-@source '../crouton-editor-vue/src';
-@source '../crouton-ui-vue/src';
+@source '../../crouton-forms-vue/src';
+@source '../../crouton-editor-vue/src';
+@source '../../crouton-ui-vue/src';
 @source './';
 
 /* Force-include all DaisyUI component classes used by crouton-ui-vue.
