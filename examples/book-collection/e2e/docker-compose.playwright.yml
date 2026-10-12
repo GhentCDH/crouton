@@ -21,7 +21,7 @@ services:
         corepack enable
         corepack prepare pnpm@12.8.1 --activate
         pnpm install --frozen-lockfile
-        pnpm exec prisma generate --schema=examples/book-collection/apps/backend/prisma/schema.prisma
+        pnpm --filter @book-collection/backend exec prisma generate
         pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts
 
   playwright-ui:
@@ -36,7 +36,7 @@ services:
         corepack enable
         corepack prepare pnpm@12.8.1 --activate
         pnpm install --frozen-lockfile
-        pnpm exec prisma generate --schema=examples/book-collection/apps/backend/prisma/schema.prisma
+        pnpm --filter @book-collection/backend exec prisma generate
         pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts --ui --ui-port=8077 --ui-host=localhost
 
   update-snapshots:
@@ -51,7 +51,7 @@ services:
         corepack enable
         corepack prepare pnpm@12.8.1 --activate
         pnpm install --frozen-lockfile
-        pnpm exec prisma generate --schema=examples/book-collection/apps/backend/prisma/schema.prisma
+        pnpm --filter @book-collection/backend exec prisma generate
         pnpm exec playwright test --config=examples/book-collection/e2e/playwright.config.ts --update-snapshots
 
 volumes:

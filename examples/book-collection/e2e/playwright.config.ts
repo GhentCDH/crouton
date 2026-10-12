@@ -52,7 +52,7 @@ export default defineConfig({
       timeout: 30_000,
     },
     {
-      command: `${usePreview ? 'pnpm preview' : 'pnpm dev'} --port ${frontendPort}`,
+      command: `${usePreview ? 'pnpm dev' : 'pnpm dev'} --port ${frontendPort}`,
       url: `http://localhost:${frontendPort}`,
       reuseExistingServer: !usePreview,
       cwd: frontendDir,
