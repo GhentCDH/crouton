@@ -6,6 +6,12 @@
   "tags": ["scope:e2e"],
   "implicitDependencies": ["book-collection-backend"],
   "targets": {
+    "typecheck": {
+      "command": "tsc --noEmit -p tsconfig.json",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
     "e2e": {
       "executor": "nx:run-commands",
       "dependsOn": [

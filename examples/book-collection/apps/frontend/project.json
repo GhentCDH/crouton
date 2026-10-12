@@ -8,6 +8,12 @@
   "targets": {
     "build": {
       "dependsOn": ["^build"]
+    },
+    "typecheck": {
+      "command": "vue-tsc --noEmit",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
     }
   }
 }
