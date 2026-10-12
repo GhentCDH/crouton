@@ -5,7 +5,6 @@
   "uri": "http://localhost:3000/user",
   "title": "Users",
   "idField": "id",
-  "idType": "string",
   "modalSize": "sm",
   "operations": {
     "findAll": {

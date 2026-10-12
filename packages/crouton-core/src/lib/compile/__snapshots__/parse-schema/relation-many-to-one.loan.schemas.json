@@ -5,7 +5,6 @@
   "uri": "http://localhost:3000/loans",
   "title": "Loan",
   "idField": "id",
-  "idType": "string",
   "modalSize": "sm",
   "operations": {
     "findAll": {

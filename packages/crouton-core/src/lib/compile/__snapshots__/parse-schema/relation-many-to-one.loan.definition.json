@@ -1,7 +1,6 @@
 {
   "name": "loan",
   "route": "loans",
-  "idType": "string",
   "tag": "Crouton",
   "operations": [
     "findAll",
