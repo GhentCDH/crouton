@@ -96,7 +96,7 @@ export const resolveTableActions = (
 export const buildDefinitionPayload = (
   config: CompiledResource,
 ): Record<string, unknown> => {
-  const { route, name, tag, idType = 'string' } = config;
+  const { route, name, tag } = config;
   const definition = resolveDefinition(config);
   const listSchema = schemaFor(definition, 'findAll');
   const oneSchema = schemaFor(definition, 'findOne') ?? listSchema;
@@ -111,7 +111,6 @@ export const buildDefinitionPayload = (
   return {
     name,
     route,
-    idType,
     tag,
     operations,
     display: config.display,
@@ -184,7 +183,6 @@ export const buildViewsPayload = (
     uri: baseUri,
     title: config.title ?? config.tag,
     idField: config.lookup?.key ?? 'id',
-    idType: config.idType ?? 'string',
     ...(config.modalSize && { modalSize: config.modalSize }),
     operations,
     display: config.display,
@@ -214,7 +212,6 @@ export const buildSubResourceViewsPayload = (
     uri: childUri,
     title: sub.title ?? sub.childRoute,
     idField: sub.idField ?? 'id',
-    idType: sub.idType ?? 'string',
     ...(sub.modalSize && { modalSize: sub.modalSize }),
     ...(sub.display && { display: sub.display }),
     // ponytail: cast because JsonOperationsSchema uses boolean|{security?} but buildSubResourceOperations wants boolean

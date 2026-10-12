@@ -1,7 +1,6 @@
 {
   "name": "book",
   "route": "book",
-  "idType": "string",
   "tag": "Crouton",
   "operations": [
     "findAll",

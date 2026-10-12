@@ -82,7 +82,6 @@ describe('case 19: custom child in prisma parent (sub-custom-in-prisma)', () => 
     expect(res.body).toMatchObject({
       route: 'expense',
       idField: 'id',
-      idType: 'string',
     });
   });
 

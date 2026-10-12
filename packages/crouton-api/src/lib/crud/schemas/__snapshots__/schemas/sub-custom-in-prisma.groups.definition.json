@@ -1,7 +1,6 @@
 {
   "name": "groups",
   "route": "groups",
-  "idType": "string",
   "tag": "Crouton",
   "operations": [
     "findAll",
