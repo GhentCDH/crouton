@@ -1,6 +1,7 @@
 <template>
   <Modal
     v-bind="properties"
+    data-testid="form-modal"
     :open="true"
     :disable-close="false"
     :width="modalSize"
@@ -61,7 +62,7 @@
         >
           {{ cancelLabel }}
         </Btn>
-        <Btn :disabled="!valid" :aria-label="saveLabel" @click="onSubmit">
+        <Btn :disabled="!valid" :aria-label="saveLabel" data-testid="btn-save" @click="onSubmit">
           {{ saveLabel }}
         </Btn>
       </template>

@@ -50,7 +50,7 @@
       "cache": false,
       "dependsOn": ["prisma:generate"],
       "options": {
-        "command": "rm -f /tmp/e2e.db /tmp/e2e.db-wal /tmp/e2e.db-shm",
+        "command": "rm -f /tmp/e2e.db /tmp/e2e.db-wal /tmp/e2e.db-shm && DATABASE_URL=file:///tmp/e2e.db prisma migrate deploy && DATABASE_URL=file:///tmp/e2e.db tsx prisma/seed.ts",
         "cwd": "examples/book-collection/apps/backend"
       }
     }

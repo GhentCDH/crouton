@@ -110,7 +110,10 @@ const showSchemaEditor = ref(false);
       </template>
     </component>
   </div>
-  <div v-if="config && resource && !form?.hideTable">
+  <div
+    v-if="config && resource && !form?.hideTable"
+    :data-testid="`resource-${formId}`"
+  >
     <template v-if="hideToolbar">
       <legend
         v-if="!hideTitle"
@@ -132,6 +135,7 @@ const showSchemaEditor = ref(false);
           </Btn>
           <Btn
             v-if="config.operations.create"
+            data-testid="btn-create"
             :icon="IconEnum.Plus"
             @click="resource.create"
           >
@@ -165,6 +169,7 @@ const showSchemaEditor = ref(false);
         </Btn>
         <Btn
           v-if="config.operations.create"
+          data-testid="btn-create"
           :icon="IconEnum.Plus"
           @click="resource.create"
         >

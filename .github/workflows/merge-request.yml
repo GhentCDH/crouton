@@ -54,3 +54,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - run: npx nx run-many -t lint --parallel --max-parallel=6
+

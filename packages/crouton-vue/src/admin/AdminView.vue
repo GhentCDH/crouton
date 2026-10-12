@@ -17,6 +17,7 @@
                 <ul>
                   <li v-for="child in node.children" :key="child.id">
                     <RouterLink
+                      :data-testid="`nav-${child.id}`"
                       :to="{ name: CROUTON_FORM, params: { formId: child.id } }"
                       active-class="bg-white font-bold"
                     >
@@ -30,6 +31,7 @@
             <!-- Top-level leaf item -->
             <li v-else>
               <RouterLink
+                :data-testid="`nav-${node.id}`"
                 :to="{ name: CROUTON_FORM, params: { formId: node.id } }"
                 active-class="bg-white font-bold"
               >

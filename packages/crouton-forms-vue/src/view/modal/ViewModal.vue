@@ -1,6 +1,7 @@
 <template>
   <Modal
     v-bind="properties"
+    data-testid="form-modal"
     :open="true"
     :disable-close="false"
     :width="modalSize"
