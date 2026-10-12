@@ -10,12 +10,6 @@ import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
 import { replaceUriParams } from '@ghentcdh/crouton-frontend-core';
 import {
-  type Action,
-  type FormDef,
-  type FormDefActionCondition,
-  type TableAction as TableActionDef
-} from '@ghentcdh/crouton-frontend-core';
-import {
   ModalService,
   NotificationService,
   type TableAction,

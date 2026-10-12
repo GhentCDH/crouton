@@ -12,7 +12,6 @@ export * from './editor/canvas-layout';
 export * from './editor/resource-schema-editor.types';
 export * from './editor/resource-settings.schema';
 export * from './editor/type-swaps';
-export * from './form-def/form-def-cache';
 export * from './forms/colspan';
 export * from './forms/date/date-model';
 export * from './forms/display/constants';
