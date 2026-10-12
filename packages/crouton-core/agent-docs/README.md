@@ -37,6 +37,7 @@ Read this file to find the right doc for your task.
 | 3.backend/data-sources.md | configuring Prisma or custom data sources |
 | 3.backend/index.md | getting an overview of this section |
 | 3.backend/status.md | checking backend status and health |
+| 4.frontend/architecture.md | working with architecture |
 | 4.frontend/croutonform.md | embedding a CroutonForm component |
 | 4.frontend/custom-renderers.md | registering custom field renderers |
 | 4.frontend/index.md | getting an overview of this section |
@@ -44,6 +45,7 @@ Read this file to find the right doc for your task.
 | 4.frontend/styling.md | overriding crouton styles |
 | 4.frontend/translations.md | adding i18n translations |
 | 4.frontend/use-crouton.md | using the useCrouton composable |
+| 4.frontend/writing-an-adapter.md | working with writing an adapter |
 | 5.tooling/cli.md | using the crouton CLI (update, validate, etc.) |
 | 5.tooling/resource-editor.md | using the resource editor UI |
 | 5.tooling/validator.md | understanding crouton validate output |
