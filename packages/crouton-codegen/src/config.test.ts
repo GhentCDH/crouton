@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DataSource } from '@ghentcdh/crouton-core';
+import type { CroutonConfig, DataSource } from '@ghentcdh/crouton-core';
 
 import {
-  type CroutonConfig,
   loadConfig,
   loadDatasources,
   makeSchemaExportName,
@@ -15,19 +14,21 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const base: CroutonConfig = {
+const base = {
   resourcesDir: 'apps/backend/src/app/resources',
   dataSourcesDir: 'apps/backend/src/app/data-sources',
   enumsFile: 'crouton.enums.json',
-};
+} satisfies Partial<CroutonConfig>;
 
 const ds = (over: Partial<DataSource> & { name: string }): DataSource => ({
   default: false,
+  type: 'postgres',
+  adapter: 'prisma',
   prismaSchema: `prisma/${over.name}/schema.prisma`,
   generatedTypesImport: `@np/generated/${over.name}`,
   prismaConfig: `prisma/${over.name}/prisma.config.ts`,
   ...over,
-});
+} as DataSource);
 
 describe('resolveDatasource', () => {
   it('returns the single datasource', () => {

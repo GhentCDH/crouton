@@ -155,7 +155,7 @@ export class DevResourcesController {
   private isAvailableOnClient(ds: DataSource, clientAccessor: string): boolean {
     try {
       const client = this.dataSourceRegistry.resolve(ds.name);
-      return typeof client?.[clientAccessor] !== 'undefined';
+      return typeof (client as Record<string, unknown>)?.[clientAccessor] !== 'undefined';
     } catch {
       return false;
     }
@@ -260,12 +260,10 @@ export class DevResourcesController {
       return { requiresConfirmation: true, dirtyFile: ds.prismaSchema };
     }
 
-    const zodDir = ds.zodOutput ? resolveFromRoot(loaded.root, ds.zodOutput) : undefined;
     const result = await pullAndGenerate({
       root: loaded.root,
       prismaConfigPath,
       schemaPath,
-      zodOutputDir: zodDir,
     });
 
     if (!result.ok) {
@@ -280,7 +278,6 @@ export class DevResourcesController {
       caseFormat: result.caseFormat,
       normalizeSchema: result.normalizeSchema,
       generate: result.generate,
-      zodImportsFixed: result.zodImportsFixed,
     };
   }
 

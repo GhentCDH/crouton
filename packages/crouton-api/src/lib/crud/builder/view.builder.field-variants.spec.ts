@@ -46,7 +46,7 @@ describe('buildViews with field variants', () => {
   });
 
   it('table view respects position (sort: true)', () => {
-    const cols = resolveColumnFieldVariants(
+    resolveColumnFieldVariants(
       parse([
         { id: 'id', idField: true, hiddenInForm: true },
         {
@@ -60,7 +60,7 @@ describe('buildViews with field variants', () => {
           fieldTable: { position: 1 },
         },
       ]),
-    )!;
+    );
 
     // Deduplicate — parse may produce two 'id' entries; use only 'name' + a
     // visible non-id column for a minimal ordering check.

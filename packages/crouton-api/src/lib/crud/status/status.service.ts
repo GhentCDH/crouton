@@ -207,7 +207,7 @@ const getProjectEnums = (enumRegistry: EnumRegistry): EnumGroup[] => {
     name,
     category: 'Project',
     values: entries.map((entry) => ({
-      value: entry.value,
+      value: entry.value as string | number | boolean,
       label: entry.label,
     })),
   }));

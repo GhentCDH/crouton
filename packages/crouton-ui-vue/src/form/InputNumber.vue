@@ -23,7 +23,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-import Input from './Input.vue';
 import {
   InputNumberEmits,
   InputNumberProperties,

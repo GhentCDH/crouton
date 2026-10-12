@@ -37,6 +37,14 @@
         "cwd": "examples/book-collection/apps/backend"
       }
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["prisma:generate", "^typecheck"],
+      "options": {
+        "cwd": "examples/book-collection/apps/backend",
+        "command": "tsc --build tsconfig.json --emitDeclarationOnly"
+      }
+    },
     "prisma:generate": {
       "executor": "nx:run-commands",
       "dependsOn": [{ "projects": ["crouton-prisma"], "target": "build" }],

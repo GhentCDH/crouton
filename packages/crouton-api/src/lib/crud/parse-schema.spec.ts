@@ -92,7 +92,7 @@ describe('parseSchema', () => {
       { baseUrl: BASE_URL, schemaEnricher: () => ({ extra: 'injected' }) },
       'schemas',
     );
-    expect(result?.extra).toBe('injected');
+    expect((result as any)?.extra).toBe('injected');
   });
 
   it('extensions reflected via registerResourceExtensions', () => {
@@ -118,7 +118,7 @@ describe('parseSchema', () => {
     });
     const resource = fromJson(noViewsJson, undefined, undefined);
     // Manually wipe views to simulate a no-views Resource
-    const result = buildViewsPayload({ ...resource, views: undefined }, BASE_URL);
+    const result = buildViewsPayload({ ...resource, views: undefined } as any, BASE_URL);
     expect(result).toBeUndefined();
   });
 

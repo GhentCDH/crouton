@@ -110,7 +110,7 @@ const operations = computed(() => {
   if (resource.value?.operations.create)
     ops['onCreate'] = (value) => {
       const data = { value };
-      res.api.create(data).then((response) => {
+      res.api.create(data).then((response: any) => {
         formEvents.dispatch({
           event: 'update-relation',
           type: 'text_metadata',

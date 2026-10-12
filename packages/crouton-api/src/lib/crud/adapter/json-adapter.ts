@@ -59,7 +59,7 @@ export const fromJson = (
   repository?: CustomRepository,
 ): Resource => {
   const isCustom = json.kind === 'custom';
-  const rawColumns = expandExtendColumns(json.columns, dirPath);
+  const rawColumns = expandExtendColumns(json.columns ?? [], dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
     schema,
@@ -139,7 +139,7 @@ export const fromJson = (
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
     ...pickExtensions(json as Record<string, unknown>),
-  };
+  } as unknown as Resource;
 };
 
 const buildLookup = (
@@ -159,7 +159,7 @@ const buildLookup = (
       if (col.fieldInput?.resource && dirPath) {
         const child = resolveChildResource(col.fieldInput.resource, dirPath);
         const childColumns = child
-          ? expandExtendColumns(child.json.columns, dirPath)
+          ? expandExtendColumns(child.json.columns ?? [], dirPath)
           : undefined;
         const displayCol = childColumns?.find(
           (c) => !c.idField && !c.hiddenInTable,

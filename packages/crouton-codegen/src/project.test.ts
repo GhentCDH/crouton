@@ -1,6 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import type { CroutonConfig, LoadedConfig } from './config';
+import type { CroutonConfig } from '@ghentcdh/crouton-core';
+
+import type { LoadedConfig } from './config';
 import {
   isCustomResourceFile,
   listResourceNames,
@@ -11,16 +13,16 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const config: CroutonConfig = {
+const config = {
   resourcesDir: 'resources',
   dataSourcesDir: 'data-sources',
-};
+} satisfies Partial<CroutonConfig>;
 
 let loaded: LoadedConfig;
 
 beforeAll(async () => {
   const root = await mkdtemp(join(tmpdir(), 'crouton-proj-'));
-  loaded = { config, path: join(root, 'crouton.json'), root };
+  loaded = { config: config as CroutonConfig, path: join(root, 'crouton.json'), root };
   const res = join(root, 'resources');
   // language: has resource.json + schema.ts
   await mkdir(join(res, 'language'), { recursive: true });

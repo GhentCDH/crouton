@@ -309,7 +309,7 @@ describe('status.service', () => {
 
       const status = await buildStatus(registry, [
         { name: 'good', route: 'good' } as Resource,
-      ]);
+      ], {});
 
       expect(status.version).toBe('2.0.0');
       expect(status.croutonVersion).toMatch(/^\d+\.\d+\.\d+/);

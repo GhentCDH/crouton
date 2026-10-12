@@ -54,7 +54,7 @@
           <!-- Highlight matching text -->
           <span
             class="whitespace-nowrap"
-            v-html="highlight(isActive(item), item.label, query)"
+            v-html="highlight(isActive(item), item.label, query ?? '')"
           />
           <!-- Active checkmark -->
           <svg

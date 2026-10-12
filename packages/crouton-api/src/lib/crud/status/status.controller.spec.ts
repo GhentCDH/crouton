@@ -21,13 +21,13 @@ describe('createStatusController', () => {
   });
 
   it('should create a controller class', () => {
-    const ControllerClass = createStatusController();
+    const ControllerClass = createStatusController({});
     expect(ControllerClass).toBeDefined();
     expect(typeof ControllerClass).toBe('function');
   });
 
   it('getStatus should return full status shape', async () => {
-    const ControllerClass = createStatusController();
+    const ControllerClass = createStatusController({});
 
     const mockDataSourceRegistry = {
       entries: () => [
@@ -89,7 +89,7 @@ describe('createStatusController', () => {
   });
 
   it('should never carry a security guard or security metadata', () => {
-    const ControllerClass = createStatusController();
+    const ControllerClass = createStatusController({});
     // No class-level UseGuards
     const guards = Reflect.getMetadata(GUARDS_METADATA, ControllerClass);
     expect(guards).toBeUndefined();
@@ -102,7 +102,7 @@ describe('createStatusController', () => {
   });
 
   it('getStatus should report all-ok when healthy', async () => {
-    const ControllerClass = createStatusController();
+    const ControllerClass = createStatusController({});
 
     const controller = new ControllerClass(
       {

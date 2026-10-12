@@ -68,7 +68,7 @@ export const loadConfig = async (cwd: string): Promise<LoadedConfig> => {
 };
 
 export const validateConfig = (
-  config: CroutonConfig,
+  config: Pick<CroutonConfig, 'resourcesDir' | 'dataSourcesDir'>,
   path = '<config>',
 ): void => {
   if (!config.resourcesDir)
@@ -168,7 +168,7 @@ export const resolveDatasource = (
 
 /** Build the `(prismaName) → exportName` function from the config template. */
 export const makeSchemaExportName = (
-  config: CroutonConfig,
+  config: Partial<CroutonConfig>,
 ): ((prismaName: string) => string) => {
   const template = config.schemaExportName ?? '{Model}WithRelationsSchema';
   return (prismaName: string) => template.replace('{Model}', prismaName);

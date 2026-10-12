@@ -37,7 +37,7 @@ const apiCall = (
 
   const fetch = useApi();
 
-  return fetch[method](uri, {
+  return (fetch as any)[method](uri, {
     ...data,
     signal,
     paramsSerializer,
@@ -58,10 +58,10 @@ export const resourceApi = (
       { params: requestData },
       signal,
     )
-      .then((data) => {
+      .then((data: any) => {
         return data.data;
       })
-      .catch((error) => {
+      .catch((error: any) => {
         if (signal?.aborted) return null;
         console.error(error);
         NotificationService.error('Error loading data');
@@ -72,10 +72,10 @@ export const resourceApi = (
 
   const getOneById = (id: string) =>
     apiCall(formDef, 'findOne', { ...defaultUriParams, id, [idField]: id })
-      .then((response) => {
+      .then((response: any) => {
         return response.data;
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         NotificationService.error('Error loading data');
         return null;
@@ -83,11 +83,11 @@ export const resourceApi = (
 
   const save = (id: string, data: any) =>
     apiCall(formDef, 'update', { ...defaultUriParams, id, [idField]: id }, data)
-      .then((response) => {
+      .then((response: any) => {
         // NotificationService.success('Data saved');
         return response.data;
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         NotificationService.error('Error saving data');
         return null;
@@ -95,10 +95,10 @@ export const resourceApi = (
 
   const patchData = (id: string, data: any) =>
     apiCall(formDef, 'patch', { ...defaultUriParams, id, [idField]: id }, data)
-      .then((response) => {
+      .then((response: any) => {
         return response.data;
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         NotificationService.error('Error saving data');
         return null;
@@ -106,11 +106,11 @@ export const resourceApi = (
 
   const create = (data: any) =>
     apiCall(formDef, 'create', defaultUriParams, data)
-      .then((response) => {
+      .then((response: any) => {
         // NotificationService.success('Data saved');
         return response.data;
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         NotificationService.error('Error saving data');
         return null;
@@ -123,11 +123,11 @@ export const resourceApi = (
       id: recordId,
       [idField]: recordId,
     })
-      .then((response) => {
+      .then((response: any) => {
         NotificationService.success('Data deleted');
         return response.data;
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         NotificationService.error('Error deleting data');
         return null;

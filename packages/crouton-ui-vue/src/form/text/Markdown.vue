@@ -62,7 +62,7 @@ const editor = useEditor({
       codeBlock: false,
       horizontalRule: false,
       hardBreak: false,
-    }),
+    }) as any,
     Markdown.configure({
       html: false,
       transformPastedText: true, // parse markdown on paste

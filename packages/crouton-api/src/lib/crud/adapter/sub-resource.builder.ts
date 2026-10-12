@@ -196,7 +196,7 @@ export const buildSubResources = (
         ...(buildValueLabelColumns(childColumns).length && {
           valueLabelColumns: buildValueLabelColumns(childColumns),
         }),
-        relationType: c.fieldInput?.relationType ?? deriveRelationTypeFromColumns(c, columns!),
+        relationType: (c.fieldInput?.relationType ?? deriveRelationTypeFromColumns(c, columns!)) as SubResourceConfig['relationType'],
         ...(() => {
           const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
           return opts?.displayKey ? { displayKey: opts.displayKey } : {};

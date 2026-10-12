@@ -1,7 +1,7 @@
-import type { ControlProperties } from '../properties';
+import type { ControlWrapperProps } from '../ControlWrapper.properties';
 
 type StyleControlProperties = Pick<
-  ControlProperties,
+  ControlWrapperProps,
   'errors' | 'isTouched' | 'size'
 >;
 

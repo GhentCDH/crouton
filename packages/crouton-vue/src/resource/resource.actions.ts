@@ -60,7 +60,7 @@ const openDeleteModal =
       message: 'Are you sure to delete, the data will be lost?',
       onClose: (result) => {
         if (result.confirmed) {
-          api.delete(data).then((response) => {
+          api.delete(data).then((response: any) => {
             if (response) resource.reload();
             handleEvent('close', { delete: true, data });
           });
@@ -374,10 +374,10 @@ export const resourceModals = (
 
     api
       .getOneById(_id)
-      .then((data) => {
+      .then((data: any) => {
         return fn(data);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         NotificationService.error('Something went wrong, please try again');
       });

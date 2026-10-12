@@ -34,7 +34,7 @@ describe('classify', () => {
     expect(d.config.idType).toBe('string');
     expect(d.config.database).toBe('docsdb');
     expect(d.config.sidebar).toEqual({ hide: false });
-    expect(d.config.operations.findAll).toBe(true);
+    expect(d.config.operations?.findAll).toBe(true);
   });
 
   it('hides id everywhere and marks idField', () => {

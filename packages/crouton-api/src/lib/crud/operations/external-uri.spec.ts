@@ -20,7 +20,7 @@ describe('external uri — end-to-end', () => {
     });
 
     const definition = buildResourceDefinitions(undefined, ops, undefined);
-    const result = buildResourceOperations(resolveDefinition({ definition }), BASE);
+    const result = buildResourceOperations(resolveDefinition({ definition } as any), BASE);
 
     expect(result['delete']).toEqual({ uri: '/annotation/{id}', method: 'delete' });
     expect(result['findOne']).toEqual({ uri: `${BASE}/{id}`, method: 'get' });
@@ -32,7 +32,7 @@ describe('external uri — end-to-end', () => {
       delete: { uri: '/annotation/{id}', method: 'post' },
     });
     const definition = buildResourceDefinitions(undefined, ops, undefined);
-    const result = buildResourceOperations(resolveDefinition({ definition }), BASE);
+    const result = buildResourceOperations(resolveDefinition({ definition } as any), BASE);
 
     expect(result['delete']).toEqual({ uri: '/annotation/{id}', method: 'post' });
   });
