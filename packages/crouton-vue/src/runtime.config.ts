@@ -1,47 +1,13 @@
-export interface RuntimeConfig {
-  APP_VERSION: string;
-  BUILD_SHA: string;
-  API_URL: string;
-  env: 'DEV' | 'TST' | 'QAS' | 'PRD';
-  authToken: string;
-}
+export type { RuntimeConfig } from '@ghentcdh/crouton-frontend-core';
+export { getRuntimeConfig } from '@ghentcdh/crouton-frontend-core';
 
-let cachedConfig: RuntimeConfig | null = null;
+import type { RuntimeConfig } from '@ghentcdh/crouton-frontend-core';
+import { loadRuntimeConfig as _load } from '@ghentcdh/crouton-frontend-core';
 
-export const loadRuntimeConfig = async <
-  RUNTIME_CONFIG extends RuntimeConfig,
->(
-  config: {
-    authToken?: string;
-  } = {},
-): Promise<RUNTIME_CONFIG> => {
-  if (cachedConfig) {
-    return cachedConfig as RUNTIME_CONFIG;
-  }
-
-  // In production, fetch from config.json (relative to base URL)
-  try {
-    const baseUrl = import.meta.env.BASE_URL || '/';
-    const response = await fetch(`${baseUrl}config.json`);
-    if (!response.ok) {
-      throw new Error(`Failed to load config: ${response.status}`);
-    }
-    cachedConfig = await response.json();
-    cachedConfig!.authToken = config.authToken || 'GHENTCDH_DEFAULT_TOKEN';
-    return cachedConfig as RUNTIME_CONFIG;
-  } catch (error) {
-    console.error('Failed to load runtime config:', error);
-    throw new Error(error as any, { cause: error });
-  }
-};
-
-export const getRuntimeConfig = <
-  RUNTIME_CONFIG extends RuntimeConfig,
->(): RUNTIME_CONFIG => {
-  if (!cachedConfig) {
-    throw new Error(
-      'Runtime config not loaded. Call loadRuntimeConfig() first.',
-    );
-  }
-  return cachedConfig as RUNTIME_CONFIG;
-};
+export const loadRuntimeConfig = <RUNTIME_CONFIG extends RuntimeConfig>(
+  config: { authToken?: string; baseUrl?: string } = {},
+): Promise<RUNTIME_CONFIG> =>
+  _load<RUNTIME_CONFIG>({
+    ...config,
+    baseUrl: config.baseUrl ?? (import.meta.env?.BASE_URL ?? '/'),
+  });

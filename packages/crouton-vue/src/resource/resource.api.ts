@@ -1,185 +1,27 @@
-import type {
-  Operation,
-  OperationKey,
-  ResourceDefinition,
-} from '@ghentcdh/crouton-core';
+import {
+  apiCall,
+  createResourceApi,
+} from '@ghentcdh/crouton-frontend-core';
+import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
-import type { RequestData } from './resource.types';
-import { replaceUriParams } from './uri.utils';
+export type { ResourceApiInstance } from '@ghentcdh/crouton-frontend-core';
+
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
-const paramsSerializer = (params: Record<string, unknown>) => {
-  const p = new URLSearchParams();
-  Object.entries(params).forEach(([key, val]) => {
-    if (Array.isArray(val)) val.forEach((v) => p.append(key, String(v)));
-    else p.append(key, String(val));
-  });
-  return p.toString();
-};
-
-const apiCall = (
+export const croutonApiCall = (
   formDef: Pick<ResourceDefinition, 'id' | 'operations'>,
-  operation: OperationKey,
+  operation: any,
   defaultUriParams: Record<string, string>,
   data?: any,
   signal?: AbortSignal,
-) => {
-  const request = formDef.operations[operation] as Operation;
-  if (!request) {
-    throw new Error(
-      `ResourceDefinition ${formDef.id} does not have a ${operation} operation`,
-    );
-  }
-  const uri = replaceUriParams(request.uri, defaultUriParams);
-  const method = request.method.toLowerCase() as any;
-
-  const fetch = useApi();
-
-  return fetch[method](uri, {
-    ...data,
-    signal,
-    paramsSerializer,
-  });
-};
-
-export const croutonApiCall = apiCall;
+) => apiCall(useApi() as any, formDef as any, operation, defaultUriParams, data, signal);
 
 export const resourceApi = (
   formDef: Pick<ResourceDefinition, 'id' | 'operations' | 'idField'>,
   defaultUriParams: Record<string, string> = {},
-) => {
-  const loadData = (requestData: RequestData, signal?: AbortSignal) =>
-    apiCall(
-      formDef,
-      'findAll',
-      defaultUriParams,
-      { params: requestData },
-      signal,
-    )
-      .then((data) => {
-        return data.data;
-      })
-      .catch((error) => {
-        if (signal?.aborted) return null;
-        console.error(error);
-        NotificationService.error('Error loading data');
-        return null;
-      });
-
-  const idField = formDef.idField ?? 'id';
-
-  const getOneById = (id: string) =>
-    apiCall(formDef, 'findOne', { ...defaultUriParams, id, [idField]: id })
-      .then((response) => {
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        NotificationService.error('Error loading data');
-        return null;
-      });
-
-  const save = (id: string, data: any) =>
-    apiCall(formDef, 'update', { ...defaultUriParams, id, [idField]: id }, data)
-      .then((response) => {
-        // NotificationService.success('Data saved');
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        NotificationService.error('Error saving data');
-        return null;
-      });
-
-  const patchData = (id: string, data: any) =>
-    apiCall(formDef, 'patch', { ...defaultUriParams, id, [idField]: id }, data)
-      .then((response) => {
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        NotificationService.error('Error saving data');
-        return null;
-      });
-
-  const create = (data: any) =>
-    apiCall(formDef, 'create', defaultUriParams, data)
-      .then((response) => {
-        // NotificationService.success('Data saved');
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        NotificationService.error('Error saving data');
-        return null;
-      });
-
-  const deleteData = (data: any) => {
-    const recordId = data?.[idField] ?? data?.id;
-    return apiCall(formDef, 'delete', {
-      ...defaultUriParams,
-      id: recordId,
-      [idField]: recordId,
-    })
-      .then((response) => {
-        NotificationService.success('Data deleted');
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        NotificationService.error('Error deleting data');
-        return null;
-      });
-  };
-
-  /**
-   * Check whether `value` is still free for a declared-unique `field`.
-   * Derives the endpoint from the collection (`findAll`) uri. Fail-open: any
-   * error resolves `true`, since the API enforces uniqueness on write anyway.
-   */
-  const checkUnique = (
-    field: string,
-    value: string,
-    excludeId?: string,
-    scope?: Record<string, unknown>,
-  ): Promise<boolean> => {
-    const findAll = formDef.operations['findAll'] as Operation | undefined;
-    if (!findAll) return Promise.resolve(true);
-    const base = replaceUriParams(findAll.uri, defaultUriParams).replace(
-      /\/+$/,
-      '',
-    );
-    const fetch = useApi();
-    return fetch
-      .get(`${base}/unique`, {
-        params: {
-          field,
-          value,
-          ...(excludeId != null ? { excludeId } : {}),
-          ...(scope ? { scope: JSON.stringify(scope) } : {}),
-        },
-        paramsSerializer,
-      })
-      .then((response: any) => response.data?.unique !== false)
-      .catch((error: unknown) => {
-        console.error(error);
-        return true;
-      });
-  };
-
-  return {
-    findAll: loadData,
-    loadData,
-    getOneById,
-    save,
-    patch: patchData,
-    create,
-    delete: deleteData,
-    checkUnique,
-  };
-};
+) => createResourceApi(useApi() as any, NotificationService)(formDef as any, defaultUriParams);
 
 export const useResourceApi = async (
   formDefId: string,
@@ -189,5 +31,3 @@ export const useResourceApi = async (
 
   return resourceApi(formDef, defaultUriParams);
 };
-
-export type ResourceApiInstance = ReturnType<typeof resourceApi>;

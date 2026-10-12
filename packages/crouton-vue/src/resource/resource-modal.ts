@@ -23,7 +23,7 @@ export const useFormDefRepository = (formDef: ResourceDefinition) => {
     notification: {
       show: true,
       entityType: formDef.title,
-      notification: NotificationService,
+      notifier: NotificationService,
     },
   });
 

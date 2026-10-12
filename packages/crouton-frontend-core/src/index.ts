@@ -1,11 +1,18 @@
 // crouton-frontend-core: framework-agnostic browser runtime
 
+export * from './api/crud-repository';
+export * from './api/ports';
+export * from './api/resource-api';
 export * from './api/uri';
+export * from './client';
+export * from './config/runtime-config';
+export * from './resource/backend-action';
 export * from './app/sidebar';
 export * from './editor/canvas-layout';
 export * from './editor/resource-schema-editor.types';
 export * from './editor/resource-settings.schema';
 export * from './editor/type-swaps';
+export * from './form-def/form-def-cache';
 export * from './form-def/form-def.schema';
 export * from './form-def/form-def.types';
 export * from './forms/colspan';
