@@ -64,23 +64,10 @@ jobs:
       - uses: ./.github/actions/use-cache
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build packages for E2E
-        run: pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api,crouton-vue,book-collection-frontend --parallel --max-parallel=4
-      - name: Cache Playwright Docker image
-        uses: actions/cache@v5
-        with:
-          path: /tmp/playwright-docker.tar
-          key: playwright-docker-${{ env.PLAYWRIGHT_IMAGE }}
-      - name: Load or pull Playwright Docker image
-        run: |
-          if [ -f /tmp/playwright-docker.tar ]; then
-            docker load -i /tmp/playwright-docker.tar
-          else
-            docker pull ${{ env.PLAYWRIGHT_IMAGE }}
-            docker save ${{ env.PLAYWRIGHT_IMAGE }} -o /tmp/playwright-docker.tar
-          fi
       - name: Run E2E tests
-        run: docker compose -f examples/book-collection/e2e/docker-compose.playwright.ci.yml run --rm playwright
+        run: pnpm nx run book-collection-e2e:e2e
+        env:
+          CI: true
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: failure()
