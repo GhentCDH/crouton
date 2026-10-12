@@ -2,19 +2,18 @@ import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
 import {
+  assertNotCancel,
   BACKEND_DEPS,
   CancelledError,
-  type DiscoveredApp,
-  FRONTEND_DEPS,
-  type FileEntry,
-  type PackageManager,
-  assertNotCancel,
   computeMissing,
   detectPackageManager,
+  type DiscoveredApp,
   discoverNxApps,
+  type FileEntry,
   fileExists,
   installDeps,
   isNxProject,
+  type PackageManager,
   writeFiles,
   writeIfAbsent,
 } from '@ghentcdh/create-crouton/lib';
@@ -72,7 +71,9 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
           }),
         ) as DiscoveredApp;
       } else if (backends.length === 0) {
-        clack.log.warn('No backend app detected. Crouton config will be placed at project root.');
+        clack.log.warn(
+          'No backend app detected. Crouton config will be placed at project root.',
+        );
       }
 
       if (backendApp) {
@@ -82,7 +83,9 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
 
       if (frontends.length > 0) {
         frontendApp = frontends[0];
-        clack.log.info(`Frontend(s) detected: ${frontends.map((f) => pc.cyan(f.name)).join(', ')}`);
+        clack.log.info(
+          `Frontend(s) detected: ${frontends.map((f) => pc.cyan(f.name)).join(', ')}`,
+        );
       }
     }
 
@@ -91,15 +94,18 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
     clack.log.info(`Package manager: ${pc.cyan(pm)}`);
 
     // 3b. Scan missing deps
-    const backendPkgPath = nx && dataSourcesDir.startsWith('apps/')
-      ? resolve(cwd, 'apps', dataSourcesDir.split('/')[1], 'package.json')
-      : resolve(cwd, 'package.json');
+    const backendPkgPath =
+      nx && dataSourcesDir.startsWith('apps/')
+        ? resolve(cwd, 'apps', dataSourcesDir.split('/')[1], 'package.json')
+        : resolve(cwd, 'package.json');
 
     const missingBackend = await computeMissing(backendPkgPath, BACKEND_DEPS);
     const allMissing = [...missingBackend.deps, ...missingBackend.devDeps];
 
     if (allMissing.length > 0) {
-      clack.log.warn(`Missing backend deps: ${allMissing.map((d) => pc.yellow(d)).join(', ')}`);
+      clack.log.warn(
+        `Missing backend deps: ${allMissing.map((d) => pc.yellow(d)).join(', ')}`,
+      );
       clack.log.info('Install them after this script finishes.');
     } else {
       clack.log.success('All backend dependencies present.');
@@ -151,7 +157,8 @@ export const runAdd = async (opts: AddOptions): Promise<void> => {
 
     // 7. Append to .env.example
     const envExamplePath = resolve(cwd, '.env.example');
-    const envLine = 'DATABASE_URL=postgresql://crouton:crouton@localhost:5432/myapp?schema=public\n';
+    const envLine =
+      'DATABASE_URL=postgresql://crouton:crouton@localhost:5432/myapp?schema=public\n';
     if (!(await fileExists(envExamplePath))) {
       await writeIfAbsent(envExamplePath, envLine);
       clack.log.success('Created .env.example');
@@ -314,7 +321,9 @@ const setupDocker = async (
       '',
     ].join('\n');
     await writeFileWithDir(envPath, envLines);
-    clack.log.success(`Created .env (ports: frontend=${frontendPort}, backend=${backendPort})`);
+    clack.log.success(
+      `Created .env (ports: frontend=${frontendPort}, backend=${backendPort})`,
+    );
   } else {
     clack.log.info('.env already exists, skipping.');
   }
@@ -525,10 +534,7 @@ const ensureComposeInclude = async (
 
     // Append app entry if not present
     if (!content.includes(appEntry)) {
-      content = content.replace(
-        'include:\n',
-        `include:\n  - ${appEntry}\n`,
-      );
+      content = content.replace('include:\n', `include:\n  - ${appEntry}\n`);
       // Move the new entry to the end of the include block
       // by appending after the last include item instead
       // Actually, simpler: just append at the end of the include list.
@@ -604,7 +610,9 @@ const scanUsedPorts = async (cwd: string): Promise<Set<number>> => {
 /**
  * Find a free frontend + backend port pair that doesn't collide with used ports.
  */
-const findFreePorts = (usedPorts: Set<number>): { frontendPort: number; backendPort: number } => {
+const findFreePorts = (
+  usedPorts: Set<number>,
+): { frontendPort: number; backendPort: number } => {
   let fp = 4200;
   while (usedPorts.has(fp)) fp += 10;
   let bp = 3000;
@@ -622,7 +630,7 @@ const detectProjectName = async (cwd: string): Promise<string> => {
     const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
     // Strip scope prefix if present (@foo/bar → bar)
     const raw: string = pkg.name ?? '';
-    const name = raw.startsWith('@') ? raw.split('/')[1] ?? raw : raw;
+    const name = raw.startsWith('@') ? (raw.split('/')[1] ?? raw) : raw;
     if (name) return name;
   } catch {
     // no package.json
@@ -632,12 +640,18 @@ const detectProjectName = async (cwd: string): Promise<string> => {
   return basename(cwd);
 };
 
-const writeFileWithDir = async (filePath: string, contents: string): Promise<void> => {
+const writeFileWithDir = async (
+  filePath: string,
+  contents: string,
+): Promise<void> => {
   await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, contents, 'utf-8');
 };
 
-const resolvePostgres = async (cwd: string, opts: AddOptions): Promise<boolean> => {
+const resolvePostgres = async (
+  cwd: string,
+  opts: AddOptions,
+): Promise<boolean> => {
   // If compose.infra.yml already exists, postgres infra is already set up
   if (await fileExists(resolve(cwd, 'compose.infra.yml'))) {
     clack.log.info('compose.infra.yml found, reusing existing postgres infra.');
@@ -655,7 +669,10 @@ const resolvePostgres = async (cwd: string, opts: AddOptions): Promise<boolean> 
   ) as boolean;
 };
 
-const resolvePm = async (cwd: string, opts: AddOptions): Promise<PackageManager> => {
+const resolvePm = async (
+  cwd: string,
+  opts: AddOptions,
+): Promise<PackageManager> => {
   if (opts.pm) return opts.pm as PackageManager;
   const detected = await detectPackageManager(cwd);
   if (detected) return detected;

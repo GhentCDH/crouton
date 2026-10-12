@@ -10,7 +10,6 @@ import {
   Injectable,
   type NestInterceptor,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
 
 import { resolveLanguage } from '@ghentcdh/crouton-core';
 
@@ -21,14 +20,13 @@ import { type TranslationRegistry } from './translation.registry';
 export class LanguageInterceptor implements NestInterceptor {
   constructor(private readonly registry: TranslationRegistry) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+  intercept(context: ExecutionContext, next: CallHandler) {
     const http = context.switchToHttp();
     const request = http.getRequest();
     const response = http.getResponse();
 
     const acceptLanguage = request.headers['accept-language'] as
-      | string
-      | undefined;
+      string | undefined;
     const resolved = resolveLanguage(
       acceptLanguage,
       this.registry.languages,
@@ -38,6 +36,6 @@ export class LanguageInterceptor implements NestInterceptor {
     response.setHeader('Vary', 'Accept-Language');
     response.setHeader('Content-Language', resolved);
 
-    return runWithLanguage(resolved, () => next.handle());
+    return runWithLanguage(resolved, () => next.handle()) as any;
   }
 }
