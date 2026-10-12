@@ -50,7 +50,7 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { resourceState, sortResources } from '../status.utils';
+import { resourceState, sortResources } from '@ghentcdh/crouton-frontend-core';
 import { StatusResourceListProperties } from './StatusResourceList.properties';
 import StatusResourceRow from './StatusResourceRow.vue';
 

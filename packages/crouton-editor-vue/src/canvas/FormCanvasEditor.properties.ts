@@ -4,7 +4,7 @@ import type {
   EditableColumn,
   Tab,
   VariantDraft,
-} from '../types/resource-schema-editor.types';
+} from '@ghentcdh/crouton-frontend-core';
 
 export const FormCanvasEditorProperties = {
   /** Same array reference `ResourceColumnsEditor` gets — mutated directly (`hiddenIn*`), same pattern as the rest of this package. */

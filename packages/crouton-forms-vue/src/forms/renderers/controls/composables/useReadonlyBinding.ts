@@ -3,18 +3,16 @@ import { type FieldContext, useField, useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
 import { type ControlOption, ControlType } from '@ghentcdh/crouton-core';
-
-import { type useCustomProps } from './useControlBinding';
-import { type UseInputOptions, useInputProps } from './useInput';
-import {
+import { isDate,
   isDateControl,
   isDateRangeControl,
   isIntegerFormat,
   isMarkdownControl,
-  isNumberFormat,
-} from '../../../../testers/tester';
-import { scopeToPath } from '../../../scope';
-import { resolveWithTime } from '../date/useDateModel';
+  isNumberFormat, resolveWithTime, scopeToPath   
+} from '@ghentcdh/crouton-frontend-core';
+
+import { type useCustomProps } from './useControlBinding';
+import { type UseInputOptions, useInputProps } from './useInput';
 import BooleanValue from '../readonly/displayValue/BooleanValue.vue';
 import DateRangeValue from '../readonly/displayValue/DateRangeValue.vue';
 import DateValue from '../readonly/displayValue/DateValue.vue';
@@ -25,7 +23,7 @@ import NumberValue from '../readonly/displayValue/NumberValue.vue';
 import ObjectValue from '../readonly/displayValue/ObjectValue.vue';
 import { default as StringValue } from '../readonly/displayValue/StringValue.vue';
 import ViewDetailValue from '../readonly/displayValue/ViewDetailValue.vue';
-import { isDate } from '../readonly/displayValue/formatDate';
+
 
 export const isLink = (value: string) => value?.startsWith?.('http');
 

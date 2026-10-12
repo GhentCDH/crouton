@@ -22,7 +22,7 @@ import { computed, inject } from 'vue';
 
 import { Collapse } from '@ghentcdh/crouton-ui-vue';
 
-import { COLSPAN, ROWSPAN } from './colspan';
+import { COLSPAN, ROWSPAN } from '@ghentcdh/crouton-frontend-core';
 import Dispatch from '../../Dispatch.vue';
 
 const props = defineProps<{

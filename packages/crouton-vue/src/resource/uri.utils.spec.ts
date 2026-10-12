@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { replaceUriParams } from './uri.utils';
+import { replaceUriParams } from '@ghentcdh/crouton-frontend-core';
 
 describe('replaceUriParams', () => {
   it('should replace simple params', () => {

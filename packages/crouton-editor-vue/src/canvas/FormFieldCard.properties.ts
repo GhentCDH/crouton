@@ -1,8 +1,8 @@
 import { type PropType } from 'vue';
 
+import type { CanvasField, CanvasTypeOption  } from '@ghentcdh/crouton-frontend-core';
+
 import type { CanvasSelectOption } from './FieldPreview.properties';
-import type { CanvasField } from './canvas-layout';
-import type { CanvasTypeOption } from './type-swaps';
 
 export type { CanvasSelectOption };
 

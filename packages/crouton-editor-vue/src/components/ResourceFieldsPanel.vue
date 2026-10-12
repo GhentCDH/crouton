@@ -7,7 +7,7 @@ import { ResourceFieldsPanelProperties } from './ResourceFieldsPanel.properties'
 import {
   buildResourceSettingsSchema,
   buildResourceSettingsUiSchema,
-} from '../schema/resource-settings.schema';
+} from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps(ResourceFieldsPanelProperties);
 

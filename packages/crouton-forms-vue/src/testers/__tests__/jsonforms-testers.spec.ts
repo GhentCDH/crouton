@@ -8,7 +8,7 @@ import {
   rankWith,
   schemaTypeIs,
   uiTypeIs,
-} from '../jsonforms-testers';
+} from '@ghentcdh/crouton-frontend-core';
 
 const control = (extra: Record<string, any> = {}): UISchemaElement =>
   ({ type: 'Control', scope: '#/properties/x', ...extra }) as UISchemaElement;

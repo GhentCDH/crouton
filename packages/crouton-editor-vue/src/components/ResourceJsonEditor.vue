@@ -15,7 +15,7 @@ import {
   TABS,
   toDraft,
   type VariantDraft,
-} from '../types/resource-schema-editor.types';
+} from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps(ResourceJsonEditorProperties);
 

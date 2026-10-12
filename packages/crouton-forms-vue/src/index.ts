@@ -15,7 +15,7 @@ export {
   FORM_SUBMITTED_KEY,
 } from './forms/errorMode';
 export { default as Dispatch } from './forms/Dispatch.vue';
-export type { HttpClient } from './http-client';
+export type { HttpClient } from '@ghentcdh/crouton-frontend-core';
 export type {
   FormModalProp,
   FormModalResult,
@@ -88,12 +88,12 @@ export {
   isCustomControlRender,
   isDateControl,
   optionIsIgnoreCase,
-} from './testers/tester';
+} from '@ghentcdh/crouton-frontend-core';
 // Layout: colspan → Tailwind class maps, reused by the visual form canvas
 // (`crouton-editor-vue`) so it doesn't reimplement the same grid math.
-export { COLSPAN, COLSPAN_READ_ONLY } from './forms/renderers/layout/colspan';
+export { COLSPAN, COLSPAN_READ_ONLY } from '@ghentcdh/crouton-frontend-core';
 // Error handling
-export { formatError, registerZodErrorMap } from './forms/errorMessages';
+export { formatError, registerZodErrorMap } from '@ghentcdh/crouton-frontend-core';
 
 // Repository & table
 export * from './repository';

@@ -1,6 +1,6 @@
 import { type PropType } from 'vue';
 
-import type { CanvasTypeOption } from './type-swaps';
+import type { CanvasTypeOption } from '@ghentcdh/crouton-frontend-core';
 
 export const FieldOptionsMenuProperties = {
   typeOptions: {

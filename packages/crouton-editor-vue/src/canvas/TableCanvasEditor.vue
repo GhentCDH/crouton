@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import draggable from 'vuedraggable';
 
 import { TableCanvasEditorProperties } from './TableCanvasEditor.properties';
-import type { CanvasField } from './canvas-layout';
+import type { CanvasField } from '@ghentcdh/crouton-frontend-core';
 import { useCanvasFieldOps } from './useCanvasFieldOps';
 import CanvasShell from './CanvasShell.vue';
 import TableColumnChip from './TableColumnChip.vue';

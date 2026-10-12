@@ -1,14 +1,13 @@
 import { computed, ref, watch } from 'vue';
 
-import type { CanvasSelectOption } from './FieldPreview.properties';
-import { type CanvasField, buildCanvasLayout } from './canvas-layout';
-import { swapOptionsFor } from './type-swaps';
-import {
+import { type CanvasField,
   type EditableColumn,
   HIDDEN_FLAG,
   type Tab,
-  type VariantDraft,
-} from '../types/resource-schema-editor.types';
+  type VariantDraft, buildCanvasLayout } from '@ghentcdh/crouton-frontend-core';
+import { swapOptionsFor } from '@ghentcdh/crouton-frontend-core';
+
+import type { CanvasSelectOption } from './FieldPreview.properties';
 
 export type CanvasFieldOpsOptions = {
   supportsColspan?: boolean;

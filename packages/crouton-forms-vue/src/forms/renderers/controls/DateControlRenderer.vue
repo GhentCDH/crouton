@@ -16,7 +16,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
 import DatePicker from './date/DatePicker.vue';
-import { resolveWithTime } from './date/useDateModel';
+import { resolveWithTime } from '@ghentcdh/crouton-frontend-core';
 import { useControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();

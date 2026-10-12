@@ -21,7 +21,7 @@ import { FORM_READONLY_KEY } from './errorMode';
 import { readonlyRenderers } from './renderers';
 import type { RendererEntry } from './renderers/registry';
 import { findRenderer } from './renderers/registry';
-import { resolveSchema } from './scope';
+import { resolveSchema } from '@ghentcdh/crouton-frontend-core';
 
 const props = withDefaults(
   defineProps<{

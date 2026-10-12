@@ -8,6 +8,13 @@ import type {
 } from '@ghentcdh/crouton-core';
 import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
+import { replaceUriParams } from '@ghentcdh/crouton-frontend-core';
+import {
+  type Action,
+  type FormDef,
+  type FormDefActionCondition,
+  type TableAction as TableActionDef
+} from '@ghentcdh/crouton-frontend-core';
 import {
   ModalService,
   NotificationService,
@@ -18,7 +25,6 @@ import { CroutonForm, FormModal, JsonFormModalService } from '../forms';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
-import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';

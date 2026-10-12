@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { CroutonStatus, ResourceStatus } from './status.types';
-import { collectIssues, resourceState, sortResources } from './status.utils';
+import type { CroutonStatus, ResourceStatus } from '@ghentcdh/crouton-frontend-core';
+import { collectIssues, resourceState, sortResources } from '@ghentcdh/crouton-frontend-core';
 
 const makeStatus = (overrides: Partial<CroutonStatus> = {}): CroutonStatus => ({
   version: '1.0.0',

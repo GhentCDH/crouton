@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
 import { parseSchema, uiFromJsonSchema } from '@ghentcdh/crouton-core';
-
-import type { HttpClient } from '../../../http-client';
+import type { HttpClient } from '@ghentcdh/crouton-frontend-core';
 
 /** Supported HTTP methods for resource operations. */
 export const MethodSchema = z.enum([

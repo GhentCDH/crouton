@@ -1,6 +1,6 @@
 import { type InjectionKey, inject, provide } from 'vue';
 
-import type { HttpClient } from '../http-client';
+import type { HttpClient } from '@ghentcdh/crouton-frontend-core';
 
 const HTTP_CLIENT_KEY: InjectionKey<HttpClient> = Symbol('json-forms:http-client');
 

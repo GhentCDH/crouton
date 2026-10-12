@@ -63,7 +63,7 @@
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { collectIssues } from './status.utils';
+import { collectIssues } from '@ghentcdh/crouton-frontend-core';
 import { useCroutonStatus } from './useCroutonStatus';
 import StatusDatabaseList from './components/StatusDatabaseList.vue';
 import StatusEnumsSection from './components/StatusEnumsSection.vue';

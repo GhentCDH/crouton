@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import type { JsonSchema, Layout, UISchemaElement } from '@jsonforms/core';
 
-import { COLSPAN, ROWSPAN } from './colspan';
+import { COLSPAN, ROWSPAN } from '@ghentcdh/crouton-frontend-core';
 import Dispatch from '../../Dispatch.vue';
 
 const props = defineProps<{

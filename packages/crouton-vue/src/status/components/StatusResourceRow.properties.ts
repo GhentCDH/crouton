@@ -1,6 +1,6 @@
 import type { PropType } from 'vue';
 
-import type { ResourceStatus } from '../status.types';
+import type { ResourceStatus } from '@ghentcdh/crouton-frontend-core';
 
 export const StatusResourceRowProperties = {
   resource: { type: Object as PropType<ResourceStatus>, required: true as const },

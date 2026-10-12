@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { fieldInputRegistry } from '@ghentcdh/crouton-core';
-
-import { CANVAS_SUPPORTED_TYPES } from '../type-swaps';
+import { CANVAS_SUPPORTED_TYPES } from '@ghentcdh/crouton-frontend-core';
 
 describe('CANVAS_SUPPORTED_TYPES ↔ registry sync', () => {
   it('every CANVAS_SUPPORTED_TYPES entry is a key in the fieldInputRegistry', () => {

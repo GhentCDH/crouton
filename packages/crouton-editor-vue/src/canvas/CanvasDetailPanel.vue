@@ -5,7 +5,7 @@ import { Btn } from '@ghentcdh/crouton-ui-vue';
 
 import { CanvasDetailPanelProperties } from './CanvasDetailPanel.properties';
 import ResourceFieldVariantEditor from '../components/ResourceFieldVariantEditor.vue';
-import type { Tab } from '../types/resource-schema-editor.types';
+import type { Tab } from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps(CanvasDetailPanelProperties);
 

@@ -1,6 +1,7 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
-import type { HttpClient } from '../http-client';
+import type { HttpClient } from '@ghentcdh/crouton-frontend-core';
+
 import type { ErrorMode } from './errorMode';
 
 export type Data = {

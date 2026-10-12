@@ -1,7 +1,8 @@
 import { type InjectionKey, inject } from 'vue';
 
+import type { HttpClient } from '@ghentcdh/crouton-frontend-core';
+
 import type { FormModalResult } from '../forms/modal/FormModal.properties';
-import type { HttpClient } from '../http-client';
 
 export type ModalOpenerOptions = {
   schema: any;

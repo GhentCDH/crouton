@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import { EMPTY_VALUE } from '../constants';
+import { EMPTY_VALUE } from '@ghentcdh/crouton-frontend-core';
 </script>

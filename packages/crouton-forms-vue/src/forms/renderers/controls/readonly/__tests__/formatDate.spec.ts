@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatDate, relativeDate } from '../displayValue/formatDate';
+import { formatDate, relativeDate } from '@ghentcdh/crouton-frontend-core';
 
 describe('formatDate', () => {
   const iso = '2026-06-05T07:27:20.987Z';

@@ -5,7 +5,7 @@ import draggable from 'vuedraggable';
 import { COLSPAN } from '@ghentcdh/crouton-forms-vue';
 
 import { FormCanvasEditorProperties } from './FormCanvasEditor.properties';
-import type { CanvasField } from './canvas-layout';
+import type { CanvasField } from '@ghentcdh/crouton-frontend-core';
 import { useCanvasFieldOps } from './useCanvasFieldOps';
 import CanvasShell from './CanvasShell.vue';
 import FormFieldCard from './FormFieldCard.vue';

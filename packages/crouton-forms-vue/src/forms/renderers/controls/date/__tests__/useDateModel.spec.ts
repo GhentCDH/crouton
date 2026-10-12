@@ -11,7 +11,7 @@ import {
   toDateKey,
   toInputValue,
   weekdayLabels,
-} from '../useDateModel';
+} from '@ghentcdh/crouton-frontend-core';
 
 describe('toInputValue', () => {
   it('renders date-only in UTC', () => {

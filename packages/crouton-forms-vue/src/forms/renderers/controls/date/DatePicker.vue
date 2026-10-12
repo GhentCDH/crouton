@@ -154,8 +154,8 @@ import {
   toDateKey,
   toInputValue,
   weekdayLabels,
-} from './useDateModel';
-import { parseDate } from '../readonly/displayValue/formatDate';
+} from '@ghentcdh/crouton-frontend-core';
+import { parseDate } from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps(DatePickerProperties);
 const emit = defineEmits(DatePickerEmits);

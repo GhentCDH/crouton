@@ -2,7 +2,6 @@ import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { describe, expect, it } from 'vitest';
 
 import { ControlType } from '@ghentcdh/crouton-core';
-
 import {
   isAutoCompleteControl,
   isBooleanControl,
@@ -18,7 +17,7 @@ import {
   isStringFormat,
   isTextAreaControl,
   isToggleControl,
-} from '../tester';
+} from '@ghentcdh/crouton-frontend-core';
 
 const control = (format: string): UISchemaElement =>
   ({ type: 'Control', scope: '#/properties/x', options: { format } }) as UISchemaElement;

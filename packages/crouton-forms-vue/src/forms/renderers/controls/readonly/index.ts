@@ -1,5 +1,6 @@
+import { rankWith, uiTypeIs } from '@ghentcdh/crouton-frontend-core';
+
 import ControlReadonlyRenderer from './ControlReadonlyRenderer.vue';
-import { rankWith, uiTypeIs } from '../../../../testers/jsonforms-testers';
 
 export const readonlyControlRenderers = [
   {

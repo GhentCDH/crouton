@@ -1,10 +1,10 @@
 import type { ExtractPublicPropTypes, PropType } from 'vue';
 
 import type { SizeType } from '@ghentcdh/crouton-core';
+import type { HttpClient } from '@ghentcdh/crouton-frontend-core';
 
 import type { FormEventPayload } from '../../composables/useFormEvents';
 import type { UniqueCheckFn } from '../../composables/useUniqueValidator';
-import type { HttpClient } from '../../http-client';
 import type { ErrorMode } from '../errorMode';
 
 export const FormModalProperties = {

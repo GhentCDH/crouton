@@ -2,15 +2,15 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
 import { computed, inject, ref } from 'vue';
 
+import { formatError, resolveSchema, scopeToPath  } from '@ghentcdh/crouton-frontend-core';
 import { type MyStyles, mergeStyles } from '@ghentcdh/crouton-ui-vue';
 
-import { formatError } from '../../../errorMessages';
 import {
   ERROR_MODE_KEY,
   FORM_READONLY_KEY,
   FORM_SUBMITTED_KEY,
 } from '../../../errorMode';
-import { resolveSchema, scopeToPath } from '../../../scope';
+
 
 export interface InputProps {
   id: string;

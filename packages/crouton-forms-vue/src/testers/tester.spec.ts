@@ -7,7 +7,7 @@ import {
   isIntegerFormat,
   isObjectControl,
   isStringFormat,
-} from './tester';
+} from '@ghentcdh/crouton-frontend-core';
 
 const control = (options?: Record<string, unknown>): UISchemaElement =>
   ({ type: 'Control', scope: '#/properties/metadata', options }) as any;

@@ -1,3 +1,3 @@
 export { default as DatePicker } from './DatePicker.vue';
 export * from './DatePicker.properties';
-export * from './useDateModel';
+export * from '@ghentcdh/crouton-frontend-core';

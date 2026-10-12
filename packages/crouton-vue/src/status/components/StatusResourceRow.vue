@@ -146,7 +146,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { resourceState, stateClasses } from '../status.utils';
+import { resourceState, stateClasses } from '@ghentcdh/crouton-frontend-core';
 import { StatusResourceRowProperties } from './StatusResourceRow.properties';
 import StatusResourceDemo from './StatusResourceDemo.vue';
 

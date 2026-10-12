@@ -9,7 +9,7 @@
 import { computed } from 'vue';
 
 import { DisplayValueProperties } from './displayValue.properties';
-import { formatDate, relativeDate } from './formatDate';
+import { formatDate, relativeDate } from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps(DisplayValueProperties);
 

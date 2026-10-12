@@ -15,7 +15,7 @@ import {
   colspanLabel,
   type Tab,
   visibleTabs,
-} from '../types/resource-schema-editor.types';
+} from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps(ResourceFieldVariantEditorProperties);
 

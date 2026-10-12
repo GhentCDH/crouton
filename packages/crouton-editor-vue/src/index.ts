@@ -10,7 +10,7 @@ export {
   colspanLabel,
   toDraft,
   visibleTabs,
-} from './types/resource-schema-editor.types';
+} from '@ghentcdh/crouton-frontend-core';
 export type {
   ColumnPatch,
   EditableColumn,
@@ -19,4 +19,4 @@ export type {
   FieldVariantPatch,
   Tab,
   VariantDraft,
-} from './types/resource-schema-editor.types';
+} from '@ghentcdh/crouton-frontend-core';

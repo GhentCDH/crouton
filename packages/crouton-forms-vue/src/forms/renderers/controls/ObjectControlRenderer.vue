@@ -37,7 +37,7 @@ import { useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
 import Dispatch from '../../Dispatch.vue';
-import { resolveSchema, scopeToPath } from '../../scope';
+import { resolveSchema, scopeToPath } from '@ghentcdh/crouton-frontend-core';
 
 /**
  * Renders a column whose schema is a nested object.

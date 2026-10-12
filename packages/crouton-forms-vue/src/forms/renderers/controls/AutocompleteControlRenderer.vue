@@ -24,7 +24,7 @@ import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 import { useFormEvents } from '../../../composables/useFormEvents';
 import { useHttpClient } from '../../../composables/useHttpClient';
 import { useModalOpener } from '../../../composables/useModalOpener';
-import { scopeToPath } from '../../scope';
+import { scopeToPath } from '@ghentcdh/crouton-frontend-core';
 import { useFetchOptions } from './composables/useFetchOption';
 import { useAutocompleteBinding } from './composables/useSelectBinding';
 

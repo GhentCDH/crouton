@@ -3,8 +3,8 @@ import type {
   AutocompleteRemoteOptions,
   AutocompleteResourceOptions
 } from '@ghentcdh/crouton-core';
+import type { HttpClient } from '@ghentcdh/crouton-frontend-core';
 
-import type { HttpClient } from '../../../../http-client';
 import { getResourceSchema } from '../resource';
 
 /**

@@ -27,7 +27,7 @@ import {
   JsonFormComponentEmits,
   JsonFormComponentProperties,
 } from './FormComponent.properties';
-import { registerZodErrorMap } from './errorMessages';
+import { registerZodErrorMap } from '@ghentcdh/crouton-frontend-core';
 import {
   ERROR_MODE_KEY,
   FORM_READONLY_KEY,

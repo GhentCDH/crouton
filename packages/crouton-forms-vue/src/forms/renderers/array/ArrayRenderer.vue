@@ -51,7 +51,7 @@ import { computed, inject } from 'vue';
 import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import Dispatch from '../../Dispatch.vue';
-import { resolveSchema, scopeToPath } from '../../scope';
+import { resolveSchema, scopeToPath } from '@ghentcdh/crouton-frontend-core';
 
 const props = defineProps<{
   uischema: UISchemaElement;

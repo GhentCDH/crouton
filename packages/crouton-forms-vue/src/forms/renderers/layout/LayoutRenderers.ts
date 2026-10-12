@@ -1,8 +1,9 @@
+import { or, rankWith, uiTypeIs } from '@ghentcdh/crouton-frontend-core';
+
 import CollapseLayoutRenderer from './CollapseLayoutRenderer.vue';
 import GroupLayoutRenderer from './GroupLayoutRenderer.vue';
 import LayoutRenderer from './LayoutRenderer.vue';
 import ReadOnlyLayoutRenderer from './ReadOnlyLayoutRenderer.vue';
-import { or, rankWith, uiTypeIs } from '../../../testers/jsonforms-testers';
 
 const isLayoutType = or(
   uiTypeIs('GridLayout'),

@@ -8,7 +8,7 @@ import {
   isNumberFormat,
   isStringFormat,
   isToggleControl,
-} from '../tester';
+} from '@ghentcdh/crouton-frontend-core';
 
 const control = (
   options: Record<string, any> = {},

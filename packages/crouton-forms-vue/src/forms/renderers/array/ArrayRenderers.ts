@@ -1,6 +1,6 @@
+import { isArrayRenderer, rankWith  } from '@ghentcdh/crouton-frontend-core';
+
 import ArrayRenderer from './ArrayRenderer.vue';
-import { rankWith } from '../../../testers/jsonforms-testers';
-import { isArrayRenderer } from '../../../testers/tester';
 
 
 export const arrayRenderers = [

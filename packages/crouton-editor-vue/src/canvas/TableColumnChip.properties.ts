@@ -1,7 +1,6 @@
 import { type PropType } from 'vue';
 
-import type { CanvasField } from './canvas-layout';
-import type { CanvasTypeOption } from './type-swaps';
+import type { CanvasField, CanvasTypeOption  } from '@ghentcdh/crouton-frontend-core';
 
 export const TableColumnChipProperties = {
   field: { type: Object as PropType<CanvasField>, required: true as const },

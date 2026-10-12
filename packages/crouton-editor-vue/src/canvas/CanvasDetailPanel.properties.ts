@@ -4,7 +4,7 @@ import type {
   EditableColumn,
   Tab,
   VariantDraft,
-} from '../types/resource-schema-editor.types';
+} from '@ghentcdh/crouton-frontend-core';
 
 export const CanvasDetailPanelProperties = {
   col: { type: Object as PropType<EditableColumn>, required: true as const },

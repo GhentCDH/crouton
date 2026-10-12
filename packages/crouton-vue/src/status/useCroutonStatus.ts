@@ -1,6 +1,7 @@
 import { computed, onUnmounted, ref } from 'vue';
 
-import type { CroutonStatus } from './status.types';
+import type { CroutonStatus } from '@ghentcdh/crouton-frontend-core';
+
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
