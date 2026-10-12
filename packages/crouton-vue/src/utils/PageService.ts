@@ -1,7 +1,8 @@
 import { ref } from 'vue';
 
-import { RequestSchema } from './request';
 import type { OperationKey } from '@ghentcdh/crouton-core';
+
+import { RequestSchema } from './request';
 import { useCrouton } from '../composables/useCrouton';
 import { croutonApiCall } from '../resource/resource.api';
 import { type RequestData } from '../resource/resource.types';

@@ -1,9 +1,9 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import {
+  type ResourceDefinitionResponse,
+  ResourceDefinitionResponseZ,
   buildResourceJsonSchema,
-  FormDef,
-  FormDefResponseZ,
   registerResourceExtensions,
 } from '@ghentcdh/crouton-core';
 
@@ -49,11 +49,11 @@ export type ParseAppConfig = Pick<
  * Without `dirPath`, features that read sibling files are skipped: extend columns,
  * resource-ref column options, and sub-resource views.
  */
-export const parseSchema = <PARSED extends FormDef = FormDef>(
+export const parseSchema = (
   input: ParseSchemaInput | unknown,
   appConfig: ParseAppConfig,
   view: ParseSchemaView = 'schemas',
-): PARSED | undefined => {
+): ResourceDefinitionResponse | undefined => {
   if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
 
   const normalized: ParseSchemaInput =
@@ -87,11 +87,13 @@ export const parseSchema = <PARSED extends FormDef = FormDef>(
     payload = buildResourceJsonPayload(resource, appConfig.baseUrl);
   }
 
-  const formDef = FormDefResponseZ.parse(payload);
+  if (!payload) return undefined;
 
-  if (payload && appConfig.schemaEnricher) {
-    payload = { ...formDef, ...appConfig.schemaEnricher(payload) };
+  const formDef = ResourceDefinitionResponseZ.parse(payload);
+
+  if (appConfig.schemaEnricher) {
+    return { ...formDef, ...appConfig.schemaEnricher(formDef) } as ResourceDefinitionResponse;
   }
 
-  return payload;
+  return formDef;
 };

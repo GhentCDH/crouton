@@ -1,9 +1,10 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
 import type { ZodType } from 'zod';
-import { FormDefResponse } from './form-def.schema';
-import { LayoutNode } from '../resource';
 
-export type FormSchema = {
+import { type ResourceDefinitionResponse } from './resource-definition.schema';
+import { type LayoutNode } from '../resource';
+
+export type ResourceViewSchema = {
   data: JsonSchema;
   ui: Layout;
   defaultSort?: string;
@@ -11,27 +12,27 @@ export type FormSchema = {
   parseValue: (value: any) => any;
 };
 
-export type FormSchemas = {
-  table: FormSchema;
-  form: FormSchema;
-  view?: FormSchema;
-  filter?: FormSchema;
+export type ResourceViewSchemas = {
+  table: ResourceViewSchema;
+  form: ResourceViewSchema;
+  view?: ResourceViewSchema;
+  filter?: ResourceViewSchema;
 };
 
-export type FormDefActionCondition = {
+export type ResourceActionCondition = {
   field: string;
   op?: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'exists' | 'notExists';
   value?: unknown;
 };
 
-export type FormDefProcedureAction = {
+export type ResourceProcedureAction = {
   type?: 'procedure';
   id: string;
   label: string;
   uri: string;
   method?: string;
   data?: Record<string, unknown>;
-  condition?: FormDefActionCondition;
+  condition?: ResourceActionCondition;
 };
 
 export type FormDefLinkAction = {
@@ -40,10 +41,10 @@ export type FormDefLinkAction = {
   label: string;
   /** URL pattern, may contain `{id}` placeholder. */
   href: string;
-  condition?: FormDefActionCondition;
+  condition?: ResourceActionCondition;
 };
 
-export type FormDefAction = FormDefProcedureAction | FormDefLinkAction;
+export type ResourceAction = ResourceProcedureAction | FormDefLinkAction;
 
 /** Table-level procedure action — no record id, shown as a toolbar button. */
 export type FormDefTableProcedureAction = {
@@ -57,7 +58,7 @@ export type FormDefTableProcedureAction = {
   data?: Record<string, unknown>;
 };
 
-export type FormDefTableLinkAction = {
+export type ResourceTableLinkAction = {
   type: 'link';
   id: string;
   label?: string;
@@ -67,14 +68,14 @@ export type FormDefTableLinkAction = {
 };
 
 export type FormDefTableAction =
-  FormDefTableProcedureAction | FormDefTableLinkAction;
+  FormDefTableProcedureAction | ResourceTableLinkAction;
 
 /**
- * Parsed form definition: the raw {@link FormDefResponse} with every view
+ * Parsed resource definition: the raw {@link ResourceDefinitionResponse} with every view
  * schema enriched with a compiled `zodSchema` and `parseValue` helper.
  * Derived from the response type so the two can never drift apart.
  */
-export type FormDef = Omit<FormDefResponse, 'schemas'> & {
-  schemas: FormSchemas;
+export type ResourceDefinition = Omit<ResourceDefinitionResponse, 'schemas'> & {
+  schemas: ResourceViewSchemas;
   tableLayout?: LayoutNode;
 };

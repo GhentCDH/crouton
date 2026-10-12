@@ -130,7 +130,7 @@ export const Display = z.object({
 });
 
 export type FormDevSchema = z.infer<typeof FormDevSchemas>;
-export const FormDefResponseZ = z
+export const ResourceDefinitionResponseZ = z
   .object({
     id: z.string(),
     name: z.string(),
@@ -183,4 +183,4 @@ export const FormDefResponseZ = z
     };
   });
 
-export type FormDefResponse = z.infer<typeof FormDefResponseZ>;
+export type ResourceDefinitionResponse = z.infer<typeof ResourceDefinitionResponseZ>;

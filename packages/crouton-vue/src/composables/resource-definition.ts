@@ -1,7 +1,8 @@
 import { fromJSONSchema, z } from 'zod';
 
-import type { FormDef, FormSchema } from '@ghentcdh/crouton-core';
-import { FormDefResponseZ } from '@ghentcdh/crouton-core';
+import type { ResourceDefinition, ResourceViewSchema } from '@ghentcdh/crouton-core';
+import { ResourceDefinitionResponseZ } from '@ghentcdh/crouton-core';
+
 import { useApi } from './useApi';
 import { useLanguage } from './useLanguage';
 
@@ -28,9 +29,9 @@ const safeFromJSONSchema = (data: unknown) => {
   }
 };
 
-const createFormSchema = (
-  formSchema?: Omit<FormSchema, 'zodSchema' | 'parseValue'>,
-): FormSchema | undefined => {
+const createViewSchema = (
+  formSchema?: Omit<ResourceViewSchema, 'zodSchema' | 'parseValue'>,
+): ResourceViewSchema | undefined => {
   if (!formSchema) return undefined;
   const zodSchema = safeFromJSONSchema(formSchema.data);
   const parseValue = (value: any) => {
@@ -49,14 +50,14 @@ const createFormSchema = (
 const cacheKey = (uri: string, language: string): string =>
   language ? `${language}:${uri}` : uri;
 
-export class FormDefCache {
-  private cache = new Map<string, Promise<FormDef>>();
+export class ResourceDefinitionCache {
+  private cache = new Map<string, Promise<ResourceDefinition>>();
 
-  async getFormDefById(formId: string): Promise<FormDef> {
-    return this.getFormDefByUri(`${formId}/schemas`);
+  async getById(formId: string): Promise<ResourceDefinition> {
+    return this.getByUri(`${formId}/schemas`);
   }
 
-  async getFormDefByUri(uri: string): Promise<FormDef> {
+  async getByUri(uri: string): Promise<ResourceDefinition> {
     const { language } = useLanguage();
     const key = cacheKey(uri, language.value);
     const cached = this.cache.get(key);
@@ -65,7 +66,7 @@ export class FormDefCache {
     const promise = useApi()
       .get(uri)
       .then((res) => {
-        const safe = FormDefResponseZ.safeParse(res.data);
+        const safe = ResourceDefinitionResponseZ.safeParse(res.data);
         if (!safe.success) {
           console.error('Parse failed for ', uri);
           console.error(safe.error);
@@ -74,16 +75,16 @@ export class FormDefCache {
 
         const result = safe.data ?? res.data;
 
-        const formDef: FormDef = {
+        const resourceDefinition: ResourceDefinition = {
           ...result,
           schemas: {
-            table: createFormSchema(result.schemas.table)!,
-            form: createFormSchema(result.schemas.form)!,
-            view: createFormSchema(result.schemas.view),
-            filter: createFormSchema(result.schemas.filter),
+            table: createViewSchema(result.schemas.table)!,
+            form: createViewSchema(result.schemas.form)!,
+            view: createViewSchema(result.schemas.view),
+            filter: createViewSchema(result.schemas.filter),
           },
         };
-        return formDef;
+        return resourceDefinition;
       });
 
     this.cache.set(key, promise);
@@ -91,8 +92,8 @@ export class FormDefCache {
   }
 
   /**
-   * Drops cached `FormDef` entries for `formId` across all languages so the
-   * next `getFormDef` call refetches from the backend.
+   * Drops cached entries for `formId` across all languages so the
+   * next call refetches from the backend.
    */
   invalidate(formId: string): void {
     const suffix = `${formId}/schemas`;
@@ -104,7 +105,7 @@ export class FormDefCache {
   }
 
   /**
-   * Drops every cached `FormDef`. Used after a multi-resource database sync
+   * Drops every cached ResourceDefinition. Used after a multi-resource database sync
    * or a language change where all cached entries must be refreshed.
    */
   invalidateAll(): void {

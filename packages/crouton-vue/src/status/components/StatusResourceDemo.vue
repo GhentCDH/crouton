@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
 
-import type { FormDef } from '../../composables/useCrouton';
+import type { ResourceDefinition } from '../../composables/useCrouton';
 import { useCrouton } from '../../composables/useCrouton';
 import { StatusResourceDemoProperties } from './StatusResourceDemo.properties';
 import StatusResourceDemoPreview from './StatusResourceDemoPreview.vue';
@@ -89,7 +89,7 @@ import StatusResourceDemoPreview from './StatusResourceDemoPreview.vue';
 const props = defineProps(StatusResourceDemoProperties);
 
 const crouton = useCrouton();
-const def = ref<FormDef | null>(null);
+const def = ref<ResourceDefinition | null>(null);
 const loading = ref(false);
 
 watchEffect(async () => {

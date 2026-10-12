@@ -1,2 +1,2 @@
-export * from './form-def.schema';
-export * from './form-def.types';
+export * from './resource-definition.schema';
+export * from './resource-definition.types';

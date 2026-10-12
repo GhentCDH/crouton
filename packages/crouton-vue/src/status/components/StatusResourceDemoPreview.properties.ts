@@ -1,7 +1,7 @@
 import type { PropType } from 'vue';
 
-import type { FormDef } from '../../composables/useCrouton';
+import type { ResourceDefinition } from '../../composables/useCrouton';
 
 export const StatusResourceDemoPreviewProperties = {
-  def: { type: Object as PropType<FormDef>, required: true as const },
+  def: { type: Object as PropType<ResourceDefinition>, required: true as const },
 };

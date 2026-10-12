@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Btn } from '@ghentcdh/crouton-ui-vue';
-import { FormDevSchema } from '../consumable/form-def.schema';
+import type { FormDevSchema } from '@ghentcdh/crouton-core';
 
 const props = defineProps<{
   data: any[] | null;

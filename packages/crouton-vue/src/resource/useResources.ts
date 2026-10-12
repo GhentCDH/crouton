@@ -1,19 +1,19 @@
 import { cloneDeep } from 'lodash-es';
-import { reactive, type Ref, shallowRef } from 'vue';
+import { type Ref, reactive, shallowRef } from 'vue';
+
+import type { type Action, ResourceDefinition  } from '@ghentcdh/crouton-core';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
+  type ResourceModals,
   actions,
   backendAction,
-  type ResourceModals,
   resourceModals,
   tableActions,
 } from './resource.actions';
-import { resourceApi, type ResourceApiInstance } from './resource.api';
+import { type ResourceApiInstance, resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
-import type { FormDef } from '@ghentcdh/crouton-core';
-import { type Action } from '@ghentcdh/crouton-core';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
@@ -81,7 +81,7 @@ export const useResourcesById = (
 };
 
 export const useResources = (
-  formDef: FormDef | null | undefined,
+  formDef: ResourceDefinition | null | undefined,
   {
     initialRequestParams = {},
     onRequest = () => {
