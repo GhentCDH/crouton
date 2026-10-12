@@ -10,7 +10,11 @@
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": ["default"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json"
+    ],
     "sharedGlobals": []
   },
   "plugins": [

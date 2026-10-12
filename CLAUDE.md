@@ -84,6 +84,7 @@ After creating the component and exporting it from `packages/crouton-ui-vue/src/
 # Package Boundaries
 
 - `crouton-core` — browser-safe shared code (types, schemas, utilities). No Node-only imports (`child_process`, `fs`, etc.)
+- `crouton-frontend-core` — framework-agnostic browser runtime (API client, FormDef, resource/form/state controllers). No Vue/React/UI-library imports; talks to the outside world only through ports (HttpClient, Notifier, Storage, LinkOpener).
 - `crouton-codegen` — all shared Node-only codegen/prisma tooling. Both `crouton-cli` and `crouton-api` depend on it for prisma shell wrappers, introspection, scaffolding, etc. Put shared codegen logic here, not in cli or api
 
 # Code Style Preferences

@@ -1,0 +1,15 @@
+{
+  "name": "crouton-frontend-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/crouton-frontend-core/src",
+  "projectType": "library",
+  "tags": ["scope:crouton", "type:util", "tech:typescript", "platform:browser"],
+  "targets": {
+    "build": {
+      "command": "tsup",
+      "dependsOn": ["^build"],
+      "options": { "cwd": "{projectRoot}" },
+      "outputs": ["{projectRoot}/dist"]
+    }
+  }
+}

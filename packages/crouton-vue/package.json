@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@ghentcdh/crouton-core": "workspace:*",
+    "@ghentcdh/crouton-frontend-core": "workspace:*",
     "@ghentcdh/crouton-editor-vue": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*",
     "@ghentcdh/crouton-ui-vue": "workspace:*",

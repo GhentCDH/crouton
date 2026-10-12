@@ -17,6 +17,12 @@
     "target": "es2022",
     "customConditions": ["@ghentcdh/crouton"],
     "noUncheckedSideEffectImports": false,
-    "types": ["node"]
+    "ignoreDeprecations": "6.0",
+    "types": ["node"],
+    "paths": {
+      "@ghentcdh/crouton-frontend-core": [
+        "./packages/crouton-frontend-core/src/index.ts"
+      ]
+    }
   }
 }
