@@ -1,6 +1,7 @@
+import { type Operation, type OperationKey } from '@ghentcdh/crouton-core';
+
 import type { HttpClient, Notifier } from './ports';
 import { replaceUriParams } from './uri';
-import type { Operation, OperationKey } from '../form-def/form-def.schema';
 import type { FormDef } from '../form-def/form-def.types';
 
 const paramsSerializer = (params: Record<string, unknown>) => {

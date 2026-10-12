@@ -1,8 +1,8 @@
+import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 import {
   apiCall,
   createResourceApi,
 } from '@ghentcdh/crouton-frontend-core';
-import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 export type { ResourceApiInstance } from '@ghentcdh/crouton-frontend-core';
