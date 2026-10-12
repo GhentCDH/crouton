@@ -1,18 +1,18 @@
 import { cloneDeep } from 'lodash-es';
-import { type Ref, reactive, shallowRef } from 'vue';
+import { reactive, type Ref, shallowRef } from 'vue';
 
-import type { type Action, ResourceDefinition  } from '@ghentcdh/crouton-core';
+import type { Action, ResourceDefinition } from '@ghentcdh/crouton-core';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
-  type ResourceModals,
   actions,
   backendAction,
+  type ResourceModals,
   resourceModals,
   tableActions,
 } from './resource.actions';
-import { type ResourceApiInstance, resourceApi } from './resource.api';
+import { resourceApi, type ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';

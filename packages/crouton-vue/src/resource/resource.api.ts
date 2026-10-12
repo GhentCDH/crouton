@@ -1,4 +1,8 @@
-import type { ResourceDefinition, type Operation, type OperationKey  } from '@ghentcdh/crouton-core';
+import type {
+  Operation,
+  OperationKey,
+  ResourceDefinition,
+} from '@ghentcdh/crouton-core';
 import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
 import type { RequestData } from './resource.types';

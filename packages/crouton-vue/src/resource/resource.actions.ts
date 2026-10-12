@@ -1,9 +1,12 @@
-import { type Component, type Ref, markRaw, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
 import type {
-  type Action, ResourceDefinition, ResourceActionCondition,
-  type TableAction as TableActionDef,
-  resolveDefaultTokens } from '@ghentcdh/crouton-core';
+  Action,
+  ResourceActionCondition,
+  ResourceDefinition,
+  TableAction as TableActionDef,
+} from '@ghentcdh/crouton-core';
+import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
 import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
 import {
   ModalService,
