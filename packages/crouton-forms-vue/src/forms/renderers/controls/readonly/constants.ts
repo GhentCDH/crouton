@@ -1,2 +1,1 @@
-/** Placeholder shown in readonly renderers when a field has no value. */
-export const EMPTY_VALUE = '—';
+export { EMPTY_VALUE } from '@ghentcdh/crouton-frontend-core';
