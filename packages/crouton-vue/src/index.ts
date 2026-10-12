@@ -4,7 +4,13 @@ export { default as ResourceTable } from './resource/ResourceTable.vue';
 
 export { isCustomFormat } from './resource/renderers';
 
-export { croutonApiCall, resourceApi } from './resource/resource.api';
+export {
+  type ResourceApiInstance,
+  croutonApiCall,
+  resourceApi,
+  useResourceApi,
+} from './resource/resource.api';
+export { configureApi, useApi } from './composables/useApi';
 
 export * from './router';
 export * from './composables/useCrouton';

@@ -50,8 +50,9 @@ generatorHandler({
 
     const zodOutput = config['zodOutput'];
     if (!zodOutput) throw new Error('[crouton-prisma] zodOutput is required in generator config');
+    const zodOutputStr = Array.isArray(zodOutput) ? zodOutput[0] : zodOutput;
 
-    const absZodOutput = resolve(schemaDir, zodOutput);
+    const absZodOutput = resolve(schemaDir, zodOutputStr);
 
     // 1. Normalize: rename relation fields per normalize-schema.json, write back to schema.prisma
     await normalizeSchema(schemaPath);

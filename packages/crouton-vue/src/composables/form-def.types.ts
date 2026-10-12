@@ -1,6 +1,8 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
 import type { ZodType } from 'zod';
 
+import type { LayoutNode } from '@ghentcdh/crouton-core';
+
 import type { FormDefResponse } from './form-def.schema';
 
 export type FormSchema = {
@@ -75,4 +77,5 @@ export type FormDefTableAction = FormDefTableProcedureAction | FormDefTableLinkA
  */
 export type FormDef = Omit<FormDefResponse, 'schemas'> & {
   schemas: FormSchemas;
+  tableLayout?: LayoutNode;
 };

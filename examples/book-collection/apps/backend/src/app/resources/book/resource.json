@@ -77,5 +77,68 @@
       }
     }
   },
-  "include": ["author", "categories"]
+  "include": ["author", "categories"],
+  "layout": {
+    "form": {
+      "type": "grid",
+      "columns": 12,
+      "controls": [
+        { "id": "title", "colspan": 8 },
+        { "id": "isbn", "colspan": 4 },
+        { "id": "publishedYear", "colspan": 6 },
+        { "id": "status", "colspan": 6 },
+        { "id": "summary", "colspan": 12, "rowspan": 2 },
+        { "id": "rating", "colspan": 6 },
+        { "id": "authorId", "colspan": 6 }
+      ],
+      "items": [
+        {
+          "type": "collapse",
+          "title": "Categories",
+          "controls": ["categories"]
+        }
+      ]
+    },
+    "view": {
+      "type": "grid",
+      "columns": 12,
+      "controls": [
+        { "id": "title", "colspan": 8 },
+        { "id": "isbn", "colspan": 4 },
+        { "id": "publishedYear", "colspan": 6 },
+        { "id": "status", "colspan": 6 },
+        { "id": "summary", "colspan": 12 },
+        { "id": "rating", "colspan": 6 },
+        { "id": "author", "colspan": 6 }
+      ],
+      "items": [
+        {
+          "type": "group",
+          "title": "Categories",
+          "controls": ["categories"]
+        }
+      ]
+    },
+    "table": {
+      "type": "grid",
+      "columns": 12,
+      "controls": [
+        {
+          "component": "CreateByIsbn"
+        }
+      ],
+      "items": [
+        {
+          "type": "table",
+          "controls": [
+            "title",
+            "author",
+            "isbn",
+            "publishedYear",
+            "status"
+          ]
+        }
+      ]
+    }
+  }
 }

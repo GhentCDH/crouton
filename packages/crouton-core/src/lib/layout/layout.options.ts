@@ -13,6 +13,7 @@ export const LayoutType = {
   Grid: 'GridLayout',
   Collapse: 'CollapseLayout',
   Group: 'GroupLayout',
+  ComponentElement: 'ComponentElement',
 } as const;
 
 export type LayoutType = (typeof LayoutType)[keyof typeof LayoutType];

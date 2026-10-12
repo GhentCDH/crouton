@@ -24,7 +24,7 @@ A **node** is a container that holds either `controls` (leaf fields) or `items` 
 
 ```ts
 {
-  type?: "grid" | "vertical" | "horizontal" | "collapse" | "group",
+  type?: "grid" | "vertical" | "horizontal" | "collapse" | "group" | "table",
   columns?: number,        // grid column count (default 12)
   title?: string,          // heading for collapse/group
   titleKey?: string,       // resolve heading from a field value at render time
@@ -32,15 +32,15 @@ A **node** is a container that holds either `controls` (leaf fields) or `items` 
   rowspan?: number,        // CSS row-span of this node inside its parent grid
   label?: string,
   controls?: [...],
-  items?: [...]
+  items?: [...]             // nested nodes; in layout.table, a child with type "table" marks the actual table position
 }
 ```
 
-A node with no `type` defaults to `"grid"`.
+A node with no `type` defaults to `"grid"`. `"table"` is only meaningful as a child inside `layout.table` when using the wrapper layout pattern (see below).
 
 ## Controls
 
-A control entry is either a plain column id string or an object with overrides:
+A control entry is a plain column id string, an object with overrides, or a **component reference**:
 
 ```ts
 // Shorthand — uses column defaults
@@ -57,7 +57,16 @@ A control entry is either a plain column id string or an object with overrides:
   "type": "textarea",              // override input type for this placement
   "options": { "minHeight": "8rem" }  // merged over fieldInput.options
 }
+
+// Component reference — renders a custom Vue component registered in customComponents
+{
+  "component": "MyComponent",
+  "colspan": 6,   // optional
+  "label": "..."  // optional
+}
 ```
+
+Component references resolve the component by name from the app's `customComponents` registry (registered via `useCrouton()`). In form/view layouts the component is rendered in-place as a layout element. In table wrapper layouts (see below) the component is rendered above the table and receives a `resource` prop.
 
 ## Examples
 
@@ -121,6 +130,34 @@ A control entry is either a plain column id string or an object with overrides:
 Columns present in the table but not listed here are appended at the end in their original order. `colspan`/`rowspan` on table controls are ignored (tables are flat, not CSS grids).
 
 <LayoutDemo example="table-order" />
+
+### Table with wrapper layout
+
+A `layout.table` node with a non-`"table"` outer type acts as a **wrapper layout** around the actual table. Place an inner node with `"type": "table"` inside `items` to define the table columns; put component controls in the outer `controls` to render them above the table.
+
+```json
+"table": {
+  "type": "grid",
+  "columns": 12,
+  "controls": [
+    { "component": "CreateByIsbn" }
+  ],
+  "items": [
+    {
+      "type": "table",
+      "controls": ["title", "author", "isbn", "publishedYear", "status"]
+    }
+  ]
+}
+```
+
+- Outer `controls` — component references rendered **above** the table. Each component receives a `resource` prop (the `UseResource` instance for the current table).
+- Inner `items[].type = "table"` — defines the visible column order, same rules as the flat form above.
+- The wrapper type (`"grid"`, etc.) does not affect the table itself; only component rendering in `controls` uses it to resolve components.
+
+::: tip
+Use the wrapper pattern when you need a custom action component next to the table — for example a barcode scanner that creates a record directly.
+:::
 
 ### Rowspan
 

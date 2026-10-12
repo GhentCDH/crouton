@@ -84,6 +84,7 @@ export type { ViewModalResult } from './view/modal/ViewModal.properties';
 // Renderers & testers
 export * from './forms/renderers';
 export {
+  isComponentElement,
   isCustomControlRender,
   isDateControl,
   optionIsIgnoreCase,

@@ -2,14 +2,16 @@
 import type { Component } from 'vue';
 import { computed, PropType, ref, shallowRef, toRaw, watch } from 'vue';
 
+import { isComponentControl } from '@ghentcdh/crouton-core';
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
-import { computedAsync } from '../utils/computedAsync';
-import { useCrouton } from '../composables/useCrouton';
-
 import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
-import { useResources } from './useResources';
+
+import { useCrouton } from '../composables/useCrouton';
+import { computedAsync } from '../utils/computedAsync';
+import { findCustomComponent } from '../utils/custom-component';
 import { Request } from '../utils/request';
 import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
+import { useResources } from './useResources';
 
 const crouton = useCrouton();
 
@@ -88,6 +90,18 @@ const reload = () => {
   resource.value?.reload();
 };
 
+const tableWrapperComponents = computed(() => {
+  const layout = config.value?.tableLayout;
+  if (!layout) return [];
+  return (layout.controls ?? [])
+    .filter(isComponentControl)
+    .map((ctrl) => ({
+      component: findCustomComponent(crouton.customComponents, ctrl.component),
+      ctrl,
+    }))
+    .filter((e) => e.component != null);
+});
+
 /** Dev-only visual resource.json builder — see VISUAL_RESOURCE_BUILDER_PLAN.md. */
 const showSchemaEditor = ref(false);
 </script>
@@ -110,10 +124,16 @@ const showSchemaEditor = ref(false);
       </template>
     </component>
   </div>
-  <div
-    v-if="config && resource && !form?.hideTable"
-    :data-testid="`resource-${formId}`"
-  >
+  <div v-if="config && resource && !form?.hideTable"
+       :data-testid="`resource-${formId}`">
+    <template v-if="tableWrapperComponents.length">
+      <component
+        v-for="(entry, i) in tableWrapperComponents"
+        :key="i"
+        :is="entry.component"
+        :resource="resource"
+      />
+    </template>
     <template v-if="hideToolbar">
       <legend
         v-if="!hideTitle"
