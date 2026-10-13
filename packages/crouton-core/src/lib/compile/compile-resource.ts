@@ -1,6 +1,6 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import type { CalculatedColumn, JsonAction, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
+import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
 import { getResourceExtensions } from '../resource';
 import {
   buildViews,
@@ -61,8 +61,6 @@ export const compileResource = (
   json: ResourceJson,
   schema?: ZodObject<ZodRawShape>,
   baseUrl?: string,
-  actions?: JsonAction[],
-  tableActions?: JsonAction[],
   enums: EnumRegistry = {},
 ): CompiledResource => {
   // columns is always JsonColumn[] after ResourceJsonSchema.parse
@@ -109,8 +107,6 @@ export const compileResource = (
     ...(views && { views }),
     ...(lookup && { lookup }),
     ...(calculatedColumns.length && { calculatedColumns }),
-    ...(actions?.length && { actions }),
-    ...(tableActions?.length && { tableActions }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
     ...(json.modalSize && { modalSize: json.modalSize }),
     ...(buildValueLabelColumns(enrichedColumns).length && {

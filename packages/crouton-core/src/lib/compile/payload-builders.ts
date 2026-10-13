@@ -232,8 +232,8 @@ export const buildViewsPayload = (
   (schemas as Record<string, unknown>)['table'] = {
     ...tableSchema,
     ui: injectTableOptions((tableSchema as any).ui, {
-      rowActions: resolveActions(baseUri, (config as any).actions),
-      actions: resolveTableActions(baseUri, (config as any).tableActions),
+      rowActions: resolveActions(baseUri, config.layout?.table?.actions as any),
+      actions: resolveTableActions(baseUri, config.layout?.table?.tableActions as any),
       defaultSortId: config.views['table']?.defaultSort,
       ...(filterSchema && {
         filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },

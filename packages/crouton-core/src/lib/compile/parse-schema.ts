@@ -1,6 +1,5 @@
 import type { ZodObject, ZodRawShape, ZodType } from 'zod';
 
-import type { JsonAction } from '../resource';
 import { buildResourceJsonSchema, registerResourceExtensions } from '../resource';
 import { compileResource } from './compile-resource';
 import type { EnumRegistry } from './enum-registry';
@@ -20,8 +19,6 @@ export interface ParseSchemaInput {
   /** Accepted for API parity but ignored — no fs access in the pure path. */
   dirPath?: string;
   enums?: EnumRegistry;
-  actions?: JsonAction[];
-  tableActions?: JsonAction[];
 }
 
 export type ParseAppConfig = {
@@ -56,8 +53,6 @@ export const parseSchema = (
     parseResult.data,
     normalized.schema,
     appConfig.baseUrl,
-    normalized.actions,
-    normalized.tableActions,
     normalized.enums ?? {},
   );
 
