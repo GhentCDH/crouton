@@ -110,7 +110,7 @@ const getTableNode = (ui: any): any => {
 };
 
 const tableUiActions = computed(
-  () => getTableNode(def.value?.schemas.table.ui)?.options?.actions ?? [],
+  () => getTableNode(def.value?.schemas.table.ui)?.options?.tableActions ?? [],
 );
 const tableUiRowActions = computed(
   () => getTableNode(def.value?.schemas.table.ui)?.options?.rowActions ?? [],

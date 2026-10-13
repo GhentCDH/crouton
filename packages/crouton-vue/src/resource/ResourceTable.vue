@@ -7,9 +7,9 @@ import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
-import { findCustomComponent } from '../utils/custom-component';
 import { Request } from '../utils/request';
 import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
+import TableWrapperLayout from './TableWrapperLayout.vue';
 import { useResources } from './useResources';
 
 const crouton = useCrouton();
@@ -89,20 +89,17 @@ const reload = () => {
   resource.value?.reload();
 };
 
-const tableWrapperComponents = computed(() => {
-  const ui = config.value?.schemas?.table?.ui as any;
-  if (!ui) return [];
-  // Wrapper layout: component entries live in outer elements (non-Table entries)
-  const sources: any[] = ui.type === 'Table'
-    ? []
-    : (ui.elements ?? []).filter((e: any) => !e.type || e.type !== 'Table');
-  return sources
-    .map((ctrl: any) => ({
-      component: findCustomComponent(crouton.customComponents, ctrl.component),
-      ctrl,
-    }))
-    .filter((e: any) => e.component != null);
+const tableUi = computed(() => config.value?.schemas?.table?.ui as any);
+const isWrapperLayout = computed(() => tableUi.value?.type && tableUi.value.type !== 'Table');
+const tableNodeUi = computed(() => {
+  const ui = tableUi.value;
+  if (!ui) return null;
+  if (ui.type === 'Table' || !ui.type) return ui;
+  return (ui.elements ?? []).find((e: any) => e.type === 'Table') ?? null;
 });
+const tableHeading = computed(
+  () => tableNodeUi.value?.options?.title ?? tableNodeUi.value?.options?.label ?? null,
+);
 
 /** Dev-only visual resource.json builder — see VISUAL_RESOURCE_BUILDER_PLAN.md. */
 const showSchemaEditor = ref(false);
@@ -128,14 +125,6 @@ const showSchemaEditor = ref(false);
   </div>
   <div v-if="config && resource && !form?.hideTable"
        :data-testid="`resource-${formId}`">
-    <template v-if="tableWrapperComponents.length">
-      <component
-        v-for="(entry, i) in tableWrapperComponents"
-        :key="i"
-        :is="entry.component"
-        :resource="resource"
-      />
-    </template>
     <template v-if="hideToolbar">
       <legend
         v-if="!hideTitle"
@@ -200,12 +189,24 @@ const showSchemaEditor = ref(false);
       </template>
     </TableToolbar>
 
-    <component
-      :is="props.tableComponent"
-      v-bind="resource as any"
-      :id="`form_table_${id}`"
-      @refresh="reload"
-    />
+    <TableWrapperLayout v-if="isWrapperLayout && tableUi" :ui="tableUi" :resource="resource">
+      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">{{ tableHeading }}</h2>
+      <component
+        :is="props.tableComponent"
+        v-bind="resource as any"
+        :id="`form_table_${id}`"
+        @refresh="reload"
+      />
+    </TableWrapperLayout>
+    <template v-else>
+      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">{{ tableHeading }}</h2>
+      <component
+        :is="props.tableComponent"
+        v-bind="resource as any"
+        :id="`form_table_${id}`"
+        @refresh="reload"
+      />
+    </template>
 
     <ResourceSchemaEditor
       v-if="showSchemaEditor"
