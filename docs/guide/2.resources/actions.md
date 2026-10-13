@@ -1,11 +1,27 @@
 # Actions
 
-Actions add custom buttons to the generated UI, beyond plain CRUD. They come in two kinds and two scopes:
+Actions add custom buttons to the generated UI, beyond plain CRUD. They come in two kinds — **row actions** and **table actions** — and two types — **procedure** and **link**:
 
-|  | Row-level (`actions`) | Table-level (`tableActions`) |
+- **Row actions** (`rowActions`) — attached to individual records; the handler receives the record id. Rendered as a button in each table row.
+- **Table actions** (`tableActions`) — attached to the whole table; the handler receives no record id. Rendered as toolbar buttons above the table.
+
+|  | Row-level (`rowActions`) | Table-level (`tableActions`) |
 | --- | --- | --- |
 | **Procedure** | Server-side function per record — `POST /<route>/procedure/<id>/:recordId` | Server-side function for the whole table — `POST /<route>/table-action/<id>` |
 | **Link** | Client-side navigation, `href` may contain `{id}` | Client-side navigation |
+
+Both go on the **table node** inside `layout.table`:
+
+```json
+{
+  "layout": {
+    "table": {
+      "rowActions": [ ... ],
+      "tableActions": [ ... ]
+    }
+  }
+}
+```
 
 ## Procedure actions
 
@@ -13,13 +29,17 @@ Declare the action in `resource.json`:
 
 ```json
 {
-  "actions": [
-    {
-      "id": "publish",
-      "label": "Publish",
-      "procedure": "publish"
+  "layout": {
+    "table": {
+      "rowActions": [
+        {
+          "id": "publish",
+          "label": "Publish",
+          "procedure": "publish"
+        }
+      ]
     }
-  ]
+  }
 }
 ```
 
@@ -58,9 +78,13 @@ export default reindex;
 
 ```json
 {
-  "tableActions": [
-    { "id": "reindex", "label": "Reindex", "icon": "refresh", "procedure": "reindex" }
-  ]
+  "layout": {
+    "table": {
+      "tableActions": [
+        { "id": "reindex", "label": "Reindex", "icon": "refresh", "procedure": "reindex" }
+      ]
+    }
+  }
 }
 ```
 
@@ -70,14 +94,18 @@ Navigate instead of calling the server. `{id}` is replaced with the record id:
 
 ```json
 {
-  "actions": [
-    {
-      "type": "link",
-      "id": "preview",
-      "label": "Preview",
-      "href": "/preview/{id}"
+  "layout": {
+    "table": {
+      "rowActions": [
+        {
+          "type": "link",
+          "id": "preview",
+          "label": "Preview",
+          "href": "/preview/{id}"
+        }
+      ]
     }
-  ]
+  }
 }
 ```
 
@@ -87,14 +115,18 @@ Row-level actions accept a `condition` that is evaluated per row, so the button 
 
 ```json
 {
-  "actions": [
-    {
-      "id": "publish",
-      "label": "Publish",
-      "procedure": "publish",
-      "condition": { "field": "published_at", "op": "notExists" }
+  "layout": {
+    "table": {
+      "rowActions": [
+        {
+          "id": "publish",
+          "label": "Publish",
+          "procedure": "publish",
+          "condition": { "field": "published_at", "op": "notExists" }
+        }
+      ]
     }
-  ]
+  }
 }
 ```
 
