@@ -1,7 +1,7 @@
 import type { HttpClient, KeyValueStorage, LinkOpener, Notifier } from './api/ports';
 import { createResourceApi } from './api/resource-api';
 import { createBackendActionExecutor } from './resource/backend-action';
-import { ResourceDefinitionCache } from './resource/resource-definition';
+import { ResourceDefinitionRepository } from './resource/resource-definition';
 
 export interface CroutonClientOptions {
   http: HttpClient;
@@ -26,7 +26,7 @@ export const createCroutonClient = ({
   linkOpener = noopLinkOpener,
   getLanguage = () => '',
 }: CroutonClientOptions) => {
-  const formDefs = new ResourceDefinitionCache(http, getLanguage);
+  const formDefs = new ResourceDefinitionRepository(http, getLanguage);
   const resourceApi = createResourceApi(http, notifier);
   const backendActionExecutor = createBackendActionExecutor(http, notifier, linkOpener);
 

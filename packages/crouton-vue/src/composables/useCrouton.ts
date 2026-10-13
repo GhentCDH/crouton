@@ -9,13 +9,14 @@ import {
   CROUTON_EDITABLE_RENDERERS,
   CROUTON_READONLY_RENDERERS,
 } from '@ghentcdh/crouton-forms-vue';
+import { ResourceDefinitionRepository } from '@ghentcdh/crouton-frontend-core';
 
 import { CROUTON_STATUS } from '../router';
-import { ResourceDefinitionCache } from './resource-definition';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
   configureLanguage,
+  getLanguage,
   installLanguageHeader,
   onLanguageChange,
   setUiDictionary,
@@ -66,7 +67,6 @@ export const AppConfig = {
 };
 
 const sidebar = ref<SidebarNode[]>([]);
-const formDefCache = new ResourceDefinitionCache();
 const config = ref({ ...AppConfig });
 
 const createCrouton = (
@@ -74,6 +74,7 @@ const createCrouton = (
   _config: Partial<typeof AppConfig> = {},
 ) => {
   configureApi(api);
+  const formDefCache = new ResourceDefinitionRepository(api, getLanguage);
   const fetchLayout = (overrides: Partial<typeof AppConfig> = {}) =>
     useApi()
       .get('/_app/layout')

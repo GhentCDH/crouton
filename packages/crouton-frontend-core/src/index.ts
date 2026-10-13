@@ -28,3 +28,4 @@ export * from './store';
 export * from './forms/auto-saver';
 export * from './i18n/language-store';
 export * from './resource/resource-controller';
+export * from './resource/resource-definition';

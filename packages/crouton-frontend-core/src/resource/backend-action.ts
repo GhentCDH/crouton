@@ -1,11 +1,10 @@
-import type { Action, TableAction as TableActionDef } from '@ghentcdh/crouton-core'
+import type { Action, ResourceActionCondition, TableAction as TableActionDef } from '@ghentcdh/crouton-core';
 
 import type { HttpClient, LinkOpener, Notifier } from '../api/ports';
 import { replaceUriParams } from '../api/uri';
-import type { FormDefActionCondition } from '../form-def/form-def.types';
 
 export const evaluateCondition = (
-  condition: FormDefActionCondition | undefined,
+  condition: ResourceActionCondition | undefined,
   row: any,
 ): boolean => {
   if (!condition) return true;

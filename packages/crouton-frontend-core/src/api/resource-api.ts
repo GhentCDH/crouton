@@ -1,8 +1,7 @@
-import { type Operation, type OperationKey } from '@ghentcdh/crouton-core';
+import { type Operation, type OperationKey, type ResourceDefinition } from '@ghentcdh/crouton-core';
 
 import type { HttpClient, Notifier } from './ports';
 import { replaceUriParams } from './uri';
-import type { FormDef } from '../form-def/form-def.types';
 
 const paramsSerializer = (params: Record<string, unknown>) => {
   const p = new URLSearchParams();
@@ -30,7 +29,7 @@ const httpCall = (
 
 export const apiCall = (
   http: HttpClient,
-  formDef: Pick<FormDef, 'id' | 'operations'>,
+  formDef: Pick<ResourceDefinition, 'id' | 'operations'>,
   operation: OperationKey,
   defaultUriParams: Record<string, string>,
   data?: any,
@@ -47,7 +46,7 @@ export const apiCall = (
 
 export const createResourceApi = (http: HttpClient, notifier: Notifier) =>
   (
-    formDef: Pick<FormDef, 'id' | 'operations' | 'idField'>,
+    formDef: Pick<ResourceDefinition, 'id' | 'operations' | 'idField'>,
     defaultUriParams: Record<string, string> = {},
   ) => {
     const call = (

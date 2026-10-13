@@ -49,7 +49,7 @@ const createViewSchema = (
 const cacheKey = (uri: string, language: string): string =>
   language ? `${language}:${uri}` : uri;
 
-export class ResourceDefinitionCache {
+export class ResourceDefinitionRepository {
   private cache = new Map<string, Promise<ResourceDefinition>>();
 
   constructor(

@@ -15,6 +15,7 @@ const _store = createLanguageStore(
 export const configureLanguage = (cfg: LanguageConfig = {}) => _store.configure(cfg);
 export const setUiDictionary = (dict: Record<string, unknown>) => _store.setUiDictionary(dict);
 export const onLanguageChange = (cb: () => Promise<void>) => _store.onLanguageChange(cb);
+export const getLanguage = () => _store.language.get();
 
 export const useLanguage = (): {
   language: Ref<string>;
