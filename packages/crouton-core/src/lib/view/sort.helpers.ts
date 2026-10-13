@@ -1,3 +1,4 @@
+import { findTableNode } from './layout-table-order';
 import type { JsonColumn } from '../resource/Column';
 import type { LayoutNode } from '../resource/layout';
 
@@ -57,7 +58,7 @@ const getLayoutControlFlags = (
   colId: string,
   tableLayout: LayoutNode | undefined,
 ): { sortable: boolean; defaultSort: boolean } => {
-  const controls = tableLayout?.controls ?? [];
+  const controls = (tableLayout ? findTableNode(tableLayout) : tableLayout)?.controls ?? [];
   for (const ctrl of controls) {
     if (typeof ctrl === 'string') continue;
     if ('component' in ctrl) continue;

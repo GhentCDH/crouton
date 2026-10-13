@@ -54,8 +54,36 @@
     }
   },
   "layout": {
-    "list": { "columns": ["title", "genre", "publishedAt"] },
-    "form": { "rows": [["title", "genre"], ["pageCount", "publishedAt"], ["authorId"]] }
+    "form": {
+      "type": "grid",
+      "columns": 12,
+      "controls": [
+        { "id": "title", "colspan": 8 },
+        { "id": "genre", "colspan": 4 },
+        { "id": "pageCount", "colspan": 6 },
+        { "id": "publishedAt", "colspan": 6 },
+        "authorId"
+      ],
+      "items": [
+        { "type": "collapse", "title": "Relations", "controls": ["reviews"] }
+      ]
+    },
+    "view": {
+      "type": "grid",
+      "columns": 12,
+      "controls": ["title", "genre", "pageCount", "publishedAt", "authorId"]
+    },
+    "table": {
+      "controls": ["title", "genre", "publishedAt"],
+      "searchFields": ["title"],
+      "filterFields": ["genre"],
+      "actions": [
+        { "id": "editBook", "label": "Edit", "type": "link", "href": "/books/{id}/edit" }
+      ],
+      "tableActions": [
+        { "id": "exportCsv", "label": "Export CSV", "type": "link", "href": "/books/export.csv" }
+      ]
+    }
   }
 }
 ```
@@ -77,5 +105,15 @@
 | `relations[].type` | `manyToOne` \| `oneToMany` \| `manyToMany` | yes | Relation direction |
 | `relations[].resource` | string | yes | Target resource name |
 | `relations[].foreignKey` | string | yes (manyToOne/oneToMany) | FK column name |
-| `layout.list.columns` | string[] | no | Columns shown in the list table |
-| `layout.form.rows` | string[][] | no | Form layout: each inner array is a row of column names |
+| `layout.form` | LayoutNode | no | Explicit layout for the create/edit form. Absent = columns in source order. |
+| `layout.view` | LayoutNode | no | Explicit layout for the read-only detail view. |
+| `layout.table` | LayoutNode | no | Explicit layout for the table view (columns + actions). |
+| `layout.*.type` | `"grid"\|"vertical"\|"horizontal"\|"collapse"\|"group"` | no | Container type. `"grid"` uses CSS grid; `"collapse"` is a collapsible section. |
+| `layout.*.columns` | number (1–12) | no | Number of grid columns. Only for `type: "grid"`. |
+| `layout.*.controls` | `(string \| FieldControl \| ComponentControl)[]` | no | Leaf items: column id string, `{ id, colspan?, rowspan?, type?, options?, showWhen? }`, or `{ component }`. |
+| `layout.*.items` | LayoutNode[] | no | Nested layout nodes (nested grids, groups, collapse sections). |
+| `layout.table.controls[]` | string \| TableFieldControl | no | Table column: string id or `{ id, sortable?, defaultSort? }`. |
+| `layout.table.actions` | Action[] | no | Per-record row actions. Each action gets the record id. |
+| `layout.table.tableActions` | Action[] | no | Global toolbar actions. No record id. |
+| `layout.table.searchFields` | string[] | no | Column ids for `?q=` free-text search. |
+| `layout.table.filterFields` | string[] | no | Column ids shown in the filter panel. |
