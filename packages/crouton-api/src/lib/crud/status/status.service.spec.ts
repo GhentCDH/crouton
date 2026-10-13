@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import {
   buildStatus,
   buildSummary,
@@ -146,7 +148,7 @@ describe('status.service', () => {
         name: 'people',
         path: 'people',
         valid: true,
-        version: 1,
+        version: CURRENT_RESOURCE_VERSION,
         kind: 'prisma',
       });
       expect(result[1]).toEqual({

@@ -87,7 +87,7 @@ export type LayoutNode = {
   label?: string;
   /** @deprecated Use `items` */
   controls?: LayoutControl[];
-  items?: LayoutNode[];
+  items?: (LayoutControl | LayoutNode)[];
   searchFields?: string[];
   filterFields?: string[];
   actions?: unknown[];

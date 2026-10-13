@@ -146,6 +146,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: select",
   "description": "Options for the select dropdown and multi-select (mutliSelect alias)",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/select.field-input.schema.json",
   "markdownDescription": "Options for the select dropdown and multi-select (mutliSelect alias)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
 }

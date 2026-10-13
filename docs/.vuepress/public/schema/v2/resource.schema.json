@@ -1916,9 +1916,6 @@
           "description": "Explicit layout for the table view. When absent, all non-hidden columns are shown in source order.",
           "anyOf": [
             {
-              "$ref": "#/definitions/__schema3"
-            },
-            {
               "type": "object",
               "properties": {
                 "type": {
@@ -2436,6 +2433,9 @@
                   }
                 }
               }
+            },
+            {
+              "$ref": "#/definitions/__schema3"
             }
           ],
           "markdownDescription": "Explicit layout for the table view. When absent, all non-hidden columns are shown in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"

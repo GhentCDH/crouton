@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { createCrudRepository } from '../crud-repository.factory';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -26,6 +28,7 @@ const PARENT = {
   model: 'Group',
   tag: 'Group',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { idField: true },
     name: { searchable: true },
@@ -60,6 +63,7 @@ const CHILD = {
   model: 'GroupExpense',
   tag: 'Expense',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: { id: { idField: true }, label: {} },
 };
 

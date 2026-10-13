@@ -4,11 +4,28 @@
   "tag": "Loans",
   "kind": "prisma",
   "model": "loan",
-  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  },
   "columns": {
-    "id": { "type": "string", "idField": true },
-    "loanedAt": { "type": "string" },
-    "returnedAt": { "type": "string" },
-    "bookId": { "type": "string", "hiddenInTable": true }
-  }
+    "id": {
+      "type": "string",
+      "idField": true
+    },
+    "loanedAt": {
+      "type": "string"
+    },
+    "returnedAt": {
+      "type": "string"
+    },
+    "bookId": {
+      "type": "string",
+      "hiddenInTable": true
+    }
+  },
+  "schemaVersion": 2
 }

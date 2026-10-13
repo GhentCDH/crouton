@@ -113,6 +113,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: date",
   "description": "Options for the date picker (and dateTime alias)",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/date.field-input.schema.json",
   "markdownDescription": "Options for the date picker (and dateTime alias)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date)"
 }

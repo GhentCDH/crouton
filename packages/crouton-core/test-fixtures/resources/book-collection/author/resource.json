@@ -3,9 +3,21 @@
   "model": "Author",
   "title": "Authors",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true, "filterable": true, "sortable": true },
-    "bio": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "name": {
+      "searchable": true,
+      "filterable": true,
+      "sortable": true
+    },
+    "bio": {
+      "fieldInput": {
+        "type": "textarea"
+      },
+      "hiddenInTable": true
+    },
     "books": {
       "label": "Books",
       "hiddenInTable": true,
@@ -17,5 +29,8 @@
       }
     }
   },
-  "include": ["books"]
+  "include": [
+    "books"
+  ],
+  "schemaVersion": 2
 }

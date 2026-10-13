@@ -72,6 +72,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: custom",
   "description": "Options for app-registered custom renderer components",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/custom.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/custom.field-input.schema.json",
   "markdownDescription": "Options for app-registered custom renderer components\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
 }

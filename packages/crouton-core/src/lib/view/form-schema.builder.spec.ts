@@ -25,7 +25,7 @@ describe('buildFormUiSchema (golden output)', () => {
 
   // Conditions now live on layout controls, not column-level flags.
   const layoutNode = {
-    controls: [
+    items: [
       'name',
       'bio',
       'author',

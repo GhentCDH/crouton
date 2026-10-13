@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { validateCustomRepository } from './custom-repository.validate';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -13,6 +15,7 @@ const customResource = {
   tag: 'Zotero',
   kind: 'custom',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true, hiddenInForm: true },
     title: { type: 'string', searchable: true, sortable: true },
@@ -178,6 +181,7 @@ describe('custom resource loading', () => {
         model: 'Book',
         tag: 'Book',
         operations: {},
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         columns: { id: { idField: true } },
       },
       { 'repository.ts': REPOSITORY_TS },

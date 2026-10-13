@@ -3,8 +3,13 @@
   "model": "Group",
   "route": "groups",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "name": {
+      "searchable": true
+    },
     "expenses": {
       "label": "Expenses",
       "hiddenInTable": true,
@@ -15,5 +20,6 @@
         "foreignKey": "group_id"
       }
     }
-  }
+  },
+  "schemaVersion": 2
 }

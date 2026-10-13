@@ -5,9 +5,24 @@
   "kind": "prisma",
   "model": "tag",
   "idType": "number",
-  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  },
   "columns": {
-    "id": { "type": "integer", "idField": true },
-    "label": { "type": "string", "searchable": true, "sortable": true, "required": true }
-  }
+    "id": {
+      "type": "integer",
+      "idField": true
+    },
+    "label": {
+      "type": "string",
+      "searchable": true,
+      "sortable": true,
+      "required": true
+    }
+  },
+  "schemaVersion": 2
 }

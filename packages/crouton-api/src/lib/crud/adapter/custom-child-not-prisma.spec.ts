@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { createCrudController } from '../crud-controller.factory';
 import { createCrudRepository } from '../crud-repository.factory';
 import { loadResourceConfigsFromDir } from '../loader';
@@ -30,6 +32,7 @@ const CHILD = {
   route: 'expense',
   tag: 'Expense',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true },
     label: { type: 'string', defaultSort: true },
@@ -67,6 +70,7 @@ describe('a custom child is a route, not a Prisma relation', () => {
         model: 'Group',
         tag: 'Group',
         operations: {},
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         ...(include && { include }),
         columns: { id: { idField: true }, name: {}, expense: column },
       }),

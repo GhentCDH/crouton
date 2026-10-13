@@ -3,8 +3,18 @@
   "model": "Book",
   "route": "books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "sortable": true },
-    "status": { "enum": "bookStatus", "filterable": true }
-  }
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "searchable": true,
+      "sortable": true
+    },
+    "status": {
+      "enum": "bookStatus",
+      "filterable": true
+    }
+  },
+  "schemaVersion": 2
 }

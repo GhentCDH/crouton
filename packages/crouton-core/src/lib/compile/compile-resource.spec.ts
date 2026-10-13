@@ -29,8 +29,7 @@ describe('compileResource — layout wired', () => {
       ...baseJson,
       layout: {
         form: {
-          controls: ['title', 'body'],
-          items: [{ type: 'collapse', title: 'Meta', controls: ['status', 'createdAt'] }],
+          items: ['title', 'body', { type: 'collapse', title: 'Meta', items: ['status', 'createdAt'] }],
         },
       },
     } as unknown as ResourceJson;
@@ -41,7 +40,7 @@ describe('compileResource — layout wired', () => {
   it('layout.table reorders table ui_schema elements', () => {
     const json = {
       ...baseJson,
-      layout: { table: { controls: ['status', 'title'] } },
+      layout: { table: { items: ['status', 'title'] } },
     } as unknown as ResourceJson;
     const elements = ((compileResource(json).views as any)?.table?.ui_schema as any)?.elements;
     expect(elements[0].scope).toContain('status');

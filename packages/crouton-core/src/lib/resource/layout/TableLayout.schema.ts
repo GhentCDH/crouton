@@ -122,7 +122,7 @@ const hasFieldIdInWrapper = (items: unknown[]): boolean =>
  * Either a plain TableNode (flat table) or a wrapper node containing exactly one TableNode.
  */
 export const TableLayoutRootSchema = z
-  .union([TableWrapperNodeSchema, TableNodeSchema])
+  .union([TableNodeSchema, TableWrapperNodeSchema])
   .superRefine((val, ctx) => {
     // Only validate wrapper nodes (ones without type:"table")
     if (

@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { validateCustomRepository } from './custom-repository.validate';
 import { buildLayoutPayload } from '../app-layout/app-layout.builder';
 import { createCrudController } from '../crud-controller.factory';
@@ -45,6 +47,7 @@ const RESOURCE_JSON = {
   title: 'Expenses',
   parent: { route: 'group', param: 'groupId' },
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true, hiddenInForm: true },
     label: { type: 'string', searchable: true, sortable: true, defaultSort: true },
@@ -206,6 +209,7 @@ describe('a nested custom resource', () => {
         model: 'Expense',
         tag: 'E',
         operations: {},
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         parent: { route: 'group', param: 'groupId' },
       });
       const configs = await loadResourceConfigsFromDir(tempDir, '/api');

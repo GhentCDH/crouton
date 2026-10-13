@@ -3,8 +3,14 @@
   "model": "Book",
   "route": "books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "sortable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "searchable": true,
+      "sortable": true
+    },
     "categories": {
       "label": "Categories",
       "fieldInput": {
@@ -15,5 +21,8 @@
       "hiddenInTable": true
     }
   },
-  "include": ["categories"]
+  "include": [
+    "categories"
+  ],
+  "schemaVersion": 2
 }

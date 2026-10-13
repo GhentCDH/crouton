@@ -72,6 +72,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: textarea",
   "description": "Multi-line text input. All common options apply; no type-specific options.",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/textarea.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/textarea.field-input.schema.json",
   "markdownDescription": "Multi-line text input. All common options apply; no type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
 }

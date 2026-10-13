@@ -20,7 +20,7 @@ const mapLayoutType = (type: LayoutNode['type']): string =>
 /** Find the `type: "table"` sub-node inside a wrapper layout, or return the node itself. */
 export const findTableNode = (node: LayoutNode): LayoutNode =>
   node.type !== 'table' && node.items?.length
-    ? (node.items.find((i) => (i as LayoutNode).type === 'table') as LayoutNode ?? node)
+    ? (node.items.find((i) => typeof i !== 'string' && !('id' in i) && !('component' in i) && (i as LayoutNode).type === 'table') as LayoutNode ?? node)
     : node;
 
 /**
@@ -46,7 +46,7 @@ export const resolveTableNode = (
 
 /** True when `layout.table` is a wrapper layout (outer type ≠ "table") with a "table" sub-node. */
 export const isTableWrapperLayout = (node: LayoutNode): boolean =>
-  node.type !== 'table' && !!node.items?.some((i) => i.type === 'table');
+  node.type !== 'table' && !!node.items?.some((i) => typeof i !== 'string' && !('id' in i) && !('component' in i) && (i as LayoutNode).type === 'table');
 
 /**
  * Reorder a table view's elements and columns to match the `layout.table` declaration.

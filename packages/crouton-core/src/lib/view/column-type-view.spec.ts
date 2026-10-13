@@ -102,7 +102,7 @@ describe('buildViewsFromColumnTypes', () => {
   const layout = {
     table: {
       filterFields: ['title', 'year'],
-      controls: [{ id: 'title', sortable: true, defaultSort: true }],
+      items: [{ id: 'title', sortable: true, defaultSort: true }],
     },
   };
 

@@ -30,7 +30,7 @@ describe('backward-compat: no layout = identical to buildFormUiSchema', () => {
   it('produces byte-identical output', () => {
     const baseline = buildFormUiSchema(cols);
     const fromLayout = buildFormUiSchemaFromLayout(
-      { type: 'grid', controls: ['name', 'bio', 'status'] },
+      { type: 'grid', items: ['name', 'bio', 'status'] },
       cols,
     );
     expect(fromLayout).toEqual(baseline);
@@ -43,10 +43,10 @@ describe('buildFormUiSchemaFromLayout – flat grid', () => {
   const node: LayoutNode = {
     type: 'grid',
     columns: 12,
-    controls: ['name', 'bio'],
+    items: ['name', 'bio'],
   };
 
-  it('builds GridLayout with the declared controls', () => {
+  it('builds GridLayout with the declared items', () => {
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(ui.type).toBe('GridLayout');
     expect(ui.elements).toHaveLength(3); // name + bio + unreferenced status appended
@@ -66,7 +66,7 @@ describe('buildFormUiSchemaFromLayout – flat grid', () => {
 describe('buildFormUiSchemaFromLayout – control overrides', () => {
   it('applies colspan and rowspan', () => {
     const node: LayoutNode = {
-      controls: [{ id: 'name', colspan: 6, rowspan: 2 }, 'bio', 'status'],
+      items: [{ id: 'name', colspan: 6, rowspan: 2 }, 'bio', 'status'],
     };
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     const name = byScope(ui, 'name');
@@ -76,7 +76,7 @@ describe('buildFormUiSchemaFromLayout – control overrides', () => {
 
   it('applies label override', () => {
     const node: LayoutNode = {
-      controls: [{ id: 'name', label: 'Full name' }, 'bio', 'status'],
+      items: [{ id: 'name', label: 'Full name' }, 'bio', 'status'],
     };
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(byScope(ui, 'name').options.label).toBe('Full name');
@@ -84,7 +84,7 @@ describe('buildFormUiSchemaFromLayout – control overrides', () => {
 
   it('applies hideLabel override', () => {
     const node: LayoutNode = {
-      controls: [{ id: 'name', hideLabel: true }, 'bio', 'status'],
+      items: [{ id: 'name', hideLabel: true }, 'bio', 'status'],
     };
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(byScope(ui, 'name').options.hideLabel).toBe(true);
@@ -95,7 +95,7 @@ describe('buildFormUiSchemaFromLayout – control overrides', () => {
       { id: 'body', fieldInput: { type: 'markdown' } },
     ]);
     const node: LayoutNode = {
-      controls: [{ id: 'body', options: { minHeight: '8rem' } }],
+      items: [{ id: 'body', options: { minHeight: '8rem' } }],
     };
     const ui = buildFormUiSchemaFromLayout(node, markdownCols) as any;
     expect(ui.elements[0].options.format).toBe('markdown');
@@ -109,8 +109,7 @@ describe('buildFormUiSchemaFromLayout – nested sections', () => {
   it('wraps items in a nested container', () => {
     const node: LayoutNode = {
       type: 'grid',
-      controls: ['name'],
-      items: [{ type: 'collapse', title: 'More', controls: ['bio', 'status'] }],
+      items: ['name', { type: 'collapse', title: 'More', items: ['bio', 'status'] }],
     };
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(ui.elements).toHaveLength(2); // name + collapse node
@@ -124,12 +123,28 @@ describe('buildFormUiSchemaFromLayout – nested sections', () => {
         {
           type: 'group',
           title: 'Details',
-          controls: ['name', 'bio', 'status'],
+          items: ['name', 'bio', 'status'],
         },
       ],
     };
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(ui.elements[0].type).toBe('GroupLayout');
+  });
+
+  it('interleaves fields and nested nodes in declared order', () => {
+    const node: LayoutNode = {
+      type: 'grid',
+      items: [
+        'name',
+        { type: 'collapse', title: 'More', items: ['bio'] },
+        'status',
+      ],
+    };
+    const ui = buildFormUiSchemaFromLayout(node, cols) as any;
+    expect(ui.elements).toHaveLength(3);
+    expect(ui.elements[0].scope).toBe('#/properties/name');
+    expect(ui.elements[1].type).toBe('CollapseLayout');
+    expect(ui.elements[2].scope).toBe('#/properties/status');
   });
 });
 
@@ -138,7 +153,7 @@ describe('buildFormUiSchemaFromLayout – nested sections', () => {
 describe('buildFormUiSchemaFromLayout – unknown id', () => {
   it('skips and warns on unknown column id', () => {
     const warn = vi.fn();
-    const node: LayoutNode = { controls: ['name', 'ghost', 'bio', 'status'] };
+    const node: LayoutNode = { items: ['name', 'ghost', 'bio', 'status'] };
     const ui = buildFormUiSchemaFromLayout(node, cols, warn) as any;
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('"ghost"'));
     expect(
@@ -150,10 +165,9 @@ describe('buildFormUiSchemaFromLayout – unknown id', () => {
 // ── flattenLayoutControlIds ────────────────────────────────────────────────
 
 describe('flattenLayoutControlIds', () => {
-  it('depth-first flattens controls', () => {
+  it('depth-first flattens items', () => {
     const node: LayoutNode = {
-      controls: ['name'],
-      items: [{ controls: ['bio'] }, { controls: ['status'] }],
+      items: ['name', { items: ['bio'] }, { items: ['status'] }],
     };
     expect(flattenLayoutControlIds(node)).toEqual(['name', 'bio', 'status']);
   });
@@ -174,7 +188,7 @@ describe('orderTableColumnsFromLayout', () => {
       ui_schema: buildTableUiSchema(tableCols),
       columns: tableCols,
     };
-    const node: LayoutNode = { controls: ['status', 'name', 'bio'] };
+    const node: LayoutNode = { items: ['status', 'name', 'bio'] };
     const ordered = orderTableColumnsFromLayout(view as any, node);
     const elements = (ordered.ui_schema as any).elements;
     expect(elements[0].scope).toContain('status');
@@ -188,7 +202,7 @@ describe('orderTableColumnsFromLayout', () => {
       ui_schema: buildTableUiSchema(tableCols),
       columns: tableCols,
     };
-    const node: LayoutNode = { controls: ['status'] };
+    const node: LayoutNode = { items: ['status'] };
     const ordered = orderTableColumnsFromLayout(view as any, node);
     const ids = (ordered.ui_schema as any).elements.map((e: any) =>
       e.scope.replace('#/properties/', ''),
