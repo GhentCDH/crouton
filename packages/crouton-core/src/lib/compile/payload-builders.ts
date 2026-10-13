@@ -15,7 +15,7 @@ import { toJsonSchema } from './to-json-schema';
 
 interface TableInjectOptions {
   rowActions: unknown[];
-  actions: unknown[];
+  tableActions: unknown[];
   defaultSortId?: string;
   filter?: { schema: unknown; uischema: unknown; initialData: Record<string, never> };
 }
@@ -28,7 +28,7 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
       ...u,
       options: {
         ...(u.options ?? {}),
-        ...(opts.actions.length && { actions: opts.actions }),
+        ...(opts.tableActions.length && { tableActions: opts.tableActions }),
         ...(opts.rowActions.length && { rowActions: opts.rowActions }),
         ...(opts.defaultSortId !== undefined && { defaultSortId: opts.defaultSortId }),
         ...(opts.filter && { filter: opts.filter }),
@@ -234,7 +234,7 @@ export const buildViewsPayload = (
     ...tableSchema,
     ui: injectTableOptions((tableSchema as any).ui, {
       rowActions: resolveActions(baseUri, resolveTableNode(config.layout?.table)?.rowActions as any),
-      actions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions as any),
+      tableActions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions as any),
       defaultSortId: config.views['table']?.defaultSort,
       ...(filterSchema && {
         filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },
@@ -295,8 +295,8 @@ export const buildSubResourceViewsPayload = (
       (subSchemas as Record<string, unknown>)['table'] = {
         ...subTable,
         ui: injectTableOptions((subTable as any).ui, {
-          rowActions: resolveActions(subChildUri, (sub as any).layout?.table?.actions ?? sub.actions),
-          actions: resolveTableActions(subChildUri, (sub as any).layout?.table?.tableActions ?? (sub as any).tableActions),
+          rowActions: resolveActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.rowActions ?? (sub as any).rowActions ?? sub.actions),
+          tableActions: resolveTableActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.tableActions ?? (sub as any).tableActions),
           defaultSortId: sub.views['table']?.defaultSort,
           ...(subFilterSchema && {
             filter: { schema: subFilterSchema.data, uischema: subFilterSchema.ui, initialData: {} },

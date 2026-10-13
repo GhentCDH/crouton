@@ -1,9 +1,9 @@
 import type { z } from 'zod';
 
-import { flattenLayoutControls } from './layout-ui-schema.builder';
+import { flattenLayoutItems } from './layout-ui-schema.builder';
 import type { ViewConfig } from './view.schema';
 import type { LayoutNode } from '../resource/layout';
-import { isComponentControl } from '../resource/layout';
+import { isComponentControl, isComponentItem } from '../resource/layout';
 import type { TableLayoutRootSchema, TableNode } from '../resource/layout/TableLayout.schema';
 
 const LAYOUT_TYPE_MAP: Record<string, string> = {
@@ -61,7 +61,7 @@ export const orderTableColumnsFromLayout = (
   warn: (msg: string) => void = console.warn,
 ): ViewConfig => {
   const tableNode = findTableNode(node);
-  const controls = flattenLayoutControls(tableNode);
+  const controls = flattenLayoutItems(tableNode);
   if (!controls.length) return view;
 
   const elements: any[] = (view.ui_schema as any)?.elements ?? [];
@@ -160,9 +160,9 @@ export const orderTableColumnsFromLayout = (
   // Wrapper layout: produce outer UI node containing component elements + inner Table element
   const outerType = mapLayoutType(node.type);
   const outerElements: any[] = [
-    ...(node.controls ?? [])
-      .filter(isComponentControl)
-      .map((ctrl) => ({ component: ctrl.component, label: ctrl.label })),
+    ...((node as any).items ?? [])
+      .filter(isComponentItem)
+      .map((ctrl: any) => ({ component: ctrl.component, label: ctrl.label })),
     innerTableUi,
   ];
 
