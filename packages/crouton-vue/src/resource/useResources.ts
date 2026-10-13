@@ -1,12 +1,13 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="../lodash-es-shim.d.ts" />
 import { cloneDeep } from 'lodash-es';
-import { type Ref, reactive, shallowRef } from 'vue';
+import { type Component, type Ref, reactive, shallowRef } from 'vue';
 
 import type { Action, ResourceDefinition } from '@ghentcdh/crouton-core';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
-  type ResourceModals,
   actions,
   backendAction,
   resourceModals,
@@ -54,7 +55,12 @@ export interface UseResource {
   view: (id: unknown) => void;
   delete: (id: unknown) => void;
   closeForm: (result: any) => Promise<void>;
-  form: ResourceModals['form'];
+  form: {
+    component: Component;
+    config: any;
+    hideTable: boolean;
+    customComponent: Component | null;
+  } | null;
   api: ResourceApiInstance;
   reload: () => void;
 }
