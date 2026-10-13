@@ -53,13 +53,13 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
           {
             "type": "TextCell",
             "scope": "#/properties/id",
             "options": {
-              "sortable": false,
+              "sortId": "id",
               "label": "Id"
             }
           },
@@ -67,7 +67,7 @@
             "type": "TextCell",
             "scope": "#/properties/name",
             "options": {
-              "sortable": false,
+              "sortId": "name",
               "label": "Name"
             }
           },
@@ -75,7 +75,7 @@
             "type": "TextCell",
             "scope": "#/properties/quantity",
             "options": {
-              "sortable": false,
+              "sortId": "quantity",
               "label": "Quantity"
             }
           },
@@ -83,7 +83,7 @@
             "type": "TextCell",
             "scope": "#/properties/price",
             "options": {
-              "sortable": false,
+              "sortId": "price",
               "label": "Price"
             }
           },
@@ -91,7 +91,7 @@
             "type": "TextCell",
             "scope": "#/properties/available",
             "options": {
-              "sortable": false,
+              "sortId": "available",
               "label": "Available"
             }
           },
@@ -99,7 +99,7 @@
             "type": "TextCell",
             "scope": "#/properties/listedAt",
             "options": {
-              "sortable": false,
+              "sortId": "listedAt",
               "label": "Listed at"
             }
           },
@@ -107,13 +107,15 @@
             "type": "TextCell",
             "scope": "#/properties/notes",
             "options": {
-              "sortable": false,
+              "sortId": "notes",
               "label": "Notes"
             }
           }
-        ]
-      },
-      "defaultSort": "id"
+        ],
+        "options": {
+          "defaultSortId": "id"
+        }
+      }
     },
     "form": {
       "data": {
@@ -397,7 +399,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

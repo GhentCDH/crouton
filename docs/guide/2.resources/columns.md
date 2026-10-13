@@ -22,39 +22,46 @@ Both forms support the same options:
 | `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](custom-resource.md#column-types)                   |
 | `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                   |
 | `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell                                                                                                                                                 |
-| `sortable` / `defaultSort`                        | Sorting; `sortId` overrides the sort column                                                                                                                                                                                                                                                                                 |
-| `searchable`                                      | Marks this column as a `?q=` search target. Multiple `searchable` columns produce an OR search. For `manyToOne` relation columns the search automatically resolves to the related resource's display field (e.g. `authorId` → `author.name`).                                                                               |
-| `filterable`                                      | Gets a filter control                                                                                                                                                                                                                                                                                                       |
 | `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                               |
 | `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable |
-| `showWhen` / `hideWhen` / `disabledWhen`          | Conditional display: `{ "field": "...", "eq"/"neq"/"exists"/"notExists": ... }`                                                                                                                                                                                                                                                         |
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                |
-| `showInLookup`                                    | Sets the display label when **this** resource appears as an option in another resource's autocomplete. Does **not** affect `?q=` search — use `searchable: true` for that.                                                                                                                                                  |
+| `showInLookup`                                    | Sets the display label when **this** resource appears as an option in another resource's autocomplete. Does **not** affect `?q=` search — use `layout.table.searchFields` for that.                                                                                                                                         |
 | `unique`                                          | Validate the value is unique: `true`, or `{ scope, caseInsensitive, message }`. Checks as-you-type and maps a DB unique violation to this field. Needs a matching `@unique` constraint. See [Unique fields](unique.md)                                                                                                       |
 | `column`                                          | Source column name when it differs from the key/`id` (defaults to `id`)                                                                                                                                                                                                                                                    |
 | `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                        |
 | `extend`                                          | Path to another `resource.json` whose columns are expanded as virtual sub-columns under this key (with a per-sub-column `columns` override map)                                                                                                                                                                             |
 | `fieldInput`                                      | Form control configuration, see below                                                                                                                                                                                                                                                                                       |
 | `fieldView`                                       | Optional per-context override for the read-only view, see below                                                                                                                                                                                                                                                             |
-| `fieldTable`                                      | Optional per-context override for the table cell, see below                                                                                                                                                                                                                                                                 |
+
+::: warning Moved to `layout.table`
+The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
+
+- `sortable` / `defaultSort` → `layout.table.controls[{ id, sortable, defaultSort }]`
+- `searchable` → `layout.table.searchFields: ["colId"]`
+- `filterable` → `layout.table.filterFields: ["colId"]`
+- `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.controls[{ id, showWhen, ... }]`
+- `fieldTable` → `layout.table.controls[{ id, type, options }]`
+
+See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-to-next-alpha.md](/migrate-to-next-alpha) for migration details.
+:::
 
 ## Free-text search (`?q=`)
 
-Mark columns with `searchable: true` to include them in free-text search via `?q=` on the list endpoint.
+Declare which columns are included in free-text search via `layout.table.searchFields`:
 
 ```json
 {
-  "title": { "searchable": true },
-  "authorId": {
-    "searchable": true,
-    "fieldInput": { "type": "autocomplete", "relationType": "manyToOne", "resource": "./author.resource" }
+  "layout": {
+    "table": {
+      "searchFields": ["title", "authorId"]
+    }
   }
 }
 ```
 
-- **Multiple `searchable` columns** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author name contains "tolkien".
+- **Multiple entries** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author name contains "tolkien".
 - **`manyToOne` relation columns** (e.g. `authorId`) automatically resolve to the related resource's first visible display field (e.g. `author.name`), so you never search against a raw foreign key string.
-- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use `showInLookup` to drive `?q=` search; use `searchable` instead.
+- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use it to drive `?q=` search; use `searchFields` instead.
 
 ## Nested object and array columns
 
@@ -153,58 +160,57 @@ onMounted(async () => {
 > Token resolution only affects the create form pre-fill. It has no effect on existing records loaded for
 > editing, and it does not run server-side — use `beforeWrite` hooks for server-side defaults.
 
-## Field variants — `fieldView` / `fieldTable`
+## Field variants — `fieldView` / table cell override
 
 By default a single `fieldInput` drives the form, the read-only view, and the table cell. A column may additionally
-declare `fieldView` and/or `fieldTable` to render differently per context. Both are optional and have the same shape as
-`fieldInput` (every key optional), so a variant overrides only what it needs.
+declare `fieldView` to render differently in the read-only detail view.
 
 The config that drives each context is resolved through a fallback chain:
 
 - **form** (and filter) ← `fieldInput`
 - **view** ← `fieldView`, falling back to `fieldInput`
-- **table** ← `fieldTable`, falling back to `fieldView`, then `fieldInput`
-
-Resolution is a **deep merge, one level into `options`**: a variant layers over the level below it. A value of `null`
-in a variant deletes that inherited key.
+- **table** ← `type`/`options` on the `layout.table.controls[]` entry, falling back to `fieldView`, then `fieldInput`
 
 ```json
 {
-  "column": "author",
-  "label": "Author",
-  "displayKey": "name",
-  "fieldInput": {
-    "format": "relation",
-    "resource": "./author/resource.json",
-    "options": {
-      "display": "autocomplete",
-      "displayKey": "name"
+  "columns": {
+    "author": {
+      "label": "Author",
+      "displayKey": "name",
+      "fieldInput": {
+        "format": "relation",
+        "resource": "./author/resource.json",
+        "options": { "display": "autocomplete", "displayKey": "name" }
+      },
+      "fieldView": {
+        "options": { "display": "link" }
+      }
     }
   },
-  "fieldView": {
-    "options": { "display": "link" }
-  },
-  "fieldTable": {
-    "options": { "displayKey": "shortName" }
+  "layout": {
+    "table": {
+      "controls": [
+        { "id": "author", "options": { "displayKey": "shortName" } }
+      ]
+    }
   }
 }
 ```
 
-Here the edit form renders an autocomplete, the read-only view renders a link (inheriting `displayKey: "name"` from
-`fieldInput`), and the table cell renders a link keyed by `shortName`.
-
-`position` may also be overridden per variant, giving free per-context ordering.
+The edit form renders an autocomplete, the read-only view renders a link, and the table cell uses `shortName`.
 
 ### Custom table cell renderer
 
-Add `customComponent` to `fieldTable.options` to override the table cell with a custom Vue component:
+Add `customComponent` to the table layout control's `options` to override the cell with a custom Vue component:
 
 ```json
 {
-  "column": "section_number",
-  "fieldInput": { "type": "number", "position": 0 },
-  "fieldTable": {
-    "options": { "customComponent": "moveUpDown" }
+  "layout": {
+    "table": {
+      "controls": [
+        { "id": "section_number", "options": { "customComponent": "moveUpDown" } }
+      ]
+    }
   }
 }
 ```

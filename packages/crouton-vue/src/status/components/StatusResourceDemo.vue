@@ -23,14 +23,14 @@
         }}</pre>
       </div>
 
-      <div v-if="def && (def.tableActions.length || def.actions.length)" class="col-span-2 space-y-3">
-        <div v-if="def.tableActions.length">
+      <div v-if="def && (tableUiActions.length || tableUiRowActions.length)" class="col-span-2 space-y-3">
+        <div v-if="tableUiActions.length">
           <div class="text-xs font-semibold text-base-content/60 uppercase tracking-wide mb-1">
             Table Actions
           </div>
           <div class="flex flex-wrap gap-2">
             <div
-              v-for="action in def.tableActions"
+              v-for="action in tableUiActions"
               :key="action.id"
               class="flex items-center gap-1.5 text-xs bg-base-200 rounded px-2 py-1 font-mono"
             >
@@ -44,13 +44,13 @@
           </div>
         </div>
 
-        <div v-if="def.actions.length">
+        <div v-if="tableUiRowActions.length">
           <div class="text-xs font-semibold text-base-content/60 uppercase tracking-wide mb-1">
             Row Actions
           </div>
           <div class="flex flex-wrap gap-2">
             <div
-              v-for="action in def.actions"
+              v-for="action in tableUiRowActions"
               :key="action.id"
               class="flex items-center gap-1.5 text-xs bg-base-200 rounded px-2 py-1 font-mono"
             >
@@ -102,6 +102,19 @@ watchEffect(async () => {
     loading.value = false;
   }
 });
+
+const getTableNode = (ui: any): any => {
+  if (!ui) return null;
+  if (ui.type === 'Table') return ui;
+  return (ui.elements as any[] | undefined)?.find((e: any) => e.type === 'Table') ?? null;
+};
+
+const tableUiActions = computed(
+  () => getTableNode(def.value?.schemas.table.ui)?.options?.actions ?? [],
+);
+const tableUiRowActions = computed(
+  () => getTableNode(def.value?.schemas.table.ui)?.options?.rowActions ?? [],
+);
 
 const rawJson = computed(() => JSON.stringify(props.resource, null, 2));
 const compiledJson = computed(() =>

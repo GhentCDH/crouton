@@ -19,7 +19,13 @@ export class Resource {
     initialLoad: boolean,
   ) {
     this.requestData.value = RequestSchema.parse({
-      ...{ sort: this.formDef.schemas.table.defaultSort ?? undefined },
+      ...{
+        sort: (() => {
+          const ui = this.formDef.schemas.table.ui as any;
+          const node = ui?.type === 'Table' ? ui : ui?.elements?.find((e: any) => e.type === 'Table');
+          return node?.options?.defaultSortId ?? undefined;
+        })(),
+      },
       ...initialRequestParams,
     });
 

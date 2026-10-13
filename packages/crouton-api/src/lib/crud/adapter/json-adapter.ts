@@ -105,7 +105,7 @@ export const fromJson = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns, dirPath);
+  const lookup = buildLookup(enrichedColumns, dirPath, (json.layout?.table as any)?.searchFields);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
@@ -145,11 +145,14 @@ export const fromJson = (
 const buildLookup = (
   columns: JsonColumn[] | undefined,
   dirPath?: string,
+  searchFields?: string[],
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
 
   const keyCol = columns.find((c) => c.idField);
-  const searchCols = columns.filter((c) => c.showInLookup || c.searchable);
+  const searchCols = columns.filter(
+    (c) => c.showInLookup || searchFields?.includes(c.id),
+  );
 
   if (!keyCol && !searchCols.length) return undefined;
 

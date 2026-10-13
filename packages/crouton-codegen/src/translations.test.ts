@@ -21,8 +21,6 @@ const resource = (
     kind: 'prisma' as const,
     title: overrides.title,
     columns: overrides.columns ?? [],
-    actions: overrides.actions ?? [],
-    tableActions: overrides.tableActions ?? [],
     sidebar: overrides.sidebar ?? {},
     ...overrides,
   }) as unknown as ResourceJson;
@@ -95,9 +93,15 @@ describe('buildTranslationBundle', () => {
     const res = resource({
       name: 'group',
       title: 'Groups',
-      actions: [
-        { id: 'publish', label: 'Publish', type: 'procedure' },
-      ] as ResourceJson['actions'],
+      layout: {
+        table: {
+          actions: [
+            { id: 'publish', label: 'Publish', type: 'procedure' },
+          ],
+          filterFields: [],
+          tableActions: [],
+        },
+      } as any,
     });
     const bundle = buildTranslationBundle([res], {});
     expect(bundle.resources?.group?.actions?.publish).toBe('Publish');

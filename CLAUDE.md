@@ -75,6 +75,8 @@ After creating the component and exporting it from `packages/crouton-ui-vue/src/
 
 ## Adding a resource-level option
 
+> **Table-specific options** (`sortable`, `searchable`, `filterable`, `actions`, `tableActions`, `showWhen`, `hideWhen`, `disabledWhen`, `fieldTable`) belong in `layout.table`, not on columns or the resource root. See `migrate-to-next-alpha.md`.
+
 1. Find the resource JSON schema — `packages/crouton-core/src/lib/resource/` (look for the relevant `*.schema.ts` or Column-level schema).
 2. Add the field to the Zod schema, then run `pnpm nx run crouton-core:build` to regenerate `packages/crouton-core/src/lib/resource/resource.schema*.json` and `docs/.vuepress/public/schema/crouton.schema.json`.
 3. If the API needs to read/forward the option, update `packages/crouton-api/src/lib/crud/adapter/` loader(s).

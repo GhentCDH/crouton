@@ -1,5 +1,5 @@
 import type { JsonColumn } from '../resource';
-import { resolveTableField, resolveViewField } from '../resource';
+import { resolveViewField } from '../resource';
 import type { ValueLabelColumn } from './value-label-column';
 
 export const applyRelationFormatDefault = (
@@ -18,11 +18,9 @@ export const resolveColumnFieldVariants = (
 ): JsonColumn[] | undefined =>
   cols?.map((col) => {
     const fieldView = resolveViewField(col);
-    const fieldTable = resolveTableField(col);
     return {
       ...col,
       ...(fieldView && { fieldView }),
-      ...(fieldTable && { fieldTable }),
     };
   });
 

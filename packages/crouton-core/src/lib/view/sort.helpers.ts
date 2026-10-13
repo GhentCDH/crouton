@@ -1,4 +1,5 @@
 import type { JsonColumn } from '../resource/Column';
+import type { LayoutNode } from '../resource/layout';
 
 // ── Sort helpers ──────────────────────────────────────────────────────────
 
@@ -13,7 +14,6 @@ import type { JsonColumn } from '../resource/Column';
  * Returns `null` when `sortable: false`.
  */
 export const deriveSortId = (col: JsonColumn): string | null => {
-  if (col.sortable === false) return null;
   if (col.sortId) return col.sortId;
   const base = col.column ?? col.id;
   const fi = col.fieldInput;
@@ -52,19 +52,39 @@ export const deriveSortId = (col: JsonColumn): string | null => {
   return path;
 };
 
+/** Look up a table control's `sortable` and `defaultSort` flags from the layout. */
+const getLayoutControlFlags = (
+  colId: string,
+  tableLayout: LayoutNode | undefined,
+): { sortable: boolean; defaultSort: boolean } => {
+  const controls = tableLayout?.controls ?? [];
+  for (const ctrl of controls) {
+    if (typeof ctrl === 'string') continue;
+    if ('component' in ctrl) continue;
+    if (ctrl.id !== colId) continue;
+    const c = ctrl as { sortable?: boolean; defaultSort?: boolean };
+    return { sortable: c.sortable ?? false, defaultSort: c.defaultSort ?? false };
+  }
+  return { sortable: false, defaultSort: false };
+};
+
 /**
  * Pick the best default sort column:
- * 1. Explicit `defaultSort: true` column that is also sortable.
- * 2. First sortable visible column.
+ * 1. Explicit `defaultSort: true` layout control that is also sortable.
+ * 2. First sortable visible column (from layout or column-level flag).
  * 3. The idField column as a last resort.
  */
 export const resolveDefaultSort = (
   tableCols: JsonColumn[],
   allColumns: JsonColumn[] | undefined,
+  tableLayout?: LayoutNode,
 ): string | undefined => {
-  const isSortable = (c: JsonColumn) => c.sortable !== false;
+  const isSortable = (c: JsonColumn) =>
+    getLayoutControlFlags(c.id, tableLayout).sortable;
+  const isDefault = (c: JsonColumn) =>
+    getLayoutControlFlags(c.id, tableLayout).defaultSort;
   const sortCol =
-    tableCols.find((c) => c.defaultSort && isSortable(c)) ??
+    tableCols.find((c) => isDefault(c) && isSortable(c)) ??
     tableCols.find(isSortable) ??
     allColumns?.find((c) => c.idField);
   return sortCol ? (deriveSortId(sortCol) ?? sortCol.id) : undefined;

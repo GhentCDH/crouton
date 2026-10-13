@@ -59,22 +59,22 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortable": false,
-              "label": "Id"
-            }
-          },
           {
             "type": "TextCell",
             "scope": "#/properties/title",
             "options": {
               "sortId": "title",
               "label": "Title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id",
+              "label": "Id"
             }
           },
           {
@@ -86,9 +86,11 @@
               "label": "Author"
             }
           }
-        ]
-      },
-      "defaultSort": "title"
+        ],
+        "options": {
+          "defaultSortId": "title"
+        }
+      }
     },
     "form": {
       "data": {
@@ -234,7 +236,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

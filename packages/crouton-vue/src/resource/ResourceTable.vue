@@ -2,7 +2,6 @@
 import type { Component } from 'vue';
 import { computed, PropType, ref, shallowRef, toRaw, watch } from 'vue';
 
-import { isComponentControl } from '@ghentcdh/crouton-core';
 import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
@@ -91,10 +90,13 @@ const reload = () => {
 };
 
 const tableWrapperComponents = computed(() => {
-  const layout = config.value?.tableLayout;
-  if (!layout) return [];
-  return (layout.controls ?? [])
-    .filter(isComponentControl)
+  const ui = config.value?.schemas?.table?.ui as any;
+  if (!ui) return [];
+  // Wrapper layout: component entries live in outer elements (non-Table entries)
+  const sources: any[] = ui.type === 'Table'
+    ? []
+    : (ui.elements ?? []).filter((e: any) => !e.type || e.type !== 'Table');
+  return sources
     .map((ctrl: any) => ({
       component: findCustomComponent(crouton.customComponents, ctrl.component),
       ctrl,

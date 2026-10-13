@@ -15,10 +15,6 @@ const col = (over: Partial<JsonColumn>): JsonColumn =>
     hiddenInTable: false,
     hiddenInForm: false,
     hiddenInView: false,
-    sortable: false,
-    defaultSort: false,
-    searchable: false,
-    filterable: false,
     createable: true,
     updateable: true,
     hideLabel: false,
@@ -105,30 +101,25 @@ describe('resolve*Field fallback chain', () => {
     expect(resolveTableField(c)).toEqual(expected);
   });
 
-  it('fieldTable only → table merges over fieldInput, view = fieldInput', () => {
-    const c = col({
-      fieldInput: relationInput,
-      fieldTable: { options: { display: 'chip' } },
-    });
+  it('fieldTable removed — table now equals view (resolveViewField)', () => {
+    const c = col({ fieldInput: relationInput });
     expect(resolveViewField(c)).toEqual(relationInput);
-    expect(resolveTableField(c)).toEqual({
-      format: 'relation',
-      resource: '../author/resource.json',
-      options: { colspan: 5, display: 'chip', displayKey: 'name' },
-    });
+    // fieldTable is gone; table == view == fieldInput when no fieldView
+    expect(resolveTableField(c)).toEqual(relationInput);
   });
 
-  it('both present → table layers over the resolved view', () => {
+  it('fieldView present — table inherits view, no extra table layer', () => {
     const c = col({
       fieldInput: relationInput,
       fieldView: { options: { display: 'link' } },
-      fieldTable: { options: { displayKey: 'shortName' } },
     });
-    // table inherits fieldView's display, adds its own displayKey
+    const viewResult = resolveViewField(c);
+    // table == view now
+    expect(resolveTableField(c)).toEqual(viewResult);
     expect(resolveTableField(c)).toEqual({
       format: 'relation',
       resource: '../author/resource.json',
-      options: { colspan: 5, display: 'link', displayKey: 'shortName' },
+      options: { colspan: 5, display: 'link', displayKey: 'name' },
     });
   });
 });

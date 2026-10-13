@@ -178,7 +178,7 @@ export const buildSubResources = (
           patch: childOps.patch !== false,
           delete: childOps.delete !== false,
         },
-        ...(childJson?.actions?.length && { actions: childJson.actions }),
+        ...((childJson?.layout?.table as any)?.actions?.length && { actions: (childJson?.layout?.table as any)?.actions }),
         ...(childJson?.modalSize && { modalSize: childJson.modalSize }),
         ...(childJson?.display && { display: childJson.display }),
         ...(mergedIncludes.length && { include: mergedIncludes }),

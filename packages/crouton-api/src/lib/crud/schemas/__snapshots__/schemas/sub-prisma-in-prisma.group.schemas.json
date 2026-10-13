@@ -56,16 +56,8 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortable": false,
-              "label": "Id"
-            }
-          },
           {
             "type": "TextCell",
             "scope": "#/properties/name",
@@ -73,10 +65,20 @@
               "sortId": "name",
               "label": "Name"
             }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id",
+              "label": "Id"
+            }
           }
-        ]
-      },
-      "defaultSort": "name"
+        ],
+        "options": {
+          "defaultSortId": "name"
+        }
+      }
     },
     "form": {
       "data": {
@@ -202,7 +204,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

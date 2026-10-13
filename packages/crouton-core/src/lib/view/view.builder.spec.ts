@@ -35,12 +35,12 @@ describe('buildViews — fieldInput.defaultValue', () => {
 describe('buildViews — no schema fallback to column types', () => {
   const columns = parse([
     { id: 'id', type: 'string', idField: true, hiddenInForm: true },
-    { id: 'title', type: 'string', filterable: true },
+    { id: 'title', type: 'string' },
     { id: 'count', type: 'integer' },
     { id: 'register', fieldInput: { type: 'autocomplete' } },
   ]);
 
-  const views = buildViews(undefined, columns);
+  const views = buildViews(undefined, columns, { table: { filterFields: ['title'] } });
 
   it('produces table, form, filter, and view', () => {
     expect(Object.keys(views ?? {}).sort()).toEqual(['filter', 'form', 'table', 'view']);
@@ -60,7 +60,7 @@ describe('buildViews — no schema fallback to column types', () => {
 
   it('matches buildViewsFromColumnTypes output', async () => {
     const { buildViewsFromColumnTypes } = await import('./view.builder');
-    const expected = buildViewsFromColumnTypes(columns);
+    const expected = buildViewsFromColumnTypes(columns, { table: { filterFields: ['title'] } });
     expect(views).toEqual(expected);
   });
 });

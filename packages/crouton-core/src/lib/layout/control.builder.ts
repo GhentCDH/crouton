@@ -237,12 +237,6 @@ export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
     return this;
   }
 
-  addAction(action: ArrayAction) {
-    const actions = this.options?.actions ?? [];
-    actions.push(action);
-    return this.opt({ actions });
-  }
-
   detailFixed<TYPE>(
     layoutBuilder: LayoutBuilder<TYPE>,
     options: {

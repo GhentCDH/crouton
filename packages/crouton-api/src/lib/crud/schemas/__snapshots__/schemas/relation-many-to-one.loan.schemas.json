@@ -59,22 +59,22 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortable": false,
-              "label": "Id"
-            }
-          },
           {
             "type": "TextCell",
             "scope": "#/properties/loanedAt",
             "options": {
               "sortId": "loanedAt",
               "label": "Loaned at"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id",
+              "label": "Id"
             }
           },
           {
@@ -88,9 +88,11 @@
               "label": "Book"
             }
           }
-        ]
-      },
-      "defaultSort": "loanedAt"
+        ],
+        "options": {
+          "defaultSortId": "loanedAt"
+        }
+      }
     },
     "form": {
       "data": {
@@ -220,7 +222,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

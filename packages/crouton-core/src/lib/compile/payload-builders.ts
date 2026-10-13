@@ -3,9 +3,47 @@ import type { JsonAction } from '../resource';
 import { getResourceExtensions } from '../resource';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
-import { externalRouteFor, isOperationEnabled, isOperationExternal, resolveDefinition, schemaFor } from './crud-config';
+import {
+  externalRouteFor,
+  isOperationEnabled,
+  isOperationExternal,
+  resolveDefinition,
+  schemaFor,
+} from './crud-config';
 import { toJsonSchema } from './to-json-schema';
-import { isTableWrapperLayout } from '../view/layout-table-order';
+
+interface TableInjectOptions {
+  rowActions: unknown[];
+  actions: unknown[];
+  defaultSortId?: string;
+  filter?: { schema: unknown; uischema: unknown; initialData: Record<string, never> };
+}
+
+const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
+  const u = ui as any;
+  if (!u) return u;
+  if (u.type === 'Table') {
+    return {
+      ...u,
+      options: {
+        ...(u.options ?? {}),
+        ...(opts.actions.length && { actions: opts.actions }),
+        ...(opts.rowActions.length && { rowActions: opts.rowActions }),
+        ...(opts.defaultSortId !== undefined && { defaultSortId: opts.defaultSortId }),
+        ...(opts.filter && { filter: opts.filter }),
+      },
+    };
+  }
+  if (Array.isArray(u.elements)) {
+    return {
+      ...u,
+      elements: u.elements.map((e: any) =>
+        e.type === 'Table' ? injectTableOptions(e, opts) : e,
+      ),
+    };
+  }
+  return u;
+};
 
 const pickExtensions = (config: CompiledResource) =>
   Object.fromEntries(
@@ -19,7 +57,9 @@ const resolveEnvPlaceholders = (value: string): string =>
     /\{env\.([^}]+)\}/g,
     (match, varName) =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof (globalThis as any).process !== 'undefined' ? (globalThis as any).process?.env?.[varName] : undefined) ?? match,
+      (typeof (globalThis as any).process !== 'undefined'
+        ? (globalThis as any).process?.env?.[varName]
+        : undefined) ?? match,
   );
 
 const RESOURCE_OPS = [
@@ -55,16 +95,23 @@ export const buildResourceOperations = (
   baseUri: string,
 ): Record<string, unknown> =>
   Object.fromEntries(
-    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map((op) => {
-      const extRoute = externalRouteFor(definition, op);
-      const uri = extRoute ? resolveEnvPlaceholders(extRoute) : `${baseUri}${OP_SUFFIX[op]}`;
-      const entry = definition[op];
-      const method =
-        (extRoute && typeof entry === 'object' && entry !== null && 'method' in entry
-          ? (entry as { method?: string }).method
-          : undefined) ?? OP_METHOD[op];
-      return [op, { uri, method }];
-    }),
+    RESOURCE_OPS.filter((op) => isOperationEnabled(definition, op)).map(
+      (op) => {
+        const extRoute = externalRouteFor(definition, op);
+        const uri = extRoute
+          ? resolveEnvPlaceholders(extRoute)
+          : `${baseUri}${OP_SUFFIX[op]}`;
+        const entry = definition[op];
+        const method =
+          (extRoute &&
+          typeof entry === 'object' &&
+          entry !== null &&
+          'method' in entry
+            ? (entry as { method?: string }).method
+            : undefined) ?? OP_METHOD[op];
+        return [op, { uri, method }];
+      },
+    ),
   );
 
 const _resolveActions = (
@@ -162,20 +209,38 @@ export const buildViewsPayload = (
   const baseUri = config.parent
     ? `${baseUrl}/${config.parent.route}/{${config.parent.param}}/${config.route}`
     : `${baseUrl}/${config.route}`;
-  const operations: Record<string, unknown> = buildResourceOperations(definition, baseUri);
-  if (isOperationEnabled(definition, 'findAll') && !isOperationExternal(definition, 'findAll')) {
+  const operations: Record<string, unknown> = buildResourceOperations(
+    definition,
+    baseUri,
+  );
+  if (
+    isOperationEnabled(definition, 'findAll') &&
+    !isOperationExternal(definition, 'findAll')
+  ) {
     operations['lookup'] = `${baseUri}?q={text}`;
   }
   const schemas = Object.fromEntries(
     Object.entries(config.views).map(([key, v]) => [
       key,
-      {
-        data: v.json_schema,
-        ui: v.ui_schema,
-        ...(v.defaultSort !== undefined && { defaultSort: v.defaultSort }),
-      },
+      { data: v.json_schema, ui: v.ui_schema },
     ]),
   );
+
+  const tableSchema = schemas['table'] ?? {};
+  const filterSchema = schemas['filter'] as any;
+  delete (schemas as Record<string, unknown>)['filter'];
+  (schemas as Record<string, unknown>)['table'] = {
+    ...tableSchema,
+    ui: injectTableOptions((tableSchema as any).ui, {
+      rowActions: resolveActions(baseUri, config.layout?.table?.actions as any),
+      actions: resolveTableActions(baseUri, config.layout?.table?.tableActions as any),
+      defaultSortId: config.views['table']?.defaultSort,
+      ...(filterSchema && {
+        filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },
+      }),
+    }),
+  };
+
   return {
     id: config.id ?? config.route,
     name: config.name,
@@ -187,11 +252,6 @@ export const buildViewsPayload = (
     operations,
     display: config.display,
     schemas,
-    actions: resolveActions(baseUri, config.actions),
-    tableActions: resolveTableActions(baseUri, config.tableActions),
-    ...(config.layout?.table && isTableWrapperLayout(config.layout.table) && {
-      tableLayout: config.layout.table,
-    }),
     ...pickExtensions(config),
   };
 };
@@ -215,17 +275,34 @@ export const buildSubResourceViewsPayload = (
     ...(sub.modalSize && { modalSize: sub.modalSize }),
     ...(sub.display && { display: sub.display }),
     // ponytail: cast because JsonOperationsSchema uses boolean|{security?} but buildSubResourceOperations wants boolean
-    operations: buildSubResourceOperations(sub.operations as any, childUri, sub.idField ?? 'id'),
-    schemas: Object.fromEntries(
-      Object.entries(sub.views).map(([key, v]) => [
-        key,
-        {
-          data: v.json_schema,
-          ui: v.ui_schema,
-          ...(v.defaultSort !== undefined && { defaultSort: v.defaultSort }),
-        },
-      ]),
+    operations: buildSubResourceOperations(
+      sub.operations as any,
+      childUri,
+      sub.idField ?? 'id',
     ),
-    actions: resolveActions(`${baseUrl}/${sub.childRoute}`, sub.actions),
+    schemas: (() => {
+      const subSchemas = Object.fromEntries(
+        Object.entries(sub.views).map(([key, v]) => [
+          key,
+          { data: v.json_schema, ui: v.ui_schema },
+        ]),
+      );
+      const subTable = subSchemas['table'] ?? {};
+      const subFilterSchema = subSchemas['filter'] as any;
+      delete (subSchemas as Record<string, unknown>)['filter'];
+      const subChildUri = `${baseUrl}/${sub.childRoute}`;
+      (subSchemas as Record<string, unknown>)['table'] = {
+        ...subTable,
+        ui: injectTableOptions((subTable as any).ui, {
+          rowActions: resolveActions(subChildUri, (sub as any).layout?.table?.actions ?? sub.actions),
+          actions: resolveTableActions(subChildUri, (sub as any).layout?.table?.tableActions ?? (sub as any).tableActions),
+          defaultSortId: sub.views['table']?.defaultSort,
+          ...(subFilterSchema && {
+            filter: { schema: subFilterSchema.data, uischema: subFilterSchema.ui, initialData: {} },
+          }),
+        }),
+      };
+      return subSchemas;
+    })(),
   };
 };

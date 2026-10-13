@@ -1,9 +1,9 @@
-import { buildFormControl } from './form-schema.builder';
+import { buildConditionSchema, buildFormControl } from './form-schema.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import { LayoutType } from '../layout/layout.options';
 import type { JsonColumn } from '../resource/Column';
-import { isComponentControl } from '../resource/Layout.schema';
-import type { LayoutControl, LayoutNode } from '../resource/Layout.schema';
+import type { LayoutControl, LayoutNode } from '../resource/layout';
+import { isComponentControl } from '../resource/layout';
 
 const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
   const type = node.type ?? 'grid';
@@ -55,6 +55,23 @@ const applyControlOverrides = (
   } else if (ctrl.options !== undefined) {
     // ponytail: shallow merge — styles deep-merge not needed yet
     (base as any).opt(ctrl.options);
+  }
+  // Layout-control conditions override column-level conditions
+  if (ctrl.disabledWhen) {
+    base.disableWhen(
+      `#/properties/${ctrl.disabledWhen.field}`,
+      buildConditionSchema(ctrl.disabledWhen),
+    );
+  } else if (ctrl.showWhen) {
+    base.showWhen(
+      `#/properties/${ctrl.showWhen.field}`,
+      buildConditionSchema(ctrl.showWhen),
+    );
+  } else if (ctrl.hideWhen) {
+    base.hideWhen(
+      `#/properties/${ctrl.hideWhen.field}`,
+      buildConditionSchema(ctrl.hideWhen),
+    );
   }
   return base;
 };
@@ -156,8 +173,13 @@ export const flattenLayoutControlIds = (
   for (const ctrl of flattenLayoutControls(node)) {
     if (isComponentControl(ctrl)) continue;
     const id = resolveControlId(ctrl)!;
-    if (typeof ctrl !== 'string' && (ctrl.colspan !== undefined || ctrl.rowspan !== undefined)) {
-      warn(`layout: colspan/rowspan on table control "${id}" — ignored, table is flat`);
+    if (
+      typeof ctrl !== 'string' &&
+      (ctrl.colspan !== undefined || ctrl.rowspan !== undefined)
+    ) {
+      warn(
+        `layout: colspan/rowspan on table control "${id}" — ignored, table is flat`,
+      );
     }
     ids.push(id);
   }

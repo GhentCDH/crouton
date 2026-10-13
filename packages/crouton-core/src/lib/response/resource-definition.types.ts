@@ -1,22 +1,21 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
 import type { ZodType } from 'zod';
 
-import { type ResourceDefinitionResponse } from './resource-definition.schema';
-import { type LayoutNode } from '../resource';
+import type { ResourceDefinitionResponse } from './resource-definition.schema';
 
 export type ResourceViewSchema = {
   data: JsonSchema;
   ui: Layout;
-  defaultSort?: string;
   zodSchema: ZodType;
   parseValue: (value: any) => any;
 };
 
+export type ResourceTableViewSchema = ResourceViewSchema;
+
 export type ResourceViewSchemas = {
-  table: ResourceViewSchema;
+  table: ResourceTableViewSchema;
   form: ResourceViewSchema;
   view?: ResourceViewSchema;
-  filter?: ResourceViewSchema;
 };
 
 export type ResourceActionCondition = {
@@ -77,5 +76,4 @@ export type FormDefTableAction =
  */
 export type ResourceDefinition = Omit<ResourceDefinitionResponse, 'schemas'> & {
   schemas: ResourceViewSchemas;
-  tableLayout?: LayoutNode;
 };

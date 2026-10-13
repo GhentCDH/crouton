@@ -5,7 +5,7 @@ import { JsonColumnSchema } from '@ghentcdh/crouton-core';
 import { resolveColumnFieldVariants } from './column-transforms';
 
 describe('resolveColumnFieldVariants', () => {
-  it('no variants → fieldView/fieldTable deep-equal fieldInput', () => {
+  it('no variants → fieldView deep-equals fieldInput', () => {
     const cols = [
       JsonColumnSchema.parse({
         id: 'name',
@@ -14,10 +14,11 @@ describe('resolveColumnFieldVariants', () => {
     ];
     const out = resolveColumnFieldVariants(cols)!;
     expect(out[0].fieldView).toEqual(out[0].fieldInput);
-    expect(out[0].fieldTable).toEqual(out[0].fieldInput);
+    // fieldTable removed: table type overrides now come from layout.table.controls
+    expect((out[0] as any).fieldTable).toBeUndefined();
   });
 
-  it('relation column with fieldTable override inherits enriched base options plus override', () => {
+  it('relation column fieldView inherits enriched base options', () => {
     const cols = [
       JsonColumnSchema.parse({
         id: 'author',
@@ -27,7 +28,6 @@ describe('resolveColumnFieldVariants', () => {
           // mimics options injected by URI enrichment before resolve runs
           options: { uri: 'http://x/author', displayKey: 'name' },
         },
-        fieldTable: { options: { display: 'chip' } },
       }),
     ];
     const out = resolveColumnFieldVariants(cols)!;
@@ -35,12 +35,6 @@ describe('resolveColumnFieldVariants', () => {
     expect((out[0].fieldView?.options as Record<string, unknown>).uri).toBe(
       'http://x/author',
     );
-    // fieldTable inherits uri + displayKey and adds its own display
-    expect(out[0].fieldTable?.options).toMatchObject({
-      uri: 'http://x/author',
-      displayKey: 'name',
-      display: 'chip',
-    });
   });
 
   it('is a no-op passthrough for undefined', () => {

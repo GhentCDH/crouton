@@ -80,7 +80,7 @@ export const SubResourceConfigSchema = z.object({
   /** Columns serialized as `{ value, label }` on read / unwrapped on write. */
   valueLabelColumns: z.array(ValueLabelColumnSchema).optional(),
   /** Relation type: `oneToMany` (countable) or `manyToOne` (not countable). */
-  relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany']).optional(),
+  relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne']).optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),
 });

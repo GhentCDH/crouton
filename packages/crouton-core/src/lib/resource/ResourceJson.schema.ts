@@ -3,13 +3,12 @@ import { z } from 'zod';
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
-import { LayoutSchema } from './Layout.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
-import { JsonActionSchema } from './TableAction.schema';
 import { getResourceExtensions } from './extensions';
 import { JsonIncludeEntrySchema } from './include.schema';
+import { LayoutSchema } from './layout';
 import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SecuritySchema } from '../data-source/Security.schema';
@@ -27,8 +26,20 @@ const ColumnsSchema = JsonColumnsMapSchema;
 // ── Display / sidebar ────────────────────────────────────────────────
 
 export const JsonDisplaySchema = z.object({
-  mode: z.enum(['page', 'modal']).default('modal').describe('How a record opens when clicked. "modal" (default) opens a dialog; "page" navigates to a dedicated route.'),
-  customComponent: z.string().nullable().optional().default(null).describe('Import path to a custom Vue component for the record detail view. When set, the default view is replaced.'),
+  mode: z
+    .enum(['page', 'modal'])
+    .default('modal')
+    .describe(
+      'How a record opens when clicked. "modal" (default) opens a dialog; "page" navigates to a dedicated route.',
+    ),
+  customComponent: z
+    .string()
+    .nullable()
+    .optional()
+    .default(null)
+    .describe(
+      'Import path to a custom Vue component for the record detail view. When set, the default view is replaced.',
+    ),
 });
 
 export type JsonDisplay = z.infer<typeof JsonDisplaySchema>;
@@ -55,45 +66,138 @@ export const ResourceJsonShape = z.object({
    * key is *allowed* (not stripped, and not flagged by the very schema it points at).
    * Ignored at runtime.
    */
-  $schema: z.string().optional().describe('URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.'),
-  schemaVersion: z.number().int().positive().optional().describe('resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.'),
-  draft: z.boolean().optional().default(false).describe('When true, the resource is present in the repo but NOT loaded or served. Use for work-in-progress resources.'),
+  $schema: z
+    .string()
+    .optional()
+    .describe(
+      'URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.',
+    ),
+  schemaVersion: z
+    .number()
+    .int()
+    .max(1)
+    .positive()
+    .optional()
+    .describe(
+      'resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.',
+    ),
+  draft: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      'When true, the resource is present in the repo but NOT loaded or served. Use for work-in-progress resources.',
+    ),
   /**
    * Where the data comes from. `prisma` (the default) is backed by a Prisma
    * model plus a `schema.ts`; `custom` is configuration only and the developer
    * supplies a `repository.ts`. See `./ResourceKind`.
    */
   kind: ResourceKindSchema,
-  name: z.string().describe('Unique resource identifier. Used as the frontend form id and as the default route/id when those are not explicitly set.'),
-  route: z.string().optional().describe('URL segment for generated API endpoints. Defaults to "name" when omitted.'),
-  id: z.string().optional().describe('Internal resource id used in frontend routing. Defaults to "name" when omitted.'),
+  name: z
+    .string()
+    .describe(
+      'Unique resource identifier. Used as the frontend form id and as the default route/id when those are not explicitly set.',
+    ),
+  route: z
+    .string()
+    .optional()
+    .describe(
+      'URL segment for generated API endpoints. Defaults to "name" when omitted.',
+    ),
+  id: z
+    .string()
+    .optional()
+    .describe(
+      'Internal resource id used in frontend routing. Defaults to "name" when omitted.',
+    ),
   /**
    * Prisma model name. Required when `kind` is `prisma` (enforced by the
    * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
    * `custom` — there is no Prisma delegate to address.
    */
-  model: z.string().optional().describe('Prisma model name. Required when kind is "prisma"; must be absent when kind is "custom".'),
-  tag: z.string().optional().default('Crouton').describe('OpenAPI tag grouping for generated endpoints. Defaults to "Crouton".'),
-  title: z.string().optional().describe('Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of "name".'),
-  table: z.string().optional().describe('Database table name override. Defaults to the Prisma model\'s table name.'),
-  idType: z.enum(['string', 'number']).optional().describe('Data type of the resource\'s primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to "string".'),
-  database: z.string().optional().describe('Name of the datasource this resource uses. Defaults to the project\'s default datasource.'),
+  model: z
+    .string()
+    .optional()
+    .describe(
+      'Prisma model name. Required when kind is "prisma"; must be absent when kind is "custom".',
+    ),
+  tag: z
+    .string()
+    .optional()
+    .default('Crouton')
+    .describe(
+      'OpenAPI tag grouping for generated endpoints. Defaults to "Crouton".',
+    ),
+  title: z
+    .string()
+    .optional()
+    .describe(
+      'Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of "name".',
+    ),
+  table: z
+    .string()
+    .optional()
+    .describe(
+      'Database table name override. Defaults to the Prisma model\'s table name.',
+    ),
+  idType: z
+    .enum(['string', 'number'])
+    .optional()
+    .describe(
+      'Data type of the resource\'s primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to "string".',
+    ),
+  database: z
+    .string()
+    .optional()
+    .describe(
+      'Name of the datasource this resource uses. Defaults to the project\'s default datasource.',
+    ),
   /**
    * Mount this resource under a parent route instead of at the top level —
    * see `./ParentRef.schema`. Only valid on a `kind: "custom"` resource.
    */
-  parent: ParentRefSchema.optional().describe('Mount this resource under a parent route instead of at the top level. Only valid on kind:"custom" resources. See ParentRef for the full config.'),
-  sidebar: SidebarSchema.default(SidebarSchema.parse({})).describe('Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.'),
-  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})).describe('How records open when clicked. Default: modal dialog.'),
-  security: SecuritySchema.optional().describe('Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.'),
-  operations: JsonOperationsSchema.optional().describe('CRUD operation flags. Defaults: all true for "prisma" resources, all false for "custom" resources.'),
-  columns: ColumnsSchema.optional().default(ColumnsSchema.parse({})).describe('Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.'),
-  calculatedColumns: z.array(CalculatedColumnSchema).default([]).describe('Columns computed from raw SQL expressions. Not supported on "custom" resources.'),
-  actions: z.array(JsonActionSchema).default([]).describe('Per-record row actions shown in the table. Each action receives the record id.'),
-  tableActions: z.array(JsonActionSchema).default([]).describe('Global table-level actions with no record id. Shown as toolbar buttons.'),
-  modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).default('sm').describe('Width of the create/edit modal dialog. "xs", "sm" (default), "lg", or "xl".'),
-  include: z.array(JsonIncludeEntrySchema).default([]).describe('Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.'),
-  layout: LayoutSchema.optional().describe('Explicit layout for generated views (form, view, table). When absent, source-order grid is used.'),
+  parent: ParentRefSchema.optional().describe(
+    'Mount this resource under a parent route instead of at the top level. Only valid on kind:"custom" resources. See ParentRef for the full config.',
+  ),
+  sidebar: SidebarSchema.default(SidebarSchema.parse({})).describe(
+    'Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.',
+  ),
+  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})).describe(
+    'How records open when clicked. Default: modal dialog.',
+  ),
+  security: SecuritySchema.optional().describe(
+    'Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.',
+  ),
+  operations: JsonOperationsSchema.optional().describe(
+    'CRUD operation flags. Defaults: all true for "prisma" resources, all false for "custom" resources.',
+  ),
+  columns: ColumnsSchema.optional()
+    .default(ColumnsSchema.parse({}))
+    .describe(
+      'Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.',
+    ),
+  calculatedColumns: z
+    .array(CalculatedColumnSchema)
+    .default([])
+    .describe(
+      'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
+    ),
+  modalSize: z
+    .enum(['xs', 'sm', 'lg', 'xl'])
+    .default('sm')
+    .describe(
+      'Width of the create/edit modal dialog. "xs", "sm" (default), "lg", or "xl".',
+    ),
+  include: z
+    .array(JsonIncludeEntrySchema)
+    .default([])
+    .describe(
+      'Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.',
+    ),
+  layout: LayoutSchema.optional().describe(
+    'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
+  ),
 });
 
 /**
@@ -170,29 +274,159 @@ export const buildResourceJsonSchema = () => {
   );
   // Cast back to ResourceJsonShape type so refineByKind and transform stay typed.
   // Extension keys are lifted off the top level into `extensions` in the transform.
-  const shape = (
-    ext.size ? ResourceJsonShape.extend(extShape) : ResourceJsonShape
-  ) as unknown as typeof ResourceJsonShape;
+  const shape = (ext.size
+    ? ResourceJsonShape.extend(extShape)
+    : ResourceJsonShape) as unknown as typeof ResourceJsonShape;
 
   return z.preprocess(
     (raw) => {
-      if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-        const obj = raw as Record<string, unknown>;
-        // Only auto-derive kind='prisma' when a model is present and kind is unset.
-        // A modelless resource no longer auto-derives to kind='custom' — set it
-        // explicitly when you want the columns-based json_schema behavior.
-        if (obj['kind'] === undefined && obj['model'] !== undefined) {
-          return { ...obj, kind: 'prisma' };
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
+      let obj = raw as Record<string, unknown>;
+
+      // Auto-derive kind='prisma' when a model is present and kind is unset.
+      if (obj['kind'] === undefined && obj['model'] !== undefined) {
+        obj = { ...obj, kind: 'prisma' };
+      }
+
+      // Backward-compat: lift deprecated root actions/tableActions into layout.table
+      const rootActions = obj['actions'] as unknown[] | undefined;
+      const rootTableActions = obj['tableActions'] as unknown[] | undefined;
+      if (rootActions?.length || rootTableActions?.length) {
+        const layout =
+          (obj['layout'] as Record<string, unknown> | undefined) ?? {};
+        const table =
+          (layout['table'] as Record<string, unknown> | undefined) ?? {};
+        obj = {
+          ...obj,
+          layout: {
+            ...layout,
+            table: {
+              ...table,
+              ...(rootActions?.length &&
+                !(table['actions'] as unknown[])?.length && {
+                  actions: rootActions,
+                }),
+              ...(rootTableActions?.length &&
+                !(table['tableActions'] as unknown[])?.length && {
+                  tableActions: rootTableActions,
+                }),
+            },
+          },
+        };
+        delete (obj as Record<string, unknown>)['actions'];
+        delete (obj as Record<string, unknown>)['tableActions'];
+      }
+
+      // Backward-compat: lift deprecated column-level table flags into layout.table
+      const columns = obj['columns'] as
+        Record<string, Record<string, unknown>> | undefined;
+      if (columns && typeof columns === 'object' && !Array.isArray(columns)) {
+        const searchFields: string[] = [];
+        const filterFields: string[] = [];
+        const controlOverrides: Record<string, Record<string, unknown>> = {};
+
+        for (const [id, col] of Object.entries(columns)) {
+          if (!col || typeof col !== 'object') continue;
+          if (col['searchable']) searchFields.push(id);
+          if (col['filterable']) filterFields.push(id);
+          const hasCtrl =
+            col['sortable'] !== undefined ||
+            col['defaultSort'] !== undefined ||
+            col['showWhen'] ||
+            col['hideWhen'] ||
+            col['disabledWhen'];
+          if (hasCtrl) {
+            controlOverrides[id] = {
+              id,
+              ...(col['sortable'] !== undefined && {
+                sortable: col['sortable'],
+              }),
+              ...(col['defaultSort'] !== undefined && {
+                defaultSort: col['defaultSort'],
+              }),
+              ...(col['showWhen'] ? { showWhen: col['showWhen'] } : {}),
+              ...(col['hideWhen'] ? { hideWhen: col['hideWhen'] } : {}),
+              ...(col['disabledWhen']
+                ? { disabledWhen: col['disabledWhen'] }
+                : {}),
+            };
+          }
+        }
+
+        if (
+          searchFields.length ||
+          filterFields.length ||
+          Object.keys(controlOverrides).length
+        ) {
+          const layout =
+            (obj['layout'] as Record<string, unknown> | undefined) ?? {};
+          const table =
+            (layout['table'] as Record<string, unknown> | undefined) ?? {};
+          const existingControls =
+            (table['controls'] as Record<string, unknown>[] | undefined) ?? [];
+          const existingIds = new Set(
+            existingControls.map((c) =>
+              typeof c === 'string' ? c : (c['id'] as string),
+            ),
+          );
+          const mergedControls = [
+            ...existingControls,
+            ...Object.values(controlOverrides).filter(
+              (c) => !existingIds.has(c['id'] as string),
+            ),
+          ];
+          obj = {
+            ...obj,
+            layout: {
+              ...layout,
+              table: {
+                ...table,
+                ...(searchFields.length && {
+                  searchFields: [
+                    ...((table['searchFields'] as string[]) ?? []),
+                    ...searchFields.filter(
+                      (f) =>
+                        !((table['searchFields'] as string[]) ?? []).includes(
+                          f,
+                        ),
+                    ),
+                  ],
+                }),
+                ...(filterFields.length && {
+                  filterFields: [
+                    ...((table['filterFields'] as string[]) ?? []),
+                    ...filterFields.filter(
+                      (f) =>
+                        !((table['filterFields'] as string[]) ?? []).includes(
+                          f,
+                        ),
+                    ),
+                  ],
+                }),
+                ...(mergedControls.length > existingControls.length && {
+                  controls: mergedControls,
+                }),
+              },
+            },
+          };
         }
       }
-      return raw;
+
+      return obj;
     },
     shape.superRefine(refineByKind).transform((obj) => {
       const title = obj.title ?? labelFromId(obj.name);
       const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
       const defaultOps =
         obj.kind === 'custom'
-          ? JsonOperationsSchema.parse({ findAll: false, findOne: false, create: false, update: false, patch: false, delete: false })
+          ? JsonOperationsSchema.parse({
+              findAll: false,
+              findOne: false,
+              create: false,
+              update: false,
+              patch: false,
+              delete: false,
+            })
           : JsonOperationsSchema.parse({});
       return {
         title,
@@ -202,9 +436,10 @@ export const buildResourceJsonSchema = () => {
         schemaVersion,
         columns: normalizeColumns(obj.columns)?.map((col) => {
           const out = { ...col };
-          if (out.fieldInput) out.fieldInput = parseFieldInputOptions(out.fieldInput);
-          if (out.fieldView) out.fieldView = parseFieldInputOptions(out.fieldView);
-          if (out.fieldTable) out.fieldTable = parseFieldInputOptions(out.fieldTable);
+          if (out.fieldInput)
+            out.fieldInput = parseFieldInputOptions(out.fieldInput);
+          if (out.fieldView)
+            out.fieldView = parseFieldInputOptions(out.fieldView);
           return out;
         }),
         operations: obj.operations ?? defaultOps,
@@ -216,7 +451,9 @@ export const buildResourceJsonSchema = () => {
 /** Convenience constant — reads the registry at call time via the builder. */
 export const ResourceJsonSchema = buildResourceJsonSchema();
 
-export type ResourceJson = z.infer<ReturnType<typeof buildResourceJsonSchema>> & {
+export type ResourceJson = z.infer<
+  ReturnType<typeof buildResourceJsonSchema>
+> & {
   route: string;
 };
 export type ResourceJsonInput = z.input<typeof ResourceJsonShape> & {
@@ -240,7 +477,9 @@ export const generateResourceJsonSchema = (): Record<string, unknown> => {
   const extShape = Object.fromEntries(
     [...ext].map(([name, schema]) => [name, schema.optional()]),
   );
-  const shape = ext.size ? ResourceJsonShape.extend(extShape) : ResourceJsonShape;
+  const shape = ext.size
+    ? ResourceJsonShape.extend(extShape)
+    : ResourceJsonShape;
   try {
     return z.toJSONSchema(shape, {
       target: 'draft-7',

@@ -2,7 +2,6 @@ import type { Layout } from '@jsonforms/core';
 
 import { Builder, ContainerBuilder } from '../layout/base.builder';
 import type { Buildable } from '../layout/base.builder';
-import { LayoutType } from '../layout/layout.options';
 import type { CroutonLayoutOptions } from '../layout/layout.options';
 
 export interface TextCellOption {
@@ -79,7 +78,7 @@ export class TableBuilder<TYPE = Record<string, unknown>> extends ContainerBuild
   CroutonLayoutOptions
 > {
   private constructor() {
-    super(LayoutType.Horizontal);
+    super('Table' as any);
   }
 
   static init<TYPE = Record<string, unknown>>(): TableBuilder<TYPE> {

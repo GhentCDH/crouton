@@ -95,10 +95,11 @@ export const buildTranslationBundle = (
       entry.columns = cols;
     }
 
-    // actions + tableActions
+    // actions + tableActions (now in layout.table)
+    const tableLayout = res.layout?.table as any;
     const allActions = [
-      ...(res.actions ?? []),
-      ...(res.tableActions ?? []),
+      ...(tableLayout?.actions ?? []),
+      ...(tableLayout?.tableActions ?? []),
     ];
     if (allActions.length) {
       const acts: Record<string, string> = {};

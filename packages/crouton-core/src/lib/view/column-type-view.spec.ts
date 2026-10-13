@@ -83,8 +83,8 @@ describe('columnToJsonSchemaProperty', () => {
 describe('buildViewsFromColumnTypes', () => {
   const columns = columnsOf({
     id: { type: 'string', idField: true, hiddenInForm: true },
-    title: { type: 'string', searchable: true, sortable: true, filterable: true },
-    year: { type: 'integer', filterable: true },
+    title: { type: 'string' },
+    year: { type: 'integer' },
     public: { type: 'boolean' },
     type: {
       displayKey: 'name',
@@ -99,7 +99,14 @@ describe('buildViewsFromColumnTypes', () => {
     },
   });
 
-  const views = buildViewsFromColumnTypes(columns)!;
+  const layout = {
+    table: {
+      filterFields: ['title', 'year'],
+      controls: [{ id: 'title', sortable: true, defaultSort: true }],
+    },
+  };
+
+  const views = buildViewsFromColumnTypes(columns, layout)!;
 
   it('builds table, form, filter and view', () => {
     expect(Object.keys(views).sort()).toEqual([

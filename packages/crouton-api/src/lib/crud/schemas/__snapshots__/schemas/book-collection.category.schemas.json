@@ -61,16 +61,8 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortable": false,
-              "label": "Id"
-            }
-          },
           {
             "type": "TextCell",
             "scope": "#/properties/name",
@@ -86,10 +78,54 @@
               "sortId": "slug",
               "label": "Slug"
             }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id",
+              "label": "Id"
+            }
           }
-        ]
-      },
-      "defaultSort": "name"
+        ],
+        "options": {
+          "defaultSortId": "name",
+          "filter": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            },
+            "uischema": {
+              "type": "GridLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/name",
+                  "options": {
+                    "format": "text",
+                    "styles": {
+                      "width": "full",
+                      "control": {
+                        "wrapper": "input-full"
+                      }
+                    },
+                    "colspan": 12,
+                    "label": "Name"
+                  }
+                }
+              ]
+            },
+            "initialData": {}
+          }
+        }
+      }
     },
     "form": {
       "data": {
@@ -139,39 +175,6 @@
               },
               "colspan": 12,
               "label": "Slug"
-            }
-          }
-        ]
-      }
-    },
-    "filter": {
-      "data": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "minLength": 1
-          }
-        },
-        "additionalProperties": true
-      },
-      "ui": {
-        "type": "GridLayout",
-        "elements": [
-          {
-            "type": "Control",
-            "scope": "#/properties/name",
-            "options": {
-              "format": "text",
-              "styles": {
-                "width": "full",
-                "control": {
-                  "wrapper": "input-full"
-                }
-              },
-              "colspan": 12,
-              "label": "Name"
             }
           }
         ]
@@ -250,7 +253,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }
