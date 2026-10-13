@@ -11,7 +11,6 @@ import pc from 'picocolors';
 
 import {
   type EnumRegistry,
-  type TranslationBundle,
   buildTranslationBundle,
   findStaleKeys,
   loadConfig,
@@ -20,7 +19,7 @@ import {
   resolveFromRoot,
   serializeTranslationBundle,
 } from '@ghentcdh/crouton-codegen';
-import type { I18nConfig } from '@ghentcdh/crouton-core';
+import type { I18nConfig, TranslationBundle } from '@ghentcdh/crouton-core';
 
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';

@@ -9,7 +9,6 @@ import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { toJsonSchema } from '../schema.utils';
 import { ZodValidationPipe } from '../zod-validation.pipe';
-import { childSchemas } from './register-schemas';
 
 const _findAll = async (
   repo: CrudRepository,

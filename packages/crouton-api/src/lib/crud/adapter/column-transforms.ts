@@ -43,7 +43,7 @@ export const expandExtendColumns = (
       continue;
     }
 
-    const refColumns = resolved.json.columns; // normalizeColumns(resolved.json.columns) ?? [];
+    const refColumns = resolved.json.columns ?? [];
     const parentColumnKey = col.column ?? col.id;
 
     for (const refCol of refColumns) {
@@ -77,7 +77,7 @@ export const expandExtendColumns = (
       const override =
         col.columns?.[virtualId] ?? col.columns?.[refCol.id] ?? {};
 
-      const virtualCol: JsonColumn = {
+      const virtualCol = {
         id: virtualId,
         column: parentColumnKey,
         displayKey,
@@ -89,7 +89,7 @@ export const expandExtendColumns = (
         ...(refCol.sortable != null && { sortable: refCol.sortable }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
-      };
+      } as unknown as JsonColumn;
 
       result.push(virtualCol);
     }

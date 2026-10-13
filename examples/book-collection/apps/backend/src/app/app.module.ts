@@ -14,8 +14,6 @@ const _dirname = dirname(fileURLToPath(import.meta.url));
       resolve(_dirname, 'data-sources'),
       {
         baseUrl: '',
-        title: 'Book Collection',
-        enumsFile: resolve(_dirname, '..', '..', '..', '..', 'crouton.enums.json'),
       },
     ),
   ],

@@ -4,7 +4,6 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const _dirname = dirname(fileURLToPath(import.meta.url));
-const bookCollectionDir = resolve(_dirname, '..');
 const backendDir = resolve(_dirname, '../apps/backend');
 const frontendDir = resolve(_dirname, '../apps/frontend');
 

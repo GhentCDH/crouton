@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { type SecurityConfig, resourceControllerPath } from '@ghentcdh/crouton-core';
 
 import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
-import { type CrudOperation, isOperationEnabled, resolveDefinition, schemaFor, securityFor, securityForSub } from './crud.config';
+import { type CrudOperation, resolveDefinition, schemaFor, securityFor, securityForSub } from './crud.config';
 import { DataSourceRegistry } from './data-source';
 import type { OperationContext } from './operations/operation-context';
 import { registerEndpoints } from './operations/register-endpoints';

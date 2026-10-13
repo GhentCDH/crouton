@@ -1,10 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "outDir": "../../dist/crouton-core",
     "rootDir": "./src",
-    "tsBuildInfoFile": "../../dist/crouton-core/tsconfig.tsbuildinfo",
-    "ignoreDeprecations": "6.0"
+    "tsBuildInfoFile": "../../dist/crouton-core/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

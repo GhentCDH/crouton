@@ -320,7 +320,7 @@ const resolveDraftOption = async (
   if (opts.draft !== undefined) return opts.draft;
   if (!diffs.some((d) => d.isNew)) return false;
   if (opts.yes) return false;
-  return assertNotCancel(
+  return assertNotCancel<boolean>(
     await clack.confirm({
       message: 'Write newly-created resources as draft (hidden until reviewed)?',
       initialValue: false,

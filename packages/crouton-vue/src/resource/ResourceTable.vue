@@ -95,11 +95,11 @@ const tableWrapperComponents = computed(() => {
   if (!layout) return [];
   return (layout.controls ?? [])
     .filter(isComponentControl)
-    .map((ctrl) => ({
+    .map((ctrl: any) => ({
       component: findCustomComponent(crouton.customComponents, ctrl.component),
       ctrl,
     }))
-    .filter((e) => e.component != null);
+    .filter((e: any) => e.component != null);
 });
 
 /** Dev-only visual resource.json builder — see VISUAL_RESOURCE_BUILDER_PLAN.md. */

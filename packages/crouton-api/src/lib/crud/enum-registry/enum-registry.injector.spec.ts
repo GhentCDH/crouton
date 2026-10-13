@@ -12,7 +12,7 @@ const registry: EnumRegistry = {
   ],
 };
 
-const enumCol = (): JsonColumn => ({ id: 'status', type: 'string', enum: 'bookStatus' });
+const enumCol = (): JsonColumn => ({ id: 'status', type: 'string', enum: 'bookStatus' } as unknown as JsonColumn);
 
 describe('injectEnumValues (api)', () => {
   it('defaults emitObject: true for an enum-ref column', () => {
@@ -52,13 +52,13 @@ describe('injectEnumValues (api)', () => {
   });
 
   it('skips columns with no enum ref', () => {
-    const col: JsonColumn = { id: 'name', type: 'string' };
+    const col = { id: 'name', type: 'string' } as unknown as JsonColumn;
     injectEnumValues([col], registry);
     expect(col.fieldInput).toBeUndefined();
   });
 
   it('skips unknown enum names', () => {
-    const col: JsonColumn = { id: 'foo', type: 'string', enum: 'unknownEnum' };
+    const col = { id: 'foo', type: 'string', enum: 'unknownEnum' } as unknown as JsonColumn;
     injectEnumValues([col], registry);
     expect(col.fieldInput).toBeUndefined();
   });

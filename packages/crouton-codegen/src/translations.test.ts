@@ -16,7 +16,6 @@ const resource = (
   overrides: Partial<ResourceJson> & { name: string },
 ): ResourceJson =>
   ({
-    name: overrides.name,
     route: overrides.route ?? overrides.name,
     tag: overrides.tag ?? overrides.name,
     kind: 'prisma' as const,
@@ -80,7 +79,7 @@ describe('buildTranslationBundle', () => {
     const res = resource({
       name: 'group',
       title: 'Groups',
-      sidebar: { label: 'My Groups' },
+      sidebar: { hide: false, label: 'My Groups' },
     });
     const bundle = buildTranslationBundle([res], {});
     expect(bundle.resources?.group?.sidebar).toBe('My Groups');

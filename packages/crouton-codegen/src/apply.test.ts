@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ResourceJsonInputInput } from '@ghentcdh/crouton-core';
+import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
 
 import { apply } from './apply';
 import { classify } from './classify';

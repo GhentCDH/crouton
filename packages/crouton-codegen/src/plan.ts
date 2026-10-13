@@ -5,7 +5,7 @@
  * are injected so this composes cleanly and stays unit-testable without disk.
  */
 
-import { type CroutonConfig, type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
+import { type Ruleset, RulesetSchema } from '@ghentcdh/crouton-core';
 
 import { classify } from './classify';
 import type { DbModel } from './db-model';
@@ -25,7 +25,7 @@ export interface BuildDiffsDeps {
 
 /** Merge a config's rule overrides over the defaults. */
 export const resolveRuleset = (
-  config?: Pick<CroutonConfig, 'rules'>,
+  config?: { rules?: Partial<Ruleset> },
 ): Ruleset => RulesetSchema.parse(config?.rules ?? {});
 
 /** Build the `ResourceDiff` for a single model. */
