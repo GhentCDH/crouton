@@ -6,15 +6,12 @@
   "title": "Books",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "filterable": true, "sortable": true },
-    "isbn": { "sortable": true },
-    "publishedYear": {
-      "sortable": true
-    },
+    "title": {},
+    "isbn": {},
+    "publishedYear": {},
     "status": {
       "displayKey": "label",
       "enum": "bookStatus",
-      "filterable": true,
       "fieldInput": {
         "type": "select",
         "options": {
@@ -52,9 +49,6 @@
       "label": "Author",
       "hiddenInTable": false,
       "hiddenInForm": true,
-      "filterable": true,
-      "sortable": true,
-      "searchable": true,
       "displayKey": "name",
       "fieldInput": {
         "type": "autocomplete",
@@ -122,6 +116,8 @@
     "table": {
       "type": "grid",
       "columns": 12,
+      "searchFields": ["title", "author"],
+      "filterFields": ["title", "status", "author"],
       "tableActions": [
         {
           "id": "searchOpenLibrary",
@@ -140,9 +136,11 @@
         }
       ],
       "controls": [
-        {
-          "component": "CreateByIsbn"
-        }
+        { "component": "CreateByIsbn" },
+        { "id": "title", "sortable": true },
+        { "id": "isbn", "sortable": true },
+        { "id": "publishedYear", "sortable": true },
+        { "id": "author", "sortable": true }
       ],
       "items": [
         {

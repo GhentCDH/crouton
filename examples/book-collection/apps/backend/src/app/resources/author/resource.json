@@ -5,7 +5,7 @@
   "title": "Authors",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true, "filterable": true, "sortable": true },
+    "name": {},
     "bio": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
     "books": {
       "label": "Books",
@@ -23,5 +23,14 @@
       }
     }
   },
-  "include": ["books"]
+  "include": ["books"],
+  "layout": {
+    "table": {
+      "searchFields": ["name"],
+      "filterFields": ["name"],
+      "controls": [
+        { "id": "name", "sortable": true }
+      ]
+    }
+  }
 }
