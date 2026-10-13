@@ -61,16 +61,8 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortable": false,
-              "label": "Id"
-            }
-          },
           {
             "type": "TextCell",
             "scope": "#/properties/name",
@@ -86,65 +78,76 @@
               "sortId": "email",
               "label": "Email"
             }
-          }
-        ]
-      },
-      "defaultSort": "name"
-    },
-    "form": {
-      "data": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "minLength": 1
-          },
-          "email": {
-            "type": "string",
-            "title": "Email",
-            "minLength": 1
-          }
-        },
-        "additionalProperties": true
-      },
-      "ui": {
-        "type": "GridLayout",
-        "elements": [
-          {
-            "type": "Control",
-            "scope": "#/properties/name",
-            "options": {
-              "format": "text",
-              "styles": {
-                "width": "full",
-                "control": {
-                  "wrapper": "input-full"
-                }
-              },
-              "colspan": 12,
-              "label": "Name"
-            }
           },
           {
-            "type": "Control",
-            "scope": "#/properties/email",
+            "type": "TextCell",
+            "scope": "#/properties/id",
             "options": {
-              "format": "text",
-              "styles": {
-                "width": "full",
-                "control": {
-                  "wrapper": "input-full"
-                }
-              },
-              "colspan": 12,
-              "label": "Email"
+              "sortId": "id",
+              "label": "Id"
             }
           }
-        ]
+        ],
+        "options": {
+          "defaultSortId": "name",
+          "filter": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "minLength": 1
+                },
+                "email": {
+                  "type": "string",
+                  "title": "Email",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            },
+            "uischema": {
+              "type": "GridLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/name",
+                  "options": {
+                    "format": "text",
+                    "styles": {
+                      "width": "full",
+                      "control": {
+                        "wrapper": "input-full"
+                      }
+                    },
+                    "colspan": 12,
+                    "label": "Name"
+                  }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/email",
+                  "options": {
+                    "format": "text",
+                    "styles": {
+                      "width": "full",
+                      "control": {
+                        "wrapper": "input-full"
+                      }
+                    },
+                    "colspan": 12,
+                    "label": "Email"
+                  }
+                }
+              ]
+            },
+            "initialData": {}
+          }
+        }
       }
     },
-    "filter": {
+    "form": {
       "data": {
         "type": "object",
         "properties": {
@@ -270,7 +273,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

@@ -119,6 +119,58 @@ Component references resolve the component by name from the app's `customCompone
 
 <LayoutDemo example="group" />
 
+### Table layout (`layout.table`)
+
+`layout.table` is a superset of a regular layout node. In addition to `controls` (for column order), it accepts table-specific fields:
+
+```json
+"table": {
+  "searchFields": ["title", "authorId"],
+  "filterFields": ["status", "category"],
+  "actions": [
+    { "id": "approve", "label": "Approve", "type": "post" }
+  ],
+  "tableActions": [
+    { "id": "exportCsv", "label": "Export CSV", "type": "post" }
+  ],
+  "controls": [
+    { "id": "title", "sortable": true, "defaultSort": true },
+    { "id": "status", "sortable": true, "showWhen": { "field": "active", "eq": true } },
+    { "id": "authorId", "type": "select", "options": { "values": [...] } },
+    "createdAt",
+    "updatedAt"
+  ]
+}
+```
+
+| Field | Description |
+|---|---|
+| `searchFields` | Column ids included in `?q=` free-text search. Replaces column-level `searchable: true`. |
+| `filterFields` | Column ids that get a filter control in the toolbar. Replaces column-level `filterable: true`. |
+| `actions` | Per-record row actions (receive the record id). Replaces resource-level `actions`. |
+| `tableActions` | Global toolbar actions (no record id). Replaces resource-level `tableActions`. |
+| `controls[]` | Column order + per-column overrides (see below). |
+
+::: info API response naming
+In the compiled `/schemas` response these fields are renamed inside `schemas.table.ui.options`:
+`actions` → `rowActions`, `tableActions` → `actions`, and `filterFields`/`filter` become `options.filter.{ schema, uischema, initialData }`.
+See [migrate-to-next-alpha.md](/migrate-to-next-alpha) § `/schemas` API response changes.
+:::
+
+#### Per-column table control options
+
+Beyond the standard `colspan`/`rowspan`/`label`/`type`/`options` overrides available in any layout context, table controls also accept:
+
+| Field | Description |
+|---|---|
+| `sortable` | `true` to enable sort toggle on this column header. |
+| `defaultSort` | `true` to sort by this column on initial load. At most one column should set this. |
+| `showWhen` | `{ field, eq?, neq?, exists?, notExists? }` — show column when condition matches. |
+| `hideWhen` | Same shape — hide column when condition matches. |
+| `disabledWhen` | Same shape — disable column when condition matches. |
+
+`type` + `options` on a table control override the cell renderer for this column in the table only (replaces the deprecated column-level `fieldTable`).
+
 ### Table column order
 
 ```json

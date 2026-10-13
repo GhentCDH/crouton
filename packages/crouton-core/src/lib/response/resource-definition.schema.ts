@@ -1,139 +1,19 @@
 import { z } from 'zod';
 
-export const MethodSchema = z
-  .enum([
-    'get',
-    'post',
-    'delete',
-    'put',
-    'patch',
-    'GET',
-    'POST',
-    'DELETE',
-    'PUT',
-    'PATCH',
-  ])
-  .transform((d) => d.toLowerCase() as Lowercase<typeof d>);
+export * from './action.schema';
+export * from './operation.schema';
+export * from './view.schema';
 
-export type Method = z.infer<typeof MethodSchema>;
-export const OperationSchema = z.object({
-  uri: z.string(),
-  method: MethodSchema,
-});
+import {
+  type Method,
+  type Operation,
+  type OperationKey,
+  OperationMap,
+  OperationSuffixMap,
+  Operations,
+} from './operation.schema';
+import { Display, FormDevSchemas } from './view.schema';
 
-export const BooleanOperationSchema = z
-  .boolean()
-  .or(OperationSchema)
-  .optional()
-  .default(false);
-
-const CrudOperations = z.object({
-  create: BooleanOperationSchema,
-  delete: BooleanOperationSchema,
-  findAll: BooleanOperationSchema,
-  findOne: BooleanOperationSchema,
-  update: BooleanOperationSchema,
-  patch: BooleanOperationSchema,
-});
-
-const Operations = CrudOperations.extend({
-  lookup: z.string().optional(),
-});
-
-export type Operation = z.infer<typeof OperationSchema>;
-export type OperationKey = keyof z.infer<typeof CrudOperations>;
-const OperationMap: Record<OperationKey, Method> = {
-  create: 'post',
-  delete: 'delete',
-  findAll: 'get',
-  findOne: 'get',
-  update: 'put',
-  patch: 'patch',
-};
-const OperationSuffixMap: Record<OperationKey, string> = {
-  create: '',
-  delete: '/{id}',
-  findAll: '',
-  findOne: '/{id}',
-  update: '/{id}',
-  patch: '/{id}',
-};
-export const ViewSchemaZ = z.object({
-  data: z.any(),
-  ui: z.any(),
-  defaultSort: z.string().optional(),
-});
-const ActionConditionSchema = z.object({
-  field: z.string(),
-  op: z
-    .enum(['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'notExists'])
-    .optional()
-    .default('eq'),
-  value: z.unknown().optional(),
-});
-
-export const ActionSchema = z.union([
-  z.object({
-    type: z.literal('link'),
-    id: z.string(),
-    label: z.string().optional(),
-    href: z.string(),
-    blank: z.boolean().optional().default(true),
-    icon: z.string().optional(),
-    tooltip: z.string().optional(),
-    condition: ActionConditionSchema.optional(),
-  }),
-  z.object({
-    type: z.literal('procedure').optional().default('procedure'),
-    id: z.string(),
-    label: z.string().optional(),
-    uri: z.string(),
-    method: MethodSchema.optional().default('post'),
-    data: z.any().optional(),
-    icon: z.string().optional(),
-    tooltip: z.string().optional(),
-    condition: ActionConditionSchema.optional(),
-  }),
-]);
-
-export type Action = z.infer<typeof ActionSchema>;
-
-/** Schema for a single table-level (global) action — no record id, no condition. */
-export const TableActionSchema = z.union([
-  z.object({
-    type: z.literal('link'),
-    id: z.string(),
-    label: z.string().optional(),
-    icon: z.string().optional(),
-    tooltip: z.string().optional(),
-    href: z.string(),
-  }),
-  z.object({
-    type: z.literal('procedure').optional().default('procedure'),
-    id: z.string(),
-    label: z.string().optional(),
-    icon: z.string().optional(),
-    tooltip: z.string().optional(),
-    uri: z.string(),
-    method: MethodSchema.optional().default('post'),
-    data: z.any().optional(),
-  }),
-]);
-
-export type TableAction = z.infer<typeof TableActionSchema>;
-
-export const FormDevSchemas = z.object({
-  table: ViewSchemaZ,
-  form: ViewSchemaZ.optional(),
-  view: ViewSchemaZ.optional(),
-  filter: ViewSchemaZ.optional(),
-});
-export const Display = z.object({
-  mode: z.enum(['page', 'modal']),
-  customComponent: z.string().nullish(),
-});
-
-export type FormDevSchema = z.infer<typeof FormDevSchemas>;
 export const ResourceDefinitionResponseZ = z
   .object({
     id: z.string(),
@@ -145,10 +25,7 @@ export const ResourceDefinitionResponseZ = z
     idField: z.string().default('id'),
     modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
     operations: Operations,
-    actions: z.array(ActionSchema).optional().default([]),
-    tableActions: z.array(TableActionSchema).optional().default([]),
     schemas: FormDevSchemas,
-    tableLayout: z.any().optional(),
   })
   .transform((data) => {
     const operations = {} as Record<OperationKey, Operation | null>;
@@ -185,9 +62,13 @@ export const ResourceDefinitionResponseZ = z
       display: data.display ?? { mode: 'modal' },
       operations: {
         ...operations,
-        ...(data.operations.lookup !== undefined && { lookup: data.operations.lookup }),
+        ...(data.operations.lookup !== undefined && {
+          lookup: data.operations.lookup,
+        }),
       },
     };
   });
 
-export type ResourceDefinitionResponse = z.infer<typeof ResourceDefinitionResponseZ>;
+export type ResourceDefinitionResponse = z.infer<
+  typeof ResourceDefinitionResponseZ
+>;

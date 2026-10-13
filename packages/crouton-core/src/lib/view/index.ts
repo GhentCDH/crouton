@@ -22,7 +22,6 @@ export {
   pickSharedCellOptions,
 } from './table-schema.builder';
 export {
-  type WhenCondition,
   buildConditionSchema,
   buildFormControl,
   buildFormUiSchema,

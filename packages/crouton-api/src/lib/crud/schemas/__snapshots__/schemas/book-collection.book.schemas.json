@@ -78,16 +78,8 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortable": false,
-              "label": "Id"
-            }
-          },
           {
             "type": "TextCell",
             "scope": "#/properties/title",
@@ -114,6 +106,14 @@
           },
           {
             "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id",
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
             "scope": "#/properties/status",
             "options": {
               "values": [
@@ -130,7 +130,7 @@
                   "label": "Archived"
                 }
               ],
-              "sortable": false,
+              "sortId": "status",
               "label": "Status"
             }
           },
@@ -145,9 +145,101 @@
               "label": "Author"
             }
           }
-        ]
-      },
-      "defaultSort": "title"
+        ],
+        "options": {
+          "defaultSortId": "title",
+          "filter": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "Title",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "title": "Status",
+                  "enum": [
+                    "draft",
+                    "published",
+                    "archived"
+                  ],
+                  "minLength": 1,
+                  "x-values": [
+                    {
+                      "value": "draft",
+                      "label": "Draft"
+                    },
+                    {
+                      "value": "published",
+                      "label": "Published"
+                    },
+                    {
+                      "value": "archived",
+                      "label": "Archived"
+                    }
+                  ],
+                  "x-field-type": "enum"
+                }
+              },
+              "additionalProperties": true
+            },
+            "uischema": {
+              "type": "GridLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/title",
+                  "options": {
+                    "format": "text",
+                    "styles": {
+                      "width": "full",
+                      "control": {
+                        "wrapper": "input-full"
+                      }
+                    },
+                    "colspan": 12,
+                    "label": "Title"
+                  }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/status",
+                  "options": {
+                    "format": "select",
+                    "styles": {
+                      "width": "full",
+                      "control": {
+                        "wrapper": "input-full"
+                      }
+                    },
+                    "values": [
+                      {
+                        "value": "draft",
+                        "label": "Draft"
+                      },
+                      {
+                        "value": "published",
+                        "label": "Published"
+                      },
+                      {
+                        "value": "archived",
+                        "label": "Archived"
+                      }
+                    ],
+                    "emitObject": true,
+                    "displayKey": "label",
+                    "colspan": 12,
+                    "label": "Status"
+                  }
+                }
+              ]
+            },
+            "initialData": {}
+          }
+        }
+      }
     },
     "form": {
       "data": {
@@ -317,95 +409,6 @@
               "colspan": 12,
               "relationType": "manyToMany",
               "label": "Categories"
-            }
-          }
-        ]
-      }
-    },
-    "filter": {
-      "data": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "title": "Title",
-            "minLength": 1
-          },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "enum": [
-              "draft",
-              "published",
-              "archived"
-            ],
-            "minLength": 1,
-            "x-values": [
-              {
-                "value": "draft",
-                "label": "Draft"
-              },
-              {
-                "value": "published",
-                "label": "Published"
-              },
-              {
-                "value": "archived",
-                "label": "Archived"
-              }
-            ],
-            "x-field-type": "enum"
-          }
-        },
-        "additionalProperties": true
-      },
-      "ui": {
-        "type": "GridLayout",
-        "elements": [
-          {
-            "type": "Control",
-            "scope": "#/properties/title",
-            "options": {
-              "format": "text",
-              "styles": {
-                "width": "full",
-                "control": {
-                  "wrapper": "input-full"
-                }
-              },
-              "colspan": 12,
-              "label": "Title"
-            }
-          },
-          {
-            "type": "Control",
-            "scope": "#/properties/status",
-            "options": {
-              "format": "select",
-              "styles": {
-                "width": "full",
-                "control": {
-                  "wrapper": "input-full"
-                }
-              },
-              "values": [
-                {
-                  "value": "draft",
-                  "label": "Draft"
-                },
-                {
-                  "value": "published",
-                  "label": "Published"
-                },
-                {
-                  "value": "archived",
-                  "label": "Archived"
-                }
-              ],
-              "emitObject": true,
-              "displayKey": "label",
-              "colspan": 12,
-              "label": "Status"
             }
           }
         ]
@@ -604,7 +607,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

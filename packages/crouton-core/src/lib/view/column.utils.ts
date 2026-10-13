@@ -29,14 +29,12 @@ export const columnForContext = (
   ctx: FieldContext,
 ): JsonColumn => {
   if (ctx === 'view') return { ...col, fieldInput: col.fieldView ?? col.fieldInput };
-  if (ctx === 'table') return { ...col, fieldInput: col.fieldTable ?? col.fieldInput };
+  if (ctx === 'table') return col; // table type/options overrides now come from layout.table.controls
   return col; // form / filter → base fieldInput
 };
 
 export const toViewColumn = (col: JsonColumn): ViewColumnConfig => ({
   id: col.id,
   ...(col.label && { label: col.label }),
-  ...(col.sortable != null && { sortable: col.sortable }),
-  ...(col.searchable != null && { searchable: col.searchable }),
   ...(col.fieldInput && { fieldInput: col.fieldInput }),
 });

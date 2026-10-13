@@ -44,19 +44,20 @@ const RESOURCE_JSON = {
   operations: {},
   columns: {
     id: { type: 'string', idField: true, hiddenInForm: true },
-    title: {
-      type: 'string',
-      searchable: true,
-      sortable: true,
-      defaultSort: true,
-      filterable: true,
-    },
+    title: { type: 'string' },
     metadata: {
       displayKey: 'name',
       type: {
         type: 'object',
         properties: { id: { type: 'string' }, name: { type: 'string' } },
       },
+    },
+  },
+  layout: {
+    table: {
+      searchFields: ['title'],
+      filterFields: ['title'],
+      controls: [{ id: 'title', sortable: true, defaultSort: true }],
     },
   },
 };
@@ -181,7 +182,6 @@ describe('custom resource served through the generated controller', () => {
       method: 'get',
     });
     expect(Object.keys(payload.schemas).sort()).toEqual([
-      'filter',
       'form',
       'table',
       'view',
@@ -206,7 +206,9 @@ describe('custom resource served through the generated controller', () => {
 
   it('reports the table default sort', async () => {
     const { schemas } = await controller.getSchemas();
-    expect(schemas.table.defaultSort).toBe('title');
+    const tableUi = schemas.table.ui as any;
+    const tableNode = tableUi?.type === 'Table' ? tableUi : tableUi?.elements?.find((e: any) => e.type === 'Table');
+    expect(tableNode?.options?.defaultSortId).toBe('title');
   });
 
   it('routes writes to the repository', async () => {

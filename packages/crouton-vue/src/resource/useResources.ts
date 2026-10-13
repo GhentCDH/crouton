@@ -19,6 +19,13 @@ import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
 
+/** When the table ui_schema is a wrapper layout, extract the inner Table element. */
+const resolveTableUiSchema = (ui: unknown): any => {
+  const u = ui as any;
+  if (!u || u.type === 'Table') return u;
+  return u.elements?.find((e: any) => e.type === 'Table') ?? u;
+};
+
 export interface UseResourcesProperties {
   initialRequestParams?: Partial<Request>;
   onRequest?: (request: Request) => void;
@@ -114,8 +121,8 @@ export const useResources = (
     initialLoad,
   );
 
-  const filterSchema = (_formDef.schemas as any).filter?.data as
-    Record<string, any> | undefined;
+  const filterSchema = resolveTableUiSchema(_formDef.schemas.table.ui)?.options?.filter
+    ?.schema as Record<string, any> | undefined;
   if (readonly) {
     _formDef.operations.delete = null;
     _formDef.operations.update = null;
@@ -133,7 +140,7 @@ export const useResources = (
   return reactive({
     id: formDef.id,
     operations: _formDef.operations ?? {},
-    uiSchema: _formDef.schemas.table.ui,
+    uiSchema: resolveTableUiSchema(_formDef.schemas.table.ui),
     schema: _formDef.schemas.table.data,
     filterSchema,
     loading: resource.loading,

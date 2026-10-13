@@ -1,4 +1,4 @@
-import { type Component, type Ref, markRaw, ref } from 'vue';
+import { type Component, markRaw, type Ref, ref } from 'vue';
 
 import type {
   Action,
@@ -23,6 +23,15 @@ import { useResources } from './useResources';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { findCustomComponent } from '../utils/custom-component';
+
+const getTableNode = (ui: any): any => {
+  if (!ui) return null;
+  if (ui.type === 'Table') return ui;
+  return (
+    (ui.elements as any[] | undefined)?.find((e: any) => e.type === 'Table') ??
+    null
+  );
+};
 
 const evaluateCondition = (
   condition: ResourceActionCondition | undefined,
@@ -235,11 +244,9 @@ export const backendAction = (
 
     const uri = replaceUriParams(action.uri, formData);
 
-    return fetch[action.method](
-      replaceUriParams(uri, defaultUriParams),
-      defaultUriParams,
-    )
-      .then(({ data }) => {
+    const _fetch = (fetch as any)[action.method];
+    return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
+      .then(({ data }: { data: any }) => {
         if (data.success) {
           NotificationService.success(data.message);
           resource.reload();
@@ -268,17 +275,19 @@ export const actions = (
   const _modals =
     modals ?? resourceModals(api, resource, formDef, handleEvent, false);
   return [
-    formDef.actions.map((action) => {
-      return {
-        action: backendAction(resource, formDef, defaultUriParams, action),
-        tooltip: action.label,
-        icon: action.icon,
-        label: action.icon ? null : action.label,
-        ...(action.condition && {
-          visible: (row: any) => evaluateCondition(action.condition, row),
-        }),
-      };
-    }),
+    (getTableNode(formDef.schemas.table.ui)?.options?.rowActions ?? []).map(
+      (action: any) => {
+        return {
+          action: backendAction(resource, formDef, defaultUriParams, action),
+          tooltip: action.label,
+          icon: action.icon,
+          label: action.icon ? null : action.label,
+          ...(action.condition && {
+            visible: (row: any) => evaluateCondition(action.condition, row),
+          }),
+        };
+      },
+    ),
     {
       action: (id: unknown) => _modals.view(id),
       tooltip: 'View',
@@ -311,18 +320,20 @@ export const tableActions = (
   resource: Resource,
   formDef: ResourceDefinition | null | undefined,
 ): TableAction[] => {
-  if (!formDef || !formDef.tableActions?.length) return [];
+  const _tableActions: TableActionDef[] =
+    getTableNode(formDef?.schemas.table.ui)?.options?.actions ?? [];
+  if (!formDef || !_tableActions.length) return [];
 
   const fetch = useApi();
 
-  return formDef.tableActions.map((action: TableActionDef) => {
+  return _tableActions.map((action: TableActionDef) => {
     const label = action.tooltip ?? action.label ?? action.id;
     const handler = () => {
       if (action.type === 'link') {
         window.open(action.href, '_blank');
         return;
       }
-      return fetch[action.method](action.uri, action.data ?? {})
+      return (fetch as any)[action.method](action.uri, action.data ?? {})
         .then(({ data }: { data: any }) => {
           if (data?.success !== false) {
             NotificationService.success(data?.message ?? 'Done');

@@ -81,7 +81,6 @@ export class ResourceDefinitionRepository {
             table: createViewSchema(result.schemas.table)!,
             form: createViewSchema(result.schemas.form)!,
             view: createViewSchema(result.schemas.view),
-            filter: createViewSchema(result.schemas.filter),
           },
         };
         return resourceDefinition;

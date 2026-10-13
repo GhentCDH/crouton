@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * A per-context field-variant patch (`fieldInput`/`fieldView`/`fieldTable`).
+ * A per-context field-variant patch (`fieldInput`/`fieldView`).
  * Mirrors crouton-core's `FieldVariantSchema` shape loosely — `options` is a
  * catchall since a column's real option set depends on its `format`/`type`
  * (relation vs. plain vs. custom render) and the visual builder can't know
@@ -11,8 +11,8 @@ import { z } from 'zod';
  * "a `null` value deletes an inherited key" convention — this is how the
  * editor's "reset to inherited" action works: it sends `null` for a key so
  * the column falls back to whatever the level below it (`fieldView` →
- * `fieldInput`, or `fieldTable` → `fieldView` → `fieldInput`) resolves to,
- * rather than pinning a copy of the resolved value at this level.
+ * `fieldInput`) resolves to, rather than pinning a copy of the resolved value
+ * at this level.
  */
 const FieldVariantPatchSchema = z
   .object({
@@ -44,7 +44,6 @@ export const PatchColumnSchema = z
     hiddenInView: z.boolean().optional(),
     fieldInput: FieldVariantPatchSchema.optional(),
     fieldView: FieldVariantPatchSchema.optional(),
-    fieldTable: FieldVariantPatchSchema.optional(),
   })
   .partial();
 

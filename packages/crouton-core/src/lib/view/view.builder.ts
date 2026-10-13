@@ -15,7 +15,7 @@ import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';
 import type { ViewConfig } from './view.schema';
 import type { JsonColumn } from '../resource/Column';
-import type { Layout } from '../resource/Layout.schema';
+import type { Layout } from '../resource/layout';
 
 // ── Filter schema enrichment ──────────────────────────────────────────────
 
@@ -328,6 +328,7 @@ export const buildViewsWithSource = (
     table.defaultSort = resolveDefaultSort(
       table.columns as JsonColumn[],
       columns,
+      layout?.table,
     );
     if (layout?.table) table = orderTableColumnsFromLayout(table, layout.table);
     views.table = table;
@@ -354,17 +355,19 @@ export const buildViewsWithSource = (
     views.form = form;
   }
 
+  const filterFields = layout?.table?.filterFields;
+  const isFilterable = (c: JsonColumn) => filterFields?.includes(c.id) ?? false;
   const filter = buildView(
     source,
     columns,
-    (c) => !!c.filterable,
+    isFilterable,
     buildFormUiSchema,
     true,
   );
   if (filter) {
     patchFilterProperties(
       filter.json_schema as Record<string, any>,
-      columns?.filter((c) => !!c.filterable),
+      columns?.filter(isFilterable),
     );
     views.filter = filter;
   }

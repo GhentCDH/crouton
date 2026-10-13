@@ -165,9 +165,13 @@ describe('apply — update merges and preserves hand edits', () => {
       update: true,
       delete: true,
     },
-    actions: [
-      { type: 'link', id: 'preview', label: 'Preview', href: '/p/{id}' },
-    ],
+    layout: {
+      table: {
+        actions: [
+          { type: 'link', id: 'preview', label: 'Preview', href: '/p/{id}' },
+        ],
+      },
+    },
     columns: {
       id: {
         idField: true,
@@ -192,7 +196,7 @@ describe('apply — update merges and preserves hand edits', () => {
     expect(res.columns.name.fieldInput.type).toBe('markdown'); // kept (recommended=keep)
     expect(res.columns.legacy).toBeDefined(); // kept (recommended=keep)
     expect(res.sidebar).toEqual({ hide: true }); // preserved
-    expect(res.actions).toHaveLength(1); // preserved
+    expect(res.layout?.table?.actions).toHaveLength(1); // preserved (moved to layout.table)
     expect(plan.files[0].action).toBe('update');
   });
 

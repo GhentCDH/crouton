@@ -4,17 +4,9 @@ import { LayoutBuilder } from '../layout/layout.builder';
 import { type JsonColumn, normalizeUnique } from '../resource/Column';
 import { columnTypeName, columnTypeToJsonSchema } from '../resource/ColumnType.schema';
 import type { DetailConfig } from '../resource/FieldInput.schema';
+import type { WhenCondition } from '../resource/layout/LayoutControl.schema';
 
-// ── Condition / rule builders ─────────────────────────────────────────────
-
-/** Condition descriptor used to build JSON Forms rules (`showWhen`, `hideWhen`, `disabledWhen`). */
-export type WhenCondition = {
-  field: string;
-  eq?: unknown;
-  neq?: unknown;
-  exists?: boolean;
-  notExists?: boolean;
-};
+export type { WhenCondition };
 
 /** Convert a `WhenCondition` to the JSON Schema fragment used inside a JSON Forms rule. */
 export const buildConditionSchema = (
@@ -26,57 +18,10 @@ export const buildConditionSchema = (
   return { const: when.eq };
 };
 
-/**
- * Build a JSON Forms rule object for a column's visibility/disabled condition.
- * Returns `undefined` when the column has no conditional rules.
- *
- * Kept for backwards compatibility (re-exported from `crud/builder`). The form builder
- * now applies rules through `ControlBuilder.showWhen/hideWhen/disableWhen` instead —
- * see `applyColumnRule`.
- */
+/** @deprecated Use layout controls' showWhen/hideWhen/disabledWhen instead. */
 export const buildRule = (
-  col: JsonColumn,
-): Record<string, unknown> | undefined => {
-  if (col.disabledWhen) {
-    return {
-      effect: 'DISABLE',
-      condition: {
-        scope: `#/properties/${col.disabledWhen.field}`,
-        schema: buildConditionSchema(col.disabledWhen),
-      },
-    };
-  }
-  const when = col.showWhen ?? col.hideWhen;
-  if (!when) return undefined;
-  const effect = col.showWhen ? 'SHOW' : 'HIDE';
-  return {
-    effect,
-    condition: {
-      scope: `#/properties/${when.field}`,
-      schema: buildConditionSchema(when),
-    },
-  };
-};
-
-/** Apply a column's conditional rule to a control builder, in the builder chain. */
-const applyColumnRule = (
-  control: ControlBuilder<any>,
-  col: JsonColumn,
-): void => {
-  if (col.disabledWhen) {
-    control.disableWhen(
-      `#/properties/${col.disabledWhen.field}`,
-      buildConditionSchema(col.disabledWhen),
-    );
-    return;
-  }
-  const when = col.showWhen ?? col.hideWhen;
-  if (!when) return;
-  const scope = `#/properties/${when.field}`;
-  const schema = buildConditionSchema(when);
-  if (col.showWhen) control.showWhen(scope, schema);
-  else control.hideWhen(scope, schema);
-};
+  _col: JsonColumn,
+): Record<string, unknown> | undefined => undefined;
 
 // ── Form control builders ─────────────────────────────────────────────────
 
@@ -175,9 +120,7 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
   if (fieldInput?.customRender)
     control.setCustomRender(fieldInput?.customRender);
   if (col.hideLabel) control.hideLabel();
-  // Label and conditional rules are expressed in the builder chain — no post-build mutation.
   if (col.label) control.label(col.label);
-  applyColumnRule(control, col);
 
   return control;
 };

@@ -126,5 +126,4 @@ export type ColumnPatch = Partial<{
   hiddenInView: boolean;
   fieldInput: FieldVariantPatch;
   fieldView: FieldVariantPatch;
-  fieldTable: FieldVariantPatch;
 }>;

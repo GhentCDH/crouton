@@ -1,6 +1,5 @@
 import {
   type JsonColumn,
-  resolveTableField,
   resolveViewField,
 } from '@ghentcdh/crouton-core';
 
@@ -86,12 +85,11 @@ export const expandExtendColumns = (
         ...(hiddenInTable !== undefined && { hiddenInTable }),
         ...(hiddenInForm !== undefined && { hiddenInForm }),
         ...(hiddenInView !== undefined && { hiddenInView }),
-        ...(refCol.sortable != null && { sortable: refCol.sortable }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
       } as unknown as JsonColumn;
 
-      result.push(virtualCol);
+      result.push(virtualCol as JsonColumn);
     }
   }
 
@@ -140,12 +138,12 @@ export const applyRelationFormatDefault = (
   });
 
 /**
- * Prefill each column's `fieldView`/`fieldTable` with the fully-resolved variant
- * (the `fieldInput → fieldView → fieldTable` cascade). After this runs, every
+ * Prefill each column's `fieldView` with the fully-resolved variant
+ * (the `fieldInput → fieldView` cascade). After this runs, every
  * consumer sees resolved variants without re-implementing the fallback.
  *
  * MUST run AFTER URI/relation enrichment (the last column transform in
- * `fromJson`), so the resolved view/table variants inherit the injected
+ * `fromJson`), so the resolved view variant inherits the injected
  * `uri`/`resourceUri`/`resource`/`schemasUri` options and derived `relationType`
  * that enrichment only lands on `fieldInput`. Do not move it earlier.
  */
@@ -154,10 +152,8 @@ export const resolveColumnFieldVariants = (
 ): JsonColumn[] | undefined =>
   cols?.map((col) => {
     const fieldView = resolveViewField(col);
-    const fieldTable = resolveTableField(col);
     return {
       ...col,
       ...(fieldView && { fieldView }),
-      ...(fieldTable && { fieldTable }),
     };
   });

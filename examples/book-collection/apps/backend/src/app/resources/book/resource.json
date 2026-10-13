@@ -130,13 +130,7 @@
       "items": [
         {
           "type": "table",
-          "controls": [
-            "title",
-            "author",
-            "isbn",
-            "publishedYear",
-            "status"
-          ]
+          "controls": ["title", "author", "isbn", "publishedYear", "status"]
         }
       ]
     }

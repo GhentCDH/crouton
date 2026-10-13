@@ -1,16 +1,13 @@
 <template>
   <button
-    class="flex items-center gap-2"
+    class="flex items-center gap-2 w-full"
     :class="sortable ? 'cursor-pointer' : 'cursor-default'"
     :disabled="!sortable"
     @click="onSort"
   >
     <span class="whitespace-nowrap"> {{ column.label }}</span>
     <div class="h-4 w-4 relative">
-      <Icon
-        v-if="sortable && sortColumn === sortId"
-        :icon="sortIcon"
-      />
+      <Icon v-if="sortable && sortColumn === sortId" :icon="sortIcon" />
     </div>
   </button>
 </template>
@@ -18,7 +15,10 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-import { SortHeaderEmits, SortHeaderProperties } from './sort.header.properties';
+import {
+  SortHeaderEmits,
+  SortHeaderProperties,
+} from './sort.header.properties';
 import type { IconDef } from '../../icons';
 import { Icon, IconEnum } from '../../icons';
 

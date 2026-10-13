@@ -1,12 +1,23 @@
 import { flattenLayoutControls } from './layout-ui-schema.builder';
 import type { ViewConfig } from './view.schema';
-import { isComponentControl } from '../resource/Layout.schema';
-import type { LayoutNode } from '../resource/Layout.schema';
+import type { LayoutNode } from '../resource/layout';
+import { isComponentControl } from '../resource/layout';
+
+const LAYOUT_TYPE_MAP: Record<string, string> = {
+  grid: 'GridLayout',
+  vertical: 'VerticalLayout',
+  horizontal: 'HorizontalLayout',
+  collapse: 'CollapseLayout',
+  group: 'Group',
+};
+
+const mapLayoutType = (type: LayoutNode['type']): string =>
+  (type && LAYOUT_TYPE_MAP[type]) ?? 'VerticalLayout';
 
 /** Find the `type: "table"` sub-node inside a wrapper layout, or return the node itself. */
 export const findTableNode = (node: LayoutNode): LayoutNode =>
   node.type !== 'table' && node.items?.length
-    ? node.items.find((i) => i.type === 'table') ?? node
+    ? (node.items.find((i) => i.type === 'table') ?? node)
     : node;
 
 /** True when `layout.table` is a wrapper layout (outer type ≠ "table") with a "table" sub-node. */
@@ -61,12 +72,40 @@ export const orderTableColumnsFromLayout = (
     }
     const id = typeof ctrl === 'string' ? ctrl : ctrl.id;
     if (!knownIds.has(id)) {
-      warn(`layout.table: column "${id}" not found in visible table columns — skipping`);
+      warn(
+        `layout.table: column "${id}" not found in visible table columns — skipping`,
+      );
       continue;
     }
     seen.add(id);
     const el = elementById.get(id);
-    if (el) reorderedElements.push(el);
+    if (el) {
+      const ctrlObj = typeof ctrl === 'string' ? null : (ctrl as any);
+      const overrides: Record<string, unknown> = {};
+      // Apply sortable/defaultSort from layout control
+      if (ctrlObj?.sortable === false) {
+        overrides['sortable'] = false;
+      } else if (ctrlObj?.sortable === true && el.options?.sortId == null) {
+        // sortable: true but no sortId derived — use column id
+        overrides['sortId'] = id;
+      }
+      // Apply type/options overrides (replaces fieldTable)
+      const typeOverride = ctrlObj?.type;
+      const optOverride = ctrlObj?.options;
+      reorderedElements.push(
+        typeOverride || optOverride || Object.keys(overrides).length
+          ? {
+              ...el,
+              ...(typeOverride && { type: typeOverride }),
+              options: {
+                ...(el.options ?? {}),
+                ...(optOverride ?? {}),
+                ...overrides,
+              },
+            }
+          : el,
+      );
+    }
     const col = columnById.get(id);
     if (col) reorderedColumns.push(col);
   }
@@ -81,9 +120,35 @@ export const orderTableColumnsFromLayout = (
     }
   }
 
+  const innerTableUi = {
+    ...(view.ui_schema as any),
+    elements: reorderedElements,
+  };
+
+  if (!isTableWrapperLayout(node)) {
+    return {
+      ...view,
+      ui_schema: innerTableUi,
+      columns: reorderedColumns,
+    };
+  }
+
+  // Wrapper layout: produce outer UI node containing component elements + inner Table element
+  const outerType = mapLayoutType(node.type);
+  const outerElements: any[] = [
+    ...(node.controls ?? [])
+      .filter(isComponentControl)
+      .map((ctrl) => ({ component: ctrl.component, label: ctrl.label })),
+    innerTableUi,
+  ];
+
   return {
     ...view,
-    ui_schema: { ...(view.ui_schema as any), elements: reorderedElements },
+    ui_schema: {
+      type: outerType,
+      ...(node.columns != null && { columns: node.columns }),
+      elements: outerElements,
+    },
     columns: reorderedColumns,
   };
 };

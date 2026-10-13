@@ -28,10 +28,15 @@ const pickExtensions = (obj: Record<string, unknown>) =>
       .map((k) => [k, obj[k]]),
   );
 
-const buildLookup = (columns: JsonColumn[] | undefined): LookupConfig | undefined => {
+const buildLookup = (
+  columns: JsonColumn[] | undefined,
+  searchFields?: string[],
+): LookupConfig | undefined => {
   if (!columns) return undefined;
   const keyCol = columns.find((c) => c.idField);
-  const searchableCols = columns.filter((c) => c.showInLookup || c.searchable);
+  const searchableCols = columns.filter(
+    (c) => c.showInLookup || (searchFields?.includes(c.id) ?? false),
+  );
   if (!keyCol && !searchableCols.length) return undefined;
   const labels = searchableCols.map((c) => {
     if (c.fieldInput?.format === 'relation') {
@@ -84,7 +89,7 @@ export const compileResource = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns);
+  const lookup = buildLookup(enrichedColumns, json.layout?.table?.searchFields);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 

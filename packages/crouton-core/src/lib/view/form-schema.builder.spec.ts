@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildFormControl, buildFormUiSchema } from './form-schema.builder';
+import { buildFormUiSchemaFromLayout } from './layout-ui-schema.builder';
 import { JsonColumnSchema } from '../resource/Column';
 
 
@@ -18,11 +19,22 @@ describe('buildFormUiSchema (golden output)', () => {
       id: 'author',
       fieldInput: { format: 'relation', relationType: 'manyToOne', resource: 'author' },
     },
-    { id: 'status', fieldInput: { type: 'text' }, showWhen: { field: 'active', eq: true } },
-    { id: 'reason', fieldInput: { type: 'text' }, disabledWhen: { field: 'locked', eq: true } },
+    { id: 'status', fieldInput: { type: 'text' } },
+    { id: 'reason', fieldInput: { type: 'text' } },
   ]);
 
-  const uiSchema = buildFormUiSchema(cols) as any;
+  // Conditions now live on layout controls, not column-level flags.
+  const layoutNode = {
+    controls: [
+      'name',
+      'bio',
+      'author',
+      { id: 'status', showWhen: { field: 'active', eq: true } },
+      { id: 'reason', disabledWhen: { field: 'locked', eq: true } },
+    ],
+  };
+
+  const uiSchema = buildFormUiSchemaFromLayout(layoutNode as any, cols) as any;
 
   it('is a GridLayout with one Control per column', () => {
     expect(uiSchema.type).toBe('GridLayout');

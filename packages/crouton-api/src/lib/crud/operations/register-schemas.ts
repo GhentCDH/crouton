@@ -40,7 +40,7 @@ export const defaultSchemas = (ctx: OperationContext) => {
   };
 };
 
-const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
+export const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   if (!sub.views) return null;
   const { config, baseUrl } = ctx;
   const { route } = config;

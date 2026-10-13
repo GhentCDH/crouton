@@ -56,13 +56,13 @@
         "additionalProperties": true
       },
       "ui": {
-        "type": "HorizontalLayout",
+        "type": "Table",
         "elements": [
           {
             "type": "TextCell",
             "scope": "#/properties/id",
             "options": {
-              "sortable": false,
+              "sortId": "id",
               "label": "Id"
             }
           },
@@ -70,13 +70,15 @@
             "type": "TextCell",
             "scope": "#/properties/name",
             "options": {
-              "sortable": false,
+              "sortId": "name",
               "label": "Name"
             }
           }
-        ]
-      },
-      "defaultSort": "id"
+        ],
+        "options": {
+          "defaultSortId": "id"
+        }
+      }
     },
     "form": {
       "data": {
@@ -196,7 +198,5 @@
         ]
       }
     }
-  },
-  "actions": [],
-  "tableActions": []
+  }
 }

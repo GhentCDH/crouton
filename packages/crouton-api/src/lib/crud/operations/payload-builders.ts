@@ -121,7 +121,7 @@ export const buildEditableColumnsPayload = (
       view: { resolved: resolveViewField(c), hasOverride: c.fieldView != null },
       table: {
         resolved: resolveTableField(c),
-        hasOverride: c.fieldTable != null,
+        hasOverride: c.fieldView != null,
       },
     })),
   };

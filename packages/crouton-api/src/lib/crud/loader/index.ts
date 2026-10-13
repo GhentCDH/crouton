@@ -136,9 +136,10 @@ export const loadResourceConfigsFromDir = async (
       // recorded by loadCustomRepository. Skip further validation to avoid a double error.
       const repositoryImportFailed = resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
-      const actions = await loadActions(json.actions ?? [], basePath, 'row');
+      const tableLayout = json.layout?.table as any;
+      const actions = await loadActions(tableLayout?.actions ?? [], basePath, 'row');
       const tableActions = await loadActions(
-        json.tableActions ?? [],
+        tableLayout?.tableActions ?? [],
         basePath,
         'table',
       );
