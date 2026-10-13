@@ -54,6 +54,7 @@
             "uri": "http://localhost:3000/groups/{id}/chapter",
             "resourceUri": "http://localhost:3000/chapter",
             "resource": "http://localhost:3000/groups/chapter/schemas",
+            "autocompleteResource": "http://localhost:3000/chapter/schemas",
             "colspan": 12,
             "relationType": "oneToMany",
             "label": "Chapters"

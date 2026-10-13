@@ -22,8 +22,8 @@ test.describe('loan creation', () => {
     // Select user (manyToOne autocomplete)
     await picker.selectAutocomplete('User', 'Alice', 'Alice');
 
-    // Select book (manyToOne autocomplete)
-    await picker.selectAutocomplete('Book', 'Book Title 5', 'Book Title 5');
+    // Select book (manyToOne autocomplete) — book-5 is "De Sneeuwwolf"
+    await picker.selectAutocomplete('Book', 'De Sneeuwwolf', 'De Sneeuwwolf');
 
     // Leave returnedAt empty (it's nullable / required: false)
     // loanedAt has a default so we don't fill it

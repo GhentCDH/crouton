@@ -50,7 +50,7 @@ const createViewSchema = (
 const cacheKey = (uri: string, language: string): string =>
   language ? `${language}:${uri}` : uri;
 
-export class ResourceDefinitionRepository {
+export class ResourceDefinitionCache {
   private cache = new Map<string, Promise<ResourceDefinition>>();
 
   async getById(formId: string): Promise<ResourceDefinition> {

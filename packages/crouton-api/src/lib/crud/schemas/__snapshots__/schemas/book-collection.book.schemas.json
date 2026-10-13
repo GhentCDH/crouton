@@ -406,6 +406,7 @@
               "uri": "http://localhost:3000/book/{id}/category",
               "resourceUri": "http://localhost:3000/category",
               "resource": "http://localhost:3000/book/category/schemas",
+              "autocompleteResource": "http://localhost:3000/category/schemas",
               "colspan": 12,
               "relationType": "manyToMany",
               "label": "Categories"
@@ -599,6 +600,7 @@
               "uri": "http://localhost:3000/book/{id}/category",
               "resourceUri": "http://localhost:3000/category",
               "resource": "http://localhost:3000/book/category/schemas",
+              "autocompleteResource": "http://localhost:3000/category/schemas",
               "colspan": 12,
               "relationType": "manyToMany",
               "label": "Categories"

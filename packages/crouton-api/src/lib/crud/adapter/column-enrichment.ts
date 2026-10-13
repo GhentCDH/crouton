@@ -33,6 +33,9 @@ export const enrichActionColumns = (
             sub.relationType === 'manyToOne'
               ? `${base}/${sub.childRoute}/schemas`
               : `${base}/${parentRoute}/${sub.childRoute}/schemas`,
+          ...(sub.relationType !== 'manyToOne' && {
+            autocompleteResource: `${base}/${sub.childRoute}/schemas`,
+          }),
         },
       },
     };

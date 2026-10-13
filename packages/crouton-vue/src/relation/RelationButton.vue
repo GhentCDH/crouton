@@ -26,6 +26,7 @@
         <Icon :icon="IconEnum.Edit" size="sm" class="shrink-0" v-if="hasEdit" />
       </div>
       <div
+        data-testid="relation-chip-delete"
         class="shrink-0 hover:bg-gray-100 py-2 px-1"
         @click.stop="deleteFn($event)"
         v-if="hasDelete"

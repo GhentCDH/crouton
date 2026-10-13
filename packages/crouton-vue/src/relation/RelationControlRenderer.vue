@@ -119,7 +119,12 @@ const operations = computed(() => {
       });
     };
   if (resource.value?.operations.update) ops['onEdit'] = res.edit;
-  if (resource.value?.operations.delete) ops['onDelete'] = res.delete;
+  if (resource.value?.operations.delete)
+    ops['onDelete'] = (value: unknown) => {
+      res.api.delete(value).then(() => {
+        formEvents.dispatch({ event: 'update-relation', type: 'text_metadata', data: { value } });
+      });
+    };
   return ops;
 });
 
@@ -131,7 +136,7 @@ const onAutocompleteChange = (selected: unknown) => {
 const displayAs = computed(() => {
   if (appliedOptions.value.display === 'autocomplete') return 'autocomplete';
   if (appliedOptions.value.display === 'table') return 'table';
-
+  if (appliedOptions.value.relationType === 'manyToMany') return 'autocomplete';
   return null;
 });
 </script>
