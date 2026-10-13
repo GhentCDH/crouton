@@ -68,7 +68,7 @@
   "required": [
     "name"
   ],
-  "$id": "https://ghentcdh.github.io/crouton/schema/v1/datasource.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/datasource.schema.json",
   "title": "Crouton data-source.json",
   "description": "Generated from DataSourceShape (crouton-core). Do not edit by hand.",
   "examples": [

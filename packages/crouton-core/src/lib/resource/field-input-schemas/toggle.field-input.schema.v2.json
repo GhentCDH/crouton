@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "label": {
+      "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "hideLabel": {
+      "description": "Hide the field label",
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "readonly": {
+      "description": "Render the field in read-only mode",
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "options": {
+      "description": "Array of option items rendered as toggle buttons",
+      "examples": [
+        [
+          {
+            "label": "Yes",
+            "value": true
+          },
+          {
+            "label": "No",
+            "value": false
+          }
+        ]
+      ],
+      "type": "array",
+      "items": {},
+      "markdownDescription": "Array of option items rendered as toggle buttons\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "values": {
+      "description": "Alias for options (deprecated — prefer options)",
+      "deprecated": true,
+      "type": "array",
+      "items": {},
+      "markdownDescription": "Alias for options (deprecated — prefer options)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "labelKey": {
+      "description": "Object key used as the button label",
+      "examples": [
+        "label"
+      ],
+      "type": "string",
+      "markdownDescription": "Object key used as the button label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "valueKey": {
+      "description": "Object key used as the stored value",
+      "examples": [
+        "value"
+      ],
+      "type": "string",
+      "markdownDescription": "Object key used as the stored value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "storeValue": {
+      "description": "Store option[valueKey] instead of the whole option object",
+      "type": "boolean",
+      "markdownDescription": "Store option[valueKey] instead of the whole option object\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "clearable": {
+      "default": true,
+      "description": "Clicking the active button again clears the value",
+      "type": "boolean",
+      "markdownDescription": "Clicking the active button again clears the value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "color": {
+      "default": "primary",
+      "description": "Color token applied to the active button",
+      "examples": [
+        "primary",
+        "secondary"
+      ],
+      "type": "string",
+      "markdownDescription": "Color token applied to the active button\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    },
+    "size": {
+      "default": "sm",
+      "description": "Size token for the buttons",
+      "examples": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "type": "string",
+      "markdownDescription": "Size token for the buttons\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+    }
+  },
+  "additionalProperties": {},
+  "title": "Crouton fieldInput options: toggle",
+  "description": "Options for the toggle button-group control",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/toggle.field-input.schema.json",
+  "markdownDescription": "Options for the toggle button-group control\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
+}

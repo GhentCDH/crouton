@@ -1,6 +1,7 @@
 import { buildSubResourceOperations } from '../data-source';
 import type { JsonAction } from '../resource';
 import { getResourceExtensions } from '../resource';
+import { resolveTableNode } from '../view';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 import {
@@ -232,8 +233,8 @@ export const buildViewsPayload = (
   (schemas as Record<string, unknown>)['table'] = {
     ...tableSchema,
     ui: injectTableOptions((tableSchema as any).ui, {
-      rowActions: resolveActions(baseUri, config.layout?.table?.actions as any),
-      actions: resolveTableActions(baseUri, config.layout?.table?.tableActions as any),
+      rowActions: resolveActions(baseUri, resolveTableNode(config.layout?.table)?.rowActions as any),
+      actions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions as any),
       defaultSortId: config.views['table']?.defaultSort,
       ...(filterSchema && {
         filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },

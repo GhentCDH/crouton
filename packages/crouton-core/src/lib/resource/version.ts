@@ -20,4 +20,4 @@ export const BASELINE_RESOURCE_VERSION = 1;
  * The version the running crouton understands. Bump by 1 whenever resource.json's
  * shape changes, and add a migration step (`from: N, to: N + 1`) in `./migrations`.
  */
-export const CURRENT_RESOURCE_VERSION = 1;
+export const CURRENT_RESOURCE_VERSION = 2;

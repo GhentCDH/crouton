@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "label": {
+      "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "hideLabel": {
+      "description": "Hide the field label",
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "readonly": {
+      "description": "Render the field in read-only mode",
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "minHeight": {
+      "description": "Minimum editor height",
+      "examples": [
+        "200px",
+        "400px"
+      ],
+      "type": "string",
+      "markdownDescription": "Minimum editor height\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    }
+  },
+  "additionalProperties": {},
+  "title": "Crouton fieldInput options: markdown",
+  "description": "Options for the Markdown rich-text editor",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v2/markdown.field-input.schema.json",
+  "markdownDescription": "Options for the Markdown rich-text editor\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+}
