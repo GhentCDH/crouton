@@ -20,7 +20,6 @@ test.describe('book actions', () => {
 
   test('table action: Search Open Library opens openlibrary.org in new tab', async ({
     page,
-    context,
   }) => {
     await page.goto('/');
     const list = new CroutonListPage(page);
@@ -28,7 +27,7 @@ test.describe('book actions', () => {
     await list.waitForRows();
 
     const [newTab] = await Promise.all([
-      context.waitForEvent('page'),
+      page.waitForEvent('popup'),
       page.getByRole('button', { name: /search open library/i }).click(),
     ]);
 
@@ -57,7 +56,6 @@ test.describe('book actions', () => {
 
   test('row action: Open on Open Library opens isbn url in new tab', async ({
     page,
-    context,
   }) => {
     await page.goto('/');
     const list = new CroutonListPage(page);
@@ -71,7 +69,7 @@ test.describe('book actions', () => {
     await firstRow.hover();
 
     const [newTab] = await Promise.all([
-      context.waitForEvent('page'),
+      page.waitForEvent('popup'),
       firstRow.getByRole('button', { name: /open on open library/i }).click(),
     ]);
 
