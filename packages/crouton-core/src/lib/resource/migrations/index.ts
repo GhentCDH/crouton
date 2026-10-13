@@ -8,6 +8,7 @@
  */
 
 import { BASELINE_RESOURCE_VERSION, CURRENT_RESOURCE_VERSION } from '../version';
+import { migration_v1_to_v2 } from './migration-v1-to-v2';
 import {
   MigrationPathError,
   type MigrationResult,
@@ -21,8 +22,7 @@ import {
  * `CURRENT_RESOURCE_VERSION` is bumped. A gap is a programming error caught by the spec.
  */
 export const MIGRATIONS: ResourceMigration[] = [
-  // Example (add when the first real shape change lands and CURRENT_RESOURCE_VERSION becomes 2):
-  // migration_0001to0002,
+  migration_v1_to_v2,
 ];
 
 /** Read a raw object's version, treating a missing/invalid field as the baseline. */
