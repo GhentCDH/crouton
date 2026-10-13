@@ -5,6 +5,7 @@ import {
   LayoutControlSchema,
 } from './LayoutControl.schema';
 import { FilterFields, LayoutTableSchema, SearchFields } from './TableLayout.schema';
+import { JsonActionSchema } from '../TableAction.schema';
 
 export type LayoutNode = {
   type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'table';
@@ -18,10 +19,8 @@ export type LayoutNode = {
   items?: LayoutNode[];
   searchFields?: string[];
   filterFields?: string[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actions?: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tableActions?: any[];
+  actions?: unknown[];
+  tableActions?: unknown[];
 };
 
 export const _LayoutNodeSchema: z.ZodType<LayoutNode> = z.lazy(() =>
@@ -88,6 +87,14 @@ export const _LayoutNodeSchema: z.ZodType<LayoutNode> = z.lazy(() =>
       .optional()
       .default([])
       .describe('Column ids shown in the filter panel.'),
+    actions: z
+      .array(JsonActionSchema)
+      .default([])
+      .describe('Per-record row actions shown in the table.'),
+    tableActions: z
+      .array(JsonActionSchema)
+      .default([])
+      .describe('Global table-level actions shown as toolbar buttons.'),
   }),
 );
 export const LayoutNodeSchema = z.union([LayoutTableSchema, _LayoutNodeSchema]);

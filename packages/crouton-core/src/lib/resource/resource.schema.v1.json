@@ -2813,6 +2813,326 @@
               "items": {
                 "type": "string"
               }
+            },
+            "actions": {
+              "description": "Per-record row actions shown in the table.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "default": "procedure",
+                        "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
+                        "type": "string",
+                        "const": "procedure"
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the action, used as the button key and endpoint name."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable button label shown in the UI."
+                      },
+                      "icon": {
+                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                        "type": "string"
+                      },
+                      "tooltip": {
+                        "description": "Tooltip text on hover. Defaults to the label.",
+                        "type": "string"
+                      },
+                      "condition": {
+                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "Row field name to evaluate for the condition."
+                          },
+                          "op": {
+                            "default": "eq",
+                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                            "type": "string",
+                            "enum": [
+                              "eq",
+                              "neq",
+                              "gt",
+                              "gte",
+                              "lt",
+                              "lte",
+                              "exists",
+                              "notExists"
+                            ]
+                          },
+                          "value": {
+                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ]
+                      },
+                      "procedure": {
+                        "type": "string",
+                        "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
+                      },
+                      "method": {
+                        "default": "post",
+                        "description": "HTTP method for the frontend request. Defaults to \"post\".",
+                        "type": "string"
+                      },
+                      "data": {
+                        "description": "Static query or body params passed to the procedure endpoint.",
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "procedure"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "default": "link",
+                        "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
+                        "type": "string",
+                        "const": "link"
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the action, used as the button key and endpoint name."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable button label shown in the UI."
+                      },
+                      "icon": {
+                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                        "type": "string"
+                      },
+                      "tooltip": {
+                        "description": "Tooltip text on hover. Defaults to the label.",
+                        "type": "string"
+                      },
+                      "condition": {
+                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "Row field name to evaluate for the condition."
+                          },
+                          "op": {
+                            "default": "eq",
+                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                            "type": "string",
+                            "enum": [
+                              "eq",
+                              "neq",
+                              "gt",
+                              "gte",
+                              "lt",
+                              "lte",
+                              "exists",
+                              "notExists"
+                            ]
+                          },
+                          "value": {
+                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ]
+                      },
+                      "href": {
+                        "type": "string",
+                        "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
+                      },
+                      "blank": {
+                        "default": true,
+                        "description": "When true (default), the link opens in a new browser tab.",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "href"
+                    ]
+                  }
+                ]
+              }
+            },
+            "tableActions": {
+              "description": "Global table-level actions shown as toolbar buttons.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "default": "procedure",
+                        "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
+                        "type": "string",
+                        "const": "procedure"
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the action, used as the button key and endpoint name."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable button label shown in the UI."
+                      },
+                      "icon": {
+                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                        "type": "string"
+                      },
+                      "tooltip": {
+                        "description": "Tooltip text on hover. Defaults to the label.",
+                        "type": "string"
+                      },
+                      "condition": {
+                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "Row field name to evaluate for the condition."
+                          },
+                          "op": {
+                            "default": "eq",
+                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                            "type": "string",
+                            "enum": [
+                              "eq",
+                              "neq",
+                              "gt",
+                              "gte",
+                              "lt",
+                              "lte",
+                              "exists",
+                              "notExists"
+                            ]
+                          },
+                          "value": {
+                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ]
+                      },
+                      "procedure": {
+                        "type": "string",
+                        "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
+                      },
+                      "method": {
+                        "default": "post",
+                        "description": "HTTP method for the frontend request. Defaults to \"post\".",
+                        "type": "string"
+                      },
+                      "data": {
+                        "description": "Static query or body params passed to the procedure endpoint.",
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "procedure"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "default": "link",
+                        "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
+                        "type": "string",
+                        "const": "link"
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the action, used as the button key and endpoint name."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable button label shown in the UI."
+                      },
+                      "icon": {
+                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                        "type": "string"
+                      },
+                      "tooltip": {
+                        "description": "Tooltip text on hover. Defaults to the label.",
+                        "type": "string"
+                      },
+                      "condition": {
+                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "Row field name to evaluate for the condition."
+                          },
+                          "op": {
+                            "default": "eq",
+                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                            "type": "string",
+                            "enum": [
+                              "eq",
+                              "neq",
+                              "gt",
+                              "gte",
+                              "lt",
+                              "lte",
+                              "exists",
+                              "notExists"
+                            ]
+                          },
+                          "value": {
+                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ]
+                      },
+                      "href": {
+                        "type": "string",
+                        "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
+                      },
+                      "blank": {
+                        "default": true,
+                        "description": "When true (default), the link opens in a new browser tab.",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "href"
+                    ]
+                  }
+                ]
+              }
             }
           }
         }
