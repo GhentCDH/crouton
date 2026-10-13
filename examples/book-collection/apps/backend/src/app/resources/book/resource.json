@@ -122,6 +122,23 @@
     "table": {
       "type": "grid",
       "columns": 12,
+      "tableActions": [
+        {
+          "id": "searchOpenLibrary",
+          "label": "Search Open Library",
+          "type": "link",
+          "href": "https://openlibrary.org/search"
+        }
+      ],
+      "actions": [
+        {
+          "id": "openOnOpenLibrary",
+          "label": "Open on Open Library",
+          "type": "link",
+          "href": "https://openlibrary.org/isbn/{isbn}",
+          "condition": { "field": "isbn", "op": "exists" }
+        }
+      ],
       "controls": [
         {
           "component": "CreateByIsbn"
