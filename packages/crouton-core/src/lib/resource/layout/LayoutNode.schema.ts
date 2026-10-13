@@ -4,7 +4,7 @@ import {
   type LayoutControl,
   LayoutControlSchema,
 } from './LayoutControl.schema';
-import { LayoutTableSchema } from './TableLayout.schema';
+import { FilterFields, LayoutTableSchema, SearchFields } from './TableLayout.schema';
 
 export type LayoutNode = {
   type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'table';
@@ -16,7 +16,6 @@ export type LayoutNode = {
   label?: string;
   controls?: LayoutControl[];
   items?: LayoutNode[];
-  // Table-specific optional fields (only meaningful when type === 'table' or on LayoutTableSchema nodes)
   searchFields?: string[];
   filterFields?: string[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,6 +79,15 @@ export const _LayoutNodeSchema: z.ZodType<LayoutNode> = z.lazy(() =>
       .describe(
         'Nested layout nodes. Use for nested grids, groups, or collapsible sections.',
       ),
+    searchFields: z
+      .array(SearchFields)
+      .optional()
+      .describe('Column ids used for ?q= free-text search. Inherited by the backend from the outer layout wrapper.'),
+    filterFields: z
+      .array(FilterFields)
+      .optional()
+      .default([])
+      .describe('Column ids shown in the filter panel.'),
   }),
 );
 export const LayoutNodeSchema = z.union([LayoutTableSchema, _LayoutNodeSchema]);

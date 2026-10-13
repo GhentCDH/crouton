@@ -2798,6 +2798,21 @@
               "items": {
                 "$ref": "#/definitions/__schema2"
               }
+            },
+            "searchFields": {
+              "description": "Column ids used for ?q= free-text search. Inherited by the backend from the outer layout wrapper.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "filterFields": {
+              "default": [],
+              "description": "Column ids shown in the filter panel.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
