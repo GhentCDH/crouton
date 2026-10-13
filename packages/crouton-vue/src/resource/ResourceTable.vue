@@ -84,7 +84,7 @@ watch(
   { once: true },
 );
 
-const form = computed(() => resource.value?.form?.value ?? null);
+const form = computed(() => resource.value?.form ?? null);
 
 const reload = () => {
   resource.value?.reload();

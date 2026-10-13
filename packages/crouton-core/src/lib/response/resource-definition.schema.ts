@@ -148,6 +148,7 @@ export const ResourceDefinitionResponseZ = z
     actions: z.array(ActionSchema).optional().default([]),
     tableActions: z.array(TableActionSchema).optional().default([]),
     schemas: FormDevSchemas,
+    tableLayout: z.any().optional(),
   })
   .transform((data) => {
     const operations = {} as Record<OperationKey, Operation | null>;
