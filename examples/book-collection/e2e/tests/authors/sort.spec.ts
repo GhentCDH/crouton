@@ -25,7 +25,7 @@ test.describe('authors sort', () => {
     expect(sorted).not.toBe(unsorted);
   });
 
-  test('sort by name asc: sorted row appears before insertion-order row', async ({ page }) => {
+  test('sort by name desc: sorted row appears after alphabetical-asc default', async ({ page }) => {
     await page.goto('/');
     const list = new CroutonListPage(page);
     await list.navigateTo('author');
@@ -37,7 +37,8 @@ test.describe('authors sort', () => {
     await list.waitForRows();
     const sorted = await list.getFirstRowText();
 
-    // ASC sort puts alphabetically-earliest author first; default order is by insertion id
-    expect(sorted.trim().localeCompare(unsorted.trim())).toBeLessThanOrEqual(0);
+    // Default is name ASC (first sortable column); one click → name DESC
+    // DESC puts alphabetically-latest author first → sorted > unsorted
+    expect(sorted.trim().localeCompare(unsorted.trim())).toBeGreaterThanOrEqual(0);
   });
 });

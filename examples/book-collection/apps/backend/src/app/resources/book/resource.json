@@ -22,7 +22,6 @@
     },
     "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
     "rating": {
-      "hiddenInTable": true,
       "fieldInput": {
         "type": "custom",
         "options": {
@@ -140,12 +139,13 @@
         { "id": "title", "sortable": true },
         { "id": "isbn", "sortable": true },
         { "id": "publishedYear", "sortable": true },
-        { "id": "author", "sortable": true }
+        { "id": "author", "sortable": true },
+        { "id": "rating", "type": "custom", "options": { "customComponent": "rating" } }
       ],
       "items": [
         {
           "type": "table",
-          "controls": ["title", "author", "isbn", "publishedYear", "status"]
+          "controls": ["title", "author", "isbn", "publishedYear", "status", "rating"]
         }
       ]
     }

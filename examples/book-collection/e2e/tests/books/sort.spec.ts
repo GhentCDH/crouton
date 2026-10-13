@@ -26,7 +26,7 @@ test.describe('books sort', () => {
     expect(sorted).not.toBe(unsorted);
   });
 
-  test('sort by title desc: sorted row appears after default-sort row', async ({ page }) => {
+  test('sort by title asc: sorted row appears before insertion-order row', async ({ page }) => {
     await page.goto('/');
     const list = new CroutonListPage(page);
     await list.navigateTo('book');
@@ -34,14 +34,14 @@ test.describe('books sort', () => {
 
     const unsorted = await list.getFirstRowText();
 
-    // Default is title ASC (first sortable column); one click toggles to DESC
+    // Default is insertion order; one click → title ASC
     await list.clickColumnHeader('Title');
     await list.waitForRows();
     const sorted = await list.getFirstRowText();
 
     expect(sorted.trim().length).toBeGreaterThan(0);
-    // DESC-sorted title should be lexicographically ≥ default title-ASC first row
-    expect(sorted.trim().localeCompare(unsorted.trim())).toBeGreaterThanOrEqual(0);
+    // ASC-sorted title should be lexicographically ≤ insertion-order first row
+    expect(sorted.trim().localeCompare(unsorted.trim())).toBeLessThanOrEqual(0);
   });
 
   test('sort by publishedYear changes row order', async ({ page }) => {

@@ -44,8 +44,8 @@ test.describe('book actions', () => {
     await list.navigateTo('book');
     await list.waitForRows();
 
-    // Seed: Book Title 1 has an isbn
-    await list.search('Book Title 1');
+    // Seed: The Hobbit has an isbn
+    await list.search('The Hobbit');
     await list.waitForRows();
 
     const firstRow = list.getRows().first();
@@ -64,7 +64,7 @@ test.describe('book actions', () => {
     await list.navigateTo('book');
     await list.waitForRows();
 
-    await list.search('Book Title 1');
+    await list.search('The Hobbit');
     await list.waitForRows();
 
     const firstRow = list.getRows().first();
