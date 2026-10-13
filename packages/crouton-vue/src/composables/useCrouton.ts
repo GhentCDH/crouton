@@ -11,7 +11,7 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 
 import { CROUTON_STATUS } from '../router';
-import { ResourceDefinitionCache } from './resource-definition';
+import { ResourceDefinitionRepository } from './resource-definition';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
@@ -66,7 +66,7 @@ export const AppConfig = {
 };
 
 const sidebar = ref<SidebarNode[]>([]);
-const formDefCache = new ResourceDefinitionCache();
+const formDefCache = new ResourceDefinitionRepository();
 const config = ref({ ...AppConfig });
 
 const createCrouton = (
