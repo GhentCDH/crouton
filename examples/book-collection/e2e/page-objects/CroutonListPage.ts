@@ -110,7 +110,7 @@ export class CroutonListPage {
   };
 
   setFirstFilterValueEnum = async (value: string) => {
-    await this.page.getByRole('combobox').nth(2).click();
+    await this.page.getByTestId('filter-panel').getByRole('combobox').nth(2).click();
     await this.page.getByRole('option', { name: new RegExp(value, 'i') }).click();
   };
 

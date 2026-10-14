@@ -20,7 +20,7 @@ test.describe('language switch', () => {
   });
 
   test('language select is visible in sidebar', async ({ page }) => {
-    await expect(page.locator('select')).toBeVisible();
+    await expect(page.locator('#drawer-left-panel select')).toBeVisible();
   });
 
   test('sidebar labels change to Dutch after switching to NL', async ({ page }) => {
@@ -88,10 +88,7 @@ test.describe('language switch', () => {
     const lang = new LanguagePage(page);
     await lang.switchLanguage('nl');
 
-    const authorLabel = await lang.getNavLabel('author');
-    expect(authorLabel).toBe('Auteurs');
-
-    const userLabel = await lang.getNavLabel('user');
-    expect(userLabel).toBe('Gebruikers');
+    await expect(page.getByTestId('nav-author')).toHaveText('Auteurs');
+    await expect(page.getByTestId('nav-user')).toHaveText('Gebruikers');
   });
 });

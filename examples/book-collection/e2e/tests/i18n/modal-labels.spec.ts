@@ -29,6 +29,8 @@ test.describe('i18n modal labels', () => {
       await list.waitForRows();
 
       await lang.switchLanguage('nl');
+      // Wait for NL schema to be reflected in the table before opening modal
+      await expect(page.getByRole('columnheader', { name: 'Titel' })).toBeVisible({ timeout: 5000 });
 
       await list.clickEdit(0);
 
@@ -44,11 +46,13 @@ test.describe('i18n modal labels', () => {
       await list.waitForRows();
 
       await lang.switchLanguage('nl');
+      // Wait for NL schema to be reflected in the table before opening modal
+      await expect(page.getByRole('columnheader', { name: 'Titel' })).toBeVisible({ timeout: 5000 });
 
       await list.clickEdit(0);
 
       // Modal h3 title: "Update Boeken" (prefix hardcoded, resource title translated)
-      const modalHeading = page.getByTestId('form-modal').locator('h3');
+      const modalHeading = page.getByTestId('form-modal').locator('h3').first();
       await expect(modalHeading).toContainText('Boeken', { timeout: 5000 });
     });
 
@@ -73,6 +77,8 @@ test.describe('i18n modal labels', () => {
       await list.waitForRows();
 
       await lang.switchLanguage('nl');
+      // Wait for NL schema to be reflected in the table before opening modal
+      await expect(page.getByRole('columnheader', { name: 'Titel' })).toBeVisible({ timeout: 5000 });
 
       await list.clickCreate();
 
@@ -104,11 +110,13 @@ test.describe('i18n modal labels', () => {
       await list.waitForRows();
 
       await lang.switchLanguage('nl');
+      // Wait for NL schema to be reflected in the table before opening modal
+      await expect(page.getByRole('columnheader', { name: 'Titel' })).toBeVisible({ timeout: 5000 });
 
       // clickView opens the read-only view modal
       await list.clickView(0);
 
-      await expect(page.getByTestId('form-modal').locator('h3')).toContainText('Boeken', { timeout: 5000 });
+      await expect(page.getByTestId('form-modal').locator('h3').first()).toContainText('Boeken', { timeout: 5000 });
     });
   });
 

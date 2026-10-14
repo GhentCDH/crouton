@@ -24,6 +24,8 @@ test.describe('i18n validation errors', () => {
 
     await list.navigateTo('user');
     await list.waitForRows();
+    // Confirm NL schema is loaded before opening modal
+    await expect(page.getByRole('columnheader', { name: 'Naam' })).toBeVisible({ timeout: 5000 });
 
     await list.clickCreate();
     await form.waitForModal();
@@ -46,6 +48,8 @@ test.describe('i18n validation errors', () => {
 
     await list.navigateTo('user');
     await list.waitForRows();
+    // Confirm NL schema is loaded before opening modal
+    await expect(page.getByRole('columnheader', { name: 'Naam' })).toBeVisible({ timeout: 5000 });
 
     await list.clickCreate();
     await form.waitForModal();
