@@ -10,6 +10,7 @@ import {
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  resolveColumnVisibility,
   resolveTableNode,
 } from '@ghentcdh/crouton-core';
 
@@ -92,7 +93,8 @@ export const fromJson = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  let views = buildViews(schema, enrichedColumns, json.layout);
+  const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
+  let views = buildViews(schema, visibilityColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = {
       ...views,

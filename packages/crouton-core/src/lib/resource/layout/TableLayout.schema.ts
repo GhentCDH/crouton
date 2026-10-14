@@ -121,18 +121,18 @@ const hasFieldIdInWrapper = (items: unknown[]): boolean =>
  * The root value of `layout.table`.
  * Either a plain TableNode (flat table) or a wrapper node containing exactly one TableNode.
  */
+const WRAPPER_TYPES = new Set<string>(['grid', 'vertical', 'horizontal', 'collapse', 'group']);
+
 export const TableLayoutRootSchema = z
   .union([TableNodeSchema, TableWrapperNodeSchema])
   .superRefine((val, ctx) => {
-    // Only validate wrapper nodes (ones without type:"table")
-    if (
-      typeof val !== 'object' ||
-      val === null ||
-      (val as TableNode).type === 'table' ||
-      !Array.isArray((val as TableWrapperNode).items)
-    ) {
-      return;
-    }
+    if (typeof val !== 'object' || val === null) return;
+    const node = val as Record<string, unknown>;
+    // A flat TableNode: no wrapper type, OR has table-node-only fields
+    const isWrapper =
+      typeof node['type'] === 'string' &&
+      WRAPPER_TYPES.has(node['type'] as string);
+    if (!isWrapper) return;
     const wrapper = val as TableWrapperNode;
 
     // D4: exactly one table node in wrapper tree

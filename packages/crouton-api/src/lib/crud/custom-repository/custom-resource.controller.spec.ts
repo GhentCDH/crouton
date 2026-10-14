@@ -60,7 +60,7 @@ const RESOURCE_JSON = {
     table: {
       searchFields: ['title'],
       filterFields: ['title'],
-      items: [{ id: 'title', sortable: true, defaultSort: true }],
+      items: [{ id: 'title', sortable: true, defaultSort: true }, 'metadata'],
     },
   },
 };

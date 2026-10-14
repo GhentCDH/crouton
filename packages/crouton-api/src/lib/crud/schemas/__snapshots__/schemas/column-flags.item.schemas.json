@@ -42,11 +42,6 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "name": {
             "type": "string",
             "title": "Name",
@@ -56,10 +51,6 @@
             "type": "string",
             "title": "Created at",
             "minLength": 1
-          },
-          "price": {
-            "type": "number",
-            "title": "Price"
           }
         },
         "additionalProperties": true
@@ -82,22 +73,6 @@
               "sortId": "createdAt",
               "label": "Created at",
               "sortable": false
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/price",
-            "options": {
-              "sortId": "price",
-              "label": "Price"
             }
           }
         ],

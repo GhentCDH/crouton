@@ -42,26 +42,10 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "loanedAt": {
             "type": "string",
             "title": "Loaned at",
             "minLength": 1
-          },
-          "returnedAt": {
-            "type": "string",
-            "title": "Returned at",
-            "minLength": 1
-          },
-          "userId": {
-            "title": "User"
-          },
-          "bookId": {
-            "title": "Book"
           }
         },
         "additionalProperties": true
@@ -75,44 +59,6 @@
             "options": {
               "sortId": "loanedAt",
               "label": "Loaned at"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/returnedAt",
-            "options": {
-              "sortId": "returnedAt",
-              "label": "Returned at"
-            }
-          },
-          {
-            "type": "RecordCell",
-            "scope": "#/properties/userId",
-            "options": {
-              "resourceUri": "http://localhost:3000/user",
-              "schemasUri": "http://localhost:3000/user/schemas",
-              "sortable": false,
-              "relationType": "manyToOne",
-              "label": "User"
-            }
-          },
-          {
-            "type": "RecordCell",
-            "scope": "#/properties/bookId",
-            "options": {
-              "resourceUri": "http://localhost:3000/book",
-              "schemasUri": "http://localhost:3000/book/schemas",
-              "sortable": false,
-              "relationType": "manyToOne",
-              "label": "Book"
             }
           }
         ],

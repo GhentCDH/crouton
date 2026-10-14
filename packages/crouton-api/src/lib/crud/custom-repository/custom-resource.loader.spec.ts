@@ -90,9 +90,14 @@ describe('custom resource loading', () => {
     const views = config.views!;
 
     expect(Object.keys(views).sort()).toEqual(['form', 'table', 'view']);
-    const properties = (views.table.json_schema as any).properties;
-    expect(properties.title.type).toBe('string');
-    expect(properties.metadata).toMatchObject({
+    // layout.table is auto-generated from sortable:true on title → only title is in the table.
+    const tableProps = (views.table.json_schema as any).properties;
+    expect(tableProps.title.type).toBe('string');
+    expect(tableProps.metadata).toBeUndefined(); // layout.table only lists title
+
+    // No layout.form → all columns visible; metadata still appears in the form schema
+    const formProps = (views.form.json_schema as any).properties;
+    expect(formProps.metadata).toMatchObject({
       type: 'object',
       properties: { name: { type: 'string' } },
     });

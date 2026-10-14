@@ -267,6 +267,104 @@ export const refineByKind = (
   // a resource on a custom-adapter datasource may have no model and is still valid.
 };
 
+// ── Phase 3: layout validation ───────────────────────────────────────────
+
+/** Collect all field ids (recursively) from a parsed FormLayoutNode tree. */
+const collectFormLayoutIds = (node: { items?: unknown[] }): string[] => {
+  const ids: string[] = [];
+  for (const item of node.items ?? []) {
+    if (typeof item === 'string') {
+      ids.push(item);
+    } else if (item && typeof item === 'object') {
+      const obj = item as Record<string, unknown>;
+      if ('id' in obj && typeof obj['id'] === 'string') {
+        ids.push(obj['id']);
+      } else if (!('component' in obj) && 'items' in obj) {
+        ids.push(...collectFormLayoutIds(obj as { items?: unknown[] }));
+      }
+    }
+  }
+  return ids;
+};
+
+/** Depth-first: find the table node in a parsed TableLayoutRoot. */
+const findParsedTableNode = (node: Record<string, unknown>): Record<string, unknown> | undefined => {
+  const t = node['type'];
+  if ((!t || t === 'table') && !('component' in node)) return node;
+  const items = node['items'];
+  if (!Array.isArray(items)) return undefined;
+  for (const item of items) {
+    if (item && typeof item === 'object') {
+      const found = findParsedTableNode(item as Record<string, unknown>);
+      if (found) return found;
+    }
+  }
+  return undefined;
+};
+
+/** P3, P4, P5: validate layout field ids against known columns. */
+export const refineLayout = (
+  obj: z.infer<typeof ResourceJsonShape>,
+  ctx: z.RefinementCtx,
+): void => {
+  const layout = obj.layout;
+  if (!layout) return;
+
+  const allIds = new Set([
+    ...Object.keys(obj.columns ?? {}),
+    ...(obj.calculatedColumns ?? []).map((c) => c.id),
+  ]);
+
+  const validateIds = (ids: string[], path: string[], label: string): void => {
+    const seen = new Set<string>();
+    for (const id of ids) {
+      if (!allIds.has(id)) {
+        ctx.addIssue({
+          code: 'custom',
+          path,
+          message: `Unknown column id "${id}" in layout.${label} — not found in columns or calculatedColumns.`,
+        });
+      }
+      if (seen.has(id)) {
+        ctx.addIssue({
+          code: 'custom',
+          path,
+          message: `Duplicate column id "${id}" in layout.${label} — each id may appear only once per context.`,
+        });
+      }
+      seen.add(id);
+    }
+  };
+
+  if (layout.form) {
+    validateIds(collectFormLayoutIds(layout.form), ['layout', 'form'], 'form');
+  }
+  if (layout.view) {
+    validateIds(collectFormLayoutIds(layout.view), ['layout', 'view'], 'view');
+  }
+  if (layout.table) {
+    const tableNode = findParsedTableNode(layout.table as unknown as Record<string, unknown>);
+    if (tableNode) {
+      const ids = (tableNode['items'] as unknown[] | undefined ?? [])
+        .filter((item) => !((item as any)?.component))
+        .map((item) => typeof item === 'string' ? item : (item as any)?.id as string)
+        .filter(Boolean);
+      validateIds(ids, ['layout', 'table'], 'table');
+
+      for (const sf of (tableNode['searchFields'] as string[] | undefined ?? [])) {
+        if (!allIds.has(sf)) {
+          ctx.addIssue({ code: 'custom', path: ['layout', 'table', 'searchFields'], message: `Unknown column id "${sf}" in searchFields.` });
+        }
+      }
+      for (const ff of (tableNode['filterFields'] as string[] | undefined ?? [])) {
+        if (!allIds.has(ff)) {
+          ctx.addIssue({ code: 'custom', path: ['layout', 'table', 'filterFields'], message: `Unknown column id "${ff}" in filterFields.` });
+        }
+      }
+    }
+  }
+};
+
 /**
  * Find the table node within a raw (unparsed) layout object.
  * In a flat table layout, the table IS the layout.table value.
@@ -526,7 +624,7 @@ export const buildResourceJsonSchema = () => {
       for (const err of _rawLayoutErrors) {
         ctx.addIssue({ code: 'custom', path: err.path, message: err.message });
       }
-    }).transform((obj) => {
+    }).superRefine(refineLayout).transform((obj) => {
       const title = obj.title ?? labelFromId(obj.name);
       const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
       const defaultOps =

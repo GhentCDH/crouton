@@ -42,11 +42,6 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "title": {
             "type": "string",
             "title": "Title",
@@ -60,19 +55,6 @@
           "publishedYear": {
             "type": "integer",
             "title": "Published year"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "enum": [
-              "draft",
-              "published",
-              "archived"
-            ],
-            "minLength": 1
-          },
-          "authorId": {
-            "title": "Author"
           }
         },
         "additionalProperties": true
@@ -102,47 +84,6 @@
             "options": {
               "sortId": "publishedYear",
               "label": "Published year"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/status",
-            "options": {
-              "values": [
-                {
-                  "value": "draft",
-                  "label": "Draft"
-                },
-                {
-                  "value": "published",
-                  "label": "Published"
-                },
-                {
-                  "value": "archived",
-                  "label": "Archived"
-                }
-              ],
-              "sortId": "status",
-              "label": "Status"
-            }
-          },
-          {
-            "type": "RecordCell",
-            "scope": "#/properties/authorId",
-            "options": {
-              "resourceUri": "http://localhost:3000/author",
-              "schemasUri": "http://localhost:3000/author/schemas",
-              "sortable": false,
-              "relationType": "manyToOne",
-              "label": "Author"
             }
           }
         ],
