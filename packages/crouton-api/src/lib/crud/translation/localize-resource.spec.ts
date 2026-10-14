@@ -103,7 +103,7 @@ describe('localizeResource', () => {
 
   it('translates column labels', () => {
     const result = localizeResource(makeResource(), t);
-    const cols = Object.values(result.columns);
+    const cols = Object.values(result.columns) as any[];
     const titleCol = cols.find((c: any) => c.id === 'title');
     expect(titleCol?.label).toBe('Titel');
   });
@@ -112,7 +112,7 @@ describe('localizeResource', () => {
     const original = makeResource();
     localizeResource(original, t);
     expect(original.title).toBe('Books');
-    expect(Object.values(original.columns).find((c: any) => c.id === 'title')?.label).toBe('Title');
+    expect((Object.values(original.columns) as any[]).find((c: any) => c.id === 'title')?.label).toBe('Title');
   });
 
   it('patches view json_schema property titles', () => {
@@ -137,7 +137,7 @@ describe('localizeResource', () => {
 
   it('translates enum option labels', () => {
     const result = localizeResource(makeResource(), t);
-    const statusCol = Object.values(result.columns).find((c: any) => c.id === 'status');
+    const statusCol = (Object.values(result.columns) as any[]).find((c: any) => c.id === 'status');
     const values = statusCol?.fieldInput?.options?.values;
     expect(values?.find((v: any) => v.value === 'draft')?.label).toBe('Concept');
     expect(values?.find((v: any) => v.value === 'published')?.label).toBe('Gepubliceerd');
@@ -159,7 +159,7 @@ describe('localizeResource', () => {
     const tEn = createTranslator({ en: enBundle }, 'en', 'en');
     const result = localizeResource(makeResource(), tEn);
     expect(result.title).toBe('Books');
-    const titleCol = Object.values(result.columns).find((c: any) => c.id === 'title');
+    const titleCol = (Object.values(result.columns) as any[]).find((c: any) => c.id === 'title');
     expect(titleCol?.label).toBe('Title');
   });
 
@@ -171,7 +171,7 @@ describe('localizeResource', () => {
       ],
     });
     const result = localizeResource(resourceWithIsbn, t);
-    const isbnCol = Object.values(result.columns).find((c: any) => c.id === 'isbn');
+    const isbnCol = (Object.values(result.columns) as any[]).find((c: any) => c.id === 'isbn');
     expect(isbnCol?.label).toBe('ISBN');
   });
 });
