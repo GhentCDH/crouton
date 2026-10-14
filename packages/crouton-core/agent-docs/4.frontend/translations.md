@@ -207,7 +207,7 @@ For any other language, the English strings are used as fallback.
 | `autoSave.pending` | Fill required fields… | Vul verplichte velden in… | Remplissez les champs… | Pflichtfelder ausfüllen… |
 | `autoSave.error` | Save failed | Opslaan mislukt | Échec de l'enregistrement | Speichern fehlgeschlagen |
 | `filter.contains` | contains | bevat | contient | enthält |
-| `filter.not_contains` | not contains | bevat niet | ne contient pas | enthält niet |
+| `filter.not_contains` | not contains | bevat niet | ne contient pas | enthält nicht |
 | `filter.equals` | equals | is gelijk aan | est égal à | ist gleich |
 | `filter.not_equals` | not equals | is niet gelijk aan | n'est pas égal à | ist nicht gleich |
 | `filter.gt` | > | > | > | > |

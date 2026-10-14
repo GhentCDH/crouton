@@ -200,7 +200,7 @@ const de: UiDefaults = {
   },
 };
 
-const defaults: Record<string, UiDefaults> = { en, nl, fr, de };
+export const defaults: Record<string, UiDefaults> = { en, nl, fr, de };
 
 export const getUiDefaults = (lang: string): UiDefaults =>
   defaults[lang] ?? defaults['en'];
