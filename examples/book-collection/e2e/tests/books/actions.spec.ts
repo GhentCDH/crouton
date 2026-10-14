@@ -73,7 +73,6 @@ test.describe('book actions', () => {
       firstRow.getByRole('button', { name: /open on open library/i }).click(),
     ]);
 
-    await newTab.waitForLoadState('domcontentloaded');
     expect(newTab.url()).toContain('openlibrary.org/isbn/');
   });
 });
