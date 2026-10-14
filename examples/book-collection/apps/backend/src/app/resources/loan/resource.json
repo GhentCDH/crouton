@@ -5,11 +5,13 @@
   "title": "Loans",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "loanedAt": {  "fieldInput": {
-      "defaultValue":"$now",
-      "type":"date"
-    } },
-    "returnedAt": {  "required": false },
+    "loanedAt": {
+      "fieldInput": {
+        "defaultValue": "$now",
+        "type": "date"
+      }
+    },
+    "returnedAt": { "required": false },
     "userId": {
       "hiddenInTable": true,
       "hiddenInView": true,
@@ -73,12 +75,5 @@
       }
     }
   },
-  "include": ["user", "book"],
-  "layout": {
-    "table": {
-      "items": [
-        { "id": "loanedAt", "sortable": true, "defaultSort": true }
-      ]
-    }
-  }
+  "include": ["user", "book"]
 }

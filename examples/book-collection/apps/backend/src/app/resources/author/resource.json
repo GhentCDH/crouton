@@ -23,14 +23,5 @@
       }
     }
   },
-  "include": ["books"],
-  "layout": {
-    "table": {
-      "searchFields": ["name"],
-      "filterFields": ["name"],
-      "items": [
-        { "id": "name", "sortable": true }
-      ]
-    }
-  }
+  "include": ["books"]
 }

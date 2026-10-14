@@ -10,15 +10,5 @@
     "email": {
       "unique": true
     }
-  },
-  "layout": {
-    "table": {
-      "searchFields": ["name", "email"],
-      "filterFields": ["name", "email"],
-      "items": [
-        { "id": "name", "sortable": true },
-        { "id": "email", "sortable": true }
-      ]
-    }
   }
 }
