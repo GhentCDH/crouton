@@ -19,8 +19,10 @@ export class LanguagePage {
   switchLanguage = async (lang: string) => {
     await this.dropdown.locator('[role="button"]').click();
     const display = this.localeDisplayName(lang);
-    await this.page.locator('#drawer-left-panel .dropdown-content a').filter({ hasText: display }).click();
-    await this.page.waitForLoadState('networkidle');
+    await Promise.all([
+      this.page.waitForResponse((r) => r.url().includes('/_app/layout') && r.status() === 200),
+      this.page.locator('#drawer-left-panel .dropdown-content a').filter({ hasText: display }).click(),
+    ]);
   };
 
   getCurrentLanguage = async (): Promise<string> => {
