@@ -1,0 +1,21 @@
+{
+  "name": "item",
+  "kind": "custom",
+  "route": "items",
+  "operations": {},
+  "schemaVersion": 1,
+  "columns": {
+    "id": { "type": "string", "idField": true, "hiddenInForm": true },
+    "title": { "type": "string" },
+    "status": { "type": "string", "hiddenInTable": true },
+    "internal": { "type": "string", "hiddenInForm": true, "hiddenInView": true }
+  },
+  "layout": {
+    "form": {
+      "items": ["id", "title", "status"]
+    },
+    "table": {
+      "items": ["title", "status"]
+    }
+  }
+}

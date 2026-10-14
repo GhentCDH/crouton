@@ -1,0 +1,24 @@
+{
+  "name": "item",
+  "kind": "custom",
+  "route": "items",
+  "operations": {},
+  "schemaVersion": 1,
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "title": { "type": "string" },
+    "status": { "type": "string" },
+    "score": {
+      "type": "number",
+      "fieldView": {
+        "type": "number",
+        "format": "rating"
+      }
+    }
+  },
+  "layout": {
+    "view": {
+      "items": ["title", "status", "score"]
+    }
+  }
+}

@@ -1,0 +1,273 @@
+{
+  "id": "item",
+  "name": "item",
+  "route": "items",
+  "uri": "http://localhost:3000/items",
+  "title": "Item",
+  "idField": "id",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/items",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/items",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "minLength": 1
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id",
+              "label": "Id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title",
+              "label": "Title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/status",
+            "options": {
+              "sortId": "status",
+              "label": "Status"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/score",
+            "options": {
+              "sortId": "score",
+              "label": "Score"
+            }
+          }
+        ],
+        "options": {
+          "defaultSortId": "id"
+        }
+      }
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "minLength": 1
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Status"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/score",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Score"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "minLength": 1
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Status"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/score",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Score"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

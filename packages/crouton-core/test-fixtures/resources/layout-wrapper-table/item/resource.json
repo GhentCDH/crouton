@@ -1,0 +1,34 @@
+{
+  "name": "item",
+  "kind": "custom",
+  "route": "items",
+  "operations": {},
+  "schemaVersion": 1,
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "title": { "type": "string" },
+    "status": { "type": "string" }
+  },
+  "layout": {
+    "table": {
+      "type": "grid",
+      "columns": 12,
+      "items": [
+        { "component": "ItemBanner", "colspan": 12 },
+        {
+          "type": "table",
+          "title": "Items",
+          "items": [{ "id": "title", "sortable": true, "defaultSort": true }, "status"],
+          "searchFields": ["title"],
+          "filterFields": ["status"],
+          "tableActions": [
+            { "id": "export", "type": "link", "href": "/items/export", "label": "Export" }
+          ],
+          "rowActions": [
+            { "id": "view", "type": "link", "href": "/items/{id}", "label": "View" }
+          ]
+        }
+      ]
+    }
+  }
+}

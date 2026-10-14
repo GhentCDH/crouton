@@ -1,0 +1,314 @@
+{
+  "id": "item",
+  "name": "item",
+  "route": "items",
+  "uri": "http://localhost:3000/items",
+  "title": "Item",
+  "idField": "id",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/items",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/items",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "minLength": 1
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title",
+              "label": "Title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/category",
+            "options": {
+              "sortId": "category",
+              "label": "Category"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/year",
+            "options": {
+              "sortId": "year",
+              "label": "Year"
+            }
+          }
+        ],
+        "options": {
+          "defaultSortId": "id",
+          "filter": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string",
+                  "title": "Category",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            },
+            "uischema": {
+              "type": "GridLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/category",
+                  "options": {
+                    "format": "text",
+                    "styles": {
+                      "width": "full",
+                      "control": {
+                        "wrapper": "input-full"
+                      }
+                    },
+                    "colspan": 12,
+                    "label": "Category"
+                  }
+                }
+              ]
+            },
+            "initialData": {}
+          }
+        }
+      }
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "minLength": 1
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/category",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Category"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/year",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Year"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "minLength": 1
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/category",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Category"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/year",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Year"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

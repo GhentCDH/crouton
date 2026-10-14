@@ -1,0 +1,294 @@
+{
+  "id": "item",
+  "name": "item",
+  "route": "items",
+  "uri": "http://localhost:3000/items",
+  "title": "Item",
+  "idField": "id",
+  "modalSize": "sm",
+  "operations": {
+    "findAll": {
+      "uri": "http://localhost:3000/items",
+      "method": "get"
+    },
+    "findOne": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "get"
+    },
+    "create": {
+      "uri": "http://localhost:3000/items",
+      "method": "post"
+    },
+    "update": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "put"
+    },
+    "patch": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "patch"
+    },
+    "delete": {
+      "uri": "http://localhost:3000/items/{id}",
+      "method": "delete"
+    },
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "columns": 12,
+        "elements": [
+          {
+            "component": "ItemBanner",
+            "colspan": 12
+          },
+          {
+            "type": "Table",
+            "elements": [
+              {
+                "type": "TextCell",
+                "scope": "#/properties/title",
+                "options": {
+                  "sortId": "title",
+                  "label": "Title"
+                }
+              },
+              {
+                "type": "TextCell",
+                "scope": "#/properties/status",
+                "options": {
+                  "sortId": "status",
+                  "label": "Status"
+                }
+              }
+            ],
+            "options": {
+              "tableActions": [
+                {
+                  "tooltip": "Export",
+                  "type": "link",
+                  "id": "export",
+                  "label": "Export",
+                  "href": "/items/export",
+                  "blank": true
+                }
+              ],
+              "rowActions": [
+                {
+                  "tooltip": "View",
+                  "type": "link",
+                  "id": "view",
+                  "label": "View",
+                  "href": "/items/{id}",
+                  "blank": true
+                }
+              ],
+              "defaultSortId": "title",
+              "filter": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "title": "Status",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                "uischema": {
+                  "type": "GridLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/status",
+                      "options": {
+                        "format": "text",
+                        "styles": {
+                          "width": "full",
+                          "control": {
+                            "wrapper": "input-full"
+                          }
+                        },
+                        "colspan": 12,
+                        "label": "Status"
+                      }
+                    }
+                  ]
+                },
+                "initialData": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Status"
+            }
+          }
+        ]
+      }
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Id"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Title"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12,
+              "label": "Status"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

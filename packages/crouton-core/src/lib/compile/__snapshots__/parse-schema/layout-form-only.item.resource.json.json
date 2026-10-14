@@ -1,0 +1,66 @@
+{
+  "id": "item",
+  "uri": "http://localhost:3000/items",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/title",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Title"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/status",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Status"
+          }
+        }
+      ]
+    }
+  }
+}

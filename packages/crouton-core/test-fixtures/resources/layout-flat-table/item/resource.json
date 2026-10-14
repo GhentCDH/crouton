@@ -1,0 +1,28 @@
+{
+  "name": "item",
+  "kind": "custom",
+  "route": "items",
+  "operations": {},
+  "schemaVersion": 1,
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "title": { "type": "string" },
+    "status": { "type": "string" },
+    "year": { "type": "integer" },
+    "notes": { "type": "string", "hiddenInTable": true }
+  },
+  "layout": {
+    "table": {
+      "items": [
+        { "id": "title", "sortable": true, "defaultSort": true },
+        "status",
+        "year"
+      ],
+      "searchFields": ["title"],
+      "filterFields": ["status"],
+      "rowActions": [
+        { "id": "view", "type": "link", "href": "/items/{id}", "label": "View" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "id": "item",
+  "uri": "http://localhost:3000/items",
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "patch": true,
+    "delete": true,
+    "lookup": "http://localhost:3000/items?q={text}"
+  },
+  "schema": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "minLength": 1
+        },
+        "year": {
+          "type": "integer",
+          "title": "Year"
+        },
+        "notes": {
+          "type": "string",
+          "title": "Notes",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "ui": {
+      "type": "GridLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/id",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Id"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/title",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Title"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/status",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Status"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/year",
+          "options": {
+            "format": "integer",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Year"
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/notes",
+          "options": {
+            "format": "text",
+            "styles": {
+              "width": "full",
+              "control": {
+                "wrapper": "input-full"
+              }
+            },
+            "colspan": 12,
+            "label": "Notes"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "item",
+  "kind": "custom",
+  "route": "items",
+  "operations": {},
+  "schemaVersion": 1,
+  "columns": {
+    "id": { "type": "string", "idField": true },
+    "title": { "type": "string" },
+    "category": { "type": "string" },
+    "year": { "type": "integer" }
+  },
+  "layout": {
+    "table": {
+      "items": ["title", "category", "year"],
+      "searchFields": ["title", "category"],
+      "filterFields": ["category"]
+    }
+  }
+}
