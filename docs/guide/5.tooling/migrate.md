@@ -1,32 +1,32 @@
 ---
-description: crouton migrate — automated codemod for upgrading resource.json files between schema versions.
+description: crouton migrate — automated codemod for upgrading resource.json files.
 ---
 
 # Migrations
 
-The `crouton migrate` command transforms `resource.json` files to a newer schema version automatically.
+The `crouton migrate` command transforms `resource.json` files automatically.
 
-## `crouton migrate layout`
+## `crouton migrate`
 
-Migrates `resource.json` files from schema v1 to v2:
+Applies all pending migrations:
 
-- `controls` → `items` on every layout node (preserving render order)
-- `actions` → `rowActions` on table nodes and sub-resources
-- Moves `actions`, `tableActions`, `searchFields`, `filterFields` from wrapper roots to the inner `type: "table"` node
-- Bumps `schemaVersion` to `2`
+- Schema-version bumps (when `CURRENT_RESOURCE_VERSION` is incremented)
+- **Layout precedence fix** — makes existing layouts exhaustive so the rendered output stays the same after the layout-wins change:
+  - Appends visible (not-hidden-by-flag) columns that are missing from the layout for each defined context
+  - Removes columns listed in the layout that have `hiddenIn<Ctx>: true` (old code dropped them; new code shows them)
 
 ```bash
 # Preview changes without writing
-crouton migrate layout --dry-run
+crouton migrate --dry-run
 
 # Apply to all resource.json files in the configured resourcesDir
-crouton migrate layout
+crouton migrate
 
 # Apply to a specific directory or file
-crouton migrate layout src/resources/
+crouton migrate src/resources/
 
 # CI: exit 1 if any file needs migration
-crouton migrate layout --check
+crouton migrate --check
 ```
 
 ### Flags
@@ -41,8 +41,4 @@ The transform is **idempotent** — running it twice produces no further diff.
 
 ### When to run
 
-Run after upgrading `@ghentcdh/crouton-core` to a version that requires `schemaVersion: 2`. The schema validator will tell you which files need migration via a clear error:
-
-```
-Error: 'controls' was removed — use 'items'. Run 'crouton migrate layout'.
-```
+Run after upgrading `@ghentcdh/crouton-core` to a version that introduces breaking layout or schema changes. The schema validator will tell you when migration is needed.

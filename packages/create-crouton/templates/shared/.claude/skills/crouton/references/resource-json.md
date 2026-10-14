@@ -160,3 +160,11 @@ Order is preserved — items render exactly in the order declared.
 ```
 
 All table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`) go on the **`type: "table"` node**, never on the outer wrapper.
+
+## Layout is the full list
+
+When `layout.<ctx>` is defined (form / view / table), the `items` list is **exhaustive** — only listed columns are rendered in that context. Columns not listed are hidden regardless of any `hiddenIn*` flag. The flag is only consulted when no layout exists for that context.
+
+- An unknown id in a layout is a validation error.
+- A listed column with `hiddenIn<Ctx>: true` is still rendered (layout wins).
+- Run `crouton migrate` after adding a layout to an existing resource to avoid accidentally hiding columns.

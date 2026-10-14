@@ -32,3 +32,4 @@ export { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
 export * from './prisma-shell';
 export * from './validate';
 export * from './agent-block/upsert-agent-block';
+export * from './migrate/layout-precedence';

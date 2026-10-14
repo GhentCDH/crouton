@@ -273,7 +273,7 @@ Beyond the standard `colspan`/`label`/`type`/`options` overrides, table items al
 }
 ```
 
-Columns present in the table but not listed here are appended in their original order.
+The `items` list is the complete set of columns for the table. Only columns listed here are rendered; unlisted columns are hidden regardless of their `hiddenInTable` flag.
 
 <LayoutDemo example="table-order" />
 
@@ -333,12 +333,26 @@ Wrappers can nest arbitrarily:
 Use the wrapper pattern when you need a custom action component alongside the table — for example a barcode scanner that creates a record directly. Each component receives a `resource` prop (the `UseResource` instance for the current table).
 :::
 
-## Missing / extra columns
+## The layout is the full list
 
-- A control id that doesn't match a visible column → **skipped, dev warning logged**.
-- Visible columns not referenced anywhere in the layout → **appended at the end, dev warning logged** (nothing silently disappears).
+When `layout.<ctx>` is defined, it is the **only** source of truth for that context. The layout lists every column that should be rendered — columns not listed are hidden, regardless of their `hiddenIn*` flag.
 
-<LayoutDemo example="missing-extra" />
+- **Unknown id** in a layout → validation error at load time (prevents silent typos).
+- **Unlisted columns** → not rendered (use the codemod below to migrate old files).
+- **Listed column with `hiddenIn<Ctx>: true`** → rendered (the layout wins; the flag is ignored).
+
+This applies independently per context: a layout for `form` does not affect `table` or `view`.
+
+### Migrating existing files
+
+If you have resource files that relied on unlisted visible columns being appended automatically, run:
+
+```sh
+crouton migrate --dry-run   # preview changes
+crouton migrate             # apply
+```
+
+The codemod appends visible unlisted columns to the layout and removes hidden listed columns.
 
 ## Playground
 
