@@ -19,6 +19,7 @@ export * from './lib/resource';
 export * from './lib/config';
 export * from './lib/schema/label.helper';
 export * from './lib/view';
+export { buildLayouts } from './lib/layout';
 export * from './lib/i18n';
 export * from './lib/resource-header';
 export * from './lib/response';

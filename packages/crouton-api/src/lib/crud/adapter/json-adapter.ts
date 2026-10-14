@@ -6,7 +6,7 @@ import type {
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
-  buildViews,
+  buildLayouts,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
@@ -94,7 +94,7 @@ export const fromJson = (
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
-  let views = buildViews(schema, visibilityColumns, json.layout);
+  let views = buildLayouts(schema, visibilityColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = {
       ...views,
