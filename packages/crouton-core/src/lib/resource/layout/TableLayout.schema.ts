@@ -30,7 +30,6 @@ export const TableItemSchema = z.union([
 export const LayoutTableControlSchema = TableItemSchema;
 
 export const FilterFields = z.string();
-export const SearchFields = z.string();
 
 // ── TableNodeSchema ────────────────────────────────────────────────────
 
@@ -43,7 +42,6 @@ export const TableNodeSchema = z.object({
   type: z.literal('table').optional(),
   title: z.string().optional().describe('Static heading shown above the table.'),
   label: z.string().optional().describe('Alias for title; title takes precedence.'),
-  searchFields: z.array(SearchFields).optional(),
   filterFields: z.array(FilterFields).optional().default([]),
   items: z
     .array(TableItemSchema)

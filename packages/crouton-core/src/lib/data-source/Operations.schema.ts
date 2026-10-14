@@ -18,8 +18,21 @@ const OpEntry = z.union([
   z.object({ security: SecuritySchema.optional().describe('Security override for this specific operation. Overrides the resource-level global security block.') }),
 ]);
 
+const FindAllOpEntry = z.union([
+  z.boolean(),
+  ExternalOpEntry.extend({
+    search: z.array(z.string()).optional().describe('Column ids (or dot paths) that ?q= matches.'),
+    filter: z.array(z.string()).optional().describe('Optional allowlist of filter fields the server accepts.'),
+  }),
+  z.object({
+    security: SecuritySchema.optional().describe('Security override for this specific operation. Overrides the resource-level global security block.'),
+    search: z.array(z.string()).optional().describe('Column ids (or dot paths) that ?q= matches.'),
+    filter: z.array(z.string()).optional().describe('Optional allowlist of filter fields the server accepts.'),
+  }),
+]);
+
 export const JsonOperationsSchema = z.object({
-  findAll: OpEntry.default(true).describe('GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.'),
+  findAll: FindAllOpEntry.default(true).describe('GET collection endpoint. true = enabled, false = disabled, object = external URI or security override.'),
   findOne: OpEntry.default(true).describe('GET single record endpoint. true = enabled, false = disabled, object = external URI or security override.'),
   create: OpEntry.default(true).describe('POST create endpoint. true = enabled, false = disabled, object = external URI or security override.'),
   update: OpEntry.default(true).describe('PUT full-update endpoint. true = enabled, false = disabled, object = external URI or security override.'),
@@ -29,6 +42,16 @@ export const JsonOperationsSchema = z.object({
 
 export type JsonResourceOperations = z.infer<typeof JsonOperationsSchema>;
 export type JsonResourceOperationsInput = z.input<typeof JsonOperationsSchema>;
+
+export const extractFindAllSearch = (findAll: JsonResourceOperations['findAll']): string[] | undefined => {
+  if (typeof findAll !== 'object' || findAll === null) return undefined;
+  return (findAll as any).search ?? undefined;
+};
+
+export const extractFindAllFilter = (findAll: JsonResourceOperations['findAll']): string[] | undefined => {
+  if (typeof findAll !== 'object' || findAll === null) return undefined;
+  return (findAll as any).filter ?? undefined;
+};
 
 /**
  * Build an operations map for a sub-resource with full URIs.

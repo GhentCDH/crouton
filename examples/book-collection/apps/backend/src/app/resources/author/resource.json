@@ -23,5 +23,13 @@
       }
     }
   },
-  "include": ["books"]
+  "include": ["books"],
+  "operations": {
+    "findAll": { "search": ["name"] }
+  },
+  "layout": {
+    "table": {
+      "filterFields": ["name"]
+    }
+  }
 }

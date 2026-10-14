@@ -137,7 +137,7 @@ describe('resolveColumnVisibility', () => {
   });
 
   it('layout.table with no items falls back to hiddenInTable flags', () => {
-    const layout: Layout = { table: { searchFields: ['title'], filterFields: ['status'] } };
+    const layout: Layout = { table: { filterFields: ['status'] } };
     const result = resolveColumnVisibility(columns, layout);
     // No items → treat as if no table layout for visibility; column flags preserved
     expect(result.find((c) => c.id === 'status')?.hiddenInTable).toBe(true);

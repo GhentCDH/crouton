@@ -55,10 +55,21 @@ describe('layout validation (Phase 3)', () => {
       );
     });
 
-    it('rejects an unknown id in searchFields', () => {
+    it('rejects searchFields in layout (moved to operations.findAll.search)', () => {
       const result = ResourceJsonSchema.safeParse({
         ...base,
-        layout: { table: { items: ['title'], searchFields: ['nope'] } },
+        layout: { table: { items: ['title'], searchFields: ['title'] } },
+      });
+      expect(result.success).toBe(false);
+      expect(issueMessages(result)).toEqual(
+        expect.arrayContaining([expect.stringContaining('searchFields\' was moved')]),
+      );
+    });
+
+    it('rejects an unknown id in operations.findAll.search', () => {
+      const result = ResourceJsonSchema.safeParse({
+        ...base,
+        operations: { findAll: { search: ['nope'] } },
       });
       expect(result.success).toBe(false);
       expect(issueMessages(result)).toEqual(

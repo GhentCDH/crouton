@@ -3,15 +3,16 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type {
   CalculatedColumn,
   JsonColumn,
+  RelationFieldInputOptions,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
   buildViews,
+  extractFindAllSearch,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
   resolveColumnVisibility,
-  resolveTableNode,
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
@@ -108,7 +109,8 @@ export const fromJson = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns, dirPath, resolveTableNode(json.layout?.table as any)?.searchFields);
+  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(json.operations?.findAll));
+  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
@@ -131,6 +133,7 @@ export const fromJson = (
     ...(repository && { repository }),
     definition,
     ...(views && { views }),
+    ...(searchPaths?.length && { search: searchPaths }),
     ...(lookup && { lookup }),
     ...(subResources.length && { subResources }),
     ...(calculatedColumns.length && { calculatedColumns }),
@@ -145,39 +148,55 @@ export const fromJson = (
   } as unknown as Resource;
 };
 
+const buildSearch = (
+  columns: JsonColumn[] | undefined,
+  searchPaths: string[] | undefined,
+): string[] | undefined => {
+  if (!columns || !searchPaths?.length) return undefined;
+  return searchPaths.map((id) => {
+    const col = columns.find((c) => c.id === id);
+    if (!col) return id;
+    if (col.fieldInput?.format === 'relation') {
+      const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
+      if (opts?.displayKey) return `${id}.${opts.displayKey}`;
+    }
+    return id;
+  });
+};
+
 const buildLookup = (
   columns: JsonColumn[] | undefined,
   dirPath?: string,
-  searchFields?: string[],
+  search?: string[],
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
 
   const keyCol = columns.find((c) => c.idField);
-  const searchCols = columns.filter(
-    (c) => c.showInLookup || searchFields?.includes(c.id),
-  );
+  const lookupCols = columns.filter((c) => c.showInLookup);
 
-  if (!keyCol && !searchCols.length) return undefined;
+  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
 
-  const labels = searchCols.map((col) => {
-    if (col.fieldInput?.relationType === 'manyToOne') {
-      const relationName = col.id.replace(/Id$/, '');
-      if (col.fieldInput?.resource && dirPath) {
-        const child = resolveChildResource(col.fieldInput.resource, dirPath);
-        const childColumns = child
-          ? expandExtendColumns(child.json.columns ?? [], dirPath)
-          : undefined;
-        const displayCol = childColumns?.find(
-          (c) => !c.idField && !c.hiddenInTable,
-        );
-        if (displayCol) return `${relationName}.${displayCol.id}`;
-      }
-      const displayKey =
-        col.displayKey ?? (col.fieldInput?.options as any)?.displayKey;
-      if (displayKey) return `${relationName}.${displayKey}`;
-    }
-    return col.id;
-  });
+  const labels = lookupCols.length
+    ? lookupCols.map((col) => {
+        if (col.fieldInput?.relationType === 'manyToOne') {
+          const relationName = col.id.replace(/Id$/, '');
+          if (col.fieldInput?.resource && dirPath) {
+            const child = resolveChildResource(col.fieldInput.resource, dirPath);
+            const childColumns = child
+              ? expandExtendColumns(child.json.columns ?? [], dirPath)
+              : undefined;
+            const displayCol = childColumns?.find(
+              (c) => !c.idField && !c.hiddenInTable,
+            );
+            if (displayCol) return `${relationName}.${displayCol.id}`;
+          }
+          const displayKey =
+            col.displayKey ?? (col.fieldInput?.options as any)?.displayKey;
+          if (displayKey) return `${relationName}.${displayKey}`;
+        }
+        return col.id;
+      })
+    : (search ?? []);
 
   return {
     key: keyCol?.id ?? 'id',

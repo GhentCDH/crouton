@@ -183,7 +183,7 @@ export const buildResourceJsonPayload = (
   const operations: Record<string, unknown> = Object.fromEntries(
     RESOURCE_OPS.map((op) => [op, isOperationEnabled(definition, op)]),
   );
-  if (!isOperationExternal(definition, 'findAll')) {
+  if (!isOperationExternal(definition, 'findAll') && config.lookup) {
     operations['lookup'] = `${uri}?q={text}`;
   }
 
@@ -216,7 +216,8 @@ export const buildViewsPayload = (
   );
   if (
     isOperationEnabled(definition, 'findAll') &&
-    !isOperationExternal(definition, 'findAll')
+    !isOperationExternal(definition, 'findAll') &&
+    config.lookup
   ) {
     operations['lookup'] = `${baseUri}?q={text}`;
   }

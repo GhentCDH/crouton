@@ -10,5 +10,13 @@
     "email": {
       "unique": true
     }
+  },
+  "operations": {
+    "findAll": { "search": ["name", "email"] }
+  },
+  "layout": {
+    "table": {
+      "filterFields": ["name", "email"]
+    }
   }
 }
