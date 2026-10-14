@@ -68,11 +68,20 @@ test.describe('book actions', () => {
     const firstRow = list.getRows().first();
     await firstRow.hover();
 
-    const [newTab] = await Promise.all([
+    // Intercept before Open Library can redirect; window.open uses JS, not an <a> href
+    const isbnUrlPromise = new Promise<string>((resolve) => {
+      page.context().route(/openlibrary\.org\/isbn\//, (route) => {
+        resolve(route.request().url());
+        route.abort();
+      });
+    });
+
+    await Promise.all([
       page.waitForEvent('popup'),
       firstRow.getByRole('button', { name: /open on open library/i }).click(),
     ]);
 
-    expect(newTab.url()).toContain('openlibrary.org/isbn/');
+    expect(await isbnUrlPromise).toContain('openlibrary.org/isbn/');
+    await page.context().unroute(/openlibrary\.org\/isbn\//);
   });
 });
