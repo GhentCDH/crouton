@@ -26,13 +26,20 @@ test.describe('book actions', () => {
     await list.navigateTo('book');
     await list.waitForRows();
 
-    const [newTab] = await Promise.all([
+    const urlPromise = new Promise<string>((resolve) => {
+      page.context().route(/openlibrary\.org/, (route) => {
+        resolve(route.request().url());
+        route.abort();
+      });
+    });
+
+    await Promise.all([
       page.waitForEvent('popup'),
       page.getByRole('button', { name: /search open library/i }).click(),
     ]);
 
-    await newTab.waitForLoadState('domcontentloaded');
-    expect(newTab.url()).toContain('openlibrary.org');
+    expect(await urlPromise).toContain('openlibrary.org');
+    await page.context().unroute(/openlibrary\.org/);
   });
 
   test('row action: Open on Open Library button visible for book with isbn', async ({

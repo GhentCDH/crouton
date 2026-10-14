@@ -1,8 +1,207 @@
-# Migration Guide — next-alpha: layout.table consolidation
+# Migration Guide — next-alpha
 
-## Summary
+---
 
-All table-specific configuration has moved from column-level flags and resource-level arrays into `layout.table`. The column schema no longer accepts `sortable`, `defaultSort`, `searchable`, `filterable`, `showWhen`, `hideWhen`, `disabledWhen`, or `fieldTable`. The resource root no longer accepts `actions` or `tableActions`. Everything now lives under `layout.table` where it belongs structurally. A backward-compat transform is applied at parse time so existing files still load, but editor autocomplete will flag these as unknown fields — migrate now.
+## Layout: `controls` → `items` (breaking, `schemaVersion` 2)
+
+All layout nodes now use a single `items` list. The separate `controls` list is removed. Run the codemod to migrate automatically:
+
+```bash
+crouton migrate layout --dry-run   # preview changes
+crouton migrate layout              # apply
+```
+
+Or use `--check` in CI to fail if any file needs migration:
+
+```bash
+crouton migrate layout --check
+```
+
+### BEFORE / AFTER — form layout
+
+```json
+// BEFORE (schemaVersion: 1)
+{
+  "layout": {
+    "form": {
+      "type": "grid",
+      "columns": 12,
+      "controls": [
+        { "id": "title", "colspan": 9 },
+        { "id": "status", "colspan": 3 }
+      ],
+      "items": [
+        { "type": "collapse", "title": "Meta", "controls": ["createdAt"] }
+      ]
+    }
+  }
+}
+
+// AFTER (schemaVersion: 2)
+{
+  "schemaVersion": 2,
+  "layout": {
+    "form": {
+      "type": "grid",
+      "columns": 12,
+      "items": [
+        { "id": "title", "colspan": 9 },
+        { "id": "status", "colspan": 3 },
+        { "type": "collapse", "title": "Meta", "items": ["createdAt"] }
+      ]
+    }
+  }
+}
+```
+
+Order is now fully preserved — fields and nested containers render in the order they appear in `items`.
+
+### BEFORE / AFTER — flat table
+
+```json
+// BEFORE
+{
+  "layout": {
+    "table": {
+      "controls": [
+        { "id": "title", "sortable": true },
+        "status", "createdAt"
+      ],
+      "actions": [{ "id": "approve", "label": "Approve", "type": "post" }],
+      "tableActions": [{ "id": "export", "label": "Export", "type": "post" }],
+      "searchFields": ["title"],
+      "filterFields": ["status"]
+    }
+  }
+}
+
+// AFTER
+{
+  "schemaVersion": 2,
+  "layout": {
+    "table": {
+      "items": [
+        { "id": "title", "sortable": true },
+        "status", "createdAt"
+      ],
+      "rowActions": [{ "id": "approve", "label": "Approve", "type": "post" }],
+      "tableActions": [{ "id": "export", "label": "Export", "type": "post" }],
+      "searchFields": ["title"],
+      "filterFields": ["status"]
+    }
+  }
+}
+```
+
+### BEFORE / AFTER — wrapper table
+
+```json
+// BEFORE
+{
+  "layout": {
+    "table": {
+      "type": "grid",
+      "columns": 12,
+      "controls": [{ "component": "CreateByIsbn" }],
+      "items": [
+        {
+          "type": "table",
+          "controls": ["title", "author", "isbn"]
+        }
+      ],
+      "actions": [{ "id": "open", "type": "link", "href": "/isbn/{isbn}", "label": "Open" }],
+      "searchFields": ["title", "isbn"]
+    }
+  }
+}
+
+// AFTER
+{
+  "schemaVersion": 2,
+  "layout": {
+    "table": {
+      "type": "grid",
+      "columns": 12,
+      "items": [
+        { "component": "CreateByIsbn" },
+        {
+          "type": "table",
+          "items": ["title", "author", "isbn"],
+          "rowActions": [{ "id": "open", "type": "link", "href": "/isbn/{isbn}", "label": "Open" }],
+          "searchFields": ["title", "isbn"]
+        }
+      ]
+    }
+  }
+}
+```
+
+All table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`) now go on the **table node** (`type: "table"`), not the outer wrapper.
+
+---
+
+## `actions` → `rowActions` (breaking)
+
+The `actions` key on a table node or sub-resource is renamed to `rowActions`. The codemod handles this automatically.
+
+```json
+// BEFORE
+{ "layout": { "table": { "actions": [...] } } }
+
+// AFTER
+{ "layout": { "table": { "rowActions": [...] } } }
+```
+
+Sub-resources:
+
+```json
+// BEFORE
+{ "subResources": [{ "childRoute": "chapters", "layout": { "table": { "actions": [...] } } }] }
+
+// AFTER
+{ "subResources": [{ "childRoute": "chapters", "layout": { "table": { "rowActions": [...] } } }] }
+```
+
+---
+
+## `/schemas` API response changes (v2)
+
+> **This section affects custom frontends or integrations that consume the `/schemas` HTTP endpoint directly.**
+
+| Old location | New location | Notes |
+|---|---|---|
+| `schemas.table.actions` | `schemas.table.ui.options.rowActions` | was `actions`, now `rowActions` |
+| `schemas.table.tableActions` | `schemas.table.ui.options.tableActions` | name unchanged, location moved |
+| `schemas.table.defaultSort` | `schemas.table.ui.options.defaultSortId` | renamed |
+| `schemas.filter` | `schemas.table.ui.options.filter` | removed top-level key |
+
+The `Table.options` shape:
+
+```json
+{
+  "type": "Table",
+  "options": {
+    "defaultSortId": "createdAt",
+    "title": "Books",
+    "rowActions": [{ "id": "approve", "label": "Approve", ... }],
+    "tableActions": [{ "id": "export", "label": "Export CSV", ... }],
+    "filter": {
+      "schema": { ... },
+      "uischema": { ... },
+      "initialData": {}
+    }
+  },
+  "elements": [...]
+}
+```
+
+For wrapper layouts the `Table` node is nested inside the outer element tree at its declared position. Components and wrapper containers appear as sibling elements before/after it.
+
+---
+
+## Previous breaking change: `layout.table` consolidation
+
+All table-specific configuration has moved from column-level flags and resource-level arrays into `layout.table`. The column schema no longer accepts `sortable`, `defaultSort`, `searchable`, `filterable`, `showWhen`, `hideWhen`, `disabledWhen`, or `fieldTable`. The resource root no longer accepts `actions` or `tableActions`. Everything now lives under `layout.table` where it belongs structurally.
 
 ---
 
@@ -23,7 +222,7 @@ All table-specific configuration has moved from column-level flags and resource-
 {
   "layout": {
     "table": {
-      "controls": [
+      "items": [
         { "id": "title", "sortable": true },
         { "id": "createdAt", "sortable": true, "defaultSort": true }
       ]
@@ -32,7 +231,7 @@ All table-specific configuration has moved from column-level flags and resource-
 }
 ```
 
-Move both flags to `layout.table.controls[]` entries for the same column id.
+Move both flags to `layout.table.items[]` entries for the same column id.
 
 ### `searchable`
 
@@ -54,8 +253,6 @@ Move both flags to `layout.table.controls[]` entries for the same column id.
   }
 }
 ```
-
-`searchFields` is a flat array of column ids. Relation columns still automatically resolve to their display field.
 
 ### `filterable`
 
@@ -84,15 +281,9 @@ Move both flags to `layout.table.controls[]` entries for the same column id.
 // BEFORE (deprecated)
 {
   "columns": {
-    "endDate": {
-      "showWhen": { "field": "status", "eq": "active" }
-    },
-    "reason": {
-      "hideWhen": { "field": "status", "eq": "active" }
-    },
-    "approvedBy": {
-      "disabledWhen": { "field": "role", "neq": "admin" }
-    }
+    "endDate": { "showWhen": { "field": "status", "eq": "active" } },
+    "reason": { "hideWhen": { "field": "status", "eq": "active" } },
+    "approvedBy": { "disabledWhen": { "field": "role", "neq": "admin" } }
   }
 }
 
@@ -100,7 +291,7 @@ Move both flags to `layout.table.controls[]` entries for the same column id.
 {
   "layout": {
     "table": {
-      "controls": [
+      "items": [
         { "id": "endDate", "showWhen": { "field": "status", "eq": "active" } },
         { "id": "reason", "hideWhen": { "field": "status", "eq": "active" } },
         { "id": "approvedBy", "disabledWhen": { "field": "role", "neq": "admin" } }
@@ -110,9 +301,7 @@ Move both flags to `layout.table.controls[]` entries for the same column id.
 }
 ```
 
-Same condition shape (`field`, `eq`, `neq`, `exists`, `notExists`) — just moved to the layout control entry.
-
-For **form/view** conditional visibility, use the same `showWhen`/`hideWhen`/`disabledWhen` fields on controls inside `layout.form` or `layout.view`.
+For **form/view** conditional visibility, use the same fields on items inside `layout.form` or `layout.view`.
 
 ### `fieldTable`
 
@@ -133,7 +322,7 @@ For **form/view** conditional visibility, use the same `showWhen`/`hideWhen`/`di
 {
   "layout": {
     "table": {
-      "controls": [
+      "items": [
         {
           "id": "status",
           "type": "select",
@@ -144,88 +333,6 @@ For **form/view** conditional visibility, use the same `showWhen`/`hideWhen`/`di
   }
 }
 ```
-
-Use `type` and `options` directly on the table layout control. Same semantics: overrides the cell renderer for this column in the table context only.
-
----
-
-## Deprecated resource-level fields
-
-### `actions` / `tableActions`
-
-```json
-// BEFORE (deprecated)
-{
-  "actions": [
-    { "id": "approve", "label": "Approve", "type": "post" }
-  ],
-  "tableActions": [
-    { "id": "export", "label": "Export CSV", "type": "post" }
-  ]
-}
-
-// AFTER
-{
-  "layout": {
-    "table": {
-      "actions": [
-        { "id": "approve", "label": "Approve", "type": "post" }
-      ],
-      "tableActions": [
-        { "id": "export", "label": "Export CSV", "type": "post" }
-      ]
-    }
-  }
-}
-```
-
-In `resource.json`: `actions` = per-record row actions, `tableActions` = global toolbar buttons with no record id.
-
----
-
-## `/schemas` API response changes
-
-> **This section affects custom frontends or integrations that consume the `/schemas` HTTP endpoint directly.** The `resource.json` format above is unchanged; only the compiled response shape changed.
-
-The compiled `schemas.table.ui` is now a self-contained `Table` UI node. All table-level metadata has moved into `schemas.table.ui.options`:
-
-| Old location | New location | Rename |
-|---|---|---|
-| `schemas.table.actions` | `schemas.table.ui.options.rowActions` | `actions` → `rowActions` |
-| `schemas.table.tableActions` | `schemas.table.ui.options.actions` | `tableActions` → `actions` |
-| `schemas.table.defaultSort` | `schemas.table.ui.options.defaultSortId` | `defaultSort` → `defaultSortId` |
-| `schemas.filter` | `schemas.table.ui.options.filter` | (removed top-level key) |
-
-The `filter` entry at `schemas.table.ui.options.filter` has the shape:
-
-```json
-{
-  "schema": { /* JSON Schema */ },
-  "uischema": { /* UI schema */ },
-  "initialData": {}
-}
-```
-
-Example compiled table UI:
-
-```json
-{
-  "type": "Table",
-  "options": {
-    "defaultSortId": "createdAt",
-    "actions": [{ "id": "export", "label": "Export CSV", ... }],
-    "rowActions": [{ "id": "approve", "label": "Approve", ... }],
-    "filter": {
-      "schema": { ... },
-      "uischema": { ... },
-      "initialData": {}
-    }
-  },
-  "elements": [...]
-}
-```
-
-For wrapper layouts (`layout.table` with an outer type), the `Table` node is nested inside the outer element and the same `options` structure applies to the inner `Table` element.
 
 ---
 
@@ -246,7 +353,7 @@ The relative path is from the `resource.json` to the generated `crouton.schema.j
 
 ## Sub-resources
 
-Sub-resource configs (inline children of a resource) also had a top-level `actions` field. Move it the same way:
+Sub-resource configs (inline children of a resource) also had a top-level `actions` field. Move it into `layout.table.rowActions`:
 
 ```json
 // BEFORE
@@ -256,7 +363,7 @@ Sub-resource configs (inline children of a resource) also had a top-level `actio
 
 // AFTER
 {
-  "subResources": [{ "childRoute": "chapters", "layout": { "table": { "actions": [...] } } }]
+  "subResources": [{ "childRoute": "chapters", "layout": { "table": { "rowActions": [...] } } }]
 }
 ```
 
@@ -267,6 +374,10 @@ Sub-resource configs (inline children of a resource) also had a top-level `actio
 Run these from the repo root to find files needing migration:
 
 ```bash
+# Layout v2 migration (controls → items, actions → rowActions)
+grep -rn '"controls"' --include="resource.json" .
+crouton migrate layout --check          # fails with exit 1 if anything needs migration
+
 # Deprecated column-level fields
 grep -rn '"sortable"' --include="resource.json" .
 grep -rn '"defaultSort"' --include="resource.json" .
@@ -277,19 +388,20 @@ grep -rn '"hideWhen"' --include="resource.json" .
 grep -rn '"disabledWhen"' --include="resource.json" .
 grep -rn '"fieldTable"' --include="resource.json" .
 
-# Deprecated resource-level fields (check they are NOT inside layout.table)
+# Deprecated resource-level or layout-level bare "actions"
 grep -rn '"actions"' --include="resource.json" .
-grep -rn '"tableActions"' --include="resource.json" .
 ```
-
-For `actions`/`tableActions`, check whether the match is at the root level or inside `layout.table` — only root-level is deprecated.
 
 ---
 
 ## Common mistakes
 
-- **`sortable` on the column, not the control**: `"columns": { "title": { "sortable": true } }` still validates (backward compat shim) but won't get autocomplete. Move it to `layout.table.controls[].sortable`.
+- **`controls` instead of `items`**: `"controls": [...]` fails validation with a migration hint. Run `crouton migrate layout`.
+- **`actions` instead of `rowActions`**: `"actions": [...]` on a table node fails validation. Rename to `rowActions`.
+- **Table settings on the wrapper, not the table node**: in a wrapper layout, `rowActions`, `tableActions`, `searchFields`, `filterFields` must go on the `{ "type": "table", ... }` node, not the outer grid.
+- **Field ids directly in a wrapper node**: field ids (strings or `{ id }` objects) are only valid inside the table node's `items`. In a wrapper, only component items and nested wrapper nodes are allowed.
+- **`type` on a field control is the input type, not a layout type**: `{ "id": "body", "type": "textarea" }` is a field control, not a layout node — it's detected as a field because it has `id`.
+- **`sortable` on the column, not the item**: `"columns": { "title": { "sortable": true } }` still validates (backward compat shim) but won't get autocomplete. Move it to `layout.table.items[].sortable`.
 - **`$schema` path wrong**: it's relative to the `resource.json` file, not the project root. Go up one extra `../` per directory level.
-- **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout control, not the full `fieldInput` shape (`format`, `relationType`, etc.).
-- **Missing `controls` entry for sortable column**: if the column is not listed in `layout.table.controls`, add a minimal entry `{ "id": "colId", "sortable": true }` — columns not in `controls` appear after listed ones in their original order.
-- **Forgetting `filterFields` defaults to `[]`**: without any `filterFields`, the filter view is empty. Previously this was driven by `filterable: true` on each column.
+- **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
+- **Forgetting `filterFields` defaults to `[]`**: without any `filterFields`, the filter view is empty.

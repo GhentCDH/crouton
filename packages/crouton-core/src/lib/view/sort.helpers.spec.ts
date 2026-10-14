@@ -12,7 +12,7 @@ describe('resolveDefaultSort', () => {
       items: [
         {
           type: 'table',
-          controls: [{ id: 'title', sortable: true, defaultSort: true }],
+          items: [{ id: 'title', sortable: true, defaultSort: true }],
         },
       ],
     } as unknown as LayoutNode;

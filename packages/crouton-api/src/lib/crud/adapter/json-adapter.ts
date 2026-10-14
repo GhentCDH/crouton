@@ -10,6 +10,7 @@ import {
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  resolveTableNode,
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
@@ -105,7 +106,7 @@ export const fromJson = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns, dirPath, (json.layout?.table as any)?.searchFields);
+  const lookup = buildLookup(enrichedColumns, dirPath, resolveTableNode(json.layout?.table as any)?.searchFields);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,

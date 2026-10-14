@@ -20,6 +20,9 @@ Crouton is a resource-driven admin UI framework. This skill teaches the correct 
 - Use `manyToOne` for autocomplete lookups; `oneToMany` for embedded tables.
 - `kind: "custom"` only when you have a `repository.ts` (config-only resource). For non-Prisma data, use `adapter` in `datasource.json`.
 - After any `resource.json` or `crouton.json` change, run `crouton validate`.
+- Layout nodes use `items` only — there is no `controls` list. Items render in declared order.
+- Table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`) go on the `type: "table"` node inside `layout.table`, never on an outer wrapper node.
+- After editing layouts, run `crouton migrate layout --check` to confirm no v1 syntax remains.
 
 ## References
 - `references/resource-json.md` — annotated full example + key table

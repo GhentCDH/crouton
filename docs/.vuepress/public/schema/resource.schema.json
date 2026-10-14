@@ -1913,13 +1913,532 @@
           "markdownDescription": "Explicit layout for the read-only detail view. When absent, columns are rendered in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "table": {
-          "description": "Explicit layout for the table view columns. When absent, all non-hidden columns are shown in source order.",
-          "allOf": [
+          "description": "Explicit layout for the table view. When absent, all non-hidden columns are shown in source order.",
+          "anyOf": [
             {
-              "$ref": "#/definitions/__schema2"
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "table"
+                },
+                "title": {
+                  "description": "Static heading shown above the table.",
+                  "type": "string"
+                },
+                "label": {
+                  "description": "Alias for title; title takes precedence.",
+                  "type": "string"
+                },
+                "searchFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "filterFields": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "items": {
+                  "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "colspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                          },
+                          "rowspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 6
+                          },
+                          "width": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "hideLabel": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {}
+                          },
+                          "showWhen": {
+                            "description": "Conditionally show this control when the condition matches another field value.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "The other column id whose value is evaluated for the condition."
+                              },
+                              "eq": {
+                                "description": "Show/hide/disable when the field value equals this value."
+                              },
+                              "neq": {
+                                "description": "Show/hide/disable when the field value does NOT equal this value."
+                              },
+                              "exists": {
+                                "description": "When true, show/hide/disable when the field has a non-empty value.",
+                                "type": "boolean"
+                              },
+                              "notExists": {
+                                "description": "When true, show/hide/disable when the field has no value.",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "hideWhen": {
+                            "description": "Conditionally hide this control when the condition matches another field value.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "The other column id whose value is evaluated for the condition."
+                              },
+                              "eq": {
+                                "description": "Show/hide/disable when the field value equals this value."
+                              },
+                              "neq": {
+                                "description": "Show/hide/disable when the field value does NOT equal this value."
+                              },
+                              "exists": {
+                                "description": "When true, show/hide/disable when the field has a non-empty value.",
+                                "type": "boolean"
+                              },
+                              "notExists": {
+                                "description": "When true, show/hide/disable when the field has no value.",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "disabledWhen": {
+                            "description": "Conditionally disable this control when the condition matches another field value.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "The other column id whose value is evaluated for the condition."
+                              },
+                              "eq": {
+                                "description": "Show/hide/disable when the field value equals this value."
+                              },
+                              "neq": {
+                                "description": "Show/hide/disable when the field value does NOT equal this value."
+                              },
+                              "exists": {
+                                "description": "When true, show/hide/disable when the field has a non-empty value.",
+                                "type": "boolean"
+                              },
+                              "notExists": {
+                                "description": "When true, show/hide/disable when the field has no value.",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "sortable": {
+                            "default": false,
+                            "description": "Enables a sort toggle on the table column header.",
+                            "type": "boolean"
+                          },
+                          "defaultSort": {
+                            "default": false,
+                            "description": "When true, the table is sorted by this column by default. At most one column should set this.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "component": {
+                            "type": "string"
+                          },
+                          "colspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                          },
+                          "rowspan": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 6
+                          },
+                          "width": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "component"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "rowActions": {
+                  "description": "Per-record row actions shown in the table. Each action receives the record id.",
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "default": "procedure",
+                            "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
+                            "type": "string",
+                            "const": "procedure"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Unique identifier for the action, used as the button key and endpoint name."
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "Human-readable button label shown in the UI."
+                          },
+                          "icon": {
+                            "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                            "type": "string"
+                          },
+                          "tooltip": {
+                            "description": "Tooltip text on hover. Defaults to the label.",
+                            "type": "string"
+                          },
+                          "condition": {
+                            "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "Row field name to evaluate for the condition."
+                              },
+                              "op": {
+                                "default": "eq",
+                                "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                "type": "string",
+                                "enum": [
+                                  "eq",
+                                  "neq",
+                                  "gt",
+                                  "gte",
+                                  "lt",
+                                  "lte",
+                                  "exists",
+                                  "notExists"
+                                ]
+                              },
+                              "value": {
+                                "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "procedure": {
+                            "type": "string",
+                            "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
+                          },
+                          "method": {
+                            "default": "post",
+                            "description": "HTTP method for the frontend request. Defaults to \"post\".",
+                            "type": "string"
+                          },
+                          "data": {
+                            "description": "Static query or body params passed to the procedure endpoint.",
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {}
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label",
+                          "procedure"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "default": "link",
+                            "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
+                            "type": "string",
+                            "const": "link"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Unique identifier for the action, used as the button key and endpoint name."
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "Human-readable button label shown in the UI."
+                          },
+                          "icon": {
+                            "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                            "type": "string"
+                          },
+                          "tooltip": {
+                            "description": "Tooltip text on hover. Defaults to the label.",
+                            "type": "string"
+                          },
+                          "condition": {
+                            "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "Row field name to evaluate for the condition."
+                              },
+                              "op": {
+                                "default": "eq",
+                                "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                "type": "string",
+                                "enum": [
+                                  "eq",
+                                  "neq",
+                                  "gt",
+                                  "gte",
+                                  "lt",
+                                  "lte",
+                                  "exists",
+                                  "notExists"
+                                ]
+                              },
+                              "value": {
+                                "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "href": {
+                            "type": "string",
+                            "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
+                          },
+                          "blank": {
+                            "default": true,
+                            "description": "When true (default), the link opens in a new browser tab.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label",
+                          "href"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "tableActions": {
+                  "description": "Global table-level actions shown as toolbar buttons (no record id).",
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "default": "procedure",
+                            "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
+                            "type": "string",
+                            "const": "procedure"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Unique identifier for the action, used as the button key and endpoint name."
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "Human-readable button label shown in the UI."
+                          },
+                          "icon": {
+                            "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                            "type": "string"
+                          },
+                          "tooltip": {
+                            "description": "Tooltip text on hover. Defaults to the label.",
+                            "type": "string"
+                          },
+                          "condition": {
+                            "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "Row field name to evaluate for the condition."
+                              },
+                              "op": {
+                                "default": "eq",
+                                "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                "type": "string",
+                                "enum": [
+                                  "eq",
+                                  "neq",
+                                  "gt",
+                                  "gte",
+                                  "lt",
+                                  "lte",
+                                  "exists",
+                                  "notExists"
+                                ]
+                              },
+                              "value": {
+                                "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "procedure": {
+                            "type": "string",
+                            "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
+                          },
+                          "method": {
+                            "default": "post",
+                            "description": "HTTP method for the frontend request. Defaults to \"post\".",
+                            "type": "string"
+                          },
+                          "data": {
+                            "description": "Static query or body params passed to the procedure endpoint.",
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {}
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label",
+                          "procedure"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "default": "link",
+                            "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
+                            "type": "string",
+                            "const": "link"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Unique identifier for the action, used as the button key and endpoint name."
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "Human-readable button label shown in the UI."
+                          },
+                          "icon": {
+                            "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                            "type": "string"
+                          },
+                          "tooltip": {
+                            "description": "Tooltip text on hover. Defaults to the label.",
+                            "type": "string"
+                          },
+                          "condition": {
+                            "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "Row field name to evaluate for the condition."
+                              },
+                              "op": {
+                                "default": "eq",
+                                "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                "type": "string",
+                                "enum": [
+                                  "eq",
+                                  "neq",
+                                  "gt",
+                                  "gte",
+                                  "lt",
+                                  "lte",
+                                  "exists",
+                                  "notExists"
+                                ]
+                              },
+                              "value": {
+                                "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ]
+                          },
+                          "href": {
+                            "type": "string",
+                            "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
+                          },
+                          "blank": {
+                            "default": true,
+                            "description": "When true (default), the link opens in a new browser tab.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label",
+                          "href"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "$ref": "#/definitions/__schema3"
             }
           ],
-          "markdownDescription": "Explicit layout for the table view columns. When absent, all non-hidden columns are shown in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          "markdownDescription": "Explicit layout for the table view. When absent, all non-hidden columns are shown in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         }
       },
       "markdownDescription": "Explicit layout for generated views (form, view, table). When absent, source-order grid is used.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
@@ -2059,45 +2578,62 @@
       ]
     },
     "__schema2": {
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "const": "table"
-            },
-            "columns": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 12
-            },
-            "title": {
-              "type": "string"
-            },
-            "titleKey": {
-              "type": "string"
-            },
-            "label": {
-              "type": "string"
-            },
-            "searchFields": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "filterFields": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "controls": {
-              "description": "Leaf controls in this layout node. Each entry is a column id string, a control config object, or a component reference.",
-              "type": "array",
-              "items": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Layout container type. \"grid\" arranges items in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.",
+          "type": "string",
+          "enum": [
+            "grid",
+            "vertical",
+            "horizontal",
+            "collapse",
+            "group"
+          ],
+          "markdownDescription": "Layout container type. \"grid\" arranges items in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "columns": {
+          "description": "Number of grid columns (1–12). Only applies when type is \"grid\".",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "markdownDescription": "Number of grid columns (1–12). Only applies when type is \"grid\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "title": {
+          "description": "Static title shown above the layout section.",
+          "type": "string",
+          "markdownDescription": "Static title shown above the layout section.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "titleKey": {
+          "description": "Column id whose value is used as the dynamic section title.",
+          "type": "string",
+          "markdownDescription": "Column id whose value is used as the dynamic section title.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "colspan": {
+          "description": "Column span of this node within its parent grid (1–12).",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "markdownDescription": "Column span of this node within its parent grid (1–12).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "rowspan": {
+          "description": "Row span of this node within its parent grid (1–6).",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "markdownDescription": "Row span of this node within its parent grid (1–6).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "label": {
+          "description": "Label shown on the section or group header.",
+          "type": "string",
+          "markdownDescription": "Label shown on the section or group header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "items": {
+          "description": "Ordered list of items in this layout node. Each entry is a column id string, a field config object, a component reference, or a nested layout node.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
                 "anyOf": [
                   {
                     "type": "string"
@@ -2217,925 +2753,646 @@
                         "required": [
                           "field"
                         ]
-                      },
-                      "sortable": {
-                        "default": false,
-                        "description": "Enables a sort toggle on the table column header.",
-                        "type": "boolean"
-                      },
-                      "defaultSort": {
-                        "default": false,
-                        "description": "When true, the table is sorted by this column by default. At most one column should set this.",
-                        "type": "boolean"
                       }
                     },
                     "required": [
                       "id"
                     ]
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "component": {
-                        "type": "string"
-                      },
-                      "colspan": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 12
-                      },
-                      "rowspan": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 6
-                      },
-                      "width": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "component"
-                    ]
                   }
                 ]
-              }
-            },
-            "actions": {
-              "description": "Per-record row actions shown in the table. Each action receives the record id.",
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "procedure",
-                        "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
-                        "type": "string",
-                        "const": "procedure"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
-                          },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
-                        },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "procedure": {
-                        "type": "string",
-                        "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
-                      },
-                      "method": {
-                        "default": "post",
-                        "description": "HTTP method for the frontend request. Defaults to \"post\".",
-                        "type": "string"
-                      },
-                      "data": {
-                        "description": "Static query or body params passed to the procedure endpoint.",
-                        "type": "object",
-                        "propertyNames": {
-                          "type": "string"
-                        },
-                        "additionalProperties": {}
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "procedure"
-                    ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "component": {
+                    "type": "string"
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "link",
-                        "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
-                        "type": "string",
-                        "const": "link"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
-                          },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
-                        },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "href": {
-                        "type": "string",
-                        "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
-                      },
-                      "blank": {
-                        "default": true,
-                        "description": "When true (default), the link opens in a new browser tab.",
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "href"
-                    ]
-                  }
-                ]
-              }
-            },
-            "tableActions": {
-              "description": "Global table-level actions with no record id. Shown as toolbar buttons.",
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "procedure",
-                        "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
-                        "type": "string",
-                        "const": "procedure"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
-                          },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
-                        },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "procedure": {
-                        "type": "string",
-                        "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
-                      },
-                      "method": {
-                        "default": "post",
-                        "description": "HTTP method for the frontend request. Defaults to \"post\".",
-                        "type": "string"
-                      },
-                      "data": {
-                        "description": "Static query or body params passed to the procedure endpoint.",
-                        "type": "object",
-                        "propertyNames": {
-                          "type": "string"
-                        },
-                        "additionalProperties": {}
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "procedure"
-                    ]
+                  "colspan": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "link",
-                        "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
-                        "type": "string",
-                        "const": "link"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
-                          },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
-                        },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "href": {
-                        "type": "string",
-                        "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
-                      },
-                      "blank": {
-                        "default": true,
-                        "description": "When true (default), the link opens in a new browser tab.",
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "href"
-                    ]
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "description": "Layout container type. \"grid\" arranges controls in a CSS grid; \"vertical\"/\"horizontal\" stack them; \"collapse\" is a collapsible section; \"group\" is a labeled group.",
-              "type": "string",
-              "enum": [
-                "grid",
-                "vertical",
-                "horizontal",
-                "collapse",
-                "group"
-              ]
-            },
-            "columns": {
-              "description": "Number of grid columns (1–12). Only applies when type is \"grid\".",
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 12
-            },
-            "title": {
-              "description": "Static title shown above the layout section.",
-              "type": "string"
-            },
-            "titleKey": {
-              "description": "Column id whose value is used as the dynamic section title.",
-              "type": "string"
-            },
-            "colspan": {
-              "description": "Column span of this node within its parent grid (1–12).",
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 12
-            },
-            "rowspan": {
-              "description": "Row span of this node within its parent grid (1–6).",
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 6
-            },
-            "label": {
-              "description": "Label shown on the section or group header.",
-              "type": "string"
-            },
-            "controls": {
-              "description": "Leaf controls in this layout node. Each entry is a column id string or a control config object.",
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "colspan": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 12
-                          },
-                          "rowspan": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 6
-                          },
-                          "width": {
-                            "type": "string"
-                          },
-                          "label": {
-                            "type": "string"
-                          },
-                          "hideLabel": {
-                            "type": "boolean"
-                          },
-                          "type": {
-                            "type": "string"
-                          },
-                          "options": {
-                            "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
-                            "additionalProperties": {}
-                          },
-                          "showWhen": {
-                            "description": "Conditionally show this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "hideWhen": {
-                            "description": "Conditionally hide this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "disabledWhen": {
-                            "description": "Conditionally disable this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          }
-                        },
-                        "required": [
-                          "id"
-                        ]
-                      }
-                    ]
+                  "rowspan": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "component": {
-                        "type": "string"
-                      },
-                      "colspan": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 12
-                      },
-                      "rowspan": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 6
-                      },
-                      "width": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "component"
-                    ]
+                  "width": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
                   }
+                },
+                "required": [
+                  "component"
                 ]
-              }
-            },
-            "items": {
-              "description": "Nested layout nodes. Use for nested grids, groups, or collapsible sections.",
-              "type": "array",
-              "items": {
+              },
+              {
                 "$ref": "#/definitions/__schema2"
               }
-            },
-            "searchFields": {
-              "description": "Column ids used for ?q= free-text search. Inherited by the backend from the outer layout wrapper.",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "filterFields": {
-              "default": [],
-              "description": "Column ids shown in the filter panel.",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "actions": {
-              "description": "Per-record row actions shown in the table.",
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "procedure",
-                        "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
-                        "type": "string",
-                        "const": "procedure"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
-                          },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
-                        },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "procedure": {
-                        "type": "string",
-                        "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
-                      },
-                      "method": {
-                        "default": "post",
-                        "description": "HTTP method for the frontend request. Defaults to \"post\".",
-                        "type": "string"
-                      },
-                      "data": {
-                        "description": "Static query or body params passed to the procedure endpoint.",
-                        "type": "object",
-                        "propertyNames": {
+            ]
+          },
+          "markdownDescription": "Ordered list of items in this layout node. Each entry is a column id string, a field config object, a component reference, or a nested layout node.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        }
+      }
+    },
+    "__schema3": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "grid",
+            "vertical",
+            "horizontal",
+            "collapse",
+            "group"
+          ]
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "title": {
+          "type": "string"
+        },
+        "titleKey": {
+          "type": "string"
+        },
+        "colspan": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "rowspan": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "label": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "component": {
+                    "type": "string"
+                  },
+                  "colspan": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "rowspan": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
+                  },
+                  "width": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "component"
+                ]
+              },
+              {
+                "$ref": "#/definitions/__schema3"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "table"
+                  },
+                  "title": {
+                    "description": "Static heading shown above the table.",
+                    "type": "string"
+                  },
+                  "label": {
+                    "description": "Alias for title; title takes precedence.",
+                    "type": "string"
+                  },
+                  "searchFields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "filterFields": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "items": {
+                    "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
                           "type": "string"
                         },
-                        "additionalProperties": {}
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "procedure"
-                    ]
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "colspan": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 12
+                            },
+                            "rowspan": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 6
+                            },
+                            "width": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "hideLabel": {
+                              "type": "boolean"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
+                            },
+                            "showWhen": {
+                              "description": "Conditionally show this control when the condition matches another field value.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "The other column id whose value is evaluated for the condition."
+                                },
+                                "eq": {
+                                  "description": "Show/hide/disable when the field value equals this value."
+                                },
+                                "neq": {
+                                  "description": "Show/hide/disable when the field value does NOT equal this value."
+                                },
+                                "exists": {
+                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
+                                  "type": "boolean"
+                                },
+                                "notExists": {
+                                  "description": "When true, show/hide/disable when the field has no value.",
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "hideWhen": {
+                              "description": "Conditionally hide this control when the condition matches another field value.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "The other column id whose value is evaluated for the condition."
+                                },
+                                "eq": {
+                                  "description": "Show/hide/disable when the field value equals this value."
+                                },
+                                "neq": {
+                                  "description": "Show/hide/disable when the field value does NOT equal this value."
+                                },
+                                "exists": {
+                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
+                                  "type": "boolean"
+                                },
+                                "notExists": {
+                                  "description": "When true, show/hide/disable when the field has no value.",
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "disabledWhen": {
+                              "description": "Conditionally disable this control when the condition matches another field value.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "The other column id whose value is evaluated for the condition."
+                                },
+                                "eq": {
+                                  "description": "Show/hide/disable when the field value equals this value."
+                                },
+                                "neq": {
+                                  "description": "Show/hide/disable when the field value does NOT equal this value."
+                                },
+                                "exists": {
+                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
+                                  "type": "boolean"
+                                },
+                                "notExists": {
+                                  "description": "When true, show/hide/disable when the field has no value.",
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "sortable": {
+                              "default": false,
+                              "description": "Enables a sort toggle on the table column header.",
+                              "type": "boolean"
+                            },
+                            "defaultSort": {
+                              "default": false,
+                              "description": "When true, the table is sorted by this column by default. At most one column should set this.",
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "component": {
+                              "type": "string"
+                            },
+                            "colspan": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 12
+                            },
+                            "rowspan": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 6
+                            },
+                            "width": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "component"
+                          ]
+                        }
+                      ]
+                    }
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "link",
-                        "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
-                        "type": "string",
-                        "const": "link"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
+                  "rowActions": {
+                    "description": "Per-record row actions shown in the table. Each action receives the record id.",
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "default": "procedure",
+                              "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
+                              "type": "string",
+                              "const": "procedure"
+                            },
+                            "id": {
+                              "type": "string",
+                              "description": "Unique identifier for the action, used as the button key and endpoint name."
+                            },
+                            "label": {
+                              "type": "string",
+                              "description": "Human-readable button label shown in the UI."
+                            },
+                            "icon": {
+                              "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                              "type": "string"
+                            },
+                            "tooltip": {
+                              "description": "Tooltip text on hover. Defaults to the label.",
+                              "type": "string"
+                            },
+                            "condition": {
+                              "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "Row field name to evaluate for the condition."
+                                },
+                                "op": {
+                                  "default": "eq",
+                                  "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                  "type": "string",
+                                  "enum": [
+                                    "eq",
+                                    "neq",
+                                    "gt",
+                                    "gte",
+                                    "lt",
+                                    "lte",
+                                    "exists",
+                                    "notExists"
+                                  ]
+                                },
+                                "value": {
+                                  "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "procedure": {
+                              "type": "string",
+                              "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
+                            },
+                            "method": {
+                              "default": "post",
+                              "description": "HTTP method for the frontend request. Defaults to \"post\".",
+                              "type": "string"
+                            },
+                            "data": {
+                              "description": "Static query or body params passed to the procedure endpoint.",
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
+                            }
                           },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
+                          "required": [
+                            "id",
+                            "label",
+                            "procedure"
+                          ]
                         },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "href": {
-                        "type": "string",
-                        "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
-                      },
-                      "blank": {
-                        "default": true,
-                        "description": "When true (default), the link opens in a new browser tab.",
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "href"
-                    ]
-                  }
-                ]
-              }
-            },
-            "tableActions": {
-              "description": "Global table-level actions shown as toolbar buttons.",
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "procedure",
-                        "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
-                        "type": "string",
-                        "const": "procedure"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "default": "link",
+                              "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
+                              "type": "string",
+                              "const": "link"
+                            },
+                            "id": {
+                              "type": "string",
+                              "description": "Unique identifier for the action, used as the button key and endpoint name."
+                            },
+                            "label": {
+                              "type": "string",
+                              "description": "Human-readable button label shown in the UI."
+                            },
+                            "icon": {
+                              "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                              "type": "string"
+                            },
+                            "tooltip": {
+                              "description": "Tooltip text on hover. Defaults to the label.",
+                              "type": "string"
+                            },
+                            "condition": {
+                              "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "Row field name to evaluate for the condition."
+                                },
+                                "op": {
+                                  "default": "eq",
+                                  "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                  "type": "string",
+                                  "enum": [
+                                    "eq",
+                                    "neq",
+                                    "gt",
+                                    "gte",
+                                    "lt",
+                                    "lte",
+                                    "exists",
+                                    "notExists"
+                                  ]
+                                },
+                                "value": {
+                                  "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "href": {
+                              "type": "string",
+                              "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
+                            },
+                            "blank": {
+                              "default": true,
+                              "description": "When true (default), the link opens in a new browser tab.",
+                              "type": "boolean"
+                            }
                           },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
-                        },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "procedure": {
-                        "type": "string",
-                        "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
-                      },
-                      "method": {
-                        "default": "post",
-                        "description": "HTTP method for the frontend request. Defaults to \"post\".",
-                        "type": "string"
-                      },
-                      "data": {
-                        "description": "Static query or body params passed to the procedure endpoint.",
-                        "type": "object",
-                        "propertyNames": {
-                          "type": "string"
-                        },
-                        "additionalProperties": {}
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "procedure"
-                    ]
+                          "required": [
+                            "id",
+                            "label",
+                            "href"
+                          ]
+                        }
+                      ]
+                    }
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "default": "link",
-                        "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
-                        "type": "string",
-                        "const": "link"
-                      },
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the action, used as the button key and endpoint name."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Human-readable button label shown in the UI."
-                      },
-                      "icon": {
-                        "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "Tooltip text on hover. Defaults to the label.",
-                        "type": "string"
-                      },
-                      "condition": {
-                        "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
-                        "type": "object",
-                        "properties": {
-                          "field": {
-                            "type": "string",
-                            "description": "Row field name to evaluate for the condition."
+                  "tableActions": {
+                    "description": "Global table-level actions shown as toolbar buttons (no record id).",
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "default": "procedure",
+                              "description": "Action type: \"procedure\" triggers a backend call to the resource's actions/ directory.",
+                              "type": "string",
+                              "const": "procedure"
+                            },
+                            "id": {
+                              "type": "string",
+                              "description": "Unique identifier for the action, used as the button key and endpoint name."
+                            },
+                            "label": {
+                              "type": "string",
+                              "description": "Human-readable button label shown in the UI."
+                            },
+                            "icon": {
+                              "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                              "type": "string"
+                            },
+                            "tooltip": {
+                              "description": "Tooltip text on hover. Defaults to the label.",
+                              "type": "string"
+                            },
+                            "condition": {
+                              "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "Row field name to evaluate for the condition."
+                                },
+                                "op": {
+                                  "default": "eq",
+                                  "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                  "type": "string",
+                                  "enum": [
+                                    "eq",
+                                    "neq",
+                                    "gt",
+                                    "gte",
+                                    "lt",
+                                    "lte",
+                                    "exists",
+                                    "notExists"
+                                  ]
+                                },
+                                "value": {
+                                  "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "procedure": {
+                              "type": "string",
+                              "description": "Filename (without extension) inside the resource's actions/ directory that exports the procedure handler (e.g. \"syncZotero\")."
+                            },
+                            "method": {
+                              "default": "post",
+                              "description": "HTTP method for the frontend request. Defaults to \"post\".",
+                              "type": "string"
+                            },
+                            "data": {
+                              "description": "Static query or body params passed to the procedure endpoint.",
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
+                            }
                           },
-                          "op": {
-                            "default": "eq",
-                            "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
-                            "type": "string",
-                            "enum": [
-                              "eq",
-                              "neq",
-                              "gt",
-                              "gte",
-                              "lt",
-                              "lte",
-                              "exists",
-                              "notExists"
-                            ]
-                          },
-                          "value": {
-                            "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
-                          }
+                          "required": [
+                            "id",
+                            "label",
+                            "procedure"
+                          ]
                         },
-                        "required": [
-                          "field"
-                        ]
-                      },
-                      "href": {
-                        "type": "string",
-                        "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
-                      },
-                      "blank": {
-                        "default": true,
-                        "description": "When true (default), the link opens in a new browser tab.",
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "label",
-                      "href"
-                    ]
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "default": "link",
+                              "description": "Action type: \"link\" opens a URL in a new browser tab without a backend call.",
+                              "type": "string",
+                              "const": "link"
+                            },
+                            "id": {
+                              "type": "string",
+                              "description": "Unique identifier for the action, used as the button key and endpoint name."
+                            },
+                            "label": {
+                              "type": "string",
+                              "description": "Human-readable button label shown in the UI."
+                            },
+                            "icon": {
+                              "description": "MDI icon name (e.g. \"mdi:open-in-new\"). Shown on the action button.",
+                              "type": "string"
+                            },
+                            "tooltip": {
+                              "description": "Tooltip text on hover. Defaults to the label.",
+                              "type": "string"
+                            },
+                            "condition": {
+                              "description": "Optional condition evaluated per row. Button is hidden when the condition is false.",
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "description": "Row field name to evaluate for the condition."
+                                },
+                                "op": {
+                                  "default": "eq",
+                                  "description": "Comparison operator. \"eq\"/\"neq\" for equality, \"gt\"/\"gte\"/\"lt\"/\"lte\" for numeric/date, \"exists\"/\"notExists\" for null checks. Defaults to \"eq\".",
+                                  "type": "string",
+                                  "enum": [
+                                    "eq",
+                                    "neq",
+                                    "gt",
+                                    "gte",
+                                    "lt",
+                                    "lte",
+                                    "exists",
+                                    "notExists"
+                                  ]
+                                },
+                                "value": {
+                                  "description": "Comparison value. Not required for \"exists\" or \"notExists\" operators."
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ]
+                            },
+                            "href": {
+                              "type": "string",
+                              "description": "URL to open. May contain {env.VAR} placeholders substituted at runtime."
+                            },
+                            "blank": {
+                              "default": true,
+                              "description": "When true (default), the link opens in a new browser tab.",
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "label",
+                            "href"
+                          ]
+                        }
+                      ]
+                    }
                   }
-                ]
+                }
               }
-            }
+            ]
           }
         }
+      },
+      "required": [
+        "items"
       ]
     }
   },

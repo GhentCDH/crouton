@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { createCrudController } from '../crud-controller.factory';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -42,6 +44,7 @@ const RESOURCE_JSON = {
   kind: 'custom',
   title: 'Zotero items',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true, hiddenInForm: true },
     title: { type: 'string' },
@@ -57,7 +60,7 @@ const RESOURCE_JSON = {
     table: {
       searchFields: ['title'],
       filterFields: ['title'],
-      controls: [{ id: 'title', sortable: true, defaultSort: true }],
+      items: [{ id: 'title', sortable: true, defaultSort: true }],
     },
   },
 };

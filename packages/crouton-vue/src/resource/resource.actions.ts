@@ -321,7 +321,7 @@ export const tableActions = (
   formDef: ResourceDefinition | null | undefined,
 ): TableAction[] => {
   const _tableActions: TableActionDef[] =
-    getTableNode(formDef?.schemas.table.ui)?.options?.actions ?? [];
+    getTableNode(formDef?.schemas.table.ui)?.options?.tableActions ?? [];
   if (!formDef || !_tableActions.length) return [];
 
   const fetch = useApi();

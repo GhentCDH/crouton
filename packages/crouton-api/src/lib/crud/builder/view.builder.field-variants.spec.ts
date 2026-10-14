@@ -29,9 +29,9 @@ describe('buildViews with field variants', () => {
     )!;
 
     const layout = {
-      table: { controls: [{ id: 'name', options: { display: 'chip' } }] },
+      table: { items: [{ id: 'name', options: { display: 'chip' } }] },
     };
-    const views = buildViews(schema, cols, layout)!;
+    const views = buildViews(schema, cols, layout as any)!;
 
     expect(
       (fieldInputFor(views.form, 'name').options as Record<string, unknown>)
@@ -41,15 +41,15 @@ describe('buildViews with field variants', () => {
       (fieldInputFor(views.view, 'name').options as Record<string, unknown>)
         .display,
     ).toBe('link');
-    // Table override comes from layout.table.controls — visible in the UI schema element
+    // Table override comes from layout.table.items — visible in the UI schema element
     const tableEl = (views.table.ui_schema as any)?.elements?.find(
       (e: any) => e.scope === '#/properties/name',
     );
     expect((tableEl?.options as Record<string, unknown>)?.display).toBe('chip');
   });
 
-  it('table view respects column order from layout.table.controls', () => {
-    // Column order is now declared in layout.table.controls (array order = display order).
+  it('table view respects column order from layout.table.items', () => {
+    // Column order is now declared in layout.table.items (array order = display order).
     const schema2 = z.object({ name: z.string(), code: z.string() });
     const cols2 = resolveColumnFieldVariants(
       parse([
@@ -58,8 +58,8 @@ describe('buildViews with field variants', () => {
       ]),
     )!;
 
-    const layout = { table: { controls: ['name', 'code'] } };
-    const views = buildViews(schema2, cols2, layout)!;
+    const layout = { table: { items: ['name', 'code'] } };
+    const views = buildViews(schema2, cols2, layout as any)!;
     const tableColIds = views.table.columns.map((c: any) => c.id);
     expect(tableColIds).toEqual(['name', 'code']);
   });

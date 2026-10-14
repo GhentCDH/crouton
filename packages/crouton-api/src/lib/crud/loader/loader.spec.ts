@@ -24,6 +24,7 @@ const validResource = {
   model: 'ValidResource',
   tag: 'valid',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
 };
 
 describe('loadResourceConfigsFromDir', () => {
@@ -68,7 +69,7 @@ describe('loadResourceConfigsFromDir', () => {
     mkdirSync(badDir);
     writeFileSync(
       join(badDir, 'resource.json'),
-      JSON.stringify({ bad: 'schema' }),
+      JSON.stringify({ bad: 'schema', schemaVersion: CURRENT_RESOURCE_VERSION }),
     );
 
     const configs = await loadResourceConfigsFromDir(tempDir);
@@ -167,6 +168,7 @@ describe('loadResourceConfigsFromDir', () => {
         route: 'typed-cols',
         tag: 'Test',
         operations: { findAll: true },
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         columns: {
           id: { type: 'string', idField: true, hiddenInForm: true },
           title: { type: 'string' },
@@ -194,6 +196,7 @@ describe('loadResourceConfigsFromDir', () => {
       tag: 'Custom',
       database: 'secondary',
       operations: { create: false, update: false, patch: false, delete: false },
+      schemaVersion: CURRENT_RESOURCE_VERSION,
       columns: { id: { type: 'string', idField: true } },
     };
     const REPO_TS = 'export default { findAll: async () => ({ data: [], count: 0 }), findOne: async () => null };';

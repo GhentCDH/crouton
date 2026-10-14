@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -26,6 +28,7 @@ const parentJson = (resource: string) => ({
   model: 'Group',
   tag: 'Group',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { idField: true },
     name: { searchable: true },
@@ -95,7 +98,7 @@ describe('a relation column that does not resolve to a child config', () => {
     mkdirSync(join(tempDir, 'groups', 'expense'), { recursive: true });
     writeFileSync(
       join(tempDir, 'groups', 'expense', 'resource.json'),
-      '{ "kind": "custom", "name": "expense", "route": "expense", "columns": { "id": {} } }',
+      JSON.stringify({ kind: 'custom', name: 'expense', route: 'expense', schemaVersion: CURRENT_RESOURCE_VERSION, columns: { id: {} } }),
     );
     const parent = await load();
 
@@ -136,6 +139,7 @@ describe('a child nested both ways at once', () => {
         kind: 'custom',
         parent: { route: 'groups', param: 'groupId' },
         operations: {},
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         columns: { id: { type: 'string', idField: true }, label: { type: 'string' } },
       }),
     );

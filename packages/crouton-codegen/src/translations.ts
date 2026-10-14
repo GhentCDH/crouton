@@ -7,6 +7,7 @@
  */
 
 import type { ResourceJson, TranslationBundle } from '@ghentcdh/crouton-core';
+import { resolveTableNode } from '@ghentcdh/crouton-core';
 
 import type { EnumRegistry } from './enum-registry';
 import { labelFromId } from './naming';
@@ -95,10 +96,10 @@ export const buildTranslationBundle = (
       entry.columns = cols;
     }
 
-    // actions + tableActions (now in layout.table)
-    const tableLayout = res.layout?.table as any;
+    // rowActions + tableActions (now in layout.table node)
+    const tableLayout = resolveTableNode(res.layout?.table as any) ?? (res.layout?.table as any);
     const allActions = [
-      ...(tableLayout?.actions ?? []),
+      ...(tableLayout?.rowActions ?? []),
       ...(tableLayout?.tableActions ?? []),
     ];
     if (allActions.length) {

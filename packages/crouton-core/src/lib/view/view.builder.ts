@@ -8,7 +8,7 @@ import {
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
 import { jsonSchemaOpts } from './json-schema.opts';
-import { orderTableColumnsFromLayout } from './layout-table-order';
+import { orderTableColumnsFromLayout, resolveTableNode } from './layout-table-order';
 import { buildFormUiSchemaFromLayout } from './layout-ui-schema.builder';
 import { applySchemaTransforms } from './schema-transforms';
 import { resolveDefaultSort } from './sort.helpers';
@@ -328,16 +328,16 @@ export const buildViewsWithSource = (
     table.defaultSort = resolveDefaultSort(
       table.columns as JsonColumn[],
       columns,
-      layout?.table,
+      resolveTableNode(layout?.table) as any,
     );
-    if (layout?.table) table = orderTableColumnsFromLayout(table, layout.table);
+    if (layout?.table) table = orderTableColumnsFromLayout(table, layout.table as any);
     views.table = table;
   } else if (columns !== undefined) {
     views.table = emptyTableView();
   }
 
   const formUiBuilder = layout?.form
-    ? (cols: JsonColumn[]) => buildFormUiSchemaFromLayout(layout.form!, cols)
+    ? (cols: JsonColumn[]) => buildFormUiSchemaFromLayout(layout.form! as any, cols)
     : buildFormUiSchema;
   const form = buildView(
     source,
@@ -355,7 +355,7 @@ export const buildViewsWithSource = (
     views.form = form;
   }
 
-  const filterFields = layout?.table?.filterFields;
+  const filterFields = resolveTableNode(layout?.table)?.filterFields;
   const isFilterable = (c: JsonColumn) => filterFields?.includes(c.id) ?? false;
   const filter = buildView(
     source,
@@ -374,7 +374,7 @@ export const buildViewsWithSource = (
 
   const viewCols = columns?.map((c) => columnForContext(c, 'view'));
   const viewUiBuilder = layout?.view
-    ? (cols: JsonColumn[]) => buildFormUiSchemaFromLayout(layout.view!, cols)
+    ? (cols: JsonColumn[]) => buildFormUiSchemaFromLayout(layout.view! as any, cols)
     : buildFormUiSchema;
   const view = buildView(
     source,

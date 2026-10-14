@@ -36,11 +36,11 @@ Both forms support the same options:
 ::: warning Moved to `layout.table`
 The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
 
-- `sortable` / `defaultSort` → `layout.table.controls[{ id, sortable, defaultSort }]`
+- `sortable` / `defaultSort` → `layout.table.items[{ id, sortable, defaultSort }]`
 - `searchable` → `layout.table.searchFields: ["colId"]`
 - `filterable` → `layout.table.filterFields: ["colId"]`
-- `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.controls[{ id, showWhen, ... }]`
-- `fieldTable` → `layout.table.controls[{ id, type, options }]`
+- `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`
+- `fieldTable` → `layout.table.items[{ id, type, options }]`
 
 See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-to-next-alpha.md](/migrate-to-next-alpha) for migration details.
 :::
@@ -169,7 +169,7 @@ The config that drives each context is resolved through a fallback chain:
 
 - **form** (and filter) ← `fieldInput`
 - **view** ← `fieldView`, falling back to `fieldInput`
-- **table** ← `type`/`options` on the `layout.table.controls[]` entry, falling back to `fieldView`, then `fieldInput`
+- **table** ← `type`/`options` on the `layout.table.items[]` entry, falling back to `fieldView`, then `fieldInput`
 
 ```json
 {
@@ -189,7 +189,7 @@ The config that drives each context is resolved through a fallback chain:
   },
   "layout": {
     "table": {
-      "controls": [
+      "items": [
         { "id": "author", "options": { "displayKey": "shortName" } }
       ]
     }
@@ -201,13 +201,13 @@ The edit form renders an autocomplete, the read-only view renders a link, and th
 
 ### Custom table cell renderer
 
-Add `customComponent` to the table layout control's `options` to override the cell with a custom Vue component:
+Add `customComponent` to the table layout item's `options` to override the cell with a custom Vue component:
 
 ```json
 {
   "layout": {
     "table": {
-      "controls": [
+      "items": [
         { "id": "section_number", "options": { "customComponent": "moveUpDown" } }
       ]
     }

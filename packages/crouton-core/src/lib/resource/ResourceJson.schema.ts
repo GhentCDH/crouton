@@ -267,6 +267,93 @@ export const refineByKind = (
   // a resource on a custom-adapter datasource may have no model and is still valid.
 };
 
+/**
+ * Find the table node within a raw (unparsed) layout object.
+ * In a flat table layout, the table IS the layout.table value.
+ * In a wrapper layout, the table node is the descendant with `type: "table"`.
+ * Returns the table object and its parent container for mutation.
+ */
+const getOrCreateTableNode = (
+  layout: Record<string, unknown>,
+): Record<string, unknown> => {
+  const table = (layout['table'] as Record<string, unknown> | undefined) ?? {};
+  if (!table['type'] || table['type'] === 'table') return table;
+  // Wrapper layout — find the table sub-node
+  const items = table['items'] as Record<string, unknown>[] | undefined;
+  if (items) {
+    const inner = items.find((i) => i?.['type'] === 'table');
+    if (inner) return inner;
+  }
+  return table;
+};
+
+/**
+ * Return an updated copy of `layout` where the table node (possibly nested inside a
+ * wrapper) has `updates` merged in.  When `layout.table` is a wrapper, the inner
+ * `{ type: "table" }` sub-node is updated and the wrapper structure is preserved.
+ * When `layout.table` does not exist yet, it is created from `updates`.
+ */
+const patchTableNodeInLayout = (
+  layout: Record<string, unknown>,
+  updates: Record<string, unknown>,
+): Record<string, unknown> => {
+  const outerTable = layout['table'] as Record<string, unknown> | undefined;
+  if (!outerTable) return { ...layout, table: updates };
+  const tableNode = getOrCreateTableNode(layout);
+  const isWrapper = tableNode !== outerTable;
+  const updatedNode = { ...tableNode, ...updates };
+  if (!isWrapper) return { ...layout, table: updatedNode };
+  const outerItems = (outerTable['items'] as Record<string, unknown>[]) ?? [];
+  const idx = outerItems.findIndex((i: any) => i?.['type'] === 'table');
+  if (idx < 0) return { ...layout, table: updatedNode };
+  return {
+    ...layout,
+    table: {
+      ...outerTable,
+      items: [...outerItems.slice(0, idx), updatedNode, ...outerItems.slice(idx + 1)],
+    },
+  };
+};
+
+/**
+ * Walk a raw (unparsed) layout node tree and check for removed keys.
+ * Returns error descriptors that `refineByKind` can emit as Zod issues.
+ */
+const collectRemovedLayoutKeyErrors = (
+  node: unknown,
+  path: string[],
+): Array<{ path: string[]; message: string }> => {
+  if (!node || typeof node !== 'object' || Array.isArray(node)) return [];
+  const obj = node as Record<string, unknown>;
+  const errors: Array<{ path: string[]; message: string }> = [];
+
+  if ('controls' in obj) {
+    errors.push({
+      path: [...path, 'controls'],
+      message:
+        '\'controls\' was removed — use \'items\'. Run \'crouton migrate layout\'.',
+    });
+  }
+  if ('actions' in obj && path.some((p) => p === 'table')) {
+    errors.push({
+      path: [...path, 'actions'],
+      message: '\'actions\' was renamed to \'rowActions\'.',
+    });
+  }
+
+  for (const key of ['items', 'controls']) {
+    const children = obj[key];
+    if (Array.isArray(children)) {
+      for (let i = 0; i < children.length; i++) {
+        errors.push(
+          ...collectRemovedLayoutKeyErrors(children[i], [...path, key, String(i)]),
+        );
+      }
+    }
+  }
+  return errors;
+};
+
 export const buildResourceJsonSchema = () => {
   const ext = getResourceExtensions();
   const extShape = Object.fromEntries(
@@ -278,43 +365,69 @@ export const buildResourceJsonSchema = () => {
     ? ResourceJsonShape.extend(extShape)
     : ResourceJsonShape) as unknown as typeof ResourceJsonShape;
 
+  // ponytail: closure to pass raw layout errors from preprocess → superRefine without schema changes
+  let _rawLayoutErrors: Array<{ path: string[]; message: string }> = [];
+
   return z.preprocess(
     (raw) => {
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
       let obj = raw as Record<string, unknown>;
+
+      // Collect errors for removed keys before any transforms
+      _rawLayoutErrors = collectRemovedLayoutKeyErrors(obj['layout'], ['layout']);
 
       // Auto-derive kind='prisma' when a model is present and kind is unset.
       if (obj['kind'] === undefined && obj['model'] !== undefined) {
         obj = { ...obj, kind: 'prisma' };
       }
 
-      // Backward-compat: lift deprecated root actions/tableActions into layout.table
+      // Backward-compat: lift deprecated root actions/tableActions into layout.table.rowActions/tableActions
       const rootActions = obj['actions'] as unknown[] | undefined;
       const rootTableActions = obj['tableActions'] as unknown[] | undefined;
       if (rootActions?.length || rootTableActions?.length) {
         const layout =
           (obj['layout'] as Record<string, unknown> | undefined) ?? {};
-        const table =
-          (layout['table'] as Record<string, unknown> | undefined) ?? {};
+        const tableNode = getOrCreateTableNode(layout);
         obj = {
           ...obj,
-          layout: {
-            ...layout,
-            table: {
-              ...table,
-              ...(rootActions?.length &&
-                !(table['actions'] as unknown[])?.length && {
-                  actions: rootActions,
-                }),
-              ...(rootTableActions?.length &&
-                !(table['tableActions'] as unknown[])?.length && {
-                  tableActions: rootTableActions,
-                }),
-            },
-          },
+          layout: patchTableNodeInLayout(layout, {
+            ...(rootActions?.length &&
+              !(tableNode['rowActions'] as unknown[])?.length && {
+                rowActions: rootActions,
+              }),
+            ...(rootTableActions?.length &&
+              !(tableNode['tableActions'] as unknown[])?.length && {
+                tableActions: rootTableActions,
+              }),
+          }),
         };
         delete (obj as Record<string, unknown>)['actions'];
         delete (obj as Record<string, unknown>)['tableActions'];
+      }
+
+      // Backward-compat: lift deprecated root layout.table.actions → rowActions
+      {
+        const layout = obj['layout'] as Record<string, unknown> | undefined;
+        if (layout) {
+          const tableNode = getOrCreateTableNode(layout);
+          const oldActions = tableNode['actions'] as unknown[] | undefined;
+          if (oldActions?.length && !(tableNode['rowActions'] as unknown[])?.length) {
+            const updatedTable: Record<string, unknown> = { ...tableNode, rowActions: oldActions };
+            delete updatedTable['actions'];
+            const outerTable = layout['table'] as Record<string, unknown> | undefined;
+            const isWrapper = outerTable != null && tableNode !== outerTable;
+            if (!isWrapper || !outerTable) {
+              obj = { ...obj, layout: { ...layout, table: updatedTable } };
+            } else {
+              const outerItems = (outerTable['items'] as Record<string, unknown>[]) ?? [];
+              const idx = outerItems.findIndex((i: any) => i?.['type'] === 'table');
+              const newItems = idx >= 0
+                ? [...outerItems.slice(0, idx), updatedTable, ...outerItems.slice(idx + 1)]
+                : outerItems;
+              obj = { ...obj, layout: { ...layout, table: { ...outerTable, items: newItems } } };
+            }
+          }
+        }
       }
 
       // Backward-compat: lift deprecated column-level table flags into layout.table
@@ -360,61 +473,60 @@ export const buildResourceJsonSchema = () => {
         ) {
           const layout =
             (obj['layout'] as Record<string, unknown> | undefined) ?? {};
-          const table =
-            (layout['table'] as Record<string, unknown> | undefined) ?? {};
-          const existingControls =
-            (table['controls'] as Record<string, unknown>[] | undefined) ?? [];
+          const tableNode = getOrCreateTableNode(layout);
+          const existingItems =
+            (tableNode['items'] as Record<string, unknown>[] | undefined) ?? [];
           const existingIds = new Set(
-            existingControls.map((c) =>
+            existingItems.map((c) =>
               typeof c === 'string' ? c : (c['id'] as string),
             ),
           );
-          const mergedControls = [
-            ...existingControls,
+          const mergedItems = [
+            ...existingItems,
             ...Object.values(controlOverrides).filter(
               (c) => !existingIds.has(c['id'] as string),
             ),
           ];
           obj = {
             ...obj,
-            layout: {
-              ...layout,
-              table: {
-                ...table,
-                ...(searchFields.length && {
-                  searchFields: [
-                    ...((table['searchFields'] as string[]) ?? []),
-                    ...searchFields.filter(
-                      (f) =>
-                        !((table['searchFields'] as string[]) ?? []).includes(
-                          f,
-                        ),
-                    ),
-                  ],
-                }),
-                ...(filterFields.length && {
-                  filterFields: [
-                    ...((table['filterFields'] as string[]) ?? []),
-                    ...filterFields.filter(
-                      (f) =>
-                        !((table['filterFields'] as string[]) ?? []).includes(
-                          f,
-                        ),
-                    ),
-                  ],
-                }),
-                ...(mergedControls.length > existingControls.length && {
-                  controls: mergedControls,
-                }),
-              },
-            },
+            layout: patchTableNodeInLayout(layout, {
+              ...(searchFields.length && {
+                searchFields: [
+                  ...((tableNode['searchFields'] as string[]) ?? []),
+                  ...searchFields.filter(
+                    (f) =>
+                      !((tableNode['searchFields'] as string[]) ?? []).includes(
+                        f,
+                      ),
+                  ),
+                ],
+              }),
+              ...(filterFields.length && {
+                filterFields: [
+                  ...((tableNode['filterFields'] as string[]) ?? []),
+                  ...filterFields.filter(
+                    (f) =>
+                      !((tableNode['filterFields'] as string[]) ?? []).includes(
+                        f,
+                      ),
+                  ),
+                ],
+              }),
+              ...(mergedItems.length > existingItems.length && {
+                items: mergedItems,
+              }),
+            }),
           };
         }
       }
 
       return obj;
     },
-    shape.superRefine(refineByKind).transform((obj) => {
+    shape.superRefine(refineByKind).superRefine((_, ctx) => {
+      for (const err of _rawLayoutErrors) {
+        ctx.addIssue({ code: 'custom', path: err.path, message: err.message });
+      }
+    }).transform((obj) => {
       const title = obj.title ?? labelFromId(obj.name);
       const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
       const defaultOps =

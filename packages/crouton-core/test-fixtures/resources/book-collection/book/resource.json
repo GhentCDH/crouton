@@ -3,12 +3,32 @@
   "model": "Book",
   "title": "Books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "filterable": true, "sortable": true },
-    "isbn": { "sortable": true },
-    "publishedYear": { "type": "integer", "sortable": true },
-    "status": { "enum": "bookStatus", "filterable": true },
-    "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "searchable": true,
+      "filterable": true,
+      "sortable": true
+    },
+    "isbn": {
+      "sortable": true
+    },
+    "publishedYear": {
+      "type": "integer",
+      "sortable": true
+    },
+    "status": {
+      "enum": "bookStatus",
+      "filterable": true
+    },
+    "summary": {
+      "fieldInput": {
+        "type": "textarea"
+      },
+      "hiddenInTable": true
+    },
     "authorId": {
       "label": "Author",
       "searchable": true,
@@ -28,5 +48,9 @@
       "hiddenInTable": true
     }
   },
-  "include": ["author", "categories"]
+  "include": [
+    "author",
+    "categories"
+  ],
+  "schemaVersion": 1
 }

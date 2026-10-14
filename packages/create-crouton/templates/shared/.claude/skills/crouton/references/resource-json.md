@@ -57,31 +57,33 @@
     "form": {
       "type": "grid",
       "columns": 12,
-      "controls": [
-        { "id": "title", "colspan": 8 },
-        { "id": "genre", "colspan": 4 },
-        { "id": "pageCount", "colspan": 6 },
-        { "id": "publishedAt", "colspan": 6 },
-        "authorId"
-      ],
       "items": [
-        { "type": "collapse", "title": "Relations", "controls": ["reviews"] }
+        { "id": "title", "colspan": 9 },
+        { "id": "genre", "colspan": 3 },
+        "pageCount",
+        "publishedAt",
+        "authorId",
+        {
+          "type": "collapse",
+          "title": "Metadata",
+          "items": ["createdAt", "updatedAt"]
+        }
       ]
     },
-    "view": {
-      "type": "grid",
-      "columns": 12,
-      "controls": ["title", "genre", "pageCount", "publishedAt", "authorId"]
-    },
     "table": {
-      "controls": ["title", "genre", "publishedAt"],
+      "items": [
+        { "id": "title", "sortable": true, "defaultSort": true },
+        "genre",
+        "publishedAt",
+        "authorId"
+      ],
       "searchFields": ["title"],
       "filterFields": ["genre"],
-      "actions": [
-        { "id": "editBook", "label": "Edit", "type": "link", "href": "/books/{id}/edit" }
+      "rowActions": [
+        { "id": "preview", "type": "link", "href": "/preview/{id}", "label": "Preview" }
       ],
       "tableActions": [
-        { "id": "exportCsv", "label": "Export CSV", "type": "link", "href": "/books/export.csv" }
+        { "id": "export", "label": "Export CSV", "procedure": "exportCsv" }
       ]
     }
   }
@@ -93,7 +95,7 @@
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `$schema` | string | no | Path to JSON schema for editor validation |
-| `schemaVersion` | number | yes | Always `1` |
+| `schemaVersion` | number | yes | Current version is `1` |
 | `title` | string | yes | Display name for the resource |
 | `kind` | `"default"` \| `"custom"` | no | `"default"` = Prisma-backed; `"custom"` = repository.ts |
 | `columns` | object | yes | Map of column name → column config |
@@ -105,15 +107,56 @@
 | `relations[].type` | `manyToOne` \| `oneToMany` \| `manyToMany` | yes | Relation direction |
 | `relations[].resource` | string | yes | Target resource name |
 | `relations[].foreignKey` | string | yes (manyToOne/oneToMany) | FK column name |
-| `layout.form` | LayoutNode | no | Explicit layout for the create/edit form. Absent = columns in source order. |
-| `layout.view` | LayoutNode | no | Explicit layout for the read-only detail view. |
-| `layout.table` | LayoutNode | no | Explicit layout for the table view (columns + actions). |
-| `layout.*.type` | `"grid"\|"vertical"\|"horizontal"\|"collapse"\|"group"` | no | Container type. `"grid"` uses CSS grid; `"collapse"` is a collapsible section. |
-| `layout.*.columns` | number (1–12) | no | Number of grid columns. Only for `type: "grid"`. |
-| `layout.*.controls` | `(string \| FieldControl \| ComponentControl)[]` | no | Leaf items: column id string, `{ id, colspan?, rowspan?, type?, options?, showWhen? }`, or `{ component }`. |
-| `layout.*.items` | LayoutNode[] | no | Nested layout nodes (nested grids, groups, collapse sections). |
-| `layout.table.controls[]` | string \| TableFieldControl | no | Table column: string id or `{ id, sortable?, defaultSort? }`. |
-| `layout.table.actions` | Action[] | no | Per-record row actions. Each action gets the record id. |
-| `layout.table.tableActions` | Action[] | no | Global toolbar actions. No record id. |
-| `layout.table.searchFields` | string[] | no | Column ids for `?q=` free-text search. |
-| `layout.table.filterFields` | string[] | no | Column ids shown in the filter panel. |
+| `layout.form` / `layout.view` | FormLayoutNode | no | Form/view layout — nodes with `items` arrays |
+| `layout.table` | TableLayoutRoot | no | Table layout — table node or wrapper containing one |
+| `layout.table.items[]` | string \| FieldControl | no | Column order; field id string or `{ id, sortable, ... }` |
+| `layout.table.rowActions` | Action[] | no | Per-record row actions (receive the record id) |
+| `layout.table.tableActions` | Action[] | no | Global toolbar actions (no record id) |
+| `layout.table.searchFields` | string[] | no | Column ids included in `?q=` search |
+| `layout.table.filterFields` | string[] | no | Column ids that get filter controls |
+
+## Layout items
+
+Every entry in a node's `items` array is one of four kinds:
+
+| Shape | Kind |
+|---|---|
+| `"fieldName"` | Field id — renders field's default input |
+| `{ "id": "fieldName", ... }` | Field control — field with overrides (`colspan`, `type`, `options`, …) |
+| `{ "component": "Name", ... }` | Component — custom Vue component from `customComponents` |
+| Any other object (has `type` but no `id`/`component`) | Nested node — recursive layout container |
+
+Order is preserved — items render exactly in the order declared.
+
+## Table layout: flat vs wrapper
+
+**Flat** (table node is the root):
+
+```json
+"table": {
+  "items": ["title", "author"],
+  "rowActions": [ ... ],
+  "tableActions": [ ... ]
+}
+```
+
+**Wrapper** (outer container with an inner `type: "table"` node):
+
+```json
+"table": {
+  "type": "grid",
+  "columns": 12,
+  "items": [
+    { "component": "CreateByIsbn", "colspan": 12 },
+    {
+      "type": "table",
+      "title": "Books",
+      "items": ["title", "author", { "id": "isbn", "sortable": true }],
+      "searchFields": ["title", "isbn"],
+      "rowActions": [ { "id": "open", "type": "link", "href": "/isbn/{isbn}", "label": "Open" } ]
+    }
+  ]
+}
+```
+
+All table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`) go on the **`type: "table"` node**, never on the outer wrapper.

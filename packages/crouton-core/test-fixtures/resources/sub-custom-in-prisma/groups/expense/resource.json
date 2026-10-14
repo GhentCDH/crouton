@@ -4,8 +4,21 @@
   "route": "expense",
   "title": "Expenses",
   "columns": {
-    "id": { "type": "string", "idField": true, "hiddenInForm": true },
-    "label": { "type": "string", "searchable": true, "sortable": true, "defaultSort": true },
-    "amount": { "type": "number", "sortable": true }
-  }
+    "id": {
+      "type": "string",
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "label": {
+      "type": "string",
+      "searchable": true,
+      "sortable": true,
+      "defaultSort": true
+    },
+    "amount": {
+      "type": "number",
+      "sortable": true
+    }
+  },
+  "schemaVersion": 1
 }

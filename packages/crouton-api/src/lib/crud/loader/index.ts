@@ -25,6 +25,8 @@
 
 import type { ZodObject, ZodRawShape } from 'zod';
 
+import { resolveTableNode } from '@ghentcdh/crouton-core';
+
 import { loadActions } from '../action';
 import { fromJson } from '../adapter';
 import {
@@ -136,8 +138,9 @@ export const loadResourceConfigsFromDir = async (
       // recorded by loadCustomRepository. Skip further validation to avoid a double error.
       const repositoryImportFailed = resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
-      const tableLayout = json.layout?.table as any;
-      const actions = await loadActions(tableLayout?.actions ?? [], basePath, 'row');
+      const tableLayoutRoot = json.layout?.table as any;
+      const tableLayout = resolveTableNode(tableLayoutRoot) ?? tableLayoutRoot;
+      const actions = await loadActions(tableLayout?.rowActions ?? [], basePath, 'row');
       const tableActions = await loadActions(
         tableLayout?.tableActions ?? [],
         basePath,

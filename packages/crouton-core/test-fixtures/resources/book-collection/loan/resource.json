@@ -3,9 +3,19 @@
   "model": "Loan",
   "title": "Loans",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "loanedAt": { "type": "string", "sortable": true, "defaultSort": true },
-    "returnedAt": { "type": "string", "required": false },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "loanedAt": {
+      "type": "string",
+      "sortable": true,
+      "defaultSort": true
+    },
+    "returnedAt": {
+      "type": "string",
+      "required": false
+    },
     "userId": {
       "label": "User",
       "fieldInput": {
@@ -23,5 +33,9 @@
       }
     }
   },
-  "include": ["user", "book"]
+  "include": [
+    "user",
+    "book"
+  ],
+  "schemaVersion": 1
 }

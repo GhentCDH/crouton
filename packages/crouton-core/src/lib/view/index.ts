@@ -41,7 +41,7 @@ export {
   zodSchemaSource,
 } from './view.builder';
 export { buildFormUiSchemaFromLayout, flattenLayoutControlIds, flattenLayoutControls } from './layout-ui-schema.builder';
-export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout } from './layout-table-order';
+export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resolveTableNode } from './layout-table-order';
 export {
   columnToJsonSchemaProperty,
   columnTypeSchemaSource,

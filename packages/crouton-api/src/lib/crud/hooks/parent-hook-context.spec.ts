@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { createCrudController } from '../crud-controller.factory';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -46,6 +48,7 @@ const CHILD_JSON = {
   route: 'expense',
   tag: 'Expense',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true },
     label: { type: 'string', defaultSort: true },
@@ -89,6 +92,7 @@ describe('ctx.parent on a nested hook', () => {
           model: 'Group',
           tag: 'Group',
           operations: {},
+          schemaVersion: CURRENT_RESOURCE_VERSION,
           columns: {
             id: { idField: true },
             name: {},
@@ -249,6 +253,7 @@ describe('sub-resource hook discovery', () => {
         model: 'Group',
         tag: 'Group',
         operations: {},
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         columns: {
           id: { idField: true },
           expense: {

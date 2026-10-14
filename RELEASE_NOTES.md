@@ -1,3 +1,17 @@
+## [Unreleased] — Breaking changes
+
+### 💥 Layout: `controls` → `items`, `actions` → `rowActions`
+
+Run `crouton migrate layout --check` to detect resources that need migration, then `crouton migrate layout` to apply.
+
+- Single `items` list per layout node (order preserved)
+- Table settings on the `type: "table"` node
+- `actions` → `rowActions`; compiled `Table.options.actions` → `Table.options.tableActions`
+- `schemaVersion` 2; table heading via `title`/`label` on the table node
+- Bug fix: `sortable`/`defaultSort` now honoured inside wrapper table layouts
+
+---
+
 ## 0.0.1-alpha.82 (2026-10-08)
 
 This was a version bump only, there were no code changes.

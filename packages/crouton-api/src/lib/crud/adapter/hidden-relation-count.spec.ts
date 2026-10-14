@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 import { createCrudRepository } from '../crud-repository.factory';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -34,6 +36,7 @@ const child = (name: string, model: string) => ({
   model,
   tag: 'Child',
   operations: {},
+  schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: { id: { idField: true }, label: {} },
 });
 
@@ -52,6 +55,7 @@ describe('_count skips relations hidden from the table', () => {
         model: 'Group',
         tag: 'Group',
         operations: {},
+        schemaVersion: CURRENT_RESOURCE_VERSION,
         columns: { id: { idField: true }, name: {}, ...columns },
       }),
     );

@@ -95,7 +95,7 @@ describe('buildTranslationBundle', () => {
       title: 'Groups',
       layout: {
         table: {
-          actions: [
+          rowActions: [
             { id: 'publish', label: 'Publish', type: 'procedure' },
           ],
           filterFields: [],

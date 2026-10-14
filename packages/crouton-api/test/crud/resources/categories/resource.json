@@ -4,10 +4,29 @@
   "tag": "Categories",
   "kind": "prisma",
   "model": "category",
-  "operations": { "findAll": true, "findOne": true, "create": true, "update": true, "delete": true },
+  "operations": {
+    "findAll": true,
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  },
   "columns": {
-    "id": { "type": "string", "idField": true },
-    "name": { "type": "string", "searchable": true, "sortable": true, "required": true },
-    "slug": { "type": "string", "sortable": true, "required": true }
-  }
+    "id": {
+      "type": "string",
+      "idField": true
+    },
+    "name": {
+      "type": "string",
+      "searchable": true,
+      "sortable": true,
+      "required": true
+    },
+    "slug": {
+      "type": "string",
+      "sortable": true,
+      "required": true
+    }
+  },
+  "schemaVersion": 1
 }

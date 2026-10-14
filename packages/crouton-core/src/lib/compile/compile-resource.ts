@@ -6,6 +6,7 @@ import {
   buildViews,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  resolveTableNode,
 } from '../view';
 import { enrichActionColumns, enrichIncludeWithSort } from './column-enrichment';
 import {
@@ -87,7 +88,7 @@ export const compileResource = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns, json.layout?.table?.searchFields);
+  const lookup = buildLookup(enrichedColumns, resolveTableNode(json.layout?.table)?.searchFields);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 

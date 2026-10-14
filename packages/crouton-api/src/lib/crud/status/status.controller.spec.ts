@@ -1,6 +1,8 @@
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+
 
 import { createStatusController } from './status.controller';
 import { type DataSourceRegistry } from '../data-source';
@@ -78,7 +80,7 @@ describe('createStatusController', () => {
       path: 'users',
       valid: true,
       kind: 'prisma',
-      version: 1,
+      version: CURRENT_RESOURCE_VERSION,
     });
     expect(status.resources[1].valid).toBe(false);
     expect(status.resources[1].name).toBe('bad_resource');

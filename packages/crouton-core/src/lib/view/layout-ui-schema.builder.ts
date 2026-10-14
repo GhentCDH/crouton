@@ -3,7 +3,7 @@ import { LayoutBuilder } from '../layout/layout.builder';
 import { LayoutType } from '../layout/layout.options';
 import type { JsonColumn } from '../resource/Column';
 import type { LayoutControl, LayoutNode } from '../resource/layout';
-import { isComponentControl } from '../resource/layout';
+import { isComponentControl, isComponentItem, isNodeItem } from '../resource/layout';
 
 const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
   const type = node.type ?? 'grid';
@@ -84,41 +84,40 @@ const buildNodeInto = (
 ): LayoutBuilder<any> => {
   const container = buildContainerForNode(node);
 
-  // Controls first, then nested items
-  if (node.controls?.length) {
-    for (const ctrl of node.controls) {
-      if (isComponentControl(ctrl)) {
-        container.addControl({
-          build: () => ({
-            type: LayoutType.ComponentElement,
-            options: {
-              component: ctrl.component,
-              ...(ctrl.colspan !== undefined && { colspan: ctrl.colspan }),
-              ...(ctrl.rowspan !== undefined && { rowspan: ctrl.rowspan }),
-              ...(ctrl.width !== undefined && { width: ctrl.width }),
-              ...(ctrl.label !== undefined && { label: ctrl.label }),
-            },
-          }),
-        });
-        continue;
-      }
-      const id = resolveControlId(ctrl)!;
-      const col = colMap.get(id);
-      if (!col) {
-        warn(`layout: unknown or hidden column id "${id}" — skipping`);
-        continue;
-      }
-      seenIds.add(id);
-      const control = buildFormControl(col);
-      container.addControl(applyControlOverrides(control, ctrl));
+  // Single items list: components, field controls, nested nodes — in declared order
+  for (const item of (node.items ?? [])) {
+    if (isComponentItem(item)) {
+      const ctrl = item as any;
+      container.addControl({
+        build: () => ({
+          type: LayoutType.ComponentElement,
+          options: {
+            component: ctrl.component,
+            ...(ctrl.colspan !== undefined && { colspan: ctrl.colspan }),
+            ...(ctrl.rowspan !== undefined && { rowspan: ctrl.rowspan }),
+            ...(ctrl.width !== undefined && { width: ctrl.width }),
+            ...(ctrl.label !== undefined && { label: ctrl.label }),
+          },
+        }),
+      });
+      continue;
     }
-  }
-
-  if (node.items?.length) {
-    for (const item of node.items) {
-      const child = buildNodeInto(item, colMap, warn, seenIds);
+    if (isNodeItem(item)) {
+      const child = buildNodeInto(item as LayoutNode, colMap, warn, seenIds);
       container.addControl(child);
+      continue;
     }
+    // Field id or field control
+    const ctrl = item as LayoutControl;
+    const id = resolveControlId(ctrl)!;
+    const col = colMap.get(id);
+    if (!col) {
+      warn(`layout: unknown or hidden column id "${id}" — skipping`);
+      continue;
+    }
+    seenIds.add(id);
+    const control = buildFormControl(col);
+    container.addControl(applyControlOverrides(control, ctrl));
   }
 
   return container;
@@ -150,16 +149,21 @@ export const buildFormUiSchemaFromLayout = (
   return root.build() as unknown as Record<string, unknown>;
 };
 
-/** Flatten the layout node tree depth-first into an ordered list of all controls (including component controls). */
-export const flattenLayoutControls = (node: LayoutNode): LayoutControl[] => {
-  const controls: LayoutControl[] = [];
+/** Flatten the layout node tree depth-first into an ordered list of all leaf items (fields + components). */
+export const flattenLayoutItems = (node: LayoutNode): LayoutControl[] => {
+  const result: LayoutControl[] = [];
   const visit = (n: LayoutNode): void => {
-    for (const ctrl of n.controls ?? []) controls.push(ctrl);
-    for (const item of n.items ?? []) visit(item);
+    for (const item of (n as any).items ?? []) {
+      if (isNodeItem(item)) visit(item as LayoutNode);
+      else result.push(item as LayoutControl);
+    }
   };
   visit(node);
-  return controls;
+  return result;
 };
+
+/** @deprecated Use `flattenLayoutItems` */
+export const flattenLayoutControls = flattenLayoutItems;
 
 /**
  * Flatten the layout node tree depth-first into an ordered list of column ids only.
@@ -170,7 +174,7 @@ export const flattenLayoutControlIds = (
   warn: (msg: string) => void = console.warn,
 ): string[] => {
   const ids: string[] = [];
-  for (const ctrl of flattenLayoutControls(node)) {
+  for (const ctrl of flattenLayoutItems(node)) {
     if (isComponentControl(ctrl)) continue;
     const id = resolveControlId(ctrl)!;
     if (

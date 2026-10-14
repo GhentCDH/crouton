@@ -3,8 +3,18 @@
   "model": "Category",
   "title": "Categories",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true, "filterable": true, "sortable": true },
-    "slug": { "sortable": true }
-  }
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "name": {
+      "searchable": true,
+      "filterable": true,
+      "sortable": true
+    },
+    "slug": {
+      "sortable": true
+    }
+  },
+  "schemaVersion": 1
 }

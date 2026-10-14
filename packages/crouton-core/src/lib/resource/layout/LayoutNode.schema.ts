@@ -1,35 +1,31 @@
 import { z } from 'zod';
 
 import {
+  LayoutComponentItemSchema,
   type LayoutControl,
-  LayoutControlSchema,
-} from './LayoutControl.schema';
-import { FilterFields, LayoutTableSchema, SearchFields } from './TableLayout.schema';
-import { JsonActionSchema } from '../TableAction.schema';
+  LayoutFieldItemSchema,
+} from './LayoutItem.schema';
 
-export type LayoutNode = {
-  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'table';
+// ── FormLayoutNode ─────────────────────────────────────────────────────
+
+export type FormLayoutNode = {
+  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group';
   columns?: number;
   title?: string;
   titleKey?: string;
   colspan?: number;
   rowspan?: number;
   label?: string;
-  controls?: LayoutControl[];
-  items?: LayoutNode[];
-  searchFields?: string[];
-  filterFields?: string[];
-  actions?: unknown[];
-  tableActions?: unknown[];
+  items?: (z.infer<typeof LayoutFieldItemSchema> | z.infer<typeof LayoutComponentItemSchema> | FormLayoutNode)[];
 };
 
-export const _LayoutNodeSchema: z.ZodType<LayoutNode> = z.lazy(() =>
+export const FormLayoutNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
   z.object({
     type: z
       .enum(['grid', 'vertical', 'horizontal', 'collapse', 'group'])
       .optional()
       .describe(
-        'Layout container type. "grid" arranges controls in a CSS grid; "vertical"/"horizontal" stack them; "collapse" is a collapsible section; "group" is a labeled group.',
+        'Layout container type. "grid" arranges items in a CSS grid; "vertical"/"horizontal" stack them; "collapse" is a collapsible section; "group" is a labeled group.',
       ),
     columns: z
       .number()
@@ -66,35 +62,39 @@ export const _LayoutNodeSchema: z.ZodType<LayoutNode> = z.lazy(() =>
       .string()
       .optional()
       .describe('Label shown on the section or group header.'),
-    controls: z
-      .array(LayoutControlSchema)
-      .optional()
-      .describe(
-        'Leaf controls in this layout node. Each entry is a column id string or a control config object.',
-      ),
     items: z
-      .array(LayoutNodeSchema)
+      .array(
+        z.union([LayoutFieldItemSchema, LayoutComponentItemSchema, FormLayoutNodeSchema]),
+      )
       .optional()
       .describe(
-        'Nested layout nodes. Use for nested grids, groups, or collapsible sections.',
+        'Ordered list of items in this layout node. Each entry is a column id string, a field config object, a component reference, or a nested layout node.',
       ),
-    searchFields: z
-      .array(SearchFields)
-      .optional()
-      .describe('Column ids used for ?q= free-text search. Inherited by the backend from the outer layout wrapper.'),
-    filterFields: z
-      .array(FilterFields)
-      .optional()
-      .default([])
-      .describe('Column ids shown in the filter panel.'),
-    actions: z
-      .array(JsonActionSchema)
-      .default([])
-      .describe('Per-record row actions shown in the table.'),
-    tableActions: z
-      .array(JsonActionSchema)
-      .default([])
-      .describe('Global table-level actions shown as toolbar buttons.'),
   }),
 );
-export const LayoutNodeSchema = z.union([LayoutTableSchema, _LayoutNodeSchema]);
+
+// ── LayoutNode (legacy) ─────────────────────────────────────────────────
+// Kept for backward compat with Phase 4 consumers. Will be removed once
+// all consumers migrate to FormLayoutNode / TableNode.
+
+export type LayoutNode = {
+  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'table';
+  columns?: number;
+  title?: string;
+  titleKey?: string;
+  colspan?: number;
+  rowspan?: number;
+  label?: string;
+  /** @deprecated Use `items` */
+  controls?: LayoutControl[];
+  items?: (LayoutControl | LayoutNode)[];
+  searchFields?: string[];
+  filterFields?: string[];
+  actions?: unknown[];
+  tableActions?: unknown[];
+};
+
+/** @deprecated Use `FormLayoutNodeSchema`. Kept as an alias. */
+export const _LayoutNodeSchema = FormLayoutNodeSchema;
+
+export const LayoutNodeSchema = FormLayoutNodeSchema;

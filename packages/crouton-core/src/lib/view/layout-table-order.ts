@@ -1,7 +1,10 @@
-import { flattenLayoutControls } from './layout-ui-schema.builder';
+import type { z } from 'zod';
+
+import { flattenLayoutItems } from './layout-ui-schema.builder';
 import type { ViewConfig } from './view.schema';
 import type { LayoutNode } from '../resource/layout';
-import { isComponentControl } from '../resource/layout';
+import { isComponentControl, isComponentItem } from '../resource/layout';
+import type { TableLayoutRootSchema, TableNode } from '../resource/layout/TableLayout.schema';
 
 const LAYOUT_TYPE_MAP: Record<string, string> = {
   grid: 'GridLayout',
@@ -17,12 +20,33 @@ const mapLayoutType = (type: LayoutNode['type']): string =>
 /** Find the `type: "table"` sub-node inside a wrapper layout, or return the node itself. */
 export const findTableNode = (node: LayoutNode): LayoutNode =>
   node.type !== 'table' && node.items?.length
-    ? (node.items.find((i) => i.type === 'table') ?? node)
+    ? (node.items.find((i) => typeof i !== 'string' && !('id' in i) && !('component' in i) && (i as LayoutNode).type === 'table') as LayoutNode ?? node)
     : node;
+
+/**
+ * Depth-first search for the table node in a `TableLayoutRoot`.
+ * Returns the node itself if it is a table node (no `type` or `type: "table"`),
+ * or the first descendant with `type: "table"`.
+ */
+export const resolveTableNode = (
+  layout: z.infer<typeof TableLayoutRootSchema> | LayoutNode | undefined,
+): TableNode | undefined => {
+  if (!layout) return undefined;
+  const node = layout as Record<string, unknown>;
+  if ((!node['type'] || node['type'] === 'table') && !node['component']) return layout as TableNode;
+  const items = node['items'];
+  if (!Array.isArray(items)) return undefined;
+  for (const item of items) {
+    if (typeof item !== 'object' || item === null) continue;
+    const found = resolveTableNode(item as LayoutNode);
+    if (found) return found;
+  }
+  return undefined;
+};
 
 /** True when `layout.table` is a wrapper layout (outer type ≠ "table") with a "table" sub-node. */
 export const isTableWrapperLayout = (node: LayoutNode): boolean =>
-  node.type !== 'table' && !!node.items?.some((i) => i.type === 'table');
+  node.type !== 'table' && !!node.items?.some((i) => typeof i !== 'string' && !('id' in i) && !('component' in i) && (i as LayoutNode).type === 'table');
 
 /**
  * Reorder a table view's elements and columns to match the `layout.table` declaration.
@@ -37,7 +61,7 @@ export const orderTableColumnsFromLayout = (
   warn: (msg: string) => void = console.warn,
 ): ViewConfig => {
   const tableNode = findTableNode(node);
-  const controls = flattenLayoutControls(tableNode);
+  const controls = flattenLayoutItems(tableNode);
   if (!controls.length) return view;
 
   const elements: any[] = (view.ui_schema as any)?.elements ?? [];
@@ -136,9 +160,14 @@ export const orderTableColumnsFromLayout = (
   // Wrapper layout: produce outer UI node containing component elements + inner Table element
   const outerType = mapLayoutType(node.type);
   const outerElements: any[] = [
-    ...(node.controls ?? [])
-      .filter(isComponentControl)
-      .map((ctrl) => ({ component: ctrl.component, label: ctrl.label })),
+    ...((node as any).items ?? [])
+      .filter(isComponentItem)
+      .map((ctrl: any) => ({
+        component: ctrl.component,
+        label: ctrl.label,
+        ...(ctrl.colspan != null && { colspan: ctrl.colspan }),
+        ...(ctrl.rowspan != null && { rowspan: ctrl.rowspan }),
+      })),
     innerTableUi,
   ];
 
