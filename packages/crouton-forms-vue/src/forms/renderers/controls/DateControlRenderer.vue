@@ -34,10 +34,12 @@ const withTime = computed(() =>
 /**
  * `DatePicker` emits the ISO string (or `undefined` to clear), so set it on the
  * field explicitly instead of using `v-model` — that keeps a cleared date as
- * `undefined` (persisted as NULL) rather than an empty string.
+ * `null` (persisted as NULL) rather than an empty string. Must be `null` not
+ * `undefined`: JSON.stringify drops undefined keys, so the PATCH body would
+ * omit the field entirely and the server would never clear the value.
  */
 const onUpdate = (next?: string) => {
-  field.setValue(next);
+  field.setValue(next ?? null);
   onChange();
 };
 </script>

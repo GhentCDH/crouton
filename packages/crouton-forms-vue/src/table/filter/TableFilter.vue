@@ -3,7 +3,7 @@
     <Btn
       size="xs"
       color="ghost"
-      class="border-gray-300 text-base-content/50 h-8"
+      class="border-gray-300 text-base-content/50 h-8 "
       @click="showFilters = !showFilters"
     >
       <span class="px-2 flex gap-2 items-center">

@@ -16,6 +16,7 @@
           autocomplete="off"
           data-lpignore="true"
           data-bwignore="true"
+          @click.prevent="openPicker"
           @input="onInput(($event.target as HTMLInputElement).value)"
           @blur="$emit('blur', $event)"
           @keydown.esc="close"
@@ -244,6 +245,17 @@ const teardownClickOutside = () => {
   if (!clickOutsideListener) return;
   removeClickOutsideEventListener(clickOutsideListener);
   clickOutsideListener = null;
+};
+
+const openPicker = () => {
+  if (!props.enabled) return;
+  view.value = initialView();
+  open.value = true;
+  nextTick(() => {
+    if (rootRef.value && !clickOutsideListener) {
+      clickOutsideListener = addClickOutsideEventListener(rootRef.value, close);
+    }
+  });
 };
 
 const close = () => {

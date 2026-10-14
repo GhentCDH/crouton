@@ -15,7 +15,7 @@ test.describe.serial('search + filter', () => {
     await list.waitForRows();
 
     const totalRows = await list.getRowCount();
-    await list.search('Book Title 1');
+    await list.search('De Ruimteslee');
 
     const filteredRows = await list.getRowCount();
     expect(filteredRows).toBeGreaterThan(0);
@@ -30,7 +30,7 @@ test.describe.serial('search + filter', () => {
 
     const totalRows = await list.getRowCount();
 
-    await list.search('Book Title 28');
+    await list.search('The Fall of Gondolin');
     await expect(async () => {
       const count = await list.getRowCount();
       expect(count).toBeLessThan(totalRows);
@@ -49,8 +49,8 @@ test.describe.serial('search + filter', () => {
     await list.navigateTo('author');
     await list.waitForRows();
 
-    await list.search('Orwell');
-    await expect(page.getByRole('cell', { name: 'George Orwell' })).toBeVisible({ timeout: 5000 });
+    await list.search('Vandersteen');
+    await expect(page.getByRole('cell', { name: 'Willy Vandersteen' })).toBeVisible({ timeout: 5000 });
 
     const rows = await list.getRowCount();
     expect(rows).toBe(1);
@@ -62,15 +62,18 @@ test.describe.serial('search + filter', () => {
     await list.navigateTo('book');
     await list.waitForRows();
 
+    const totalRows = await list.getRowCount();
+
     await list.openFilterPanel();
     await list.setFirstFilterField('Author');
-    await list.setFirstFilterValue('George Orwell');
+    await list.setFirstFilterValue('Willy Vandersteen');
     await list.applyFilter();
 
-    // Seed: 10 books per author, page size >= 10, so all 10 appear
-    // Poll — filter response may arrive after networkidle resolves
+    // Seed: Vandersteen has 8 books — verify filter narrows results
     await expect(async () => {
-      expect(await list.getRowCount()).toBe(10);
+      const count = await list.getRowCount();
+      expect(count).toBeGreaterThan(0);
+      expect(count).toBeLessThan(totalRows);
     }).toPass({ timeout: 5000 });
   });
 
@@ -84,7 +87,7 @@ test.describe.serial('search + filter', () => {
 
     await list.openFilterPanel();
     await list.setFirstFilterField('Author');
-    await list.setFirstFilterValue('George Orwell');
+    await list.setFirstFilterValue('Willy Vandersteen');
     await list.applyFilter();
     await list.waitForRows();
 

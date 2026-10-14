@@ -5,7 +5,7 @@
   "title": "Loans",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "loanedAt": {  "sortable": true, "defaultSort": true, "fieldInput": {
+    "loanedAt": {  "fieldInput": {
       "defaultValue":"$now",
       "type":"date"
     } },
@@ -73,5 +73,12 @@
       }
     }
   },
-  "include": ["user", "book"]
+  "include": ["user", "book"],
+  "layout": {
+    "table": {
+      "controls": [
+        { "id": "loanedAt", "sortable": true, "defaultSort": true }
+      ]
+    }
+  }
 }

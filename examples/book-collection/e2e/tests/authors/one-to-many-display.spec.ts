@@ -12,13 +12,13 @@ test.describe('oneToMany display', () => {
     await list.navigateTo('author');
     await list.waitForRows();
 
-    await list.search('Orwell');
+    await list.search('Vandersteen');
     await page.waitForTimeout(400);
     await list.waitForRows();
     await list.clickView(0);
 
     await expect(page.getByTestId('form-modal')).toBeVisible();
-    await expect(page.getByText(/book title 1/i).first()).toBeVisible();
+    await expect(page.getByText(/De Ruimteslee/i).first()).toBeVisible();
 
     await form.cancel();
   });

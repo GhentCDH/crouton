@@ -14,8 +14,8 @@ test.describe('Update', () => {
       await list.navigateTo('book');
       await list.waitForRows();
 
-      // Seed: book-1 has status "draft" (index 0, cycling draft/published/archived)
-      await list.search('Book Title 1');
+      // Seed: book-1 "De Ruimteslee" has status "draft"
+      await list.search('De Ruimteslee');
       await list.waitForRows();
 
       const rows = list.getRows();
@@ -32,8 +32,8 @@ test.describe('Update', () => {
       await list.navigateTo('book');
       await list.waitForRows();
 
-      // Seed: book-2 has status "published"
-      await list.search('Book Title 2');
+      // Seed: book-2 "De Vliegende Aap" has status "published"
+      await list.search('De Vliegende Aap');
       await list.waitForRows();
 
       const firstRow = list.getRows().first();
@@ -51,7 +51,7 @@ test.describe('Update', () => {
         await list.navigateTo('book');
         await list.waitForRows();
 
-        await list.search('Book Title 1');
+        await list.search('De Ruimteslee');
         await page.waitForTimeout(400);
         await list.waitForRows();
 
@@ -63,7 +63,7 @@ test.describe('Update', () => {
         // Guard for the known-tricky label hydration path: must show name, not raw id
         const authorValue = await picker.getCurrentValue('Author');
         expect(authorValue).not.toBe('author-1');
-        expect(authorValue.toLowerCase()).toContain('orwell');
+        expect(authorValue.toLowerCase()).toContain('vandersteen');
       });
 
       test('changing author on a book persists', async ({ page }) => {
@@ -75,7 +75,7 @@ test.describe('Update', () => {
         await list.navigateTo('book');
         await list.waitForRows();
 
-        await list.search('Book Title 3');
+        await list.search('De Nerveuze Neushoorn');
         await page.waitForTimeout(400);
         await list.waitForRows();
         await list.clickEdit(0);
@@ -83,7 +83,7 @@ test.describe('Update', () => {
         await picker.selectAutocomplete('Author', 'Tolkien', 'J.R.R. Tolkien');
         await form.waitForAutoSave();
 
-        await list.search('Book Title 3');
+        await list.search('De Nerveuze Neushoorn');
         await page.waitForTimeout(400);
         await list.waitForRows();
         await list.clickEdit(0);
@@ -106,8 +106,8 @@ test.describe('Update', () => {
       await list.navigateTo('book');
       await list.waitForRows();
 
-      // Edit book-1 (status=draft) and change to Published
-      await list.search('Book Title 1');
+      // Edit book-1 "De Ruimteslee" (status=draft) and change to Published
+      await list.search('De Ruimteslee');
       await list.waitForRows();
       await list.clickEdit(0);
       await form.waitForModal();
@@ -116,12 +116,14 @@ test.describe('Update', () => {
       await form.waitForAutoSave();
 
       // Verify status updated in table
-      await list.search('Book Title 1');
+      await list.search('De Ruimteslee');
       await list.waitForRows();
       const firstRow = list.getRows().first();
       await expect(firstRow).toContainText(/published/i);
 
       // Reset back to draft for test isolation
+      await list.search('De Ruimteslee');
+      await list.waitForRows();
       await list.clickEdit(0);
       await form.waitForModal();
       await form.selectEnum(/status/i, 'draft');

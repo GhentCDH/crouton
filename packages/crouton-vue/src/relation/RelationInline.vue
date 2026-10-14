@@ -1,6 +1,7 @@
 <template>
   <ReadonlyLabel :label="label" class="h-full">
     <div
+      data-testid="relation-chip-list"
       class="flex gap-2"
       :class="{
         'flex-col': options.direction === 'column',
@@ -16,15 +17,15 @@
       />
     </div>
 
-    <div v-if="hasCreate && enableCreate" class="flex flex-gap-2 items-center">
+    <div v-if="hasCreate && enableCreate" data-testid="relation-inline-add" class="flex flex-gap-2 items-center">
       <Autocomplete
         v-if="fetchOptions"
         :model-value="newValue ?? undefined"
         :hide-label="true"
         :hide-errors="true"
         :fetch-options="fetchOptions.fetchOptions ?? undefined"
-        :label-key="options.labelKey"
-        :value-key="options.valueKey"
+        :label-key="options.displayKey ?? options.labelKey"
+        :value-key="options.valueKey ?? 'id'"
         :enable-create="fetchOptions.enableCreate"
         @change="onChange"
         @blur="onBlur"

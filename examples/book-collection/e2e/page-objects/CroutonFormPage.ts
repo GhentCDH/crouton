@@ -39,4 +39,10 @@ export class CroutonFormPage {
     await this.page.getByTestId('form-modal').getByRole('button').filter({ hasText: /cancel|close/i }).click();
     await this.page.getByTestId('form-modal').waitFor({ state: 'hidden' });
   };
+
+  expandCollapse = async (title: string) => {
+    const modal = this.page.getByTestId('form-modal');
+    await modal.locator(`input[type="checkbox"][aria-label="Toggle ${title}"]`).check();
+    await this.page.waitForTimeout(300);
+  };
 }

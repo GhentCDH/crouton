@@ -6,7 +6,17 @@
   "title": "Categories",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true, "filterable": true, "sortable": true },
-    "slug": { "sortable": true }
+    "name": {},
+    "slug": {}
+  },
+  "layout": {
+    "table": {
+      "searchFields": ["name"],
+      "filterFields": ["name"],
+      "controls": [
+        { "id": "name", "sortable": true },
+        { "id": "slug", "sortable": true }
+      ]
+    }
   }
 }

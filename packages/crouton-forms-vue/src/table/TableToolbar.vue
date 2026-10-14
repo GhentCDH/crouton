@@ -6,15 +6,16 @@
       </div>
     </div>
     <div class="navbar-center flex gap-2 items-center">
-      <Input
-        data-testid="search-input"
-        placeholder="Search..."
-        v-model="searchQuery"
-        size="sm"
-        width="w-48"
-        :clearable="true"
-      />
-
+      <div class="mt-2">
+        <Input
+          data-testid="search-input"
+          placeholder="Search..."
+          v-model="searchQuery"
+          size="sm"
+          width="w-48"
+          :clearable="true"
+        />
+      </div>
       <TableFilter
         v-if="filterSchema"
         :filters="filters ?? []"

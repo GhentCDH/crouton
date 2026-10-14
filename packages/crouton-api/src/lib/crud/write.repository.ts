@@ -264,6 +264,19 @@ export class WriteRepository<T = any> {
       return this.delegateChildWrite(sub, 'create', parentId, undefined, data, request);
     }
 
+    if (sub.relationType === 'manyToMany') {
+      const idField = sub.idField ?? 'id';
+      const raw = data as any;
+      const rawValue = raw?.value ?? raw;
+      const childId = rawValue && typeof rawValue === 'object' ? rawValue[idField] : rawValue;
+      if (childId == null) throw new Error('Missing child id for manyToMany connect');
+      const coercedId = (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
+      return this.prismaModel.update({
+        where: { [this.config.idField ?? 'id']: this.toId(parentId) },
+        data: { [sub.relation ?? sub.column]: { connect: { [idField]: coercedId } } },
+      });
+    }
+
     const childModel = this.prisma[sub.childModel];
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
@@ -396,6 +409,15 @@ export class WriteRepository<T = any> {
         undefined,
         request,
       );
+    }
+
+    if (sub.relationType === 'manyToMany') {
+      const idField = sub.idField ?? 'id';
+      const id = (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
+      return this.prismaModel.update({
+        where: { [this.config.idField ?? 'id']: this.toId(parentId ?? '') },
+        data: { [sub.relation ?? sub.column]: { disconnect: { [idField]: id } } },
+      });
     }
 
     const childModel = this.prisma[sub.childModel];

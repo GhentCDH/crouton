@@ -20,7 +20,6 @@ test.describe('book actions', () => {
 
   test('table action: Search Open Library opens openlibrary.org in new tab', async ({
     page,
-    context,
   }) => {
     await page.goto('/');
     const list = new CroutonListPage(page);
@@ -28,7 +27,7 @@ test.describe('book actions', () => {
     await list.waitForRows();
 
     const [newTab] = await Promise.all([
-      context.waitForEvent('page'),
+      page.waitForEvent('popup'),
       page.getByRole('button', { name: /search open library/i }).click(),
     ]);
 
@@ -44,8 +43,8 @@ test.describe('book actions', () => {
     await list.navigateTo('book');
     await list.waitForRows();
 
-    // Seed: Book Title 1 has an isbn
-    await list.search('Book Title 1');
+    // Seed: The Hobbit has an isbn
+    await list.search('The Hobbit');
     await list.waitForRows();
 
     const firstRow = list.getRows().first();
@@ -57,25 +56,32 @@ test.describe('book actions', () => {
 
   test('row action: Open on Open Library opens isbn url in new tab', async ({
     page,
-    context,
   }) => {
     await page.goto('/');
     const list = new CroutonListPage(page);
     await list.navigateTo('book');
     await list.waitForRows();
 
-    await list.search('Book Title 1');
+    await list.search('The Hobbit');
     await list.waitForRows();
 
     const firstRow = list.getRows().first();
     await firstRow.hover();
 
-    const [newTab] = await Promise.all([
-      context.waitForEvent('page'),
+    // Intercept before Open Library can redirect; window.open uses JS, not an <a> href
+    const isbnUrlPromise = new Promise<string>((resolve) => {
+      page.context().route(/openlibrary\.org\/isbn\//, (route) => {
+        resolve(route.request().url());
+        route.abort();
+      });
+    });
+
+    await Promise.all([
+      page.waitForEvent('popup'),
       firstRow.getByRole('button', { name: /open on open library/i }).click(),
     ]);
 
-    await newTab.waitForLoadState('domcontentloaded');
-    expect(newTab.url()).toContain('openlibrary.org/isbn/');
+    expect(await isbnUrlPromise).toContain('openlibrary.org/isbn/');
+    await page.context().unroute(/openlibrary\.org\/isbn\//);
   });
 });

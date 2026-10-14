@@ -5,7 +5,7 @@
       :key="star"
       type="button"
       @click="emit('update:modelValue', star)"
-      :class="star <= (modelValue ?? 0) ? 'text-yellow-400' : 'text-gray-300'"
+      :class="star <= (modelValue ?? value ?? 0) ? 'text-yellow-400' : 'text-gray-300'"
       style="font-size: 1.5rem; background: none; border: none; cursor: pointer;"
     >
       ★

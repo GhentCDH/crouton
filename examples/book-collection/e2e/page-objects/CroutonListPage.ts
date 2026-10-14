@@ -93,4 +93,36 @@ export class CroutonListPage {
     await this.page.getByRole('button', { name: 'Reset' }).click();
     await this.page.waitForLoadState('networkidle');
   };
+
+  clickColumnHeader = async (label: string) => {
+    await this.page.getByRole('columnheader', { name: label }).getByRole('button').click();
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(300);
+  };
+
+  getFirstCellInColumn = async (columnIndex: number): Promise<string> => {
+    const cell = this.getRows().first().locator('td').nth(columnIndex);
+    return cell.innerText();
+  };
+
+  getFirstRowText = async (): Promise<string> => {
+    return this.getRows().first().innerText();
+  };
+
+  setFirstFilterValueEnum = async (value: string) => {
+    await this.page.getByRole('combobox').nth(2).click();
+    await this.page.getByRole('option', { name: new RegExp(value, 'i') }).click();
+  };
+
+  goToNextPage = async () => {
+    await this.page.getByRole('button', { name: /next/i }).click();
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(300);
+  };
+
+  goToPrevPage = async () => {
+    await this.page.getByRole('button', { name: /prev/i }).click();
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(300);
+  };
 }

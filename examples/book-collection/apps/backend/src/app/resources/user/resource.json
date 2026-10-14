@@ -6,12 +6,19 @@
   "title": "Users",
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true, "filterable": true, "sortable": true },
+    "name": {},
     "email": {
-      "searchable": true,
-      "filterable": true,
-      "sortable": true,
       "unique": true
+    }
+  },
+  "layout": {
+    "table": {
+      "searchFields": ["name", "email"],
+      "filterFields": ["name", "email"],
+      "controls": [
+        { "id": "name", "sortable": true },
+        { "id": "email", "sortable": true }
+      ]
     }
   }
 }
