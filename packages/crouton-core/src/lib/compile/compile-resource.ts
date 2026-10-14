@@ -1,12 +1,14 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
+import {
+  buildLayouts,
+  resolveColumnVisibility,
+} from '../layout';
 import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
 import { getResourceExtensions } from '../resource';
 import {
-  buildViews,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
-  resolveColumnVisibility,
   resolveTableNode,
 } from '../view';
 import { enrichActionColumns, enrichIncludeWithSort } from './column-enrichment';
@@ -82,7 +84,7 @@ export const compileResource = (
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
-  let views = buildViews(schema, visibilityColumns, json.layout);
+  let views = buildLayouts(schema, visibilityColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = { ...views, table: injectCalculatedColumns(views.table, calculatedColumns) };
     if (views.view) {
