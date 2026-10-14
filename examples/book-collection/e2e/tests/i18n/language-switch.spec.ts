@@ -55,4 +55,43 @@ test.describe('language switch', () => {
 
     await expect(page.getByText('Gepubliceerd').first()).toBeVisible();
   });
+
+  test('all 3 enum values translate: Concept, Gepubliceerd, Gearchiveerd', async ({ page }) => {
+    const list = new CroutonListPage(page);
+    await list.navigateTo('book');
+    await list.waitForRows();
+
+    const lang = new LanguagePage(page);
+    await lang.switchLanguage('nl');
+
+    // At least one of each should appear in the table (seed has draft/published/archived)
+    await expect(page.getByText('Concept').first()).toBeVisible();
+    await expect(page.getByText('Gepubliceerd').first()).toBeVisible();
+    await expect(page.getByText('Gearchiveerd').first()).toBeVisible();
+  });
+
+  test('switching back to EN restores English column headers', async ({ page }) => {
+    const list = new CroutonListPage(page);
+    await list.navigateTo('book');
+    await list.waitForRows();
+
+    const lang = new LanguagePage(page);
+    await lang.switchLanguage('nl');
+    await expect(page.getByRole('columnheader', { name: 'Titel' })).toBeVisible();
+
+    await lang.switchLanguage('en');
+    await expect(page.getByRole('columnheader', { name: 'Title' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Titel' })).not.toBeVisible();
+  });
+
+  test('multiple nav labels change to Dutch', async ({ page }) => {
+    const lang = new LanguagePage(page);
+    await lang.switchLanguage('nl');
+
+    const authorLabel = await lang.getNavLabel('author');
+    expect(authorLabel).toBe('Auteurs');
+
+    const userLabel = await lang.getNavLabel('user');
+    expect(userLabel).toBe('Gebruikers');
+  });
 });
