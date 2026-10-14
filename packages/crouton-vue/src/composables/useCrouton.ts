@@ -9,6 +9,7 @@ import {
   CROUTON_EDITABLE_RENDERERS,
   CROUTON_READONLY_RENDERERS,
 } from '@ghentcdh/crouton-forms-vue';
+import { UI_TRANSLATOR_KEY } from '@ghentcdh/crouton-ui-vue';
 
 import { CROUTON_STATUS } from '../router';
 import { ResourceDefinitionCache } from './resource-definition';
@@ -19,6 +20,7 @@ import {
   installLanguageHeader,
   onLanguageChange,
   setUiDictionary,
+  useLanguage,
 } from './useLanguage';
 import {
   customControlRenderers,
@@ -228,6 +230,7 @@ export const CroutonPlugin = (
       CROUTON_READONLY_RENDERERS,
       [relationReadonlyRenderers, options.readonlyRenderers ?? []].flat(),
     );
+    app.provide(UI_TRANSLATOR_KEY, useLanguage().t);
     if (options.router) {
       options.router.addRoute({
         path: '/crouton/status',

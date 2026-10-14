@@ -9,7 +9,7 @@
       <div class="mt-2">
         <Input
           data-testid="search-input"
-          placeholder="Search..."
+          :placeholder="t('table.search', 'Search...')"
           v-model="searchQuery"
           size="sm"
           width="w-48"
@@ -52,6 +52,7 @@ import { ref, watch } from 'vue';
 import { Btn, Input } from '@ghentcdh/crouton-ui-vue';
 
 import TableFilter from './filter/TableFilter.vue';
+import { useUiTranslator } from '../composables/useUiTranslator';
 
 type Action = any;
 const props = defineProps<{
@@ -70,6 +71,7 @@ const emit = defineEmits<{
   action: [action: Action];
 }>();
 
+const t = useUiTranslator();
 const searchQuery = ref(props.search ?? '');
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;

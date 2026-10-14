@@ -5,6 +5,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 import { useAutoSave } from './useAutoSave';
 import type { FormEventPayload } from './useFormEvents';
 import { useDefaultRenderers } from './useRendererProvider';
+import { useUiTranslator } from './useUiTranslator';
 import type { FormModalProp } from '../forms/modal/FormModal.properties';
 
 /**
@@ -22,6 +23,7 @@ export const useFormLogic = (
   formData: { value: any },
   formRef: { value: ComponentPublicInstance | null | undefined },
 ) => {
+  const t = useUiTranslator();
   const id = `edit_${Math.floor(Math.random() * 1000)}`;
   const valid = ref(false);
 
@@ -53,13 +55,13 @@ export const useFormLogic = (
   const autoSaveStatusLabel = computed(() => {
     switch (autoSaveStatus.value) {
       case 'saving':
-        return 'Saving…';
+        return t('autoSave.saving', 'Saving…');
       case 'saved':
-        return 'Saved ✓';
+        return t('autoSave.saved', 'Saved ✓');
       case 'pending':
-        return 'Fill required fields to save';
+        return t('autoSave.pending', 'Fill required fields to save');
       case 'error':
-        return 'Save failed';
+        return t('autoSave.error', 'Save failed');
       default:
         return '';
     }

@@ -22,6 +22,7 @@ import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import { useLanguage } from '../composables/useLanguage';
 import { findCustomComponent } from '../utils/custom-component';
 
 const getTableNode = (ui: any): any => {
@@ -64,9 +65,10 @@ const evaluateCondition = (
 const openDeleteModal =
   (api: ResourceApiInstance, resource: Resource, handleEvent: HandleEvent) =>
   (data: any) => {
+    const { t } = useLanguage();
     ModalService.showConfirm({
-      title: 'Delete record',
-      message: 'Are you sure to delete, the data will be lost?',
+      title: t('modal.deleteTitle', 'Delete record'),
+      message: t('modal.deleteMessage', 'Are you sure to delete, the data will be lost?'),
       onClose: (result) => {
         if (result.confirmed) {
           api.delete(data).then((response: any) => {
@@ -175,7 +177,7 @@ const createEditForm =
       modalSize: formDef.modalSize ?? 'lg',
       initialData: blankData,
       data: blankData,
-      modalTitle: (isUpdate ? 'Update ' : 'Create ') + formDef.title,
+      modalTitle: `${useLanguage().t(isUpdate ? 'ui.modal.update' : 'ui.modal.create', isUpdate ? 'Update' : 'Create')} ${formDef.title}`,
       http: useApi(),
       views: formDef.schemas,
       showErrors: crouton.showErrors.value,
@@ -205,7 +207,7 @@ const createEditForm =
       // Always used for create; also used for update when autoSave is disabled.
       return {
         ...sharedProps,
-        saveLabel: isUpdate ? 'Save' : 'Create',
+        saveLabel: useLanguage().t(isUpdate ? 'ui.actions.save' : 'ui.actions.create', isUpdate ? 'Save' : 'Create'),
         onClose: async (result: FormModalResult) => {
           if (result && result.valid) {
             const data = result.data;
@@ -290,20 +292,20 @@ export const actions = (
     ),
     {
       action: (id: unknown) => _modals.view(id),
-      tooltip: 'View',
+      tooltip: useLanguage().t('actions.view', 'View'),
       icon: 'View',
     },
     !readonly && (op.update || op.patch)
       ? {
           action: (id: unknown) => _modals.edit(id),
-          tooltip: 'Edit',
+          tooltip: useLanguage().t('actions.edit', 'Edit'),
           icon: 'Edit',
         }
       : undefined,
     !readonly && op.delete
       ? {
           action: (id: unknown) => _modals.delete(id),
-          tooltip: 'Delete',
+          tooltip: useLanguage().t('actions.delete', 'Delete'),
           icon: 'Delete',
         }
       : undefined,

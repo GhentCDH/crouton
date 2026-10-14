@@ -8,7 +8,7 @@
     >
       <span class="px-2 flex gap-2 items-center">
         <Icon :icon="IconEnum.Filter" size="sm" class="text-base-500" />
-        Filters
+        {{ t('table.filters', 'Filters') }}
         <span
           v-if="appliedCount"
           class="badge badge-sm bg-base-300 text-base-700"
@@ -37,12 +37,12 @@
 
       <div class="flex items-center justify-between">
         <Btn :icon="IconEnum.Plus" :color="'ghost'" @click="addRow">
-          Add filter
+          {{ t('table.addFilter', 'Add filter') }}
         </Btn>
 
         <div class="flex gap-2">
-          <Btn :color="'ghost'" @click="onReset"> Reset </Btn>
-          <Btn @click="onApply"> Apply </Btn>
+          <Btn :color="'ghost'" @click="onReset">{{ t('actions.reset', 'Reset') }}</Btn>
+          <Btn @click="onApply">{{ t('actions.apply', 'Apply') }}</Btn>
         </div>
       </div>
     </div>
@@ -53,6 +53,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import type { FieldType, Filter } from '@ghentcdh/crouton-core';
+import { useUiTranslator } from '../../composables/useUiTranslator';
 import {
   extractFilters,
   filterToString,
@@ -62,6 +63,7 @@ import { Btn, Icon, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import FilterRowInput, { type FieldOption } from './FilterRowInput.vue';
 
+const t = useUiTranslator();
 const showFilters = ref(false);
 const appliedCount = ref(0);
 const containerRef = ref<HTMLElement | null>(null);

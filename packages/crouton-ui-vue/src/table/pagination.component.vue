@@ -50,7 +50,7 @@
     </div>
     <div class="flex items-center gap-4 text-xs text-base-content/60">
       <label class="flex items-center gap-2 whitespace-nowrap text-sm">
-        Records per page:
+        {{ t('table.recordsPerPage', 'Records per page') }}:
         <select
           class="select select-xs select-bordered"
           :value="props.itemsPerPage"
@@ -66,7 +66,7 @@
         </select>
       </label>
       <span class="whitespace-nowrap">
-        Showing {{ shownItems }} of {{ totalItems }} records</span>
+        {{ t('table.showing', 'Showing') }} {{ shownItems }} {{ t('table.of', 'of') }} {{ totalItems }} {{ t('table.records', 'records') }}</span>
     </div>
   </div>
 </template>
@@ -77,9 +77,11 @@ import { computed } from 'vue';
 import type { PageProps } from './pagination-button.component.properties';
 import PaginationButton from './pagination-button.component.vue';
 import { PaginationComponentEmits, PaginationComponentProperties } from './pagination.component.properties';
+import { useUiTranslator } from '../composables/useUiTranslator';
 
 const props = defineProps(PaginationComponentProperties);
 const emit = defineEmits(PaginationComponentEmits);
+const t = useUiTranslator();
 
 const totalPages = computed(() => {
   let total = Math.ceil(props.totalItems / props.itemsPerPage);

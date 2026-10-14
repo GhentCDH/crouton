@@ -43,6 +43,8 @@ export type {
   UniqueScope,
 } from './composables/useUniqueValidator';
 export { useAutoSave } from './composables/useAutoSave';
+export { UI_TRANSLATOR_KEY, useUiTranslator } from './composables/useUiTranslator';
+export type { UiTranslator } from './composables/useUiTranslator';
 export {
   FORM_MODAL_OPENER_KEY,
   useModalOpener,

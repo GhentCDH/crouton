@@ -1,16 +1,26 @@
 <template>
-  <select
-    v-if="languages.length > 1"
-    :value="language"
-    class="select select-sm select-bordered w-full"
-    @change="onChange"
-  >
-    <option v-for="lang in languages" :key="lang" :value="lang">
-      {{ lang.toUpperCase() }}
-    </option>
-  </select>
+  <div v-if="languages.length > 1" class="tooltip tooltip-top" data-tip="Language">
+    <div class="dropdown dropdown-top">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-1">
+        <LanguageIcon class="size-4" />
+        <span>{{ displayName(language) }}</span>
+        <ChevronDownIcon class="size-3 opacity-60" />
+      </div>
+      <ul
+        tabindex="0"
+        class="dropdown-content menu menu-sm bg-base-100 rounded-box border border-base-300 z-10 mb-1 w-36 p-1 shadow"
+      >
+        <li v-for="lang in languages" :key="lang">
+          <a :class="{ active: lang === language }" @click="setLanguage(lang)">
+            {{ displayName(lang) }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
+import { LanguageIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 import { LanguageSelectProperties } from './LanguageSelect.properties';
 import { useLanguage } from '../composables/useLanguage';
 
@@ -18,8 +28,11 @@ defineProps(LanguageSelectProperties);
 
 const { language, languages, setLanguage } = useLanguage();
 
-const onChange = (e: Event) => {
-  const target = e.target as HTMLSelectElement;
-  setLanguage(target.value);
+const displayName = (lang: string): string => {
+  try {
+    return new Intl.DisplayNames([lang], { type: 'language' }).of(lang) ?? lang.toUpperCase();
+  } catch {
+    return lang.toUpperCase();
+  }
 };
 </script>

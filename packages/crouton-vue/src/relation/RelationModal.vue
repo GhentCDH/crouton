@@ -5,6 +5,7 @@ import { useResources } from '../resource';
 import { TableComponent } from '@ghentcdh/crouton-forms-vue';
 import { type PropType, shallowRef, watch } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
+import { useLanguage } from '../composables/useLanguage';
 import { customCellRenderers } from '../resource/renderers';
 
 const properties = defineProps({
@@ -48,6 +49,7 @@ const onCancel = () => {
 };
 
 const crouton = useCrouton();
+const { t } = useLanguage();
 const config = computedAsync(() =>
   crouton.getFormByUri(properties.options.resource),
 );
@@ -98,7 +100,7 @@ const id = Date.now();
             :icon="IconEnum.Plus"
             @click="create"
           >
-            <span class="whitespace-nowrap"> Add record</span>
+            <span class="whitespace-nowrap">{{ t('table.addRecord', 'Add record') }}</span>
           </Btn>
         </div>
       </div>
@@ -115,10 +117,10 @@ const id = Date.now();
       <Btn
         color="secondary"
         :outline="true"
-        :aria-label="closeLabel"
+        :aria-label="t('actions.close', closeLabel)"
         @click="onCancel"
       >
-        {{ closeLabel }}
+        {{ t('actions.close', closeLabel) }}
       </Btn>
     </template>
   </Modal>

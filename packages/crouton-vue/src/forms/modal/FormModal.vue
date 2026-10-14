@@ -37,18 +37,18 @@
           v-if="autoSaveStatus === 'error'"
           :color="Color.secondary"
           :outline="true"
-          aria-label="Retry save"
+          :aria-label="t('actions.retry', 'Retry')"
           @click="onRetry"
         >
-          Retry
+          {{ t('actions.retry', 'Retry') }}
         </Btn>
         <Btn
           :color="Color.secondary"
           :outline="true"
-          aria-label="Close"
+          :aria-label="t('actions.close', 'Close')"
           @click="onCancel"
         >
-          Close
+          {{ t('actions.close', 'Close') }}
         </Btn>
       </template>
 
@@ -57,13 +57,13 @@
         <Btn
           :color="Color.secondary"
           :outline="true"
-          :aria-label="cancelLabel"
+          :aria-label="t('actions.cancel', cancelLabel)"
           @click="onCancel"
         >
-          {{ cancelLabel }}
+          {{ t('actions.cancel', cancelLabel) }}
         </Btn>
-        <Btn :disabled="!valid" :aria-label="saveLabel" data-testid="btn-save" @click="onSubmit">
-          {{ saveLabel }}
+        <Btn :disabled="!valid" :aria-label="t('actions.save', saveLabel)" data-testid="btn-save" @click="onSubmit">
+          {{ t('actions.save', saveLabel) }}
         </Btn>
       </template>
     </template>
@@ -80,11 +80,13 @@ import {
   provideUniqueCheck,
   useFormLogic,
 } from '@ghentcdh/crouton-forms-vue';
+import { useLanguage } from '../../composables/useLanguage';
 
 import FormComponent from '../FormComponent.vue';
 
 const properties = defineProps(FormModalProperties);
 const emits = defineEmits(FormModalEmits);
+const { t } = useLanguage();
 const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<any>();
 

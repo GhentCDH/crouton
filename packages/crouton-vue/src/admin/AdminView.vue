@@ -4,9 +4,8 @@
 
     <template #left-drawer>
       <div class="gap-2 flex flex-col h-full">
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
           <h2>{{ app.title }} Admin</h2>
-          <LanguageSelect v-if="languages.length > 1" />
         </div>
         <ul class="menu w-full gap-2 flex-1 flex-grow h-full flex-nowrap">
           <template v-for="node in app.sidebar" :key="node.id">
@@ -82,6 +81,7 @@
             </RouterLink>
           </li>
         </ul>
+        <LanguageSelect />
         <div class="bg-base-200 p-4 text-gray-500 text-sm">
           version: {{ app.version }}
         </div>
@@ -98,11 +98,9 @@ import { CROUTON_DEV_RESOURCES, CROUTON_FORM } from '../router';
 import { isSidebarGroup } from '../composables/sidebar';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
-import { useLanguage } from '../composables/useLanguage';
 import LanguageSelect from '../i18n/LanguageSelect.vue';
 
 const app = useCrouton();
-const { languages } = useLanguage();
 
 interface VisibilityResource {
   name: string;
