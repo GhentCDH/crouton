@@ -3,13 +3,17 @@ import type { Page } from '@playwright/test';
 export class LanguagePage {
   constructor(private readonly page: Page) {}
 
+  private get languageSelect() {
+    return this.page.locator('#drawer-left-panel select');
+  }
+
   switchLanguage = async (lang: string) => {
-    await this.page.locator('select').selectOption(lang);
+    await this.languageSelect.selectOption(lang);
     await this.page.waitForLoadState('networkidle');
   };
 
   getCurrentLanguage = async (): Promise<string> => {
-    return this.page.locator('select').inputValue();
+    return this.languageSelect.inputValue();
   };
 
   getNavLabel = async (resourceId: string): Promise<string> => {

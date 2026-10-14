@@ -76,7 +76,7 @@ export class CroutonListPage {
   };
 
   setFirstFilterField = async (fieldLabel: string) => {
-    await this.page.getByRole('combobox').first().click();
+    await this.page.getByTestId('filter-panel').getByRole('combobox').first().click();
     await this.page.getByRole('option', { name: fieldLabel }).click();
   };
 

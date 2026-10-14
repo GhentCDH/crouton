@@ -20,6 +20,7 @@
 
     <div
       v-if="showFilters"
+      data-testid="filter-panel"
       class="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 min-w-[560px] border border-base-200 rounded-xl bg-base-100 shadow-lg p-4"
     >
       <div class="flex flex-col gap-2">
