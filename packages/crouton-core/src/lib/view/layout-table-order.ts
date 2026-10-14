@@ -33,7 +33,7 @@ export const resolveTableNode = (
 ): TableNode | undefined => {
   if (!layout) return undefined;
   const node = layout as Record<string, unknown>;
-  if (!node['type'] || node['type'] === 'table') return layout as TableNode;
+  if ((!node['type'] || node['type'] === 'table') && !node['component']) return layout as TableNode;
   const items = node['items'];
   if (!Array.isArray(items)) return undefined;
   for (const item of items) {
