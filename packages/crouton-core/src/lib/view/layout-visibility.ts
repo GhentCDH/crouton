@@ -1,4 +1,4 @@
-import { resolveTableNode } from './layout-table-order';
+import { resolveTableNode } from '../layout/model/table-node';
 import type { JsonColumn } from '../resource/Column';
 import { isComponentItem, isNodeItem, resolveItemFieldId } from '../resource/layout';
 import type { Layout } from '../resource/layout/Layout.schema';
