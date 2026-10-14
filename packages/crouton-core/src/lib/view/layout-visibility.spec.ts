@@ -136,6 +136,14 @@ describe('resolveColumnVisibility', () => {
     expect(result.find((c) => c.id === 'status')?.hiddenInTable).toBe(false);
   });
 
+  it('layout.table with no items falls back to hiddenInTable flags', () => {
+    const layout: Layout = { table: { searchFields: ['title'], filterFields: ['status'] } };
+    const result = resolveColumnVisibility(columns, layout);
+    // No items → treat as if no table layout for visibility; column flags preserved
+    expect(result.find((c) => c.id === 'status')?.hiddenInTable).toBe(true);
+    expect(result.find((c) => c.id === 'title')?.hiddenInTable).toBeFalsy();
+  });
+
   it('wrapper table layout controls visibility', () => {
     const layout: Layout = {
       table: {

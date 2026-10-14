@@ -53,7 +53,9 @@ export const resolveColumnVisibility = (
 
   const formIds = layout.form ? collectLayoutFieldIds(layout, 'form') : null;
   const viewIds = layout.view ? collectLayoutFieldIds(layout, 'view') : null;
-  const tableIds = layout.table ? collectLayoutFieldIds(layout, 'table') : null;
+  // No items in layout.table → fall through to hiddenInTable flags (searchFields/filterFields only)
+  const rawTableIds = layout.table ? collectLayoutFieldIds(layout, 'table') : null;
+  const tableIds = rawTableIds?.size ? rawTableIds : null;
 
   if (!formIds && !viewIds && !tableIds) return columns;
 
