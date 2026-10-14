@@ -76,7 +76,7 @@
   "include": ["user", "book"],
   "layout": {
     "table": {
-      "controls": [
+      "items": [
         { "id": "loanedAt", "sortable": true, "defaultSort": true }
       ]
     }

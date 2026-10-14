@@ -15,7 +15,7 @@
     "table": {
       "searchFields": ["name", "email"],
       "filterFields": ["name", "email"],
-      "controls": [
+      "items": [
         { "id": "name", "sortable": true },
         { "id": "email", "sortable": true }
       ]

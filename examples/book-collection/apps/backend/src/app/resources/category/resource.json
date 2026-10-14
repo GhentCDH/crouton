@@ -13,7 +13,7 @@
     "table": {
       "searchFields": ["name"],
       "filterFields": ["name"],
-      "controls": [
+      "items": [
         { "id": "name", "sortable": true },
         { "id": "slug", "sortable": true }
       ]
