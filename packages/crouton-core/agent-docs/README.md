@@ -45,6 +45,7 @@ Read this file to find the right doc for your task.
 | 4.frontend/translations.md | adding i18n translations |
 | 4.frontend/use-crouton.md | using the useCrouton composable |
 | 5.tooling/cli.md | using the crouton CLI (update, validate, etc.) |
+| 5.tooling/migrate.md | working with migrate |
 | 5.tooling/resource-editor.md | using the resource editor UI |
 | 5.tooling/validator.md | understanding crouton validate output |
 | 6.recipes/add-enum-select.md | working with add enum select |

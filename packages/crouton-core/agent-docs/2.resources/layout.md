@@ -20,45 +20,56 @@ Each of `form`, `view`, and `table` is optional. Only the keys you declare are a
 
 ## Layout nodes
 
-A **node** is a container that holds either `controls` (leaf fields) or `items` (nested nodes), or both.
+A **node** is a container. It has a `type` (the layout kind) and an `items` list whose entries are rendered in declared order.
 
 ```ts
 {
-  type?: "grid" | "vertical" | "horizontal" | "collapse" | "group" | "table",
+  type?: "grid" | "vertical" | "horizontal" | "collapse" | "group",
   columns?: number,        // grid column count (default 12)
   title?: string,          // heading for collapse/group
   titleKey?: string,       // resolve heading from a field value at render time
   colspan?: number,        // this node's span inside its parent grid (1–12)
   rowspan?: number,        // CSS row-span of this node inside its parent grid
   label?: string,
-  controls?: [...],
-  items?: [...]             // nested nodes; in layout.table, a child with type "table" marks the actual table position
+  items?: [...]             // entries in declared order (see "Items" below)
 }
 ```
 
-A node with no `type` defaults to `"grid"`. `"table"` is only meaningful as a child inside `layout.table` when using the wrapper layout pattern (see below).
+A node with no `type` defaults to `"grid"`.
 
-## Controls
+## Items
 
-A control entry is a plain column id string, an object with overrides, or a **component reference**:
+Every entry in an `items` array is one of four kinds, detected by its shape:
+
+| Shape | Kind | Rendered as |
+|---|---|---|
+| `"fieldName"` (string) | **Field id** | The field's default renderer |
+| `{ "id": "fieldName", ... }` | **Field control** (has `id`) | Field renderer with overrides |
+| `{ "component": "MyComponent", ... }` | **Component** (has `component`) | Custom Vue component from `customComponents` |
+| Any other object | **Nested node** | Recursive layout container |
+
+Detection uses only the presence of `id` or `component` — not `type`, because field controls also have a `type` (input override, e.g. `"textarea"`).
+
+**Order is preserved.** Items render exactly in the order declared — you can interleave fields, collapse sections, and components freely.
+
+### Field control options
 
 ```ts
-// Shorthand — uses column defaults
-"fieldName"
-
-// With overrides
 {
   "id": "fieldName",
-  "colspan": 6,      // override column span (1–12)
-  "rowspan": 2,      // override row span
-  "width": "w-40",   // named size (xs/sm/md/lg/xl/full) or raw Tailwind class
+  "colspan": 6,       // override column span (1–12)
+  "rowspan": 2,       // override row span
+  "width": "w-40",    // named size (xs/sm/md/lg/xl/full) or raw Tailwind class
   "label": "Custom label",
   "hideLabel": true,
-  "type": "textarea",              // override input type for this placement
+  "type": "textarea", // override input type for this placement
   "options": { "minHeight": "8rem" }  // merged over fieldInput.options
 }
+```
 
-// Component reference — renders a custom Vue component registered in customComponents
+### Component item options
+
+```ts
 {
   "component": "MyComponent",
   "colspan": 6,   // optional
@@ -66,7 +77,7 @@ A control entry is a plain column id string, an object with overrides, or a **co
 }
 ```
 
-Component references resolve the component by name from the app's `customComponents` registry (registered via `useCrouton()`). In form/view layouts the component is rendered in-place as a layout element. In table wrapper layouts (see below) the component is rendered above the table and receives a `resource` prop.
+Component references resolve by name from the app's `customComponents` registry (registered via `useCrouton()`).
 
 ## Examples
 
@@ -76,7 +87,7 @@ Component references resolve the component by name from the app's `customCompone
 "form": {
   "type": "grid",
   "columns": 12,
-  "controls": [
+  "items": [
     { "id": "label", "colspan": 3 },
     { "id": "title", "colspan": 9 },
     "description"
@@ -90,12 +101,13 @@ Component references resolve the component by name from the app's `customCompone
 
 ```json
 "form": {
-  "controls": ["title", "body"],
   "items": [
+    "title",
+    "body",
     {
       "type": "collapse",
       "title": "Metadata",
-      "controls": ["createdAt", "updatedAt"]
+      "items": ["createdAt", "updatedAt"]
     }
   ]
 }
@@ -111,7 +123,7 @@ Component references resolve the component by name from the app's `customCompone
     {
       "type": "group",
       "title": "Author",
-      "controls": ["authorName", "authorEmail"]
+      "items": ["authorName", "authorEmail"]
     }
   ]
 }
@@ -119,107 +131,36 @@ Component references resolve the component by name from the app's `customCompone
 
 <LayoutDemo example="group" />
 
-### Table layout (`layout.table`)
+### Interleaved fields and sections
 
-`layout.table` is a superset of a regular layout node. In addition to `controls` (for column order), it accepts table-specific fields:
-
-```json
-"table": {
-  "searchFields": ["title", "authorId"],
-  "filterFields": ["status", "category"],
-  "actions": [
-    { "id": "approve", "label": "Approve", "type": "post" }
-  ],
-  "tableActions": [
-    { "id": "exportCsv", "label": "Export CSV", "type": "post" }
-  ],
-  "controls": [
-    { "id": "title", "sortable": true, "defaultSort": true },
-    { "id": "status", "sortable": true, "showWhen": { "field": "active", "eq": true } },
-    { "id": "authorId", "type": "select", "options": { "values": [...] } },
-    "createdAt",
-    "updatedAt"
-  ]
-}
-```
-
-| Field | Description |
-|---|---|
-| `searchFields` | Column ids included in `?q=` free-text search. Replaces column-level `searchable: true`. |
-| `filterFields` | Column ids that get a filter control in the toolbar. Replaces column-level `filterable: true`. |
-| `actions` | Per-record row actions (receive the record id). Replaces resource-level `actions`. |
-| `tableActions` | Global toolbar actions (no record id). Replaces resource-level `tableActions`. |
-| `controls[]` | Column order + per-column overrides (see below). |
-
-::: info API response naming
-In the compiled `/schemas` response these fields are renamed inside `schemas.table.ui.options`:
-`actions` → `rowActions`, `tableActions` → `actions`, and `filterFields`/`filter` become `options.filter.{ schema, uischema, initialData }`.
-See [migrate-to-next-alpha.md](/migrate-to-next-alpha) § `/schemas` API response changes.
-:::
-
-#### Per-column table control options
-
-Beyond the standard `colspan`/`rowspan`/`label`/`type`/`options` overrides available in any layout context, table controls also accept:
-
-| Field | Description |
-|---|---|
-| `sortable` | `true` to enable sort toggle on this column header. |
-| `defaultSort` | `true` to sort by this column on initial load. At most one column should set this. |
-| `showWhen` | `{ field, eq?, neq?, exists?, notExists? }` — show column when condition matches. |
-| `hideWhen` | Same shape — hide column when condition matches. |
-| `disabledWhen` | Same shape — disable column when condition matches. |
-
-`type` + `options` on a table control override the cell renderer for this column in the table only (replaces the deprecated column-level `fieldTable`).
-
-### Table column order
-
-```json
-"table": {
-  "controls": ["title", "status", "createdAt"]
-}
-```
-
-Columns present in the table but not listed here are appended at the end in their original order. `colspan`/`rowspan` on table controls are ignored (tables are flat, not CSS grids).
-
-<LayoutDemo example="table-order" />
-
-### Table with wrapper layout
-
-A `layout.table` node with a non-`"table"` outer type acts as a **wrapper layout** around the actual table. Place an inner node with `"type": "table"` inside `items` to define the table columns; put component controls in the outer `controls` to render them above the table.
-
-```json
-"table": {
-  "type": "grid",
-  "columns": 12,
-  "controls": [
-    { "component": "CreateByIsbn" }
-  ],
-  "items": [
-    {
-      "type": "table",
-      "controls": ["title", "author", "isbn", "publishedYear", "status"]
-    }
-  ]
-}
-```
-
-- Outer `controls` — component references rendered **above** the table. Each component receives a `resource` prop (the `UseResource` instance for the current table).
-- Inner `items[].type = "table"` — defines the visible column order, same rules as the flat form above.
-- The wrapper type (`"grid"`, etc.) does not affect the table itself; only component rendering in `controls` uses it to resolve components.
-
-::: tip
-Use the wrapper pattern when you need a custom action component next to the table — for example a barcode scanner that creates a record directly.
-:::
-
-### Rowspan
-
-A control can span multiple CSS grid rows using `rowspan` (max 6):
+Because items render in declared order, you can mix fields and containers freely:
 
 ```json
 "form": {
   "type": "grid",
   "columns": 12,
-  "controls": [
+  "items": [
+    { "id": "title", "colspan": 9 },
+    { "id": "status", "colspan": 3 },
+    {
+      "type": "collapse",
+      "title": "Advanced",
+      "items": ["slug", "publishedAt"]
+    },
+    { "id": "body" }
+  ]
+}
+```
+
+The collapse renders between `status` and `body` — not at the end.
+
+### Rowspan
+
+```json
+"form": {
+  "type": "grid",
+  "columns": 12,
+  "items": [
     { "id": "body", "colspan": 6, "rowspan": 2 },
     { "id": "title", "colspan": 6 },
     { "id": "status", "colspan": 6 }
@@ -231,11 +172,9 @@ A control can span multiple CSS grid rows using `rowspan` (max 6):
 
 ### Control overrides
 
-Override the label, input type, or options for a specific placement:
-
 ```json
 "form": {
-  "controls": [
+  "items": [
     { "id": "title", "label": "Custom Title Label", "colspan": 6 },
     { "id": "body", "options": { "minHeight": "6rem" } },
     { "id": "status", "hideLabel": true }
@@ -251,11 +190,9 @@ Override the label, input type, or options for a specific placement:
 "form": {
   "type": "grid",
   "columns": 12,
-  "controls": [
-    { "id": "title", "colspan": 6 },
-    { "id": "status", "colspan": 6 }
-  ],
   "items": [
+    { "id": "title", "colspan": 6 },
+    { "id": "status", "colspan": 6 },
     {
       "type": "collapse",
       "title": "Author details",
@@ -263,7 +200,7 @@ Override the label, input type, or options for a specific placement:
         {
           "type": "grid",
           "columns": 12,
-          "controls": [
+          "items": [
             { "id": "authorName", "colspan": 6 },
             { "id": "authorEmail", "colspan": 6 }
           ]
@@ -275,6 +212,126 @@ Override the label, input type, or options for a specific placement:
 ```
 
 <LayoutDemo example="nested" />
+
+## Table layout (`layout.table`)
+
+`layout.table` is either a **table node** (flat) or a **wrapper** containing exactly one table node somewhere in the tree.
+
+### Table node
+
+The table node carries all table-specific settings:
+
+```json
+"table": {
+  "title": "Books",
+  "items": [
+    { "id": "title", "sortable": true, "defaultSort": true },
+    { "id": "status", "sortable": true, "showWhen": { "field": "active", "eq": true } },
+    { "id": "authorId", "type": "select", "options": { "values": [] } },
+    "createdAt",
+    "updatedAt"
+  ],
+  "searchFields": ["title", "isbn"],
+  "filterFields": ["status"],
+  "rowActions": [
+    { "id": "approve", "label": "Approve", "type": "post" }
+  ],
+  "tableActions": [
+    { "id": "exportCsv", "label": "Export CSV", "type": "post" }
+  ]
+}
+```
+
+| Field | Description |
+|---|---|
+| `items[]` | Column order + per-column overrides. Entries are field ids (strings) or field controls (objects with `id`). No nested nodes — the table is flat. |
+| `searchFields` | Column ids included in `?q=` free-text search. |
+| `filterFields` | Column ids that get a filter control in the toolbar. |
+| `rowActions` | Per-record actions (receive the record id). |
+| `tableActions` | Global toolbar actions (no record id). |
+| `title` / `label` | Heading rendered above the table. `title` wins over `label`. |
+
+#### Per-column table item options
+
+Beyond the standard `colspan`/`label`/`type`/`options` overrides, table items also accept:
+
+| Field | Description |
+|---|---|
+| `sortable` | `true` to enable sort toggle on this column header. |
+| `defaultSort` | `true` to sort by this column on initial load. At most one column. |
+| `showWhen` | `{ field, eq?, neq?, exists?, notExists? }` — show column when condition matches. |
+| `hideWhen` | Same shape — hide column when condition matches. |
+| `disabledWhen` | Same shape — disable column when condition matches. |
+
+`type` + `options` override the cell renderer for this column in the table only.
+
+### Table column order
+
+```json
+"table": {
+  "items": ["title", "status", "createdAt"]
+}
+```
+
+Columns present in the table but not listed here are appended in their original order.
+
+<LayoutDemo example="table-order" />
+
+### Wrapper layout
+
+A `layout.table` with an outer container type (not `"table"`) wraps the table. Put component items alongside the inner `{ "type": "table", ... }` node:
+
+```json
+"table": {
+  "type": "grid",
+  "columns": 12,
+  "items": [
+    { "component": "CreateByIsbn", "colspan": 12 },
+    {
+      "type": "table",
+      "title": "Books",
+      "items": ["title", "author", { "id": "isbn", "sortable": true }, "publishedYear", "status"],
+      "searchFields": ["title", "isbn"],
+      "filterFields": ["status"],
+      "tableActions": [
+        { "id": "searchOpenLibrary", "type": "link", "href": "https://openlibrary.org/search", "label": "Search Open Library" }
+      ],
+      "rowActions": [
+        { "id": "openOnOpenLibrary", "type": "link", "href": "https://openlibrary.org/isbn/{isbn}", "label": "Open on Open Library", "condition": { "field": "isbn", "op": "exists" } }
+      ]
+    }
+  ]
+}
+```
+
+All table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`) go on the **table node**, not the wrapper.
+
+Wrappers can nest arbitrarily:
+
+```json
+"table": {
+  "type": "vertical",
+  "items": [
+    {
+      "type": "horizontal",
+      "items": [
+        { "component": "CreateByIsbn" },
+        { "component": "ImportCsv" }
+      ]
+    },
+    {
+      "type": "collapse",
+      "title": "Stats",
+      "items": [{ "component": "BookStats" }]
+    },
+    { "type": "table", "items": ["title", "author"] }
+  ]
+}
+```
+
+::: tip
+Use the wrapper pattern when you need a custom action component alongside the table — for example a barcode scanner that creates a record directly. Each component receives a `resource` prop (the `UseResource` instance for the current table).
+:::
 
 ## Missing / extra columns
 
