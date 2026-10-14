@@ -134,16 +134,6 @@ export const orderTableColumnsFromLayout = (
     if (col) reorderedColumns.push(col);
   }
 
-  // Append unreferenced visible columns in their original relative order
-  for (const el of elements) {
-    const id = (el.scope as string | undefined)?.replace('#/properties/', '');
-    if (id && !seen.has(id)) {
-      reorderedElements.push(el);
-      const col = columnById.get(id);
-      if (col) reorderedColumns.push(col);
-    }
-  }
-
   const innerTableUi = {
     ...(view.ui_schema as any),
     elements: reorderedElements,

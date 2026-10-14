@@ -6,6 +6,7 @@ import {
   buildViews,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  resolveColumnVisibility,
   resolveTableNode,
 } from '../view';
 import { enrichActionColumns, enrichIncludeWithSort } from './column-enrichment';
@@ -80,7 +81,8 @@ export const compileResource = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  let views = buildViews(schema, enrichedColumns, json.layout);
+  const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
+  let views = buildViews(schema, visibilityColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = { ...views, table: injectCalculatedColumns(views.table, calculatedColumns) };
     if (views.view) {

@@ -42,24 +42,9 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "title": {
             "type": "string",
             "title": "Title",
-            "minLength": 1
-          },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "enum": [
-              "draft",
-              "published",
-              "archived"
-            ],
             "minLength": 1
           }
         },
@@ -74,38 +59,6 @@
             "options": {
               "sortId": "title",
               "label": "Title"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/status",
-            "options": {
-              "format": "keyValue",
-              "key": "label",
-              "values": [
-                {
-                  "value": "draft",
-                  "label": "Draft"
-                },
-                {
-                  "value": "published",
-                  "label": "Published"
-                },
-                {
-                  "value": "archived",
-                  "label": "Archived"
-                }
-              ],
-              "sortId": "status",
-              "label": "Status"
             }
           }
         ],

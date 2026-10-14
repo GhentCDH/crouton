@@ -46,18 +46,10 @@ describe('buildFormUiSchemaFromLayout – flat grid', () => {
     items: ['name', 'bio'],
   };
 
-  it('builds GridLayout with the declared items', () => {
+  it('builds GridLayout with only the declared items', () => {
     const ui = buildFormUiSchemaFromLayout(node, cols) as any;
     expect(ui.type).toBe('GridLayout');
-    expect(ui.elements).toHaveLength(3); // name + bio + unreferenced status appended
-  });
-
-  it('appends unreferenced visible columns and warns', () => {
-    const warn = vi.fn();
-    const ui = buildFormUiSchemaFromLayout(node, cols, warn) as any;
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"status"'));
-    const lastEl = ui.elements[ui.elements.length - 1];
-    expect(lastEl.scope).toBe('#/properties/status');
+    expect(ui.elements).toHaveLength(2); // name + bio only; layout is the full list
   });
 });
 
@@ -196,7 +188,7 @@ describe('orderTableColumnsFromLayout', () => {
     expect(elements[2].scope).toContain('bio');
   });
 
-  it('appends unreferenced columns at end', () => {
+  it('shows only referenced columns — layout is the full list', () => {
     const view = {
       json_schema: {},
       ui_schema: buildTableUiSchema(tableCols),
@@ -207,8 +199,6 @@ describe('orderTableColumnsFromLayout', () => {
     const ids = (ordered.ui_schema as any).elements.map((e: any) =>
       e.scope.replace('#/properties/', ''),
     );
-    expect(ids[0]).toBe('status');
-    expect(ids).toContain('name');
-    expect(ids).toContain('bio');
+    expect(ids).toEqual(['status']);
   });
 });

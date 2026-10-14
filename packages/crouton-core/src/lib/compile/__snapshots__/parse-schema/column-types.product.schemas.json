@@ -15,106 +15,13 @@
     "table": {
       "data": {
         "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "minLength": 1
-          },
-          "quantity": {
-            "type": "integer",
-            "title": "Quantity"
-          },
-          "price": {
-            "type": "number",
-            "title": "Price"
-          },
-          "available": {
-            "type": "boolean",
-            "title": "Available"
-          },
-          "listedAt": {
-            "type": "string",
-            "format": "date",
-            "title": "Listed at",
-            "minLength": 1
-          },
-          "notes": {
-            "type": "string",
-            "title": "Notes",
-            "minLength": 1
-          }
-        },
-        "additionalProperties": true
+        "additionalProperties": true,
+        "properties": {}
       },
       "ui": {
         "type": "Table",
-        "elements": [
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/name",
-            "options": {
-              "sortId": "name",
-              "label": "Name"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/quantity",
-            "options": {
-              "sortId": "quantity",
-              "label": "Quantity"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/price",
-            "options": {
-              "sortId": "price",
-              "label": "Price"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/available",
-            "options": {
-              "sortId": "available",
-              "label": "Available"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/listedAt",
-            "options": {
-              "sortId": "listedAt",
-              "label": "Listed at"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/notes",
-            "options": {
-              "sortId": "notes",
-              "label": "Notes"
-            }
-          }
-        ],
-        "options": {
-          "defaultSortId": "id"
-        }
+        "elements": [],
+        "options": {}
       }
     },
     "form": {

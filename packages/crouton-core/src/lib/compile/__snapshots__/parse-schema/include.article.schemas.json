@@ -42,18 +42,10 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "title": {
             "type": "string",
             "title": "Title",
             "minLength": 1
-          },
-          "authorId": {
-            "title": "Author"
           }
         },
         "additionalProperties": true
@@ -67,23 +59,6 @@
             "options": {
               "sortId": "title",
               "label": "Title"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "RecordCell",
-            "scope": "#/properties/authorId",
-            "options": {
-              "sortable": false,
-              "relationType": "manyToOne",
-              "label": "Author"
             }
           }
         ],
