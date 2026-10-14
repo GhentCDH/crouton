@@ -125,16 +125,51 @@ const showSchemaEditor = ref(false);
   </div>
   <div v-if="config && resource && !form?.hideTable"
        :data-testid="`resource-${formId}`">
-    <template v-if="hideToolbar">
-      <legend
-        v-if="!hideTitle"
-        class="w-full block flex flex-row space-between"
-        :class="['fieldset-legend']"
+    <TableWrapperLayout v-if="isWrapperLayout && tableUi" :ui="tableUi" :resource="resource">
+      <template v-if="hideToolbar">
+        <legend
+          v-if="!hideTitle"
+          class="w-full block flex flex-row space-between"
+          :class="['fieldset-legend']"
+        >
+          <div class="flex-grow">
+            {{ label ?? config.title }}
+          </div>
+          <div>
+            <Btn
+              v-if="crouton.isDev.value"
+              :icon="IconEnum.Edit"
+              color="secondary"
+              :outline="true"
+              @click="showSchemaEditor = true"
+            >
+              <span class="whitespace-nowrap">Edit fields</span>
+            </Btn>
+            <Btn
+              v-if="config.operations.create"
+              data-testid="btn-create"
+              :icon="IconEnum.Plus"
+              @click="resource.create"
+            >
+              <span class="whitespace-nowrap">Add record</span>
+            </Btn>
+          </div>
+        </legend>
+      </template>
+      <TableToolbar
+        v-else
+        :filter-schema="resource.filterSchema"
+        :filters="resource.filter"
+        :search="resource.search"
+        :actions="resource.tableActions"
+        @update-search="resource.onUpdateSearch"
+        @update-filters="resource.onUpdateFilters"
+        @action="resource.backendAction"
       >
-        <div class="flex-grow">
-          {{ label ?? config.title }}
-        </div>
-        <div>
+        <template #left>
+          <span class="text-xl font-bold mr-4">{{ config.title }}</span>
+        </template>
+        <template #right>
           <Btn
             v-if="crouton.isDev.value"
             :icon="IconEnum.Edit"
@@ -152,44 +187,8 @@ const showSchemaEditor = ref(false);
           >
             <span class="whitespace-nowrap">Add record</span>
           </Btn>
-        </div>
-      </legend>
-    </template>
-    <TableToolbar
-      v-else
-      :filter-schema="resource.filterSchema"
-      :filters="resource.filter"
-      :search="resource.search"
-      :actions="resource.tableActions"
-      @update-search="resource.onUpdateSearch"
-      @update-filters="resource.onUpdateFilters"
-      @action="resource.backendAction"
-    >
-      <template #left>
-        <span class="text-xl font-bold mr-4">{{ config.title }}</span>
-      </template>
-      <template #right>
-        <Btn
-          v-if="crouton.isDev.value"
-          :icon="IconEnum.Edit"
-          color="secondary"
-          :outline="true"
-          @click="showSchemaEditor = true"
-        >
-          <span class="whitespace-nowrap">Edit fields</span>
-        </Btn>
-        <Btn
-          v-if="config.operations.create"
-          data-testid="btn-create"
-          :icon="IconEnum.Plus"
-          @click="resource.create"
-        >
-          <span class="whitespace-nowrap">Add record</span>
-        </Btn>
-      </template>
-    </TableToolbar>
-
-    <TableWrapperLayout v-if="isWrapperLayout && tableUi" :ui="tableUi" :resource="resource">
+        </template>
+      </TableToolbar>
       <h2 v-if="tableHeading" class="text-xl font-bold mb-2">{{ tableHeading }}</h2>
       <component
         :is="props.tableComponent"
@@ -199,6 +198,69 @@ const showSchemaEditor = ref(false);
       />
     </TableWrapperLayout>
     <template v-else>
+      <template v-if="hideToolbar">
+        <legend
+          v-if="!hideTitle"
+          class="w-full block flex flex-row space-between"
+          :class="['fieldset-legend']"
+        >
+          <div class="flex-grow">
+            {{ label ?? config.title }}
+          </div>
+          <div>
+            <Btn
+              v-if="crouton.isDev.value"
+              :icon="IconEnum.Edit"
+              color="secondary"
+              :outline="true"
+              @click="showSchemaEditor = true"
+            >
+              <span class="whitespace-nowrap">Edit fields</span>
+            </Btn>
+            <Btn
+              v-if="config.operations.create"
+              data-testid="btn-create"
+              :icon="IconEnum.Plus"
+              @click="resource.create"
+            >
+              <span class="whitespace-nowrap">Add record</span>
+            </Btn>
+          </div>
+        </legend>
+      </template>
+      <TableToolbar
+        v-else
+        :filter-schema="resource.filterSchema"
+        :filters="resource.filter"
+        :search="resource.search"
+        :actions="resource.tableActions"
+        @update-search="resource.onUpdateSearch"
+        @update-filters="resource.onUpdateFilters"
+        @action="resource.backendAction"
+      >
+        <template #left>
+          <span class="text-xl font-bold mr-4">{{ config.title }}</span>
+        </template>
+        <template #right>
+          <Btn
+            v-if="crouton.isDev.value"
+            :icon="IconEnum.Edit"
+            color="secondary"
+            :outline="true"
+            @click="showSchemaEditor = true"
+          >
+            <span class="whitespace-nowrap">Edit fields</span>
+          </Btn>
+          <Btn
+            v-if="config.operations.create"
+            data-testid="btn-create"
+            :icon="IconEnum.Plus"
+            @click="resource.create"
+          >
+            <span class="whitespace-nowrap">Add record</span>
+          </Btn>
+        </template>
+      </TableToolbar>
       <h2 v-if="tableHeading" class="text-xl font-bold mb-2">{{ tableHeading }}</h2>
       <component
         :is="props.tableComponent"

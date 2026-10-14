@@ -25,7 +25,6 @@
     },
     "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
     "rating": {
-      "hiddenInTable": true,
       "fieldInput": {
         "type": "custom",
         "options": {
@@ -122,7 +121,14 @@
         { "component": "CreateByIsbn" },
         {
           "type": "table",
-          "items": ["title", "author", "isbn", "publishedYear", "status"],
+          "items": [
+            "title",
+            "author",
+            "isbn",
+            "publishedYear",
+            "status",
+            "rating"
+          ],
           "tableActions": [
             {
               "id": "searchOpenLibrary",

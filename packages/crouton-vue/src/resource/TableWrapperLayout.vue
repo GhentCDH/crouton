@@ -23,6 +23,7 @@ const isComponent = (el: any) => el?.component && !el?.type;
 const layoutClass = computed(() => LAYOUT_CLASSES[props.ui?.type] ?? 'flex flex-col gap-3');
 const collapseTitle = computed(() => props.ui?.options?.title ?? props.ui?.label ?? '');
 const elements = computed((): any[] => props.ui?.elements ?? []);
+const colspanClass = (el: any) => el?.colspan ? `col-span-${el.colspan}` : 'col-span-full';
 
 const getComponent = (el: any) => findCustomComponent(crouton.customComponents, el.component);
 </script>
@@ -39,9 +40,9 @@ const getComponent = (el: any) => findCustomComponent(crouton.customComponents, 
   </Collapse>
   <div v-else :class="layoutClass">
     <template v-for="(el, i) in elements" :key="i">
-      <slot v-if="isTable(el)" />
-      <component v-else-if="isComponent(el)" :is="getComponent(el)" :resource="resource" />
-      <TableWrapperLayout v-else :ui="el" :resource="resource">
+      <div v-if="isTable(el)" :class="colspanClass(el)"><slot /></div>
+      <component v-else-if="isComponent(el)" :is="getComponent(el)" :resource="resource" :class="colspanClass(el)" />
+      <TableWrapperLayout v-else :ui="el" :resource="resource" :class="colspanClass(el)">
         <slot />
       </TableWrapperLayout>
     </template>

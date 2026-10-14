@@ -1,3 +1,18 @@
 {
-  "__error": "Resource cannot be parsed: [\n  {\n    \"origin\": \"number\",\n    \"code\": \"too_big\",\n    \"maximum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"schemaVersion\"\n    ],\n    \"message\": \"Too big: expected number to be <=1\"\n  }\n]"
+  "name": "loan",
+  "route": "loan",
+  "tag": "Crouton",
+  "operations": [
+    "findAll",
+    "findOne",
+    "create",
+    "update",
+    "patch",
+    "delete"
+  ],
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {}
 }

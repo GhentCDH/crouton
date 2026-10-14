@@ -288,6 +288,34 @@ const getOrCreateTableNode = (
 };
 
 /**
+ * Return an updated copy of `layout` where the table node (possibly nested inside a
+ * wrapper) has `updates` merged in.  When `layout.table` is a wrapper, the inner
+ * `{ type: "table" }` sub-node is updated and the wrapper structure is preserved.
+ * When `layout.table` does not exist yet, it is created from `updates`.
+ */
+const patchTableNodeInLayout = (
+  layout: Record<string, unknown>,
+  updates: Record<string, unknown>,
+): Record<string, unknown> => {
+  const outerTable = layout['table'] as Record<string, unknown> | undefined;
+  if (!outerTable) return { ...layout, table: updates };
+  const tableNode = getOrCreateTableNode(layout);
+  const isWrapper = tableNode !== outerTable;
+  const updatedNode = { ...tableNode, ...updates };
+  if (!isWrapper) return { ...layout, table: updatedNode };
+  const outerItems = (outerTable['items'] as Record<string, unknown>[]) ?? [];
+  const idx = outerItems.findIndex((i: any) => i?.['type'] === 'table');
+  if (idx < 0) return { ...layout, table: updatedNode };
+  return {
+    ...layout,
+    table: {
+      ...outerTable,
+      items: [...outerItems.slice(0, idx), updatedNode, ...outerItems.slice(idx + 1)],
+    },
+  };
+};
+
+/**
  * Walk a raw (unparsed) layout node tree and check for removed keys.
  * Returns error descriptors that `refineByKind` can emit as Zod issues.
  */
@@ -362,20 +390,16 @@ export const buildResourceJsonSchema = () => {
         const tableNode = getOrCreateTableNode(layout);
         obj = {
           ...obj,
-          layout: {
-            ...layout,
-            table: {
-              ...tableNode,
-              ...(rootActions?.length &&
-                !(tableNode['rowActions'] as unknown[])?.length && {
-                  rowActions: rootActions,
-                }),
-              ...(rootTableActions?.length &&
-                !(tableNode['tableActions'] as unknown[])?.length && {
-                  tableActions: rootTableActions,
-                }),
-            },
-          },
+          layout: patchTableNodeInLayout(layout, {
+            ...(rootActions?.length &&
+              !(tableNode['rowActions'] as unknown[])?.length && {
+                rowActions: rootActions,
+              }),
+            ...(rootTableActions?.length &&
+              !(tableNode['tableActions'] as unknown[])?.length && {
+                tableActions: rootTableActions,
+              }),
+          }),
         };
         delete (obj as Record<string, unknown>)['actions'];
         delete (obj as Record<string, unknown>)['tableActions'];
@@ -390,7 +414,18 @@ export const buildResourceJsonSchema = () => {
           if (oldActions?.length && !(tableNode['rowActions'] as unknown[])?.length) {
             const updatedTable: Record<string, unknown> = { ...tableNode, rowActions: oldActions };
             delete updatedTable['actions'];
-            obj = { ...obj, layout: { ...layout, table: updatedTable } };
+            const outerTable = layout['table'] as Record<string, unknown> | undefined;
+            const isWrapper = outerTable != null && tableNode !== outerTable;
+            if (!isWrapper || !outerTable) {
+              obj = { ...obj, layout: { ...layout, table: updatedTable } };
+            } else {
+              const outerItems = (outerTable['items'] as Record<string, unknown>[]) ?? [];
+              const idx = outerItems.findIndex((i: any) => i?.['type'] === 'table');
+              const newItems = idx >= 0
+                ? [...outerItems.slice(0, idx), updatedTable, ...outerItems.slice(idx + 1)]
+                : outerItems;
+              obj = { ...obj, layout: { ...layout, table: { ...outerTable, items: newItems } } };
+            }
           }
         }
       }
@@ -454,37 +489,33 @@ export const buildResourceJsonSchema = () => {
           ];
           obj = {
             ...obj,
-            layout: {
-              ...layout,
-              table: {
-                ...tableNode,
-                ...(searchFields.length && {
-                  searchFields: [
-                    ...((tableNode['searchFields'] as string[]) ?? []),
-                    ...searchFields.filter(
-                      (f) =>
-                        !((tableNode['searchFields'] as string[]) ?? []).includes(
-                          f,
-                        ),
-                    ),
-                  ],
-                }),
-                ...(filterFields.length && {
-                  filterFields: [
-                    ...((tableNode['filterFields'] as string[]) ?? []),
-                    ...filterFields.filter(
-                      (f) =>
-                        !((tableNode['filterFields'] as string[]) ?? []).includes(
-                          f,
-                        ),
-                    ),
-                  ],
-                }),
-                ...(mergedItems.length > existingItems.length && {
-                  items: mergedItems,
-                }),
-              },
-            },
+            layout: patchTableNodeInLayout(layout, {
+              ...(searchFields.length && {
+                searchFields: [
+                  ...((tableNode['searchFields'] as string[]) ?? []),
+                  ...searchFields.filter(
+                    (f) =>
+                      !((tableNode['searchFields'] as string[]) ?? []).includes(
+                        f,
+                      ),
+                  ),
+                ],
+              }),
+              ...(filterFields.length && {
+                filterFields: [
+                  ...((tableNode['filterFields'] as string[]) ?? []),
+                  ...filterFields.filter(
+                    (f) =>
+                      !((tableNode['filterFields'] as string[]) ?? []).includes(
+                        f,
+                      ),
+                  ),
+                ],
+              }),
+              ...(mergedItems.length > existingItems.length && {
+                items: mergedItems,
+              }),
+            }),
           };
         }
       }

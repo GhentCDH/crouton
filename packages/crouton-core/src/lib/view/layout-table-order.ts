@@ -162,7 +162,12 @@ export const orderTableColumnsFromLayout = (
   const outerElements: any[] = [
     ...((node as any).items ?? [])
       .filter(isComponentItem)
-      .map((ctrl: any) => ({ component: ctrl.component, label: ctrl.label })),
+      .map((ctrl: any) => ({
+        component: ctrl.component,
+        label: ctrl.label,
+        ...(ctrl.colspan != null && { colspan: ctrl.colspan }),
+        ...(ctrl.rowspan != null && { rowspan: ctrl.rowspan }),
+      })),
     innerTableUi,
   ];
 
