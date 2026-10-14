@@ -200,7 +200,58 @@ const de: UiDefaults = {
   },
 };
 
-export const defaults: Record<string, UiDefaults> = { en, nl, fr, de };
+const wv: UiDefaults = {
+  table: {
+    search: 'Zoekn...',
+    filters: 'Filters',
+    addFilter: 'Filter biezettn',
+    addRecord: 'Iet biezettn',
+    editFields: 'Iet verandern',
+    recordsPerPage: 'Dingen per ki',
+    showing: 'Toond',
+    of: 'van de',
+    records: 'Dingen',
+  },
+  filter: {
+    contains: 'ee',
+    not_contains: 'ee nie',
+    equals: 'is \'t zelfste lik',
+    not_equals: 'liekt oo hin kantn ip',
+    gt: 'groater dan',
+    lt: 'kleinder doan',
+    isnull: 'is leeh',
+    isnotnull: 'is nie leeh',
+    enterValue: 'Typt ne wearde in',
+    removeFilter: 'Filter wegsmitn',
+  },
+  actions: {
+    save: 'Ontoedn',
+    cancel: 'Ofbreekn',
+    close: 'Toemakn',
+    edit: 'Verandern',
+    delete: 'Wegsmetn',
+    view: 'Kykn',
+    create: 'Iets nieuws',
+    retry: 'Nog ne ki',
+    reset: 'Erbeginn',
+    apply: 'Deurevoern',
+  },
+  modal: {
+    update: 'Uptedatn',
+    create: 'Iets nieuws',
+    deleteTitle: 'Lijntje wegsmetn',
+    deleteMessage:
+      'Ziej giedere zeker da j\'under dat wilt wegsmetn? Ge zie de brol kwyt.',
+  },
+  autoSave: {
+    saving: 'Ol \'t wegschryvn…',
+    saved: 'Vastgeleid ✓',
+    pending: 'Vult de verplichte veldjes in vo \'t te kunn bewaren',
+    error: 'Mislukt vo weg te schryvn',
+  },
+};
+
+export const defaults: Record<string, UiDefaults> = { en, nl, fr, de, wv };
 
 export const getUiDefaults = (lang: string): UiDefaults =>
   defaults[lang] ?? defaults['en'];

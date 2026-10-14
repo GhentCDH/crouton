@@ -12,6 +12,7 @@ const _persistedLang =
 const _language = ref<string>(_persistedLang);
 const _languages = ref<string[]>([]);
 const _defaultLanguage = ref<string>('en');
+const _displayNames = ref<Record<string, string>>({});
 const _userUiDict = ref<Record<string, unknown>>({});
 const _uiDictionary = ref<Record<string, unknown>>(
   getUiDefaults(_persistedLang) as Record<string, unknown>,
@@ -39,6 +40,7 @@ let _onLanguageChange: (() => Promise<void>) | undefined;
 export type LanguageConfig = {
   languages?: string[];
   defaultLanguage?: string;
+  displayNames?: Record<string, string>;
   /** Initial language. Falls back to persisted → navigator → default. */
   initial?: string;
   /** Persist selected language in localStorage (default: true). */
@@ -53,6 +55,7 @@ export const configureLanguage = (cfg: LanguageConfig = {}) => {
   const { persist = true } = cfg;
   if (cfg.languages?.length) _languages.value = cfg.languages;
   if (cfg.defaultLanguage) _defaultLanguage.value = cfg.defaultLanguage;
+  if (cfg.displayNames) _displayNames.value = cfg.displayNames;
 
   const initial =
     cfg.initial ??
@@ -102,12 +105,14 @@ export const useLanguage = (): {
   language: Ref<string>;
   languages: Ref<string[]>;
   defaultLanguage: Ref<string>;
+  displayNames: Ref<Record<string, string>>;
   setLanguage: (lang: string) => Promise<void>;
   t: (path: string, fallback?: string) => string;
 } => ({
   language: _language,
   languages: _languages,
   defaultLanguage: _defaultLanguage,
+  displayNames: _displayNames,
   setLanguage,
   t,
 });

@@ -4,7 +4,7 @@
   "dataSourcesDir": "apps/backend/src/app/data-sources",
   "i18n": {
     "defaultLanguage": "en",
-    "languages": ["en", "nl"],
+    "languages": ["en", "nl", "wv"],
     "translationsDir": "translations"
   }
 }

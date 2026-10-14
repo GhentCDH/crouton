@@ -101,6 +101,7 @@ const createCrouton = (
           configureLanguage({
             languages: res.data.i18n.languages,
             defaultLanguage: res.data.i18n.defaultLanguage,
+            displayNames: res.data.i18n.displayNames,
           });
         }
         // Store ui dictionary for t() lookups.

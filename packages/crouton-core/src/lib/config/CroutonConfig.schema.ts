@@ -25,6 +25,7 @@ export const I18nConfigSchema = z.object({
   defaultLanguage: z.string().default('en').describe('Default / fallback language code (e.g. "en").'),
   languages: z.array(z.string()).min(1).describe('All supported language codes. At least one is required.'),
   translationsDir: z.string().default('translations').describe('Directory containing <lang>.json bundles, relative to the project root.'),
+  displayNames: z.record(z.string(), z.string()).optional().describe('Optional custom display names for language codes (e.g. { "wv": "West Vloams" }). Used when Intl.DisplayNames cannot resolve the code.'),
 });
 
 export type I18nConfig = z.infer<typeof I18nConfigSchema>;

@@ -8,11 +8,13 @@ import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { Request } from '../utils/request';
+import { useLanguage } from '../composables/useLanguage';
 import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
 import TableWrapperLayout from './TableWrapperLayout.vue';
 import { useResources } from './useResources';
 
 const crouton = useCrouton();
+const { t } = useLanguage();
 
 const props = defineProps({
   label: { type: String, required: false },
@@ -90,7 +92,9 @@ const reload = () => {
 };
 
 const tableUi = computed(() => config.value?.schemas?.table?.ui as any);
-const isWrapperLayout = computed(() => tableUi.value?.type && tableUi.value.type !== 'Table');
+const isWrapperLayout = computed(
+  () => tableUi.value?.type && tableUi.value.type !== 'Table',
+);
 const tableNodeUi = computed(() => {
   const ui = tableUi.value;
   if (!ui) return null;
@@ -98,7 +102,10 @@ const tableNodeUi = computed(() => {
   return (ui.elements ?? []).find((e: any) => e.type === 'Table') ?? null;
 });
 const tableHeading = computed(
-  () => tableNodeUi.value?.options?.title ?? tableNodeUi.value?.options?.label ?? null,
+  () =>
+    tableNodeUi.value?.options?.title ??
+    tableNodeUi.value?.options?.label ??
+    null,
 );
 
 /** Dev-only visual resource.json builder — see VISUAL_RESOURCE_BUILDER_PLAN.md. */
@@ -123,9 +130,15 @@ const showSchemaEditor = ref(false);
       </template>
     </component>
   </div>
-  <div v-if="config && resource && !form?.hideTable"
-       :data-testid="`resource-${formId}`">
-    <TableWrapperLayout v-if="isWrapperLayout && tableUi" :ui="tableUi" :resource="resource">
+  <div
+    v-if="config && resource && !form?.hideTable"
+    :data-testid="`resource-${formId}`"
+  >
+    <TableWrapperLayout
+      v-if="isWrapperLayout && tableUi"
+      :ui="tableUi"
+      :resource="resource"
+    >
       <template v-if="hideToolbar">
         <legend
           v-if="!hideTitle"
@@ -143,7 +156,9 @@ const showSchemaEditor = ref(false);
               :outline="true"
               @click="showSchemaEditor = true"
             >
-              <span class="whitespace-nowrap">Edit fields</span>
+              <span class="whitespace-nowrap">{{
+                t('table.editFields', 'Edit fields')
+              }}</span>
             </Btn>
             <Btn
               v-if="config.operations.create"
@@ -151,7 +166,9 @@ const showSchemaEditor = ref(false);
               :icon="IconEnum.Plus"
               @click="resource.create"
             >
-              <span class="whitespace-nowrap">Add record</span>
+              <span class="whitespace-nowrap">{{
+                t('table.addRecord', 'Add record')
+              }}</span>
             </Btn>
           </div>
         </legend>
@@ -177,7 +194,9 @@ const showSchemaEditor = ref(false);
             :outline="true"
             @click="showSchemaEditor = true"
           >
-            <span class="whitespace-nowrap">Edit fields</span>
+            <span class="whitespace-nowrap">{{
+              t('table.editFields', 'Edit fields')
+            }}</span>
           </Btn>
           <Btn
             v-if="config.operations.create"
@@ -185,11 +204,15 @@ const showSchemaEditor = ref(false);
             :icon="IconEnum.Plus"
             @click="resource.create"
           >
-            <span class="whitespace-nowrap">Add record</span>
+            <span class="whitespace-nowrap">{{
+              t('table.addRecord', 'Add record')
+            }}</span>
           </Btn>
         </template>
       </TableToolbar>
-      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">{{ tableHeading }}</h2>
+      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">
+        {{ tableHeading }}
+      </h2>
       <component
         :is="props.tableComponent"
         v-bind="resource as any"
@@ -215,7 +238,9 @@ const showSchemaEditor = ref(false);
               :outline="true"
               @click="showSchemaEditor = true"
             >
-              <span class="whitespace-nowrap">Edit fields</span>
+              <span class="whitespace-nowrap">{{
+                t('table.addRecord', 'Edit fields')
+              }}</span>
             </Btn>
             <Btn
               v-if="config.operations.create"
@@ -223,7 +248,9 @@ const showSchemaEditor = ref(false);
               :icon="IconEnum.Plus"
               @click="resource.create"
             >
-              <span class="whitespace-nowrap">Add record</span>
+              <span class="whitespace-nowrap">{{
+                t('table.addRecord', 'Add record')
+              }}</span>
             </Btn>
           </div>
         </legend>
@@ -249,7 +276,9 @@ const showSchemaEditor = ref(false);
             :outline="true"
             @click="showSchemaEditor = true"
           >
-            <span class="whitespace-nowrap">Edit fields</span>
+            <span class="whitespace-nowrap">{{
+              t('table.addRecord', 'Edit fields')
+            }}</span>
           </Btn>
           <Btn
             v-if="config.operations.create"
@@ -257,11 +286,15 @@ const showSchemaEditor = ref(false);
             :icon="IconEnum.Plus"
             @click="resource.create"
           >
-            <span class="whitespace-nowrap">Add record</span>
+            <span class="whitespace-nowrap">{{
+              t('table.addRecord', 'Add record')
+            }}</span>
           </Btn>
         </template>
       </TableToolbar>
-      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">{{ tableHeading }}</h2>
+      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">
+        {{ tableHeading }}
+      </h2>
       <component
         :is="props.tableComponent"
         v-bind="resource as any"
