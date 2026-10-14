@@ -81,6 +81,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: markdown",
   "description": "Options for the Markdown rich-text editor",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/markdown.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/markdown.field-input.schema.json",
   "markdownDescription": "Options for the Markdown rich-text editor\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
 }

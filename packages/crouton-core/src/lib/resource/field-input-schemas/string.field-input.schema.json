@@ -97,6 +97,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: string",
   "description": "Plain text input. All common options apply; no type-specific options.",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/string.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/string.field-input.schema.json",
   "markdownDescription": "Plain text input. All common options apply; no type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/string)"
 }

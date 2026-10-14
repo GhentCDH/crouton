@@ -122,6 +122,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: relation",
   "description": "Options for the sub-resource relation control",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/relation.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/relation.field-input.schema.json",
   "markdownDescription": "Options for the sub-resource relation control\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/relation)"
 }

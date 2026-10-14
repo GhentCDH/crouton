@@ -881,13 +881,13 @@
     "resourcesDir",
     "dataSourcesDir"
   ],
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/crouton.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/crouton.schema.json",
   "title": "Crouton crouton.json",
   "description": "Generated from CroutonConfigSchema (crouton-core). Do not edit by hand.",
   "$comment": "Use \"crouton validate\" for strict validation of all referenced resources.",
   "examples": [
     {
-      "$schema": "https://ghentcdh.github.io/crouton/schema/v2/crouton.schema.json",
+      "$schema": "https://ghentcdh.github.io/crouton/schema/v1/crouton.schema.json",
       "title": "My App",
       "resourcesDir": "src/resources",
       "dataSourcesDir": "src/data-sources"

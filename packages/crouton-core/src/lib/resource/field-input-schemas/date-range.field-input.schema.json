@@ -112,6 +112,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: date-range",
   "description": "Options for the from/to date range picker",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/date-range.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/date-range.field-input.schema.json",
   "markdownDescription": "Options for the from/to date range picker\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
 }

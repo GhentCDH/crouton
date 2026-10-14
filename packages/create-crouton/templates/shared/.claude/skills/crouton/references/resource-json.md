@@ -3,7 +3,7 @@
 ```json
 {
   "$schema": "node_modules/@ghentcdh/crouton-core/dist/resource.schema.json",
-  "schemaVersion": 2,
+  "schemaVersion": 1,
   "title": "Book",
   "kind": "default",
   "columns": {
@@ -95,7 +95,7 @@
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `$schema` | string | no | Path to JSON schema for editor validation |
-| `schemaVersion` | number | yes | Current version is `2` |
+| `schemaVersion` | number | yes | Current version is `1` |
 | `title` | string | yes | Display name for the resource |
 | `kind` | `"default"` \| `"custom"` | no | `"default"` = Prisma-backed; `"custom"` = repository.ts |
 | `columns` | object | yes | Map of column name → column config |

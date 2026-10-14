@@ -11,7 +11,7 @@
       "description": "resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.",
       "type": "integer",
       "exclusiveMinimum": 0,
-      "maximum": 2,
+      "maximum": 1,
       "markdownDescription": "resource.json shape version. Omit to use the baseline. Auto-migrated toward CURRENT_RESOURCE_VERSION on load in the dev environment.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "draft": {
@@ -3396,13 +3396,13 @@
       ]
     }
   },
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/resource.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "title": "Crouton resource.json",
-  "description": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 2.",
+  "description": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 1.",
   "$comment": "Use \"crouton validate\" for strict validation including refineByKind checks.",
   "examples": [
     {
-      "$schema": "https://ghentcdh.github.io/crouton/schema/v2/resource.schema.json",
+      "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
       "name": "book",
       "model": "Book",
       "title": "Books",
@@ -3445,5 +3445,5 @@
       ]
     }
   ],
-  "markdownDescription": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 2.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+  "markdownDescription": "Generated from ResourceJsonShape (crouton-core). Do not edit by hand. schemaVersion 1.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
 }

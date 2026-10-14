@@ -145,6 +145,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: toggle",
   "description": "Options for the toggle button-group control",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/toggle.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/toggle.field-input.schema.json",
   "markdownDescription": "Options for the toggle button-group control\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/toggle)"
 }

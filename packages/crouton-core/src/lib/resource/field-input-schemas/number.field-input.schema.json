@@ -72,6 +72,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: number",
   "description": "Numeric input (also used for Integer alias). All common options apply; no type-specific options.",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/number.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/number.field-input.schema.json",
   "markdownDescription": "Numeric input (also used for Integer alias). All common options apply; no type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/number)"
 }

@@ -75,7 +75,7 @@ export const ResourceJsonShape = z.object({
   schemaVersion: z
     .number()
     .int()
-    .max(2)
+    .max(1)
     .positive()
     .optional()
     .describe(

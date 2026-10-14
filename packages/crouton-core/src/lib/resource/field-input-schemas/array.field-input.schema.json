@@ -99,6 +99,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: array",
   "description": "Options for the detail/array layout control",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/array.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/array.field-input.schema.json",
   "markdownDescription": "Options for the detail/array layout control\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/array)"
 }

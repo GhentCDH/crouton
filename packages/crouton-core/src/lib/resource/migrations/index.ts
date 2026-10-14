@@ -8,7 +8,6 @@
  */
 
 import { BASELINE_RESOURCE_VERSION, CURRENT_RESOURCE_VERSION } from '../version';
-import { migration_v1_to_v2 } from './migration-v1-to-v2';
 import {
   MigrationPathError,
   type MigrationResult,
@@ -21,9 +20,8 @@ import {
  * Ordered, contiguous migration steps. Append one (`from: N, to: N + 1`) every time
  * `CURRENT_RESOURCE_VERSION` is bumped. A gap is a programming error caught by the spec.
  */
-export const MIGRATIONS: ResourceMigration[] = [
-  migration_v1_to_v2,
-];
+// ponytail: migration_v1_to_v2 exists but is not registered — CURRENT_RESOURCE_VERSION stays 1 during alpha. Register and bump CURRENT when releasing stable.
+export const MIGRATIONS: ResourceMigration[] = [];
 
 /** Read a raw object's version, treating a missing/invalid field as the baseline. */
 export const resourceVersionOf = (raw: RawResourceJson): number => {

@@ -72,6 +72,6 @@
   "additionalProperties": {},
   "title": "Crouton fieldInput options: boolean",
   "description": "Checkbox input. All common options apply; no type-specific options.",
-  "$id": "https://ghentcdh.github.io/crouton/schema/v2/boolean.field-input.schema.json",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/boolean.field-input.schema.json",
   "markdownDescription": "Checkbox input. All common options apply; no type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/boolean)"
 }
