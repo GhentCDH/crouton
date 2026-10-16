@@ -39,6 +39,10 @@ export default defineConfig([
           /* no templates yet */
         },
       );
+      // Agent files live in crouton-cli (single source of truth); merge into templates/shared
+      await cp('../crouton-cli/agent-files', `${outDir}/templates/shared`, { recursive: true }).catch(
+        () => { /* agent-files not built yet */ },
+      );
     },
   },
   // Library entry (shared utilities used by add-crouton)
