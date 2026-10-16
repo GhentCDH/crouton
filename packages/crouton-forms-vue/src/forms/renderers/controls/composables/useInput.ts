@@ -119,6 +119,7 @@ export const useInputProps = (
       : undefined,
     label:
       opts.label ??
+      s.title ??
       labelFromScope.charAt(0).toUpperCase() + labelFromScope.slice(1),
     visible: opts.visible ?? true,
     required: isRequired,

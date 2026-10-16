@@ -15,7 +15,7 @@ const usePreview =
 export default defineConfig({
   testDir: './tests',
   snapshotPathTemplate:
-    '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
+    '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}-{platform}{ext}',
   fullyParallel: false,
   forbidOnly: !!process.env['CI'],
   retries: 0,

@@ -11,7 +11,7 @@ const testsDir = resolve(_dirname, 'tests');
 export default defineConfig({
   testDir: testsDir,
   snapshotPathTemplate:
-    '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
+    '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}-{platform}{ext}',
   fullyParallel: false,
   retries: 0,
   updateSnapshots: 'missing',

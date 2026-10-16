@@ -177,7 +177,7 @@ const createEditForm =
       modalSize: formDef.modalSize ?? 'lg',
       initialData: blankData,
       data: blankData,
-      modalTitle: `${useLanguage().t(isUpdate ? 'ui.modal.update' : 'ui.modal.create', isUpdate ? 'Update' : 'Create')} ${formDef.title}`,
+      modalTitle: `${useLanguage().t(isUpdate ? 'modal.update' : 'modal.create', isUpdate ? 'Update' : 'Create')} ${formDef.title}`,
       http: useApi(),
       views: formDef.schemas,
       showErrors: crouton.showErrors.value,
@@ -207,7 +207,7 @@ const createEditForm =
       // Always used for create; also used for update when autoSave is disabled.
       return {
         ...sharedProps,
-        saveLabel: useLanguage().t(isUpdate ? 'ui.actions.save' : 'ui.actions.create', isUpdate ? 'Save' : 'Create'),
+        saveLabel: useLanguage().t(isUpdate ? 'actions.save' : 'actions.create', isUpdate ? 'Save' : 'Create'),
         onClose: async (result: FormModalResult) => {
           if (result && result.valid) {
             const data = result.data;
