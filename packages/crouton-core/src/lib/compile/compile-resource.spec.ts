@@ -55,3 +55,60 @@ describe('compileResource — layout wired', () => {
     );
   });
 });
+
+describe('compileResource — view fallback when layout.view absent', () => {
+  const resource = {
+    name: 'test',
+    route: 'test',
+    operations: { findAll: true, findOne: true, create: true, update: true, delete: true },
+    columns: [
+      { id: 'id', type: 'string', idField: true, hiddenInForm: true, hiddenInView: true },
+      { id: 'name', type: 'string', hiddenInForm: false, hiddenInView: false },
+      { id: 'internal', type: 'string', hiddenInForm: true, hiddenInView: true },
+    ],
+  } as unknown as ResourceJson;
+
+  it('no layout → view built from hiddenInView flags', () => {
+    const result = compileResource(resource);
+    expect((result.views as any)?.view?.columns.map((c: any) => c.id)).toEqual(['name']);
+  });
+
+  it('empty layout → view built from hiddenInView flags', () => {
+    const result = compileResource({ ...resource, layout: {} } as unknown as ResourceJson);
+    expect((result.views as any)?.view?.columns.map((c: any) => c.id)).toEqual(['name']);
+  });
+
+  it('form-only layout → view built from hiddenInView flags (form must not affect view)', () => {
+    const result = compileResource({
+      ...resource,
+      layout: { form: { type: 'VerticalLayout', items: ['name'] } },
+    } as unknown as ResourceJson);
+    expect((result.views as any)?.view?.columns.map((c: any) => c.id)).toEqual(['name']);
+  });
+
+  it('form + view layout → view built from layout.view items only', () => {
+    const result = compileResource({
+      ...resource,
+      layout: {
+        form: { type: 'VerticalLayout', items: ['name'] },
+        view: { type: 'VerticalLayout', items: ['name'] },
+      },
+    } as unknown as ResourceJson);
+    expect((result.views as any)?.view?.columns.map((c: any) => c.id)).toEqual(['name']);
+  });
+
+  it('layout.form present, columns lack hiddenInView → view still built', () => {
+    const sparse = {
+      name: 'test',
+      route: 'test',
+      operations: { findAll: true, findOne: true, create: true, update: true, delete: true },
+      columns: [
+        { id: 'id', type: 'string', idField: true, hiddenInForm: true, hiddenInView: true },
+        { id: 'name', type: 'string' },
+      ],
+      layout: { form: { type: 'VerticalLayout', items: ['name'] } },
+    } as unknown as ResourceJson;
+    const result = compileResource(sparse);
+    expect((result.views as any)?.view?.columns.map((c: any) => c.id)).toEqual(['name']);
+  });
+});
