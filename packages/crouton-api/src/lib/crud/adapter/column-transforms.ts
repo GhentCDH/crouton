@@ -1,7 +1,4 @@
-import {
-  type JsonColumn,
-  resolveViewField,
-} from '@ghentcdh/crouton-core';
+import { type JsonColumn } from '@ghentcdh/crouton-core';
 
 import { resolveChildResource } from './resource-resolver';
 import type { ValueLabelColumn } from '../resource/valueLabel';

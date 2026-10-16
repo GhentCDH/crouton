@@ -36,7 +36,7 @@ Both forms support the same options:
 The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
 
 - `sortable` / `defaultSort` → `layout.table.items[{ id, sortable, defaultSort }]`
-- `searchable` → `layout.table.searchFields: ["colId"]`
+- `searchable` → `operations.findAll.search: ["colId"]`
 - `filterable` → `layout.table.filterFields: ["colId"]`
 - `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`
 - `fieldTable` → `layout.table.items[{ id, type, options }]`
@@ -46,13 +46,13 @@ See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-t
 
 ## Free-text search (`?q=`)
 
-Declare which columns are included in free-text search via `layout.table.searchFields`:
+Declare which columns are included in free-text search via `operations.findAll.search`:
 
 ```json
 {
-  "layout": {
-    "table": {
-      "searchFields": ["title", "authorId"]
+  "operations": {
+    "findAll": {
+      "search": ["title", "authorId"]
     }
   }
 }
@@ -60,7 +60,8 @@ Declare which columns are included in free-text search via `layout.table.searchF
 
 - **Multiple entries** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author name contains "tolkien".
 - **`manyToOne` relation columns** (e.g. `authorId`) automatically resolve to the related resource's first visible display field (e.g. `author.name`), so you never search against a raw foreign key string.
-- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use it to drive `?q=` search; use `searchFields` instead.
+- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use it to drive `?q=` search; use `operations.findAll.search` instead.
+- **Default**: when `findAll: true` and no explicit `search` is declared, all simple (non-id, non-relation, non-date) columns are searched.
 
 ## Nested object and array columns
 
