@@ -1,18 +1,12 @@
 import { z } from 'zod';
 
 /**
- * A per-context field-variant patch (`fieldInput`/`fieldView`).
- * Mirrors crouton-core's `FieldVariantSchema` shape loosely — `options` is a
- * catchall since a column's real option set depends on its `format`/`type`
- * (relation vs. plain vs. custom render) and the visual builder can't know
- * that ahead of time.
+ * A per-context field-variant patch (`fieldInput`).
+ * `options` is a catchall since a column's real option set depends on its
+ * `format`/`type` and the visual builder can't know that ahead of time.
  *
- * Every key accepts `null`, matching `mergeFieldVariant`'s (crouton-core)
- * "a `null` value deletes an inherited key" convention — this is how the
- * editor's "reset to inherited" action works: it sends `null` for a key so
- * the column falls back to whatever the level below it (`fieldView` →
- * `fieldInput`) resolves to, rather than pinning a copy of the resolved value
- * at this level.
+ * Every key accepts `null` — the editor's "reset to inherited" action sends
+ * `null` for a key so the column falls back to `fieldInput`.
  */
 const FieldVariantPatchSchema = z
   .object({
@@ -31,9 +25,8 @@ export type FieldVariantPatch = z.infer<typeof FieldVariantPatchSchema>;
  * builder's edit endpoint (dev-mode only, see `dev-mode.ts`).
  *
  * Covers the display attributes the visual builder exposes: label/column,
- * visibility (`hiddenInTable/Form/View`), and the three field-variant
- * patches. Adding/removing columns is still out of scope — see
- * `FIELD_VARIANTS_EDITOR_PLAN.md`.
+ * visibility (`hiddenInTable/Form/View`), and the fieldInput patch.
+ * Adding/removing columns is still out of scope — see `FIELD_VARIANTS_EDITOR_PLAN.md`.
  */
 export const PatchColumnSchema = z
   .object({
@@ -43,7 +36,6 @@ export const PatchColumnSchema = z
     hiddenInForm: z.boolean().optional(),
     hiddenInView: z.boolean().optional(),
     fieldInput: FieldVariantPatchSchema.optional(),
-    fieldView: FieldVariantPatchSchema.optional(),
   })
   .partial();
 

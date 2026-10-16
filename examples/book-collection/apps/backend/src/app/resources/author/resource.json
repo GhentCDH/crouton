@@ -1,5 +1,6 @@
 {
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
+  "schemaVersion": 1,
   "name": "author",
   "model": "Author",
   "title": "Authors",
@@ -24,13 +25,12 @@
     }
   },
   "include": ["books"],
+  "operations": {
+    "findAll": { "search": ["name"] }
+  },
   "layout": {
     "table": {
-      "searchFields": ["name"],
-      "filterFields": ["name"],
-      "controls": [
-        { "id": "name", "sortable": true }
-      ]
+      "filterFields": ["name"]
     }
   }
 }

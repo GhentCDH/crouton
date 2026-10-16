@@ -464,15 +464,10 @@ export class ReadRepository<T = any> {
   private buildSearchOrWhere(
     q: string | undefined,
   ): Record<string, unknown> | undefined {
-    const lookup = this.config.lookup;
-    const labels = lookup?.labels?.length
-      ? lookup.labels
-      : lookup?.label
-        ? [lookup.label]
-        : undefined;
-    if (!q || !labels?.length) return undefined;
+    const search = (this.config as any).search as string[] | undefined;
+    if (!q || !search?.length) return undefined;
     return {
-      OR: labels.map((path) =>
+      OR: search.map((path) =>
         buildNestedPath(path.split('.'), { contains: q }),
       ),
     };

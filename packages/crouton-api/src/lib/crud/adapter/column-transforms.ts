@@ -1,10 +1,6 @@
-import {
-  type JsonColumn,
-  resolveViewField,
-} from '@ghentcdh/crouton-core';
+import { type JsonColumn } from '@ghentcdh/crouton-core';
 
 import { resolveChildResource } from './resource-resolver';
-import type { ValueLabelColumn } from '../resource/valueLabel';
 
 /**
  * Expand columns that declare `extend` into virtual sub-columns derived from the
@@ -81,7 +77,7 @@ export const expandExtendColumns = (
         column: parentColumnKey,
         displayKey,
         label: refCol.label ?? refCol.id,
-        columnType: 'object',
+        type: 'object',
         ...(hiddenInTable !== undefined && { hiddenInTable }),
         ...(hiddenInForm !== undefined && { hiddenInForm }),
         ...(hiddenInView !== undefined && { hiddenInView }),
@@ -95,65 +91,3 @@ export const expandExtendColumns = (
 
   return result;
 };
-
-/**
- * Collect columns that should be serialized as `{ value, label }`: those whose
- * `fieldInput.options.emitObject` is true and that carry an `options.values`
- * list (typically enum/select columns).
- */
-export const buildValueLabelColumns = (
-  columns: JsonColumn[] | undefined,
-): ValueLabelColumn[] =>
-  (columns ?? []).flatMap((c) => {
-    const opts = c.fieldInput?.options as
-      | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
-      | undefined;
-    if (!opts?.emitObject || !Array.isArray(opts.values)) return [];
-    return [
-      {
-        field: c.column ?? c.id,
-        values: opts.values,
-        ...(c.enum && { enumName: c.enum }),
-      },
-    ];
-  });
-
-/**
- * Default `fieldInput.format` to `"relation"` for columns that reference a
- * resource (`fieldInput.resource`) but declare no explicit `format` or control
- * `type`. Such a column is a relation by convention, e.g.:
- *   `"fieldInput": { "resource": "../bibliography/resource.json", "options": { "displayKey": "bib" } }`
- * (A typed control that references a resource — `type: "select"`/`"autocomplete"` —
- * is left untouched.)
- */
-export const applyRelationFormatDefault = (
-  cols: JsonColumn[] | undefined,
-): JsonColumn[] | undefined =>
-  cols?.map((col) => {
-    const fi = col.fieldInput;
-    if (fi && fi.resource && !fi.format && !fi.type) {
-      return { ...col, fieldInput: { ...fi, format: 'relation' } };
-    }
-    return col;
-  });
-
-/**
- * Prefill each column's `fieldView` with the fully-resolved variant
- * (the `fieldInput → fieldView` cascade). After this runs, every
- * consumer sees resolved variants without re-implementing the fallback.
- *
- * MUST run AFTER URI/relation enrichment (the last column transform in
- * `fromJson`), so the resolved view variant inherits the injected
- * `uri`/`resourceUri`/`resource`/`schemasUri` options and derived `relationType`
- * that enrichment only lands on `fieldInput`. Do not move it earlier.
- */
-export const resolveColumnFieldVariants = (
-  cols: JsonColumn[] | undefined,
-): JsonColumn[] | undefined =>
-  cols?.map((col) => {
-    const fieldView = resolveViewField(col);
-    return {
-      ...col,
-      ...(fieldView && { fieldView }),
-    };
-  });

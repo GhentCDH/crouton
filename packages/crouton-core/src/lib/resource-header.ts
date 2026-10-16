@@ -40,9 +40,7 @@ export const withResourceHeader = (
       const out = { ...col };
       if (out['fieldInput'] && typeof out['fieldInput'] === 'object')
         out['fieldInput'] = stampFieldInputSchema(out['fieldInput'] as Record<string, unknown>);
-      if (out['fieldView'] && typeof out['fieldView'] === 'object')
-        out['fieldView'] = stampFieldInputSchema(out['fieldView'] as Record<string, unknown>);
-      if (out['fieldTable'] && typeof out['fieldTable'] === 'object')
+if (out['fieldTable'] && typeof out['fieldTable'] === 'object')
         out['fieldTable'] = stampFieldInputSchema(out['fieldTable'] as Record<string, unknown>);
       return out;
     });

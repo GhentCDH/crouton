@@ -9,6 +9,7 @@
 import type { JsonColumn, Translator, ViewConfig } from '@ghentcdh/crouton-core';
 import {
   actionKey,
+  buildValueLabelColumns,
   columnKey,
   enumKey,
   resourceSidebarKey,
@@ -17,7 +18,6 @@ import {
   subResourceTitleKey,
 } from '@ghentcdh/crouton-core';
 
-import { buildValueLabelColumns } from '../adapter/column-transforms';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ValueLabelColumn } from '../resource/valueLabel';

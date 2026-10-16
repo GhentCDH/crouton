@@ -42,18 +42,10 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "loanedAt": {
             "type": "string",
             "title": "Loaned at",
             "minLength": 1
-          },
-          "bookId": {
-            "title": "Book"
           }
         },
         "additionalProperties": true
@@ -67,23 +59,6 @@
             "options": {
               "sortId": "loanedAt",
               "label": "Loaned at"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
-            }
-          },
-          {
-            "type": "RecordCell",
-            "scope": "#/properties/bookId",
-            "options": {
-              "sortable": false,
-              "relationType": "manyToOne",
-              "label": "Book"
             }
           }
         ],

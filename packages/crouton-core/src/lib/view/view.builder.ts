@@ -15,6 +15,7 @@ import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';
 import type { ViewConfig } from './view.schema';
 import type { JsonColumn } from '../resource/Column';
+import { columnTypeName } from '../resource/ColumnType.schema';
 import type { Layout } from '../resource/layout';
 
 // ── Filter schema enrichment ──────────────────────────────────────────────
@@ -473,7 +474,7 @@ export const buildViewsFromColumns = (
         const isObject =
           opts?.emitObject === true || c.fieldInput?.type === 'autocomplete';
         properties[c.id] = {
-          ...(isObject ? {} : { type: c.columnType ?? 'string' }),
+          ...(isObject ? {} : { type: columnTypeName(c.type) ?? 'string' }),
           title: c.label ?? c.id,
           ...(c.fieldInput?.defaultValue !== undefined
             ? { default: c.fieldInput.defaultValue }

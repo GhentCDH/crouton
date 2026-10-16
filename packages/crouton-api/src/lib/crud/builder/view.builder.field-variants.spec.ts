@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { JsonColumnSchema, buildViews  } from '@ghentcdh/crouton-core';
-
-import { resolveColumnFieldVariants } from '../adapter/column-transforms';
+import { JsonColumnSchema, buildViews, resolveColumnFieldVariants } from '@ghentcdh/crouton-core';
 
 const schema = z.object({ id: z.string(), name: z.string() });
 
@@ -16,14 +14,13 @@ const fieldInputFor = (view: any, id: string) =>
   )?.fieldInput;
 
 describe('buildViews with field variants', () => {
-  it('renders form from fieldInput, view from fieldView, table from layout.table.controls options', () => {
+  it('renders form and view from fieldInput, table from layout.table.controls options', () => {
     const cols = resolveColumnFieldVariants(
       parse([
         { id: 'id', idField: true, hiddenInForm: true },
         {
           id: 'name',
           fieldInput: { type: 'text', options: { display: 'input' } },
-          fieldView: { options: { display: 'link' } },
         },
       ]),
     )!;
@@ -40,7 +37,7 @@ describe('buildViews with field variants', () => {
     expect(
       (fieldInputFor(views.view, 'name').options as Record<string, unknown>)
         .display,
-    ).toBe('link');
+    ).toBe('input');
     // Table override comes from layout.table.items — visible in the UI schema element
     const tableEl = (views.table.ui_schema as any)?.elements?.find(
       (e: any) => e.scope === '#/properties/name',

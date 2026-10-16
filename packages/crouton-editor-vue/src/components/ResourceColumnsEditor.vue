@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 import { Btn, Checkbox, IconEnum, Input } from '@ghentcdh/crouton-ui-vue';
 
@@ -18,6 +18,10 @@ import {
 } from '../types/resource-schema-editor.types';
 
 const props = defineProps(ResourceColumnsEditorProperties);
+
+const layoutControlsTable = computed(() => !!props.layout?.table);
+const layoutControlsForm = computed(() => !!props.layout?.form);
+const layoutControlsView = computed(() => !!props.layout?.view);
 
 /**
  * Table is the original, fully-established editor — kept as the default and
@@ -179,14 +183,44 @@ watch(
             <td>
               <Input v-model="col.column" size="sm" />
             </td>
-            <td class="text-center">
-              <Checkbox v-model="col.hiddenInTable" />
+            <td
+              class="text-center"
+              :title="
+                layoutControlsTable
+                  ? 'Controlled by layout.table — edit the layout to change visibility'
+                  : undefined
+              "
+            >
+              <Checkbox
+                v-model="col.hiddenInTable"
+                :enabled="!layoutControlsTable"
+              />
             </td>
-            <td class="text-center">
-              <Checkbox v-model="col.hiddenInForm" />
+            <td
+              class="text-center"
+              :title="
+                layoutControlsForm
+                  ? 'Controlled by layout.form — edit the layout to change visibility'
+                  : undefined
+              "
+            >
+              <Checkbox
+                v-model="col.hiddenInForm"
+                :enabled="!layoutControlsForm"
+              />
             </td>
-            <td class="text-center">
-              <Checkbox v-model="col.hiddenInView" />
+            <td
+              class="text-center"
+              :title="
+                layoutControlsView
+                  ? 'Controlled by layout.view — edit the layout to change visibility'
+                  : undefined
+              "
+            >
+              <Checkbox
+                v-model="col.hiddenInView"
+                :enabled="!layoutControlsView"
+              />
             </td>
           </tr>
           <tr v-if="expandedId === col.id">

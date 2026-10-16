@@ -102,7 +102,8 @@ describe('buildViewsFromColumnTypes', () => {
   const layout = {
     table: {
       filterFields: ['title', 'year'],
-      items: [{ id: 'title', sortable: true, defaultSort: true }],
+      // Layout is the full table list — list every column that should appear.
+      items: [{ id: 'title', sortable: true, defaultSort: true }, 'id', 'year', 'public', 'type'],
     },
   };
 
@@ -128,8 +129,10 @@ describe('buildViewsFromColumnTypes', () => {
     });
   });
 
-  it('respects hiddenInTable / hiddenInForm', () => {
+  it('unlisted columns are hidden from table; hiddenInTable on columns is the fallback when no layout', () => {
+    // tags is not listed in layout.table.items → hidden in table
     expect((views.table.json_schema as any).properties.tags).toBeUndefined();
+    // no layout.form → hiddenInForm on the column is used; tags.hiddenInForm defaults to false → visible in form
     expect((views.form.json_schema as any).properties.tags).toBeDefined();
   });
 
@@ -139,7 +142,7 @@ describe('buildViewsFromColumnTypes', () => {
     );
     expect(scopes).not.toContain('#/properties/id');
     expect((views.form.json_schema as any).properties.id).toBeUndefined();
-    // ...but it is still a table column.
+    // id is listed in layout.table.items → in the table schema
     expect((views.table.json_schema as any).properties.id).toBeDefined();
   });
 

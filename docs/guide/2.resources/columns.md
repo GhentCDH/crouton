@@ -21,7 +21,7 @@ Both forms support the same options:
 | `idField`                                         | Marks the id column                                                                                                                                                                                                                                                                                                         |
 | `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](custom-resource.md#column-types)                   |
 | `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                   |
-| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell                                                                                                                                                 |
+| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context when **no layout is defined for that context**. When `layout.<ctx>` exists it is the full list — only listed columns are rendered, and these flags are ignored. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell |
 | `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                               |
 | `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable |
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                |
@@ -31,13 +31,12 @@ Both forms support the same options:
 | `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                        |
 | `extend`                                          | Path to another `resource.json` whose columns are expanded as virtual sub-columns under this key (with a per-sub-column `columns` override map)                                                                                                                                                                             |
 | `fieldInput`                                      | Form control configuration, see below                                                                                                                                                                                                                                                                                       |
-| `fieldView`                                       | Optional per-context override for the read-only view, see below                                                                                                                                                                                                                                                             |
 
 ::: warning Moved to `layout.table`
 The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
 
 - `sortable` / `defaultSort` → `layout.table.items[{ id, sortable, defaultSort }]`
-- `searchable` → `layout.table.searchFields: ["colId"]`
+- `searchable` → `operations.findAll.search: ["colId"]`
 - `filterable` → `layout.table.filterFields: ["colId"]`
 - `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`
 - `fieldTable` → `layout.table.items[{ id, type, options }]`
@@ -47,13 +46,13 @@ See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-t
 
 ## Free-text search (`?q=`)
 
-Declare which columns are included in free-text search via `layout.table.searchFields`:
+Declare which columns are included in free-text search via `operations.findAll.search`:
 
 ```json
 {
-  "layout": {
-    "table": {
-      "searchFields": ["title", "authorId"]
+  "operations": {
+    "findAll": {
+      "search": ["title", "authorId"]
     }
   }
 }
@@ -61,7 +60,8 @@ Declare which columns are included in free-text search via `layout.table.searchF
 
 - **Multiple entries** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author name contains "tolkien".
 - **`manyToOne` relation columns** (e.g. `authorId`) automatically resolve to the related resource's first visible display field (e.g. `author.name`), so you never search against a raw foreign key string.
-- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use it to drive `?q=` search; use `searchFields` instead.
+- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use it to drive `?q=` search; use `operations.findAll.search` instead.
+- **Default**: when `findAll: true` and no explicit `search` is declared, all simple (non-id, non-relation, non-date) columns are searched.
 
 ## Nested object and array columns
 
@@ -160,16 +160,13 @@ onMounted(async () => {
 > Token resolution only affects the create form pre-fill. It has no effect on existing records loaded for
 > editing, and it does not run server-side — use `beforeWrite` hooks for server-side defaults.
 
-## Field variants — `fieldView` / table cell override
+## Field variants — per-context overrides
 
-By default a single `fieldInput` drives the form, the read-only view, and the table cell. A column may additionally
-declare `fieldView` to render differently in the read-only detail view.
+A single `fieldInput` drives the form, the read-only view, and the table cell. To render differently in a specific context, use layout item overrides:
 
-The config that drives each context is resolved through a fallback chain:
-
-- **form** (and filter) ← `fieldInput`
-- **view** ← `fieldView`, falling back to `fieldInput`
-- **table** ← `type`/`options` on the `layout.table.items[]` entry, falling back to `fieldView`, then `fieldInput`
+- **form** ← `fieldInput`
+- **view** ← `fieldInput` (override per-column via `layout.view.items[{ id, type, options }]`)
+- **table** ← `type`/`options` on the `layout.table.items[]` entry, falling back to `fieldInput`
 
 ```json
 {
@@ -181,13 +178,15 @@ The config that drives each context is resolved through a fallback chain:
         "format": "relation",
         "resource": "./author/resource.json",
         "options": { "display": "autocomplete", "displayKey": "name" }
-      },
-      "fieldView": {
-        "options": { "display": "link" }
       }
     }
   },
   "layout": {
+    "view": {
+      "items": [
+        { "id": "author", "options": { "display": "link" } }
+      ]
+    },
     "table": {
       "items": [
         { "id": "author", "options": { "displayKey": "shortName" } }

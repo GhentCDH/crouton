@@ -136,16 +136,6 @@ export const buildFormUiSchemaFromLayout = (
   const seenIds = new Set<string>();
 
   const root = buildNodeInto(node, colMap, warn, seenIds);
-
-  // Append unreferenced columns to preserve backward-compat
-  const unreferenced = cols.filter((c) => !seenIds.has(c.id));
-  if (unreferenced.length) {
-    for (const col of unreferenced) {
-      warn(`layout: column "${col.id}" not referenced in layout — appending`);
-      root.addControl(buildFormControl(col));
-    }
-  }
-
   return root.build() as unknown as Record<string, unknown>;
 };
 

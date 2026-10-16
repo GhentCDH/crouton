@@ -3,14 +3,19 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type {
   CalculatedColumn,
   JsonColumn,
+  RelationFieldInputOptions,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
+  applyRelationFormatDefault,
+  buildValueLabelColumns,
   buildViews,
+  extractFindAllSearch,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
-  resolveTableNode,
+  resolveColumnFieldVariants,
+  resolveColumnVisibility,
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
@@ -23,12 +28,7 @@ import {
   enrichIncludeWithSort,
   enrichResourceRefColumns,
 } from './column-enrichment';
-import {
-  applyRelationFormatDefault,
-  buildValueLabelColumns,
-  expandExtendColumns,
-  resolveColumnFieldVariants,
-} from './column-transforms';
+import { expandExtendColumns } from './column-transforms';
 import { enrichRelationTypes } from './relation-type';
 import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';
@@ -92,7 +92,8 @@ export const fromJson = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  let views = buildViews(schema, enrichedColumns, json.layout);
+  const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
+  let views = buildViews(schema, visibilityColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = {
       ...views,
@@ -106,7 +107,10 @@ export const fromJson = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns, dirPath, resolveTableNode(json.layout?.table as any)?.searchFields);
+  const findAll = json.operations?.findAll;
+  const findAllEnabled = findAll !== false && !isCustom;
+  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
+  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
@@ -129,6 +133,7 @@ export const fromJson = (
     ...(repository && { repository }),
     definition,
     ...(views && { views }),
+    ...(searchPaths?.length && { search: searchPaths }),
     ...(lookup && { lookup }),
     ...(subResources.length && { subResources }),
     ...(calculatedColumns.length && { calculatedColumns }),
@@ -143,39 +148,72 @@ export const fromJson = (
   } as unknown as Resource;
 };
 
+const isSearchableColumn = (c: JsonColumn): boolean =>
+  !c.idField &&
+  c.fieldInput?.format !== 'relation' &&
+  !c.fieldInput?.relationType &&
+  c.fieldInput?.type !== 'date';
+
+const buildSearch = (
+  columns: JsonColumn[] | undefined,
+  searchPaths: string[] | undefined,
+  findAllEnabled = false,
+): string[] | undefined => {
+  if (!columns) return undefined;
+  if (!searchPaths?.length) {
+    if (!findAllEnabled) return undefined;
+    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
+    return fallback.length ? fallback : undefined;
+  }
+  return searchPaths.map((id) => {
+    const col = columns.find((c) => c.id === id);
+    if (!col) return id;
+    if (col.fieldInput?.format === 'relation') {
+      const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
+      if (opts?.displayKey) return `${id}.${opts.displayKey}`;
+    }
+    if (col.fieldInput?.relationType === 'manyToOne') {
+      const displayKey =
+        (col.fieldInput.options as any)?.displayKey ?? (col as any).displayKey;
+      if (displayKey) return `${id}.${displayKey}`;
+    }
+    return id;
+  });
+};
+
 const buildLookup = (
   columns: JsonColumn[] | undefined,
   dirPath?: string,
-  searchFields?: string[],
+  search?: string[],
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
 
   const keyCol = columns.find((c) => c.idField);
-  const searchCols = columns.filter(
-    (c) => c.showInLookup || searchFields?.includes(c.id),
-  );
+  const lookupCols = columns.filter((c) => c.showInLookup);
 
-  if (!keyCol && !searchCols.length) return undefined;
+  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
 
-  const labels = searchCols.map((col) => {
-    if (col.fieldInput?.relationType === 'manyToOne') {
-      const relationName = col.id.replace(/Id$/, '');
-      if (col.fieldInput?.resource && dirPath) {
-        const child = resolveChildResource(col.fieldInput.resource, dirPath);
-        const childColumns = child
-          ? expandExtendColumns(child.json.columns ?? [], dirPath)
-          : undefined;
-        const displayCol = childColumns?.find(
-          (c) => !c.idField && !c.hiddenInTable,
-        );
-        if (displayCol) return `${relationName}.${displayCol.id}`;
-      }
-      const displayKey =
-        col.displayKey ?? (col.fieldInput?.options as any)?.displayKey;
-      if (displayKey) return `${relationName}.${displayKey}`;
-    }
-    return col.id;
-  });
+  const labels = lookupCols.length
+    ? lookupCols.map((col) => {
+        if (col.fieldInput?.relationType === 'manyToOne') {
+          const relationName = col.id.replace(/Id$/, '');
+          if (col.fieldInput?.resource && dirPath) {
+            const child = resolveChildResource(col.fieldInput.resource, dirPath);
+            const childColumns = child
+              ? expandExtendColumns(child.json.columns ?? [], dirPath)
+              : undefined;
+            const displayCol = childColumns?.find(
+              (c) => !c.idField && !c.hiddenInTable,
+            );
+            if (displayCol) return `${relationName}.${displayCol.id}`;
+          }
+          const displayKey =
+            col.displayKey ?? (col.fieldInput?.options as any)?.displayKey;
+          if (displayKey) return `${relationName}.${displayKey}`;
+        }
+        return col.id;
+      })
+    : (search ?? []);
 
   return {
     key: keyCol?.id ?? 'id',

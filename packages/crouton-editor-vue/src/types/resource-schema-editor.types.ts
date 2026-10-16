@@ -125,5 +125,4 @@ export type ColumnPatch = Partial<{
   hiddenInForm: boolean;
   hiddenInView: boolean;
   fieldInput: FieldVariantPatch;
-  fieldView: FieldVariantPatch;
 }>;

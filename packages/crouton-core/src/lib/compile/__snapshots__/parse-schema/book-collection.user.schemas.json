@@ -42,11 +42,6 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "name": {
             "type": "string",
             "title": "Name",
@@ -77,14 +72,6 @@
             "options": {
               "sortId": "email",
               "label": "Email"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
             }
           }
         ],

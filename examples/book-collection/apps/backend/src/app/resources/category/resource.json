@@ -8,15 +8,5 @@
     "id": { "idField": true, "hiddenInForm": true },
     "name": {},
     "slug": {}
-  },
-  "layout": {
-    "table": {
-      "searchFields": ["name"],
-      "filterFields": ["name"],
-      "controls": [
-        { "id": "name", "sortable": true },
-        { "id": "slug", "sortable": true }
-      ]
-    }
   }
 }

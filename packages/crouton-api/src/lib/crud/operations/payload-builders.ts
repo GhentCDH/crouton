@@ -59,12 +59,9 @@ export const buildSubResourceViewsPayload = (
 
 /**
  * A rendering-context's field config as exposed to the visual builder: the
- * resolved value (walking the `fieldInput → fieldView → fieldTable` fallback
- * chain, via crouton-core's `resolveViewField`/`resolveTableField` — so the
- * editor shows what will actually render) plus whether this column has its
- * own override at this level. `hasOverride: false` means the value shown is
- * pure inheritance from the level below; saving with no changes here should
- * leave it that way rather than pinning a copy into `fieldView`/`fieldTable`.
+ * resolved value (fieldInput) plus whether this column has its own override
+ * at this level. `hasOverride: false` means saving with no changes here should
+ * leave it that way rather than pinning a copy into `fieldInput`.
  */
 export type EditableFieldVariant = {
   resolved: FieldInput | undefined;
@@ -118,11 +115,8 @@ export const buildEditableColumnsPayload = (
       hiddenInForm: c.hiddenInForm,
       hiddenInView: c.hiddenInView,
       form: c.fieldInput,
-      view: { resolved: resolveViewField(c), hasOverride: c.fieldView != null },
-      table: {
-        resolved: resolveTableField(c),
-        hasOverride: c.fieldView != null,
-      },
+      view: { resolved: resolveViewField(c), hasOverride: false },
+      table: { resolved: resolveTableField(c), hasOverride: false },
     })),
   };
 };

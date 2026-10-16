@@ -42,11 +42,6 @@
       "data": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "minLength": 1
-          },
           "name": {
             "type": "string",
             "title": "Name",
@@ -64,14 +59,6 @@
             "options": {
               "sortId": "name",
               "label": "Name"
-            }
-          },
-          {
-            "type": "TextCell",
-            "scope": "#/properties/id",
-            "options": {
-              "sortId": "id",
-              "label": "Id"
             }
           }
         ],

@@ -267,6 +267,109 @@ export const refineByKind = (
   // a resource on a custom-adapter datasource may have no model and is still valid.
 };
 
+// ── Phase 3: layout validation ───────────────────────────────────────────
+
+/** Collect all field ids (recursively) from a parsed FormLayoutNode tree. */
+const collectFormLayoutIds = (node: { items?: unknown[] }): string[] => {
+  const ids: string[] = [];
+  for (const item of node.items ?? []) {
+    if (typeof item === 'string') {
+      ids.push(item);
+    } else if (item && typeof item === 'object') {
+      const obj = item as Record<string, unknown>;
+      if ('id' in obj && typeof obj['id'] === 'string') {
+        ids.push(obj['id']);
+      } else if (!('component' in obj) && 'items' in obj) {
+        ids.push(...collectFormLayoutIds(obj as { items?: unknown[] }));
+      }
+    }
+  }
+  return ids;
+};
+
+/** Depth-first: find the table node in a parsed TableLayoutRoot. */
+const findParsedTableNode = (node: Record<string, unknown>): Record<string, unknown> | undefined => {
+  const t = node['type'];
+  if ((!t || t === 'table') && !('component' in node)) return node;
+  const items = node['items'];
+  if (!Array.isArray(items)) return undefined;
+  for (const item of items) {
+    if (item && typeof item === 'object') {
+      const found = findParsedTableNode(item as Record<string, unknown>);
+      if (found) return found;
+    }
+  }
+  return undefined;
+};
+
+/** P3, P4, P5: validate layout field ids against known columns. */
+export const refineLayout = (
+  obj: z.infer<typeof ResourceJsonShape>,
+  ctx: z.RefinementCtx,
+): void => {
+  const allIds = new Set([
+    ...Object.keys(obj.columns ?? {}),
+    ...(obj.calculatedColumns ?? []).map((c) => c.id),
+  ]);
+
+  // Validate operations.findAll.search independently of layout
+  const findAll = obj.operations?.findAll;
+  if (findAll && typeof findAll === 'object' && !('uri' in findAll)) {
+    for (const sf of (findAll as any).search ?? []) {
+      if (!allIds.has(sf)) {
+        ctx.addIssue({ code: 'custom', path: ['operations', 'findAll', 'search'], message: `Unknown column id "${sf}" in operations.findAll.search.` });
+      }
+    }
+  }
+
+  const layout = obj.layout;
+  if (!layout) return;
+
+  const validateIds = (ids: string[], path: string[], label: string): void => {
+    const seen = new Set<string>();
+    for (const id of ids) {
+      if (!allIds.has(id)) {
+        ctx.addIssue({
+          code: 'custom',
+          path,
+          message: `Unknown column id "${id}" in layout.${label} — not found in columns or calculatedColumns.`,
+        });
+      }
+      if (seen.has(id)) {
+        ctx.addIssue({
+          code: 'custom',
+          path,
+          message: `Duplicate column id "${id}" in layout.${label} — each id may appear only once per context.`,
+        });
+      }
+      seen.add(id);
+    }
+  };
+
+  if (layout.form) {
+    validateIds(collectFormLayoutIds(layout.form), ['layout', 'form'], 'form');
+  }
+  if (layout.view) {
+    validateIds(collectFormLayoutIds(layout.view), ['layout', 'view'], 'view');
+  }
+  if (layout.table) {
+    const tableNode = findParsedTableNode(layout.table as unknown as Record<string, unknown>);
+    if (tableNode) {
+      const ids = (tableNode['items'] as unknown[] | undefined ?? [])
+        .filter((item) => !((item as any)?.component))
+        .map((item) => typeof item === 'string' ? item : (item as any)?.id as string)
+        .filter(Boolean);
+      validateIds(ids, ['layout', 'table'], 'table');
+
+      for (const ff of (tableNode['filterFields'] as string[] | undefined ?? [])) {
+        if (!allIds.has(ff)) {
+          ctx.addIssue({ code: 'custom', path: ['layout', 'table', 'filterFields'], message: `Unknown column id "${ff}" in filterFields.` });
+        }
+      }
+    }
+  }
+};
+
 /**
  * Find the table node within a raw (unparsed) layout object.
  * In a flat table layout, the table IS the layout.table value.
@@ -334,6 +437,13 @@ const collectRemovedLayoutKeyErrors = (
         '\'controls\' was removed — use \'items\'. Run \'crouton migrate layout\'.',
     });
   }
+  if ('searchFields' in obj) {
+    errors.push({
+      path: [...path, 'searchFields'],
+      message:
+        '\'searchFields\' was moved to \'operations.findAll.search\'. Run \'crouton migrate layout\'.',
+    });
+  }
   if ('actions' in obj && path.some((p) => p === 'table')) {
     errors.push({
       path: [...path, 'actions'],
@@ -351,6 +461,15 @@ const collectRemovedLayoutKeyErrors = (
       }
     }
   }
+
+  // Also recurse into table node (searchFields / actions live there)
+  for (const key of ['table', 'form', 'view']) {
+    const child = obj[key];
+    if (child && typeof child === 'object' && !Array.isArray(child)) {
+      errors.push(...collectRemovedLayoutKeyErrors(child, [...path, key]));
+    }
+  }
+
   return errors;
 };
 
@@ -375,6 +494,66 @@ export const buildResourceJsonSchema = () => {
 
       // Collect errors for removed keys before any transforms
       _rawLayoutErrors = collectRemovedLayoutKeyErrors(obj['layout'], ['layout']);
+
+      // Lift layout.table.searchFields → operations.findAll.search and remove from layout
+      {
+        const layout = obj['layout'] as Record<string, unknown> | undefined;
+        if (layout) {
+          const outerTable = layout['table'] as Record<string, unknown> | undefined;
+          if (outerTable) {
+            const isFlat = !outerTable['type'] || outerTable['type'] === 'table';
+            if (isFlat && 'searchFields' in outerTable) {
+              const layoutSearchFields = (outerTable['searchFields'] as string[]) ?? [];
+              const { searchFields: _sf, ...restTable } = outerTable;
+              obj = { ...obj, layout: { ...layout, table: restTable } };
+              if (layoutSearchFields.length) {
+                const kind2 = (obj['kind'] as string | undefined) ?? (obj['model'] !== undefined ? 'prisma' : 'custom');
+                const rawOps2 = obj['operations'] as Record<string, unknown> | undefined;
+                const eff2 = (rawOps2?.['findAll'] ?? (kind2 === 'custom' ? false : true));
+                if (eff2 !== false) {
+                  const ops = rawOps2 ?? {};
+                  const findAll = ops['findAll'];
+                  const existingSearch: string[] = typeof findAll === 'object' && findAll !== null ? ((findAll as any).search ?? []) : [];
+                  const merged = [...existingSearch, ...layoutSearchFields.filter((f: string) => !existingSearch.includes(f))];
+                  obj = {
+                    ...obj,
+                    operations: {
+                      ...ops,
+                      findAll: typeof findAll === 'object' && findAll !== null ? { ...findAll as object, search: merged } : { search: merged },
+                    },
+                  };
+                }
+              }
+            } else if (!isFlat) {
+              const items = (outerTable['items'] as Record<string, unknown>[]) ?? [];
+              const idx = items.findIndex((i) => i?.['type'] === 'table');
+              if (idx >= 0 && 'searchFields' in items[idx]) {
+                const layoutSearchFields = (items[idx]['searchFields'] as string[]) ?? [];
+                const { searchFields: _sf, ...restInner } = items[idx];
+                obj = { ...obj, layout: { ...layout, table: { ...outerTable, items: [...items.slice(0, idx), restInner, ...items.slice(idx + 1)] } } };
+                if (layoutSearchFields.length) {
+                  const kind3 = (obj['kind'] as string | undefined) ?? (obj['model'] !== undefined ? 'prisma' : 'custom');
+                  const rawOps3 = obj['operations'] as Record<string, unknown> | undefined;
+                  const eff3 = (rawOps3?.['findAll'] ?? (kind3 === 'custom' ? false : true));
+                  if (eff3 !== false) {
+                    const ops = rawOps3 ?? {};
+                    const findAll = ops['findAll'];
+                    const existingSearch: string[] = typeof findAll === 'object' && findAll !== null ? ((findAll as any).search ?? []) : [];
+                    const merged = [...existingSearch, ...layoutSearchFields.filter((f: string) => !existingSearch.includes(f))];
+                    obj = {
+                      ...obj,
+                      operations: {
+                        ...ops,
+                        findAll: typeof findAll === 'object' && findAll !== null ? { ...findAll as object, search: merged } : { search: merged },
+                      },
+                    };
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
 
       // Auto-derive kind='prisma' when a model is present and kind is unset.
       if (obj['kind'] === undefined && obj['model'] !== undefined) {
@@ -490,17 +669,6 @@ export const buildResourceJsonSchema = () => {
           obj = {
             ...obj,
             layout: patchTableNodeInLayout(layout, {
-              ...(searchFields.length && {
-                searchFields: [
-                  ...((tableNode['searchFields'] as string[]) ?? []),
-                  ...searchFields.filter(
-                    (f) =>
-                      !((tableNode['searchFields'] as string[]) ?? []).includes(
-                        f,
-                      ),
-                  ),
-                ],
-              }),
               ...(filterFields.length && {
                 filterFields: [
                   ...((tableNode['filterFields'] as string[]) ?? []),
@@ -517,6 +685,28 @@ export const buildResourceJsonSchema = () => {
               }),
             }),
           };
+          // Lift column searchable flags → operations.findAll.search
+          // Only lift when findAll is (or will be) enabled; kind:'custom' defaults findAll to false.
+          if (searchFields.length) {
+            const kind = obj['kind'] as string | undefined;
+            const rawOps = obj['operations'] as Record<string, unknown> | undefined;
+            const rawFindAll = rawOps?.['findAll'];
+            const defaultFindAll = kind === 'custom' ? false : true;
+            const effectiveFindAll = rawFindAll ?? defaultFindAll;
+            if (effectiveFindAll !== false) {
+              const ops = rawOps ?? {};
+              const findAll = ops['findAll'];
+              const existingSearch: string[] = typeof findAll === 'object' && findAll !== null ? ((findAll as any).search ?? []) : [];
+              const merged = [...existingSearch, ...searchFields.filter((f: string) => !existingSearch.includes(f))];
+              obj = {
+                ...obj,
+                operations: {
+                  ...ops,
+                  findAll: typeof findAll === 'object' && findAll !== null ? { ...findAll as object, search: merged } : { search: merged },
+                },
+              };
+            }
+          }
         }
       }
 
@@ -526,7 +716,7 @@ export const buildResourceJsonSchema = () => {
       for (const err of _rawLayoutErrors) {
         ctx.addIssue({ code: 'custom', path: err.path, message: err.message });
       }
-    }).transform((obj) => {
+    }).superRefine(refineLayout).transform((obj) => {
       const title = obj.title ?? labelFromId(obj.name);
       const schemaVersion = obj.schemaVersion ?? BASELINE_RESOURCE_VERSION;
       const defaultOps =
@@ -550,8 +740,6 @@ export const buildResourceJsonSchema = () => {
           const out = { ...col };
           if (out.fieldInput)
             out.fieldInput = parseFieldInputOptions(out.fieldInput);
-          if (out.fieldView)
-            out.fieldView = parseFieldInputOptions(out.fieldView);
           return out;
         }),
         operations: obj.operations ?? defaultOps,

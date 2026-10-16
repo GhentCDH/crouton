@@ -88,7 +88,7 @@
             }
           },
           {
-            "type": "TextCell",
+            "type": "BooleanCell",
             "scope": "#/properties/available",
             "options": {
               "sortId": "available",

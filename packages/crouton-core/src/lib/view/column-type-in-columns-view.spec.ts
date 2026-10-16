@@ -86,13 +86,6 @@ describe('buildViewsFromColumns honours a declared column type', () => {
     expect(props.label.type).toBe('string');
   });
 
-  it('still honours the deprecated columnType', () => {
-    const props = formProps([
-      col({ id: 'amount', columnType: 'number' } as any),
-    ]);
-    expect(props.amount.type).toBe('number');
-  });
-
   it('leaves an autocomplete column typeless', () => {
     const props = formProps([
       col({ id: 'paidBy', fieldInput: { type: 'autocomplete' } as any }),

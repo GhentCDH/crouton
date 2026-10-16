@@ -8,7 +8,7 @@ import {
 
 /** Returns `true` when the column should render as a boolean (checkbox) cell. */
 export const isBoolean = (col: JsonColumn): boolean =>
-  col.fieldInput?.type === 'boolean' || col.columnType === 'boolean';
+  col.fieldInput?.type === 'boolean' || col.type === 'boolean';
 
 /** Returns `true` when the column is a sub-resource relation (renders an inline sub-table). */
 export const isRelation = (col: JsonColumn): boolean =>

@@ -11,14 +11,12 @@
       "unique": true
     }
   },
+  "operations": {
+    "findAll": { "search": ["name", "email"] }
+  },
   "layout": {
     "table": {
-      "searchFields": ["name", "email"],
-      "filterFields": ["name", "email"],
-      "controls": [
-        { "id": "name", "sortable": true },
-        { "id": "email", "sortable": true }
-      ]
+      "filterFields": ["name", "email"]
     }
   }
 }

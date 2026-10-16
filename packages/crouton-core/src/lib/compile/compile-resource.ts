@@ -1,12 +1,13 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
+import { extractFindAllSearch } from '../data-source/Operations.schema';
 import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
 import { getResourceExtensions } from '../resource';
 import {
   buildViews,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
-  resolveTableNode,
+  resolveColumnVisibility,
 } from '../view';
 import { enrichActionColumns, enrichIncludeWithSort } from './column-enrichment';
 import {
@@ -29,23 +30,51 @@ const pickExtensions = (obj: Record<string, unknown>) =>
       .map((k) => [k, obj[k]]),
   );
 
+const isSearchableColumn = (c: JsonColumn): boolean =>
+  !c.idField &&
+  c.fieldInput?.format !== 'relation' &&
+  !c.fieldInput?.relationType &&
+  c.fieldInput?.type !== 'date';
+
+const buildSearch = (
+  columns: JsonColumn[] | undefined,
+  searchPaths: string[] | undefined,
+  findAllEnabled = false,
+): string[] | undefined => {
+  if (!columns) return undefined;
+  if (!searchPaths?.length) {
+    if (!findAllEnabled) return undefined;
+    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
+    return fallback.length ? fallback : undefined;
+  }
+  return searchPaths.map((id) => {
+    const col = columns.find((c) => c.id === id);
+    if (!col) return id;
+    if (col.fieldInput?.format === 'relation') {
+      const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
+      if (opts?.displayKey) return `${id}.${opts.displayKey}`;
+    }
+    return id;
+  });
+};
+
 const buildLookup = (
   columns: JsonColumn[] | undefined,
-  searchFields?: string[],
+  search: string[] | undefined,
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
   const keyCol = columns.find((c) => c.idField);
-  const searchableCols = columns.filter(
-    (c) => c.showInLookup || (searchFields?.includes(c.id) ?? false),
-  );
-  if (!keyCol && !searchableCols.length) return undefined;
-  const labels = searchableCols.map((c) => {
-    if (c.fieldInput?.format === 'relation') {
-      const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
-      if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
-    }
-    return c.id;
-  });
+  const lookupCols = columns.filter((c) => c.showInLookup);
+  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
+  const labels = lookupCols.length
+    ? lookupCols.map((c) => {
+        if (c.fieldInput?.format === 'relation') {
+          const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
+          if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
+        }
+        return c.id;
+      })
+    : (search ?? []);
   return {
     key: keyCol?.id ?? 'id',
     ...(labels.length === 1 && { label: labels[0] }),
@@ -80,7 +109,8 @@ export const compileResource = (
 
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
-  let views = buildViews(schema, enrichedColumns, json.layout);
+  const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
+  let views = buildViews(schema, visibilityColumns, json.layout);
   if (views && calculatedColumns.length) {
     views = { ...views, table: injectCalculatedColumns(views.table, calculatedColumns) };
     if (views.view) {
@@ -88,7 +118,10 @@ export const compileResource = (
     }
   }
 
-  const lookup = buildLookup(enrichedColumns, resolveTableNode(json.layout?.table)?.searchFields);
+  const findAll = json.operations?.findAll;
+  const findAllEnabled = findAll !== false && json.kind !== 'custom';
+  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
+  const lookup = buildLookup(enrichedColumns, searchPaths);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 
@@ -106,6 +139,7 @@ export const compileResource = (
     definition,
     subResources,
     ...(views && { views }),
+    ...(searchPaths?.length && { search: searchPaths }),
     ...(lookup && { lookup }),
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),

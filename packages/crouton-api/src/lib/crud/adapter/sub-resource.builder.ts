@@ -1,5 +1,7 @@
 import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
 import {
+  applyRelationFormatDefault,
+  buildValueLabelColumns,
   buildViewsFromColumns,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
@@ -7,7 +9,7 @@ import {
 
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
-import { applyRelationFormatDefault, buildValueLabelColumns, expandExtendColumns } from './column-transforms';
+import { expandExtendColumns } from './column-transforms';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { buildChildSortClause } from '../sql.helpers';
 import { deriveRelationTypeFromColumns } from './relation-type';

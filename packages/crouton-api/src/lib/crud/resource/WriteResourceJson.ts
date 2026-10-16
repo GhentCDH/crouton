@@ -37,34 +37,21 @@ export const readRawResourceJson = (
   return JSON.parse(readFileSync(jsonPath, 'utf-8'));
 };
 
-const FIELD_VARIANT_KEYS = ['fieldInput', 'fieldView'] as const;
-type FieldVariantKey = (typeof FIELD_VARIANT_KEYS)[number];
-
 /**
- * Merges each of `fieldInput`/`fieldView` present on the patch
- * into the column's existing raw value for that key, via crouton-core's
- * `mergeFieldVariant` — the same function that resolves the
- * `fieldInput → fieldView` fallback chain elsewhere, so a patch
- * follows identical "deep-merge one level into `options`, `null` deletes an
- * inherited key" semantics instead of a second bespoke implementation.
+ * Merges `fieldInput` present on the patch into the column's existing raw value,
+ * via crouton-core's `mergeFieldVariant` — deep-merges one level into `options`,
+ * `null` deletes an inherited key.
  */
 const mergeColumn = (
   existing: Record<string, unknown>,
   patch: PatchColumn,
 ): Record<string, unknown> => {
-  const { fieldInput, fieldView, ...rest } = patch;
-  const variantPatches: Partial<Record<FieldVariantKey, unknown>> = {
-    fieldInput,
-    fieldView,
-  };
-
+  const { fieldInput, ...rest } = patch;
   const merged: Record<string, unknown> = { ...existing, ...rest };
-  for (const key of FIELD_VARIANT_KEYS) {
-    const variantPatch = variantPatches[key];
-    if (!variantPatch) continue;
-    merged[key] = mergeFieldVariant(
-      existing[key] as FieldInput | undefined,
-      variantPatch as FieldVariant,
+  if (fieldInput) {
+    merged['fieldInput'] = mergeFieldVariant(
+      existing['fieldInput'] as FieldInput | undefined,
+      fieldInput as FieldVariant,
     );
   }
   return merged;

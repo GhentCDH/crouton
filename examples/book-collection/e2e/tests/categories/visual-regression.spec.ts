@@ -5,7 +5,8 @@ import { CroutonListPage } from '../../page-objects/CroutonListPage';
 
 const disableAnimations = async (page: any) => {
   await page.addStyleTag({
-    content: '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
+    content:
+      '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
   });
 };
 
@@ -25,19 +26,6 @@ test.describe('categories visual regression', () => {
     await list.waitForRows();
 
     await expect(page).toHaveScreenshot('categories-table.png', {
-      maxDiffPixelRatio: 0.05,
-      mask: [page.locator('td:first-child')],
-    });
-  });
-
-  test('categories table with filter panel open', async ({ page }) => {
-    await page.goto('/');
-    const list = new CroutonListPage(page);
-    await list.navigateTo('category');
-    await list.waitForRows();
-    await list.openFilterPanel();
-
-    await expect(page).toHaveScreenshot('categories-table-filter-panel.png', {
       maxDiffPixelRatio: 0.05,
       mask: [page.locator('td:first-child')],
     });

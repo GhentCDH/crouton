@@ -11,6 +11,7 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   route: z.string(),
   valueLabelColumns: z.array(ValueLabelColumnSchema).default([]),
   subResources: z.lazy(() => z.array(CompiledSubResourceConfigSchema)).default([]),
+  search: z.array(z.string()).optional(),
   lookup: LookupSchema.optional(),
   views: z.record(z.string(), ViewConfigSchema),
   definition: DefinitionSchema,

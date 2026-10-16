@@ -1,6 +1,13 @@
 import type { Command } from 'commander';
 
-import { findConfigPath, loadConfig, resolveFromRoot } from '@ghentcdh/crouton-codegen';
+import {
+  findConfigPath,
+  loadConfig,
+  migrateLayoutPrecedence,
+  migrateRemovedColumnFields,
+  migrateSearchFields,
+  resolveFromRoot,
+} from '@ghentcdh/crouton-codegen';
 import { runResourceMigrations } from '@ghentcdh/crouton-core';
 
 import { readFile, readdir, writeFile } from 'node:fs/promises';
@@ -67,19 +74,54 @@ export const registerMigrateLayoutCommand = (program: Command) => {
         }
 
         const result = runResourceMigrations(parsed);
-        if (result.applied.length === 0) continue;
+        const { resource: layoutFixed, report } = migrateLayoutPrecedence(result.raw);
+        const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
+        const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
+
+        const hasVersionMigration = result.applied.length > 0;
+        const hasLayoutChanges =
+          report.appended.form.length > 0 ||
+          report.appended.view.length > 0 ||
+          report.appended.table.length > 0 ||
+          report.removed.form.length > 0 ||
+          report.removed.view.length > 0 ||
+          report.removed.table.length > 0;
+        const hasSearchChanges =
+          searchReport.fromLayout.length > 0 || searchReport.fromColumns.length > 0;
+        const hasColChanges =
+          colReport.columnsWithFieldView.length > 0 ||
+          colReport.columnsWithColumnType.length > 0;
+
+        if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges) continue;
 
         needsMigration++;
-        const out = JSON.stringify(result.raw, null, 2) + '\n';
+
+        const labels: string[] = [...result.applied];
+        for (const ctx of ['form', 'view', 'table'] as const) {
+          if (report.appended[ctx].length)
+            labels.push(`append to layout.${ctx}: ${report.appended[ctx].join(', ')}`);
+          if (report.removed[ctx].length)
+            labels.push(`remove from layout.${ctx} (hidden by flag): ${report.removed[ctx].join(', ')}`);
+        }
+        if (searchReport.fromLayout.length)
+          labels.push(`searchFields → operations.findAll.search: ${searchReport.fromLayout.join(', ')}`);
+        if (searchReport.fromColumns.length)
+          labels.push(`col.searchable → operations.findAll.search: ${searchReport.fromColumns.join(', ')}`);
+        if (colReport.columnsWithFieldView.length)
+          labels.push(`remove fieldView from columns: ${colReport.columnsWithFieldView.join(', ')}`);
+        if (colReport.columnsWithColumnType.length)
+          labels.push(`remove columnType from columns: ${colReport.columnsWithColumnType.join(', ')}`);
+
+        const out = JSON.stringify(colFixed, null, 2) + '\n';
 
         if (opts.check) {
-          console.error(`${file}: needs migration (${result.applied.join(', ')})`);
+          console.error(`${file}: needs migration (${labels.join('; ')})`);
         } else if (opts.dryRun) {
-          console.warn(`--- ${file} (would migrate: ${result.applied.join(', ')})`);
+          console.warn(`--- ${file} (would migrate: ${labels.join('; ')})`);
           console.warn(out);
         } else {
           await writeFile(file, out, 'utf-8');
-          console.warn(`Migrated ${file} (${result.applied.join(', ')})`);
+          console.warn(`Migrated ${file} (${labels.join('; ')})`);
         }
       }
 

@@ -58,9 +58,8 @@ const RESOURCE_JSON = {
   },
   layout: {
     table: {
-      searchFields: ['title'],
       filterFields: ['title'],
-      items: [{ id: 'title', sortable: true, defaultSort: true }],
+      items: [{ id: 'title', sortable: true, defaultSort: true }, 'metadata'],
     },
   },
 };

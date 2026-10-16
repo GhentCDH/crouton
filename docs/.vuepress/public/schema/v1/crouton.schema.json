@@ -188,6 +188,20 @@
                           ]
                         }
                       ]
+                    },
+                    "search": {
+                      "description": "Column ids (or dot paths) that ?q= matches.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "filter": {
+                      "description": "Optional allowlist of filter fields the server accepts.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -237,6 +251,20 @@
                           ]
                         }
                       ]
+                    },
+                    "search": {
+                      "description": "Column ids (or dot paths) that ?q= matches.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "filter": {
+                      "description": "Optional allowlist of filter fields the server accepts.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   }
                 }

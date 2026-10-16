@@ -21,6 +21,7 @@ export const RequestSchema = z.object({
   sort: z.string().optional().default(''),
   sortDir: SortDirEnum.optional().default('asc'),
   filter: StringOrArray().optional().default([]),
+  q: z.string().optional(),
 });
 
 export type Request = z.infer<typeof RequestSchema>;

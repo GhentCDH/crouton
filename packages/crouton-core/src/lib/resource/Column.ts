@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ColumnTypeSchema } from './ColumnType.schema';
-import { FieldInputSchema, FieldVariantSchema } from './FieldInput.schema';
+import { FieldInputSchema } from './FieldInput.schema';
 
 // -- Uniqueness ------------------------------------------------------------
 
@@ -103,6 +103,10 @@ export const JsonColumnSchema = z.object({
     .describe(
       'When false, this column is excluded from the edit form after creation. Useful for immutable fields.',
     ),
+  /**
+   * TODO remove it
+   *     @deprected shoudl be par of the layout.[xxx].items
+   */
   hideLabel: z
     .boolean()
     .default(false)
@@ -190,19 +194,8 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Whether the form requires a value. On a "prisma" resource this overrides the Prisma-derived required state; on "custom" resources it is the only way to mark a field required. Applies to forms only.',
     ),
-  /**
-   * @deprecated Use `type` instead. Retained because it is still consumed by
-   * the boolean predicate and the schema-less sub-resource view builder.
-   */
-  columnType: z
-    .string()
-    .default('string')
-    .describe('@deprecated — use "type" instead.'),
   fieldInput: FieldInputSchema.optional().describe(
     'Configures the UI control used in create/edit forms and the display format. Use "type" to pick the input widget; "format" to pick a special renderer (e.g. "relation").',
-  ),
-  fieldView: FieldVariantSchema.optional().describe(
-    'Per-context override for the read-only detail view. Same shape as fieldInput; only the keys you provide are overridden. Falls back to fieldInput.',
   ),
   /**
    * Path to another `resource.json` whose columns are expanded as nested sub-columns
