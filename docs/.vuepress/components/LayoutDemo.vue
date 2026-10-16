@@ -6,6 +6,7 @@ import CroutonForm from '../../../packages/crouton-vue/src/forms/CroutonForm.vue
 import { TableComponent } from '@ghentcdh/crouton-forms-vue';
 import { LayoutDemoProperties } from './LayoutDemo.properties';
 import { EXAMPLES } from './layout-examples';
+import { sampleRows } from './sample-data';
 
 const props = defineProps(LayoutDemoProperties);
 
@@ -61,27 +62,8 @@ const views = computed(() => {
 const tableView = computed(() => (views.value as any)?.table);
 const formUiSchema = computed(() => (views.value as any)?.form?.ui_schema);
 
-const SAMPLE_VALUES: Record<string, string[]> = {
-  title:       ['Introduction', 'Chapter One', 'Appendix'],
-  label:       ['Alpha', 'Beta', 'Gamma'],
-  description: ['Short intro text', 'A longer description here', 'See notes'],
-  status:      ['draft', 'published', 'draft'],
-  authorName:  ['Alice', 'Bob', 'Carol'],
-  authorEmail: ['alice@example.com', 'bob@example.com', 'carol@example.com'],
-  body:        ['Body text…', 'More content…', 'Final paragraph…'],
-  createdAt:   ['2024-01-01', '2024-03-15', '2024-06-30'],
-  updatedAt:   ['2024-02-01', '2024-04-01', '2024-07-01'],
-};
-
-const sampleRows = computed(() =>
-  [0, 1, 2].map((i) =>
-    Object.fromEntries(
-      parsedColumns.value.map((col: any) => [
-        col.id,
-        (SAMPLE_VALUES[col.id] ?? [`${col.id} ${i + 1}`, `${col.id} ${i + 2}`, `${col.id} ${i + 3}`])[i],
-      ]),
-    ),
-  ),
+const sampleRowsData = computed(() =>
+  sampleRows(parsedColumns.value.map((col: any) => col.id)),
 );
 
 const onTabClick = (tab: Tab) => { activeTab.value = tab; };
@@ -92,7 +74,7 @@ const onLayoutInput = (e: Event) => {
 
 <template>
   <ClientOnly>
-    <div class="layout-demo border border-base-300 rounded-lg overflow-hidden my-4 not-content">
+    <div class="layout-demo border border-base-300 rounded-lg overflow-hidden my-4 crouton-app">
       <div class="bg-base-200 px-4 py-2 flex gap-1 text-sm font-medium flex-wrap">
         <button
           v-for="tab in (['form', 'view', 'table', 'json', 'uischema'] as Tab[])"
@@ -130,7 +112,7 @@ const onLayoutInput = (e: Event) => {
             id="layout-demo-table"
             :ui-schema="tableView.ui_schema"
             :schema="tableView.json_schema"
-            :data="sampleRows"
+            :data="sampleRowsData"
             :hide-pagination="true"
           />
           <p v-else class="text-sm opacity-50 italic">No table schema generated.</p>

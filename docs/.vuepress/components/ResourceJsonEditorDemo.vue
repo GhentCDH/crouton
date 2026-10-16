@@ -40,7 +40,7 @@ const onUpdate = (value: unknown) => {
 </script>
 
 <template>
-  <div class="border border-base-300 rounded-lg p-4">
+  <div class="crouton-app border border-base-300 rounded-lg p-4">
     <div class="flex items-center justify-between mb-3">
       <h4 class="text-sm font-semibold">Live editor</h4>
       <span v-if="lastEmitted" class="text-xs opacity-50">

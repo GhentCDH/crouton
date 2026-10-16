@@ -53,7 +53,7 @@ const onSave = (data: unknown) => {
 </script>
 
 <template>
-  <div class="border border-base-300 rounded-lg p-4">
+  <div class="crouton-app border border-base-300 rounded-lg p-4">
     <CroutonForm
       :views="views"
       :data="formData"

@@ -94,7 +94,7 @@ const loadExample = (key: keyof typeof EXAMPLES) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="crouton-app flex flex-col gap-3">
     <div class="flex flex-wrap items-center gap-2">
       <span class="text-sm opacity-70">Load example:</span>
       <button
