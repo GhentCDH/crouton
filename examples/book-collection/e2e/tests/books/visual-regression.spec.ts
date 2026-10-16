@@ -85,8 +85,8 @@ test.describe('books visual regression', () => {
     await list.clickEdit(0);
 
     const modal = page.getByTestId('form-modal');
-    // Rating is rendered as a row of star buttons
-    const ratingContainer = modal.locator('button').filter({ hasText: '★' }).first().locator('..');
+    const ratingContainer = modal.locator('[data-testid="rating-stars"]');
+    await ratingContainer.waitFor({ state: 'visible' });
     await expect(ratingContainer).toHaveScreenshot('book-rating-component.png', {
       maxDiffPixelRatio: 0.05,
     });
@@ -139,9 +139,9 @@ test.describe('books visual regression', () => {
 
     // The Hobbit has rating 5 — all stars should be yellow
     const firstRow = list.getRows().first();
-    const ratingCell = firstRow.locator('td').filter({ has: page.locator('button').filter({ hasText: '★' }) });
-    await ratingCell.scrollIntoViewIfNeeded();
-    await expect(ratingCell).toHaveScreenshot('book-rating-in-table.png', {
+    const ratingStars = firstRow.locator('[data-testid="rating-stars"]');
+    await ratingStars.waitFor({ state: 'visible' });
+    await expect(ratingStars).toHaveScreenshot('book-rating-in-table.png', {
       maxDiffPixelRatio: 0.05,
     });
   });

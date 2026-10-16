@@ -57,6 +57,7 @@
         <Btn
           :color="Color.secondary"
           :outline="true"
+          data-testid="btn-cancel"
           :aria-label="t('actions.cancel', cancelLabel)"
           @click="onCancel"
         >

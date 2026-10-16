@@ -10,6 +10,14 @@ import { replaceUriParams } from './uri.utils';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
+const apiErrorMessage = (error: any): string | null => {
+  const msg = error?.response?.data?.message;
+  if (Array.isArray(msg) && msg.length > 0)
+    return msg.map((e: any) => (typeof e === 'object' ? e.message : String(e))).join(', ');
+  if (typeof msg === 'string') return msg;
+  return null;
+};
+
 const paramsSerializer = (params: Record<string, unknown>) => {
   const p = new URLSearchParams();
   Object.entries(params).forEach(([key, val]) => {
@@ -89,7 +97,7 @@ export const resourceApi = (
       })
       .catch((error: any) => {
         console.error(error);
-        NotificationService.error('Error saving data');
+        NotificationService.error(apiErrorMessage(error) ?? 'Error saving data');
         return null;
       });
 
@@ -100,7 +108,7 @@ export const resourceApi = (
       })
       .catch((error: any) => {
         console.error(error);
-        NotificationService.error('Error saving data');
+        NotificationService.error(apiErrorMessage(error) ?? 'Error saving data');
         return null;
       });
 
@@ -112,7 +120,7 @@ export const resourceApi = (
       })
       .catch((error: any) => {
         console.error(error);
-        NotificationService.error('Error saving data');
+        NotificationService.error(apiErrorMessage(error) ?? 'Error saving data');
         return null;
       });
 

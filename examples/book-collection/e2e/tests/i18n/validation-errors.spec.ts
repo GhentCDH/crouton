@@ -30,14 +30,12 @@ test.describe('i18n validation errors', () => {
     await list.clickCreate();
     await form.waitForModal();
 
-    // Leave Name empty, fill only email to trigger required error on Name
-    await form.fillField('E-mail', 'test-nl-required@example.com');
-    await page.getByTestId('btn-save').click();
+    // Focus Name (empty required field) then blur it by moving focus to E-mail
+    await page.getByLabel('Naam', { exact: false }).click();
+    await page.getByLabel('E-mail', { exact: false }).click();
 
-    // Expect Dutch validation message (inline or toast)
-    await expect(
-      page.getByText(/verplicht/i).or(page.getByText(/vereist/i)),
-    ).toBeVisible({ timeout: 5000 });
+    // Expect Dutch inline validation message for required field
+    await expect(page.getByText(/verplicht/i)).toBeVisible({ timeout: 5000 });
 
     await form.cancel();
   });

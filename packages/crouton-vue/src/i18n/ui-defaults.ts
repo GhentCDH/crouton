@@ -48,6 +48,9 @@ const en: UiDefaults = {
     pending: 'Fill required fields to save',
     error: 'Save failed',
   },
+  validation: {
+    required: 'This field is required',
+  },
 };
 
 const nl: UiDefaults = {
@@ -97,6 +100,9 @@ const nl: UiDefaults = {
     saved: 'Opgeslagen ✓',
     pending: 'Vul verplichte velden in om op te slaan',
     error: 'Opslaan mislukt',
+  },
+  validation: {
+    required: 'Dit veld is verplicht',
   },
 };
 
@@ -148,6 +154,9 @@ const fr: UiDefaults = {
     pending: 'Remplissez les champs obligatoires pour enregistrer',
     error: 'Échec de l\'enregistrement',
   },
+  validation: {
+    required: 'Ce champ est obligatoire',
+  },
 };
 
 const de: UiDefaults = {
@@ -197,6 +206,9 @@ const de: UiDefaults = {
     saved: 'Gespeichert ✓',
     pending: 'Pflichtfelder ausfüllen zum Speichern',
     error: 'Speichern fehlgeschlagen',
+  },
+  validation: {
+    required: 'Dieses Feld ist erforderlich',
   },
 };
 
@@ -248,6 +260,9 @@ const wv: UiDefaults = {
     saved: 'Vastgeleid ✓',
     pending: 'Vult de verplichte veldjes in vo \'t te kunn bewaren',
     error: 'Mislukt vo weg te schryvn',
+  },
+  validation: {
+    required: 'Ge moet iets erop zetten!  ',
   },
 };
 
