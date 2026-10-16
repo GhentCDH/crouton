@@ -12,7 +12,7 @@ const base = {
   name: 'item',
   route: 'items',
   tag: 'Items',
-  model: 'Item',
+  source: { model: 'Item' },
   operations: {},
 };
 

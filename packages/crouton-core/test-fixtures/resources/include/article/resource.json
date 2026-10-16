@@ -1,6 +1,5 @@
 {
   "name": "article",
-  "model": "Article",
   "route": "articles",
   "columns": {
     "id": {
@@ -49,5 +48,8 @@
         }
       ]
     }
+  },
+  "source": {
+    "model": "Article"
   }
 }

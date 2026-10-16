@@ -7,8 +7,9 @@ import {
   migrateLayoutPrecedence,
   migrateLookupLabels,
   migrateRelationKeys,
-  migrateRootInclude,
   migrateRemovedColumnFields,
+  migrateRootInclude,
+  migrateSource,
   migrateSearchFields,
   resolveFromRoot,
   syncAgentFiles,
@@ -113,6 +114,7 @@ export const registerMigrateCommand = (program: Command) => {
           const { resource: displayFixed, report: displayReport } = migrateDisplayToContainer(relationFixed);
           const { changed: lookupChanged, json: lookupFixed } = migrateLookupLabels(displayFixed as any);
           const { changed: includeChanged, json: includeFixed } = migrateRootInclude(lookupFixed as any);
+          const { changed: sourceChanged, json: sourceFixed } = migrateSource(includeFixed as any);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -130,7 +132,7 @@ export const registerMigrateCommand = (program: Command) => {
           const hasRelationChanges = relationReport.migratedColumns.length > 0;
           const hasDisplayChanges = displayReport.changed;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged && !includeChanged) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged && !includeChanged && !sourceChanged) continue;
 
           needsMigration++;
 
@@ -157,8 +159,10 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push('showInLookup → lookup.labels');
           if (includeChanged)
             labels.push('include → operations.findAll.include / operations.findOne.include');
+          if (sourceChanged)
+            labels.push('model/table/database/idType → source.*');
 
-          const out = JSON.stringify(includeFixed, null, 2) + '\n';
+          const out = JSON.stringify(sourceFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

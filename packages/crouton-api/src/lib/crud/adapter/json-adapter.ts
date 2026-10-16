@@ -128,17 +128,27 @@ export const fromJson = (
     enrichedColumns,
   );
 
+  const formContainer = (json.layout?.form as any)?.container;
+  const viewContainer = (json.layout?.view as any)?.container;
+  const derivedDisplay = {
+    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as 'modal' | 'page',
+    customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
+  };
+  const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
+  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
     route: json.route,
-    model: json.model,
     tag: json.tag,
     sidebar: json.sidebar,
-    display: json.display,
-    ...(json.idType && { idType: json.idType }),
+    display: derivedDisplay,
+    modalSize: derivedModalSize,
+    ...(src?.model && { model: src.model }),
+    ...(src?.table && { table: src.table }),
+    ...(src?.database && { database: src.database }),
+    ...(src?.idType && { idType: src.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
-    ...(json.database && { database: json.database }),
     ...(hooks && { hooks }),
     ...(repository && { repository }),
     definition,
@@ -151,7 +161,6 @@ export const fromJson = (
     ...(tableActions?.length && { tableActions }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
     ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
-    ...(json.modalSize && { modalSize: json.modalSize }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),

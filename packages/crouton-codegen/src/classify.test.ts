@@ -29,10 +29,10 @@ const col = (d: ReturnType<typeof classify>, id: string) =>
 describe('classify', () => {
   it('derives identity + operations + database + sidebar', () => {
     const d = classify(model, { database: 'docsdb' });
-    expect(d.config.model).toBe('text');
+    expect((d.config as any).source?.model).toBe('text');
     expect(d.config.tag).toBe('Text');
-    expect(d.config.idType).toBe('string');
-    expect(d.config.database).toBe('docsdb');
+    expect((d.config as any).source?.idType).toBe('string');
+    expect((d.config as any).source?.database).toBe('docsdb');
     expect(d.config.sidebar).toEqual({ hide: false });
     expect(d.config.operations?.findAll).toBe(true);
   });
