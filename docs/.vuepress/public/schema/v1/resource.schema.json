@@ -1725,131 +1725,12 @@
                         "properties": {
                           "id": {
                             "type": "string"
-                          },
-                          "colspan": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 12
-                          },
-                          "rowspan": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 6
-                          },
-                          "width": {
-                            "type": "string"
-                          },
-                          "label": {
-                            "type": "string"
-                          },
-                          "hideLabel": {
-                            "type": "boolean"
-                          },
-                          "type": {
-                            "type": "string"
-                          },
-                          "options": {
-                            "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
-                            "additionalProperties": {}
-                          },
-                          "showWhen": {
-                            "description": "Conditionally show this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "hideWhen": {
-                            "description": "Conditionally hide this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "disabledWhen": {
-                            "description": "Conditionally disable this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "sortable": {
-                            "default": false,
-                            "description": "Enables a sort toggle on the table column header.",
-                            "type": "boolean"
-                          },
-                          "defaultSort": {
-                            "default": false,
-                            "description": "When true, the table is sorted by this column by default. At most one column should set this.",
-                            "type": "boolean"
                           }
                         },
                         "required": [
                           "id"
-                        ]
+                        ],
+                        "additionalProperties": {}
                       },
                       {
                         "type": "object",
@@ -2200,6 +2081,46 @@
                       }
                     ]
                   }
+                },
+                "pageSize": {
+                  "description": "Default page size. Server may cap it.",
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "pageSizes": {
+                  "description": "Page-size options shown in the selector (e.g. [20, 50, 100]).",
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "density": {
+                  "description": "Row density. Default: normal.",
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "compact"
+                  ]
+                },
+                "selectable": {
+                  "description": "Show row checkboxes for multi-select.",
+                  "type": "boolean"
+                },
+                "rowClick": {
+                  "description": "Action when a table row is clicked. Default: view.",
+                  "type": "string",
+                  "enum": [
+                    "view",
+                    "edit",
+                    "none"
+                  ]
+                },
+                "emptyText": {
+                  "description": "Message shown when the table has no rows.",
+                  "type": "string"
                 }
               }
             },
@@ -2672,131 +2593,12 @@
                           "properties": {
                             "id": {
                               "type": "string"
-                            },
-                            "colspan": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 12
-                            },
-                            "rowspan": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 6
-                            },
-                            "width": {
-                              "type": "string"
-                            },
-                            "label": {
-                              "type": "string"
-                            },
-                            "hideLabel": {
-                              "type": "boolean"
-                            },
-                            "type": {
-                              "type": "string"
-                            },
-                            "options": {
-                              "type": "object",
-                              "propertyNames": {
-                                "type": "string"
-                              },
-                              "additionalProperties": {}
-                            },
-                            "showWhen": {
-                              "description": "Conditionally show this control when the condition matches another field value.",
-                              "type": "object",
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "description": "The other column id whose value is evaluated for the condition."
-                                },
-                                "eq": {
-                                  "description": "Show/hide/disable when the field value equals this value."
-                                },
-                                "neq": {
-                                  "description": "Show/hide/disable when the field value does NOT equal this value."
-                                },
-                                "exists": {
-                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                  "type": "boolean"
-                                },
-                                "notExists": {
-                                  "description": "When true, show/hide/disable when the field has no value.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "field"
-                              ]
-                            },
-                            "hideWhen": {
-                              "description": "Conditionally hide this control when the condition matches another field value.",
-                              "type": "object",
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "description": "The other column id whose value is evaluated for the condition."
-                                },
-                                "eq": {
-                                  "description": "Show/hide/disable when the field value equals this value."
-                                },
-                                "neq": {
-                                  "description": "Show/hide/disable when the field value does NOT equal this value."
-                                },
-                                "exists": {
-                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                  "type": "boolean"
-                                },
-                                "notExists": {
-                                  "description": "When true, show/hide/disable when the field has no value.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "field"
-                              ]
-                            },
-                            "disabledWhen": {
-                              "description": "Conditionally disable this control when the condition matches another field value.",
-                              "type": "object",
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "description": "The other column id whose value is evaluated for the condition."
-                                },
-                                "eq": {
-                                  "description": "Show/hide/disable when the field value equals this value."
-                                },
-                                "neq": {
-                                  "description": "Show/hide/disable when the field value does NOT equal this value."
-                                },
-                                "exists": {
-                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                  "type": "boolean"
-                                },
-                                "notExists": {
-                                  "description": "When true, show/hide/disable when the field has no value.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "field"
-                              ]
-                            },
-                            "sortable": {
-                              "default": false,
-                              "description": "Enables a sort toggle on the table column header.",
-                              "type": "boolean"
-                            },
-                            "defaultSort": {
-                              "default": false,
-                              "description": "When true, the table is sorted by this column by default. At most one column should set this.",
-                              "type": "boolean"
                             }
                           },
                           "required": [
                             "id"
-                          ]
+                          ],
+                          "additionalProperties": {}
                         },
                         {
                           "type": "object",
@@ -3147,6 +2949,46 @@
                         }
                       ]
                     }
+                  },
+                  "pageSize": {
+                    "description": "Default page size. Server may cap it.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "pageSizes": {
+                    "description": "Page-size options shown in the selector (e.g. [20, 50, 100]).",
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "density": {
+                    "description": "Row density. Default: normal.",
+                    "type": "string",
+                    "enum": [
+                      "normal",
+                      "compact"
+                    ]
+                  },
+                  "selectable": {
+                    "description": "Show row checkboxes for multi-select.",
+                    "type": "boolean"
+                  },
+                  "rowClick": {
+                    "description": "Action when a table row is clicked. Default: view.",
+                    "type": "string",
+                    "enum": [
+                      "view",
+                      "edit",
+                      "none"
+                    ]
+                  },
+                  "emptyText": {
+                    "description": "Message shown when the table has no rows.",
+                    "type": "string"
                   }
                 }
               }

@@ -23,7 +23,17 @@ describe('resolveDefaultSort', () => {
       tableLayout,
     );
 
-    expect(result).toBe('title');
+    expect(result).toEqual({ id: 'title', dir: 'asc' });
+  });
+
+  it('returns desc direction when defaultSort is "desc"', () => {
+    const tableLayout: LayoutNode = {
+      type: 'table',
+      items: [{ id: 'createdAt', sortable: true, defaultSort: 'desc' }],
+    } as unknown as LayoutNode;
+
+    const result = resolveDefaultSort([col('createdAt')], undefined, tableLayout);
+    expect(result).toEqual({ id: 'createdAt', dir: 'desc' });
   });
 
   it('falls through to idField when no sortable column found', () => {
@@ -32,6 +42,6 @@ describe('resolveDefaultSort', () => {
       [col('id', { idField: true })],
       undefined,
     );
-    expect(result).toBe('id');
+    expect(result).toEqual({ id: 'id', dir: 'asc' });
   });
 });

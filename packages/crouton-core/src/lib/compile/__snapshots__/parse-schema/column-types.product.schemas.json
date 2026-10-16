@@ -113,7 +113,8 @@
           }
         ],
         "options": {
-          "defaultSortId": "id"
+          "defaultSortId": "id",
+          "defaultSortDir": "asc"
         }
       }
     },
