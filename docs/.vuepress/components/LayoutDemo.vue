@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import axios from 'axios';
-import { buildViewsFromColumnTypes, JsonColumnSchema, LayoutSchema } from '@ghentcdh/crouton-core';
+import { buildLayouts, columnTypeSchemaSource, JsonColumnSchema, LayoutSchema } from '@ghentcdh/crouton-core';
 import CroutonForm from '../../../packages/crouton-vue/src/forms/CroutonForm.vue';
 import { TableComponent } from '@ghentcdh/crouton-forms-vue';
 import { LayoutDemoProperties } from './LayoutDemo.properties';
@@ -50,10 +50,11 @@ const parsedLayout = computed(() => {
 
 const views = computed(() => {
   const captured: string[] = [];
-  const orig = console.warn;
-  console.warn = (...args: any[]) => captured.push(args.join(' '));
-  const result = buildViewsFromColumnTypes(parsedColumns.value, parsedLayout.value);
-  console.warn = orig;
+  const result = buildLayouts(parsedLayout.value, {
+    columns: parsedColumns.value,
+    source: columnTypeSchemaSource,
+    warn: (...args: any[]) => captured.push(args.join(' ')),
+  });
   warnings.value = captured;
   return result;
 });
