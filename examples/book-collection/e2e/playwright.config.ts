@@ -13,7 +13,7 @@ const usePreview = process.env['CI'] || process.env['USE_PREVIEW_SERVER'] === 't
 
 export default defineConfig({
   testDir: './tests',
-  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}-{platform}{ext}',
   fullyParallel: false,
   forbidOnly: !!process.env['CI'],
   retries: 0,
