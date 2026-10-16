@@ -42,6 +42,33 @@
 
 ## [Unreleased] — Breaking changes
 
+### 💥 `display` / `modalSize` → `layout.form.container` / `layout.view.container`
+
+- Root-level `display` and `modalSize` removed; move to `layout.form.container`/`layout.view.container` and `containerSize`
+- Run `crouton migrate` to apply automatically
+
+### 💥 `showInLookup` → `lookup.labels`
+
+- Column-level `showInLookup` removed; replace with resource-level `lookup: { labels: [...], separator? }`
+- Run `crouton migrate` to apply automatically
+
+### 💥 Root `include` → `operations.findAll.include` / `operations.findOne.include`
+
+- Top-level `include` removed; move to `operations.findAll.include` (and optionally `findOne.include` for a separate set)
+- `findOne` falls back to `findAll.include` when its own `include` is absent
+- Run `crouton migrate` to apply automatically
+
+### 💥 `model` / `table` / `database` / `idType` → `source.*`
+
+- Root-level datasource fields removed; move to `source: { model, table, database, idType }`
+- Run `crouton migrate` to apply automatically
+
+### 💥 `calculatedColumns` → `columns[id].computed`
+
+- Top-level `calculatedColumns` array removed; add `computed: { sql, type? }` directly to the column definition
+- All other fields (`label`, `hiddenInTable`, `position`, `fieldInput`, …) remain on the column
+- Run `crouton migrate` to apply automatically
+
 ### 💥 Layout: `controls` → `items`, `actions` → `rowActions`
 
 Run `crouton migrate layout --check` to detect resources that need migration, then `crouton migrate layout` to apply.
