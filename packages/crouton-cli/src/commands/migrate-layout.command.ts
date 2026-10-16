@@ -4,6 +4,7 @@ import {
   findConfigPath,
   loadConfig,
   migrateLayoutPrecedence,
+  migrateSearchFields,
   resolveFromRoot,
 } from '@ghentcdh/crouton-codegen';
 import { runResourceMigrations } from '@ghentcdh/crouton-core';
@@ -73,6 +74,7 @@ export const registerMigrateLayoutCommand = (program: Command) => {
 
         const result = runResourceMigrations(parsed);
         const { resource: layoutFixed, report } = migrateLayoutPrecedence(result.raw);
+        const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
 
         const hasVersionMigration = result.applied.length > 0;
         const hasLayoutChanges =
@@ -82,8 +84,10 @@ export const registerMigrateLayoutCommand = (program: Command) => {
           report.removed.form.length > 0 ||
           report.removed.view.length > 0 ||
           report.removed.table.length > 0;
+        const hasSearchChanges =
+          searchReport.fromLayout.length > 0 || searchReport.fromColumns.length > 0;
 
-        if (!hasVersionMigration && !hasLayoutChanges) continue;
+        if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges) continue;
 
         needsMigration++;
 
@@ -94,8 +98,12 @@ export const registerMigrateLayoutCommand = (program: Command) => {
           if (report.removed[ctx].length)
             labels.push(`remove from layout.${ctx} (hidden by flag): ${report.removed[ctx].join(', ')}`);
         }
+        if (searchReport.fromLayout.length)
+          labels.push(`searchFields → operations.findAll.search: ${searchReport.fromLayout.join(', ')}`);
+        if (searchReport.fromColumns.length)
+          labels.push(`col.searchable → operations.findAll.search: ${searchReport.fromColumns.join(', ')}`);
 
-        const out = JSON.stringify(layoutFixed, null, 2) + '\n';
+        const out = JSON.stringify(searchFixed, null, 2) + '\n';
 
         if (opts.check) {
           console.error(`${file}: needs migration (${labels.join('; ')})`);

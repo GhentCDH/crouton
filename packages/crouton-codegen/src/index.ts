@@ -33,3 +33,4 @@ export * from './prisma-shell';
 export * from './validate';
 export * from './agent-block/upsert-agent-block';
 export * from './migrate/layout-precedence';
+export * from './migrate/search-fields';
