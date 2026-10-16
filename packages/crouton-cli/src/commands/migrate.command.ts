@@ -5,6 +5,7 @@ import {
   loadConfig,
   migrateDisplayToContainer,
   migrateLayoutPrecedence,
+  migrateLookupLabels,
   migrateRelationKeys,
   migrateRemovedColumnFields,
   migrateSearchFields,
@@ -109,6 +110,7 @@ export const registerMigrateCommand = (program: Command) => {
           const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
           const { resource: relationFixed, report: relationReport } = migrateRelationKeys(colFixed);
           const { resource: displayFixed, report: displayReport } = migrateDisplayToContainer(relationFixed);
+          const { changed: lookupChanged, json: lookupFixed } = migrateLookupLabels(displayFixed as any);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -126,7 +128,7 @@ export const registerMigrateCommand = (program: Command) => {
           const hasRelationChanges = relationReport.migratedColumns.length > 0;
           const hasDisplayChanges = displayReport.changed;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged) continue;
 
           needsMigration++;
 
@@ -149,8 +151,10 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push(`lift relation keys to column.relation: ${relationReport.migratedColumns.join(', ')}`);
           if (displayReport.changed)
             labels.push('display/modalSize → layout.form.container / layout.view.container');
+          if (lookupChanged)
+            labels.push('showInLookup → lookup.labels');
 
-          const out = JSON.stringify(displayFixed, null, 2) + '\n';
+          const out = JSON.stringify(lookupFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

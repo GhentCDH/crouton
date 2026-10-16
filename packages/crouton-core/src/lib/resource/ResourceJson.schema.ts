@@ -17,8 +17,8 @@ import { labelFromId } from '../schema/label.helper';
 // ── Removed-key registry ─────────────────────────────────────────────
 // Keys that were removed from the root schema and where they moved to.
 const ROOT_REMOVED_KEYS: Record<string, string> = {
-  display: "'display' moved to layout.form.container / layout.view.container (run crouton migrate)",
-  modalSize: "'modalSize' moved to layout.form.container.size (run crouton migrate)",
+  display: '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
+  modalSize: '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -196,6 +196,16 @@ export const ResourceJsonShape = z.object({
     ),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
+  ),
+  lookup: z.object({
+    labels: z.array(z.string()).describe(
+      'Ordered column ids to display in autocomplete/lookup dropdowns. Relation columns resolve to their displayKey path.',
+    ),
+    separator: z.string().optional().describe(
+      'String placed between label parts. Default: " ".',
+    ),
+  }).optional().describe(
+    'How this resource appears in other resources\' dropdowns. When absent, falls back to operations.findAll.search then the first non-id column.',
   ),
 });
 

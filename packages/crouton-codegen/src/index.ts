@@ -39,3 +39,4 @@ export * from './migrate/layout-precedence';
 export * from './migrate/relation-keys';
 export * from './migrate/search-fields';
 export * from './migrate/display-to-container';
+export * from './migrate/lookup-labels';
