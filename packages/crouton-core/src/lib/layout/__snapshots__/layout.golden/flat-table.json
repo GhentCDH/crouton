@@ -58,7 +58,8 @@
           "id": "price"
         }
       ],
-      "defaultSort": "name"
+      "defaultSort": "name",
+      "defaultSortDir": "asc"
     },
     "form": {
       "json_schema": {

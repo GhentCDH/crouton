@@ -6,18 +6,67 @@ import {
 } from './LayoutItem.schema';
 import { JsonActionSchema } from '../TableAction.schema';
 
-export const LayoutTableFieldControlSchema = _LayoutFieldControlSchema.extend({
-  sortable: z
-    .boolean()
-    .default(false)
-    .describe('Enables a sort toggle on the table column header.'),
-  defaultSort: z
-    .boolean()
-    .default(false)
-    .describe(
-      'When true, the table is sorted by this column by default. At most one column should set this.',
-    ),
-});
+const TABLE_REMOVED_KEYS = ['colspan', 'rowspan', 'hideLabel'] as const;
+
+export const LayoutTableFieldControlSchema = z
+  .object({ id: z.string() })
+  .passthrough()
+  .transform((val, ctx) => {
+    for (const key of TABLE_REMOVED_KEYS) {
+      if ((val as Record<string, unknown>)[key] !== undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: [key],
+          message: `'${key}' is not valid on table items; remove it`,
+        });
+      }
+    }
+    return val;
+  })
+  .pipe(
+    _LayoutFieldControlSchema
+      .omit({ colspan: true, rowspan: true, hideLabel: true })
+      .extend({
+        sortable: z
+          .boolean()
+          .default(false)
+          .describe('Enables a sort toggle on the table column header.'),
+        defaultSort: z
+          .union([z.boolean(), z.enum(['asc', 'desc'])])
+          .default(false)
+          .describe(
+            'Default sort for this column. true = ascending. asc/desc sets direction. At most one column per table.',
+          ),
+        width: z
+          .union([z.enum(['xs', 'sm', 'md', 'lg', 'xl']), z.string()])
+          .optional()
+          .describe('Column width: named size (xs–xl, same scale as form) or a CSS value like "12rem".'),
+        minWidth: z.string().optional().describe('Minimum column width as a CSS value.'),
+        maxWidth: z.string().optional().describe('Maximum column width as a CSS value.'),
+        align: z
+          .enum(['left', 'center', 'right'])
+          .optional()
+          .describe('Horizontal text alignment. Defaults to right for number columns, left otherwise.'),
+        truncate: z
+          .union([z.boolean(), z.number().int().positive()])
+          .optional()
+          .describe('Truncate long text with ellipsis. true = 1-line clamp; number = line count.'),
+        pin: z
+          .enum(['left', 'right'])
+          .optional()
+          .describe('Stick this column to the left or right edge of the table.'),
+        visible: z
+          .boolean()
+          .optional()
+          .describe(
+            'false = hidden initially but available in column chooser. Default: true.',
+          ),
+        headerTooltip: z
+          .string()
+          .optional()
+          .describe('Help text shown on the column header.'),
+      }),
+  );
 
 /** A single item in a table node's `items` list: field id, field control, or component cell. */
 export const TableItemSchema = z.union([
@@ -57,6 +106,32 @@ export const TableNodeSchema = z.object({
     .array(JsonActionSchema)
     .default([])
     .describe('Global table-level actions shown as toolbar buttons (no record id).'),
+  pageSize: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Default page size. Server may cap it.'),
+  pageSizes: z
+    .array(z.number().int().positive())
+    .optional()
+    .describe('Page-size options shown in the selector (e.g. [20, 50, 100]).'),
+  density: z
+    .enum(['normal', 'compact'])
+    .optional()
+    .describe('Row density. Default: normal.'),
+  selectable: z
+    .boolean()
+    .optional()
+    .describe('Show row checkboxes for multi-select.'),
+  rowClick: z
+    .enum(['view', 'edit', 'none'])
+    .optional()
+    .describe('Action when a table row is clicked. Default: view.'),
+  emptyText: z
+    .string()
+    .optional()
+    .describe('Message shown when the table has no rows.'),
 });
 
 export type TableNode = z.infer<typeof TableNodeSchema>;

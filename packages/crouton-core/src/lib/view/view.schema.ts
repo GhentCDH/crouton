@@ -21,6 +21,7 @@ export const ViewConfigSchema = z.object({
   data: z.record(z.string(), z.unknown()).optional(),
   columns: z.array(ViewColumnConfigSchema),
   defaultSort: z.string().optional(),
+  defaultSortDir: z.enum(['asc', 'desc']).optional(),
 });
 
 export type ViewConfig = z.infer<typeof ViewConfigSchema>;

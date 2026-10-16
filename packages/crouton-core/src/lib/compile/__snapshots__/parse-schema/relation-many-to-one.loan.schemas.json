@@ -63,7 +63,8 @@
           }
         ],
         "options": {
-          "defaultSortId": "loanedAt"
+          "defaultSortId": "loanedAt",
+          "defaultSortDir": "asc"
         }
       }
     },
