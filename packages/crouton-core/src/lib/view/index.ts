@@ -33,10 +33,6 @@ export {
 } from './calculated-columns.builder';
 export {
   type ViewJsonSchemaSource,
-  buildViews,
-  buildViewsFromColumnTypes,
-  buildViewsFromColumns,
-  buildViewsWithSource,
   patchFilterProperties,
   zodSchemaSource,
 } from './view.builder';

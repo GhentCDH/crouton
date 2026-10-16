@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { columnToJsonSchemaProperty } from './column-type-schema.source';
-import { buildViewsFromColumnTypes } from './view.builder';
+import { columnToJsonSchemaProperty, columnTypeSchemaSource } from './column-type-schema.source';
+import { buildLayouts } from '../layout';
 import { ResourceJsonSchema } from '../resource/ResourceJson.schema';
 
 /** Parse through the real schema so defaults/labels match production. */
@@ -107,7 +107,7 @@ describe('buildViewsFromColumnTypes', () => {
     },
   };
 
-  const views = buildViewsFromColumnTypes(columns, layout)!;
+  const views = buildLayouts(layout as any, { columns, source: columnTypeSchemaSource });
 
   it('builds table, form, filter and view', () => {
     expect(Object.keys(views).sort()).toEqual([
@@ -192,21 +192,16 @@ describe('buildViewsFromColumnTypes', () => {
     expect((views.form.json_schema as any).additionalProperties).toBe(true);
   });
 
-  it('returns undefined without columns', () => {
-    expect(buildViewsFromColumnTypes(undefined)).toBeUndefined();
-  });
-
-  it('returns empty table view with no columns', () => {
-    const views = buildViewsFromColumnTypes([]);
-    expect(views).toBeDefined();
-    expect(views?.table).toBeDefined();
-    expect(views?.table.columns).toEqual([]);
-    expect(views?.form).toBeUndefined();
+  it('returns only an empty table view with no columns', () => {
+    const v = buildLayouts(undefined, { columns: [], source: columnTypeSchemaSource });
+    expect(v.table).toBeDefined();
+    expect(v.table.columns).toEqual([]);
+    expect(v.form).toBeUndefined();
   });
 
   it('excludes relation columns from the json schema', () => {
-    const withRelation = buildViewsFromColumnTypes(
-      columnsOf({
+    const withRelation = buildLayouts(undefined, {
+      columns: columnsOf({
         id: { type: 'string', idField: true },
         author: {
           fieldInput: {
@@ -216,7 +211,8 @@ describe('buildViewsFromColumnTypes', () => {
           },
         },
       }),
-    )!;
+      source: columnTypeSchemaSource,
+    });
     expect(
       (withRelation.table.json_schema as any).properties.author,
     ).toBeUndefined();
