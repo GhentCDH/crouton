@@ -24,6 +24,10 @@ export const TableComponentProperties = {
   },
   page: { type: Object as PropType<TablePage> },
   sort: { type: Object as PropType<TableSort> },
+  density: { type: String as PropType<'normal' | 'compact'>, default: 'normal' as const },
+  emptyText: { type: String, default: 'No records found' as const },
+  pageSizes: { type: Array as PropType<number[]> },
+  rowClick: { type: String as PropType<'view' | 'edit' | 'none'> },
 };
 
 export const TableComponentEmits = [

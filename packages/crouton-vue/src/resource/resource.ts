@@ -19,13 +19,16 @@ export class Resource {
     initialLoad: boolean,
   ) {
     this.requestData.value = RequestSchema.parse({
-      ...{
-        sort: (() => {
-          const ui = this.formDef.schemas.table.ui as any;
-          const node = ui?.type === 'Table' ? ui : ui?.elements?.find((e: any) => e.type === 'Table');
-          return node?.options?.defaultSortId ?? undefined;
-        })(),
-      },
+      ...(() => {
+        const ui = this.formDef.schemas.table.ui as any;
+        const node = ui?.type === 'Table' ? ui : ui?.elements?.find((e: any) => e.type === 'Table');
+        const opts = node?.options ?? {};
+        return {
+          ...(opts.defaultSortId !== undefined && { sort: opts.defaultSortId }),
+          ...(opts.defaultSortDir !== undefined && { sortDir: opts.defaultSortDir }),
+          ...(opts.pageSize !== undefined && { pageSize: opts.pageSize }),
+        };
+      })(),
       ...initialRequestParams,
     });
 
