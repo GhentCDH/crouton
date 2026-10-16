@@ -1,0 +1,291 @@
+{
+  "views": {
+    "table": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "name",
+            "minLength": 1
+          },
+          "sku": {
+            "type": "string",
+            "title": "sku",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "title": "price"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/name",
+            "options": {
+              "sortId": "name"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/sku",
+            "options": {
+              "sortId": "sku"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/price",
+            "options": {
+              "sortId": "price"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "name"
+        },
+        {
+          "id": "sku"
+        },
+        {
+          "id": "price"
+        }
+      ],
+      "defaultSort": "name"
+    },
+    "form": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "name",
+            "minLength": 1
+          },
+          "sku": {
+            "type": "string",
+            "title": "sku",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "title": "price"
+          },
+          "stock": {
+            "type": "integer",
+            "title": "stock"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/sku",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/stock",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "name"
+        },
+        {
+          "id": "sku"
+        },
+        {
+          "id": "price"
+        },
+        {
+          "id": "stock"
+        }
+      ]
+    },
+    "view": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "title": "name",
+            "minLength": 1
+          },
+          "sku": {
+            "type": "string",
+            "title": "sku",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "title": "price"
+          },
+          "stock": {
+            "type": "integer",
+            "title": "stock"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/name",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/sku",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price",
+            "options": {
+              "format": "number",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/stock",
+            "options": {
+              "format": "integer",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "name"
+        },
+        {
+          "id": "sku"
+        },
+        {
+          "id": "price"
+        },
+        {
+          "id": "stock"
+        }
+      ]
+    }
+  },
+  "lookup": {
+    "key": "id"
+  }
+}

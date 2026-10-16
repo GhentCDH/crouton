@@ -1,0 +1,32 @@
+import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
+import { applyRequiredColumns, buildView } from './view-helpers';
+import type { FormLayoutNode } from '../../resource/layout/LayoutNode.schema';
+import { buildFormUiSchema, buildFormUiSchemaFromLayout } from '../../view';
+
+/**
+ * Build the form view (create/edit) for a resource.
+ * When `node` is present it is the explicit layout; absent = column-flag fallback.
+ */
+export const buildFormLayout = (
+  node: FormLayoutNode | undefined,
+  ctx: LayoutBuildContext,
+): ViewConfig | undefined => {
+  const { columns, source } = ctx;
+  const uiBuilder = node
+    ? (cols: typeof columns) => buildFormUiSchemaFromLayout(node as any, cols, ctx.warn)
+    : buildFormUiSchema;
+
+  const form = buildView(
+    source,
+    columns,
+    (c) => !c.hiddenInForm,
+    uiBuilder,
+    true, // always sort by position; layout builder reorders via its node tree
+    (c) =>
+      !c.idField &&
+      !c.hiddenInForm &&
+      (c.createable === true || c.updateable === true),
+  );
+  if (form) applyRequiredColumns(form.json_schema as Record<string, unknown>, columns);
+  return form;
+};

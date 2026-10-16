@@ -1,0 +1,31 @@
+{
+  "name": "note",
+  "route": "notes",
+  "model": "Note",
+  "tag": "Notes",
+  "kind": "custom",
+  "operations": {
+    "findAll": {
+      "search": ["title", "body"],
+      "filter": true
+    },
+    "findOne": true,
+    "create": true,
+    "update": true
+  },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "body", "type": "string" },
+    { "id": "tag", "type": "string" }
+  ],
+  "layout": {
+    "table": {
+      "items": ["title", "tag"],
+      "filterFields": ["tag"]
+    },
+    "form": {
+      "items": ["title", "body", "tag"]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "post",
+  "route": "posts",
+  "model": "Post",
+  "tag": "Posts",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "authorId", "type": "string" }
+  ],
+  "calculatedColumns": [
+    {
+      "id": "commentCount",
+      "label": "Comments",
+      "type": "integer",
+      "hiddenInView": true
+    }
+  ],
+  "layout": {
+    "table": {
+      "items": ["title", "authorId", "commentCount"]
+    }
+  }
+}

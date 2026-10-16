@@ -1,0 +1,275 @@
+{
+  "views": {
+    "table": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "body": {
+            "type": "string",
+            "title": "body",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/body",
+            "options": {
+              "sortId": "body"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/status",
+            "options": {
+              "sortId": "status"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "title"
+        },
+        {
+          "id": "body"
+        },
+        {
+          "id": "status"
+        }
+      ],
+      "defaultSort": "id"
+    },
+    "form": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "body": {
+            "type": "string",
+            "title": "body",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "CollapseLayout",
+            "elements": [
+              {
+                "type": "Control",
+                "scope": "#/properties/body",
+                "options": {
+                  "format": "text",
+                  "styles": {
+                    "width": "full",
+                    "control": {
+                      "wrapper": "input-full"
+                    }
+                  },
+                  "colspan": 12
+                }
+              }
+            ],
+            "options": {
+              "title": "Content"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "body"
+        },
+        {
+          "id": "status"
+        }
+      ]
+    },
+    "view": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "body": {
+            "type": "string",
+            "title": "body",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/body",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "title"
+        },
+        {
+          "id": "body"
+        },
+        {
+          "id": "status"
+        }
+      ]
+    }
+  },
+  "lookup": {
+    "key": "id"
+  }
+}

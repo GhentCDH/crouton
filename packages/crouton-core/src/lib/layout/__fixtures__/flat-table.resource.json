@@ -1,0 +1,24 @@
+{
+  "name": "product",
+  "route": "products",
+  "model": "Product",
+  "tag": "Products",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "name", "type": "string" },
+    { "id": "sku", "type": "string" },
+    { "id": "price", "type": "number" },
+    { "id": "stock", "type": "integer" }
+  ],
+  "layout": {
+    "table": {
+      "items": [
+        { "id": "name", "sortable": true, "defaultSort": true },
+        "sku",
+        { "id": "price", "sortable": true }
+      ]
+    }
+  }
+}

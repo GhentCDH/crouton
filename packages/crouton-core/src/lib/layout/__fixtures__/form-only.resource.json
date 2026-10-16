@@ -1,0 +1,23 @@
+{
+  "name": "article",
+  "route": "articles",
+  "model": "Article",
+  "tag": "Articles",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "body", "type": "string" },
+    { "id": "status", "type": "string", "hiddenInForm": true }
+  ],
+  "layout": {
+    "form": {
+      "items": [
+        "title",
+        { "type": "collapse", "title": "Content", "items": ["body"] },
+        "status"
+      ]
+    }
+  }
+}

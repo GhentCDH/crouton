@@ -1,0 +1,261 @@
+{
+  "views": {
+    "table": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "author": {
+            "type": "string",
+            "title": "author",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "title": "date",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "VerticalLayout",
+        "elements": [
+          {
+            "component": "ReportToolbar",
+            "label": "Toolbar"
+          },
+          {
+            "type": "Table",
+            "elements": [
+              {
+                "type": "TextCell",
+                "scope": "#/properties/title",
+                "options": {
+                  "sortId": "title"
+                }
+              },
+              {
+                "type": "TextCell",
+                "scope": "#/properties/author",
+                "options": {
+                  "sortId": "author"
+                }
+              },
+              {
+                "type": "TextCell",
+                "scope": "#/properties/date",
+                "options": {
+                  "sortId": "date"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "author"
+        },
+        {
+          "id": "date"
+        }
+      ],
+      "defaultSort": "date"
+    },
+    "form": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "author": {
+            "type": "string",
+            "title": "author",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "title": "date",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/author",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/date",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "author"
+        },
+        {
+          "id": "date"
+        }
+      ]
+    },
+    "view": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "author": {
+            "type": "string",
+            "title": "author",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "title": "date",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/author",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/date",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "title"
+        },
+        {
+          "id": "author"
+        },
+        {
+          "id": "date"
+        }
+      ]
+    }
+  },
+  "lookup": {
+    "key": "id"
+  }
+}
