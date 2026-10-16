@@ -81,7 +81,7 @@ export const expandExtendColumns = (
         column: parentColumnKey,
         displayKey,
         label: refCol.label ?? refCol.id,
-        columnType: 'object',
+        type: 'object',
         ...(hiddenInTable !== undefined && { hiddenInTable }),
         ...(hiddenInForm !== undefined && { hiddenInForm }),
         ...(hiddenInView !== undefined && { hiddenInView }),
@@ -137,23 +137,6 @@ export const applyRelationFormatDefault = (
     return col;
   });
 
-/**
- * Prefill each column's `fieldView` with the fully-resolved variant
- * (the `fieldInput → fieldView` cascade). After this runs, every
- * consumer sees resolved variants without re-implementing the fallback.
- *
- * MUST run AFTER URI/relation enrichment (the last column transform in
- * `fromJson`), so the resolved view variant inherits the injected
- * `uri`/`resourceUri`/`resource`/`schemasUri` options and derived `relationType`
- * that enrichment only lands on `fieldInput`. Do not move it earlier.
- */
 export const resolveColumnFieldVariants = (
   cols: JsonColumn[] | undefined,
-): JsonColumn[] | undefined =>
-  cols?.map((col) => {
-    const fieldView = resolveViewField(col);
-    return {
-      ...col,
-      ...(fieldView && { fieldView }),
-    };
-  });
+): JsonColumn[] | undefined => cols;

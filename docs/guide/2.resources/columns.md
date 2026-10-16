@@ -31,7 +31,6 @@ Both forms support the same options:
 | `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                        |
 | `extend`                                          | Path to another `resource.json` whose columns are expanded as virtual sub-columns under this key (with a per-sub-column `columns` override map)                                                                                                                                                                             |
 | `fieldInput`                                      | Form control configuration, see below                                                                                                                                                                                                                                                                                       |
-| `fieldView`                                       | Optional per-context override for the read-only view, see below                                                                                                                                                                                                                                                             |
 
 ::: warning Moved to `layout.table`
 The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
@@ -160,16 +159,13 @@ onMounted(async () => {
 > Token resolution only affects the create form pre-fill. It has no effect on existing records loaded for
 > editing, and it does not run server-side — use `beforeWrite` hooks for server-side defaults.
 
-## Field variants — `fieldView` / table cell override
+## Field variants — per-context overrides
 
-By default a single `fieldInput` drives the form, the read-only view, and the table cell. A column may additionally
-declare `fieldView` to render differently in the read-only detail view.
+A single `fieldInput` drives the form, the read-only view, and the table cell. To render differently in a specific context, use layout item overrides:
 
-The config that drives each context is resolved through a fallback chain:
-
-- **form** (and filter) ← `fieldInput`
-- **view** ← `fieldView`, falling back to `fieldInput`
-- **table** ← `type`/`options` on the `layout.table.items[]` entry, falling back to `fieldView`, then `fieldInput`
+- **form** ← `fieldInput`
+- **view** ← `fieldInput` (override per-column via `layout.view.items[{ id, type, options }]`)
+- **table** ← `type`/`options` on the `layout.table.items[]` entry, falling back to `fieldInput`
 
 ```json
 {
@@ -181,13 +177,15 @@ The config that drives each context is resolved through a fallback chain:
         "format": "relation",
         "resource": "./author/resource.json",
         "options": { "display": "autocomplete", "displayKey": "name" }
-      },
-      "fieldView": {
-        "options": { "display": "link" }
       }
     }
   },
   "layout": {
+    "view": {
+      "items": [
+        { "id": "author", "options": { "display": "link" } }
+      ]
+    },
     "table": {
       "items": [
         { "id": "author", "options": { "displayKey": "shortName" } }

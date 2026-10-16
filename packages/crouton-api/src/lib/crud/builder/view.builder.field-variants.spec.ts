@@ -16,14 +16,13 @@ const fieldInputFor = (view: any, id: string) =>
   )?.fieldInput;
 
 describe('buildViews with field variants', () => {
-  it('renders form from fieldInput, view from fieldView, table from layout.table.controls options', () => {
+  it('renders form and view from fieldInput, table from layout.table.controls options', () => {
     const cols = resolveColumnFieldVariants(
       parse([
         { id: 'id', idField: true, hiddenInForm: true },
         {
           id: 'name',
           fieldInput: { type: 'text', options: { display: 'input' } },
-          fieldView: { options: { display: 'link' } },
         },
       ]),
     )!;
@@ -40,7 +39,7 @@ describe('buildViews with field variants', () => {
     expect(
       (fieldInputFor(views.view, 'name').options as Record<string, unknown>)
         .display,
-    ).toBe('link');
+    ).toBe('input');
     // Table override comes from layout.table.items — visible in the UI schema element
     const tableEl = (views.table.ui_schema as any)?.elements?.find(
       (e: any) => e.scope === '#/properties/name',

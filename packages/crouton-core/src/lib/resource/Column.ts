@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ColumnTypeSchema } from './ColumnType.schema';
-import { FieldInputSchema, FieldVariantSchema } from './FieldInput.schema';
+import { FieldInputSchema } from './FieldInput.schema';
 
 // -- Uniqueness ------------------------------------------------------------
 
@@ -129,7 +129,7 @@ export const JsonColumnSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.",
+      'Name of a shared enum in crouton.enums.json. At load time the loader injects the enum\'s { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.',
     ),
   idField: z
     .boolean()
@@ -154,7 +154,7 @@ export const JsonColumnSchema = z.object({
    * a Prisma unique violation back to this field on write.
    */
   unique: UniqueSchema.optional().describe(
-    "Enforce that this column's value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.",
+    'Enforce that this column\'s value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.',
   ),
   /**
    * Data type of the column, as a shorthand name (`"string"`, `"integer"`, …)
@@ -194,20 +194,8 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Whether the form requires a value. On a "prisma" resource this overrides the Prisma-derived required state; on "custom" resources it is the only way to mark a field required. Applies to forms only.',
     ),
-  /**
-   * TODO remove it
-   * @deprecated Use `type` instead. Retained because it is still consumed by
-   * the boolean predicate and the schema-less sub-resource view builder.
-   */
-  columnType: z
-    .string()
-    .default('string')
-    .describe('@deprecated — use "type" instead.'),
   fieldInput: FieldInputSchema.optional().describe(
     'Configures the UI control used in create/edit forms and the display format. Use "type" to pick the input widget; "format" to pick a special renderer (e.g. "relation").',
-  ),
-  fieldView: FieldVariantSchema.optional().describe(
-    'Per-context override for the read-only detail view. Same shape as fieldInput; only the keys you provide are overridden. Falls back to fieldInput.',
   ),
   /**
    * Path to another `resource.json` whose columns are expanded as nested sub-columns

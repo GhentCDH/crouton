@@ -1,13 +1,13 @@
 /**
- * Search-fields codemod.
+ * Deprecated field codemods.
  *
- * Moves deprecated search configuration to `operations.findAll.search`:
- * - `layout.table.searchFields` (or inner table node's `searchFields`)
- * - column-level `searchable: true` flags
+ * `migrateSearchFields` — moves deprecated search config to `operations.findAll.search`:
+ *   - `layout.table.searchFields` → `operations.findAll.search`
+ *   - column `searchable: true` → `operations.findAll.search`
  *
- * After migration the layout has no `searchFields` and columns have no
- * `searchable` flag. Resources where `findAll` is already an object with
- * `search` declared are left untouched (no double-migration).
+ * `migrateRemovedColumnFields` — removes deprecated column-level fields:
+ *   - `fieldView` → deleted (use `layout.view.items[].type/options` instead)
+ *   - `columnType` → deleted (use the top-level `type` field instead)
  */
 
 export type SearchFieldsMigrationReport = {
@@ -103,4 +103,50 @@ export const migrateSearchFields = (
 
   result = { ...result, operations: { ...ops, findAll: newFindAll } };
   return { resource: result, report };
+};
+
+export type RemovedColumnFieldsReport = {
+  columnsWithFieldView: string[];
+  columnsWithColumnType: string[];
+};
+
+/**
+ * Remove deprecated column-level fields:
+ * - `fieldView` (replaced by `layout.view.items[].type/options`)
+ * - `columnType` (replaced by the top-level `type` field)
+ */
+export const migrateRemovedColumnFields = (
+  resource: Record<string, unknown>,
+): { resource: Record<string, unknown>; report: RemovedColumnFieldsReport } => {
+  const report: RemovedColumnFieldsReport = {
+    columnsWithFieldView: [],
+    columnsWithColumnType: [],
+  };
+
+  const rawColumns = resource['columns'] as Record<string, RawNode> | undefined;
+  if (!rawColumns || typeof rawColumns !== 'object' || Array.isArray(rawColumns)) {
+    return { resource, report };
+  }
+
+  let changed = false;
+  const newColumns: Record<string, RawNode> = {};
+  for (const [id, col] of Object.entries(rawColumns)) {
+    let newCol = col;
+    if ('fieldView' in col) {
+      report.columnsWithFieldView.push(id);
+      const { fieldView: _fv, ...rest } = newCol;
+      newCol = rest;
+      changed = true;
+    }
+    if ('columnType' in col) {
+      report.columnsWithColumnType.push(id);
+      const { columnType: _ct, ...rest } = newCol;
+      newCol = rest;
+      changed = true;
+    }
+    newColumns[id] = newCol;
+  }
+
+  if (!changed) return { resource, report };
+  return { resource: { ...resource, columns: newColumns }, report };
 };

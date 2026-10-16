@@ -740,8 +740,6 @@ export const buildResourceJsonSchema = () => {
           const out = { ...col };
           if (out.fieldInput)
             out.fieldInput = parseFieldInputOptions(out.fieldInput);
-          if (out.fieldView)
-            out.fieldView = parseFieldInputOptions(out.fieldView);
           return out;
         }),
         operations: obj.operations ?? defaultOps,

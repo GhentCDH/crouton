@@ -14,6 +14,12 @@ Applies all pending migrations:
 - **Layout precedence fix** — makes existing layouts exhaustive so the rendered output stays the same after the layout-wins change:
   - Appends visible (not-hidden-by-flag) columns that are missing from the layout for each defined context
   - Removes columns listed in the layout that have `hiddenIn<Ctx>: true` (old code dropped them; new code shows them)
+- **Search fields migration** — moves deprecated search configuration to `operations.findAll.search`:
+  - `layout.table.searchFields: [...]` → `operations.findAll.search`
+  - Column-level `searchable: true` → `operations.findAll.search`
+- **Deprecated column fields** — removes fields superseded by layout:
+  - `col.fieldView` — deleted; use `layout.view.items[{ id, type, options }]` instead
+  - `col.columnType` — deleted; use the top-level `col.type` field instead
 
 ```bash
 # Preview changes without writing

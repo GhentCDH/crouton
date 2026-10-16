@@ -20,14 +20,13 @@ const col = (over: Partial<JsonColumn>): JsonColumn =>
     hideLabel: false,
     idField: false,
     showInLookup: false,
-    columnType: 'string',
     ...over,
   }) as JsonColumn;
 
 const relationInput = {
   format: 'relation',
   resource: '../author/resource.json',
-  options: { colspan: 5, display: 'autocomplete', displayKey: 'name' },
+  options: { display: 'autocomplete', displayKey: 'name' },
 };
 
 describe('mergeFieldVariant', () => {
@@ -47,7 +46,7 @@ describe('mergeFieldVariant', () => {
     expect(merged).toEqual({
       format: 'relation',
       resource: '../author/resource.json',
-      options: { colspan: 5, display: 'link', displayKey: 'name' },
+      options: { display: 'link', displayKey: 'name' },
     });
   });
 
@@ -63,7 +62,7 @@ describe('mergeFieldVariant', () => {
     const merged = mergeFieldVariant(relationInput, {
       options: { displayKey: null as unknown as string },
     });
-    expect(merged?.options).toEqual({ colspan: 5, display: 'autocomplete' });
+    expect(merged?.options).toEqual({ display: 'autocomplete' });
     expect(
       (merged?.options as Record<string, unknown>).displayKey,
     ).toBeUndefined();
@@ -78,48 +77,18 @@ describe('mergeFieldVariant', () => {
   });
 });
 
-describe('resolve*Field fallback chain', () => {
-  it('no variant → view and table equal fieldInput', () => {
+describe('resolve*Field — all contexts resolve to fieldInput', () => {
+  it('all contexts equal fieldInput', () => {
     const c = col({ fieldInput: relationInput });
     expect(resolveFormField(c)).toBe(relationInput);
-    expect(resolveViewField(c)).toEqual(relationInput);
-    expect(resolveTableField(c)).toEqual(relationInput);
+    expect(resolveViewField(c)).toBe(relationInput);
+    expect(resolveTableField(c)).toBe(relationInput);
   });
 
-  it('fieldView only → view and table inherit it, form untouched', () => {
-    const c = col({
-      fieldInput: relationInput,
-      fieldView: { options: { display: 'link' } },
-    });
-    expect(resolveFormField(c)).toEqual(relationInput);
-    const expected = {
-      format: 'relation',
-      resource: '../author/resource.json',
-      options: { colspan: 5, display: 'link', displayKey: 'name' },
-    };
-    expect(resolveViewField(c)).toEqual(expected);
-    expect(resolveTableField(c)).toEqual(expected);
-  });
-
-  it('fieldTable removed — table now equals view (resolveViewField)', () => {
-    const c = col({ fieldInput: relationInput });
-    expect(resolveViewField(c)).toEqual(relationInput);
-    // fieldTable is gone; table == view == fieldInput when no fieldView
-    expect(resolveTableField(c)).toEqual(relationInput);
-  });
-
-  it('fieldView present — table inherits view, no extra table layer', () => {
-    const c = col({
-      fieldInput: relationInput,
-      fieldView: { options: { display: 'link' } },
-    });
-    const viewResult = resolveViewField(c);
-    // table == view now
-    expect(resolveTableField(c)).toEqual(viewResult);
-    expect(resolveTableField(c)).toEqual({
-      format: 'relation',
-      resource: '../author/resource.json',
-      options: { colspan: 5, display: 'link', displayKey: 'name' },
-    });
+  it('no fieldInput → all contexts return undefined', () => {
+    const c = col({});
+    expect(resolveFormField(c)).toBeUndefined();
+    expect(resolveViewField(c)).toBeUndefined();
+    expect(resolveTableField(c)).toBeUndefined();
   });
 });

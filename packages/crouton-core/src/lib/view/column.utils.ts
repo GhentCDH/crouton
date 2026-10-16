@@ -28,9 +28,8 @@ export const columnForContext = (
   col: JsonColumn,
   ctx: FieldContext,
 ): JsonColumn => {
-  if (ctx === 'view') return { ...col, fieldInput: col.fieldView ?? col.fieldInput };
   if (ctx === 'table') return col; // table type/options overrides come from layout.table.controls
-  return col; // form / filter → base fieldInput
+  return col; // form / view / filter → base fieldInput
 };
 
 export const toViewColumn = (col: JsonColumn): ViewColumnConfig => ({

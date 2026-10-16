@@ -50,7 +50,7 @@ const checkFieldInputTypes = (
 ): void => {
   for (const [colId, colRaw] of Object.entries(rawColumns)) {
     const col = colRaw as RawObj;
-    for (const variant of ['fieldInput', 'fieldView', 'fieldTable'] as const) {
+    for (const variant of ['fieldInput', 'fieldTable'] as const) {
       const fi = col[variant] as RawObj | undefined;
       if (!fi || typeof fi !== 'object') continue;
       const type = fi['type'] as string | undefined;

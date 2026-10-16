@@ -4,8 +4,13 @@ import { BaseOptionsSchema } from '../base.options';
 import { opt } from '../option-meta';
 
 export const RelationOptionsSchema = BaseOptionsSchema.extend({
+  /**
+   * TODO remove it
+   * @deprecated layout.xxx instead
+   */
   colspan: opt(z.number().optional().default(12), {
-    description: 'Grid column span (1–12); defaults to 12 for relation controls',
+    description:
+      'Grid column span (1–12); defaults to 12 for relation controls',
     default: 12,
     examples: [12, 6],
   }),
@@ -30,8 +35,10 @@ export const RelationOptionsSchema = BaseOptionsSchema.extend({
     description: 'Path to the related resource.json',
     examples: ['./author.resource.json'],
   }),
-}).catchall(z.unknown()).meta({
-  title: 'Relation options',
-  description: 'Options for the sub-resource relation control',
-});
+})
+  .catchall(z.unknown())
+  .meta({
+    title: 'Relation options',
+    description: 'Options for the sub-resource relation control',
+  });
 export type RelationOptions = z.infer<typeof RelationOptionsSchema>;

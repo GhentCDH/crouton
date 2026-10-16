@@ -4,6 +4,7 @@ import {
   findConfigPath,
   loadConfig,
   migrateLayoutPrecedence,
+  migrateRemovedColumnFields,
   migrateSearchFields,
   resolveFromRoot,
 } from '@ghentcdh/crouton-codegen';
@@ -75,6 +76,7 @@ export const registerMigrateLayoutCommand = (program: Command) => {
         const result = runResourceMigrations(parsed);
         const { resource: layoutFixed, report } = migrateLayoutPrecedence(result.raw);
         const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
+        const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
 
         const hasVersionMigration = result.applied.length > 0;
         const hasLayoutChanges =
@@ -86,8 +88,11 @@ export const registerMigrateLayoutCommand = (program: Command) => {
           report.removed.table.length > 0;
         const hasSearchChanges =
           searchReport.fromLayout.length > 0 || searchReport.fromColumns.length > 0;
+        const hasColChanges =
+          colReport.columnsWithFieldView.length > 0 ||
+          colReport.columnsWithColumnType.length > 0;
 
-        if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges) continue;
+        if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges) continue;
 
         needsMigration++;
 
@@ -102,8 +107,12 @@ export const registerMigrateLayoutCommand = (program: Command) => {
           labels.push(`searchFields → operations.findAll.search: ${searchReport.fromLayout.join(', ')}`);
         if (searchReport.fromColumns.length)
           labels.push(`col.searchable → operations.findAll.search: ${searchReport.fromColumns.join(', ')}`);
+        if (colReport.columnsWithFieldView.length)
+          labels.push(`remove fieldView from columns: ${colReport.columnsWithFieldView.join(', ')}`);
+        if (colReport.columnsWithColumnType.length)
+          labels.push(`remove columnType from columns: ${colReport.columnsWithColumnType.join(', ')}`);
 
-        const out = JSON.stringify(searchFixed, null, 2) + '\n';
+        const out = JSON.stringify(colFixed, null, 2) + '\n';
 
         if (opts.check) {
           console.error(`${file}: needs migration (${labels.join('; ')})`);

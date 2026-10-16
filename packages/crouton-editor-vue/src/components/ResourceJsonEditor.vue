@@ -67,13 +67,11 @@ const parseColumns = (raw: ResourceJsonInput): EditableColumn[] => {
     hiddenInView: !!col['hiddenInView'],
     form: col['fieldInput'] as FieldVariant | undefined,
     view: {
-      resolved: (col['fieldView'] ?? col['fieldInput']) as
-        FieldVariant | undefined,
-      hasOverride: !!col['fieldView'],
+      resolved: col['fieldInput'] as FieldVariant | undefined,
+      hasOverride: false,
     },
     table: {
-      resolved: (col['fieldTable'] ?? col['fieldView'] ?? col['fieldInput']) as
-        FieldVariant | undefined,
+      resolved: (col['fieldTable'] ?? col['fieldInput']) as FieldVariant | undefined,
       hasOverride: !!col['fieldTable'],
     },
   }));
@@ -177,7 +175,6 @@ const buildOutput = (): ResourceJsonInput => {
         const d = drafts[id];
         if (d) {
           const formPatch = buildVariantPatch(d.form, editedCol.form);
-          const viewPatch = buildVariantPatch(d.view, editedCol.view.resolved);
           const tablePatch = buildVariantPatch(
             d.table,
             editedCol.table.resolved,
@@ -186,12 +183,6 @@ const buildOutput = (): ResourceJsonInput => {
             merged['fieldInput'] = applyVariantPatch(
               origCol['fieldInput'] as Record<string, unknown> | undefined,
               formPatch,
-            );
-          }
-          if (viewPatch) {
-            merged['fieldView'] = applyVariantPatch(
-              origCol['fieldView'] as Record<string, unknown> | undefined,
-              viewPatch,
             );
           }
           if (tablePatch) {
@@ -234,18 +225,11 @@ const buildOutput = (): ResourceJsonInput => {
     const d = drafts[id];
     if (d) {
       const formPatch = buildVariantPatch(d.form, editedCol.form);
-      const viewPatch = buildVariantPatch(d.view, editedCol.view.resolved);
       const tablePatch = buildVariantPatch(d.table, editedCol.table.resolved);
       if (formPatch) {
         merged['fieldInput'] = applyVariantPatch(
           origCol['fieldInput'] as Record<string, unknown> | undefined,
           formPatch,
-        );
-      }
-      if (viewPatch) {
-        merged['fieldView'] = applyVariantPatch(
-          origCol['fieldView'] as Record<string, unknown> | undefined,
-          viewPatch,
         );
       }
       if (tablePatch) {
