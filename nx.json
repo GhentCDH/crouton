@@ -56,7 +56,8 @@
       "crouton-vue",
       "crouton-api",
       "@ghentcdh/create-crouton",
-      "@ghentcdh/crouton-prisma "
+      "@ghentcdh/crouton-prisma ",
+      "@ghentcdh/crouton-cli"
     ],
     "version": {
       "conventionalCommits": true,
