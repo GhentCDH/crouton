@@ -2,7 +2,7 @@
   <component
     :is="props.as"
     :class="[
-      'btn p-1 flex justify-center flex-nowrap',
+      'btn p-1 px-3 flex justify-center flex-nowrap',
       ButtonColor[props.color as Color],
       ButtonSize[props.size],
       {
