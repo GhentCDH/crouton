@@ -46,6 +46,7 @@ import {
   scaffoldConfigFromProject,
   serializeEnumRegistry,
   serializeTranslationBundle,
+  syncAgentFiles,
   upsertAgentBlock,
 } from '@ghentcdh/crouton-codegen';
 import { type DataSource, type TranslationBundle } from '@ghentcdh/crouton-core';
@@ -55,6 +56,9 @@ import { CancelledError, interactiveResolver } from './resolver';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const agentFilesDir = fileURLToPath(new URL('../agent-files', import.meta.url));
 
 /**
  * Derive the project scope from `root/package.json` only.
@@ -618,6 +622,27 @@ export const runUpdateResources = async (
       '- Docs for the installed version: `node_modules/@ghentcdh/crouton-core/agent-docs/README.md`';
     await upsertAgentBlock(join(cwd, 'AGENTS.md'), agentBlock);
     await ensureClaudeMd(join(cwd, 'CLAUDE.md'));
+
+    let cliVersion = '0.0.1-alpha.82';
+    try {
+      const cliPkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf-8')) as { version: string };
+      cliVersion = cliPkg.version;
+    } catch { /* use default */ }
+
+    const agentSyncResults = await syncAgentFiles({
+      projectDir: cwd,
+      agentFilesDir,
+      context: {
+        resourcesDir: loaded.config.resourcesDir,
+        dataSourcesDir: loaded.config.dataSourcesDir,
+        version: cliVersion,
+      },
+      targets: ['claude', 'cursor'],
+    });
+    const agentUpdated = agentSyncResults.filter((r) => r.action === 'written').length;
+    const agentSkipped = agentSyncResults.filter((r) => r.action === 'skipped');
+    if (agentUpdated > 0) clack.log.info(`Updated ${agentUpdated} agent file(s)`);
+    for (const r of agentSkipped) clack.log.warn(`Agent file edited locally, skipped: ${r.path} (${r.reason})`);
 
     clack.outro(
       pc.green(`Done — ${written} written, ${skipped} skipped (existing).`),

@@ -192,3 +192,7 @@ npx @ghentcdh/add-crouton --cwd /path/to/project
 6. **Installs dependencies** — runs `<pm> install` if missing deps were detected.
 
 After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module — see [Backend setup](backend.md).
+
+## Keeping agent files current
+
+After upgrading crouton, run `crouton migrate` to update your `resource.json` files **and** refresh the Claude skill, Cursor rule, and `AGENTS.md` block to the new version. See [Migrations](../5.tooling/migrate.md#agent-files) for details.

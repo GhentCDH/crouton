@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import { registerCreateDatasourceCommand } from './commands/create-datasource';
 import { registerCreateResourceCommand } from './commands/create-resource';
-import { registerMigrateLayoutCommand } from './commands/migrate-layout.command';
+import { registerMigrateCommand } from './commands/migrate.command';
 import { registerTranslationsCommand } from './commands/translations';
 import { registerUpdateCommand } from './commands/update';
 import { registerValidateCommand } from './commands/validate.command';
@@ -16,6 +16,6 @@ registerCreateDatasourceCommand(program);
 registerCreateResourceCommand(program);
 registerTranslationsCommand(program);
 registerValidateCommand(program);
-registerMigrateLayoutCommand(program);
+registerMigrateCommand(program);
 
 program.parse();

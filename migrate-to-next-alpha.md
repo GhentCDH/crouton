@@ -1,5 +1,7 @@
 # Migration Guide — next-alpha
 
+> **Run `crouton migrate`.** It migrates your `resource.json` files and refreshes the crouton skill / Cursor rule / `AGENTS.md` block.
+
 ---
 
 ## Layout: `controls` → `items` (breaking, `schemaVersion` 1)

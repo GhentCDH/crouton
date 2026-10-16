@@ -1,3 +1,11 @@
+---
+name: crouton
+description: Add or change crouton resources, relations, field inputs, layouts, operations and data sources (resource.json, datasource.json, crouton.json). Use for any change to these files.
+crouton-version: 0.0.1-alpha.82
+---
+
+> If `crouton --version` differs from `crouton-version` above, run `crouton migrate` first.
+
 # Crouton skill
 
 Crouton is a resource-driven admin UI framework. This skill teaches the correct workflow for adding and changing resources.
@@ -24,6 +32,9 @@ Crouton is a resource-driven admin UI framework. This skill teaches the correct 
 - Table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`) go on the `type: "table"` node inside `layout.table`, never on an outer wrapper node.
 - When `layout.<ctx>` is defined, it is the **full list** for that context — only listed columns render. Unlisted columns are hidden regardless of `hiddenIn*` flags.
 - After editing layouts, run `crouton migrate --check` to confirm no migration is needed.
+
+## Project-specific notes
+If `.claude/skills/crouton/project.md` exists, read it first — it holds project conventions that override these defaults.
 
 ## References
 - `references/resource-json.md` — annotated full example + key table
