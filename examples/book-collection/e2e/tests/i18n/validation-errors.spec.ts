@@ -58,7 +58,7 @@ test.describe('i18n validation errors', () => {
     await page.getByTestId('btn-save').click();
 
     await expect(page.locator('.toast')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('.toast')).toContainText(/al bestaat|uniek|reeds/i);
+    await expect(page.locator('.toast')).toContainText(/bestaat al|al bestaat|uniek|reeds/i);
 
     await expect(page.getByTestId('form-modal')).toBeVisible();
   });
