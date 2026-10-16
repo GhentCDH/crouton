@@ -1,0 +1,20 @@
+{
+  "name": "task",
+  "route": "tasks",
+  "model": "Task",
+  "tag": "Tasks",
+  "kind": "custom",
+  "operations": { "findAll": { "filter": true }, "findOne": true, "create": true, "update": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "priority", "type": "string" },
+    { "id": "assignee", "type": "string" }
+  ],
+  "layout": {
+    "table": {
+      "items": ["title", "priority", "assignee"],
+      "filterFields": ["priority", "assignee"]
+    }
+  }
+}

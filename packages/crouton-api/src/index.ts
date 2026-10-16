@@ -1,4 +1,4 @@
-export { buildViews } from '@ghentcdh/crouton-core';
+export { buildLayouts } from '@ghentcdh/crouton-core';
 
 export * from './lib/crouton-api.module';
 export type { CroutonAppConfig } from './lib/crud/app-config';

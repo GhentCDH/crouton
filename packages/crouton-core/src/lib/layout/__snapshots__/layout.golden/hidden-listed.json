@@ -1,0 +1,237 @@
+{
+  "views": {
+    "table": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "summary",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/summary",
+            "options": {
+              "sortId": "summary"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "summary"
+        }
+      ],
+      "defaultSort": "id"
+    },
+    "form": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "summary",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "title": "content",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/summary",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/content",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "summary"
+        },
+        {
+          "id": "content"
+        }
+      ]
+    },
+    "view": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "summary",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "title": "content",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/summary",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/content",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "title"
+        },
+        {
+          "id": "summary"
+        },
+        {
+          "id": "content"
+        }
+      ]
+    }
+  },
+  "lookup": {
+    "key": "id"
+  }
+}

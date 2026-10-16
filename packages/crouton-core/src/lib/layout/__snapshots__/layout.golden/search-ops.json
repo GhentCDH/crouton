@@ -1,0 +1,278 @@
+{
+  "views": {
+    "table": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "tag": {
+            "type": "string",
+            "title": "tag",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/tag",
+            "options": {
+              "sortId": "tag"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "tag"
+        }
+      ],
+      "defaultSort": "id"
+    },
+    "form": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "body": {
+            "type": "string",
+            "title": "body",
+            "minLength": 1
+          },
+          "tag": {
+            "type": "string",
+            "title": "tag",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/body",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/tag",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "body"
+        },
+        {
+          "id": "tag"
+        }
+      ]
+    },
+    "filter": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "title": "tag",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/tag",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "tag"
+        }
+      ]
+    },
+    "view": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "body": {
+            "type": "string",
+            "title": "body",
+            "minLength": 1
+          },
+          "tag": {
+            "type": "string",
+            "title": "tag",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/body",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/tag",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "title"
+        },
+        {
+          "id": "body"
+        },
+        {
+          "id": "tag"
+        }
+      ]
+    }
+  },
+  "lookup": {
+    "key": "id",
+    "labels": [
+      "title",
+      "body"
+    ]
+  }
+}

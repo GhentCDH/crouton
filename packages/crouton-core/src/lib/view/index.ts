@@ -33,10 +33,6 @@ export {
 } from './calculated-columns.builder';
 export {
   type ViewJsonSchemaSource,
-  buildViews,
-  buildViewsFromColumnTypes,
-  buildViewsFromColumns,
-  buildViewsWithSource,
   patchFilterProperties,
   zodSchemaSource,
 } from './view.builder';
@@ -45,8 +41,11 @@ export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resol
 export {
   columnToJsonSchemaProperty,
   columnTypeSchemaSource,
+  fixNestedUiSchemaScopes,
+  nestedColumnSchemaSource,
 } from './column-type-schema.source';
 export { ViewColumnConfigSchema, ViewConfigSchema } from './view.schema';
 export type { ViewColumnConfig, ViewConfig, ViewDef } from './view.schema';
 export { isDecimalField, jsonSchemaOpts } from './json-schema.opts';
 export { collectLayoutFieldIds, resolveColumnVisibility } from './layout-visibility';
+export { buildLayouts, defaultLayoutFor } from '../layout';

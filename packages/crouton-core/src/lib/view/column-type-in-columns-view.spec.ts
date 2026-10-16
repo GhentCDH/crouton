@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildViewsFromColumns } from './view.builder';
+import { fixNestedUiSchemaScopes, nestedColumnSchemaSource } from './column-type-schema.source';
+import { buildLayouts } from '../layout';
 import type { JsonColumn } from '../resource/Column';
 
 /**
@@ -21,8 +22,16 @@ import type { JsonColumn } from '../resource/Column';
 const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
   overrides as JsonColumn;
 
+const buildNestedViews = (columns: JsonColumn[]) => {
+  if (!columns.length) return undefined;
+  const raw = buildLayouts(undefined, { columns, source: nestedColumnSchemaSource });
+  return Object.fromEntries(
+    Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as any, columns) }])
+  );
+};
+
 const formProps = (columns: JsonColumn[]) => {
-  const views = buildViewsFromColumns(columns);
+  const views = buildNestedViews(columns);
   return (views?.['form']?.json_schema as any)?.properties;
 };
 

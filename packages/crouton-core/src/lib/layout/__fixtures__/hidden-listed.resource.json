@@ -1,0 +1,22 @@
+{
+  "name": "document",
+  "route": "documents",
+  "model": "Document",
+  "tag": "Documents",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "summary", "type": "string", "hiddenInTable": true },
+    { "id": "content", "type": "string", "hiddenInForm": true, "hiddenInTable": true }
+  ],
+  "layout": {
+    "table": {
+      "items": ["title", "summary"]
+    },
+    "form": {
+      "items": ["title", "summary", "content"]
+    }
+  }
+}

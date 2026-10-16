@@ -1,0 +1,30 @@
+{
+  "name": "report",
+  "route": "reports",
+  "model": "Report",
+  "tag": "Reports",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "author", "type": "string" },
+    { "id": "date", "type": "string" }
+  ],
+  "layout": {
+    "table": {
+      "type": "vertical",
+      "items": [
+        { "component": "ReportToolbar", "label": "Toolbar" },
+        {
+          "type": "table",
+          "items": [
+            { "id": "title", "sortable": true },
+            "author",
+            { "id": "date", "sortable": true, "defaultSort": true }
+          ]
+        }
+      ]
+    }
+  }
+}

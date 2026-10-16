@@ -1,7 +1,9 @@
 import { isAutocomplete } from './column-predicates';
+import { applySchemaTransforms } from './schema-transforms';
 import type { JsonColumn } from '../resource/Column';
 import {
   type JsonSchemaFragment,
+  columnTypeName,
   columnTypeToJsonSchema,
 } from '../resource/ColumnType.schema';
 
@@ -81,4 +83,66 @@ export const columnTypeSchemaSource = (
   }
 
   return { type: 'object', properties };
+};
+
+/**
+ * `ViewJsonSchemaSource` for sub-resources with extend columns (`col.column !== col.id`).
+ * Groups nested columns under their parent `col.column` object, matching the
+ * actual API response shape for manyToOne relations.
+ */
+export const nestedColumnSchemaSource = (cols: JsonColumn[]): Record<string, unknown> => {
+  const properties: Record<string, any> = {};
+  for (const c of cols) {
+    if (c.column && c.column !== c.id) {
+      if (!properties[c.column]) {
+        properties[c.column] = { type: 'object', properties: {} };
+      }
+      const keyPath = (c.displayKey ?? c.id).split('.');
+      let target = properties[c.column].properties;
+      for (let i = 0; i < keyPath.length - 1; i++) {
+        const segment = keyPath[i];
+        if (!target[segment]) target[segment] = { type: 'object', properties: {} };
+        target = target[segment].properties;
+      }
+      target[keyPath[keyPath.length - 1]] = { type: 'string', title: c.label ?? c.id };
+    } else if (c.type !== undefined) {
+      properties[c.id] = columnToJsonSchemaProperty(c);
+    } else {
+      const opts = c.fieldInput?.options as Record<string, unknown> | undefined;
+      const isObject = opts?.emitObject === true || c.fieldInput?.type === 'autocomplete';
+      properties[c.id] = {
+        ...(isObject ? {} : { type: columnTypeName(c.type) ?? 'string' }),
+        title: c.label ?? c.id,
+        ...(c.fieldInput?.defaultValue !== undefined ? { default: c.fieldInput.defaultValue } : {}),
+      };
+    }
+  }
+  const schema: Record<string, unknown> = { type: 'object', properties };
+  applySchemaTransforms(schema);
+  return schema;
+};
+
+/**
+ * Rewrite UI schema element scopes for extend columns (col.column !== col.id) to
+ * match the nested JSON schema produced by `nestedColumnSchemaSource`.
+ * Elements for non-nested columns are returned unchanged.
+ */
+export const fixNestedUiSchemaScopes = (
+  uiSchema: Record<string, unknown>,
+  cols: JsonColumn[],
+): Record<string, unknown> => {
+  const colMap = Object.fromEntries(cols.map((c) => [c.id, c]));
+  const elements = (uiSchema as any).elements as any[] | undefined;
+  if (!elements) return uiSchema;
+  return {
+    ...uiSchema,
+    elements: elements.map((el) => {
+      const id = (el.scope as string | undefined)?.replace('#/properties/', '');
+      const col = id ? colMap[id] : undefined;
+      if (!col?.column || col.column === col.id) return el;
+      const keyPath = (col.displayKey ?? col.id).split('.');
+      const propPath = keyPath.map((k) => `properties/${k}`).join('/');
+      return { ...el, scope: `#/properties/${col.column}/${propPath}` };
+    }),
+  };
 };

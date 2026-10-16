@@ -41,6 +41,8 @@ export const SubResourceConfigSchema = z.object({
    * Empty for a custom child, which has no model.
    */
   childModel: z.string(),
+  /** Override Prisma table name when the model name differs from the table name. */
+  childTable: z.string().optional(),
   /** FK field on the child model pointing back to the parent, e.g. `"text_id"`. */
   foreignKey: z.string(),
   /** Human-readable name for the child resource. */

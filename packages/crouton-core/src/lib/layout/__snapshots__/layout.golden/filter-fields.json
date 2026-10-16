@@ -1,0 +1,311 @@
+{
+  "views": {
+    "table": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "title": "priority",
+            "minLength": 1
+          },
+          "assignee": {
+            "type": "string",
+            "title": "assignee",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/priority",
+            "options": {
+              "sortId": "priority"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/assignee",
+            "options": {
+              "sortId": "assignee"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "priority"
+        },
+        {
+          "id": "assignee"
+        }
+      ],
+      "defaultSort": "id"
+    },
+    "form": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "title": "priority",
+            "minLength": 1
+          },
+          "assignee": {
+            "type": "string",
+            "title": "assignee",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/priority",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/assignee",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title"
+        },
+        {
+          "id": "priority"
+        },
+        {
+          "id": "assignee"
+        }
+      ]
+    },
+    "filter": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "title": "priority",
+            "minLength": 1
+          },
+          "assignee": {
+            "type": "string",
+            "title": "assignee",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/priority",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/assignee",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "priority"
+        },
+        {
+          "id": "assignee"
+        }
+      ]
+    },
+    "view": {
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "title": "priority",
+            "minLength": 1
+          },
+          "assignee": {
+            "type": "string",
+            "title": "assignee",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui_schema": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/priority",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/assignee",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id"
+        },
+        {
+          "id": "title"
+        },
+        {
+          "id": "priority"
+        },
+        {
+          "id": "assignee"
+        }
+      ]
+    }
+  },
+  "lookup": {
+    "key": "id"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "item",
+  "route": "items",
+  "model": "Item",
+  "tag": "Items",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string" },
+    { "id": "description", "type": "string", "hiddenInTable": true },
+    { "id": "status", "type": "string" }
+  ]
+}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { JsonColumnSchema, buildViews, resolveColumnFieldVariants } from '@ghentcdh/crouton-core';
+import { JsonColumnSchema, buildLayouts, resolveColumnFieldVariants, zodSchemaSource } from '@ghentcdh/crouton-core';
 
 const schema = z.object({ id: z.string(), name: z.string() });
 
@@ -28,7 +28,7 @@ describe('buildViews with field variants', () => {
     const layout = {
       table: { items: [{ id: 'name', options: { display: 'chip' } }] },
     };
-    const views = buildViews(schema, cols, layout as any)!;
+    const views = buildLayouts(layout as any, { columns: cols, source: zodSchemaSource(schema), warn: console.warn });
 
     expect(
       (fieldInputFor(views.form, 'name').options as Record<string, unknown>)
@@ -56,7 +56,7 @@ describe('buildViews with field variants', () => {
     )!;
 
     const layout = { table: { items: ['name', 'code'] } };
-    const views = buildViews(schema2, cols2, layout as any)!;
+    const views = buildLayouts(layout as any, { columns: cols2, source: zodSchemaSource(schema2), warn: console.warn });
     const tableColIds = views.table.columns.map((c: any) => c.id);
     expect(tableColIds).toEqual(['name', 'code']);
   });
@@ -69,7 +69,7 @@ describe('buildViews with field variants', () => {
       ]),
     )!;
 
-    const views = buildViews(schema, cols)!;
+    const views = buildLayouts(undefined, { columns: cols, source: zodSchemaSource(schema), warn: console.warn });
 
     expect(fieldInputFor(views.table, 'name')).toEqual(
       fieldInputFor(views.form, 'name'),
