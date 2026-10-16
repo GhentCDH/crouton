@@ -28,6 +28,52 @@ Each key accepts three forms:
 | `{ "filter": ["field1"] }` | Enable findAll with explicit filter fields (overrides per-column `filterable`) |
 | `{ "search": [...], "filter": [...] }` | Both |
 
+## Free-text search
+
+The `?q=` query parameter drives free-text search across the `findAll` endpoint.
+
+### Explicit search fields
+
+Declare which fields to search via `operations.findAll.search`:
+
+```json
+{
+  "operations": {
+    "findAll": { "search": ["title", "author"] }
+  }
+}
+```
+
+Relation fields resolve through their display key automatically — `"author"` becomes a `contains` on `author.name` if `author.displayKey` is `"name"`.
+
+### Default: all fields
+
+When `findAll: true` (no explicit `search`), crouton searches all non-id, non-relation, non-date columns automatically. To restrict search to specific fields, declare them explicitly.
+
+```json
+{
+  "operations": { "findAll": true }
+}
+```
+
+```json
+{
+  "operations": {
+    "findAll": { "search": ["name", "email"] }
+  }
+}
+```
+
+The second form restricts search to `name` and `email` only.
+
+### Migration from `searchFields`
+
+The old `layout.table.searchFields` array and per-column `searchable: true` flag are deprecated. Run the codemod to migrate automatically:
+
+```sh
+crouton migrate
+```
+
 ## PUT vs PATCH
 
 Both `update` and `patch` default to `true`. They share the same Prisma `update()` call — the difference is in
