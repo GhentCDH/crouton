@@ -3,6 +3,7 @@ import type { Command } from 'commander';
 import {
   findConfigPath,
   loadConfig,
+  migrateDisplayToContainer,
   migrateLayoutPrecedence,
   migrateRemovedColumnFields,
   migrateSearchFields,
@@ -77,6 +78,7 @@ export const registerMigrateLayoutCommand = (program: Command) => {
         const { resource: layoutFixed, report } = migrateLayoutPrecedence(result.raw);
         const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
         const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
+        const { resource: displayFixed, report: displayReport } = migrateDisplayToContainer(colFixed);
 
         const hasVersionMigration = result.applied.length > 0;
         const hasLayoutChanges =
@@ -91,8 +93,9 @@ export const registerMigrateLayoutCommand = (program: Command) => {
         const hasColChanges =
           colReport.columnsWithFieldView.length > 0 ||
           colReport.columnsWithColumnType.length > 0;
+        const hasDisplayChanges = displayReport.changed;
 
-        if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges) continue;
+        if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasDisplayChanges) continue;
 
         needsMigration++;
 
@@ -111,8 +114,10 @@ export const registerMigrateLayoutCommand = (program: Command) => {
           labels.push(`remove fieldView from columns: ${colReport.columnsWithFieldView.join(', ')}`);
         if (colReport.columnsWithColumnType.length)
           labels.push(`remove columnType from columns: ${colReport.columnsWithColumnType.join(', ')}`);
+        if (displayReport.changed)
+          labels.push('display/modalSize → layout.form.container / layout.view.container');
 
-        const out = JSON.stringify(colFixed, null, 2) + '\n';
+        const out = JSON.stringify(displayFixed, null, 2) + '\n';
 
         if (opts.check) {
           console.error(`${file}: needs migration (${labels.join('; ')})`);

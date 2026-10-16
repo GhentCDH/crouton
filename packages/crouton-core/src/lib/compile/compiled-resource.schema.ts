@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ResourceJsonShape } from '../resource';
+import { JsonDisplaySchema, ResourceJsonShape } from '../resource';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { DefinitionSchema } from './definition.schema';
@@ -17,6 +17,9 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   definition: DefinitionSchema,
   idField: z.string(),
   idType: z.enum(['string', 'number']).default('string'),
+  // Derived from layout.form.container / layout.view.container at compile time (Block 2)
+  display: JsonDisplaySchema.optional(),
+  modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
 });
 
 export type CompiledResource = z.infer<typeof CompiledResourceSchema>;

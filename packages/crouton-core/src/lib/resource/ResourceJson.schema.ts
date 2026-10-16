@@ -14,6 +14,13 @@ import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SecuritySchema } from '../data-source/Security.schema';
 import { labelFromId } from '../schema/label.helper';
 
+// ── Removed-key registry ─────────────────────────────────────────────
+// Keys that were removed from the root schema and where they moved to.
+const ROOT_REMOVED_KEYS: Record<string, string> = {
+  display: "'display' moved to layout.form.container / layout.view.container (run crouton migrate)",
+  modalSize: "'modalSize' moved to layout.form.container.size (run crouton migrate)",
+};
+
 // ── Shared primitives ────────────────────────────────────────────────
 
 const JsonColumnsMapSchema = z.record(
@@ -25,6 +32,7 @@ const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Display / sidebar ────────────────────────────────────────────────
 
+/** @deprecated Use layout.form.container / layout.view.container instead. Kept for codemod + sub-resource compat. */
 export const JsonDisplaySchema = z.object({
   mode: z
     .enum(['page', 'modal'])
@@ -163,9 +171,6 @@ export const ResourceJsonShape = z.object({
   sidebar: SidebarSchema.default(SidebarSchema.parse({})).describe(
     'Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.',
   ),
-  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})).describe(
-    'How records open when clicked. Default: modal dialog.',
-  ),
   security: SecuritySchema.optional().describe(
     'Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.',
   ),
@@ -182,12 +187,6 @@ export const ResourceJsonShape = z.object({
     .default([])
     .describe(
       'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
-    ),
-  modalSize: z
-    .enum(['xs', 'sm', 'lg', 'xl'])
-    .default('sm')
-    .describe(
-      'Width of the create/edit modal dialog. "xs", "sm" (default), "lg", or "xl".',
     ),
   include: z
     .array(JsonIncludeEntrySchema)
@@ -486,11 +485,17 @@ export const buildResourceJsonSchema = () => {
 
   // ponytail: closure to pass raw layout errors from preprocess → superRefine without schema changes
   let _rawLayoutErrors: Array<{ path: string[]; message: string }> = [];
+  let _rawRootErrors: Array<{ path: string[]; message: string }> = [];
 
   return z.preprocess(
     (raw) => {
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
       let obj = raw as Record<string, unknown>;
+
+      // Collect errors for removed root keys before Zod strips them
+      _rawRootErrors = Object.entries(ROOT_REMOVED_KEYS)
+        .filter(([k]) => k in obj)
+        .map(([k, message]) => ({ path: [k], message }));
 
       // Collect errors for removed keys before any transforms
       _rawLayoutErrors = collectRemovedLayoutKeyErrors(obj['layout'], ['layout']);
@@ -713,7 +718,7 @@ export const buildResourceJsonSchema = () => {
       return obj;
     },
     shape.superRefine(refineByKind).superRefine((_, ctx) => {
-      for (const err of _rawLayoutErrors) {
+      for (const err of [..._rawRootErrors, ..._rawLayoutErrors]) {
         ctx.addIssue({ code: 'custom', path: err.path, message: err.message });
       }
     }).superRefine(refineLayout).transform((obj) => {
