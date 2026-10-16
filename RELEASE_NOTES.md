@@ -1,10 +1,12 @@
-## next
+## 0.0.1-alpha.84 (2026-10-16)
 
-### 🚀 Features
+### 🩹 Fixes
 
-- **crouton-cli:** `crouton migrate` and `crouton update` now sync agent files (Claude skill, Cursor rule, `AGENTS.md` block) to the installed crouton version. Agent files are moved to `crouton-cli/agent-files/` as the single source of truth. New flags: `--no-agent-files`, `--agent-files-only`, `--targets`, `--force`.
+- publish crouton-cli ([0e8ef72](https://github.com/GhentCDH/crouton/commit/0e8ef72))
 
----
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
 
 ## 0.0.1-alpha.83 (2026-10-16)
 
