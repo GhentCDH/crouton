@@ -9,16 +9,18 @@ const frontendDir = resolve(_dirname, '../apps/frontend');
 
 const backendPort = process.env['BACKEND_PORT'] ?? '4444';
 const frontendPort = process.env['FRONTEND_PORT'] ?? '4300';
-const usePreview = process.env['CI'] || process.env['USE_PREVIEW_SERVER'] === 'true';
+const usePreview =
+  process.env['CI'] || process.env['USE_PREVIEW_SERVER'] === 'true';
 
 export default defineConfig({
   testDir: './tests',
-  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}-{platform}{ext}',
+  snapshotPathTemplate:
+    '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
   fullyParallel: false,
   forbidOnly: !!process.env['CI'],
   retries: 0,
   updateSnapshots: 'missing',
-  workers: 1,//process.env['CI'] ? 4 : undefined,
+  workers: 1, //process.env['CI'] ? 4 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
   expect: {
     toHaveScreenshot: {

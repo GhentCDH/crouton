@@ -7,11 +7,14 @@ import type {
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
+  applyRelationFormatDefault,
+  buildValueLabelColumns,
   buildViews,
   extractFindAllSearch,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  resolveColumnFieldVariants,
   resolveColumnVisibility,
 } from '@ghentcdh/crouton-core';
 
@@ -25,12 +28,7 @@ import {
   enrichIncludeWithSort,
   enrichResourceRefColumns,
 } from './column-enrichment';
-import {
-  applyRelationFormatDefault,
-  buildValueLabelColumns,
-  expandExtendColumns,
-  resolveColumnFieldVariants,
-} from './column-transforms';
+import { expandExtendColumns } from './column-transforms';
 import { enrichRelationTypes } from './relation-type';
 import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';

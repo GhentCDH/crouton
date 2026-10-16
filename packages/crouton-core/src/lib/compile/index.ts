@@ -1,4 +1,5 @@
 export * from './action.types';
+export * from './column-transforms';
 export * from './compile-resource';
 export * from './compiled-resource.schema';
 export * from './compiled-sub-resource.schema';

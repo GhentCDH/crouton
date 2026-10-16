@@ -1,7 +1,6 @@
 import { type JsonColumn } from '@ghentcdh/crouton-core';
 
 import { resolveChildResource } from './resource-resolver';
-import type { ValueLabelColumn } from '../resource/valueLabel';
 
 /**
  * Expand columns that declare `extend` into virtual sub-columns derived from the
@@ -92,48 +91,3 @@ export const expandExtendColumns = (
 
   return result;
 };
-
-/**
- * Collect columns that should be serialized as `{ value, label }`: those whose
- * `fieldInput.options.emitObject` is true and that carry an `options.values`
- * list (typically enum/select columns).
- */
-export const buildValueLabelColumns = (
-  columns: JsonColumn[] | undefined,
-): ValueLabelColumn[] =>
-  (columns ?? []).flatMap((c) => {
-    const opts = c.fieldInput?.options as
-      | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
-      | undefined;
-    if (!opts?.emitObject || !Array.isArray(opts.values)) return [];
-    return [
-      {
-        field: c.column ?? c.id,
-        values: opts.values,
-        ...(c.enum && { enumName: c.enum }),
-      },
-    ];
-  });
-
-/**
- * Default `fieldInput.format` to `"relation"` for columns that reference a
- * resource (`fieldInput.resource`) but declare no explicit `format` or control
- * `type`. Such a column is a relation by convention, e.g.:
- *   `"fieldInput": { "resource": "../bibliography/resource.json", "options": { "displayKey": "bib" } }`
- * (A typed control that references a resource — `type: "select"`/`"autocomplete"` —
- * is left untouched.)
- */
-export const applyRelationFormatDefault = (
-  cols: JsonColumn[] | undefined,
-): JsonColumn[] | undefined =>
-  cols?.map((col) => {
-    const fi = col.fieldInput;
-    if (fi && fi.resource && !fi.format && !fi.type) {
-      return { ...col, fieldInput: { ...fi, format: 'relation' } };
-    }
-    return col;
-  });
-
-export const resolveColumnFieldVariants = (
-  cols: JsonColumn[] | undefined,
-): JsonColumn[] | undefined => cols;

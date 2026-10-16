@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { JsonColumnSchema } from '@ghentcdh/crouton-core';
-
-import { resolveColumnFieldVariants } from './column-transforms';
+import { JsonColumnSchema, resolveColumnFieldVariants } from '@ghentcdh/crouton-core';
 
 describe('resolveColumnFieldVariants', () => {
   it('is a passthrough — columns returned as-is', () => {

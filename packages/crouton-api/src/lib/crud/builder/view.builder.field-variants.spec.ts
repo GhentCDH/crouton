@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { JsonColumnSchema, buildViews  } from '@ghentcdh/crouton-core';
-
-import { resolveColumnFieldVariants } from '../adapter/column-transforms';
+import { JsonColumnSchema, buildViews, resolveColumnFieldVariants } from '@ghentcdh/crouton-core';
 
 const schema = z.object({ id: z.string(), name: z.string() });
 
