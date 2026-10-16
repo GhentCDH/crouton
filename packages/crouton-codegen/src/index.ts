@@ -42,3 +42,4 @@ export * from './migrate/display-to-container';
 export * from './migrate/lookup-labels';
 export * from './migrate/root-include';
 export * from './migrate/source';
+export * from './migrate/calculated-columns';

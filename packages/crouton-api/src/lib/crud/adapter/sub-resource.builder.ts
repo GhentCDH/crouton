@@ -126,7 +126,21 @@ export const buildSubResources = (
 
       const childLookupKey =
         childColumns?.find((col) => col.idField)?.id ?? 'id';
-      const childCalculatedColumns = childJson?.calculatedColumns ?? [];
+      const childCalculatedColumns = [
+        ...(childJson?.calculatedColumns ?? []),
+        ...(enrichedChildColumns ?? [])
+          .filter((c) => (c as any).computed)
+          .map((c: any) => ({
+            id: c.id,
+            alias: c.id,
+            label: c.label ?? c.id,
+            sqlExpression: c.computed.sql as string,
+            type: c.computed.type ?? 'number',
+            hiddenInTable: c.hiddenInTable,
+            hiddenInView: c.hiddenInView,
+            ...(c.fieldInput && { fieldInput: c.fieldInput }),
+          })),
+      ];
       const rawChildViews = childJson
         ? buildLayouts(undefined, {
             columns: enrichedChildColumns ?? [],

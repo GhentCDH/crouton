@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
@@ -23,6 +22,7 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
   table: '\'table\' moved to source.table (run crouton migrate)',
   database: '\'database\' moved to source.database (run crouton migrate)',
   idType: '\'idType\' moved to source.idType (run crouton migrate)',
+  calculatedColumns: '\'calculatedColumns\' replaced by columns[id].computed.sql (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -166,12 +166,6 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.',
     ),
-  calculatedColumns: z
-    .array(CalculatedColumnSchema)
-    .default([])
-    .describe(
-      'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
-    ),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
   ),
@@ -209,12 +203,13 @@ export const refineByKind = (
           'A custom resource has no Prisma model. Remove "source.model" — data access comes from repository.ts.',
       });
     }
-    if (obj.calculatedColumns?.length) {
+    // computed columns (column-level SQL) also not allowed on custom resources
+    const computedCols = Object.entries(obj.columns ?? {}).filter(([, c]) => (c as any).computed);
+    for (const [colId] of computedCols) {
       ctx.addIssue({
         code: 'custom',
-        path: ['calculatedColumns'],
-        message:
-          'calculatedColumns run raw SQL against a database table and are not supported on a custom resource. Compute the value in repository.ts instead.',
+        path: ['columns', colId, 'computed'],
+        message: 'computed columns run raw SQL and are not supported on a custom resource. Compute the value in repository.ts instead.',
       });
     }
     for (const [id, col] of Object.entries(obj.columns ?? {})) {
@@ -296,7 +291,7 @@ export const refineLayout = (
 ): void => {
   const allIds = new Set([
     ...Object.keys(obj.columns ?? {}),
-    ...(obj.calculatedColumns ?? []).map((c) => c.id),
+    ...Object.keys(obj.columns ?? {}).filter((k) => (obj.columns as any)?.[k]?.computed),
   ]);
 
   // Validate operations.findAll.search independently of layout
@@ -319,7 +314,7 @@ export const refineLayout = (
         ctx.addIssue({
           code: 'custom',
           path,
-          message: `Unknown column id "${id}" in layout.${label} — not found in columns or calculatedColumns.`,
+          message: `Unknown column id "${id}" in layout.${label} — not found in columns (or columns[id].computed for SQL columns).`,
         });
       }
       if (seen.has(id)) {

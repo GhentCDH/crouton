@@ -115,7 +115,21 @@ export const compileResource = (
     enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns,
   )!;
 
-  const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
+  const calculatedColumns: CalculatedColumn[] = [
+    ...((json as any).calculatedColumns ?? []),
+    ...((json.columns ?? []) as JsonColumn[])
+      .filter((c) => (c as any).computed)
+      .map((c): CalculatedColumn => ({
+        id: c.id,
+        alias: c.id,
+        label: c.label ?? c.id,
+        sqlExpression: (c as any).computed.sql as string,
+        type: (c as any).computed.type ?? 'number',
+        hiddenInTable: c.hiddenInTable,
+        hiddenInView: c.hiddenInView,
+        ...(c.fieldInput && { fieldInput: c.fieldInput }),
+      })),
+  ];
 
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
   const layoutCtx = {
