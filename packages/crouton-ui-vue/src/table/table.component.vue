@@ -5,10 +5,10 @@
         <thead
           class="text-xs text-text-muted font-medium border-b border-gray-200 border-solid sticky top-0 rounded-md"
         >
-          <tr class="border-b border-gray-200">
+          <tr class="">
             <th
               v-if="multiselect"
-              class="px-3 py-1 w-10 text-left border-r border-gray-200"
+              class="px-3 py-3 w-10 text-left"
             >
               <input
                 type="checkbox"
@@ -21,7 +21,7 @@
             <th
               v-for="column in displayColumns"
               :key="column.scope"
-              class="relative px-3 py-1 text-left font-semibold text-text-accent hover:bg-gray-50 select-none border-r border-gray-200"
+              class="relative px-3 py-3 text-left text-text-accent hover:bg-gray-50 select-none"
               :style="
                 column.width
                   ? {
@@ -78,7 +78,7 @@
               class="py-1 px-3 text-sm overflow-hidden"
             >
               <div
-                class="px-3 flex items-center gap-2 rounded-sm relative hover:border hover:bg-gray-50 hover:border-gray-200 border-transparent max-w-56"
+                class="flex items-center gap-2 relative border-transparent max-w-56"
                 style="min-width: 100%; min-height: 38px"
               >
                 <div
