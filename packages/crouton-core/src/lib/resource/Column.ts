@@ -103,6 +103,10 @@ export const JsonColumnSchema = z.object({
     .describe(
       'When false, this column is excluded from the edit form after creation. Useful for immutable fields.',
     ),
+  /**
+   * TODO remove it
+   *     @deprected shoudl be par of the layout.[xxx].items
+   */
   hideLabel: z
     .boolean()
     .default(false)
@@ -125,7 +129,7 @@ export const JsonColumnSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Name of a shared enum in crouton.enums.json. At load time the loader injects the enum\'s { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.',
+      "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.",
     ),
   idField: z
     .boolean()
@@ -150,7 +154,7 @@ export const JsonColumnSchema = z.object({
    * a Prisma unique violation back to this field on write.
    */
   unique: UniqueSchema.optional().describe(
-    'Enforce that this column\'s value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.',
+    "Enforce that this column's value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.",
   ),
   /**
    * Data type of the column, as a shorthand name (`"string"`, `"integer"`, …)
@@ -191,6 +195,7 @@ export const JsonColumnSchema = z.object({
       'Whether the form requires a value. On a "prisma" resource this overrides the Prisma-derived required state; on "custom" resources it is the only way to mark a field required. Applies to forms only.',
     ),
   /**
+   * TODO remove it
    * @deprecated Use `type` instead. Retained because it is still consumed by
    * the boolean predicate and the schema-less sub-resource view builder.
    */
