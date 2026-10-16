@@ -20,7 +20,7 @@ test.describe('language switch', () => {
   });
 
   test('language select is visible in sidebar', async ({ page }) => {
-    await expect(page.locator('#drawer-left-panel .dropdown [role="button"]')).toBeVisible();
+    await expect(page.locator('#drawer-left-panel select')).toBeVisible();
   });
 
   test('sidebar labels change to Dutch after switching to NL', async ({ page }) => {

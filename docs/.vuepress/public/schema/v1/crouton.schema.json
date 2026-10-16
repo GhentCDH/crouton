@@ -896,6 +896,17 @@
           "description": "Directory containing <lang>.json bundles, relative to the project root.",
           "type": "string",
           "markdownDescription": "Directory containing <lang>.json bundles, relative to the project root.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "displayNames": {
+          "description": "Optional custom display names for language codes (e.g. { \"wv\": \"West Vloams\" }). Used when Intl.DisplayNames cannot resolve the code.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          },
+          "markdownDescription": "Optional custom display names for language codes (e.g. { \"wv\": \"West Vloams\" }). Used when Intl.DisplayNames cannot resolve the code.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
         }
       },
       "required": [
