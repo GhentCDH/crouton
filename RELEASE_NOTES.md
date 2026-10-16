@@ -1,3 +1,35 @@
+## 0.0.1-alpha.83 (2026-10-16)
+
+### 🚀 Features
+
+- make crouton usable by LLM agents ([#184](https://github.com/GhentCDH/crouton/pull/184))
+- make crouton development LLM-friendly ([#185](https://github.com/GhentCDH/crouton/pull/185))
+- Add e2e tests ([#120](https://github.com/GhentCDH/crouton/pull/120))
+- move resourcedefinition to crouton-core ([#194](https://github.com/GhentCDH/crouton/pull/194))
+- ⚠️  single items list per layout node, rowActions rename, table node settings ([#202](https://github.com/GhentCDH/crouton/pull/202))
+- layout controls visibility — exhaustive layout items, codemod, editor, docs ([#203](https://github.com/GhentCDH/crouton/pull/203))
+- **api,core,vue:** filter, search and sort on manyToOne relation columns ([#182](https://github.com/GhentCDH/crouton/pull/182))
+- **i18n:** multilanguage support, UI translation layer, and e2e coverage ([#201](https://github.com/GhentCDH/crouton/pull/201))
+- **vue-ui:** move the vue ui to crouton instead of external ([#186](https://github.com/GhentCDH/crouton/pull/186))
+- **vue-ui:** move the vue ui to crouton instead of external ([#187](https://github.com/GhentCDH/crouton/pull/187))
+
+### 🩹 Fixes
+
+- search on relations ([#189](https://github.com/GhentCDH/crouton/pull/189))
+- styles ([a9891bb](https://github.com/GhentCDH/crouton/commit/a9891bb))
+- migration guide ([b943859](https://github.com/GhentCDH/crouton/commit/b943859))
+- **api:** handle manyToMany relations and fix foreignKey casing in sub-resource builder ([#180](https://github.com/GhentCDH/crouton/pull/180))
+- **create-crouton:** fixes ([#183](https://github.com/GhentCDH/crouton/pull/183))
+- **crouton-core:** honour sortable/defaultSort inside table wrapper layouts ([#199](https://github.com/GhentCDH/crouton/pull/199))
+
+### ⚠️  Breaking Changes
+
+- single items list per layout node, rowActions rename, table node settings  ([#202](https://github.com/GhentCDH/crouton/pull/202))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## [Unreleased] — Breaking changes
 
 ### 💥 Layout: `controls` → `items`, `actions` → `rowActions`
