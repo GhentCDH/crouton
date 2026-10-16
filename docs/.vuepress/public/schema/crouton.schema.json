@@ -913,6 +913,25 @@
         "languages"
       ],
       "markdownDescription": "Optional i18n / translation configuration. Omit if the app is single-language.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
+    "agentFiles": {
+      "description": "Agent file sync configuration for `crouton migrate`. Stored after the first run.",
+      "type": "object",
+      "properties": {
+        "targets": {
+          "description": "Which agent file sets to manage. Defaults to those already present in the project, or both on first run.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "claude",
+              "cursor"
+            ]
+          },
+          "markdownDescription": "Which agent file sets to manage. Defaults to those already present in the project, or both on first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        }
+      },
+      "markdownDescription": "Agent file sync configuration for `crouton migrate`. Stored after the first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
     }
   },
   "required": [
