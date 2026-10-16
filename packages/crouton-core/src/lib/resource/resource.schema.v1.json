@@ -974,10 +974,7 @@
             "markdownDescription": "Marks this column as the primary-key field. Exactly one column per resource should set this to true.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "showInLookup": {
-            "default": false,
-            "description": "When true, this column appears in autocomplete/lookup dropdowns referencing this resource.",
-            "type": "boolean",
-            "markdownDescription": "When true, this column appears in autocomplete/lookup dropdowns referencing this resource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+            "type": "boolean"
           },
           "unique": {
             "description": "Enforce that this column's value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.",
@@ -2231,6 +2228,29 @@
         }
       },
       "markdownDescription": "Explicit layout for generated views (form, view, table). When absent, source-order grid is used.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+    },
+    "lookup": {
+      "description": "How this resource appears in other resources' dropdowns. When absent, falls back to operations.findAll.search then the first non-id column.",
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ordered column ids to display in autocomplete/lookup dropdowns. Relation columns resolve to their displayKey path.",
+          "markdownDescription": "Ordered column ids to display in autocomplete/lookup dropdowns. Relation columns resolve to their displayKey path.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "separator": {
+          "description": "String placed between label parts. Default: \" \".",
+          "type": "string",
+          "markdownDescription": "String placed between label parts. Default: \" \".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        }
+      },
+      "required": [
+        "labels"
+      ],
+      "markdownDescription": "How this resource appears in other resources' dropdowns. When absent, falls back to operations.findAll.search then the first non-id column.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     }
   },
   "required": [

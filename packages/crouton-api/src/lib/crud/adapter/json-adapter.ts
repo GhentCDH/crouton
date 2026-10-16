@@ -117,7 +117,7 @@ export const fromJson = (
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && !isCustom;
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths);
+  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths, (json as any).lookup);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
@@ -192,16 +192,27 @@ const buildLookup = (
   columns: JsonColumn[] | undefined,
   dirPath?: string,
   search?: string[],
+  lookupConfig?: { labels?: string[]; separator?: string },
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
 
   const keyCol = columns.find((c) => c.idField);
-  const lookupCols = columns.filter((c) => c.showInLookup);
+  const legacyLookupCols = columns.filter((c) => c.showInLookup);
 
-  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
+  // Prefer explicit lookup.labels, fall back to showInLookup (deprecated), then search
+  if (lookupConfig?.labels?.length) {
+    return {
+      key: keyCol?.id ?? 'id',
+      ...(lookupConfig.labels.length === 1 && { label: lookupConfig.labels[0] }),
+      labels: lookupConfig.labels,
+      ...(lookupConfig.separator && { separator: lookupConfig.separator }),
+    };
+  }
 
-  const labels = lookupCols.length
-    ? lookupCols.map((col) => {
+  if (!keyCol && !legacyLookupCols.length && !search?.length) return undefined;
+
+  const labels = legacyLookupCols.length
+    ? legacyLookupCols.map((col) => {
         if (col.fieldInput?.relationType === 'manyToOne') {
           const relationName = col.id.replace(/Id$/, '');
           if (col.fieldInput?.resource && dirPath) {

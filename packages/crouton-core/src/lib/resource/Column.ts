@@ -137,12 +137,8 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Marks this column as the primary-key field. Exactly one column per resource should set this to true.',
     ),
-  showInLookup: z
-    .boolean()
-    .default(false)
-    .describe(
-      'When true, this column appears in autocomplete/lookup dropdowns referencing this resource.',
-    ),
+  /** @deprecated Use resource-level `lookup.labels` instead (run `crouton migrate`). Kept as passthrough so the codemod can read it. */
+  showInLookup: z.boolean().optional(),
   /**
    * Enforce that this column's value is unique across the resource. `true` is
    * simple single-column uniqueness; the object form allows a composite

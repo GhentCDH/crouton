@@ -35,3 +35,4 @@ export * from './agent-block/upsert-agent-block';
 export * from './migrate/layout-precedence';
 export * from './migrate/search-fields';
 export * from './migrate/display-to-container';
+export * from './migrate/lookup-labels';

@@ -62,24 +62,30 @@ const buildSearch = (
 const buildLookup = (
   columns: JsonColumn[] | undefined,
   search: string[] | undefined,
+  lookupConfig?: { labels?: string[]; separator?: string },
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
   const keyCol = columns.find((c) => c.idField);
-  const lookupCols = columns.filter((c) => c.showInLookup);
-  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
-  const labels = lookupCols.length
-    ? lookupCols.map((c) => {
-        if (c.fieldInput?.format === 'relation') {
-          const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
-          if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
-        }
-        return c.id;
-      })
-    : (search ?? []);
+  // Prefer explicit lookup.labels, fall back to showInLookup (deprecated), then search
+  const explicitLabels = lookupConfig?.labels;
+  const legacyLookupCols = columns.filter((c) => c.showInLookup);
+  const rawLabels: string[] = explicitLabels?.length
+    ? explicitLabels
+    : legacyLookupCols.length
+      ? legacyLookupCols.map((c) => {
+          if (c.fieldInput?.format === 'relation') {
+            const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
+            if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
+          }
+          return c.id;
+        })
+      : (search ?? []);
+  if (!keyCol && !rawLabels.length) return undefined;
   return {
     key: keyCol?.id ?? 'id',
-    ...(labels.length === 1 && { label: labels[0] }),
-    ...(labels.length > 0 && { labels }),
+    ...(rawLabels.length === 1 && { label: rawLabels[0] }),
+    ...(rawLabels.length > 0 && { labels: rawLabels }),
+    ...(lookupConfig?.separator && { separator: lookupConfig.separator }),
   };
 };
 
@@ -128,7 +134,7 @@ export const compileResource = (
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && json.kind !== 'custom';
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const lookup = buildLookup(enrichedColumns, searchPaths);
+  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 
