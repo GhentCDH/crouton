@@ -8,14 +8,16 @@ import type {
 } from '@ghentcdh/crouton-core';
 import {
   applyRelationFormatDefault,
+  buildLayouts,
   buildValueLabelColumns,
-  buildViews,
+  columnTypeSchemaSource,
   extractFindAllSearch,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
   resolveColumnFieldVariants,
   resolveColumnVisibility,
+  zodSchemaSource,
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
@@ -93,7 +95,12 @@ export const fromJson = (
   const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
 
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
-  let views = buildViews(schema, visibilityColumns, json.layout);
+  const rawViews = buildLayouts(json.layout, {
+    columns: visibilityColumns,
+    source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
+    warn: console.warn,
+  });
+  let views = Object.keys(rawViews).length ? rawViews : undefined;
   if (views && calculatedColumns.length) {
     views = {
       ...views,

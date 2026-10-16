@@ -45,6 +45,8 @@ export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resol
 export {
   columnToJsonSchemaProperty,
   columnTypeSchemaSource,
+  fixNestedUiSchemaScopes,
+  nestedColumnSchemaSource,
 } from './column-type-schema.source';
 export { ViewColumnConfigSchema, ViewConfigSchema } from './view.schema';
 export type { ViewColumnConfig, ViewConfig, ViewDef } from './view.schema';

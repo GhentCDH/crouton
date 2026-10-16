@@ -1,10 +1,12 @@
-import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
+import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions, ViewConfig } from '@ghentcdh/crouton-core';
 import {
   applyRelationFormatDefault,
+  buildLayouts,
   buildValueLabelColumns,
-  buildViewsFromColumns,
+  fixNestedUiSchemaScopes,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  nestedColumnSchemaSource,
 } from '@ghentcdh/crouton-core';
 
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
@@ -123,8 +125,21 @@ export const buildSubResources = (
       const childLookupKey =
         childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = childJson?.calculatedColumns ?? [];
-      let childViews = childJson
-        ? buildViewsFromColumns(enrichedChildColumns)
+      const rawChildViews = childJson
+        ? buildLayouts(undefined, {
+            columns: enrichedChildColumns ?? [],
+            source: nestedColumnSchemaSource,
+            warn: console.warn,
+          })
+        : undefined;
+      const cols = enrichedChildColumns ?? [];
+      let childViews: Record<string, ViewConfig> | undefined = rawChildViews && Object.keys(rawChildViews).length
+        ? (Object.fromEntries(
+            Object.entries(rawChildViews).map(([k, v]) => [
+              k,
+              { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, cols) },
+            ]),
+          ) as Record<string, ViewConfig>)
         : undefined;
       if (childViews && childCalculatedColumns.length) {
         childViews = {
@@ -165,6 +180,7 @@ export const buildSubResources = (
             : childJson?.model
               ? childJson.model.charAt(0).toLowerCase() + childJson.model.slice(1)
               : c.id,
+        ...(childJson?.table && { childTable: childJson.table }),
         foreignKey: c.fieldInput?.foreignKey ?? `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
         name: childJson?.name ?? childRoute,
         title: childJson?.title ?? childJson?.tag ?? childRoute,

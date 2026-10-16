@@ -2,8 +2,9 @@ import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import { isRelation } from './column-predicates';
 import {
-  columnToJsonSchemaProperty,
   columnTypeSchemaSource,
+  fixNestedUiSchemaScopes,
+  nestedColumnSchemaSource,
 } from './column-type-schema.source';
 import { columnForContext, sortByPosition, toViewColumn } from './column.utils';
 import { buildFormUiSchema } from './form-schema.builder';
@@ -15,7 +16,6 @@ import { resolveDefaultSort } from './sort.helpers';
 import { buildTableUiSchema } from './table-schema.builder';
 import type { ViewConfig } from './view.schema';
 import type { JsonColumn } from '../resource/Column';
-import { columnTypeName } from '../resource/ColumnType.schema';
 import type { Layout } from '../resource/layout';
 
 // ── Filter schema enrichment ──────────────────────────────────────────────
@@ -433,97 +433,14 @@ export const buildViewsFromColumns = (
 ): Record<string, ViewConfig> | undefined => {
   if (!columns?.length) return undefined;
 
-  const buildJsonSchema = (cols: JsonColumn[]): Record<string, unknown> => {
-    const properties: Record<string, any> = {};
-    for (const c of cols) {
-      // Only nest when `column` introduces genuine grouping (extend columns).
-      // When column === id the data is flat — nesting would be self-referential.
-      if (c.column && c.column !== c.id) {
-        if (!properties[c.column]) {
-          properties[c.column] = {
-            type: 'object',
-            properties: {},
-          };
-        }
-        // Support dotted displayKey paths (e.g. "internal_author.name") by building
-        // nested object nodes so the JSON schema mirrors the actual data structure.
-        const keyPath = (c.displayKey ?? c.id).split('.');
-        let target = properties[c.column].properties;
-        for (let i = 0; i < keyPath.length - 1; i++) {
-          const segment = keyPath[i];
-          if (!target[segment]) {
-            target[segment] = {
-              type: 'object',
-              properties: {},
-            };
-          }
-          target = target[segment].properties;
-        }
-        target[keyPath[keyPath.length - 1]] = {
-          type: 'string',
-          title: c.label ?? c.id,
-        };
-      } else if (c.type !== undefined) {
-        // A declared `type` is the whole point of a column config that has no
-        // Zod model behind it — honour it here exactly as `columnTypeSchemaSource`
-        // does, rather than falling through to the `string` default below.
-        properties[c.id] = columnToJsonSchemaProperty(c);
-      } else {
-        const opts = c.fieldInput?.options as
-          Record<string, unknown> | undefined;
-        const isObject =
-          opts?.emitObject === true || c.fieldInput?.type === 'autocomplete';
-        properties[c.id] = {
-          ...(isObject ? {} : { type: columnTypeName(c.type) ?? 'string' }),
-          title: c.label ?? c.id,
-          ...(c.fieldInput?.defaultValue !== undefined
-            ? { default: c.fieldInput.defaultValue }
-            : {}),
-        };
-      }
-    }
-    const schema: Record<string, unknown> = { type: 'object', properties };
-    applySchemaTransforms(schema);
-    return schema;
-  };
-
-  /** Rewrite scopes for nested columns to match the grouped JSON schema. */
-  const fixNestedScopes = (
-    uiSchema: Record<string, unknown>,
-    cols: JsonColumn[],
-  ): Record<string, unknown> => {
-    const colMap = Object.fromEntries(cols.map((c) => [c.id, c]));
-    const elements = (uiSchema as any).elements as any[] | undefined;
-    if (!elements) return uiSchema;
-    return {
-      ...uiSchema,
-      elements: elements.map((el) => {
-        const id = (el.scope as string | undefined)?.replace(
-          '#/properties/',
-          '',
-        );
-        const col = id ? colMap[id] : undefined;
-        if (!col?.column || col.column === col.id) return el;
-        // Support dotted displayKey paths (e.g. "internal_author.name") — each segment
-        // becomes a nested /properties/ step in the JSON pointer.
-        const keyPath = (col.displayKey ?? col.id).split('.');
-        const propPath = keyPath.map((k) => `properties/${k}`).join('/');
-        return {
-          ...el,
-          scope: `#/properties/${col.column}/${propPath}`,
-        };
-      }),
-    };
-  };
-
   const makeView = (
     visible: JsonColumn[],
     buildUiSchema: (cols: JsonColumn[]) => Record<string, unknown>,
   ): ViewConfig | undefined => {
     if (!visible.length) return undefined;
     return {
-      json_schema: buildJsonSchema(visible),
-      ui_schema: fixNestedScopes(buildUiSchema(visible), visible),
+      json_schema: nestedColumnSchemaSource(visible),
+      ui_schema: fixNestedUiSchemaScopes(buildUiSchema(visible), visible),
       columns: visible.map(toViewColumn),
     };
   };

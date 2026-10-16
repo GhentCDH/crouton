@@ -535,7 +535,7 @@ export class ReadRepository<T = any> {
       const enrichedNested = await mergeCalculatedColumnsForRows(
         nested,
         sub.calculatedColumns,
-        sub.childModel,
+        sub.childTable ?? sub.childModel,
         this.prisma,
         sub.idField ?? 'id',
       );

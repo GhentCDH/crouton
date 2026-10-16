@@ -17,6 +17,7 @@ export const CompiledSubResourceConfigSchema = z.object({
   childKind: z.enum(['prisma', 'custom']).default('prisma'),
   childDir: z.string().optional(),
   childModel: z.string(),
+  childTable: z.string().optional(),
   foreignKey: z.string(),
   name: z.string().optional(),
   title: z.string().optional(),
