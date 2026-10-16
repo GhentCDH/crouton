@@ -3,6 +3,11 @@
     v-bind="properties"
     :display-columns="displayColumns"
     :page="hidePagination ? undefined : page"
+    :multiselect="properties.multiselect || tableNodeOptions.selectable"
+    :density="tableNodeOptions.density"
+    :empty-text="tableNodeOptions.emptyText"
+    :page-sizes="tableNodeOptions.pageSizes"
+    :row-click="tableNodeOptions.rowClick"
     @sort="(id: string) => emits('sort', id)"
     @update-page="(page: number) => emits('updatePage', page)"
     @update-page-size="(size: number) => emits('updatePageSize', size)"
@@ -25,6 +30,8 @@ import { defaultCellRenderers, findCellRenderer } from './cells';
 
 const properties = defineProps(TableComponentProperties);
 const emits = defineEmits(TableComponentEmits);
+
+const tableNodeOptions = computed(() => (properties.uiSchema as any)?.options ?? {});
 
 const allRenderers = computed(() => [
   ...(properties.cellRenderers ?? []),
