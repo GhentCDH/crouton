@@ -215,6 +215,17 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Per-sub-column overrides when using "extend". Key is the virtual column id ("{extendId}_{refColId}") or the referenced column id. Value is any JsonColumn fields to merge.',
     ),
+  /**
+   * Marks this as a computed column backed by a raw SQL subquery.
+   * Replaces the legacy top-level `calculatedColumns` array (run `crouton migrate`).
+   */
+  computed: z
+    .object({
+      sql: z.string().describe('Raw SQL subquery. Use "main" as the alias for the parent table row.'),
+      type: z.enum(['number', 'boolean', 'string']).optional().describe('Cast type for the result. Defaults to "number".'),
+    })
+    .optional()
+    .describe('SQL computed column. The column value is derived from a raw subquery at query time.'),
 });
 
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;

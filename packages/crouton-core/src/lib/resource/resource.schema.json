@@ -1354,318 +1354,36 @@
               "additionalProperties": {}
             },
             "markdownDescription": "Per-sub-column overrides when using \"extend\". Key is the virtual column id (\"{extendId}_{refColId}\") or the referenced column id. Value is any JsonColumn fields to merge.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          },
+          "computed": {
+            "description": "SQL computed column. The column value is derived from a raw subquery at query time.",
+            "type": "object",
+            "properties": {
+              "sql": {
+                "type": "string",
+                "description": "Raw SQL subquery. Use \"main\" as the alias for the parent table row.",
+                "markdownDescription": "Raw SQL subquery. Use \"main\" as the alias for the parent table row.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "type": {
+                "description": "Cast type for the result. Defaults to \"number\".",
+                "type": "string",
+                "enum": [
+                  "number",
+                  "boolean",
+                  "string"
+                ],
+                "markdownDescription": "Cast type for the result. Defaults to \"number\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              }
+            },
+            "required": [
+              "sql"
+            ],
+            "markdownDescription": "SQL computed column. The column value is derived from a raw subquery at query time.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "additionalProperties": {}
       },
       "markdownDescription": "Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
-    "calculatedColumns": {
-      "description": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.",
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Column identifier used in the response payload and UI schema.",
-            "markdownDescription": "Column identifier used in the response payload and UI schema.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "alias": {
-            "type": "string",
-            "description": "SQL alias for the subquery result — must match \"id\".",
-            "markdownDescription": "SQL alias for the subquery result — must match \"id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "label": {
-            "description": "Human-readable label shown in the table header. Defaults to a title-cased version of \"id\".",
-            "type": "string",
-            "markdownDescription": "Human-readable label shown in the table header. Defaults to a title-cased version of \"id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "sqlExpression": {
-            "type": "string",
-            "description": "Raw SQL subquery computing the column value. Use \"main\" as the alias for the parent table row, e.g. \"SELECT COUNT(*) FROM child WHERE child.parent_id = main.id\".",
-            "markdownDescription": "Raw SQL subquery computing the column value. Use \"main\" as the alias for the parent table row, e.g. \"SELECT COUNT(*) FROM child WHERE child.parent_id = main.id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "type": {
-            "description": "Cast type for the computed value. \"number\" (default) or \"boolean\" applies a SQL CAST; \"string\" skips it.",
-            "type": "string",
-            "enum": [
-              "number",
-              "boolean",
-              "string"
-            ],
-            "markdownDescription": "Cast type for the computed value. \"number\" (default) or \"boolean\" applies a SQL CAST; \"string\" skips it.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "position": {
-            "description": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).",
-            "type": "number",
-            "markdownDescription": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "hiddenInTable": {
-            "description": "When true, this column is hidden in the table view.",
-            "type": "boolean",
-            "markdownDescription": "When true, this column is hidden in the table view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "hiddenInView": {
-            "description": "When true, this column is hidden in the detail view.",
-            "type": "boolean",
-            "markdownDescription": "When true, this column is hidden in the detail view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "fieldInput": {
-            "description": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.",
-            "type": "object",
-            "properties": {
-              "$schema": {
-                "description": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.",
-                "type": "string",
-                "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "type": {
-                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
-                "type": "string",
-                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "customRender": {
-                "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
-                "type": "string",
-                "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "format": {
-                "description": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.",
-                "type": "string",
-                "markdownDescription": "Render format hint for the frontend. Use \"relation\" for sub-resource relations (requires \"resource\"). The display format; determines which field input is used. Use \"fieldInput.type\" to override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "resource": {
-                "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.",
-                "type": "string",
-                "markdownDescription": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "relationType": {
-                "description": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.",
-                "type": "string",
-                "enum": [
-                  "oneToOne",
-                  "manyToOne",
-                  "oneToMany",
-                  "manyToMany"
-                ],
-                "markdownDescription": "Cardinality of the relation. \"manyToOne\" or \"oneToOne\" — single FK reference rendered as autocomplete or relation control. \"oneToMany\" or \"manyToMany\" — collection rendered as a sub-resource table or multi-select. Auto-derived from the Zod model or a sibling FK column when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "foreignKey": {
-                "description": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".",
-                "type": "string",
-                "markdownDescription": "FK field on the child model pointing back to the parent (e.g. \"workId\"). Defaults to \"${parentModel}Id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "relation": {
-                "description": "Override the Prisma relation field name when it differs from the column id.",
-                "type": "string",
-                "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "position": {
-                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
-                "type": "number",
-                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "defaultValue": {
-                "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
-                "markdownDescription": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "options": {
-                "description": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.",
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "description": "Override the field label",
-                        "examples": [
-                          "My label"
-                        ],
-                        "type": "string"
-                      },
-                      "hideLabel": {
-                        "description": "Hide the field label",
-                        "type": "boolean"
-                      },
-                      "placeholder": {
-                        "description": "Placeholder text shown inside the input when empty",
-                        "examples": [
-                          "Search..."
-                        ],
-                        "type": "string"
-                      },
-                      "readonly": {
-                        "description": "Render the field in read-only mode",
-                        "type": "boolean"
-                      },
-                      "colspan": {
-                        "default": 12,
-                        "description": "Grid column span (1–12); defaults to 12 for relation controls",
-                        "examples": [
-                          12,
-                          6
-                        ],
-                        "type": "number"
-                      },
-                      "width": {
-                        "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
-                        "examples": [
-                          "md",
-                          "240px"
-                        ],
-                        "type": "string"
-                      },
-                      "styles": {
-                        "description": "Inline CSS style object applied to the field wrapper",
-                        "examples": [
-                          {
-                            "color": "red"
-                          }
-                        ],
-                        "type": "object",
-                        "propertyNames": {
-                          "type": "string"
-                        },
-                        "additionalProperties": {}
-                      },
-                      "customRender": {
-                        "description": "Name of a globally registered Vue component to render instead of the default input",
-                        "examples": [
-                          "MyCustomInput"
-                        ],
-                        "type": "string"
-                      },
-                      "sort": {
-                        "description": "Field to sort related records by",
-                        "examples": [
-                          "name",
-                          "createdAt"
-                        ],
-                        "type": "string"
-                      },
-                      "sortDir": {
-                        "description": "Sort direction",
-                        "default": "asc",
-                        "examples": [
-                          "asc",
-                          "desc"
-                        ],
-                        "type": "string",
-                        "enum": [
-                          "asc",
-                          "desc"
-                        ]
-                      },
-                      "direction": {
-                        "description": "CSS flex direction for the button layout",
-                        "examples": [
-                          "row",
-                          "column"
-                        ],
-                        "type": "string"
-                      },
-                      "displayKey": {
-                        "description": "Key used as the display label for related records",
-                        "examples": [
-                          "name",
-                          "title"
-                        ],
-                        "type": "string"
-                      },
-                      "resource": {
-                        "description": "Path to the related resource.json",
-                        "examples": [
-                          "./author.resource.json"
-                        ],
-                        "type": "string"
-                      }
-                    },
-                    "additionalProperties": {},
-                    "title": "Relation options",
-                    "description": "Options for the sub-resource relation control"
-                  },
-                  {}
-                ],
-                "markdownDescription": "Type-specific options for the field input. Shape depends on \"type\" — see the field-input-specific JSON Schema ($schema) for the full options contract.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "detail": {
-                "description": "Nested array detail layout configuration. Renders via the detailFixed renderer.",
-                "type": "object",
-                "properties": {
-                  "layout": {
-                    "type": "string",
-                    "enum": [
-                      "collapse",
-                      "row"
-                    ],
-                    "description": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.",
-                    "markdownDescription": "Layout style for the nested array detail. \"collapse\" shows items in a collapsible section; \"row\" shows them inline.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                  },
-                  "titleKey": {
-                    "description": "Property key used as the heading for each array item in \"collapse\" mode.",
-                    "type": "string",
-                    "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                  },
-                  "controls": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "property": {
-                          "type": "string",
-                          "description": "Field property key within the array item object.",
-                          "markdownDescription": "Field property key within the array item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                        },
-                        "type": {
-                          "description": "Renderer type for this detail control. Defaults to \"text\".",
-                          "type": "string",
-                          "markdownDescription": "Renderer type for this detail control. Defaults to \"text\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                        },
-                        "options": {
-                          "description": "Renderer-specific options for this control.",
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {},
-                          "markdownDescription": "Renderer-specific options for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                        },
-                        "hideLabel": {
-                          "description": "When true, the label is hidden for this control.",
-                          "type": "boolean",
-                          "markdownDescription": "When true, the label is hidden for this control.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                        },
-                        "width": {
-                          "description": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").",
-                          "type": "string",
-                          "markdownDescription": "CSS width of this control in the detail layout (e.g. \"200px\" or \"30%\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                        }
-                      },
-                      "required": [
-                        "property"
-                      ]
-                    },
-                    "description": "Controls to render for each array item. Each control maps to a property of the item object.",
-                    "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-                  }
-                },
-                "required": [
-                  "layout",
-                  "controls"
-                ],
-                "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              }
-            },
-            "markdownDescription": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          }
-        },
-        "required": [
-          "id",
-          "alias",
-          "sqlExpression"
-        ]
-      },
-      "markdownDescription": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "layout": {
       "description": "Explicit layout for generated views (form, view, table). When absent, source-order grid is used.",
