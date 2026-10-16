@@ -64,6 +64,20 @@ Switching themes at runtime works the daisyUI way, with a `data-theme` attribute
 <html data-theme="mytheme"></html>
 ```
 
+## Column width scale
+
+Table items and form items share a named width scale. Use these tokens in `layout.table` items (`width` field) or form items (`colspan`-equivalent):
+
+| Token | Approximate width |
+|---|---|
+| `xs` | ~4 rem |
+| `sm` | ~8 rem |
+| `md` | ~12 rem |
+| `lg` | ~18 rem |
+| `xl` | ~24 rem |
+
+You can also pass any CSS value directly (e.g. `"120px"`, `"8rem"`, `"20%"`).
+
 ## Targeted overrides
 
 The components use regular daisyUI class names (`btn`, `modal`, `table`, `drawer`, `alert`, …), so narrow tweaks are plain CSS:

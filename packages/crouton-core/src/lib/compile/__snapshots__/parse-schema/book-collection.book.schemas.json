@@ -89,6 +89,7 @@
         ],
         "options": {
           "defaultSortId": "title",
+          "defaultSortDir": "asc",
           "filter": {
             "schema": {
               "type": "object",

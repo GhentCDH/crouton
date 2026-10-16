@@ -113,6 +113,15 @@ export const orderTableColumnsFromLayout = (
         // sortable: true but no sortId derived — use column id
         overrides['sortId'] = id;
       }
+      // Forward column presentation options
+      if (ctrlObj?.width !== undefined) overrides['width'] = ctrlObj.width;
+      if (ctrlObj?.minWidth !== undefined) overrides['minWidth'] = ctrlObj.minWidth;
+      if (ctrlObj?.maxWidth !== undefined) overrides['maxWidth'] = ctrlObj.maxWidth;
+      if (ctrlObj?.align !== undefined) overrides['align'] = ctrlObj.align;
+      if (ctrlObj?.truncate !== undefined) overrides['truncate'] = ctrlObj.truncate;
+      if (ctrlObj?.pin !== undefined) overrides['pin'] = ctrlObj.pin;
+      if (ctrlObj?.visible !== undefined) overrides['visible'] = ctrlObj.visible;
+      if (ctrlObj?.headerTooltip !== undefined) overrides['headerTooltip'] = ctrlObj.headerTooltip;
       // Apply type/options overrides (replaces fieldTable)
       const typeOverride = ctrlObj?.type;
       const optOverride = ctrlObj?.options;

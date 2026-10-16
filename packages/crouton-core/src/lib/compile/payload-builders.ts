@@ -17,6 +17,7 @@ interface TableInjectOptions {
   rowActions: unknown[];
   tableActions: unknown[];
   defaultSortId?: string;
+  defaultSortDir?: 'asc' | 'desc';
   filter?: { schema: unknown; uischema: unknown; initialData: Record<string, never> };
 }
 
@@ -31,6 +32,7 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
         ...(opts.tableActions.length && { tableActions: opts.tableActions }),
         ...(opts.rowActions.length && { rowActions: opts.rowActions }),
         ...(opts.defaultSortId !== undefined && { defaultSortId: opts.defaultSortId }),
+        ...(opts.defaultSortDir !== undefined && { defaultSortDir: opts.defaultSortDir }),
         ...(opts.filter && { filter: opts.filter }),
       },
     };
@@ -237,6 +239,7 @@ export const buildViewsPayload = (
       rowActions: resolveActions(baseUri, resolveTableNode(config.layout?.table)?.rowActions as any),
       tableActions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions as any),
       defaultSortId: config.views['table']?.defaultSort,
+      defaultSortDir: config.views['table']?.defaultSortDir,
       ...(filterSchema && {
         filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },
       }),
@@ -299,6 +302,7 @@ export const buildSubResourceViewsPayload = (
           rowActions: resolveActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.rowActions ?? (sub as any).rowActions ?? sub.actions),
           tableActions: resolveTableActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.tableActions ?? (sub as any).tableActions),
           defaultSortId: sub.views['table']?.defaultSort,
+          defaultSortDir: sub.views['table']?.defaultSortDir,
           ...(subFilterSchema && {
             filter: { schema: subFilterSchema.data, uischema: subFilterSchema.ui, initialData: {} },
           }),

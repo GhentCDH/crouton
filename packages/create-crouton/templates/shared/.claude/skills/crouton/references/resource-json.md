@@ -109,11 +109,17 @@
 | `relations[].foreignKey` | string | yes (manyToOne/oneToMany) | FK column name |
 | `layout.form` / `layout.view` | FormLayoutNode | no | Form/view layout — nodes with `items` arrays |
 | `layout.table` | TableLayoutRoot | no | Table layout — table node or wrapper containing one |
-| `layout.table.items[]` | string \| FieldControl | no | Column order; field id string or `{ id, sortable, ... }` |
+| `layout.table.items[]` | string \| FieldControl | no | Column order; field id string or `{ id, sortable, defaultSort, width, align, truncate, pin, visible, headerTooltip, ... }` |
 | `layout.table.rowActions` | Action[] | no | Per-record row actions (receive the record id) |
 | `layout.table.tableActions` | Action[] | no | Global toolbar actions (no record id) |
 | `layout.table.searchFields` | string[] | no | Column ids included in `?q=` search |
 | `layout.table.filterFields` | string[] | no | Column ids that get filter controls |
+| `layout.table.pageSize` | number | no | Initial page size (default 20) |
+| `layout.table.pageSizes` | number[] | no | Page size selector options |
+| `layout.table.density` | `"normal"\|"compact"` | no | Row density |
+| `layout.table.selectable` | boolean | no | Row checkboxes for multi-select |
+| `layout.table.rowClick` | `"view"\|"edit"\|"none"` | no | Row click behaviour |
+| `layout.table.emptyText` | string | no | Text shown when no records |
 
 ## Layout items
 

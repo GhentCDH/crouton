@@ -57,13 +57,13 @@ export const deriveSortId = (col: JsonColumn): string | null => {
 const getLayoutControlFlags = (
   colId: string,
   tableLayout: LayoutNode | undefined,
-): { sortable: boolean; defaultSort: boolean } => {
+): { sortable: boolean; defaultSort: boolean | 'asc' | 'desc' } => {
   const items = (resolveTableNode(tableLayout) ?? tableLayout)?.items ?? [];
   for (const ctrl of items) {
     if (typeof ctrl === 'string') continue;
     if ('component' in ctrl) continue;
     if (!('id' in ctrl) || ctrl.id !== colId) continue;
-    const c = ctrl as { sortable?: boolean; defaultSort?: boolean };
+    const c = ctrl as { sortable?: boolean; defaultSort?: boolean | 'asc' | 'desc' };
     return { sortable: c.sortable ?? false, defaultSort: c.defaultSort ?? false };
   }
   return { sortable: false, defaultSort: false };
@@ -71,7 +71,7 @@ const getLayoutControlFlags = (
 
 /**
  * Pick the best default sort column:
- * 1. Explicit `defaultSort: true` layout control that is also sortable.
+ * 1. Explicit `defaultSort` layout control that is also sortable.
  * 2. First sortable visible column (from layout or column-level flag).
  * 3. The idField column as a last resort.
  */
@@ -79,14 +79,17 @@ export const resolveDefaultSort = (
   tableCols: JsonColumn[],
   allColumns: JsonColumn[] | undefined,
   tableLayout?: LayoutNode,
-): string | undefined => {
-  const isSortable = (c: JsonColumn) =>
-    getLayoutControlFlags(c.id, tableLayout).sortable;
-  const isDefault = (c: JsonColumn) =>
-    getLayoutControlFlags(c.id, tableLayout).defaultSort;
+): { id: string; dir: 'asc' | 'desc' } | undefined => {
+  const getFlags = (c: JsonColumn) => getLayoutControlFlags(c.id, tableLayout);
+  const isSortable = (c: JsonColumn) => getFlags(c).sortable;
+  const isDefault = (c: JsonColumn) => !!getFlags(c).defaultSort;
   const sortCol =
     tableCols.find((c) => isDefault(c) && isSortable(c)) ??
     tableCols.find(isSortable) ??
     allColumns?.find((c) => c.idField);
-  return sortCol ? (deriveSortId(sortCol) ?? sortCol.id) : undefined;
+  if (!sortCol) return undefined;
+  const id = deriveSortId(sortCol) ?? sortCol.id;
+  const rawDir = getFlags(sortCol).defaultSort;
+  const dir: 'asc' | 'desc' = rawDir === 'desc' ? 'desc' : 'asc';
+  return { id, dir };
 };

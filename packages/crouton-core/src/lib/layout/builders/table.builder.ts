@@ -23,12 +23,30 @@ export const buildTableLayout = (
   const tableCols = columns?.map((c) => columnForContext(c, 'table'));
   let table = buildView(source, tableCols, (c) => !c.hiddenInTable, buildTableUiSchema, true);
   if (table) {
-    table.defaultSort = resolveDefaultSort(
+    const defaultSortResult = resolveDefaultSort(
       table.columns as any[],
       columns,
       resolveTableNode(node) as any,
     );
+    table.defaultSort = defaultSortResult?.id;
+    table.defaultSortDir = defaultSortResult?.dir;
     if (node) table = orderTableColumnsFromLayout(table, node as any, ctx.warn);
+
+    const tableNode = resolveTableNode(node as any);
+    if (tableNode) {
+      const nodeOpts: Record<string, unknown> = {};
+      if (tableNode.pageSize != null) nodeOpts['pageSize'] = tableNode.pageSize;
+      if (tableNode.pageSizes != null) nodeOpts['pageSizes'] = tableNode.pageSizes;
+      if (tableNode.density != null) nodeOpts['density'] = tableNode.density;
+      if (tableNode.selectable != null) nodeOpts['selectable'] = tableNode.selectable;
+      if (tableNode.rowClick != null) nodeOpts['rowClick'] = tableNode.rowClick;
+      if (tableNode.emptyText != null) nodeOpts['emptyText'] = tableNode.emptyText;
+      if (Object.keys(nodeOpts).length) {
+        const ui = table.ui_schema as Record<string, unknown>;
+        table.ui_schema = { ...ui, options: { ...((ui['options'] as object) ?? {}), ...nodeOpts } };
+      }
+    }
+
     views.table = table;
   } else if (columns !== undefined) {
     views.table = emptyTableView();
