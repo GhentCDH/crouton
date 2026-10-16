@@ -149,18 +149,20 @@ export const compileResource = (
   };
   const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
 
+  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
     route: json.route,
-    model: json.model,
     tag: json.tag,
     sidebar: json.sidebar,
     display: derivedDisplay,
     modalSize: derivedModalSize,
-    ...(json.idType && { idType: json.idType }),
+    ...(src?.model && { model: src.model }),
+    ...(src?.table && { table: src.table }),
+    ...(src?.database && { database: src.database }),
+    ...(src?.idType && { idType: src.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
-    ...(json.database && { database: json.database }),
     definition,
     subResources,
     ...(views && { views }),

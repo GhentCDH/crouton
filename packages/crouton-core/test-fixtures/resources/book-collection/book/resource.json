@@ -1,6 +1,5 @@
 {
   "name": "book",
-  "model": "Book",
   "title": "Books",
   "columns": {
     "id": {
@@ -62,5 +61,8 @@
         "categories"
       ]
     }
+  },
+  "source": {
+    "model": "Book"
   }
 }

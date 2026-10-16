@@ -1,6 +1,5 @@
 {
   "name": "user",
-  "model": "User",
   "title": "Users",
   "columns": {
     "id": {
@@ -18,5 +17,8 @@
       "sortable": true
     }
   },
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "source": {
+    "model": "User"
+  }
 }

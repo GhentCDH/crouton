@@ -45,11 +45,6 @@
       "type": "string",
       "markdownDescription": "Internal resource id used in frontend routing. Defaults to \"name\" when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
-    "model": {
-      "description": "Prisma model name. Required when kind is \"prisma\"; must be absent when kind is \"custom\".",
-      "type": "string",
-      "markdownDescription": "Prisma model name. Required when kind is \"prisma\"; must be absent when kind is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
     "tag": {
       "default": "Crouton",
       "description": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".",
@@ -61,24 +56,36 @@
       "type": "string",
       "markdownDescription": "Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of \"name\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
-    "table": {
-      "description": "Database table name override. Defaults to the Prisma model's table name.",
-      "type": "string",
-      "markdownDescription": "Database table name override. Defaults to the Prisma model's table name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
-    "idType": {
-      "description": "Data type of the resource's primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to \"string\".",
-      "type": "string",
-      "enum": [
-        "string",
-        "number"
-      ],
-      "markdownDescription": "Data type of the resource's primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to \"string\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
-    "database": {
-      "description": "Name of the datasource this resource uses. Defaults to the project's default datasource.",
-      "type": "string",
-      "markdownDescription": "Name of the datasource this resource uses. Defaults to the project's default datasource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+    "source": {
+      "description": "Database source config: Prisma model name, table override, datasource, and primary-key type.",
+      "type": "object",
+      "properties": {
+        "model": {
+          "description": "Prisma model name. Required when kind is \"prisma\".",
+          "type": "string",
+          "markdownDescription": "Prisma model name. Required when kind is \"prisma\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "table": {
+          "description": "Database table name override. Defaults to the Prisma model's table name.",
+          "type": "string",
+          "markdownDescription": "Database table name override. Defaults to the Prisma model's table name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "database": {
+          "description": "Name of the datasource this resource uses.",
+          "type": "string",
+          "markdownDescription": "Name of the datasource this resource uses.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "idType": {
+          "description": "Primary key data type — \"string\" (default) or \"number\".",
+          "type": "string",
+          "enum": [
+            "string",
+            "number"
+          ],
+          "markdownDescription": "Primary key data type — \"string\" (default) or \"number\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        }
+      },
+      "markdownDescription": "Database source config: Prisma model name, table override, datasource, and primary-key type.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "parent": {
       "description": "Mount this resource under a parent route instead of at the top level. Only valid on kind:\"custom\" resources. See ParentRef for the full config.",

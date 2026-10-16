@@ -19,6 +19,10 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
   display: '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
   modalSize: '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
   include: '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
+  model: '\'model\' moved to source.model (run crouton migrate)',
+  table: '\'table\' moved to source.table (run crouton migrate)',
+  database: '\'database\' moved to source.database (run crouton migrate)',
+  idType: '\'idType\' moved to source.idType (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -119,17 +123,6 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Internal resource id used in frontend routing. Defaults to "name" when omitted.',
     ),
-  /**
-   * Prisma model name. Required when `kind` is `prisma` (enforced by the
-   * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
-   * `custom` — there is no Prisma delegate to address.
-   */
-  model: z
-    .string()
-    .optional()
-    .describe(
-      'Prisma model name. Required when kind is "prisma"; must be absent when kind is "custom".',
-    ),
   tag: z
     .string()
     .optional()
@@ -143,24 +136,15 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of "name".',
     ),
-  table: z
-    .string()
+  source: z
+    .object({
+      model: z.string().optional().describe('Prisma model name. Required when kind is "prisma".'),
+      table: z.string().optional().describe('Database table name override. Defaults to the Prisma model\'s table name.'),
+      database: z.string().optional().describe('Name of the datasource this resource uses.'),
+      idType: z.enum(['string', 'number']).optional().describe('Primary key data type — "string" (default) or "number".'),
+    })
     .optional()
-    .describe(
-      'Database table name override. Defaults to the Prisma model\'s table name.',
-    ),
-  idType: z
-    .enum(['string', 'number'])
-    .optional()
-    .describe(
-      'Data type of the resource\'s primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to "string".',
-    ),
-  database: z
-    .string()
-    .optional()
-    .describe(
-      'Name of the datasource this resource uses. Defaults to the project\'s default datasource.',
-    ),
+    .describe('Database source config: Prisma model name, table override, datasource, and primary-key type.'),
   /**
    * Mount this resource under a parent route instead of at the top level —
    * see `./ParentRef.schema`. Only valid on a `kind: "custom"` resource.
@@ -217,12 +201,12 @@ export const refineByKind = (
   ctx: z.RefinementCtx,
 ): void => {
   if (obj.kind === 'custom') {
-    if (obj.model !== undefined) {
+    if (obj.source?.model !== undefined) {
       ctx.addIssue({
         code: 'custom',
-        path: ['model'],
+        path: ['source', 'model'],
         message:
-          'A custom resource has no Prisma model. Remove "model" — data access comes from repository.ts.',
+          'A custom resource has no Prisma model. Remove "source.model" — data access comes from repository.ts.',
       });
     }
     if (obj.calculatedColumns?.length) {
@@ -516,7 +500,7 @@ export const buildResourceJsonSchema = () => {
               const { searchFields: _sf, ...restTable } = outerTable;
               obj = { ...obj, layout: { ...layout, table: restTable } };
               if (layoutSearchFields.length) {
-                const kind2 = (obj['kind'] as string | undefined) ?? (obj['model'] !== undefined ? 'prisma' : 'custom');
+                const kind2 = (obj['kind'] as string | undefined) ?? ((obj['model'] !== undefined || (obj['source'] as any)?.['model'] !== undefined) ? 'prisma' : 'custom');
                 const rawOps2 = obj['operations'] as Record<string, unknown> | undefined;
                 const eff2 = (rawOps2?.['findAll'] ?? (kind2 === 'custom' ? false : true));
                 if (eff2 !== false) {
@@ -541,7 +525,7 @@ export const buildResourceJsonSchema = () => {
                 const { searchFields: _sf, ...restInner } = items[idx];
                 obj = { ...obj, layout: { ...layout, table: { ...outerTable, items: [...items.slice(0, idx), restInner, ...items.slice(idx + 1)] } } };
                 if (layoutSearchFields.length) {
-                  const kind3 = (obj['kind'] as string | undefined) ?? (obj['model'] !== undefined ? 'prisma' : 'custom');
+                  const kind3 = (obj['kind'] as string | undefined) ?? ((obj['model'] !== undefined || (obj['source'] as any)?.['model'] !== undefined) ? 'prisma' : 'custom');
                   const rawOps3 = obj['operations'] as Record<string, unknown> | undefined;
                   const eff3 = (rawOps3?.['findAll'] ?? (kind3 === 'custom' ? false : true));
                   if (eff3 !== false) {
@@ -564,8 +548,8 @@ export const buildResourceJsonSchema = () => {
         }
       }
 
-      // Auto-derive kind='prisma' when a model is present and kind is unset.
-      if (obj['kind'] === undefined && obj['model'] !== undefined) {
+      // Auto-derive kind='prisma' when source.model (or legacy root model) is present and kind is unset.
+      if (obj['kind'] === undefined && (obj['model'] !== undefined || (obj['source'] as any)?.['model'] !== undefined)) {
         obj = { ...obj, kind: 'prisma' };
       }
 

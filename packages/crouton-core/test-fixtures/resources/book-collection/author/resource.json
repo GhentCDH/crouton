@@ -1,6 +1,5 @@
 {
   "name": "author",
-  "model": "Author",
   "title": "Authors",
   "columns": {
     "id": {
@@ -41,5 +40,8 @@
         "books"
       ]
     }
+  },
+  "source": {
+    "model": "Author"
   }
 }

@@ -1,6 +1,5 @@
 {
   "name": "book",
-  "model": "Book",
   "route": "books",
   "columns": {
     "id": {
@@ -33,5 +32,8 @@
         "categories"
       ]
     }
+  },
+  "source": {
+    "model": "Book"
   }
 }

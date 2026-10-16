@@ -1,6 +1,5 @@
 {
   "name": "chapter",
-  "model": "Chapter",
   "route": "chapter",
   "columns": {
     "id": {
@@ -17,5 +16,8 @@
       "sortable": true
     }
   },
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "source": {
+    "model": "Chapter"
+  }
 }

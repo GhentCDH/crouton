@@ -1,6 +1,5 @@
 {
   "name": "category",
-  "model": "Category",
   "title": "Categories",
   "columns": {
     "id": {
@@ -16,5 +15,8 @@
       "sortable": true
     }
   },
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "source": {
+    "model": "Category"
+  }
 }
