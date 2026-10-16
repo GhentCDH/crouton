@@ -3,6 +3,7 @@ import type { Command } from 'commander';
 import {
   findConfigPath,
   loadConfig,
+  migrateDisplayToContainer,
   migrateLayoutPrecedence,
   migrateRelationKeys,
   migrateRemovedColumnFields,
@@ -107,6 +108,7 @@ export const registerMigrateCommand = (program: Command) => {
           const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
           const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
           const { resource: relationFixed, report: relationReport } = migrateRelationKeys(colFixed);
+          const { resource: displayFixed, report: displayReport } = migrateDisplayToContainer(relationFixed);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -122,8 +124,9 @@ export const registerMigrateCommand = (program: Command) => {
             colReport.columnsWithFieldView.length > 0 ||
             colReport.columnsWithColumnType.length > 0;
           const hasRelationChanges = relationReport.migratedColumns.length > 0;
+          const hasDisplayChanges = displayReport.changed;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges) continue;
 
           needsMigration++;
 
@@ -144,8 +147,10 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push(`remove columnType from columns: ${colReport.columnsWithColumnType.join(', ')}`);
           if (relationReport.migratedColumns.length)
             labels.push(`lift relation keys to column.relation: ${relationReport.migratedColumns.join(', ')}`);
+          if (displayReport.changed)
+            labels.push('display/modalSize → layout.form.container / layout.view.container');
 
-          const out = JSON.stringify(relationFixed, null, 2) + '\n';
+          const out = JSON.stringify(displayFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

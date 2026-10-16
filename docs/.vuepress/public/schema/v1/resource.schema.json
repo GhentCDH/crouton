@@ -141,36 +141,6 @@
       },
       "markdownDescription": "Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
-    "display": {
-      "default": {
-        "mode": "modal",
-        "customComponent": null
-      },
-      "description": "How records open when clicked. Default: modal dialog.",
-      "type": "object",
-      "properties": {
-        "mode": {
-          "default": "modal",
-          "description": "How a record opens when clicked. \"modal\" (default) opens a dialog; \"page\" navigates to a dedicated route.",
-          "type": "string",
-          "enum": [
-            "page",
-            "modal"
-          ],
-          "markdownDescription": "How a record opens when clicked. \"modal\" (default) opens a dialog; \"page\" navigates to a dedicated route.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "customComponent": {
-          "default": null,
-          "description": "Import path to a custom Vue component for the record detail view. When set, the default view is replaced.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "markdownDescription": "Import path to a custom Vue component for the record detail view. When set, the default view is replaced.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        }
-      },
-      "markdownDescription": "How records open when clicked. Default: modal dialog.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
     "security": {
       "description": "Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.",
       "anyOf": [
@@ -1694,18 +1664,6 @@
       },
       "markdownDescription": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
-    "modalSize": {
-      "default": "sm",
-      "description": "Width of the create/edit modal dialog. \"xs\", \"sm\" (default), \"lg\", or \"xl\".",
-      "type": "string",
-      "enum": [
-        "xs",
-        "sm",
-        "lg",
-        "xl"
-      ],
-      "markdownDescription": "Width of the create/edit modal dialog. \"xs\", \"sm\" (default), \"lg\", or \"xl\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
     "include": {
       "default": [],
       "description": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.",
@@ -1724,6 +1682,35 @@
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "container": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "default": "modal",
+                      "description": "How this context opens: \"modal\" (default) shows a dialog; \"page\" navigates to a route.",
+                      "type": "string",
+                      "enum": [
+                        "modal",
+                        "page"
+                      ]
+                    },
+                    "size": {
+                      "description": "Width of the modal dialog. Only applies when mode is \"modal\". Default: \"sm\".",
+                      "type": "string",
+                      "enum": [
+                        "xs",
+                        "sm",
+                        "lg",
+                        "xl"
+                      ]
+                    }
+                  }
+                }
+              }
             }
           ],
           "markdownDescription": "Explicit layout for the create/edit form. When absent, columns are rendered in source order in a grid.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
@@ -1733,6 +1720,39 @@
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "container": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "default": "modal",
+                      "description": "How this context opens: \"modal\" (default) shows a dialog; \"page\" navigates to a route.",
+                      "type": "string",
+                      "enum": [
+                        "modal",
+                        "page"
+                      ]
+                    },
+                    "size": {
+                      "description": "Width of the modal dialog. Only applies when mode is \"modal\". Default: \"sm\".",
+                      "type": "string",
+                      "enum": [
+                        "xs",
+                        "sm",
+                        "lg",
+                        "xl"
+                      ]
+                    }
+                  }
+                },
+                "component": {
+                  "description": "Import path to a custom Vue component for the detail view. When set, the default view layout is ignored.",
+                  "type": "string"
+                }
+              }
             }
           ],
           "markdownDescription": "Explicit layout for the read-only detail view. When absent, columns are rendered in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"

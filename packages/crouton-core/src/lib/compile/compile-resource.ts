@@ -133,6 +133,15 @@ export const compileResource = (
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 
+  // Derive display/modalSize from layout.container (Block 2 migration)
+  const formContainer = (json.layout?.form as any)?.container;
+  const viewContainer = (json.layout?.view as any)?.container;
+  const derivedDisplay = {
+    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as 'modal' | 'page',
+    customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
+  };
+  const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
+
   return {
     ...json,
     name: json.name,
@@ -140,7 +149,8 @@ export const compileResource = (
     model: json.model,
     tag: json.tag,
     sidebar: json.sidebar,
-    display: json.display,
+    display: derivedDisplay,
+    modalSize: derivedModalSize,
     ...(json.idType && { idType: json.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
     ...(json.database && { database: json.database }),
@@ -151,7 +161,6 @@ export const compileResource = (
     ...(lookup && { lookup }),
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
-    ...(json.modalSize && { modalSize: json.modalSize }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
