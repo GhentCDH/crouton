@@ -109,7 +109,9 @@ export const fromJson = (
     }
   }
 
-  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(json.operations?.findAll));
+  const findAll = json.operations?.findAll;
+  const findAllEnabled = findAll !== false && !isCustom;
+  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
   const lookup = buildLookup(enrichedColumns, dirPath, searchPaths);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(
@@ -148,17 +150,34 @@ export const fromJson = (
   } as unknown as Resource;
 };
 
+const isSearchableColumn = (c: JsonColumn): boolean =>
+  !c.idField &&
+  c.fieldInput?.format !== 'relation' &&
+  !c.fieldInput?.relationType &&
+  c.fieldInput?.type !== 'date';
+
 const buildSearch = (
   columns: JsonColumn[] | undefined,
   searchPaths: string[] | undefined,
+  findAllEnabled = false,
 ): string[] | undefined => {
-  if (!columns || !searchPaths?.length) return undefined;
+  if (!columns) return undefined;
+  if (!searchPaths?.length) {
+    if (!findAllEnabled) return undefined;
+    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
+    return fallback.length ? fallback : undefined;
+  }
   return searchPaths.map((id) => {
     const col = columns.find((c) => c.id === id);
     if (!col) return id;
     if (col.fieldInput?.format === 'relation') {
       const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
       if (opts?.displayKey) return `${id}.${opts.displayKey}`;
+    }
+    if (col.fieldInput?.relationType === 'manyToOne') {
+      const displayKey =
+        (col.fieldInput.options as any)?.displayKey ?? (col as any).displayKey;
+      if (displayKey) return `${id}.${displayKey}`;
     }
     return id;
   });

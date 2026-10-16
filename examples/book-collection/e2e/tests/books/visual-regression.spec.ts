@@ -140,6 +140,7 @@ test.describe('books visual regression', () => {
     // The Hobbit has rating 5 — all stars should be yellow
     const firstRow = list.getRows().first();
     const ratingCell = firstRow.locator('td').filter({ has: page.locator('button').filter({ hasText: '★' }) });
+    await ratingCell.scrollIntoViewIfNeeded();
     await expect(ratingCell).toHaveScreenshot('book-rating-in-table.png', {
       maxDiffPixelRatio: 0.05,
     });

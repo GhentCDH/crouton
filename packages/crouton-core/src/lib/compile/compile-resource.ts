@@ -30,11 +30,23 @@ const pickExtensions = (obj: Record<string, unknown>) =>
       .map((k) => [k, obj[k]]),
   );
 
+const isSearchableColumn = (c: JsonColumn): boolean =>
+  !c.idField &&
+  c.fieldInput?.format !== 'relation' &&
+  !c.fieldInput?.relationType &&
+  c.fieldInput?.type !== 'date';
+
 const buildSearch = (
   columns: JsonColumn[] | undefined,
   searchPaths: string[] | undefined,
+  findAllEnabled = false,
 ): string[] | undefined => {
-  if (!columns || !searchPaths?.length) return undefined;
+  if (!columns) return undefined;
+  if (!searchPaths?.length) {
+    if (!findAllEnabled) return undefined;
+    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
+    return fallback.length ? fallback : undefined;
+  }
   return searchPaths.map((id) => {
     const col = columns.find((c) => c.id === id);
     if (!col) return id;
@@ -106,7 +118,9 @@ export const compileResource = (
     }
   }
 
-  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(json.operations?.findAll));
+  const findAll = json.operations?.findAll;
+  const findAllEnabled = findAll !== false && json.kind !== 'custom';
+  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
   const lookup = buildLookup(enrichedColumns, searchPaths);
   const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
