@@ -1,5 +1,5 @@
 {
-  "$schema": "https://ghentcdh.github.io/crouton/schema/v2/resource.schema.json",
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "loan",
   "model": "Loan",
