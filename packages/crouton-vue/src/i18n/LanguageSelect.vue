@@ -1,16 +1,19 @@
 <template>
-  <select
-    v-if="languages.length > 1"
-    :value="language"
-    class="select select-sm select-bordered w-full"
-    @change="onChange"
-  >
-    <option v-for="lang in languages" :key="lang" :value="lang">
-      {{ lang.toUpperCase() }}
-    </option>
-  </select>
+  <div v-if="languages.length > 1" class="flex items-center gap-1 px-2">
+    <LanguageIcon class="size-4 shrink-0 text-base-content/60" />
+    <select
+      class="select select-ghost select-sm w-full"
+      :value="language"
+      @change="setLanguage(($event.target as HTMLSelectElement).value)"
+    >
+      <option v-for="lang in languages" :key="lang" :value="lang">
+        {{ displayName(lang) }}
+      </option>
+    </select>
+  </div>
 </template>
 <script setup lang="ts">
+import { LanguageIcon } from '@heroicons/vue/24/outline';
 import { LanguageSelectProperties } from './LanguageSelect.properties';
 import { useLanguage } from '../composables/useLanguage';
 
@@ -18,8 +21,12 @@ defineProps(LanguageSelectProperties);
 
 const { language, languages, setLanguage } = useLanguage();
 
-const onChange = (e: Event) => {
-  const target = e.target as HTMLSelectElement;
-  setLanguage(target.value);
+const displayName = (lang: string): string => {
+  if (lang === 'wv') return 'West Vloams';
+  try {
+    return new Intl.DisplayNames([lang], { type: 'language' }).of(lang) ?? lang.toUpperCase();
+  } catch {
+    return lang.toUpperCase();
+  }
 };
 </script>

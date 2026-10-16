@@ -2,7 +2,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
 import { computed, inject, ref } from 'vue';
 
-import { type MyStyles, mergeStyles } from '@ghentcdh/crouton-ui-vue';
+import { type MyStyles, mergeStyles, useUiTranslator } from '@ghentcdh/crouton-ui-vue';
 
 import { formatError } from '../../../errorMessages';
 import {
@@ -55,6 +55,15 @@ const checkRequired = (
   return Array.isArray(req) && req.includes(fieldName);
 };
 
+const localizeError = (
+  msg: string | undefined,
+  t: (key: string, fallback: string) => string,
+): string | undefined => {
+  if (!msg) return undefined;
+  if (msg === 'This field is required') return t('validation.required', msg);
+  return msg;
+};
+
 export const useInputProps = (
   uischema: ControlElement,
   schema: JsonSchema,
@@ -83,6 +92,7 @@ export const useInputProps = (
   })();
 
   const styles = mergeStyles(opts.styles) as any;
+  const t = useUiTranslator();
 
   const errorMode = inject(ERROR_MODE_KEY, ref('onBlur'));
   const submitted = inject(FORM_SUBMITTED_KEY, ref(false));
@@ -115,10 +125,11 @@ export const useInputProps = (
     placeholder: opts.placeholder,
     description: s.description,
     errors: shouldShowError.value
-      ? (opts.errorMessage ?? formatError(errorMessage.value))
+      ? (opts.errorMessage ?? localizeError(formatError(errorMessage.value), t))
       : undefined,
     label:
       opts.label ??
+      s.title ??
       labelFromScope.charAt(0).toUpperCase() + labelFromScope.slice(1),
     visible: opts.visible ?? true,
     required: isRequired,

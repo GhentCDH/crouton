@@ -30,26 +30,26 @@
       <slot name="content-after" />
     </template>
     <template #actions>
-      <Btn v-if="canEdit" :aria-label="editLabel" @click="onEditClick">
-        {{ editLabel }}
+      <Btn v-if="canEdit" :aria-label="t('actions.edit', editLabel)" @click="onEditClick">
+        {{ t('actions.edit', editLabel) }}
       </Btn>
       <Btn
         :color="Color.secondary"
         :outline="true"
-        :aria-label="closeLabel"
+        :aria-label="t('actions.close', closeLabel)"
         @click="onCancel"
       >
-        {{ closeLabel }}
+        {{ t('actions.close', closeLabel) }}
       </Btn>
       <Btn
         v-if="canDelete"
         :color="Color.error"
         :outline="true"
-        :aria-label="deleteLabel"
+        :aria-label="t('actions.delete', deleteLabel)"
         :icon="IconEnum.Delete"
         @click="onDeleteClick"
       >
-        {{ deleteLabel }}
+        {{ t('actions.delete', deleteLabel) }}
       </Btn>
     </template>
   </Modal>
@@ -61,10 +61,12 @@ import { ref, watch } from 'vue';
 import { Btn, Color, IconEnum, Modal } from '@ghentcdh/crouton-ui-vue';
 
 import { ViewModalEmits, ViewModalProperties } from './ViewModal.properties';
+import { useUiTranslator } from '../../composables/useUiTranslator';
 import FormComponent from '../../forms/FormComponent.vue';
 import { useDefaultRenderers } from '../../composables/useRendererProvider';
 
 const properties = defineProps(ViewModalProperties);
+const t = useUiTranslator();
 const id = `view_${Math.floor(Math.random() * 1000)}`;
 
 const valid = ref(false);

@@ -38,21 +38,21 @@ export class CroutonListPage {
   clickEdit = async (rowIndex: number) => {
     const row = this.getRows().nth(rowIndex);
     await row.hover();
-    await row.getByRole('button', { name: /edit|update/i }).click();
+    await row.getByTestId('btn-action-edit').click();
     await this.page.getByTestId('form-modal').waitFor({ state: 'visible' });
   };
 
   clickView = async (rowIndex: number) => {
     const row = this.getRows().nth(rowIndex);
     await row.hover();
-    await row.getByRole('button', { name: /view/i }).click();
+    await row.getByTestId('btn-action-view').click();
     await this.page.getByTestId('form-modal').waitFor({ state: 'visible' });
   };
 
   clickDelete = async (rowIndex: number) => {
     const row = this.getRows().nth(rowIndex);
     await row.hover();
-    await row.getByRole('button', { name: /delete|remove/i }).click();
+    await row.getByTestId('btn-action-delete').click();
   };
 
   confirmDelete = async () => {
@@ -76,7 +76,7 @@ export class CroutonListPage {
   };
 
   setFirstFilterField = async (fieldLabel: string) => {
-    await this.page.getByRole('combobox').first().click();
+    await this.page.getByTestId('filter-panel').getByRole('combobox').first().click();
     await this.page.getByRole('option', { name: fieldLabel }).click();
   };
 
@@ -110,7 +110,7 @@ export class CroutonListPage {
   };
 
   setFirstFilterValueEnum = async (value: string) => {
-    await this.page.getByRole('combobox').nth(2).click();
+    await this.page.getByTestId('filter-panel').getByRole('combobox').nth(2).click();
     await this.page.getByRole('option', { name: new RegExp(value, 'i') }).click();
   };
 

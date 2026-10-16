@@ -36,7 +36,12 @@ export class CroutonFormPage {
   };
 
   cancel = async () => {
-    await this.page.getByTestId('form-modal').getByRole('button').filter({ hasText: /cancel|close/i }).click();
+    const cancelBtn = this.page.getByTestId('btn-cancel');
+    if (await cancelBtn.isVisible()) {
+      await cancelBtn.click();
+    } else {
+      await this.page.getByTestId('form-modal').getByRole('button').filter({ hasText: /Close/ }).click();
+    }
     await this.page.getByTestId('form-modal').waitFor({ state: 'hidden' });
   };
 

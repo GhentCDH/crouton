@@ -3,7 +3,7 @@
     <div class="relative w-full">
       <input
         v-model="model"
-        :aria-label="id"
+        :aria-label="label"
         autocomplete="off"
         data-lpignore="true"
         data-bwignore="true"

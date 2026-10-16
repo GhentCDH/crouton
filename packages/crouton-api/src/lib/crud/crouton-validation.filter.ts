@@ -6,7 +6,7 @@ import {
   Optional,
 } from '@nestjs/common';
 
-import { validationKey } from '@ghentcdh/crouton-core';
+import { resolveLanguage, validationKey } from '@ghentcdh/crouton-core';
 
 import { CroutonValidationError } from './crouton-validation.error';
 import { getRequestLanguage } from './translation/language.context';
@@ -32,11 +32,13 @@ export class CroutonValidationExceptionFilter implements ExceptionFilter {
   ) {}
 
   catch(exception: CroutonValidationError, host: ArgumentsHost): void {
-    const res = host.switchToHttp().getResponse<{
+    const http = host.switchToHttp();
+    const req = http.getRequest<{ headers: Record<string, string | undefined> }>();
+    const res = http.getResponse<{
       status: (code: number) => { json: (body: unknown) => void };
     }>();
 
-    const errors = this.translateErrors(exception.errors);
+    const errors = this.translateErrors(exception.errors, req.headers['accept-language']);
 
     res.status(400).json({
       statusCode: 400,
@@ -47,9 +49,19 @@ export class CroutonValidationExceptionFilter implements ExceptionFilter {
 
   private translateErrors(
     errors: CroutonValidationError['errors'],
+    acceptLanguage?: string,
   ): Array<{ field: string; message: string }> {
     if (!this.translationRegistry) return errors;
-    const language = getRequestLanguage();
+    // Exception filters may run outside the AsyncLocalStorage context set by the
+    // interceptor, so read Accept-Language from the request as the primary source.
+    const language =
+      (acceptLanguage
+        ? resolveLanguage(
+            acceptLanguage,
+            this.translationRegistry.languages,
+            this.translationRegistry.defaultLanguage,
+          )
+        : null) ?? getRequestLanguage();
     if (!language) return errors;
 
     const t = this.translationRegistry.translatorFor(language);

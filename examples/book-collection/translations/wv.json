@@ -1,0 +1,119 @@
+{
+  "app": {
+    "title": "De Boeknkot"
+  },
+  "resources": {
+    "book": {
+      "title": "Boekn",
+      "sidebar": "Boekn",
+      "columns": {
+        "title": "Tittel",
+        "status": "Status",
+        "publishedYear": "Joar van uitgoan",
+        "summary": "Samenvattige",
+        "rating": "Puntn",
+        "author": "Skriever",
+        "categories": "Soorten"
+      },
+      "actions": {
+        "searchOpenLibrary": "Zoekn in Open Library",
+        "openOnOpenLibrary": "Opn op Open Library"
+      }
+    },
+    "author": {
+      "title": "Skrievers",
+      "sidebar": "Skrievers",
+      "columns": {
+        "name": "Naam",
+        "bio": "Levnsloope"
+      }
+    },
+    "category": {
+      "title": "Soorten",
+      "sidebar": "Soorten",
+      "columns": {
+        "name": "Naam",
+        "slug": "Slug"
+      }
+    },
+    "loan": {
+      "title": "Uitleensels",
+      "sidebar": "Uitleensels",
+      "columns": {
+        "loanedAt": "Meegenommn op",
+        "returnedAt": "Teruggestookn op",
+        "book": "Boek",
+        "user": "Gebruker"
+      }
+    },
+    "user": {
+      "title": "Gebrukers",
+      "sidebar": "Gebrukers",
+      "columns": {
+        "name": "Naam",
+        "email": "E-mail"
+      }
+    }
+  },
+  "ui": {
+    "table": {
+      "search": "Zoekn...",
+      "filters": "Filters",
+      "addFilter": "Filter biezettn",
+      "addRecord": "Lijntje biezettn",
+      "editFields": "Veldjes verandern",
+      "recordsPerPage": "Lijntjes per ki",
+      "showing": "Tound",
+      "of": "van de",
+      "records": "lijntjes"
+    },
+    "filter": {
+      "contains": "bevat",
+      "not_contains": "bevat nie",
+      "equals": "is 't zelfste lik",
+      "not_equals": "is nie 't zelfste lik",
+      "gt": "groater dan",
+      "lt": "kleinder doan",
+      "isnull": "is leeg",
+      "isnotnull": "is nie leeg",
+      "enterValue": "Typt ne weirdo in",
+      "removeFilter": "Filter wegsmitn"
+    },
+    "actions": {
+      "save": "Vastleggn",
+      "cancel": "Ofbreekn",
+      "close": "Toemakn",
+      "edit": "Verandern",
+      "delete": "Wegsmetn",
+      "view": "Kykn",
+      "create": "Iets nieuws",
+      "retry": "Nog ne ki",
+      "reset": "Erbeginn",
+      "apply": "Deurevoern"
+    },
+    "modal": {
+      "update": "Uptedatn",
+      "create": "Iets nieuws",
+      "deleteTitle": "Lijntje wegsmetn",
+      "deleteMessage": "Ziej giedere zeker da j'under dat wilt wegsmetn? Ge zie de brol kwyt."
+    },
+    "autoSave": {
+      "saving": "Ol 't wegschryvn…",
+      "saved": "Vastgeleid ✓",
+      "pending": "Vult de verplichte veldjes in vo 't te kunn bewaren",
+      "error": "Mislukt vo weg te schryvn"
+    }
+  },
+  "enums": {
+    "bookStatus": {
+      "draft": "Kladversie",
+      "published": "Butn",
+      "archived": "Weggestoken"
+    }
+  },
+  "validation": {
+    "unique": "{field} is al bezet. Kiest iet anders.",
+    "invalid_type": "{field} is verplicht.",
+    "too_small": "{field} is te koart."
+  }
+}

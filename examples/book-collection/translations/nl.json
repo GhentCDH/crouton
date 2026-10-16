@@ -1,0 +1,67 @@
+{
+  "resources": {
+    "book": {
+      "title": "Boeken",
+      "sidebar": "Boeken",
+      "columns": {
+        "title": "Titel",
+        "status": "Status",
+        "publishedYear": "Publicatiejaar",
+        "summary": "Samenvatting",
+        "rating": "Beoordeling",
+        "author": "Auteur",
+        "categories": "Categorieën"
+      },
+      "actions": {
+        "searchOpenLibrary": "Zoek Open Library",
+        "openOnOpenLibrary": "Open op Open Library"
+      }
+    },
+    "author": {
+      "title": "Auteurs",
+      "sidebar": "Auteurs",
+      "columns": {
+        "name": "Naam",
+        "bio": "Biografie"
+      }
+    },
+    "category": {
+      "title": "Categorieën",
+      "sidebar": "Categorieën",
+      "columns": {
+        "name": "Naam",
+        "slug": "Slug"
+      }
+    },
+    "loan": {
+      "title": "Uitleningen",
+      "sidebar": "Uitleningen",
+      "columns": {
+        "loanedAt": "Uitgeleend op",
+        "returnedAt": "Teruggegeven op",
+        "book": "Boek",
+        "user": "Gebruiker"
+      }
+    },
+    "user": {
+      "title": "Gebruikers",
+      "sidebar": "Gebruikers",
+      "columns": {
+        "name": "Naam",
+        "email": "E-mail"
+      }
+    }
+  },
+  "enums": {
+    "bookStatus": {
+      "draft": "Concept",
+      "published": "Gepubliceerd",
+      "archived": "Gearchiveerd"
+    }
+  },
+  "validation": {
+    "unique": "{field} bestaat al. Kies een andere waarde.",
+    "invalid_type": "{field} is verplicht.",
+    "too_small": "{field} is te kort."
+  }
+}

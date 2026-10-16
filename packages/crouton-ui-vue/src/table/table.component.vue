@@ -105,6 +105,7 @@
                   <Btn
                     v-if="!action.visible || action.visible(item)"
                     :aria-label="action.tooltip ?? action.label"
+                    :data-testid="action.icon ? `btn-action-${action.icon.toLowerCase()}` : undefined"
                     :icon="action.icon"
                     :color="Color.secondary"
                     size="xs"

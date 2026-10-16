@@ -25,7 +25,7 @@
     <Input
       v-else-if="!noValue"
       size="sm"
-      placeholder="Enter a value"
+      :placeholder="t('filter.enterValue', 'Enter a value')"
       :model-value="modelValue.value"
       :clearable="true"
       @update:model-value="update('value', $event)"
@@ -37,7 +37,7 @@
       :outline="true"
       color="error"
       :no-border="true"
-      tooltip="Remove filter"
+      :tooltip="t('filter.removeFilter', 'Remove filter')"
       @click="$emit('remove')"
     />
   </div>
@@ -60,6 +60,7 @@ import {
   Input,
   SelectComponent,
 } from '@ghentcdh/crouton-ui-vue';
+import { useUiTranslator } from '../../composables/useUiTranslator';
 
 export type EnumValue = { value: unknown; label: string };
 
@@ -69,6 +70,8 @@ export type FieldOption = {
   type?: FieldType;
   values?: EnumValue[];
 };
+
+const t = useUiTranslator();
 
 const props = defineProps<{
   modelValue: Filter;
@@ -87,7 +90,10 @@ const currentField = computed(() =>
 const operatorOptions = computed(() => {
   const type = currentField.value?.type ?? 'string';
   const allowed = OperatorsByType[type];
-  return OperatorOptions.filter((o) => allowed.includes(o.value));
+  return OperatorOptions.filter((o) => allowed.includes(o.value)).map((o) => ({
+    value: o.value,
+    label: t(`filter.${o.value}`, o.label),
+  }));
 });
 
 const noValue = computed(() => OperatorNoValue.has(props.modelValue.operator));

@@ -1,12 +1,38 @@
 import type { AxiosInstance } from 'axios';
 import { type Ref, ref } from 'vue';
 
+import { getUiDefaults } from '../i18n/ui-defaults';
+
 const STORAGE_KEY = 'crouton.language';
 
-const _language = ref<string>('');
+// Pre-seed from localStorage so defaults are available before the first fetchLayout.
+const _persistedLang =
+  typeof localStorage !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) ?? 'en') : 'en';
+
+const _language = ref<string>(_persistedLang);
 const _languages = ref<string[]>([]);
 const _defaultLanguage = ref<string>('en');
-const _uiDictionary = ref<Record<string, unknown>>({});
+const _displayNames = ref<Record<string, string>>({});
+const _userUiDict = ref<Record<string, unknown>>({});
+const _uiDictionary = ref<Record<string, unknown>>(
+  getUiDefaults(_persistedLang) as Record<string, unknown>,
+);
+
+const mergeUiDictionary = () => {
+  const defaults = getUiDefaults(_language.value) as Record<string, unknown>;
+  const user = _userUiDict.value;
+  const merged: Record<string, unknown> = { ...defaults };
+  for (const key of Object.keys(user)) {
+    const d = defaults[key];
+    const u = user[key];
+    if (d && typeof d === 'object' && u && typeof u === 'object') {
+      merged[key] = { ...(d as object), ...(u as object) };
+    } else {
+      merged[key] = u;
+    }
+  }
+  _uiDictionary.value = merged;
+};
 
 /** Callback invoked after language changes — wired by useCrouton. */
 let _onLanguageChange: (() => Promise<void>) | undefined;
@@ -14,6 +40,7 @@ let _onLanguageChange: (() => Promise<void>) | undefined;
 export type LanguageConfig = {
   languages?: string[];
   defaultLanguage?: string;
+  displayNames?: Record<string, string>;
   /** Initial language. Falls back to persisted → navigator → default. */
   initial?: string;
   /** Persist selected language in localStorage (default: true). */
@@ -28,6 +55,7 @@ export const configureLanguage = (cfg: LanguageConfig = {}) => {
   const { persist = true } = cfg;
   if (cfg.languages?.length) _languages.value = cfg.languages;
   if (cfg.defaultLanguage) _defaultLanguage.value = cfg.defaultLanguage;
+  if (cfg.displayNames) _displayNames.value = cfg.displayNames;
 
   const initial =
     cfg.initial ??
@@ -42,6 +70,8 @@ export const configureLanguage = (cfg: LanguageConfig = {}) => {
   if (persist) {
     localStorage.setItem(STORAGE_KEY, _language.value);
   }
+
+  mergeUiDictionary();
 };
 
 /**
@@ -61,7 +91,8 @@ const t = (path: string, fallback?: string): string => {
 
 /** Replace the ui dictionary (called internally by useCrouton after layout fetch). */
 export const setUiDictionary = (dict: Record<string, unknown>) => {
-  _uiDictionary.value = dict;
+  _userUiDict.value = dict;
+  mergeUiDictionary();
 };
 
 /**
@@ -74,12 +105,14 @@ export const useLanguage = (): {
   language: Ref<string>;
   languages: Ref<string[]>;
   defaultLanguage: Ref<string>;
+  displayNames: Ref<Record<string, string>>;
   setLanguage: (lang: string) => Promise<void>;
   t: (path: string, fallback?: string) => string;
 } => ({
   language: _language,
   languages: _languages,
   defaultLanguage: _defaultLanguage,
+  displayNames: _displayNames,
   setLanguage,
   t,
 });
@@ -92,6 +125,7 @@ const setLanguage = async (lang: string) => {
   if (!_languages.value.includes(lang)) return;
   _language.value = lang;
   localStorage.setItem(STORAGE_KEY, lang);
+  mergeUiDictionary();
   if (_onLanguageChange) await _onLanguageChange();
 };
 

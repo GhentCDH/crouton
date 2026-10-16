@@ -68,6 +68,7 @@ export const createAppLayoutController = (
             languages: i18nConfig.languages,
             defaultLanguage: i18nConfig.defaultLanguage,
             current: lang,
+            ...(i18nConfig.displayNames && { displayNames: i18nConfig.displayNames }),
           },
           ...(bundle.ui && { ui: bundle.ui }),
         };

@@ -8,6 +8,10 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import * as path from 'path';
 
 export default defineConfig({
+  test: {
+    globals: true,
+    include: ['src/**/*.spec.ts'],
+  },
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/crouton-vue',
   plugins: [

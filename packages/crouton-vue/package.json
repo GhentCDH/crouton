@@ -28,7 +28,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "lodash-es": "^4.17.21"
@@ -47,6 +48,7 @@
     "@ghentcdh/crouton-forms-vue": "workspace:*",
     "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@heroicons/vue": "^2.2.0",
-    "daisyui": "^5.7.47"
+    "daisyui": "^5.7.47",
+    "vitest": "^5.0.3"
   }
 }

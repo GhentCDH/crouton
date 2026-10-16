@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-1">
+  <div class="flex gap-1" data-testid="rating-stars">
     <button
       v-for="star in 5"
       :key="star"

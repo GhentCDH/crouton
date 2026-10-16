@@ -1,11 +1,5 @@
 # Translations (i18n)
 
-::: warning Work in progress
-The i18n system is not yet fully functional. Translation keys may not resolve correctly in all contexts, and some
-parts of the UI are not yet translated. The API described here reflects the intended design — not everything is
-working end to end. Use with caution and expect breaking changes.
-:::
-
 Crouton supports server-side translations for column labels, resource titles, sidebar entries, enum option labels,
 UI chrome, and validation messages. The frontend never owns a translation catalogue — it sends `Accept-Language`, and
 the API responds in that language.
@@ -177,13 +171,118 @@ automatically. Switching back to a previously used language is instant (FormDefs
 
 ### UI dictionary
 
-The `ui` section from the translation bundle is delivered via `/_app/layout` and available through `t()`:
+Crouton ships built-in translations for all application chrome (buttons, modals, filters, …) for **English, Dutch, French, and German**. No configuration needed — the right strings load automatically based on the active language.
+
+For any other language, the English strings are used as fallback.
+
+#### Bundled `ui` keys
+
+| Key | EN | NL | FR | DE |
+|-----|----|----|----|----|
+| `table.search` | Search... | Zoeken... | Rechercher... | Suchen... |
+| `table.filters` | Filters | Filters | Filtres | Filter |
+| `table.addFilter` | Add filter | Filter toevoegen | Ajouter un filtre | Filter hinzufügen |
+| `table.addRecord` | Add record | Record toevoegen | Ajouter un enregistrement | Datensatz hinzufügen |
+| `table.editFields` | Edit fields | Velden bewerken | Modifier les champs | Felder bearbeiten |
+| `table.recordsPerPage` | Records per page | Records per pagina | Enregistrements par page | Einträge pro Seite |
+| `table.showing` | Showing | Toont | Affichage de | Zeige |
+| `table.of` | of | van | sur | von |
+| `table.records` | records | records | enregistrements | Einträge |
+| `actions.save` | Save | Opslaan | Enregistrer | Speichern |
+| `actions.cancel` | Cancel | Annuleren | Annuler | Abbrechen |
+| `actions.close` | Close | Sluiten | Fermer | Schließen |
+| `actions.edit` | Edit | Bewerken | Modifier | Bearbeiten |
+| `actions.delete` | Delete | Verwijderen | Supprimer | Löschen |
+| `actions.view` | View | Bekijken | Voir | Ansehen |
+| `actions.create` | Create | Aanmaken | Créer | Erstellen |
+| `actions.retry` | Retry | Opnieuw | Réessayer | Wiederholen |
+| `actions.reset` | Reset | Resetten | Réinitialiser | Zurücksetzen |
+| `actions.apply` | Apply | Toepassen | Appliquer | Anwenden |
+| `modal.update` | Update | Bijwerken | Mettre à jour | Aktualisieren |
+| `modal.create` | Create | Aanmaken | Créer | Erstellen |
+| `modal.deleteTitle` | Delete record | Record verwijderen | Supprimer l'enregistrement | Datensatz löschen |
+| `modal.deleteMessage` | Are you sure… | Weet u zeker… | Êtes-vous sûr… | Sind Sie sicher… |
+| `autoSave.saving` | Saving… | Opslaan… | Enregistrement… | Speichern… |
+| `autoSave.saved` | Saved ✓ | Opgeslagen ✓ | Enregistré ✓ | Gespeichert ✓ |
+| `autoSave.pending` | Fill required fields… | Vul verplichte velden in… | Remplissez les champs… | Pflichtfelder ausfüllen… |
+| `autoSave.error` | Save failed | Opslaan mislukt | Échec de l'enregistrement | Speichern fehlgeschlagen |
+| `filter.contains` | contains | bevat | contient | enthält |
+| `filter.not_contains` | not contains | bevat niet | ne contient pas | enthält nicht |
+| `filter.equals` | equals | is gelijk aan | est égal à | ist gleich |
+| `filter.not_equals` | not equals | is niet gelijk aan | n'est pas égal à | ist nicht gleich |
+| `filter.gt` | > | > | > | > |
+| `filter.lt` | < | < | < | < |
+| `filter.isnull` | is empty | is leeg | est vide | ist leer |
+| `filter.isnotnull` | is not empty | is niet leeg | n'est pas vide | ist nicht leer |
+| `filter.enterValue` | Enter a value | Voer een waarde in | Saisir une valeur | Wert eingeben |
+| `filter.removeFilter` | Remove filter | Filter verwijderen | Supprimer le filtre | Filter entfernen |
+
+#### Overriding a bundled string
+
+Add a `ui` section to your translation file. Only the keys you specify are overridden; the rest come from the built-in defaults.
+
+```json
+// translations/nl.json
+{
+  "ui": {
+    "actions": {
+      "save": "Bewaren"
+    }
+  }
+}
+```
+
+#### Adding a language not bundled
+
+Add a full `ui` section for that language in its translation file:
+
+```json
+// translations/es.json
+{
+  "ui": {
+    "table": {
+      "search": "Buscar...",
+      "filters": "Filtros",
+      "addFilter": "Añadir filtro",
+      "addRecord": "Añadir registro",
+      "editFields": "Editar campos"
+    },
+    "actions": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "view": "Ver",
+      "create": "Crear",
+      "retry": "Reintentar",
+      "reset": "Restablecer",
+      "apply": "Aplicar"
+    },
+    "modal": {
+      "update": "Actualizar",
+      "create": "Crear",
+      "deleteTitle": "Eliminar registro",
+      "deleteMessage": "¿Está seguro de que desea eliminar? Los datos se perderán."
+    },
+    "autoSave": {
+      "saving": "Guardando…",
+      "saved": "Guardado ✓",
+      "pending": "Complete los campos obligatorios para guardar",
+      "error": "Error al guardar"
+    }
+  }
+}
+```
+
+#### Accessing `ui` keys in custom components
 
 ```ts
 const { t } = useLanguage();
-t('actions.save');    // "Opslaan"
-t('table.empty');     // "Geen resultaten"
-t('unknown.key');     // "unknown.key" (returns the key itself as fallback)
+t('actions.save');       // "Opslaan" (when lang = nl)
+t('table.filters');      // "Filters"
+t('unknown.key');        // "unknown.key" (key itself as fallback)
+t('unknown.key', 'My fallback'); // "My fallback"
 ```
 
 No i18n library is needed. The dictionary is a plain nested object; `t()` does a dotted-path lookup.

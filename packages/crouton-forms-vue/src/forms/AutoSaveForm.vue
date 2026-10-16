@@ -46,10 +46,10 @@
           v-if="autoSaveStatus === 'error'"
           :color="Color.secondary"
           :outline="true"
-          aria-label="Retry save"
+          :aria-label="t('actions.retry', 'Retry')"
           @click="onRetry"
         >
-          Retry
+          {{ t('actions.retry', 'Retry') }}
         </Btn>
       </template>
 
@@ -58,13 +58,13 @@
         <Btn
           :color="Color.secondary"
           :outline="true"
-          :aria-label="cancelLabel"
+          :aria-label="t('actions.cancel', cancelLabel)"
           @click="onCancel"
         >
-          {{ cancelLabel }}
+          {{ t('actions.cancel', cancelLabel) }}
         </Btn>
-        <Btn :disabled="!valid" :aria-label="saveLabel" @click="onSubmit">
-          {{ saveLabel }}
+        <Btn :disabled="!valid" :aria-label="t('actions.save', saveLabel)" @click="onSubmit">
+          {{ t('actions.save', saveLabel) }}
         </Btn>
       </template>
     </div>
@@ -80,6 +80,7 @@
  * This component will be removed in a future release.
  */
 import { onMounted, ref } from 'vue';
+import { useUiTranslator } from '../composables/useUiTranslator';
 
 import { Btn, Color } from '@ghentcdh/crouton-ui-vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
@@ -93,6 +94,7 @@ import { useRouter } from 'vue-router';
 
 const properties = defineProps(FormModalProperties);
 const emits = defineEmits(FormModalEmits);
+const t = useUiTranslator();
 
 onMounted(() => {
   console.warn(
