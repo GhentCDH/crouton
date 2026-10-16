@@ -7,6 +7,7 @@ import {
   migrateLayoutPrecedence,
   migrateLookupLabels,
   migrateRelationKeys,
+  migrateRootInclude,
   migrateRemovedColumnFields,
   migrateSearchFields,
   resolveFromRoot,
@@ -111,6 +112,7 @@ export const registerMigrateCommand = (program: Command) => {
           const { resource: relationFixed, report: relationReport } = migrateRelationKeys(colFixed);
           const { resource: displayFixed, report: displayReport } = migrateDisplayToContainer(relationFixed);
           const { changed: lookupChanged, json: lookupFixed } = migrateLookupLabels(displayFixed as any);
+          const { changed: includeChanged, json: includeFixed } = migrateRootInclude(lookupFixed as any);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -128,7 +130,7 @@ export const registerMigrateCommand = (program: Command) => {
           const hasRelationChanges = relationReport.migratedColumns.length > 0;
           const hasDisplayChanges = displayReport.changed;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged && !includeChanged) continue;
 
           needsMigration++;
 
@@ -153,8 +155,10 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push('display/modalSize → layout.form.container / layout.view.container');
           if (lookupChanged)
             labels.push('showInLookup → lookup.labels');
+          if (includeChanged)
+            labels.push('include → operations.findAll.include / operations.findOne.include');
 
-          const out = JSON.stringify(lookupFixed, null, 2) + '\n';
+          const out = JSON.stringify(includeFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

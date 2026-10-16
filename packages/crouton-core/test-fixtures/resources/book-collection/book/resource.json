@@ -48,9 +48,19 @@
       "hiddenInTable": true
     }
   },
-  "include": [
-    "author",
-    "categories"
-  ],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
+      "include": [
+        "author",
+        "categories"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author",
+        "categories"
+      ]
+    }
+  }
 }

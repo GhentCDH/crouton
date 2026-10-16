@@ -7,7 +7,6 @@ import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { getResourceExtensions } from './extensions';
-import { JsonIncludeEntrySchema } from './include.schema';
 import { LayoutSchema } from './layout';
 import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
@@ -19,6 +18,7 @@ import { labelFromId } from '../schema/label.helper';
 const ROOT_REMOVED_KEYS: Record<string, string> = {
   display: '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
   modalSize: '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
+  include: '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -187,12 +187,6 @@ export const ResourceJsonShape = z.object({
     .default([])
     .describe(
       'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
-    ),
-  include: z
-    .array(JsonIncludeEntrySchema)
-    .default([])
-    .describe(
-      'Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.',
     ),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',

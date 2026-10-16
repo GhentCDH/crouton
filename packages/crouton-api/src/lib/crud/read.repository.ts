@@ -501,7 +501,7 @@ export class ReadRepository<T = any> {
 
     const mergedInclude = buildFindOneIncludes(
       this.config.subResources ?? [],
-      buildIncludeClause(this.config.include),
+      buildIncludeClause(this.config.findOneInclude ?? this.config.include),
     );
 
     if (mergedInclude) {

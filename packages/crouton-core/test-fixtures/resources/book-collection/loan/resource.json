@@ -33,9 +33,19 @@
       }
     }
   },
-  "include": [
-    "user",
-    "book"
-  ],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
+      "include": [
+        "user",
+        "book"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "user",
+        "book"
+      ]
+    }
+  }
 }

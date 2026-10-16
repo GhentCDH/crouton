@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ResourceJsonShape, ViewConfigSchema } from '@ghentcdh/crouton-core';
+import { JsonIncludeEntrySchema, ResourceJsonShape, ViewConfigSchema } from '@ghentcdh/crouton-core';
 
 import { SubResourceConfigSchema } from './SubResource.schema';
 import { DefinitionSchema } from './defintion.schema';
@@ -36,6 +36,10 @@ export const ResourceSchema = ResourceJsonShape.extend({
   /** Primary key field name on the model. Defaults to `"id"`. */
   idField: z.string(),
   idType: z.enum(['string', 'number']).default('string'),
+  /** Eager-loaded relations for findAll (list) queries. From operations.findAll.include. */
+  include: z.array(JsonIncludeEntrySchema).optional(),
+  /** Eager-loaded relations for findOne (detail) queries. From operations.findOne.include. */
+  findOneInclude: z.array(JsonIncludeEntrySchema).optional(),
 });
 
 export type Resource = z.infer<typeof ResourceSchema>;

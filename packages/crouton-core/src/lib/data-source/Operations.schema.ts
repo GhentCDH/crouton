@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { SecuritySchema } from './Security.schema';
+import { JsonIncludeEntrySchema } from '../resource/include.schema';
 
 // ── Operations ────────────────────────────────────────────────────────
 
@@ -12,10 +13,17 @@ const ExternalOpEntry = z.object({
 
 export type ExternalOpEntry = z.infer<typeof ExternalOpEntry>;
 
+const IncludeField = {
+  include: z.array(JsonIncludeEntrySchema).optional().describe('Prisma relations to eager-load for this operation.'),
+};
+
 const OpEntry = z.union([
   z.boolean(),
   ExternalOpEntry,
-  z.object({ security: SecuritySchema.optional().describe('Security override for this specific operation. Overrides the resource-level global security block.') }),
+  z.object({
+    security: SecuritySchema.optional().describe('Security override for this specific operation. Overrides the resource-level global security block.'),
+    ...IncludeField,
+  }),
 ]);
 
 const FindAllOpEntry = z.union([
@@ -23,11 +31,13 @@ const FindAllOpEntry = z.union([
   ExternalOpEntry.extend({
     search: z.array(z.string()).optional().describe('Column ids (or dot paths) that ?q= matches.'),
     filter: z.array(z.string()).optional().describe('Optional allowlist of filter fields the server accepts.'),
+    ...IncludeField,
   }),
   z.object({
     security: SecuritySchema.optional().describe('Security override for this specific operation. Overrides the resource-level global security block.'),
     search: z.array(z.string()).optional().describe('Column ids (or dot paths) that ?q= matches.'),
     filter: z.array(z.string()).optional().describe('Optional allowlist of filter fields the server accepts.'),
+    ...IncludeField,
   }),
 ]);
 
@@ -51,6 +61,11 @@ export const extractFindAllSearch = (findAll: JsonResourceOperations['findAll'])
 export const extractFindAllFilter = (findAll: JsonResourceOperations['findAll']): string[] | undefined => {
   if (typeof findAll !== 'object' || findAll === null) return undefined;
   return (findAll as any).filter ?? undefined;
+};
+
+export const extractOpInclude = (op: unknown): any[] | undefined => {
+  if (typeof op !== 'object' || op === null) return undefined;
+  return (op as any).include ?? undefined;
 };
 
 /**
