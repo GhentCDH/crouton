@@ -21,8 +21,17 @@
       "hiddenInTable": true
     }
   },
-  "include": [
-    "categories"
-  ],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
+      "include": [
+        "categories"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "categories"
+      ]
+    }
+  }
 }

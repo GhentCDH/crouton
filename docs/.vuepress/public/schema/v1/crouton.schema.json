@@ -202,6 +202,13 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
+                      }
                     }
                   },
                   "required": [
@@ -264,6 +271,13 @@
                       "type": "array",
                       "items": {
                         "type": "string"
+                      }
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
                       }
                     }
                   }
@@ -378,6 +392,13 @@
                           ]
                         }
                       ]
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
+                      }
                     }
                   }
                 }
@@ -491,6 +512,13 @@
                           ]
                         }
                       ]
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
+                      }
                     }
                   }
                 }
@@ -604,6 +632,13 @@
                           ]
                         }
                       ]
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
+                      }
                     }
                   }
                 }
@@ -717,6 +752,13 @@
                           ]
                         }
                       ]
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
+                      }
                     }
                   }
                 }
@@ -830,6 +872,13 @@
                           ]
                         }
                       ]
+                    },
+                    "include": {
+                      "description": "Prisma relations to eager-load for this operation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/__schema0"
+                      }
                     }
                   }
                 }
@@ -920,6 +969,39 @@
     "resourcesDir",
     "dataSourcesDir"
   ],
+  "definitions": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "relation": {
+              "type": "string"
+            },
+            "include": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/__schema0"
+              }
+            },
+            "orderBy": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "relation"
+          ]
+        }
+      ]
+    }
+  },
   "$id": "https://ghentcdh.github.io/crouton/schema/v1/crouton.schema.json",
   "title": "Crouton crouton.json",
   "description": "Generated from CroutonConfigSchema (crouton-core). Do not edit by hand.",

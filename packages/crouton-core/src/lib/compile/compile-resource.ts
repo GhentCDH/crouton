@@ -1,6 +1,6 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { extractFindAllSearch } from '../data-source/Operations.schema';
+import { extractFindAllSearch, extractOpInclude } from '../data-source/Operations.schema';
 import { buildLayouts, resolveColumnVisibility } from '../layout';
 import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
 import { getResourceExtensions } from '../resource';
@@ -135,7 +135,9 @@ export const compileResource = (
   const findAllEnabled = findAll !== false && json.kind !== 'custom';
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
   const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup);
-  const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
+  const findOneOp = json.operations?.findOne;
+  const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
+  const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 
   // Derive display/modalSize from layout.container (Block 2 migration)
@@ -166,6 +168,7 @@ export const compileResource = (
     ...(lookup && { lookup }),
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
+    ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),

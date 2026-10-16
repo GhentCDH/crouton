@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { JsonDisplaySchema, ResourceJsonShape } from '../resource';
+import { JsonIncludeEntrySchema } from '../resource/include.schema';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { DefinitionSchema } from './definition.schema';
@@ -20,6 +21,10 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   // Derived from layout.form.container / layout.view.container at compile time (Block 2)
   display: JsonDisplaySchema.optional(),
   modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
+  /** Eager-loaded relations for findAll (list) queries. From operations.findAll.include. */
+  include: z.array(JsonIncludeEntrySchema).optional(),
+  /** Eager-loaded relations for findOne (detail) queries. From operations.findOne.include. */
+  findOneInclude: z.array(JsonIncludeEntrySchema).optional(),
 });
 
 export type CompiledResource = z.infer<typeof CompiledResourceSchema>;

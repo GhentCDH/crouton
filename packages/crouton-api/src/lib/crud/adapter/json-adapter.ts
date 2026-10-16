@@ -12,6 +12,7 @@ import {
   buildValueLabelColumns,
   columnTypeSchemaSource,
   extractFindAllSearch,
+  extractOpInclude,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
@@ -118,7 +119,9 @@ export const fromJson = (
   const findAllEnabled = findAll !== false && !isCustom;
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
   const lookup = buildLookup(enrichedColumns, dirPath, searchPaths, (json as any).lookup);
-  const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
+  const findOneOp = json.operations?.findOne;
+  const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
+  const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
     json.operations,
@@ -147,6 +150,7 @@ export const fromJson = (
     ...(actions?.length && { actions }),
     ...(tableActions?.length && { tableActions }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
+    ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
     ...(json.modalSize && { modalSize: json.modalSize }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),

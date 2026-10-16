@@ -29,8 +29,17 @@
       }
     }
   },
-  "include": [
-    "books"
-  ],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
+      "include": [
+        "books"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "books"
+      ]
+    }
+  }
 }
