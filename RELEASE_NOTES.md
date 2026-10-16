@@ -1,3 +1,13 @@
+## 0.0.1-alpha.84 (2026-10-16)
+
+### 🩹 Fixes
+
+- publish crouton-cli ([0e8ef72](https://github.com/GhentCDH/crouton/commit/0e8ef72))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.83 (2026-10-16)
 
 ### 🚀 Features
