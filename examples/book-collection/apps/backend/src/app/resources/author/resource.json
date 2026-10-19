@@ -24,9 +24,9 @@
       }
     }
   },
-  "include": ["books"],
   "operations": {
-    "findAll": { "search": ["name"] }
+    "findAll": { "search": ["name"], "include": ["books"] },
+    "findOne": { "include": ["books"] }
   },
   "layout": {
     "table": {
