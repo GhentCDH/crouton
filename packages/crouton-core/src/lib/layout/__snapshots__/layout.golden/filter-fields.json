@@ -46,7 +46,8 @@
               "sortId": "assignee"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {
@@ -59,7 +60,8 @@
           "id": "assignee"
         }
       ],
-      "defaultSort": "id"
+      "defaultSort": "id",
+      "defaultSortDir": "asc"
     },
     "form": {
       "json_schema": {

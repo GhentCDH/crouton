@@ -19,4 +19,6 @@ export const BtnProperties = {
   noBorder: { type: Boolean, default: false },
 };
 
-export const BtnEmits = ['click'];
+export const BtnEmits = {
+  click: (event: MouseEvent) => event instanceof MouseEvent,
+};

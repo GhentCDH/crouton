@@ -60,6 +60,22 @@ Run `crouton validate` after editing.
    { "fieldInput": { "type": "custom", "component": "MyInput" } }
    ```
 
+## Right-align numbers, sort newest first, 50 per page
+
+```json
+"layout": {
+  "table": {
+    "pageSize": 50,
+    "pageSizes": [20, 50, 100],
+    "items": [
+      { "id": "createdAt", "sortable": true, "defaultSort": "desc", "width": "sm" },
+      { "id": "amount", "align": "right", "width": "xs" },
+      { "id": "title", "truncate": true }
+    ]
+  }
+}
+```
+
 ## Config-only resource (kind: custom)
 
 Use when the resource has no Prisma model or uses fully custom data logic.

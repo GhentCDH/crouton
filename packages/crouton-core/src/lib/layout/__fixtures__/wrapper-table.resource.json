@@ -18,10 +18,11 @@
         { "component": "ReportToolbar", "label": "Toolbar" },
         {
           "type": "table",
+          "defaultSort": { "field": "date", "sortDir": "asc" },
           "items": [
             { "id": "title", "sortable": true },
             "author",
-            { "id": "date", "sortable": true, "defaultSort": true }
+            { "id": "date", "sortable": true }
           ]
         }
       ]

@@ -45,7 +45,8 @@
               "label": "Comments"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {
@@ -59,7 +60,8 @@
           "label": "Comments"
         }
       ],
-      "defaultSort": "id"
+      "defaultSort": "id",
+      "defaultSortDir": "asc"
     },
     "form": {
       "json_schema": {

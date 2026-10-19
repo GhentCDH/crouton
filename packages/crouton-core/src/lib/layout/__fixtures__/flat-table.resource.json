@@ -14,8 +14,9 @@
   ],
   "layout": {
     "table": {
+      "defaultSort": { "field": "name", "sortDir": "asc" },
       "items": [
-        { "id": "name", "sortable": true, "defaultSort": true },
+        { "id": "name", "sortable": true },
         "sku",
         { "id": "price", "sortable": true }
       ]

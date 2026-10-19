@@ -67,7 +67,11 @@
             "scope": "#/properties/title",
             "options": {
               "sortId": "title",
-              "label": "Title"
+              "label": "Title",
+              "minWidth": "8rem",
+              "maxWidth": "24rem",
+              "truncate": true,
+              "visible": true
             }
           },
           {
@@ -75,7 +79,11 @@
             "scope": "#/properties/isbn",
             "options": {
               "sortId": "isbn",
-              "label": "Isbn"
+              "label": "Isbn",
+              "minWidth": "8rem",
+              "maxWidth": "24rem",
+              "truncate": true,
+              "visible": true
             }
           },
           {
@@ -83,12 +91,25 @@
             "scope": "#/properties/publishedYear",
             "options": {
               "sortId": "publishedYear",
-              "label": "Published year"
+              "label": "Published year",
+              "minWidth": "8rem",
+              "maxWidth": "24rem",
+              "truncate": true,
+              "visible": true
             }
           }
         ],
         "options": {
+          "pageSize": 20,
+          "pageSizes": [
+            20,
+            50,
+            100
+          ],
+          "density": "normal",
+          "rowClick": "view",
           "defaultSortId": "title",
+          "defaultSortDir": "asc",
           "filter": {
             "schema": {
               "type": "object",

@@ -1,5 +1,5 @@
 <template>
-  <div class="border border-gray-200">
+  <div class="border border-gray-200" :class="density === 'compact' ? 'crouton-table-compact' : ''">
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead
@@ -19,18 +19,15 @@
               />
             </th>
             <th
-              v-for="column in displayColumns"
+              v-for="column in visibleColumns"
               :key="column.scope"
               class="relative px-3 py-1 text-left font-semibold text-text-accent hover:bg-gray-50 select-none border-r border-gray-200"
-              :style="
-                column.width
-                  ? {
-                      width: column.width,
-                      maxWidth: column.width,
-                      minWidth: column.width,
-                    }
-                  : { minWidth: '150px' }
-              "
+              :class="{
+                'sticky left-0 bg-white z-10 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)]': column.options?.pin === 'left',
+                'sticky right-10 bg-white z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]': column.options?.pin === 'right',
+              }"
+              :style="columnHeaderStyle(column)"
+              :title="column.options?.headerTooltip"
             >
               <SortHeader :column="column" v-bind="sort" @sort="onSort" />
             </th>
@@ -44,7 +41,7 @@
         <tbody>
           <tr v-if="loading">
             <td
-              :colspan="displayColumns.length + 1 + (multiselect ? 1 : 0)"
+              :colspan="visibleColumns.length + 1 + (multiselect ? 1 : 0)"
               class="text-center p-2"
             >
               <span class="loading loading-bars loading-xs" />
@@ -52,10 +49,10 @@
           </tr>
           <tr v-else-if="!data?.length">
             <td
-              :colspan="displayColumns.length + 1 + (multiselect ? 1 : 0)"
+              :colspan="visibleColumns.length + 1 + (multiselect ? 1 : 0)"
               class="text-center p-8 font-bold"
             >
-              No records found
+              {{ emptyText }}
             </td>
           </tr>
           <tr
@@ -63,6 +60,8 @@
             :key="item.id"
             :ui-id="`table_${item.id}`"
             class="hover:bg-gray-100 transition-none transition-colors border-b border-gray-200"
+            :class="rowClick && rowClick !== 'none' ? 'cursor-pointer' : ''"
+            @click="onRowClick(item)"
           >
             <td v-if="multiselect" class="py-1 px-3">
               <input
@@ -73,17 +72,20 @@
               />
             </td>
             <td
-              v-for="column in displayColumns"
+              v-for="column in visibleColumns"
               :key="column.scope"
               class="py-1 px-3 text-sm overflow-hidden"
+              :class="{
+                'sticky left-0 bg-white z-10 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)]': column.options?.pin === 'left',
+                'sticky right-10 bg-white z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]': column.options?.pin === 'right',
+              }"
+              :style="column.options?.align ? { textAlign: column.options.align } : {}"
             >
               <div
                 class="px-3 flex items-center gap-2 rounded-sm relative hover:border hover:bg-gray-50 hover:border-gray-200 border-transparent max-w-56"
                 style="min-width: 100%; min-height: 38px"
               >
-                <div
-                  class="whitespace-nowrap overflow-hidden overflow-ellipsis"
-                >
+                <div :style="truncateStyle(column.options?.truncate)">
                   <component
                     :is="column.component"
                     v-bind="column"
@@ -109,7 +111,7 @@
                     :icon="action.icon"
                     :color="Color.secondary"
                     size="xs"
-                    @click="action.action(item)"
+                    @click.stop="action.action(item)"
                   >
                     <span v-if="action.label">{{ action.label }}</span>
                   </Btn>
@@ -127,6 +129,7 @@
         :total-items="page.count"
         :items-per-page="page.pageSize"
         :current-page="page.page"
+        :page-size-options="pageSizes"
         @update-page="onUpdatePage"
         @update-page-size="onUpdatePageSize"
       />
@@ -152,6 +155,27 @@ import { Color } from '../const/colors';
 import { IconEnum } from '../icons';
 
 const properties = defineProps(TableComponentProperties);
+
+const visibleColumns = computed(() =>
+  (properties.displayColumns ?? []).filter((c) => (c as any).options?.visible !== false),
+);
+
+const columnHeaderStyle = (column: any) => {
+  const w = column.options?.width ?? column.width;
+  const min = column.options?.minWidth;
+  const max = column.options?.maxWidth;
+  const align = column.options?.align;
+  return {
+    ...(w ? { width: w, maxWidth: max ?? w, minWidth: min ?? w } : { minWidth: min ?? '150px', ...(max ? { maxWidth: max } : {}) }),
+    ...(align ? { textAlign: align } : {}),
+  };
+};
+
+const truncateStyle = (truncate: boolean | number | undefined) => {
+  if (!truncate) return { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
+  if (truncate === true) return { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
+  return { display: '-webkit-box', WebkitLineClamp: truncate, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' };
+};
 
 // Multiselect
 const selectedIds = ref<Set<any>>(new Set());
@@ -252,5 +276,11 @@ const onUpdatePageSize = (size: number) => {
 
 const onSort = (id: string) => {
   emits('sort', id);
+};
+
+const onRowClick = (item: any) => {
+  if (!properties.rowClick || properties.rowClick === 'none') return;
+  if (properties.rowClick === 'view') (attrs.onView as Function)?.(item);
+  else if (properties.rowClick === 'edit') (attrs.onEdit as Function)?.(item);
 };
 </script>

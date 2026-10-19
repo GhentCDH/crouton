@@ -23,12 +23,33 @@ export const buildTableLayout = (
   const tableCols = columns?.map((c) => columnForContext(c, 'table'));
   let table = buildView(source, tableCols, (c) => !c.hiddenInTable, buildTableUiSchema, true);
   if (table) {
-    table.defaultSort = resolveDefaultSort(
+    const defaultSortResult = resolveDefaultSort(
       table.columns as any[],
       columns,
       resolveTableNode(node) as any,
     );
+    table.defaultSort = defaultSortResult?.id;
+    table.defaultSortDir = defaultSortResult?.dir;
     if (node) table = orderTableColumnsFromLayout(table, node as any, ctx.warn);
+
+    const tableNode = resolveTableNode(node as any);
+    if (tableNode) {
+      const { pageSize, pageSizes, density, rowClick, selectable, emptyText } = tableNode;
+      const ui = table.ui_schema as Record<string, unknown>;
+      table.ui_schema = {
+        ...ui,
+        options: {
+          ...((ui['options'] as object) ?? {}),
+          pageSize,
+          pageSizes,
+          density,
+          rowClick,
+          ...(selectable != null && { selectable }),
+          ...(emptyText != null && { emptyText }),
+        },
+      };
+    }
+
     views.table = table;
   } else if (columns !== undefined) {
     views.table = emptyTableView();

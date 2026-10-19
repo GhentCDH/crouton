@@ -63,7 +63,11 @@
             "scope": "#/properties/name",
             "options": {
               "sortId": "name",
-              "label": "Name"
+              "label": "Name",
+              "minWidth": "8rem",
+              "maxWidth": "24rem",
+              "truncate": true,
+              "visible": true
             }
           },
           {
@@ -71,12 +75,25 @@
             "scope": "#/properties/slug",
             "options": {
               "sortId": "slug",
-              "label": "Slug"
+              "label": "Slug",
+              "minWidth": "8rem",
+              "maxWidth": "24rem",
+              "truncate": true,
+              "visible": true
             }
           }
         ],
         "options": {
+          "pageSize": 20,
+          "pageSizes": [
+            20,
+            50,
+            100
+          ],
+          "density": "normal",
+          "rowClick": "view",
           "defaultSortId": "name",
+          "defaultSortDir": "asc",
           "filter": {
             "schema": {
               "type": "object",

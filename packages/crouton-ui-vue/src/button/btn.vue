@@ -16,7 +16,7 @@
     :type="props.type"
     :disabled="props.disabled"
     :data-tip="props.tooltip"
-    @click="emit('click')"
+    @click="emit('click', $event)"
   >
     <Icon
       v-if="props.icon"

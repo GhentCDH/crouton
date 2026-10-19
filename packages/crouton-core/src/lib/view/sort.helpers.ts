@@ -53,40 +53,44 @@ export const deriveSortId = (col: JsonColumn): string | null => {
   return path;
 };
 
-/** Look up a table control's `sortable` and `defaultSort` flags from the layout. */
-const getLayoutControlFlags = (
-  colId: string,
-  tableLayout: LayoutNode | undefined,
-): { sortable: boolean; defaultSort: boolean } => {
-  const items = (resolveTableNode(tableLayout) ?? tableLayout)?.items ?? [];
-  for (const ctrl of items) {
-    if (typeof ctrl === 'string') continue;
-    if ('component' in ctrl) continue;
-    if (!('id' in ctrl) || ctrl.id !== colId) continue;
-    const c = ctrl as { sortable?: boolean; defaultSort?: boolean };
-    return { sortable: c.sortable ?? false, defaultSort: c.defaultSort ?? false };
-  }
-  return { sortable: false, defaultSort: false };
-};
-
 /**
- * Pick the best default sort column:
- * 1. Explicit `defaultSort: true` layout control that is also sortable.
- * 2. First sortable visible column (from layout or column-level flag).
- * 3. The idField column as a last resort.
+ * Pick the default sort column and direction.
+ * When `defaultSort` is set on the table node, uses its `field`+`sortDir`.
+ * Otherwise falls back to the first sortable column, then the idField column.
  */
 export const resolveDefaultSort = (
   tableCols: JsonColumn[],
   allColumns: JsonColumn[] | undefined,
   tableLayout?: LayoutNode,
-): string | undefined => {
-  const isSortable = (c: JsonColumn) =>
-    getLayoutControlFlags(c.id, tableLayout).sortable;
-  const isDefault = (c: JsonColumn) =>
-    getLayoutControlFlags(c.id, tableLayout).defaultSort;
+): { id: string; dir: 'asc' | 'desc' } | undefined => {
+  const tableNode = resolveTableNode(tableLayout) ?? tableLayout;
+  const ds = (tableNode as Record<string, unknown>)?.defaultSort as
+    | { field?: string; sortDir?: 'asc' | 'desc' }
+    | undefined;
+
+  if (ds) {
+    const fieldId = ds.field ?? 'id';
+    const dir: 'asc' | 'desc' = ds.sortDir ?? 'asc';
+    const allCols = [...(tableCols ?? []), ...(allColumns ?? [])];
+    const sortCol = allCols.find((c) => c.id === fieldId) ?? allColumns?.find((c) => c.idField);
+    if (!sortCol) return undefined;
+    return { id: deriveSortId(sortCol) ?? sortCol.id, dir };
+  }
+
+  // No explicit defaultSort — find first sortable column, then idField as last resort.
+  const items = (tableNode as { items?: unknown[] })?.items ?? [];
+  const isSortable = (c: JsonColumn) => {
+    for (const ctrl of items) {
+      if (typeof ctrl === 'string') continue;
+      if ('component' in (ctrl as object)) continue;
+      const fc = ctrl as { id?: string; sortable?: boolean };
+      if (fc.id === c.id) return fc.sortable ?? false;
+    }
+    return false;
+  };
   const sortCol =
-    tableCols.find((c) => isDefault(c) && isSortable(c)) ??
     tableCols.find(isSortable) ??
     allColumns?.find((c) => c.idField);
-  return sortCol ? (deriveSortId(sortCol) ?? sortCol.id) : undefined;
+  if (!sortCol) return undefined;
+  return { id: deriveSortId(sortCol) ?? sortCol.id, dir: 'asc' };
 };

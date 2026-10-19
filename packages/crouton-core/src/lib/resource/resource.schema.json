@@ -1712,6 +1712,26 @@
                     "type": "string"
                   }
                 },
+                "defaultSort": {
+                  "description": "Default sort applied on initial table load. Omit to use the first sortable column.",
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "default": "id",
+                      "description": "Column id to sort by. Defaults to `id`.",
+                      "type": "string"
+                    },
+                    "sortDir": {
+                      "default": "asc",
+                      "description": "Sort direction. Default: asc.",
+                      "type": "string",
+                      "enum": [
+                        "asc",
+                        "desc"
+                      ]
+                    }
+                  }
+                },
                 "items": {
                   "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
                   "type": "array",
@@ -1725,152 +1745,41 @@
                         "properties": {
                           "id": {
                             "type": "string"
-                          },
-                          "colspan": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 12
-                          },
-                          "rowspan": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 6
-                          },
-                          "width": {
-                            "type": "string"
-                          },
-                          "label": {
-                            "type": "string"
-                          },
-                          "hideLabel": {
-                            "type": "boolean"
-                          },
-                          "type": {
-                            "type": "string"
-                          },
-                          "options": {
-                            "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
-                            "additionalProperties": {}
-                          },
-                          "showWhen": {
-                            "description": "Conditionally show this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "hideWhen": {
-                            "description": "Conditionally hide this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "disabledWhen": {
-                            "description": "Conditionally disable this control when the condition matches another field value.",
-                            "type": "object",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The other column id whose value is evaluated for the condition."
-                              },
-                              "eq": {
-                                "description": "Show/hide/disable when the field value equals this value."
-                              },
-                              "neq": {
-                                "description": "Show/hide/disable when the field value does NOT equal this value."
-                              },
-                              "exists": {
-                                "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                "type": "boolean"
-                              },
-                              "notExists": {
-                                "description": "When true, show/hide/disable when the field has no value.",
-                                "type": "boolean"
-                              }
-                            },
-                            "required": [
-                              "field"
-                            ]
-                          },
-                          "sortable": {
-                            "default": false,
-                            "description": "Enables a sort toggle on the table column header.",
-                            "type": "boolean"
-                          },
-                          "defaultSort": {
-                            "default": false,
-                            "description": "When true, the table is sorted by this column by default. At most one column should set this.",
-                            "type": "boolean"
                           }
                         },
                         "required": [
                           "id"
-                        ]
+                        ],
+                        "additionalProperties": {}
                       },
                       {
                         "type": "object",
                         "properties": {
                           "component": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Name of the Vue component to render in this slot."
                           },
                           "colspan": {
+                            "default": 12,
+                            "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 12
                           },
                           "rowspan": {
+                            "default": 1,
+                            "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 6
                           },
                           "width": {
+                            "default": "full",
+                            "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                             "type": "string"
                           },
                           "label": {
+                            "description": "Optional label rendered above the component slot.",
                             "type": "string"
                           }
                         },
@@ -2200,6 +2109,54 @@
                       }
                     ]
                   }
+                },
+                "pageSize": {
+                  "default": 20,
+                  "description": "Default page size. Server may cap it.",
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "pageSizes": {
+                  "default": [
+                    20,
+                    50,
+                    100
+                  ],
+                  "description": "Page-size options shown in the selector (e.g. [20, 50, 100]).",
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "density": {
+                  "default": "normal",
+                  "description": "Row density. Default: normal.",
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "compact"
+                  ]
+                },
+                "selectable": {
+                  "description": "Show row checkboxes for multi-select.",
+                  "type": "boolean"
+                },
+                "rowClick": {
+                  "default": "view",
+                  "description": "Action when a table row is clicked.",
+                  "type": "string",
+                  "enum": [
+                    "view",
+                    "edit",
+                    "none"
+                  ]
+                },
+                "emptyText": {
+                  "description": "Message shown when the table has no rows.",
+                  "type": "string"
                 }
               }
             },
@@ -2411,31 +2368,43 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Column id this control is bound to."
                       },
                       "colspan": {
+                        "default": 12,
+                        "description": "Number of grid columns this control spans (1–12). Defaults to full width.",
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 12
                       },
                       "rowspan": {
+                        "default": 1,
+                        "description": "Number of grid rows this control spans (1–6). Defaults to 1.",
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 6
                       },
                       "width": {
+                        "default": "full",
+                        "description": "Tailwind width class applied to the input wrapper (e.g. \"w-48\", \"full\"). Defaults to full width.",
                         "type": "string"
                       },
                       "label": {
+                        "description": "Override the column label shown above the input.",
                         "type": "string"
                       },
                       "hideLabel": {
+                        "description": "Hide the label above the input.",
+                        "default": false,
                         "type": "boolean"
                       },
                       "type": {
+                        "description": "Override the field input type (e.g. \"text\", \"select\").",
                         "type": "string"
                       },
                       "options": {
+                        "description": "Field input options passed to the renderer.",
                         "type": "object",
                         "propertyNames": {
                           "type": "string"
@@ -2534,22 +2503,30 @@
                 "type": "object",
                 "properties": {
                   "component": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the Vue component to render in this slot."
                   },
                   "colspan": {
+                    "default": 12,
+                    "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 12
                   },
                   "rowspan": {
+                    "default": 1,
+                    "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 6
                   },
                   "width": {
+                    "default": "full",
+                    "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                     "type": "string"
                   },
                   "label": {
+                    "description": "Optional label rendered above the component slot.",
                     "type": "string"
                   }
                 },
@@ -2611,22 +2588,30 @@
                 "type": "object",
                 "properties": {
                   "component": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the Vue component to render in this slot."
                   },
                   "colspan": {
+                    "default": 12,
+                    "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 12
                   },
                   "rowspan": {
+                    "default": 1,
+                    "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 6
                   },
                   "width": {
+                    "default": "full",
+                    "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                     "type": "string"
                   },
                   "label": {
+                    "description": "Optional label rendered above the component slot.",
                     "type": "string"
                   }
                 },
@@ -2659,6 +2644,26 @@
                       "type": "string"
                     }
                   },
+                  "defaultSort": {
+                    "description": "Default sort applied on initial table load. Omit to use the first sortable column.",
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "default": "id",
+                        "description": "Column id to sort by. Defaults to `id`.",
+                        "type": "string"
+                      },
+                      "sortDir": {
+                        "default": "asc",
+                        "description": "Sort direction. Default: asc.",
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    }
+                  },
                   "items": {
                     "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
                     "type": "array",
@@ -2672,152 +2677,41 @@
                           "properties": {
                             "id": {
                               "type": "string"
-                            },
-                            "colspan": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 12
-                            },
-                            "rowspan": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 6
-                            },
-                            "width": {
-                              "type": "string"
-                            },
-                            "label": {
-                              "type": "string"
-                            },
-                            "hideLabel": {
-                              "type": "boolean"
-                            },
-                            "type": {
-                              "type": "string"
-                            },
-                            "options": {
-                              "type": "object",
-                              "propertyNames": {
-                                "type": "string"
-                              },
-                              "additionalProperties": {}
-                            },
-                            "showWhen": {
-                              "description": "Conditionally show this control when the condition matches another field value.",
-                              "type": "object",
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "description": "The other column id whose value is evaluated for the condition."
-                                },
-                                "eq": {
-                                  "description": "Show/hide/disable when the field value equals this value."
-                                },
-                                "neq": {
-                                  "description": "Show/hide/disable when the field value does NOT equal this value."
-                                },
-                                "exists": {
-                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                  "type": "boolean"
-                                },
-                                "notExists": {
-                                  "description": "When true, show/hide/disable when the field has no value.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "field"
-                              ]
-                            },
-                            "hideWhen": {
-                              "description": "Conditionally hide this control when the condition matches another field value.",
-                              "type": "object",
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "description": "The other column id whose value is evaluated for the condition."
-                                },
-                                "eq": {
-                                  "description": "Show/hide/disable when the field value equals this value."
-                                },
-                                "neq": {
-                                  "description": "Show/hide/disable when the field value does NOT equal this value."
-                                },
-                                "exists": {
-                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                  "type": "boolean"
-                                },
-                                "notExists": {
-                                  "description": "When true, show/hide/disable when the field has no value.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "field"
-                              ]
-                            },
-                            "disabledWhen": {
-                              "description": "Conditionally disable this control when the condition matches another field value.",
-                              "type": "object",
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "description": "The other column id whose value is evaluated for the condition."
-                                },
-                                "eq": {
-                                  "description": "Show/hide/disable when the field value equals this value."
-                                },
-                                "neq": {
-                                  "description": "Show/hide/disable when the field value does NOT equal this value."
-                                },
-                                "exists": {
-                                  "description": "When true, show/hide/disable when the field has a non-empty value.",
-                                  "type": "boolean"
-                                },
-                                "notExists": {
-                                  "description": "When true, show/hide/disable when the field has no value.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "field"
-                              ]
-                            },
-                            "sortable": {
-                              "default": false,
-                              "description": "Enables a sort toggle on the table column header.",
-                              "type": "boolean"
-                            },
-                            "defaultSort": {
-                              "default": false,
-                              "description": "When true, the table is sorted by this column by default. At most one column should set this.",
-                              "type": "boolean"
                             }
                           },
                           "required": [
                             "id"
-                          ]
+                          ],
+                          "additionalProperties": {}
                         },
                         {
                           "type": "object",
                           "properties": {
                             "component": {
-                              "type": "string"
+                              "type": "string",
+                              "description": "Name of the Vue component to render in this slot."
                             },
                             "colspan": {
+                              "default": 12,
+                              "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 12
                             },
                             "rowspan": {
+                              "default": 1,
+                              "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 6
                             },
                             "width": {
+                              "default": "full",
+                              "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                               "type": "string"
                             },
                             "label": {
+                              "description": "Optional label rendered above the component slot.",
                               "type": "string"
                             }
                           },
@@ -3147,6 +3041,54 @@
                         }
                       ]
                     }
+                  },
+                  "pageSize": {
+                    "default": 20,
+                    "description": "Default page size. Server may cap it.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "pageSizes": {
+                    "default": [
+                      20,
+                      50,
+                      100
+                    ],
+                    "description": "Page-size options shown in the selector (e.g. [20, 50, 100]).",
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "density": {
+                    "default": "normal",
+                    "description": "Row density. Default: normal.",
+                    "type": "string",
+                    "enum": [
+                      "normal",
+                      "compact"
+                    ]
+                  },
+                  "selectable": {
+                    "description": "Show row checkboxes for multi-select.",
+                    "type": "boolean"
+                  },
+                  "rowClick": {
+                    "default": "view",
+                    "description": "Action when a table row is clicked.",
+                    "type": "string",
+                    "enum": [
+                      "view",
+                      "edit",
+                      "none"
+                    ]
+                  },
+                  "emptyText": {
+                    "description": "Message shown when the table has no rows.",
+                    "type": "string"
                   }
                 }
               }

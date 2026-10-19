@@ -34,7 +34,8 @@
               "sortId": "status"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {
@@ -44,7 +45,8 @@
           "id": "status"
         }
       ],
-      "defaultSort": "id"
+      "defaultSort": "id",
+      "defaultSortDir": "asc"
     },
     "form": {
       "json_schema": {

@@ -55,7 +55,8 @@
               }
             ]
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {
@@ -68,7 +69,8 @@
           "id": "date"
         }
       ],
-      "defaultSort": "date"
+      "defaultSort": "date",
+      "defaultSortDir": "asc"
     },
     "form": {
       "json_schema": {

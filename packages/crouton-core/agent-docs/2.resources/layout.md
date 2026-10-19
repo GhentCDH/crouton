@@ -224,8 +224,9 @@ The table node carries all table-specific settings:
 ```json
 "table": {
   "title": "Books",
+  "defaultSort": { "field": "title", "sortDir": "asc" },
   "items": [
-    { "id": "title", "sortable": true, "defaultSort": true },
+    { "id": "title", "sortable": true },
     { "id": "status", "sortable": true, "showWhen": { "field": "active", "eq": true } },
     { "id": "authorId", "type": "select", "options": { "values": [] } },
     "createdAt",
@@ -255,17 +256,58 @@ Free-text search (`?q=`) is declared on the operation, not the table layout. See
 
 #### Per-column table item options
 
-Beyond the standard `colspan`/`label`/`type`/`options` overrides, table items also accept:
+Beyond the standard `label`/`type`/`options` overrides, table items accept:
 
-| Field | Description |
-|---|---|
-| `sortable` | `true` to enable sort toggle on this column header. |
-| `defaultSort` | `true` to sort by this column on initial load. At most one column. |
-| `showWhen` | `{ field, eq?, neq?, exists?, notExists? }` — show column when condition matches. |
-| `hideWhen` | Same shape — hide column when condition matches. |
-| `disabledWhen` | Same shape — disable column when condition matches. |
+| Field | Type | Description |
+|---|---|---|
+| `sortable` | `boolean` | Enable sort toggle on this column header. |
+| `width` | `"xs" \| "sm" \| "md" \| "lg" \| "xl" \| CSS value` | Column width. Named sizes share the form width scale. |
+| `minWidth` | CSS value | Minimum column width (e.g. `"10rem"`). |
+| `maxWidth` | CSS value | Maximum column width. |
+| `align` | `"left" \| "center" \| "right"` | Cell text alignment. |
+| `truncate` | `boolean \| number` | `true` = single-line ellipsis; number = max lines (multi-line clamp). |
+| `pin` | `"left" \| "right"` | Sticky column. |
+| `visible` | `boolean` | `false` hides the column initially (column chooser coming later). Default `true`. |
+| `headerTooltip` | `string` | Tooltip on the column header. |
+| `showWhen` | `{ field, eq?, neq?, exists?, notExists? }` | Show column when condition matches. |
+| `hideWhen` | Same shape | Hide column when condition matches. |
+| `disabledWhen` | Same shape | Disable column when condition matches. |
 
 `type` + `options` override the cell renderer for this column in the table only.
+
+> **Note:** `colspan`, `rowspan`, and `hideLabel` are not valid on table items and will cause a validation error. Remove them.
+
+#### Table node options
+
+The table node accepts these options in addition to `items`, `rowActions`, `tableActions`, `filterFields`, and `title`:
+
+| Field | Type | Description |
+|---|---|---|
+| `defaultSort` | `{ field?: string, sortDir?: "asc" \| "desc" }` | Default sort on initial load. `field` = column id (default: `"id"`), `sortDir` = direction (default: `"asc"`). |
+| `pageSize` | `number` | Initial page size (default 20). |
+| `pageSizes` | `number[]` | Page size selector options (default `[10, 20, 50, 100]`). |
+| `density` | `"normal" \| "compact"` | Row density. `compact` reduces row padding. |
+| `selectable` | `boolean` | Show row checkboxes for multi-select. |
+| `rowClick` | `"view" \| "edit" \| "none"` | What happens when a row is clicked. |
+| `emptyText` | `string` | Text shown when there are no records. |
+
+```json
+"table": {
+  "type": "table",
+  "defaultSort": { "field": "publishedYear", "sortDir": "desc" },
+  "pageSize": 50,
+  "pageSizes": [20, 50, 100],
+  "density": "compact",
+  "rowClick": "view",
+  "emptyText": "No books yet",
+  "items": [
+    { "id": "title", "width": "md", "truncate": true, "sortable": true },
+    { "id": "publishedYear", "width": "xs", "align": "right", "sortable": true },
+    { "id": "isbn", "visible": false },
+    { "id": "status", "pin": "left" }
+  ]
+}
+```
 
 ### Table column order
 
