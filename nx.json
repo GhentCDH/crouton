@@ -59,6 +59,7 @@
       "@ghentcdh/crouton-prisma ",
       "@ghentcdh/crouton-cli"
     ],
+    "projectsRelationship": "fixed",
     "version": {
       "conventionalCommits": true,
       "preVersionCommand": "pnpm nx run-many -t build typecheck"
