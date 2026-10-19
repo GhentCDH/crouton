@@ -1,6 +1,7 @@
 import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
 import type { JsonColumn, RelationType } from '../resource';
+import { getRelationType } from '../resource/Column';
 
 export const unwrapZodType = (type: any): any => {
   if (type instanceof ZodOptional || type instanceof ZodNullable) {
@@ -35,16 +36,21 @@ export const enrichRelationTypes = (
 ): JsonColumn[] => {
   if (!schema) return columns;
   return columns.map((col) => {
-    const fi = col.fieldInput;
-    if (!fi) return col;
     const isRelationField =
-      fi.type === 'autocomplete' || fi.format === 'relation';
+      col.relation !== undefined ||
+      col.fieldInput?.type === 'autocomplete' ||
+      col.fieldInput?.format === 'relation';
     if (!isRelationField) return col;
-    if (fi.relationType) return col;
+    if (getRelationType(col)) return col; // explicit wins
     const derived =
       deriveRelationType(schema, col.id) ??
       deriveRelationTypeFromColumns(col, columns);
     if (!derived) return col;
+    // Prefer enriching the new `relation` field; fall back to `fieldInput`
+    if (col.relation) {
+      return { ...col, relation: { ...col.relation, type: derived } };
+    }
+    const fi = col.fieldInput!;
     return { ...col, fieldInput: { ...fi, relationType: derived } };
   });
 };

@@ -78,9 +78,8 @@ export const buildTableUiSchema = (
     const sortOptions = derivedSortId
       ? { sortId: derivedSortId }
       : { sortable: false };
-    const relationTypeOption = col.fieldInput?.relationType
-      ? { relationType: col.fieldInput.relationType }
-      : {};
+    const relationType = col.relation?.type ?? col.fieldInput?.relationType;
+    const relationTypeOption = relationType ? { relationType } : {};
     return {
       ...el,
       options: {

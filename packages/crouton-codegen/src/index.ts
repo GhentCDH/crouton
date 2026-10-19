@@ -36,4 +36,5 @@ export * from './agent-files/render';
 export * from './agent-files/manifest';
 export * from './agent-files/sync';
 export * from './migrate/layout-precedence';
+export * from './migrate/relation-keys';
 export * from './migrate/search-fields';

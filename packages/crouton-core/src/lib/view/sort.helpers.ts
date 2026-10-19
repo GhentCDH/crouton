@@ -26,6 +26,7 @@ export const deriveSortId = (col: JsonColumn): string | null => {
   // explicit `displayKey`, then the autocomplete label/display key. With no usable
   // key the column is not sortable (`null`) rather than crashing at query time.
   const isRelation =
+    col.relation !== undefined ||
     fi?.format === 'relation' ||
     !!fi?.relationType ||
     fi?.type === 'autocomplete' ||

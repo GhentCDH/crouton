@@ -4,6 +4,7 @@ import {
   findConfigPath,
   loadConfig,
   migrateLayoutPrecedence,
+  migrateRelationKeys,
   migrateRemovedColumnFields,
   migrateSearchFields,
   resolveFromRoot,
@@ -105,6 +106,7 @@ export const registerMigrateCommand = (program: Command) => {
           const { resource: layoutFixed, report } = migrateLayoutPrecedence(result.raw);
           const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
           const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
+          const { resource: relationFixed, report: relationReport } = migrateRelationKeys(colFixed);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -119,8 +121,9 @@ export const registerMigrateCommand = (program: Command) => {
           const hasColChanges =
             colReport.columnsWithFieldView.length > 0 ||
             colReport.columnsWithColumnType.length > 0;
+          const hasRelationChanges = relationReport.migratedColumns.length > 0;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges) continue;
 
           needsMigration++;
 
@@ -139,8 +142,10 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push(`remove fieldView from columns: ${colReport.columnsWithFieldView.join(', ')}`);
           if (colReport.columnsWithColumnType.length)
             labels.push(`remove columnType from columns: ${colReport.columnsWithColumnType.join(', ')}`);
+          if (relationReport.migratedColumns.length)
+            labels.push(`lift relation keys to column.relation: ${relationReport.migratedColumns.join(', ')}`);
 
-          const out = JSON.stringify(colFixed, null, 2) + '\n';
+          const out = JSON.stringify(relationFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

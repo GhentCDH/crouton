@@ -68,10 +68,11 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
   const control = ControlBuilder.properties<any>(col.id as keyof any);
   const fieldInput = col.fieldInput;
 
-  if (fieldInput?.format === 'relation') {
-    const options: any = { ...(fieldInput.options as object | undefined) };
+  if (col.relation !== undefined || fieldInput?.format === 'relation') {
+    const options: any = { ...(fieldInput?.options as object | undefined) };
     if (!options.colspan) options.colspan = 12;
-    if (fieldInput.relationType) options.relationType = fieldInput.relationType;
+    const relationType = col.relation?.type ?? fieldInput?.relationType;
+    if (relationType) options.relationType = relationType;
     control.control('relation', options).width('full');
   } else if (fieldInput?.type === 'autocomplete') {
     const options: any = { ...(fieldInput.options as object | undefined) };

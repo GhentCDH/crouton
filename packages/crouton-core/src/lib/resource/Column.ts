@@ -1,7 +1,45 @@
 import { z } from 'zod';
 
 import { ColumnTypeSchema } from './ColumnType.schema';
-import { FieldInputSchema } from './FieldInput.schema';
+import { FieldInputSchema, RelationType } from './FieldInput.schema';
+
+// ── Relation config ───────────────────────────────────────────────────────
+
+/**
+ * Relation configuration for a column — lifted out of `fieldInput` so it
+ * lives alongside the structural column fields instead of inside the UI layer.
+ */
+export const ColumnRelationSchema = z.object({
+  resource: z
+    .string()
+    .describe(
+      'Relative path to the child resource definition (e.g. "./author.resource"). Resolved at load time.',
+    ),
+  type: RelationType.optional().describe(
+    'Cardinality of the relation. Auto-derived from the Zod model or a sibling FK column when omitted.',
+  ),
+  foreignKey: z
+    .string()
+    .optional()
+    .describe(
+      'FK field on the child model pointing back to the parent. Defaults to "${parentModel}Id".',
+    ),
+  prismaField: z
+    .string()
+    .optional()
+    .describe(
+      'Override the Prisma relation field name when it differs from the column id.',
+    ),
+  sort: z
+    .string()
+    .optional()
+    .describe('Field to sort related records by'),
+  sortDir: z
+    .enum(['asc', 'desc'])
+    .optional()
+    .describe('Sort direction for related records'),
+});
+export type ColumnRelation = z.infer<typeof ColumnRelationSchema>;
 
 // -- Uniqueness ------------------------------------------------------------
 
@@ -194,6 +232,9 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Whether the form requires a value. On a "prisma" resource this overrides the Prisma-derived required state; on "custom" resources it is the only way to mark a field required. Applies to forms only.',
     ),
+  relation: ColumnRelationSchema.optional().describe(
+    'Sub-resource relation configuration. Prefer this over fieldInput.resource / fieldInput.relationType for new resources.',
+  ),
   fieldInput: FieldInputSchema.optional().describe(
     'Configures the UI control used in create/edit forms and the display format. Use "type" to pick the input widget; "format" to pick a special renderer (e.g. "relation").',
   ),
@@ -223,3 +264,19 @@ export const JsonColumnSchema = z.object({
 
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;
 export type JsonColumnInput = z.input<typeof JsonColumnSchema>;
+
+/** Returns `true` when the column declares a sub-resource relation (new `relation` field or legacy `fieldInput.format === 'relation'`). */
+export const isRelationColumn = (col: JsonColumn): boolean =>
+  col.relation !== undefined || col.fieldInput?.format === 'relation';
+
+/** Resolve the relation resource path from either the new `relation` field or legacy `fieldInput`. */
+export const getRelationResource = (col: JsonColumn): string | undefined =>
+  col.relation?.resource ?? col.fieldInput?.resource;
+
+/** Resolve the relation type from either the new `relation` field or legacy `fieldInput`. */
+export const getRelationType = (col: JsonColumn) =>
+  col.relation?.type ?? col.fieldInput?.relationType;
+
+/** Resolve the Prisma relation field name from either the new `relation` field or legacy `fieldInput`. */
+export const getPrismaRelationField = (col: JsonColumn): string =>
+  col.relation?.prismaField ?? col.fieldInput?.relation ?? col.id;

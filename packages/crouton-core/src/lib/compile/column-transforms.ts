@@ -5,6 +5,15 @@ export const applyRelationFormatDefault = (
   cols: JsonColumn[] | undefined,
 ): JsonColumn[] | undefined =>
   cols?.map((col) => {
+    // New-style: col.relation present — ensure fieldInput.format is set for
+    // backward-compat consumers that still read fieldInput.format
+    if (col.relation && !col.fieldInput?.format) {
+      return {
+        ...col,
+        fieldInput: { ...(col.fieldInput ?? {}), format: 'relation', resource: col.relation.resource },
+      };
+    }
+    // Legacy: fieldInput.resource without format → set format: 'relation'
     const fi = col.fieldInput;
     if (fi && fi.resource && !fi.format && !fi.type) {
       return { ...col, fieldInput: { ...fi, format: 'relation' } };

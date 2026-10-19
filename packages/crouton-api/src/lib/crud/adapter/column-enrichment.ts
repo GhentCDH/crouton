@@ -1,4 +1,5 @@
 import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions } from '@ghentcdh/crouton-core';
+import { isRelationColumn } from '@ghentcdh/crouton-core';
 
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { buildChildSortClause } from '../sql.helpers';
@@ -18,7 +19,7 @@ export const enrichActionColumns = (
   if (!columns) return columns;
   const base = baseUrl ?? '';
   return columns.map((col) => {
-    if (col.fieldInput?.format !== 'relation') return col;
+    if (!isRelationColumn(col)) return col;
     const sub = subResources.find((s) => s.column === col.id);
     if (!sub) return col;
     return {
@@ -26,7 +27,7 @@ export const enrichActionColumns = (
       fieldInput: {
         ...col.fieldInput,
         options: {
-          ...(col.fieldInput.options as object | undefined),
+          ...(col.fieldInput?.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
           resource:
@@ -56,7 +57,7 @@ export const enrichResourceRefColumns = (
   if (!columns || !parentDir) return columns;
   const base = baseUrl ?? '';
   return columns.map((col) => {
-    if (!col.fieldInput?.resource || col.fieldInput.format === 'relation')
+    if (!col.fieldInput?.resource || isRelationColumn(col))
       return col;
     const childResolved = resolveChildResource(
       col.fieldInput.resource,
@@ -97,24 +98,24 @@ export const enrichNestedRelationColumns = (
   if (!cols || !dir) return cols;
   const base = baseUrl ?? '';
   return cols.map((col) => {
-    if (col.fieldInput?.format !== 'relation' || !col.fieldInput.resource)
-      return col;
-    const resolved = resolveChildResource(col.fieldInput.resource, dir);
+    const relResource = col.relation?.resource ?? col.fieldInput?.resource;
+    if (!isRelationColumn(col) || !relResource) return col;
+    const resolved = resolveChildResource(relResource, dir);
     const targetRoute =
       resolved?.json?.route ??
-      col.fieldInput.resource
+      relResource
         .replace(/^\.\//, '')
         .replace(/\/resource\.json$/, '')
         .replace(/\.resource$/, '');
     const relationType =
-      col.fieldInput.relationType ?? deriveRelationTypeFromColumns(col, cols);
+      (col.relation?.type ?? col.fieldInput?.relationType) ?? deriveRelationTypeFromColumns(col, cols);
     return {
       ...col,
       fieldInput: {
         ...col.fieldInput,
         relationType,
         options: {
-          ...(col.fieldInput.options as object | undefined),
+          ...(col.fieldInput?.options as object | undefined),
           uri: `${base}/${targetRoute}`,
           resourceUri: `${base}/${targetRoute}`,
           resource: `${base}/${targetRoute}/schemas`,
@@ -139,13 +140,15 @@ export const enrichIncludeWithSort = (
   return include.map((entry) => {
     const relationName = typeof entry === 'string' ? entry : entry.relation;
     const col = columns.find((c) => {
-      const opts = c.fieldInput?.options as
-        RelationFieldInputOptions | undefined;
-      return (c.column ?? c.id) === relationName && opts?.sort;
+      if ((c.column ?? c.id) !== relationName) return false;
+      if (c.relation?.sort) return true;
+      const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
+      return !!opts?.sort;
     });
     if (!col) return entry;
-    const opts = col.fieldInput!.options as RelationFieldInputOptions;
-    const orderBy = buildChildSortClause(opts.sort!, opts.sortDir ?? 'asc');
+    const sort = col.relation?.sort ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sort;
+    const sortDir = col.relation?.sortDir ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sortDir;
+    const orderBy = buildChildSortClause(sort!, sortDir ?? 'asc');
     return typeof entry === 'string'
       ? { relation: entry, orderBy }
       : { ...entry, orderBy };

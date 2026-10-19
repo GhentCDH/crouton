@@ -77,10 +77,11 @@ describe('classify', () => {
     // Author (manyToOne, resolves) → autocomplete relation control, hidden in table only
     expect(col(d, 'author')).toEqual({
       hiddenInTable: true,
-      fieldInput: {
-        format: 'relation',
+      relation: {
         resource: './resource.author.json',
-        relationType: 'manyToOne',
+        type: 'manyToOne',
+      },
+      fieldInput: {
         options: { display: 'autocomplete' },
       },
     });
@@ -99,10 +100,11 @@ describe('classify', () => {
     // Source (oneToMany, now resolves) → table in the form, hidden in table only
     expect(col(d, 'sources')).toEqual({
       hiddenInTable: true,
-      fieldInput: {
-        format: 'relation',
+      relation: {
         resource: './resource.source.json',
-        relationType: 'oneToMany',
+        type: 'oneToMany',
+      },
+      fieldInput: {
         options: { display: 'table' },
       },
     });
