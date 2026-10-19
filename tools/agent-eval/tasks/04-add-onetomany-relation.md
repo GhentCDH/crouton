@@ -23,12 +23,10 @@ model Book {
 
 Edit `src/resources/author/resource.json` to add a `books` column that:
 - Has `label: "Books"`
-- Is hidden in the table (`hiddenInTable: true`) and hidden in the form (`hiddenInForm: true`)
-- Uses `fieldInput.format: "relation"`
-- Uses `fieldInput.relationType: "oneToMany"`
-- References the book resource with `fieldInput.resource: "./book.resource"`
-
-Also add `"books"` to the `include` array on the author resource.
+- Is hidden in table and form: `hiddenInTable: true`, `hiddenInForm: true`
+- Has `relation.resource: "./book/resource.json"`, `relation.type: "oneToMany"`, `relation.foreignKey: "authorId"`
+- Has `fieldInput.type: "relation"`
+- Loads the relation via `operations.findOne.include: ["books"]` (detail only, not in list)
 
 ## Verification
 
@@ -37,7 +35,8 @@ Expected: exits 0 with no issues.
 
 ## Hints
 
+- Relation data model goes in `column.relation`, not in `fieldInput`
+- `fieldInput.type: "relation"` renders an embedded table panel for oneToMany
+- Include in `findOne` only — `books` is too heavy to load in the list
+- `relation.foreignKey` is on the **target** resource (Book has `authorId`)
 - Use the crouton skill if available
-- Read `node_modules/@ghentcdh/crouton-core/agent-docs/README.md` for docs
-- The `format: "relation"` (not `type`) is used for oneToMany and manyToMany relations
-- `include` must contain the relation name (Prisma relation field name)

@@ -8,50 +8,202 @@
 4. Edit `resource.json`: set labels, choose fieldInput types, add relations.
 5. Run `crouton validate`.
 
+Minimal resource:
+
+```json
+{
+  "schemaVersion": 1,
+  "name": "book",
+  "title": "Books",
+  "source": { "model": "Book" },
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "label": "Title" }
+  }
+}
+```
+
 ## Add a manyToOne relation (autocomplete)
 
-In `resource.json` of the child resource (the one holding the FK):
+In `resource.json` of the resource holding the FK:
 
 ```json
 {
   "columns": {
     "authorId": {
-      "fieldInput": { "type": "autocomplete", "resource": "author", "labelField": "name" }
+      "label": "Author",
+      "relation": {
+        "resource": "./author/resource.json",
+        "type": "manyToOne",
+        "foreignKey": "authorId",
+        "displayKey": "name"
+      },
+      "fieldInput": { "type": "autocomplete" }
     }
   },
-  "relations": {
-    "author": { "type": "manyToOne", "resource": "author", "foreignKey": "authorId" }
-    }
+  "operations": {
+    "findAll": { "include": ["author"] },
+    "findOne": { "include": ["author"] }
+  }
 }
 ```
 
-Run `crouton validate` after editing.
+## Add a oneToMany relation (embedded panel)
+
+In `resource.json` of the parent resource:
+
+```json
+{
+  "columns": {
+    "reviews": {
+      "label": "Reviews",
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "relation": {
+        "resource": "./review/resource.json",
+        "type": "oneToMany",
+        "foreignKey": "bookId",
+        "sort": "createdAt",
+        "sortDir": "desc"
+      },
+      "fieldInput": { "type": "relation" }
+    }
+  },
+  "operations": {
+    "findOne": { "include": ["reviews"] }
+  }
+}
+```
 
 ## Add an enum select
 
 1. Add the enum to `crouton.enums.json` (or let `crouton update` create it).
-2. In `resource.json`:
+2. In `resource.json` use `enum` to reference it:
 
 ```json
 {
   "columns": {
     "status": {
+      "enum": "BookStatus",
+      "fieldInput": { "type": "select" }
+    }
+  }
+}
+```
+
+Or use inline `values` for a local list (not shared):
+
+```json
+{
+  "columns": {
+    "genre": {
       "fieldInput": {
         "type": "select",
-        "options": [
-          { "value": "draft", "label": "Draft" },
-          { "value": "published", "label": "Published" }
-        ]
+        "options": { "values": [
+          { "value": "fiction", "label": "Fiction" },
+          { "value": "non-fiction", "label": "Non-fiction" }
+        ]}
       }
     }
   }
 }
 ```
 
+Never set both `enum` and `fieldInput.options.values` — validation error.
+
+## Right-align numbers, newest-first, 50 per page
+
+```json
+{
+  "layout": {
+    "table": {
+      "pageSize": 50,
+      "pageSizes": [20, 50, 100],
+      "items": [
+        { "id": "title", "sortable": true },
+        { "id": "price", "align": "right", "width": "xs", "sortable": true },
+        { "id": "createdAt", "sortable": true, "defaultSort": "desc" }
+      ]
+    }
+  }
+}
+```
+
+`defaultSort: "desc"` sets newest-first as the initial sort direction.
+
+## Truncate long text in table
+
+```json
+{ "id": "description", "truncate": 3 }
+```
+
+`truncate: 3` = max 3 lines before clamp. `truncate: true` = single-line ellipsis.
+
+## Pin a column sticky left
+
+```json
+{ "id": "name", "pin": "left", "width": "md" }
+```
+
+## Open view as page, form as large modal
+
+```json
+{
+  "layout": {
+    "form": { "container": { "mode": "modal", "size": "xl" } },
+    "view": { "container": { "mode": "page" } }
+  }
+}
+```
+
+## Load a relation only on detail, not in list
+
+```json
+{
+  "operations": {
+    "findAll": { "include": [] },
+    "findOne": { "include": ["author", "chapters"] }
+  }
+}
+```
+
+## Add a computed column (SQL subquery)
+
+```json
+{
+  "columns": {
+    "chapterCount": {
+      "label": "Chapters",
+      "type": "number",
+      "computed": {
+        "sql": "SELECT COUNT(*) FROM chapter WHERE chapter.book_id = main.id"
+      }
+    }
+  }
+}
+```
+
+Use `main` as the alias for the parent table row.
+
+## Set dropdown labels for this resource
+
+Control how this resource's records appear in other resources' autocompletes:
+
+```json
+{
+  "lookup": {
+    "labels": ["title", "authorId"],
+    "separator": " · "
+  }
+}
+```
+
+Replaces `showInLookup: true` on individual columns.
+
 ## Custom field input + renderer registration
 
 1. Create a Vue component `MyInput.vue`.
-2. Register it globally in the frontend entry or via `useCrouton`:
+2. Register it via `useCrouton`:
    ```ts
    crouton.registerRenderer('MyInput', MyInput);
    ```
@@ -59,22 +211,6 @@ Run `crouton validate` after editing.
    ```json
    { "fieldInput": { "type": "custom", "component": "MyInput" } }
    ```
-
-## Right-align numbers, sort newest first, 50 per page
-
-```json
-"layout": {
-  "table": {
-    "pageSize": 50,
-    "pageSizes": [20, 50, 100],
-    "items": [
-      { "id": "createdAt", "sortable": true, "defaultSort": "desc", "width": "sm" },
-      { "id": "amount", "align": "right", "width": "xs" },
-      { "id": "title", "truncate": true }
-    ]
-  }
-}
-```
 
 ## Config-only resource (kind: custom)
 
