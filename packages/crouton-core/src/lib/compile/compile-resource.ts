@@ -33,6 +33,7 @@ const pickExtensions = (obj: Record<string, unknown>) =>
 
 const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
+  c.relation === undefined &&
   c.fieldInput?.format !== 'relation' &&
   !c.fieldInput?.relationType &&
   c.fieldInput?.type !== 'date';
@@ -51,9 +52,9 @@ const buildSearch = (
   return searchPaths.map((id) => {
     const col = columns.find((c) => c.id === id);
     if (!col) return id;
-    if (col.fieldInput?.format === 'relation') {
-      const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
-      if (opts?.displayKey) return `${id}.${opts.displayKey}`;
+    if (col.relation !== undefined || col.fieldInput?.format === 'relation') {
+      const displayKey = col.displayKey ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
+      if (displayKey) return `${id}.${displayKey}`;
     }
     return id;
   });
@@ -69,9 +70,9 @@ const buildLookup = (
   if (!keyCol && !lookupCols.length && !search?.length) return undefined;
   const labels = lookupCols.length
     ? lookupCols.map((c) => {
-        if (c.fieldInput?.format === 'relation') {
-          const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
-          if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
+        if (c.relation !== undefined || c.fieldInput?.format === 'relation') {
+          const displayKey = c.displayKey ?? (c.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
+          if (displayKey) return `${c.id}.${displayKey}`;
         }
         return c.id;
       })

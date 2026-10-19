@@ -53,16 +53,21 @@ export const enrichRelationTypes = (
 ): JsonColumn[] => {
   if (!schema) return columns;
   return columns.map((col) => {
-    const fi = col.fieldInput;
-    if (!fi) return col;
     const isRelationField =
-      fi.type === 'autocomplete' || fi.format === 'relation';
+      col.relation !== undefined ||
+      col.fieldInput?.type === 'autocomplete' ||
+      col.fieldInput?.format === 'relation';
     if (!isRelationField) return col;
-    if (fi.relationType) return col; // explicit wins
+    const existingType = col.relation?.type ?? col.fieldInput?.relationType;
+    if (existingType) return col; // explicit wins
     const derived =
       deriveRelationType(schema, col.id) ??
       deriveRelationTypeFromColumns(col, columns);
     if (!derived) return col;
+    if (col.relation) {
+      return { ...col, relation: { ...col.relation, type: derived } };
+    }
+    const fi = col.fieldInput!;
     return { ...col, fieldInput: { ...fi, relationType: derived } };
   });
 };

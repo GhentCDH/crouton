@@ -111,10 +111,11 @@ export const classify = (
       if (ruleset.showRelationsInForm && target) {
         col = {
           hiddenInTable: ruleset.hideRelationsInTable,
-          fieldInput: {
-            format: 'relation',
+          relation: {
             resource: target,
-            relationType: field.relationType,
+            ...(field.relationType && { type: field.relationType }),
+          },
+          fieldInput: {
             options: { display },
           },
         };

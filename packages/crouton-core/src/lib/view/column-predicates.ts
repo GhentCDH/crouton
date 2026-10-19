@@ -12,7 +12,7 @@ export const isBoolean = (col: JsonColumn): boolean =>
 
 /** Returns `true` when the column is a sub-resource relation (renders an inline sub-table). */
 export const isRelation = (col: JsonColumn): boolean =>
-  col.fieldInput?.format === 'relation';
+  col.relation !== undefined || col.fieldInput?.format === 'relation';
 
 /** Returns `true` when the column is an autocomplete FK reference (renders as a `RecordCell`). */
 export const isAutocomplete = (col: JsonColumn): boolean =>

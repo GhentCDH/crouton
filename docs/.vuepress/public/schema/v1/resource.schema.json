@@ -1065,6 +1065,56 @@
             "type": "boolean",
             "markdownDescription": "Whether the form requires a value. On a \"prisma\" resource this overrides the Prisma-derived required state; on \"custom\" resources it is the only way to mark a field required. Applies to forms only.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
+          "relation": {
+            "description": "Sub-resource relation configuration. Prefer this over fieldInput.resource / fieldInput.relationType for new resources.",
+            "type": "object",
+            "properties": {
+              "resource": {
+                "type": "string",
+                "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Resolved at load time.",
+                "markdownDescription": "Relative path to the child resource definition (e.g. \"./author.resource\"). Resolved at load time.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "type": {
+                "description": "Cardinality of the relation. Auto-derived from the Zod model or a sibling FK column when omitted.",
+                "type": "string",
+                "enum": [
+                  "oneToOne",
+                  "manyToOne",
+                  "oneToMany",
+                  "manyToMany"
+                ],
+                "markdownDescription": "Cardinality of the relation. Auto-derived from the Zod model or a sibling FK column when omitted.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "foreignKey": {
+                "description": "FK field on the child model pointing back to the parent. Defaults to \"${parentModel}Id\".",
+                "type": "string",
+                "markdownDescription": "FK field on the child model pointing back to the parent. Defaults to \"${parentModel}Id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "prismaField": {
+                "description": "Override the Prisma relation field name when it differs from the column id.",
+                "type": "string",
+                "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "sort": {
+                "description": "Field to sort related records by",
+                "type": "string",
+                "markdownDescription": "Field to sort related records by\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "sortDir": {
+                "description": "Sort direction for related records",
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "markdownDescription": "Sort direction for related records\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              }
+            },
+            "required": [
+              "resource"
+            ],
+            "markdownDescription": "Sub-resource relation configuration. Prefer this over fieldInput.resource / fieldInput.relationType for new resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          },
           "fieldInput": {
             "description": "Configures the UI control used in create/edit forms and the display format. Use \"type\" to pick the input widget; \"format\" to pick a special renderer (e.g. \"relation\").",
             "type": "object",

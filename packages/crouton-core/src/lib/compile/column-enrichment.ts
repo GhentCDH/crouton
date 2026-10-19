@@ -1,4 +1,5 @@
 import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions } from '../resource';
+import { isRelationColumn } from '../resource/Column';
 
 /** Minimal sub-resource shape needed for action-column enrichment. */
 type SubResourceRef = { column: string; childRoute: string; relationType?: string };
@@ -12,7 +13,7 @@ export const enrichActionColumns = (
   if (!columns) return columns;
   const base = baseUrl ?? '';
   return columns.map((col) => {
-    if (col.fieldInput?.format !== 'relation') return col;
+    if (!isRelationColumn(col)) return col;
     const sub = subResources.find((s) => s.column === col.id);
     if (!sub) return col;
     return {
@@ -20,7 +21,7 @@ export const enrichActionColumns = (
       fieldInput: {
         ...col.fieldInput,
         options: {
-          ...(col.fieldInput.options as object | undefined),
+          ...(col.fieldInput?.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
           resource:
@@ -55,12 +56,15 @@ export const enrichIncludeWithSort = (
   return include.map((entry) => {
     const relationName = typeof entry === 'string' ? entry : entry.relation;
     const col = columns.find((c) => {
+      if ((c.column ?? c.id) !== relationName) return false;
+      if (c.relation?.sort) return true;
       const opts = c.fieldInput?.options as RelationFieldInputOptions | undefined;
-      return (c.column ?? c.id) === relationName && opts?.sort;
+      return !!opts?.sort;
     });
     if (!col) return entry;
-    const opts = col.fieldInput!.options as RelationFieldInputOptions;
-    const orderBy = buildChildSortClause(opts.sort!, opts.sortDir ?? 'asc');
+    const sort = col.relation?.sort ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sort;
+    const sortDir = col.relation?.sortDir ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sortDir;
+    const orderBy = buildChildSortClause(sort!, sortDir ?? 'asc');
     return typeof entry === 'string'
       ? { relation: entry, orderBy }
       : { ...entry, orderBy };
