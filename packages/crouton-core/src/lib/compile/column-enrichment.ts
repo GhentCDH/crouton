@@ -21,7 +21,7 @@ export const enrichActionColumns = (
       fieldInput: {
         ...col.fieldInput,
         options: {
-          ...(col.fieldInput.options as object | undefined),
+          ...(col.fieldInput?.options as object | undefined),
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
           resource:
