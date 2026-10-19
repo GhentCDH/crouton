@@ -10,8 +10,6 @@
 export type FieldVariant = {
   type?: string;
   format?: string;
-  resource?: string;
-  relationType?: string;
   position?: number;
   options?: Record<string, unknown>;
 };
