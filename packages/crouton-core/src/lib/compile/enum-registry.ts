@@ -15,6 +15,31 @@ export const EnumRegistrySchema = z
 
 export type EnumRegistry = z.infer<typeof EnumRegistrySchema>;
 
+/**
+ * Pure function — applies enum defaults to a single column.
+ * `values` is undefined when the enum name was not found in the registry;
+ * all other defaults (type, labelKey, valueKey, emitObject) are applied regardless.
+ */
+export const applyEnumDefaults = (col: JsonColumn, values?: EnumEntry[]): void => {
+  col.fieldInput = col.fieldInput ?? {};
+  if (!col.fieldInput.type) col.fieldInput.type = 'select';
+
+  const options = (col.fieldInput.options as Record<string, unknown> | undefined) ?? {};
+
+  if (!('emitObject' in options)) options.emitObject = true;
+  if (!('labelKey' in options)) options.labelKey = 'label';
+  if (!('valueKey' in options)) options.valueKey = 'value';
+  if (values !== undefined && !('values' in options) && !('options' in options)) {
+    options.values = values;
+  }
+
+  col.fieldInput.options = options;
+
+  if (options.emitObject !== false && !col.displayKey) {
+    col.displayKey = options.labelKey as string;
+  }
+};
+
 export const injectEnumValues = (
   columns: JsonColumn[] | undefined,
   enums: EnumRegistry,
@@ -23,18 +48,9 @@ export const injectEnumValues = (
   for (const col of columns) {
     if (!col.enum) continue;
     const values = enums[col.enum];
-    if (!values) continue;
-    col.fieldInput = col.fieldInput ?? { type: 'select' };
-    const options =
-      (col.fieldInput.options as Record<string, unknown> | undefined) ?? {};
-    if (!('values' in options)) options.values = values;
-    if (!('emitObject' in options)) options.emitObject = true;
-    if (!('displayKey' in options)) options.displayKey = 'label';
-    col.fieldInput.options = options;
-    // Propagate displayKey to the column level so the table cell extracts
-    // the right key from the {value, label} envelope emitted by the API.
-    if (options.emitObject !== false && !col.displayKey) {
-      col.displayKey = options.displayKey as string;
+    if (!values) {
+      console.warn(`[crouton] enum "${col.enum}" not found in crouton.enums.json`);
     }
+    applyEnumDefaults(col, values);
   }
 };

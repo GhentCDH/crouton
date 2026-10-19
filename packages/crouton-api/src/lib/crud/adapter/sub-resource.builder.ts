@@ -113,7 +113,8 @@ export const buildSubResources = (
               'manyToOne',
         )
         .map((col) => getPrismaRelationField(col));
-      const explicitIncludes: JsonIncludeEntry[] = childJson?.include ?? [];
+      const explicitIncludes: JsonIncludeEntry[] =
+        (childJson?.operations?.findAll as any)?.include ?? childJson?.include ?? [];
       const explicitNames = new Set(
         explicitIncludes.map((e) =>
           typeof e === 'string' ? e : e.relation,
@@ -214,8 +215,10 @@ export const buildSubResources = (
           delete: childOps.delete !== false,
         },
         ...((childJson?.layout?.table as any)?.actions?.length && { actions: (childJson?.layout?.table as any)?.actions }),
-        ...(childJson?.layout?.form?.container?.size && { modalSize: childJson.layout.form.container.size }),
-        ...(childJson?.layout?.form?.container && { display: { mode: childJson.layout.form.container.mode ?? 'modal' } }),
+        ...(childJson?.layout?.form?.container && {
+          modalSize: childJson.layout.form.container.size,
+          display: { mode: childJson.layout.form.container.mode },
+        }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childJson?.calculatedColumns?.length && {
           calculatedColumns: childJson.calculatedColumns,

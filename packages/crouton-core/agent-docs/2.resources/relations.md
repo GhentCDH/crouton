@@ -1,87 +1,135 @@
 # Relations
 
-A relation is configured as a column with `fieldInput.format: "relation"` pointing to a sub-resource file:
+A relation is configured on the **column** via `column.relation`. The `fieldInput` only picks and configures the UI widget.
 
 ```json
 {
-  "column": "author_id",
-  "fieldInput": {
-    "format": "relation",
-    "relationType": "manyToOne",
-    "resource": "./author.resource"
-  }
-}
-```
-
-`author.resource.json` describes the related resource (its columns, operations, and lookup display). Supported
-`relationType` values: `oneToOne`, `manyToOne`, `oneToMany`, `manyToMany`.
-
-The frontend picks the matching control automatically — an autocomplete for `manyToOne`, an editable nested table for
-`oneToMany`, and so on.
-
-## Foreign key
-
-By default, the foreign key on the child model is derived as `${parentModel}Id` (camelCase), matching the standard
-Prisma convention. If the FK field in your Prisma schema uses a different name, set `foreignKey` on `fieldInput`:
-
-```json
-{
-  "column": "section",
-  "fieldInput": {
-    "format": "relation",
-    "relationType": "oneToMany",
-    "resource": "../section/resource.json",
-    "foreignKey": "work_id"
-  }
-}
-```
-
-When omitted, a parent model named `work` produces `foreignKey: "workId"`.
-
-## Relation options
-
-`fieldInput.options` accepts the following fields for relation columns:
-
-| Option              | Type                | Description                                                             |
-|---------------------|---------------------|-------------------------------------------------------------------------|
-| `displayKey`        | `string`            | Field used as the label in the relation control (e.g. `"title"`)        |
-| `direction`         | `'row' \| 'column'` | CSS flex direction for the relation button layout                       |
-| `sort`              | `string`            | Field to sort related records by, e.g. `"title"` or `"author.name"`    |
-| `sortDir`           | `'asc' \| 'desc'`   | Sort direction (default `"asc"`)                                        |
-| `customComponent`   | `string`            | Name of a custom Vue component to override the relation control         |
-
-## Sorting related records
-
-Add `sort` (and optionally `sortDir`) to `fieldInput.options` to control the order of related records. This affects:
-
-- **Backend includes** — when the parent record is fetched, the included relation records are returned in the specified
-  order (Prisma `orderBy` inside the `include` clause).
-- **Frontend picker** — when the relation control fetches its option list, the same sort params are forwarded as query
-  parameters.
-
-```json
-{
-  "id": "sections",
-  "label": "Sections",
-  "hiddenInForm": true,
-  "fieldInput": {
-    "format": "relation",
-    "resource": "./section/resource.json",
-    "options": {
-      "sort": "title",
-      "sortDir": "asc",
-      "displayKey": "title"
+  "columns": {
+    "authorId": {
+      "label": "Author",
+      "relation": {
+        "resource": "./author/resource.json",
+        "type": "manyToOne",
+        "foreignKey": "authorId",
+        "displayKey": "name"
+      },
+      "fieldInput": { "type": "autocomplete" }
     }
   }
 }
 ```
 
-Dotted paths work too — `"sort": "author.name"` sorts by a nested field.
+::: tip Migration
+`fieldInput.format: "relation"`, `fieldInput.relationType`, `fieldInput.resource`, and `fieldInput.foreignKey` are removed. Run `crouton migrate` to move them to `column.relation` automatically.
+:::
+
+## column.relation reference
+
+| Field | Description |
+|---|---|
+| `resource` | Relative path to the target `resource.json` |
+| `type` | `"manyToOne"` \| `"oneToMany"` \| `"manyToMany"` |
+| `foreignKey` | FK column name (on **this** resource for manyToOne; on **target** for oneToMany) |
+| `name` | Prisma relation field name when different from the column id |
+| `displayKey` | Field on the related record shown in autocomplete / lookup |
+| `sort` | Default sort field for the related list |
+| `sortDir` | `"asc"` \| `"desc"` (default `"asc"`) |
+
+## manyToOne (autocomplete lookup)
+
+FK is on **this** resource (e.g. `book.authorId → author.id`).
+Frontend renders an autocomplete search dropdown.
+
+```json
+{
+  "columns": {
+    "authorId": {
+      "label": "Author",
+      "relation": {
+        "resource": "./author/resource.json",
+        "type": "manyToOne",
+        "foreignKey": "authorId",
+        "displayKey": "name"
+      },
+      "fieldInput": { "type": "autocomplete" }
+    }
+  },
+  "operations": {
+    "findAll": { "include": ["author"] },
+    "findOne": { "include": ["author"] }
+  }
+}
+```
+
+## oneToMany (embedded panel)
+
+FK is on the **target** resource (e.g. `review.bookId → book.id`).
+Frontend renders an embedded table panel inside the detail view.
+
+```json
+{
+  "columns": {
+    "reviews": {
+      "label": "Reviews",
+      "hiddenInTable": true,
+      "hiddenInForm": true,
+      "relation": {
+        "resource": "./review/resource.json",
+        "type": "oneToMany",
+        "foreignKey": "bookId",
+        "sort": "createdAt",
+        "sortDir": "desc"
+      },
+      "fieldInput": { "type": "relation" }
+    }
+  },
+  "operations": {
+    "findOne": { "include": ["reviews"] }
+  }
+}
+```
+
+Load oneToMany relations in `findOne.include` only — they are heavy and not needed in the list.
+
+## manyToMany
+
+```json
+{
+  "columns": {
+    "tags": {
+      "label": "Tags",
+      "relation": {
+        "resource": "./tag/resource.json",
+        "type": "manyToMany",
+        "foreignKey": "bookId",
+        "name": "tags"
+      },
+      "fieldInput": { "type": "relation" }
+    }
+  }
+}
+```
+
+## Loading relations: operations.include
+
+Root `include` is removed. Set includes per operation:
+
+```json
+"operations": {
+  "findAll": { "include": ["author"] },
+  "findOne": { "include": ["author", { "relation": "chapters", "orderBy": { "position": "asc" } }] }
+}
+```
+
+The object form allows an `orderBy` clause when the relation's default sort isn't enough.
+
+## Detecting a relation column
+
+Use `isRelation(col)` (exported from `@ghentcdh/crouton-core`) — returns `true` when `col.relation` is set.
 
 ## `parent.idType`
 
-When a resource is mounted under a parent via `parent.param`, the parent's id type defaults to `"number"`. If the
-parent uses string/UUID ids, declare it explicitly:
+When a resource is mounted under a parent via `parent.param`, the parent's id type defaults to `"number"`. If the parent uses string/UUID ids, declare it explicitly:
 
 ```json
 {
@@ -93,62 +141,69 @@ parent uses string/UUID ids, declare it explicitly:
 
 ## Custom relation control
 
-Register a custom Vue component in the `customComponents` registry and reference it from `fieldInput.options`:
+Register a custom Vue component and reference it from `fieldInput.options`:
 
 ```json
 {
-  "column": "sections",
-  "fieldInput": {
-    "format": "relation",
-    "resource": "../section/resource.json",
-    "options": {
-      "customComponent": "work-sections",
-      "sort": "section_number",
-      "displayKey": "title"
+  "columns": {
+    "sections": {
+      "relation": {
+        "resource": "../section/resource.json",
+        "type": "oneToMany",
+        "foreignKey": "workId",
+        "sort": "sectionNumber",
+        "displayKey": "title"
+      },
+      "fieldInput": {
+        "type": "relation",
+        "options": { "customComponent": "work-sections" }
+      }
     }
   }
 }
 ```
 
 The custom component receives `wrapper`, `value` (v-model), `appliedOptions`, `schema`, and `uischema` as props.
-All `fieldInput.options` are available via `appliedOptions`.
 
 See [Custom renderers](../4.frontend/custom-renderers.md) for how to register the component.
 
 ## Complete example
-
-A full `resource.json` showing manyToOne (autocomplete) and manyToMany (embedded table) relations together:
 
 ```json
 {
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "book",
-  "model": "Book",
   "title": "Books",
+  "source": { "model": "Book" },
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "filterable": true, "sortable": true },
+    "title": {},
     "authorId": {
       "label": "Author",
-      "searchable": true,
-      "fieldInput": {
-        "type": "autocomplete",
-        "relationType": "manyToOne",
-        "resource": "./author.resource"
-      }
+      "relation": {
+        "resource": "./author/resource.json",
+        "type": "manyToOne",
+        "foreignKey": "authorId",
+        "displayKey": "name"
+      },
+      "fieldInput": { "type": "autocomplete" }
     },
     "categories": {
       "label": "Categories",
       "hiddenInTable": true,
-      "fieldInput": {
-        "format": "relation",
-        "relationType": "manyToMany",
-        "resource": "./category.resource"
-      }
+      "relation": {
+        "resource": "./category/resource.json",
+        "type": "manyToMany",
+        "foreignKey": "bookId"
+      },
+      "fieldInput": { "type": "relation" }
     }
   },
-  "include": ["author", "categories"]
+  "operations": {
+    "findAll": { "search": ["title"], "include": ["author"] },
+    "findOne": { "include": ["author", "categories"] }
+  }
 }
 ```
 

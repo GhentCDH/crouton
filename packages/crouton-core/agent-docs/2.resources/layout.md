@@ -224,14 +224,14 @@ The table node carries all table-specific settings:
 ```json
 "table": {
   "title": "Books",
-  "defaultSort": { "field": "title", "sortDir": "asc" },
   "items": [
-    { "id": "title", "sortable": true },
+    { "id": "title", "sortable": true, "defaultSort": true },
     { "id": "status", "sortable": true, "showWhen": { "field": "active", "eq": true } },
     { "id": "authorId", "type": "select", "options": { "values": [] } },
     "createdAt",
     "updatedAt"
   ],
+  "searchFields": ["title", "isbn"],
   "filterFields": ["status"],
   "rowActions": [
     { "id": "approve", "label": "Approve", "type": "post" }
@@ -245,66 +245,60 @@ The table node carries all table-specific settings:
 | Field | Description |
 |---|---|
 | `items[]` | Column order + per-column overrides. Entries are field ids (strings) or field controls (objects with `id`). No nested nodes — the table is flat. |
+| `searchFields` | Column ids included in `?q=` free-text search. |
 | `filterFields` | Column ids that get a filter control in the toolbar. |
 | `rowActions` | Per-record actions (receive the record id). |
 | `tableActions` | Global toolbar actions (no record id). |
 | `title` / `label` | Heading rendered above the table. `title` wins over `label`. |
 
-::: tip Free-text search
-Free-text search (`?q=`) is declared on the operation, not the table layout. See [`operations.findAll.search`](operations.md#free-text-search).
-:::
-
 #### Per-column table item options
-
-Beyond the standard `label`/`type`/`options` overrides, table items accept:
 
 | Field | Type | Description |
 |---|---|---|
-| `sortable` | `boolean` | Enable sort toggle on this column header. |
-| `width` | `"xs" \| "sm" \| "md" \| "lg" \| "xl" \| CSS value` | Column width. Named sizes share the form width scale. |
-| `minWidth` | CSS value | Minimum column width (e.g. `"10rem"`). |
-| `maxWidth` | CSS value | Maximum column width. |
-| `align` | `"left" \| "center" \| "right"` | Cell text alignment. |
-| `truncate` | `boolean \| number` | `true` = single-line ellipsis; number = max lines (multi-line clamp). |
-| `pin` | `"left" \| "right"` | Sticky column. |
-| `visible` | `boolean` | `false` hides the column initially (column chooser coming later). Default `true`. |
-| `headerTooltip` | `string` | Tooltip on the column header. |
+| `sortable` | boolean | Enable sort toggle on this column header. |
+| `defaultSort` | `true` \| `"asc"` \| `"desc"` | Initial sort column and direction. `true` = `"asc"`. At most one column. |
+| `width` | named (`"xs"` – `"xl"`) or CSS value | Column width. |
+| `minWidth` / `maxWidth` | CSS value | Width constraints. |
+| `align` | `"left"` \| `"center"` \| `"right"` | Cell text alignment. Number columns default to `"right"`. |
+| `truncate` | `boolean` \| number | `true` = single-line ellipsis; number = max lines before clamp. |
+| `pin` | `"left"` \| `"right"` | Sticky column. |
+| `visible` | boolean | `false` = hidden by default (still in the schema; no column chooser yet). |
+| `headerTooltip` | string | Tooltip text on the column header. |
 | `showWhen` | `{ field, eq?, neq?, exists?, notExists? }` | Show column when condition matches. |
 | `hideWhen` | Same shape | Hide column when condition matches. |
 | `disabledWhen` | Same shape | Disable column when condition matches. |
 
 `type` + `options` override the cell renderer for this column in the table only.
 
-> **Note:** `colspan`, `rowspan`, and `hideLabel` are not valid on table items and will cause a validation error. Remove them.
+::: tip
+`colspan`, `rowspan`, and `hideLabel` are form-layout options and have no effect on table items — they produce a validation error if set.
+:::
 
 #### Table node options
 
-The table node accepts these options in addition to `items`, `rowActions`, `tableActions`, `filterFields`, and `title`:
+Beyond `items`, the table node accepts presentation options:
 
 | Field | Type | Description |
 |---|---|---|
-| `defaultSort` | `{ field?: string, sortDir?: "asc" \| "desc" }` | Default sort on initial load. `field` = column id (default: `"id"`), `sortDir` = direction (default: `"asc"`). |
-| `pageSize` | `number` | Initial page size (default 20). |
-| `pageSizes` | `number[]` | Page size selector options (default `[10, 20, 50, 100]`). |
-| `density` | `"normal" \| "compact"` | Row density. `compact` reduces row padding. |
-| `selectable` | `boolean` | Show row checkboxes for multi-select. |
-| `rowClick` | `"view" \| "edit" \| "none"` | What happens when a row is clicked. |
-| `emptyText` | `string` | Text shown when there are no records. |
+| `pageSize` | number | Default page size (default `20`). Frontend hint; server still caps it. |
+| `pageSizes` | number[] | Page size selector options (e.g. `[20, 50, 100]`). |
+| `density` | `"normal"` \| `"compact"` | Row height. |
+| `selectable` | boolean | Show row checkboxes for multi-select. |
+| `rowClick` | `"view"` \| `"edit"` \| `"none"` | What happens when a row is clicked. |
+| `emptyText` | string | Message shown when there are no rows. |
 
 ```json
 "table": {
-  "type": "table",
-  "defaultSort": { "field": "publishedYear", "sortDir": "desc" },
   "pageSize": 50,
   "pageSizes": [20, 50, 100],
   "density": "compact",
   "rowClick": "view",
   "emptyText": "No books yet",
   "items": [
-    { "id": "title", "width": "md", "truncate": true, "sortable": true },
-    { "id": "publishedYear", "width": "xs", "align": "right", "sortable": true },
-    { "id": "isbn", "visible": false },
-    { "id": "status", "pin": "left" }
+    { "id": "title",       "sortable": true, "defaultSort": "desc", "width": "md", "truncate": 2 },
+    { "id": "price",       "align": "right", "width": "xs" },
+    { "id": "status",      "pin": "left" },
+    { "id": "internalRef", "visible": false }
   ]
 }
 ```
@@ -317,7 +311,7 @@ The table node accepts these options in addition to `items`, `rowActions`, `tabl
 }
 ```
 
-The `items` list is the complete set of columns for the table. Only columns listed here are rendered; unlisted columns are hidden regardless of their `hiddenInTable` flag.
+Columns present in the table but not listed here are appended in their original order.
 
 <LayoutDemo example="table-order" />
 
@@ -335,6 +329,7 @@ A `layout.table` with an outer container type (not `"table"`) wraps the table. P
       "type": "table",
       "title": "Books",
       "items": ["title", "author", { "id": "isbn", "sortable": true }, "publishedYear", "status"],
+      "searchFields": ["title", "isbn"],
       "filterFields": ["status"],
       "tableActions": [
         { "id": "searchOpenLibrary", "type": "link", "href": "https://openlibrary.org/search", "label": "Search Open Library" }
@@ -347,7 +342,7 @@ A `layout.table` with an outer container type (not `"table"`) wraps the table. P
 }
 ```
 
-All table settings (`rowActions`, `tableActions`, `filterFields`, `title`) go on the **table node**, not the wrapper.
+All table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`) go on the **table node**, not the wrapper.
 
 Wrappers can nest arbitrarily:
 
@@ -376,26 +371,49 @@ Wrappers can nest arbitrarily:
 Use the wrapper pattern when you need a custom action component alongside the table — for example a barcode scanner that creates a record directly. Each component receives a `resource` prop (the `UseResource` instance for the current table).
 :::
 
-## The layout is the full list
+## How a record opens (`layout.<form|view>.container`)
 
-When `layout.<ctx>` is defined, it is the **only** source of truth for that context. The layout lists every column that should be rendered — columns not listed are hidden, regardless of their `hiddenIn*` flag.
+The `container` key on `layout.form` and `layout.view` controls how a record opens when a row is clicked.
 
-- **Unknown id** in a layout → validation error at load time (prevents silent typos).
-- **Unlisted columns** → not rendered (use the codemod below to migrate old files).
-- **Listed column with `hiddenIn<Ctx>: true`** → rendered (the layout wins; the flag is ignored).
-
-This applies independently per context: a layout for `form` does not affect `table` or `view`.
-
-### Migrating existing files
-
-If you have resource files that relied on unlisted visible columns being appended automatically, run:
-
-```sh
-crouton migrate --dry-run   # preview changes
-crouton migrate             # apply
+```json
+"layout": {
+  "form": {
+    "container": { "mode": "modal", "size": "xl" },
+    "items": [...]
+  },
+  "view": {
+    "container": { "mode": "page" }
+  },
+  "table": {
+    "rowClick": "view",
+    "items": [...]
+  }
+}
 ```
 
-The codemod appends visible unlisted columns to the layout and removes hidden listed columns.
+| Field | Values | Default | Description |
+|---|---|---|---|
+| `container.mode` | `"modal"` \| `"page"` | `"modal"` | How the record opens |
+| `container.size` | `"xs"` \| `"sm"` \| `"lg"` \| `"xl"` | `"sm"` | Modal width (ignored for `"page"` mode) |
+
+`layout.table.rowClick` decides **what** opens (`"view"`, `"edit"`, or `"none"`); the container decides **how**.
+
+`view.component` replaces the whole detail view with a custom Vue component:
+
+```json
+"view": { "component": "BookDetail" }
+```
+
+::: tip Migration
+The old root keys `display` and `modalSize` are removed. Run `crouton migrate` to move them automatically.
+:::
+
+## Missing / extra columns
+
+- A control id that doesn't match a visible column → **skipped, dev warning logged**.
+- Visible columns not referenced anywhere in the layout → **appended at the end, dev warning logged** (nothing silently disappears).
+
+<LayoutDemo example="missing-extra" />
 
 ## Playground
 
