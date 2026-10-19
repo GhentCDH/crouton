@@ -113,7 +113,8 @@ export const buildSubResources = (
               'manyToOne',
         )
         .map((col) => getPrismaRelationField(col));
-      const explicitIncludes: JsonIncludeEntry[] = childJson?.include ?? [];
+      const explicitIncludes: JsonIncludeEntry[] =
+        (childJson?.operations?.findAll as any)?.include ?? childJson?.include ?? [];
       const explicitNames = new Set(
         explicitIncludes.map((e) =>
           typeof e === 'string' ? e : e.relation,

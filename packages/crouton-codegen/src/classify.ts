@@ -127,26 +127,35 @@ export const classify = (
         });
       }
     } else if (field.kind === 'enum') {
-      const options: Record<string, unknown> = {};
-      if (ruleset.enumValueLabel) options.emitObject = true;
-      if (!ruleset.sharedEnums) {
+      if (ruleset.sharedEnums) {
+        col = {
+          enum: field.type,
+          fieldInput: {
+            position: position++,
+            ...(field.defaultValue !== undefined
+              ? { defaultValue: field.defaultValue }
+              : {}),
+          },
+        };
+      } else {
+        const options: Record<string, unknown> = {};
+        if (ruleset.enumValueLabel) options.emitObject = true;
         options.values = (field.enumValues ?? []).map((v) => ({
           label: v,
           value: v,
         }));
+        col = {
+          ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
+          fieldInput: {
+            type: 'select',
+            position: position++,
+            options,
+            ...(field.defaultValue !== undefined
+              ? { defaultValue: field.defaultValue }
+              : {}),
+          },
+        };
       }
-      col = {
-        ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
-        ...(ruleset.sharedEnums ? { enum: field.type } : {}),
-        fieldInput: {
-          type: 'select',
-          position: position++,
-          options,
-          ...(field.defaultValue !== undefined
-            ? { defaultValue: field.defaultValue }
-            : {}),
-        },
-      };
     } else {
       col = {
         fieldInput: {

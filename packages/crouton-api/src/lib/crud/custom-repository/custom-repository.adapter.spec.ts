@@ -143,7 +143,7 @@ describe('createCustomRepository', () => {
 
     it('coerces the id per idType', async () => {
       const findOne = vi.fn(async (id) => ({ id }));
-      const numeric = buildConfig({ idType: 'number' });
+      const numeric = buildConfig({ source: { idType: 'number' } });
       await make({ findOne }, numeric).findOne('42');
       expect(findOne.mock.calls[0][0]).toBe(42);
 

@@ -108,6 +108,9 @@
                 "wrapper": "input-full"
               }
             },
+            "emitObject": true,
+            "labelKey": "label",
+            "valueKey": "value",
             "values": [
               {
                 "value": "draft",
@@ -122,8 +125,6 @@
                 "label": "Archived"
               }
             ],
-            "emitObject": true,
-            "displayKey": "label",
             "colspan": 12,
             "label": "Status"
           }
