@@ -10,6 +10,7 @@ import {
   migrateOpenApiTag,
   migrateRelationKeys,
   migrateRemovedColumnFields,
+  migrateRootId,
   migrateRootInclude,
   migrateSearchFields,
   migrateSource,
@@ -119,6 +120,7 @@ export const registerMigrateCommand = (program: Command) => {
           const { changed: sourceChanged, json: sourceFixed } = migrateSource(includeFixed as any);
           const { changed: calcChanged, json: calcFixed } = migrateCalculatedColumns(sourceFixed as any);
           const { changed: openapiChanged, json: openapiFixed } = migrateOpenApiTag(calcFixed as any);
+          const { changed: rootIdChanged, json: rootIdFixed } = migrateRootId(openapiFixed as any);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -136,7 +138,7 @@ export const registerMigrateCommand = (program: Command) => {
           const hasRelationChanges = relationReport.migratedColumns.length > 0;
           const hasDisplayChanges = displayReport.changed;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged && !includeChanged && !sourceChanged && !calcChanged && !openapiChanged) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged && !includeChanged && !sourceChanged && !calcChanged && !openapiChanged && !rootIdChanged) continue;
 
           needsMigration++;
 
@@ -169,8 +171,10 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push('calculatedColumns → columns[id].computed');
           if (openapiChanged)
             labels.push('tag → openapi.tag');
+          if (rootIdChanged)
+            labels.push('id removed (redundant — equals name)');
 
-          const out = JSON.stringify(openapiFixed, null, 2) + '\n';
+          const out = JSON.stringify(rootIdFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

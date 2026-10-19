@@ -44,3 +44,4 @@ export * from './migrate/root-include';
 export * from './migrate/source';
 export * from './migrate/calculated-columns';
 export * from './migrate/openapi-tag';
+export * from './migrate/root-id';
