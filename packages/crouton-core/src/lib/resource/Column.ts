@@ -275,7 +275,7 @@ export const JsonColumnSchema = JsonColumnBaseSchema.superRefine((col, ctx) => {
       code: 'custom',
       path: ['fieldInput', 'options', 'values'],
       message:
-        "Column has both 'enum' and 'fieldInput.options.values'; use 'enum' for shared lists or 'values' on fieldInput for local lists — not both.",
+        'Column has both \'enum\' and \'fieldInput.options.values\'; use \'enum\' for shared lists or \'values\' on fieldInput for local lists — not both.',
     });
   }
 });
