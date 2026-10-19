@@ -78,7 +78,7 @@ const displayModeOptions = [
   { label: 'Page', value: 'page' },
 ];
 
-const modalSizeOptions = [
+const containerSizeOptions = [
   { label: 'Extra small', value: 'xs' },
   { label: 'Small', value: 'sm' },
   { label: 'Large', value: 'lg' },
@@ -102,22 +102,22 @@ export const buildResourceSettingsUiSchema = () => ({
       type: 'GridLayout',
       elements: [
         ctrl('#/properties/title', { label: 'Title' }),
-        ctrl('#/properties/display/properties/mode', {
+        ctrl('#/properties/layout/properties/form/properties/container/properties/mode', {
           label: 'Display mode',
           colspan: 4,
           format: 'select',
           storeValue: true,
           options: displayModeOptions,
         }),
-        ctrl('#/properties/modalSize', {
-          label: 'Modal size',
+        ctrl('#/properties/layout/properties/form/properties/container/properties/size', {
+          label: 'Container size',
           format: 'select',
           storeValue: true,
           colspan: 4,
-          options: modalSizeOptions,
+          options: containerSizeOptions,
         }),
-        ctrl('#/properties/display/properties/customComponent', {
-          label: 'Custom component',
+        ctrl('#/properties/layout/properties/view/properties/component', {
+          label: 'Custom view component',
           colspan: 4,
         }),
       ],
@@ -179,15 +179,20 @@ export const buildResourceSettingsUiSchema = () => ({
               readonly: true,
               colspan: 4,
             }),
-            ctrl('#/properties/tag', { label: 'Tag (OpenAPI)', colspan: 4 }),
+            ctrl('#/properties/openapi/properties/tag', {
+              label: 'Tag (OpenAPI)',
+              colspan: 4,
+            }),
             ctrl('#/properties/route', { label: 'Route', colspan: 4 }),
-            ctrl('#/properties/model', { label: 'Model (Prisma)' }),
-            ctrl('#/properties/database', {
-              label: 'Database (default: default)',
+            ctrl('#/properties/source/properties/model', {
+              label: 'Model (Prisma)',
+            }),
+            ctrl('#/properties/source/properties/datasource', {
+              label: 'Datasource (default: default)',
               colspan: 6,
             }),
-            ctrl('#/properties/table', {
-              label: 'Table (default: same as model)',
+            ctrl('#/properties/source/properties/dbTable', {
+              label: 'DB table (default: same as model)',
               colspan: 6,
             }),
           ],
