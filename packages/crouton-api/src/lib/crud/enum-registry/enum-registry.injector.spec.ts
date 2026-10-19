@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
@@ -14,17 +14,23 @@ const registry: EnumRegistry = {
 
 const enumCol = (): JsonColumn => ({ id: 'status', type: 'string', enum: 'bookStatus' } as unknown as JsonColumn);
 
-describe('injectEnumValues (api)', () => {
+describe('injectEnumValues (api re-export from core)', () => {
   it('defaults emitObject: true for an enum-ref column', () => {
     const col = enumCol();
     injectEnumValues([col], registry);
     expect((col.fieldInput!.options as any).emitObject).toBe(true);
   });
 
-  it('defaults displayKey: label for an enum-ref column', () => {
+  it('defaults labelKey: label for an enum-ref column', () => {
     const col = enumCol();
     injectEnumValues([col], registry);
-    expect((col.fieldInput!.options as any).displayKey).toBe('label');
+    expect((col.fieldInput!.options as any).labelKey).toBe('label');
+  });
+
+  it('defaults valueKey: value for an enum-ref column', () => {
+    const col = enumCol();
+    injectEnumValues([col], registry);
+    expect((col.fieldInput!.options as any).valueKey).toBe('value');
   });
 
   it('respects explicit emitObject: false', () => {
@@ -36,29 +42,24 @@ describe('injectEnumValues (api)', () => {
     expect((col.fieldInput!.options as any).emitObject).toBe(false);
   });
 
-  it('respects explicit displayKey override', () => {
-    const col: JsonColumn = {
-      ...enumCol(),
-      fieldInput: { type: 'select', options: { displayKey: 'value' } },
-    };
-    injectEnumValues([col], registry);
-    expect((col.fieldInput!.options as any).displayKey).toBe('value');
-  });
-
   it('injects values from registry', () => {
     const col = enumCol();
     injectEnumValues([col], registry);
     expect((col.fieldInput!.options as any).values).toEqual(registry.bookStatus);
   });
 
-  it('skips columns with no enum ref', () => {
-    const col = { id: 'name', type: 'string' } as unknown as JsonColumn;
+  it('warns and applies defaults for unknown enum names', () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const col = { id: 'foo', type: 'string', enum: 'unknownEnum' } as unknown as JsonColumn;
     injectEnumValues([col], registry);
-    expect(col.fieldInput).toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('unknownEnum'));
+    expect(col.fieldInput!.type).toBe('select');
+    warnSpy.mockRestore();
   });
 
-  it('skips unknown enum names', () => {
-    const col = { id: 'foo', type: 'string', enum: 'unknownEnum' } as unknown as JsonColumn;
+  it('skips columns with no enum ref', () => {
+    const col = { id: 'name', type: 'string' } as unknown as JsonColumn;
     injectEnumValues([col], registry);
     expect(col.fieldInput).toBeUndefined();
   });
