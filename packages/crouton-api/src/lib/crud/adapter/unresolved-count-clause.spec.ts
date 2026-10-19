@@ -25,7 +25,7 @@ import { join } from 'node:path';
 const PARENT = {
   name: 'groups',
   route: 'groups',
-  model: 'Group',
+  source: { model: 'Group' },
   tag: 'Group',
   operations: {},
   schemaVersion: CURRENT_RESOURCE_VERSION,
@@ -60,7 +60,7 @@ const PARENT = {
 const CHILD = {
   name: 'groupExpenses',
   route: 'groupExpenses',
-  model: 'GroupExpense',
+  source: { model: 'GroupExpense' },
   tag: 'Expense',
   operations: {},
   schemaVersion: CURRENT_RESOURCE_VERSION,

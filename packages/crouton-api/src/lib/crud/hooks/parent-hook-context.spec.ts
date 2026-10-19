@@ -89,7 +89,7 @@ describe('ctx.parent on a nested hook', () => {
         JSON.stringify({
           name: 'groups',
           route: 'groups',
-          model: 'Group',
+          source: { model: 'Group' },
           tag: 'Group',
           operations: {},
           schemaVersion: CURRENT_RESOURCE_VERSION,
@@ -250,7 +250,7 @@ describe('sub-resource hook discovery', () => {
       JSON.stringify({
         name: 'groups',
         route: 'groups',
-        model: 'Group',
+        source: { model: 'Group' },
         tag: 'Group',
         operations: {},
         schemaVersion: CURRENT_RESOURCE_VERSION,

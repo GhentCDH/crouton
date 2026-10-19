@@ -29,7 +29,7 @@ describe('readResourceJson', () => {
       JSON.stringify({
         name: 'test',
         route: 'test',
-        model: 'Test',
+        source: { model: 'Test' },
         tag: 'test',
         operations: {},
       }),

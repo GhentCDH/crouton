@@ -33,7 +33,7 @@ const relation = (resource: string, hiddenInTable: boolean) => ({
 const child = (name: string, model: string) => ({
   name,
   route: name,
-  model,
+  source: { model },
   tag: 'Child',
   operations: {},
   schemaVersion: CURRENT_RESOURCE_VERSION,
@@ -52,7 +52,7 @@ describe('_count skips relations hidden from the table', () => {
       JSON.stringify({
         name: 'groups',
         route: 'groups',
-        model: 'Group',
+        source: { model: 'Group' },
         tag: 'Group',
         operations: {},
         schemaVersion: CURRENT_RESOURCE_VERSION,

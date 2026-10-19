@@ -63,7 +63,7 @@ export const fromJson = (
   repository?: CustomRepository,
 ): Resource => {
   const isCustom = json.kind === 'custom';
-  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
+  const src = (json as any).source as { model?: string; table?: string; datasource?: string; idType?: 'string' | 'number' } | undefined;
   const rawColumns = expandExtendColumns(json.columns ?? [], dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -160,7 +160,7 @@ export const fromJson = (
     modalSize: derivedModalSize,
     ...(src?.model && { model: src.model }),
     ...(src?.table && { table: src.table }),
-    ...(src?.database && { database: src.database }),
+    ...(src?.datasource && { database: src.datasource }),
     ...(src?.idType && { idType: src.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
     ...(hooks && { hooks }),

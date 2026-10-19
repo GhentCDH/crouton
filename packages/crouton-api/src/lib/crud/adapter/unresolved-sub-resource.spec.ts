@@ -25,7 +25,7 @@ import { join } from 'node:path';
 const parentJson = (resource: string) => ({
   name: 'groups',
   route: 'groups',
-  model: 'Group',
+  source: { model: 'Group' },
   tag: 'Group',
   operations: {},
   schemaVersion: CURRENT_RESOURCE_VERSION,
