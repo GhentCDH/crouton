@@ -1828,6 +1828,10 @@
               "type": "object",
               "properties": {
                 "container": {
+                  "default": {
+                    "mode": "modal",
+                    "size": "sm"
+                  },
                   "type": "object",
                   "properties": {
                     "mode": {
@@ -1840,6 +1844,7 @@
                       ]
                     },
                     "size": {
+                      "default": "sm",
                       "description": "Width of the modal dialog. Only applies when mode is \"modal\". Default: \"sm\".",
                       "type": "string",
                       "enum": [
@@ -1866,6 +1871,10 @@
               "type": "object",
               "properties": {
                 "container": {
+                  "default": {
+                    "mode": "modal",
+                    "size": "sm"
+                  },
                   "type": "object",
                   "properties": {
                     "mode": {
@@ -1878,6 +1887,7 @@
                       ]
                     },
                     "size": {
+                      "default": "sm",
                       "description": "Width of the modal dialog. Only applies when mode is \"modal\". Default: \"sm\".",
                       "type": "string",
                       "enum": [

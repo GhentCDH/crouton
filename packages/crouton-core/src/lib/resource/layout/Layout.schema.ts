@@ -7,18 +7,18 @@ export const ContainerSchema = z.object({
   mode: z.enum(['modal', 'page']).default('modal').describe(
     'How this context opens: "modal" (default) shows a dialog; "page" navigates to a route.',
   ),
-  size: z.enum(['xs', 'sm', 'lg', 'xl']).optional().describe(
+  size: z.enum(['xs', 'sm', 'lg', 'xl']).default('sm').describe(
     'Width of the modal dialog. Only applies when mode is "modal". Default: "sm".',
   ),
 });
 export type Container = z.infer<typeof ContainerSchema>;
 
 const FormLayoutWithContainerSchema = FormLayoutNodeSchema.and(
-  z.object({ container: ContainerSchema.optional() }),
+  z.object({ container: ContainerSchema.default({ mode: 'modal', size: 'sm' }) }),
 );
 const ViewLayoutWithContainerSchema = FormLayoutNodeSchema.and(
   z.object({
-    container: ContainerSchema.optional(),
+    container: ContainerSchema.default({ mode: 'modal', size: 'sm' }),
     component: z.string().optional().describe(
       'Import path to a custom Vue component for the detail view. When set, the default view layout is ignored.',
     ),
