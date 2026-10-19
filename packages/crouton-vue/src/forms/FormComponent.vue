@@ -65,7 +65,7 @@ const emits = defineEmits(JsonFormComponentEmits);
 const { showErrors, debugValue } = useCrouton();
 
 const patched = enforceRequiredStringMinLength(
-  makeOptionalPropertiesNullable(dropNullableFromRequired(properties.schema)),
+  makeOptionalPropertiesNullable(dropNullableFromRequired(toRaw(properties.schema))),
 );
 const validationSchema = fromJSONSchema(patched as any);
 
