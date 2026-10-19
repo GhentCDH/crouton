@@ -102,8 +102,9 @@ describe('buildViewsFromColumnTypes', () => {
   const layout = {
     table: {
       filterFields: ['title', 'year'],
+      defaultSort: { field: 'title', sortDir: 'asc' },
       // Layout is the full table list — list every column that should appear.
-      items: [{ id: 'title', sortable: true, defaultSort: true }, 'id', 'year', 'public', 'type'],
+      items: [{ id: 'title', sortable: true }, 'id', 'year', 'public', 'type'],
     },
   };
 

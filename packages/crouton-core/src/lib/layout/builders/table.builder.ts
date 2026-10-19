@@ -34,17 +34,20 @@ export const buildTableLayout = (
 
     const tableNode = resolveTableNode(node as any);
     if (tableNode) {
-      const nodeOpts: Record<string, unknown> = {};
-      if (tableNode.pageSize != null) nodeOpts['pageSize'] = tableNode.pageSize;
-      if (tableNode.pageSizes != null) nodeOpts['pageSizes'] = tableNode.pageSizes;
-      if (tableNode.density != null) nodeOpts['density'] = tableNode.density;
-      if (tableNode.selectable != null) nodeOpts['selectable'] = tableNode.selectable;
-      if (tableNode.rowClick != null) nodeOpts['rowClick'] = tableNode.rowClick;
-      if (tableNode.emptyText != null) nodeOpts['emptyText'] = tableNode.emptyText;
-      if (Object.keys(nodeOpts).length) {
-        const ui = table.ui_schema as Record<string, unknown>;
-        table.ui_schema = { ...ui, options: { ...((ui['options'] as object) ?? {}), ...nodeOpts } };
-      }
+      const { pageSize, pageSizes, density, rowClick, selectable, emptyText } = tableNode;
+      const ui = table.ui_schema as Record<string, unknown>;
+      table.ui_schema = {
+        ...ui,
+        options: {
+          ...((ui['options'] as object) ?? {}),
+          pageSize,
+          pageSizes,
+          density,
+          rowClick,
+          ...(selectable != null && { selectable }),
+          ...(emptyText != null && { emptyText }),
+        },
+      };
     }
 
     views.table = table;

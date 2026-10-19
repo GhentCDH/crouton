@@ -45,7 +45,8 @@
               "sortId": "price"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {

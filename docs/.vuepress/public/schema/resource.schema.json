@@ -1713,20 +1713,24 @@
                   }
                 },
                 "defaultSort": {
-                  "default": false,
-                  "description": "Default sort direction for the table. true/asc = ascending, desc = descending. Uses the first sortable column.",
-                  "anyOf": [
-                    {
-                      "type": "boolean"
+                  "description": "Default sort applied on initial table load. Omit to use the first sortable column.",
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "default": "id",
+                      "description": "Column id to sort by. Defaults to `id`.",
+                      "type": "string"
                     },
-                    {
+                    "sortDir": {
+                      "default": "asc",
+                      "description": "Sort direction. Default: asc.",
                       "type": "string",
                       "enum": [
                         "asc",
                         "desc"
                       ]
                     }
-                  ]
+                  }
                 },
                 "items": {
                   "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
@@ -2107,12 +2111,18 @@
                   }
                 },
                 "pageSize": {
+                  "default": 20,
                   "description": "Default page size. Server may cap it.",
                   "type": "integer",
                   "exclusiveMinimum": 0,
                   "maximum": 9007199254740991
                 },
                 "pageSizes": {
+                  "default": [
+                    20,
+                    50,
+                    100
+                  ],
                   "description": "Page-size options shown in the selector (e.g. [20, 50, 100]).",
                   "type": "array",
                   "items": {
@@ -2122,6 +2132,7 @@
                   }
                 },
                 "density": {
+                  "default": "normal",
                   "description": "Row density. Default: normal.",
                   "type": "string",
                   "enum": [
@@ -2134,7 +2145,8 @@
                   "type": "boolean"
                 },
                 "rowClick": {
-                  "description": "Action when a table row is clicked. Default: view.",
+                  "default": "view",
+                  "description": "Action when a table row is clicked.",
                   "type": "string",
                   "enum": [
                     "view",
@@ -2633,20 +2645,24 @@
                     }
                   },
                   "defaultSort": {
-                    "default": false,
-                    "description": "Default sort direction for the table. true/asc = ascending, desc = descending. Uses the first sortable column.",
-                    "anyOf": [
-                      {
-                        "type": "boolean"
+                    "description": "Default sort applied on initial table load. Omit to use the first sortable column.",
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "default": "id",
+                        "description": "Column id to sort by. Defaults to `id`.",
+                        "type": "string"
                       },
-                      {
+                      "sortDir": {
+                        "default": "asc",
+                        "description": "Sort direction. Default: asc.",
                         "type": "string",
                         "enum": [
                           "asc",
                           "desc"
                         ]
                       }
-                    ]
+                    }
                   },
                   "items": {
                     "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
@@ -3027,12 +3043,18 @@
                     }
                   },
                   "pageSize": {
+                    "default": 20,
                     "description": "Default page size. Server may cap it.",
                     "type": "integer",
                     "exclusiveMinimum": 0,
                     "maximum": 9007199254740991
                   },
                   "pageSizes": {
+                    "default": [
+                      20,
+                      50,
+                      100
+                    ],
                     "description": "Page-size options shown in the selector (e.g. [20, 50, 100]).",
                     "type": "array",
                     "items": {
@@ -3042,6 +3064,7 @@
                     }
                   },
                   "density": {
+                    "default": "normal",
                     "description": "Row density. Default: normal.",
                     "type": "string",
                     "enum": [
@@ -3054,7 +3077,8 @@
                     "type": "boolean"
                   },
                   "rowClick": {
-                    "description": "Action when a table row is clicked. Default: view.",
+                    "default": "view",
+                    "description": "Action when a table row is clicked.",
                     "type": "string",
                     "enum": [
                       "view",

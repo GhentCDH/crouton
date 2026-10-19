@@ -34,7 +34,8 @@
               "sortId": "summary"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {

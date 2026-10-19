@@ -45,7 +45,8 @@
               "label": "Comments"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {

@@ -97,7 +97,6 @@ export const TableNodeSchema = z.object({
     .object({
       field: z
         .string()
-        .optional()
         .default('id')
         .describe('Column id to sort by. Defaults to `id`.'),
       sortDir: z
@@ -106,8 +105,7 @@ export const TableNodeSchema = z.object({
         .describe('Sort direction. Default: asc.'),
     })
     .optional()
-    .default({ field: 'id', sortDir: 'asc' })
-    .describe('Default sort applied on initial table load.'),
+    .describe('Default sort applied on initial table load. Omit to use the first sortable column.'),
   items: z
     .array(TableItemSchema)
     .optional()

@@ -58,11 +58,23 @@
             "scope": "#/properties/title",
             "options": {
               "sortId": "title",
-              "label": "Title"
+              "label": "Title",
+              "minWidth": "8rem",
+              "maxWidth": "24rem",
+              "truncate": true,
+              "visible": true
             }
           }
         ],
         "options": {
+          "pageSize": 20,
+          "pageSizes": [
+            20,
+            50,
+            100
+          ],
+          "density": "normal",
+          "rowClick": "view",
           "defaultSortId": "title",
           "defaultSortDir": "asc",
           "filter": {

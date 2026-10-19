@@ -1,6 +1,6 @@
 import type { JsonColumn } from '../../resource/Column';
 import type { FormLayoutNode } from '../../resource/layout/LayoutNode.schema';
-import type { TableNode } from '../../resource/layout/TableLayout.schema';
+import { type TableNode, TableNodeSchema } from '../../resource/layout/TableLayout.schema';
 import { sortByPosition } from '../../view/column.utils';
 
 /**
@@ -23,7 +23,7 @@ const defaultFormLayout = (
 const defaultTableLayout = (columns: JsonColumn[]): TableNode | undefined => {
   const visible = sortByPosition(columns.filter((c) => !c.hiddenInTable));
   if (!visible.length) return undefined;
-  return { items: visible.map((c) => c.id), filterFields: [], defaultSort: false, rowActions: [], tableActions: [] };
+  return TableNodeSchema.parse({ items: visible.map((c) => c.id) });
 };
 
 /**

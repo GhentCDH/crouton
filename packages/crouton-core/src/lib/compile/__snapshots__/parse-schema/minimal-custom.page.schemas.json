@@ -50,6 +50,14 @@
           }
         ],
         "options": {
+          "pageSize": 20,
+          "pageSizes": [
+            20,
+            50,
+            100
+          ],
+          "density": "normal",
+          "rowClick": "view",
           "defaultSortId": "id",
           "defaultSortDir": "asc"
         }

@@ -34,7 +34,8 @@
               "sortId": "tag"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {

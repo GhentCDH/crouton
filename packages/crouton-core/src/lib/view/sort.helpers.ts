@@ -54,8 +54,9 @@ export const deriveSortId = (col: JsonColumn): string | null => {
 };
 
 /**
- * Pick the default sort column and direction from the table node's `defaultSort` object.
- * Falls back to the idField column when the named field is not found.
+ * Pick the default sort column and direction.
+ * When `defaultSort` is set on the table node, uses its `field`+`sortDir`.
+ * Otherwise falls back to the first sortable column, then the idField column.
  */
 export const resolveDefaultSort = (
   tableCols: JsonColumn[],
@@ -66,13 +67,30 @@ export const resolveDefaultSort = (
   const ds = (tableNode as Record<string, unknown>)?.defaultSort as
     | { field?: string; sortDir?: 'asc' | 'desc' }
     | undefined;
-  const fieldId = ds?.field ?? 'id';
-  const dir: 'asc' | 'desc' = ds?.sortDir ?? 'asc';
-  const allCols = [...(tableCols ?? []), ...(allColumns ?? [])];
+
+  if (ds) {
+    const fieldId = ds.field ?? 'id';
+    const dir: 'asc' | 'desc' = ds.sortDir ?? 'asc';
+    const allCols = [...(tableCols ?? []), ...(allColumns ?? [])];
+    const sortCol = allCols.find((c) => c.id === fieldId) ?? allColumns?.find((c) => c.idField);
+    if (!sortCol) return undefined;
+    return { id: deriveSortId(sortCol) ?? sortCol.id, dir };
+  }
+
+  // No explicit defaultSort — find first sortable column, then idField as last resort.
+  const items = (tableNode as { items?: unknown[] })?.items ?? [];
+  const isSortable = (c: JsonColumn) => {
+    for (const ctrl of items) {
+      if (typeof ctrl === 'string') continue;
+      if ('component' in (ctrl as object)) continue;
+      const fc = ctrl as { id?: string; sortable?: boolean };
+      if (fc.id === c.id) return fc.sortable ?? false;
+    }
+    return false;
+  };
   const sortCol =
-    allCols.find((c) => c.id === fieldId) ??
+    tableCols.find(isSortable) ??
     allColumns?.find((c) => c.idField);
   if (!sortCol) return undefined;
-  const id = deriveSortId(sortCol) ?? sortCol.id;
-  return { id, dir };
+  return { id: deriveSortId(sortCol) ?? sortCol.id, dir: 'asc' };
 };

@@ -34,7 +34,8 @@
               "sortId": "status"
             }
           }
-        ]
+        ],
+        "options": {}
       },
       "columns": [
         {
