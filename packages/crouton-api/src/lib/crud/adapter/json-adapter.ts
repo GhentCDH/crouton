@@ -63,6 +63,7 @@ export const fromJson = (
   repository?: CustomRepository,
 ): Resource => {
   const isCustom = json.kind === 'custom';
+  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
   const rawColumns = expandExtendColumns(json.columns ?? [], dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -78,7 +79,7 @@ export const fromJson = (
     : buildSubResources(
         columns,
         json.route,
-        json.model ?? '',
+        src?.model ?? json.model ?? '',
         dirPath,
         enums,
         baseUrl,
@@ -149,7 +150,6 @@ export const fromJson = (
     customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
   };
   const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
-  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
