@@ -213,8 +213,8 @@ export const buildSubResources = (
           delete: childOps.delete !== false,
         },
         ...((childJson?.layout?.table as any)?.actions?.length && { actions: (childJson?.layout?.table as any)?.actions }),
-        ...(childJson?.modalSize && { modalSize: childJson.modalSize }),
-        ...(childJson?.display && { display: childJson.display }),
+        ...(childJson?.layout?.form?.container?.size && { modalSize: childJson.layout.form.container.size }),
+        ...(childJson?.layout?.form?.container && { display: { mode: childJson.layout.form.container.mode ?? 'modal' } }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childJson?.calculatedColumns?.length && {
           calculatedColumns: childJson.calculatedColumns,

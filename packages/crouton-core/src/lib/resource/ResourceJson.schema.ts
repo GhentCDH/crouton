@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
+import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { getResourceExtensions } from './extensions';
+import { JsonIncludeEntrySchema } from './include.schema';
 import { LayoutSchema } from './layout';
 import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
@@ -18,11 +20,6 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
   display: '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
   modalSize: '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
   include: '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
-  model: '\'model\' moved to source.model (run crouton migrate)',
-  table: '\'table\' moved to source.table (run crouton migrate)',
-  database: '\'database\' moved to source.database (run crouton migrate)',
-  idType: '\'idType\' moved to source.idType (run crouton migrate)',
-  calculatedColumns: '\'calculatedColumns\' replaced by columns[id].computed.sql (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -123,6 +120,17 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Internal resource id used in frontend routing. Defaults to "name" when omitted.',
     ),
+  /**
+   * Prisma model name. Required when `kind` is `prisma` (enforced by the
+   * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
+   * `custom` — there is no Prisma delegate to address.
+   */
+  model: z
+    .string()
+    .optional()
+    .describe(
+      'Prisma model name. Required when kind is "prisma"; must be absent when kind is "custom".',
+    ),
   tag: z
     .string()
     .optional()
@@ -136,15 +144,24 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of "name".',
     ),
-  source: z
-    .object({
-      model: z.string().optional().describe('Prisma model name. Required when kind is "prisma".'),
-      table: z.string().optional().describe('Database table name override. Defaults to the Prisma model\'s table name.'),
-      database: z.string().optional().describe('Name of the datasource this resource uses.'),
-      idType: z.enum(['string', 'number']).optional().describe('Primary key data type — "string" (default) or "number".'),
-    })
+  table: z
+    .string()
     .optional()
-    .describe('Database source config: Prisma model name, table override, datasource, and primary-key type.'),
+    .describe(
+      'Database table name override. Defaults to the Prisma model\'s table name.',
+    ),
+  idType: z
+    .enum(['string', 'number'])
+    .optional()
+    .describe(
+      'Data type of the resource\'s primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to "string".',
+    ),
+  database: z
+    .string()
+    .optional()
+    .describe(
+      'Name of the datasource this resource uses. Defaults to the project\'s default datasource.',
+    ),
   /**
    * Mount this resource under a parent route instead of at the top level —
    * see `./ParentRef.schema`. Only valid on a `kind: "custom"` resource.
@@ -166,18 +183,36 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.',
     ),
+  calculatedColumns: z
+    .array(CalculatedColumnSchema)
+    .default([])
+    .describe(
+      'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
+    ),
+  include: z
+    .array(JsonIncludeEntrySchema)
+    .default([])
+    .describe(
+      'Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.',
+    ),
+  source: z
+    .object({
+      model: z.string().optional().describe('Prisma model name.'),
+      dbTable: z.string().optional().describe('Database table name override.'),
+      datasource: z.string().optional().describe('Datasource name.'),
+      idType: z.enum(['string', 'number']).optional().describe('Primary key type.'),
+    })
+    .optional()
+    .describe('Where the data comes from (replaces root model/table/database/idType).'),
+  lookup: z
+    .object({
+      labels: z.array(z.string()).describe('Ordered display fields for relation dropdowns.'),
+      separator: z.string().optional().default(' '),
+    })
+    .optional()
+    .describe('How this resource is labelled in other resources\' dropdowns.'),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
-  ),
-  lookup: z.object({
-    labels: z.array(z.string()).describe(
-      'Ordered column ids to display in autocomplete/lookup dropdowns. Relation columns resolve to their displayKey path.',
-    ),
-    separator: z.string().optional().describe(
-      'String placed between label parts. Default: " ".',
-    ),
-  }).optional().describe(
-    'How this resource appears in other resources\' dropdowns. When absent, falls back to operations.findAll.search then the first non-id column.',
   ),
 });
 
@@ -195,6 +230,14 @@ export const refineByKind = (
   ctx: z.RefinementCtx,
 ): void => {
   if (obj.kind === 'custom') {
+    if (obj.model !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['model'],
+        message:
+          'A custom resource has no Prisma model. Remove "model" — data access comes from repository.ts.',
+      });
+    }
     if (obj.source?.model !== undefined) {
       ctx.addIssue({
         code: 'custom',
@@ -203,13 +246,12 @@ export const refineByKind = (
           'A custom resource has no Prisma model. Remove "source.model" — data access comes from repository.ts.',
       });
     }
-    // computed columns (column-level SQL) also not allowed on custom resources
-    const computedCols = Object.entries(obj.columns ?? {}).filter(([, c]) => (c as any).computed);
-    for (const [colId] of computedCols) {
+    if (obj.calculatedColumns?.length) {
       ctx.addIssue({
         code: 'custom',
-        path: ['columns', colId, 'computed'],
-        message: 'computed columns run raw SQL and are not supported on a custom resource. Compute the value in repository.ts instead.',
+        path: ['calculatedColumns'],
+        message:
+          'calculatedColumns run raw SQL against a database table and are not supported on a custom resource. Compute the value in repository.ts instead.',
       });
     }
     for (const [id, col] of Object.entries(obj.columns ?? {})) {
@@ -291,7 +333,7 @@ export const refineLayout = (
 ): void => {
   const allIds = new Set([
     ...Object.keys(obj.columns ?? {}),
-    ...Object.keys(obj.columns ?? {}).filter((k) => (obj.columns as any)?.[k]?.computed),
+    ...(obj.calculatedColumns ?? []).map((c) => c.id),
   ]);
 
   // Validate operations.findAll.search independently of layout
@@ -314,7 +356,7 @@ export const refineLayout = (
         ctx.addIssue({
           code: 'custom',
           path,
-          message: `Unknown column id "${id}" in layout.${label} — not found in columns (or columns[id].computed for SQL columns).`,
+          message: `Unknown column id "${id}" in layout.${label} — not found in columns or calculatedColumns.`,
         });
       }
       if (seen.has(id)) {
@@ -495,7 +537,7 @@ export const buildResourceJsonSchema = () => {
               const { searchFields: _sf, ...restTable } = outerTable;
               obj = { ...obj, layout: { ...layout, table: restTable } };
               if (layoutSearchFields.length) {
-                const kind2 = (obj['kind'] as string | undefined) ?? ((obj['model'] !== undefined || (obj['source'] as any)?.['model'] !== undefined) ? 'prisma' : 'custom');
+                const kind2 = (obj['kind'] as string | undefined) ?? (obj['model'] !== undefined ? 'prisma' : 'custom');
                 const rawOps2 = obj['operations'] as Record<string, unknown> | undefined;
                 const eff2 = (rawOps2?.['findAll'] ?? (kind2 === 'custom' ? false : true));
                 if (eff2 !== false) {
@@ -520,7 +562,7 @@ export const buildResourceJsonSchema = () => {
                 const { searchFields: _sf, ...restInner } = items[idx];
                 obj = { ...obj, layout: { ...layout, table: { ...outerTable, items: [...items.slice(0, idx), restInner, ...items.slice(idx + 1)] } } };
                 if (layoutSearchFields.length) {
-                  const kind3 = (obj['kind'] as string | undefined) ?? ((obj['model'] !== undefined || (obj['source'] as any)?.['model'] !== undefined) ? 'prisma' : 'custom');
+                  const kind3 = (obj['kind'] as string | undefined) ?? (obj['model'] !== undefined ? 'prisma' : 'custom');
                   const rawOps3 = obj['operations'] as Record<string, unknown> | undefined;
                   const eff3 = (rawOps3?.['findAll'] ?? (kind3 === 'custom' ? false : true));
                   if (eff3 !== false) {
@@ -543,8 +585,8 @@ export const buildResourceJsonSchema = () => {
         }
       }
 
-      // Auto-derive kind='prisma' when source.model (or legacy root model) is present and kind is unset.
-      if (obj['kind'] === undefined && (obj['model'] !== undefined || (obj['source'] as any)?.['model'] !== undefined)) {
+      // Auto-derive kind='prisma' when a model is present and kind is unset.
+      if (obj['kind'] === undefined && obj['model'] !== undefined) {
         obj = { ...obj, kind: 'prisma' };
       }
 
