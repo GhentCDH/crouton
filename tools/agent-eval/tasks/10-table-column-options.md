@@ -1,45 +1,33 @@
-# Task: Table column options — width, align, defaultSort desc, pageSize
+# Task: Configure table column display options
 
 ## Setup
 
-You have an existing book resource at `src/resources/book/resource.json` with `schemaVersion: 2`:
-
-```json
-{
-  "$schema": "https://ghentcdh.github.io/crouton/schema/v2/resource.schema.json",
-  "schemaVersion": 2,
-  "name": "book",
-  "model": "Book",
-  "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true },
-    "publishedYear": { "type": "number" },
-    "isbn": {},
-    "status": {}
-  }
-}
-```
+You are working in a crouton project. `src/resources/book/resource.json` exists with a table layout that already lists columns `title`, `price`, `publishedAt`, `isbn`, and `genre`.
 
 ## Your task
 
-Add a `layout.table` that:
+Update the `layout.table` in `src/resources/book/resource.json` so that:
 
-1. Shows columns in order: `title`, `publishedYear`, `isbn`, `status`
-2. `title` — width `md`, truncated to one line
-3. `publishedYear` — width `xs`, right-aligned, sorted **descending** by default
-4. `isbn` — hidden initially (`visible: false`)
-5. `status` — pinned to the left
-6. Page size 50, selector options `[20, 50, 100]`
-7. Row click opens the view
+1. `title` is sortable and truncates at 2 lines
+2. `price` is right-aligned with width `"xs"` and sortable
+3. `publishedAt` has `defaultSort: "desc"` (newest first)
+4. `isbn` is pinned to the left
+5. `genre` is hidden by default (`visible: false`)
+6. The table shows 50 rows per page with options `[20, 50, 100]`
 
 ## Verification
 
-Run: `node tools/agent-eval/verify/verify-10-table-column-options.mjs --cwd <project-dir>`
+After completing, run: `crouton validate`
+Expected: exits 0 with no issues.
+
+Check visually that:
+- The price column is right-aligned
+- The title column shows a 2-line clamp for long values
+- The genre column is absent from the initial table view
 
 ## Hints
 
-- `defaultSort: "desc"` sorts descending; `defaultSort: true` sorts ascending
-- `visible: false` hides the column (column chooser coming later)
-- `pin: "left"` makes a column sticky on the left
-- `pageSize` and `pageSizes` go on the table node, not on items
-- `rowClick: "view"` opens the view when a row is clicked
+- Table item options go inside the item object: `{ "id": "price", "align": "right", "width": "xs", "sortable": true }`
+- `defaultSort` can be `true`, `"asc"`, or `"desc"`
+- `pageSize` and `pageSizes` go on the table node (alongside `items`), not on individual items
+- Use the crouton skill if available

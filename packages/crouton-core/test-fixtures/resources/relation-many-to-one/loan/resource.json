@@ -1,6 +1,5 @@
 {
   "name": "loan",
-  "model": "Loan",
   "route": "loans",
   "columns": {
     "id": {
@@ -21,8 +20,12 @@
       }
     }
   },
-  "include": [
-    "book"
-  ],
-  "schemaVersion": 1
+  "operations": {
+    "findAll": { "include": ["book"] },
+    "findOne": { "include": ["book"] }
+  },
+  "schemaVersion": 1,
+  "source": {
+    "model": "Loan"
+  }
 }

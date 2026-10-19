@@ -69,9 +69,10 @@ describe('a custom child is a route, not a Prisma relation', () => {
         route: 'groups',
         model: 'Group',
         tag: 'Group',
-        operations: {},
+        operations: {
+          ...(include && { findAll: { include }, findOne: { include } }),
+        },
         schemaVersion: CURRENT_RESOURCE_VERSION,
-        ...(include && { include }),
         columns: { id: { idField: true }, name: {}, expense: column },
       }),
     );

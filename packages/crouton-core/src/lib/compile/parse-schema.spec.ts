@@ -8,7 +8,7 @@ afterEach(() => clearResourceExtensions());
 
 const minimalPrisma = {
   name: 'book',
-  model: 'Book',
+  source: { model: 'Book' },
   route: 'books',
   columns: {
     id: { idField: true, hiddenInForm: true },
@@ -111,7 +111,7 @@ describe('parseSchema — validation errors', () => {
   it('throws /Resource cannot be parsed/ for parent on a prisma resource', () => {
     const bad = {
       name: 'book',
-      model: 'Book',
+      source: { model: 'Book' },
       route: 'books',
       parent: { route: 'authors', param: 'authorId' },
       columns: { id: { idField: true } },

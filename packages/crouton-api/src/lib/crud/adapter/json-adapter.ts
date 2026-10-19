@@ -12,6 +12,7 @@ import {
   buildValueLabelColumns,
   columnTypeSchemaSource,
   extractFindAllSearch,
+  extractOpInclude,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
@@ -92,7 +93,21 @@ export const fromJson = (
     ) ?? columns,
   )!;
 
-  const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
+  const calculatedColumns: CalculatedColumn[] = [
+    ...(json.calculatedColumns ?? []),
+    ...enrichedColumns
+      .filter((c) => (c as any).computed)
+      .map((c): CalculatedColumn => ({
+        id: c.id,
+        alias: c.id,
+        label: c.label ?? c.id,
+        sqlExpression: (c as any).computed.sql as string,
+        type: (c as any).computed.type ?? 'number',
+        hiddenInTable: c.hiddenInTable,
+        hiddenInView: c.hiddenInView,
+        ...(c.fieldInput && { fieldInput: c.fieldInput }),
+      })),
+  ];
 
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
   const rawViews = buildLayouts(json.layout, {
@@ -117,25 +132,37 @@ export const fromJson = (
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && !isCustom;
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths);
-  const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
+  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths, (json as any).lookup);
+  const findOneOp = json.operations?.findOne;
+  const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
+  const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
   const definition = buildResourceDefinitions(
     schema,
     json.operations,
     enrichedColumns,
   );
 
+  const formContainer = (json.layout?.form as any)?.container;
+  const viewContainer = (json.layout?.view as any)?.container;
+  const derivedDisplay = {
+    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as 'modal' | 'page',
+    customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
+  };
+  const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
+  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
     route: json.route,
-    model: json.model,
-    tag: json.tag,
+    tag: json.openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
-    display: json.display,
-    ...(json.idType && { idType: json.idType }),
+    display: derivedDisplay,
+    modalSize: derivedModalSize,
+    ...(src?.model && { model: src.model }),
+    ...(src?.table && { table: src.table }),
+    ...(src?.database && { database: src.database }),
+    ...(src?.idType && { idType: src.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
-    ...(json.database && { database: json.database }),
     ...(hooks && { hooks }),
     ...(repository && { repository }),
     definition,
@@ -147,7 +174,7 @@ export const fromJson = (
     ...(actions?.length && { actions }),
     ...(tableActions?.length && { tableActions }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
-    ...(json.modalSize && { modalSize: json.modalSize }),
+    ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
@@ -192,16 +219,27 @@ const buildLookup = (
   columns: JsonColumn[] | undefined,
   dirPath?: string,
   search?: string[],
+  lookupConfig?: { labels?: string[]; separator?: string },
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
 
   const keyCol = columns.find((c) => c.idField);
-  const lookupCols = columns.filter((c) => c.showInLookup);
+  const legacyLookupCols = columns.filter((c) => c.showInLookup);
 
-  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
+  // Prefer explicit lookup.labels, fall back to showInLookup (deprecated), then search
+  if (lookupConfig?.labels?.length) {
+    return {
+      key: keyCol?.id ?? 'id',
+      ...(lookupConfig.labels.length === 1 && { label: lookupConfig.labels[0] }),
+      labels: lookupConfig.labels,
+      ...(lookupConfig.separator && { separator: lookupConfig.separator }),
+    };
+  }
 
-  const labels = lookupCols.length
-    ? lookupCols.map((col) => {
+  if (!keyCol && !legacyLookupCols.length && !search?.length) return undefined;
+
+  const labels = legacyLookupCols.length
+    ? legacyLookupCols.map((col) => {
         if (col.fieldInput?.relationType === 'manyToOne') {
           const relationName = col.id.replace(/Id$/, '');
           if (col.fieldInput?.resource && dirPath) {

@@ -73,9 +73,9 @@
       }
     }
   },
-  "include": ["author", "categories"],
   "operations": {
-    "findAll": { "search": ["title", "author"] }
+    "findAll": { "search": ["title", "author"], "include": ["author", "categories"] },
+    "findOne": { "include": ["author", "categories"] }
   },
   "layout": {
     "form": {

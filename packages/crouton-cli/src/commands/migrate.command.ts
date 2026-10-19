@@ -3,10 +3,17 @@ import type { Command } from 'commander';
 import {
   findConfigPath,
   loadConfig,
+  migrateCalculatedColumns,
+  migrateDisplayToContainer,
   migrateLayoutPrecedence,
+  migrateLookupLabels,
+  migrateOpenApiTag,
   migrateRelationKeys,
   migrateRemovedColumnFields,
+  migrateRootId,
+  migrateRootInclude,
   migrateSearchFields,
+  migrateSource,
   resolveFromRoot,
   syncAgentFiles,
 } from '@ghentcdh/crouton-codegen';
@@ -107,6 +114,13 @@ export const registerMigrateCommand = (program: Command) => {
           const { resource: searchFixed, report: searchReport } = migrateSearchFields(layoutFixed);
           const { resource: colFixed, report: colReport } = migrateRemovedColumnFields(searchFixed);
           const { resource: relationFixed, report: relationReport } = migrateRelationKeys(colFixed);
+          const { resource: displayFixed, report: displayReport } = migrateDisplayToContainer(relationFixed);
+          const { changed: lookupChanged, json: lookupFixed } = migrateLookupLabels(displayFixed as any);
+          const { changed: includeChanged, json: includeFixed } = migrateRootInclude(lookupFixed as any);
+          const { changed: sourceChanged, json: sourceFixed } = migrateSource(includeFixed as any);
+          const { changed: calcChanged, json: calcFixed } = migrateCalculatedColumns(sourceFixed as any);
+          const { changed: openapiChanged, json: openapiFixed } = migrateOpenApiTag(calcFixed as any);
+          const { changed: rootIdChanged, json: rootIdFixed } = migrateRootId(openapiFixed as any);
 
           const hasVersionMigration = result.applied.length > 0;
           const hasLayoutChanges =
@@ -122,8 +136,9 @@ export const registerMigrateCommand = (program: Command) => {
             colReport.columnsWithFieldView.length > 0 ||
             colReport.columnsWithColumnType.length > 0;
           const hasRelationChanges = relationReport.migratedColumns.length > 0;
+          const hasDisplayChanges = displayReport.changed;
 
-          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges) continue;
+          if (!hasVersionMigration && !hasLayoutChanges && !hasSearchChanges && !hasColChanges && !hasRelationChanges && !hasDisplayChanges && !lookupChanged && !includeChanged && !sourceChanged && !calcChanged && !openapiChanged && !rootIdChanged) continue;
 
           needsMigration++;
 
@@ -144,8 +159,22 @@ export const registerMigrateCommand = (program: Command) => {
             labels.push(`remove columnType from columns: ${colReport.columnsWithColumnType.join(', ')}`);
           if (relationReport.migratedColumns.length)
             labels.push(`lift relation keys to column.relation: ${relationReport.migratedColumns.join(', ')}`);
+          if (displayReport.changed)
+            labels.push('display/modalSize → layout.form.container / layout.view.container');
+          if (lookupChanged)
+            labels.push('showInLookup → lookup.labels');
+          if (includeChanged)
+            labels.push('include → operations.findAll.include / operations.findOne.include');
+          if (sourceChanged)
+            labels.push('model/table/database/idType → source.*');
+          if (calcChanged)
+            labels.push('calculatedColumns → columns[id].computed');
+          if (openapiChanged)
+            labels.push('tag → openapi.tag');
+          if (rootIdChanged)
+            labels.push('id removed (redundant — equals name)');
 
-          const out = JSON.stringify(relationFixed, null, 2) + '\n';
+          const out = JSON.stringify(rootIdFixed, null, 2) + '\n';
 
           if (opts.check) {
             console.error(`${file}: needs migration (${labels.join('; ')})`);

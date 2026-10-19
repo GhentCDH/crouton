@@ -166,11 +166,13 @@ export const classify = (
   const config: ResourceJsonInput = {
     name: names.name,
     route: names.route,
-    model: names.model,
-    tag: names.tag,
+    source: {
+      model: names.model,
+      ...(model.idType ? { idType: model.idType } : {}),
+      ...(ctx.database ? { database: ctx.database } : {}),
+    },
+    openapi: { tag: names.tag },
     title: names.title,
-    ...(model.idType ? { idType: model.idType } : {}),
-    ...(ctx.database ? { database: ctx.database } : {}),
     sidebar: { hide: false },
     operations: ruleset.defaultOperations,
     columns,

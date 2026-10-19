@@ -13,7 +13,7 @@ const validResource = {
   $schema: 'https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json',
   schemaVersion: 1,
   name: 'book',
-  model: 'Book',
+  source: { model: 'Book' },
   columns: {
     id: { idField: true, hiddenInForm: true },
     title: { searchable: true },
@@ -43,7 +43,7 @@ describe('validateResourceFile', () => {
   it('returns an issue with "Did you mean autocomplete?" for a typo in fieldInput.type', async () => {
     const typoResource = {
       name: 'book',
-      model: 'Book',
+      source: { model: 'Book' },
       columns: {
         authorId: {
           fieldInput: {

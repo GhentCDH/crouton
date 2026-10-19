@@ -4,6 +4,158 @@
 
 ---
 
+## `display` / `modalSize` → `layout.form.container` / `layout.view.container` (breaking)
+
+Root-level `display` and `modalSize` have moved into the layout object.
+
+```json
+// BEFORE
+{
+  "display": "modal",
+  "modalSize": "lg"
+}
+
+// AFTER
+{
+  "layout": {
+    "form": { "container": "modal", "containerSize": "lg" },
+    "view": { "container": "modal", "containerSize": "lg" }
+  }
+}
+```
+
+Run `crouton migrate` to apply automatically.
+
+---
+
+## `showInLookup` → `lookup.labels` (breaking)
+
+The column-level `showInLookup` flag is replaced by a resource-level `lookup.labels` array.
+
+```json
+// BEFORE
+{
+  "columns": {
+    "firstName": { "showInLookup": true },
+    "lastName":  { "showInLookup": true }
+  }
+}
+
+// AFTER
+{
+  "lookup": {
+    "labels": ["firstName", "lastName"],
+    "separator": " "
+  }
+}
+```
+
+Run `crouton migrate` to apply automatically.
+
+---
+
+## Root `include` → `operations.findAll.include` / `operations.findOne.include` (breaking)
+
+Top-level `include` split by operation:
+
+```json
+// BEFORE
+{
+  "include": [
+    "author",
+    { "relation": "chapters", "orderBy": { "position": "asc" } }
+  ]
+}
+
+// AFTER
+{
+  "operations": {
+    "findAll": {
+      "include": [
+        "author",
+        { "relation": "chapters", "orderBy": { "position": "asc" } }
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author",
+        { "relation": "chapters", "orderBy": { "position": "asc" } }
+      ]
+    }
+  }
+}
+```
+
+Run `crouton migrate` to apply automatically. When only `findAll.include` is set, `findOne` uses it as fallback.
+
+---
+
+## `model` / `table` / `database` / `idType` → `source.*` (breaking)
+
+All datasource-identification fields have moved under a `source` object.
+
+```json
+// BEFORE
+{
+  "model": "Book",
+  "table": "books",
+  "database": "maindb",
+  "idType": "number"
+}
+
+// AFTER
+{
+  "source": {
+    "model": "Book",
+    "table": "books",
+    "database": "maindb",
+    "idType": "number"
+  }
+}
+```
+
+Run `crouton migrate` to apply automatically.
+
+---
+
+## `calculatedColumns` → `columns[id].computed` (breaking)
+
+Top-level `calculatedColumns` array replaced by a `computed` field on the column definition.
+
+```json
+// BEFORE
+{
+  "calculatedColumns": [
+    {
+      "id": "chapter_count",
+      "alias": "chapter_count",
+      "label": "Chapters",
+      "type": "number",
+      "position": 5,
+      "sqlExpression": "(SELECT count(*) FROM chapter c WHERE c.book_id = main.id)"
+    }
+  ]
+}
+
+// AFTER
+{
+  "columns": {
+    "chapter_count": {
+      "label": "Chapters",
+      "position": 5,
+      "computed": {
+        "sql": "(SELECT count(*) FROM chapter c WHERE c.book_id = main.id)",
+        "type": "number"
+      }
+    }
+  }
+}
+```
+
+Run `crouton migrate` to apply automatically.
+
+---
+
 ## Layout: `controls` → `items` (breaking, `schemaVersion` 1)
 
 All layout nodes now use a single `items` list. The separate `controls` list is removed. Run the codemod to migrate

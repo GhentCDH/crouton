@@ -95,7 +95,7 @@ export const normalizeUnique = (
 
 // ── Columns ───────────────────────────────────────────────────────────
 
-export const JsonColumnSchema = z.object({
+export const JsonColumnBaseSchema = z.object({
   id: z
     .string()
     .describe(
@@ -175,12 +175,8 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Marks this column as the primary-key field. Exactly one column per resource should set this to true.',
     ),
-  showInLookup: z
-    .boolean()
-    .default(false)
-    .describe(
-      'When true, this column appears in autocomplete/lookup dropdowns referencing this resource.',
-    ),
+  /** @deprecated Use resource-level `lookup.labels` instead (run `crouton migrate`). Kept as passthrough so the codemod can read it. */
+  showInLookup: z.boolean().optional(),
   /**
    * Enforce that this column's value is unique across the resource. `true` is
    * simple single-column uniqueness; the object form allows a composite
@@ -260,6 +256,28 @@ export const JsonColumnSchema = z.object({
     .describe(
       'Per-sub-column overrides when using "extend". Key is the virtual column id ("{extendId}_{refColId}") or the referenced column id. Value is any JsonColumn fields to merge.',
     ),
+  /**
+   * Marks this as a computed column backed by a raw SQL subquery.
+   * Replaces the legacy top-level `calculatedColumns` array (run `crouton migrate`).
+   */
+  computed: z
+    .object({
+      sql: z.string().describe('Raw SQL subquery. Use "main" as the alias for the parent table row.'),
+      type: z.enum(['number', 'boolean', 'string']).optional().describe('Cast type for the result. Defaults to "number".'),
+    })
+    .optional()
+    .describe('SQL computed column. The column value is derived from a raw subquery at query time.'),
+});
+
+export const JsonColumnSchema = JsonColumnBaseSchema.superRefine((col, ctx) => {
+  if (col.enum && (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values']) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['fieldInput', 'options', 'values'],
+      message:
+        'Column has both \'enum\' and \'fieldInput.options.values\'; use \'enum\' for shared lists or \'values\' on fieldInput for local lists — not both.',
+    });
+  }
 });
 
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;

@@ -1,6 +1,5 @@
 {
   "name": "article",
-  "model": "Article",
   "route": "articles",
   "columns": {
     "id": {
@@ -25,14 +24,32 @@
       "hiddenInForm": true
     }
   },
-  "include": [
-    "author",
-    {
-      "relation": "tags",
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
       "include": [
-        "category"
+        "author",
+        {
+          "relation": "tags",
+          "include": [
+            "category"
+          ]
+        }
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author",
+        {
+          "relation": "tags",
+          "include": [
+            "category"
+          ]
+        }
       ]
     }
-  ],
-  "schemaVersion": 1
+  },
+  "source": {
+    "model": "Article"
+  }
 }

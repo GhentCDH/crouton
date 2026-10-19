@@ -1,6 +1,5 @@
 {
   "name": "group",
-  "model": "Group",
   "route": "groups",
   "columns": {
     "id": {
@@ -22,5 +21,8 @@
       }
     }
   },
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "source": {
+    "model": "Group"
+  }
 }

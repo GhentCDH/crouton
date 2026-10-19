@@ -1,6 +1,5 @@
 {
   "name": "book",
-  "model": "Book",
   "route": "books",
   "columns": {
     "id": {
@@ -21,8 +20,20 @@
       "hiddenInTable": true
     }
   },
-  "include": [
-    "categories"
-  ],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
+      "include": [
+        "categories"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "categories"
+      ]
+    }
+  },
+  "source": {
+    "model": "Book"
+  }
 }

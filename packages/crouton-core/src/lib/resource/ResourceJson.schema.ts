@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
-import { type JsonColumn, JsonColumnSchema } from './Column';
+import { type JsonColumn, JsonColumnBaseSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
@@ -14,17 +14,26 @@ import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SecuritySchema } from '../data-source/Security.schema';
 import { labelFromId } from '../schema/label.helper';
 
+// ── Removed-key registry ─────────────────────────────────────────────
+// Keys that were removed from the root schema and where they moved to.
+const ROOT_REMOVED_KEYS: Record<string, string> = {
+  display: '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
+  modalSize: '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
+  include: '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
+};
+
 // ── Shared primitives ────────────────────────────────────────────────
 
 const JsonColumnsMapSchema = z.record(
   z.string(),
-  JsonColumnSchema.omit({ id: true }).catchall(z.unknown()),
+  JsonColumnBaseSchema.omit({ id: true }).catchall(z.unknown()),
 ); // map form — key becomes `id`
 export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Display / sidebar ────────────────────────────────────────────────
 
+/** @deprecated Use layout.form.container / layout.view.container instead. Kept for codemod + sub-resource compat. */
 export const JsonDisplaySchema = z.object({
   mode: z
     .enum(['page', 'modal'])
@@ -127,8 +136,15 @@ export const ResourceJsonShape = z.object({
     .optional()
     .default('Crouton')
     .describe(
-      'OpenAPI tag grouping for generated endpoints. Defaults to "Crouton".',
+      'OpenAPI tag grouping for generated endpoints. Defaults to "Crouton". Prefer openapi.tag for new resources.',
     ),
+  openapi: z
+    .object({
+      tag: z.string().optional().describe('OpenAPI tag for grouping generated endpoints.'),
+      description: z.string().optional().describe('Description shown in the OpenAPI spec for this tag group.'),
+    })
+    .optional()
+    .describe('OpenAPI metadata for generated endpoints. Supersedes the root-level tag field.'),
   title: z
     .string()
     .optional()
@@ -163,9 +179,6 @@ export const ResourceJsonShape = z.object({
   sidebar: SidebarSchema.default(SidebarSchema.parse({})).describe(
     'Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.',
   ),
-  display: JsonDisplaySchema.default(JsonDisplaySchema.parse({})).describe(
-    'How records open when clicked. Default: modal dialog.',
-  ),
   security: SecuritySchema.optional().describe(
     'Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.',
   ),
@@ -183,18 +196,28 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
     ),
-  modalSize: z
-    .enum(['xs', 'sm', 'lg', 'xl'])
-    .default('sm')
-    .describe(
-      'Width of the create/edit modal dialog. "xs", "sm" (default), "lg", or "xl".',
-    ),
   include: z
     .array(JsonIncludeEntrySchema)
     .default([])
     .describe(
       'Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.',
     ),
+  source: z
+    .object({
+      model: z.string().optional().describe('Prisma model name.'),
+      dbTable: z.string().optional().describe('Database table name override.'),
+      datasource: z.string().optional().describe('Datasource name.'),
+      idType: z.enum(['string', 'number']).optional().describe('Primary key type.'),
+    })
+    .optional()
+    .describe('Where the data comes from (replaces root model/table/database/idType).'),
+  lookup: z
+    .object({
+      labels: z.array(z.string()).describe('Ordered display fields for relation dropdowns.'),
+      separator: z.string().optional().default(' '),
+    })
+    .optional()
+    .describe('How this resource is labelled in other resources\' dropdowns.'),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
   ),
@@ -220,6 +243,14 @@ export const refineByKind = (
         path: ['model'],
         message:
           'A custom resource has no Prisma model. Remove "model" — data access comes from repository.ts.',
+      });
+    }
+    if (obj.source?.model !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['source', 'model'],
+        message:
+          'A custom resource has no Prisma model. Remove "source.model" — data access comes from repository.ts.',
       });
     }
     if (obj.calculatedColumns?.length) {
@@ -262,6 +293,18 @@ export const refineByKind = (
       message:
         '"parent" is only supported on a custom resource. A prisma resource is nested by declaring a relation column on its parent.',
     });
+  }
+  // Cross-kind: enum + fieldInput.options.values conflict
+  for (const [id, col] of Object.entries(obj.columns ?? {})) {
+    const hasEnum = !!col.enum;
+    const hasValues = !!(col.fieldInput?.options as any)?.values?.length;
+    if (hasEnum && hasValues) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['columns', id],
+        message: `Column "${id}" has both 'enum' and 'fieldInput.options.values'; use 'enum' for shared lists or 'values' on fieldInput for local lists, not both.`,
+      });
+    }
   }
   // "model required for prisma kind" moved to the Prisma adapter at load time —
   // a resource on a custom-adapter datasource may have no model and is still valid.
@@ -486,11 +529,17 @@ export const buildResourceJsonSchema = () => {
 
   // ponytail: closure to pass raw layout errors from preprocess → superRefine without schema changes
   let _rawLayoutErrors: Array<{ path: string[]; message: string }> = [];
+  let _rawRootErrors: Array<{ path: string[]; message: string }> = [];
 
   return z.preprocess(
     (raw) => {
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
       let obj = raw as Record<string, unknown>;
+
+      // Collect errors for removed root keys before Zod strips them
+      _rawRootErrors = Object.entries(ROOT_REMOVED_KEYS)
+        .filter(([k]) => k in obj)
+        .map(([k, message]) => ({ path: [k], message }));
 
       // Collect errors for removed keys before any transforms
       _rawLayoutErrors = collectRemovedLayoutKeyErrors(obj['layout'], ['layout']);
@@ -713,7 +762,7 @@ export const buildResourceJsonSchema = () => {
       return obj;
     },
     shape.superRefine(refineByKind).superRefine((_, ctx) => {
-      for (const err of _rawLayoutErrors) {
+      for (const err of [..._rawRootErrors, ..._rawLayoutErrors]) {
         ctx.addIssue({ code: 'custom', path: err.path, message: err.message });
       }
     }).superRefine(refineLayout).transform((obj) => {

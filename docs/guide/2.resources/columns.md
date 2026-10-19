@@ -25,7 +25,7 @@ Both forms support the same options:
 | `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                               |
 | `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable |
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                |
-| `showInLookup`                                    | Sets the display label when **this** resource appears as an option in another resource's autocomplete. Does **not** affect `?q=` search — use `layout.table.searchFields` for that.                                                                                                                                         |
+| `showInLookup` *(deprecated)*                     | **Use `lookup.labels` at the resource root instead** (run `crouton migrate`). Sets the display label when this resource appears as an autocomplete option in another resource. Does **not** affect `?q=` search.                                                                                                             |
 | `unique`                                          | Validate the value is unique: `true`, or `{ scope, caseInsensitive, message }`. Checks as-you-type and maps a DB unique violation to this field. Needs a matching `@unique` constraint. See [Unique fields](unique.md)                                                                                                       |
 | `column`                                          | Source column name when it differs from the key/`id` (defaults to `id`)                                                                                                                                                                                                                                                    |
 | `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                        |
@@ -218,56 +218,64 @@ Add `customComponent` to the table layout item's `options` to override the cell 
 The custom cell component receives `data` (full row object), `value` (cell value), `column`, and `options` as props.
 See [Custom renderers](../4.frontend/custom-renderers.md) for how to register the component.
 
-## Calculated columns
+## Computed columns
 
-Read-only columns computed in SQL at query time. Use `main` as the alias for the resource's own table:
+Read-only columns derived from a raw SQL subquery at query time. Add a `computed` object to the column definition:
 
 ```json
 {
-  "calculatedColumns": [
-    {
-      "id": "chapter_count",
-      "alias": "chapter_count",
+  "columns": {
+    "chapter_count": {
       "label": "Chapters",
-      "type": "number",
-      "position": 5,
-      "sqlExpression": "(SELECT count(*) FROM chapter c WHERE c.book_id = main.id)"
+      "computed": {
+        "sql": "(SELECT count(*) FROM chapter c WHERE c.book_id = main.id)",
+        "type": "number"
+      }
     }
-  ]
+  }
 }
 ```
 
-| Field           | Type     | Description                                               |
-|-----------------|----------|-----------------------------------------------------------|
-| `id`            | `string` | Column id                                                 |
-| `alias`         | `string` | SQL alias — must match `id` in most cases                 |
-| `label`         | `string` | Display label                                             |
-| `type`          | `string` | Data type shorthand (`"number"`, `"string"`, etc.)         |
-| `position`      | `number` | Order among columns                                       |
-| `hiddenInTable` | `boolean`| Hide from table (still available via API)                 |
-| `sqlExpression` | `string` | The SQL subquery expression. Use `main` for the parent table alias. |
+| Field        | Type     | Description                                                                 |
+|--------------|----------|-----------------------------------------------------------------------------|
+| `sql`        | `string` | Raw SQL subquery. Use `main` as the alias for the parent table row.         |
+| `type`       | `string` | Cast type for the result: `"number"` (default), `"string"`, or `"boolean"`. |
+
+All standard column fields (`label`, `hiddenInTable`, `hiddenInView`, `position`, `fieldInput`, …) are valid alongside `computed`.
 
 ::: warning
-Calculated columns are not available on `kind: "custom"` resources — they run raw SQL against a real table.
+Computed columns are not available on `kind: "custom"` resources — they run raw SQL against a real table.
 Compute the value in `findAll` instead.
+:::
+
+::: warning Deprecated: `calculatedColumns`
+The top-level `calculatedColumns` array is removed. Run `crouton migrate` to move each entry to `columns[id].computed`.
 :::
 
 ## Includes
 
-Eagerly load relations with the list/detail queries:
+Eagerly load relations with the list/detail queries. Declare them per operation so `findAll` and `findOne` can differ:
 
 ```json
 {
-  "include": [
-    "author",
-    {
-      "relation": "chapters",
-      "orderBy": { "position": "asc" },
-      "include": ["sections"]
+  "operations": {
+    "findAll": {
+      "include": [
+        "author",
+        { "relation": "chapters", "orderBy": { "position": "asc" }, "include": ["sections"] }
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author",
+        { "relation": "chapters", "orderBy": { "position": "asc" }, "include": ["sections"] }
+      ]
     }
-  ]
+  }
 }
 ```
+
+When `findOne.include` is absent, crouton falls back to `findAll.include`.
 
 | Field      | Type             | Description                                                        |
 |------------|------------------|--------------------------------------------------------------------|
@@ -277,3 +285,7 @@ Eagerly load relations with the list/detail queries:
 
 When a relation column has a `sort` option (see [Relations](relations.md#sorting-related-records)), the loader
 automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
+
+::: warning Deprecated: root `include`
+The top-level `include` field is removed. Run `crouton migrate` to move it to `operations.findAll.include` / `operations.findOne.include`.
+:::

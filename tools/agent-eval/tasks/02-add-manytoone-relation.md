@@ -23,11 +23,9 @@ model Author {
 
 Edit `src/resources/book/resource.json` to add a manyToOne relation for the `authorId` column. The column must:
 - Have `label: "Author"`
-- Use `fieldInput.type: "autocomplete"`
-- Use `fieldInput.relationType: "manyToOne"`
-- Reference the author resource with `fieldInput.resource: "./author.resource"`
-
-Also add `"author"` to the `include` array on the book resource.
+- Have `relation.resource: "./author/resource.json"`, `relation.type: "manyToOne"`, `relation.foreignKey: "authorId"`, `relation.displayKey: "name"`
+- Have `fieldInput.type: "autocomplete"`
+- Load the relation via `operations.findAll.include` and `operations.findOne.include`
 
 ## Verification
 
@@ -36,7 +34,7 @@ Expected: exits 0 with no issues.
 
 ## Hints
 
+- Relation data model goes in `column.relation`, not in `fieldInput.options`
+- `fieldInput` only picks the UI widget (`type: "autocomplete"` for manyToOne)
+- `include` belongs in `operations.findAll.include` / `operations.findOne.include`, not at root
 - Use the crouton skill if available
-- Read `node_modules/@ghentcdh/crouton-core/agent-docs/README.md` for docs
-- The `autocomplete` fieldInput type is for manyToOne relations (FK columns)
-- The `include` array tells the API which relations to eager-load

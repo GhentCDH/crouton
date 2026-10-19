@@ -1,6 +1,6 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { extractFindAllSearch } from '../data-source/Operations.schema';
+import { extractFindAllSearch, extractOpInclude } from '../data-source/Operations.schema';
 import { buildLayouts, resolveColumnVisibility } from '../layout';
 import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
 import { getResourceExtensions } from '../resource';
@@ -63,24 +63,30 @@ const buildSearch = (
 const buildLookup = (
   columns: JsonColumn[] | undefined,
   search: string[] | undefined,
+  lookupConfig?: { labels?: string[]; separator?: string },
 ): LookupConfig | undefined => {
   if (!columns) return undefined;
   const keyCol = columns.find((c) => c.idField);
-  const lookupCols = columns.filter((c) => c.showInLookup);
-  if (!keyCol && !lookupCols.length && !search?.length) return undefined;
-  const labels = lookupCols.length
-    ? lookupCols.map((c) => {
-        if (c.relation !== undefined || c.fieldInput?.format === 'relation') {
-          const displayKey = c.displayKey ?? (c.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
-          if (displayKey) return `${c.id}.${displayKey}`;
-        }
-        return c.id;
-      })
-    : (search ?? []);
+  // Prefer explicit lookup.labels, fall back to showInLookup (deprecated), then search
+  const explicitLabels = lookupConfig?.labels;
+  const legacyLookupCols = columns.filter((c) => c.showInLookup);
+  const rawLabels: string[] = explicitLabels?.length
+    ? explicitLabels
+    : legacyLookupCols.length
+      ? legacyLookupCols.map((c) => {
+          if (c.fieldInput?.format === 'relation') {
+            const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
+            if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
+          }
+          return c.id;
+        })
+      : (search ?? []);
+  if (!keyCol && !rawLabels.length) return undefined;
   return {
     key: keyCol?.id ?? 'id',
-    ...(labels.length === 1 && { label: labels[0] }),
-    ...(labels.length > 0 && { labels }),
+    ...(rawLabels.length === 1 && { label: rawLabels[0] }),
+    ...(rawLabels.length > 0 && { labels: rawLabels }),
+    ...(lookupConfig?.separator && { separator: lookupConfig.separator }),
   };
 };
 
@@ -109,7 +115,21 @@ export const compileResource = (
     enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns,
   )!;
 
-  const calculatedColumns: CalculatedColumn[] = json.calculatedColumns ?? [];
+  const calculatedColumns: CalculatedColumn[] = [
+    ...((json as any).calculatedColumns ?? []),
+    ...((json.columns ?? []) as JsonColumn[])
+      .filter((c) => (c as any).computed)
+      .map((c): CalculatedColumn => ({
+        id: c.id,
+        alias: c.id,
+        label: c.label ?? c.id,
+        sqlExpression: (c as any).computed.sql as string,
+        type: (c as any).computed.type ?? 'number',
+        hiddenInTable: c.hiddenInTable,
+        hiddenInView: c.hiddenInView,
+        ...(c.fieldInput && { fieldInput: c.fieldInput }),
+      })),
+  ];
 
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
   const layoutCtx = {
@@ -129,21 +149,35 @@ export const compileResource = (
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && json.kind !== 'custom';
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const lookup = buildLookup(enrichedColumns, searchPaths);
-  const enrichedInclude = enrichIncludeWithSort(json.include, enrichedColumns);
+  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup);
+  const findOneOp = json.operations?.findOne;
+  const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
+  const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 
+  // Derive display/modalSize from layout.container (Block 2 migration)
+  const formContainer = (json.layout?.form as any)?.container;
+  const viewContainer = (json.layout?.view as any)?.container;
+  const derivedDisplay = {
+    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as 'modal' | 'page',
+    customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
+  };
+  const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
+
+  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
     route: json.route,
-    model: json.model,
-    tag: json.tag,
+    tag: json.openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
-    display: json.display,
-    ...(json.idType && { idType: json.idType }),
+    display: derivedDisplay,
+    modalSize: derivedModalSize,
+    ...(src?.model && { model: src.model }),
+    ...(src?.table && { table: src.table }),
+    ...(src?.database && { database: src.database }),
+    ...(src?.idType && { idType: src.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
-    ...(json.database && { database: json.database }),
     definition,
     subResources,
     ...(views && { views }),
@@ -151,7 +185,7 @@ export const compileResource = (
     ...(lookup && { lookup }),
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
-    ...(json.modalSize && { modalSize: json.modalSize }),
+    ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),

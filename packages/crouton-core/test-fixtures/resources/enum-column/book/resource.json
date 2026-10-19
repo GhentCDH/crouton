@@ -1,6 +1,5 @@
 {
   "name": "book",
-  "model": "Book",
   "route": "books",
   "columns": {
     "id": {
@@ -16,5 +15,8 @@
       "filterable": true
     }
   },
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "source": {
+    "model": "Book"
+  }
 }

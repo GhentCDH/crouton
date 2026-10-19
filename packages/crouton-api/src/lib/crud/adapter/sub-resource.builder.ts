@@ -126,7 +126,21 @@ export const buildSubResources = (
 
       const childLookupKey =
         childColumns?.find((col) => col.idField)?.id ?? 'id';
-      const childCalculatedColumns = childJson?.calculatedColumns ?? [];
+      const childCalculatedColumns = [
+        ...(childJson?.calculatedColumns ?? []),
+        ...(enrichedChildColumns ?? [])
+          .filter((c) => (c as any).computed)
+          .map((c: any) => ({
+            id: c.id,
+            alias: c.id,
+            label: c.label ?? c.id,
+            sqlExpression: c.computed.sql as string,
+            type: c.computed.type ?? 'number',
+            hiddenInTable: c.hiddenInTable,
+            hiddenInView: c.hiddenInView,
+            ...(c.fieldInput && { fieldInput: c.fieldInput }),
+          })),
+      ];
       const rawChildViews = childJson
         ? buildLayouts(undefined, {
             columns: enrichedChildColumns ?? [],
@@ -185,7 +199,7 @@ export const buildSubResources = (
         ...(childJson?.table && { childTable: childJson.table }),
         foreignKey: (c.relation?.foreignKey ?? c.fieldInput?.foreignKey) ?? `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
         name: childJson?.name ?? childRoute,
-        title: childJson?.title ?? childJson?.tag ?? childRoute,
+        title: childJson?.title ?? childJson?.openapi?.tag ?? childJson?.tag ?? childRoute,
         idField: childLookupKey,
         idType: childJson?.idType ?? 'string',
         ...(c.hiddenInTable && { hiddenInTable: true }),
@@ -199,8 +213,8 @@ export const buildSubResources = (
           delete: childOps.delete !== false,
         },
         ...((childJson?.layout?.table as any)?.actions?.length && { actions: (childJson?.layout?.table as any)?.actions }),
-        ...(childJson?.modalSize && { modalSize: childJson.modalSize }),
-        ...(childJson?.display && { display: childJson.display }),
+        ...(childJson?.layout?.form?.container?.size && { modalSize: childJson.layout.form.container.size }),
+        ...(childJson?.layout?.form?.container && { display: { mode: childJson.layout.form.container.mode ?? 'modal' } }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childJson?.calculatedColumns?.length && {
           calculatedColumns: childJson.calculatedColumns,

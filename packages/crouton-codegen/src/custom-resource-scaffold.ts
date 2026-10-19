@@ -44,10 +44,12 @@ const buildResourceJson = (
     route: input.route ?? input.name,
     tag: input.tag ?? label,
     title: input.title ?? label,
-    ...(input.database ? { database: input.database } : {}),
-    ...(input.idType && input.idType !== 'string'
-      ? { idType: input.idType }
-      : {}),
+    ...((input.database || (input.idType && input.idType !== 'string')) ? {
+      source: {
+        ...(input.database ? { database: input.database } : {}),
+        ...(input.idType && input.idType !== 'string' ? { idType: input.idType } : {}),
+      }
+    } : {}),
     operations: {
       findAll: true,
       findOne: true,

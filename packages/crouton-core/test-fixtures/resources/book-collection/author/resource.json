@@ -1,6 +1,5 @@
 {
   "name": "author",
-  "model": "Author",
   "title": "Authors",
   "columns": {
     "id": {
@@ -29,8 +28,20 @@
       }
     }
   },
-  "include": [
-    "books"
-  ],
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "operations": {
+    "findAll": {
+      "include": [
+        "books"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "books"
+      ]
+    }
+  },
+  "source": {
+    "model": "Author"
+  }
 }

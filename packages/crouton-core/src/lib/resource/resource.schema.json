@@ -52,9 +52,26 @@
     },
     "tag": {
       "default": "Crouton",
-      "description": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".",
+      "description": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\". Prefer openapi.tag for new resources.",
       "type": "string",
-      "markdownDescription": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+      "markdownDescription": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\". Prefer openapi.tag for new resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+    },
+    "openapi": {
+      "description": "OpenAPI metadata for generated endpoints. Supersedes the root-level tag field.",
+      "type": "object",
+      "properties": {
+        "tag": {
+          "description": "OpenAPI tag for grouping generated endpoints.",
+          "type": "string",
+          "markdownDescription": "OpenAPI tag for grouping generated endpoints.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "description": {
+          "description": "Description shown in the OpenAPI spec for this tag group.",
+          "type": "string",
+          "markdownDescription": "Description shown in the OpenAPI spec for this tag group.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        }
+      },
+      "markdownDescription": "OpenAPI metadata for generated endpoints. Supersedes the root-level tag field.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "title": {
       "description": "Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of \"name\".",
@@ -140,36 +157,6 @@
         }
       },
       "markdownDescription": "Sidebar visibility and ordering config. Default: shown, alphabetically ordered, ungrouped.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
-    "display": {
-      "default": {
-        "mode": "modal",
-        "customComponent": null
-      },
-      "description": "How records open when clicked. Default: modal dialog.",
-      "type": "object",
-      "properties": {
-        "mode": {
-          "default": "modal",
-          "description": "How a record opens when clicked. \"modal\" (default) opens a dialog; \"page\" navigates to a dedicated route.",
-          "type": "string",
-          "enum": [
-            "page",
-            "modal"
-          ],
-          "markdownDescription": "How a record opens when clicked. \"modal\" (default) opens a dialog; \"page\" navigates to a dedicated route.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        },
-        "customComponent": {
-          "default": null,
-          "description": "Import path to a custom Vue component for the record detail view. When set, the default view is replaced.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "markdownDescription": "Import path to a custom Vue component for the record detail view. When set, the default view is replaced.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-        }
-      },
-      "markdownDescription": "How records open when clicked. Default: modal dialog.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "security": {
       "description": "Global security block applied to every operation unless overridden per-operation. Use per-operation security in the operations block for finer control.",
@@ -289,6 +276,13 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
                 }
               },
               "required": [
@@ -351,6 +345,13 @@
                   "type": "array",
                   "items": {
                     "type": "string"
+                  }
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
                   }
                 }
               }
@@ -465,6 +466,13 @@
                       ]
                     }
                   ]
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
                 }
               }
             }
@@ -578,6 +586,13 @@
                       ]
                     }
                   ]
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
                 }
               }
             }
@@ -691,6 +706,13 @@
                       ]
                     }
                   ]
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
                 }
               }
             }
@@ -804,6 +826,13 @@
                       ]
                     }
                   ]
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
                 }
               }
             }
@@ -917,6 +946,13 @@
                       ]
                     }
                   ]
+                },
+                "include": {
+                  "description": "Prisma relations to eager-load for this operation.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
                 }
               }
             }
@@ -1004,10 +1040,7 @@
             "markdownDescription": "Marks this column as the primary-key field. Exactly one column per resource should set this to true.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "showInLookup": {
-            "default": false,
-            "description": "When true, this column appears in autocomplete/lookup dropdowns referencing this resource.",
-            "type": "boolean",
-            "markdownDescription": "When true, this column appears in autocomplete/lookup dropdowns referencing this resource.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+            "type": "boolean"
           },
           "unique": {
             "description": "Enforce that this column's value is unique. true = simple single-column uniqueness; object form allows composite scope, case-insensitive comparison, and a custom message. Requires a matching DB @unique constraint.",
@@ -1055,7 +1088,7 @@
                 ]
               },
               {
-                "$ref": "#/definitions/__schema0"
+                "$ref": "#/definitions/__schema1"
               }
             ],
             "markdownDescription": "Data type of the column. A shorthand string (\"string\", \"integer\", \"boolean\", \"date\", \"date-time\", \"number\", \"object\", \"array\") or a JSON Schema fragment. Required on every column of a kind:\"custom\" resource. On a \"prisma\" resource this overrides the Prisma-derived type.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
@@ -1381,6 +1414,31 @@
               "additionalProperties": {}
             },
             "markdownDescription": "Per-sub-column overrides when using \"extend\". Key is the virtual column id (\"{extendId}_{refColId}\") or the referenced column id. Value is any JsonColumn fields to merge.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          },
+          "computed": {
+            "description": "SQL computed column. The column value is derived from a raw subquery at query time.",
+            "type": "object",
+            "properties": {
+              "sql": {
+                "type": "string",
+                "description": "Raw SQL subquery. Use \"main\" as the alias for the parent table row.",
+                "markdownDescription": "Raw SQL subquery. Use \"main\" as the alias for the parent table row.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "type": {
+                "description": "Cast type for the result. Defaults to \"number\".",
+                "type": "string",
+                "enum": [
+                  "number",
+                  "boolean",
+                  "string"
+                ],
+                "markdownDescription": "Cast type for the result. Defaults to \"number\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              }
+            },
+            "required": [
+              "sql"
+            ],
+            "markdownDescription": "SQL computed column. The column value is derived from a raw subquery at query time.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "additionalProperties": {}
@@ -1694,26 +1752,67 @@
       },
       "markdownDescription": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
-    "modalSize": {
-      "default": "sm",
-      "description": "Width of the create/edit modal dialog. \"xs\", \"sm\" (default), \"lg\", or \"xl\".",
-      "type": "string",
-      "enum": [
-        "xs",
-        "sm",
-        "lg",
-        "xl"
-      ],
-      "markdownDescription": "Width of the create/edit modal dialog. \"xs\", \"sm\" (default), \"lg\", or \"xl\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
     "include": {
       "default": [],
       "description": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/__schema1"
+        "$ref": "#/definitions/__schema0"
       },
       "markdownDescription": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+    },
+    "source": {
+      "description": "Where the data comes from (replaces root model/table/database/idType).",
+      "type": "object",
+      "properties": {
+        "model": {
+          "description": "Prisma model name.",
+          "type": "string",
+          "markdownDescription": "Prisma model name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "dbTable": {
+          "description": "Database table name override.",
+          "type": "string",
+          "markdownDescription": "Database table name override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "datasource": {
+          "description": "Datasource name.",
+          "type": "string",
+          "markdownDescription": "Datasource name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "idType": {
+          "description": "Primary key type.",
+          "type": "string",
+          "enum": [
+            "string",
+            "number"
+          ],
+          "markdownDescription": "Primary key type.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        }
+      },
+      "markdownDescription": "Where the data comes from (replaces root model/table/database/idType).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+    },
+    "lookup": {
+      "description": "How this resource is labelled in other resources' dropdowns.",
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ordered display fields for relation dropdowns.",
+          "markdownDescription": "Ordered display fields for relation dropdowns.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "separator": {
+          "default": " ",
+          "type": "string"
+        }
+      },
+      "required": [
+        "labels"
+      ],
+      "markdownDescription": "How this resource is labelled in other resources' dropdowns.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "layout": {
       "description": "Explicit layout for generated views (form, view, table). When absent, source-order grid is used.",
@@ -1724,6 +1823,35 @@
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "container": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "default": "modal",
+                      "description": "How this context opens: \"modal\" (default) shows a dialog; \"page\" navigates to a route.",
+                      "type": "string",
+                      "enum": [
+                        "modal",
+                        "page"
+                      ]
+                    },
+                    "size": {
+                      "description": "Width of the modal dialog. Only applies when mode is \"modal\". Default: \"sm\".",
+                      "type": "string",
+                      "enum": [
+                        "xs",
+                        "sm",
+                        "lg",
+                        "xl"
+                      ]
+                    }
+                  }
+                }
+              }
             }
           ],
           "markdownDescription": "Explicit layout for the create/edit form. When absent, columns are rendered in source order in a grid.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
@@ -1733,6 +1861,39 @@
           "allOf": [
             {
               "$ref": "#/definitions/__schema2"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "container": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "default": "modal",
+                      "description": "How this context opens: \"modal\" (default) shows a dialog; \"page\" navigates to a route.",
+                      "type": "string",
+                      "enum": [
+                        "modal",
+                        "page"
+                      ]
+                    },
+                    "size": {
+                      "description": "Width of the modal dialog. Only applies when mode is \"modal\". Default: \"sm\".",
+                      "type": "string",
+                      "enum": [
+                        "xs",
+                        "sm",
+                        "lg",
+                        "xl"
+                      ]
+                    }
+                  }
+                },
+                "component": {
+                  "description": "Import path to a custom Vue component for the detail view. When set, the default view layout is ignored.",
+                  "type": "string"
+                }
+              }
             }
           ],
           "markdownDescription": "Explicit layout for the read-only detail view. When absent, columns are rendered in source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
@@ -2225,6 +2386,37 @@
   ],
   "definitions": {
     "__schema0": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "relation": {
+              "type": "string"
+            },
+            "include": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/__schema0"
+              }
+            },
+            "orderBy": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "relation"
+          ]
+        }
+      ]
+    },
+    "__schema1": {
       "type": "object",
       "properties": {
         "type": {
@@ -2241,7 +2433,7 @@
             {
               "allOf": [
                 {
-                  "$ref": "#/definitions/__schema0"
+                  "$ref": "#/definitions/__schema1"
                 }
               ]
             }
@@ -2264,7 +2456,7 @@
             "type": "string"
           },
           "additionalProperties": {
-            "$ref": "#/definitions/__schema0"
+            "$ref": "#/definitions/__schema1"
           }
         },
         "required": {
@@ -2283,7 +2475,7 @@
         "items": {
           "allOf": [
             {
-              "$ref": "#/definitions/__schema0"
+              "$ref": "#/definitions/__schema1"
             }
           ]
         },
@@ -2293,7 +2485,7 @@
               "type": "boolean"
             },
             {
-              "$ref": "#/definitions/__schema0"
+              "$ref": "#/definitions/__schema1"
             }
           ]
         },
@@ -2321,37 +2513,6 @@
         }
       },
       "additionalProperties": {}
-    },
-    "__schema1": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "relation": {
-              "type": "string"
-            },
-            "include": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/__schema1"
-              }
-            },
-            "orderBy": {
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
-            }
-          },
-          "required": [
-            "relation"
-          ]
-        }
-      ]
     },
     "__schema2": {
       "type": "object",

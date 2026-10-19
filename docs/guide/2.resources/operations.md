@@ -20,13 +20,16 @@ Each key accepts three forms:
 | `false` | Endpoint disabled — not registered |
 | `{ "uri": "/path/{id}" }` | **External** — client calls the given route directly; crouton registers nothing |
 
-`findAll` additionally accepts an object form to configure search and filter:
+`findAll` and `findOne` additionally accept an object form to configure search, filter, and includes:
 
 | Value | Meaning |
 |-------|---------|
 | `{ "search": ["field1", "field2"] }` | Enable findAll with explicit free-text search fields |
 | `{ "filter": ["field1"] }` | Enable findAll with explicit filter fields (overrides per-column `filterable`) |
 | `{ "search": [...], "filter": [...] }` | Both |
+| `{ "include": [...] }` | Eagerly load relations for this operation (see [Includes](columns.md#includes)) |
+
+When `findOne.include` is absent, crouton falls back to `findAll.include`.
 
 ## Free-text search
 

@@ -1,6 +1,5 @@
 {
   "name": "item",
-  "model": "Item",
   "route": "items",
   "columns": {
     "id": {
@@ -24,5 +23,8 @@
       "required": false
     }
   },
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "source": {
+    "model": "Item"
+  }
 }

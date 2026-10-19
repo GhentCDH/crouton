@@ -66,7 +66,7 @@ describe('buildCustomResourceFiles', () => {
       route: 'zotero-items',
       tag: 'Zotero',
       title: 'Zotero items',
-      database: 'maindb',
+      source: { database: 'maindb' },
     });
   });
 
@@ -92,10 +92,11 @@ describe('buildCustomResourceFiles', () => {
     const stringId = jsonOf(build().files);
     expect(stringId.columns.id.type).toBe('string');
     expect(stringId.idType).toBeUndefined();
+    expect(stringId.source?.idType).toBeUndefined();
 
     const numberId = jsonOf(build({ idType: 'number' }).files);
     expect(numberId.columns.id.type).toBe('integer');
-    expect(numberId.idType).toBe('number');
+    expect(numberId.source?.idType).toBe('number');
   });
 
   it('stubs a typed repository with every operation', () => {

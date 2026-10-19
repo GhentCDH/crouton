@@ -14,7 +14,7 @@ const issuePaths = (result: { error?: { issues: { path: unknown[] }[] } }) =>
 
 describe('resource.json kind', () => {
   it('defaults to prisma', () => {
-    const parsed = ResourceJsonSchema.parse({ ...base, model: 'ZoteroItem' });
+    const parsed = ResourceJsonSchema.parse({ ...base, source: { model: 'ZoteroItem' } });
     expect(parsed.kind).toBe('prisma');
   });
 
@@ -39,18 +39,18 @@ describe('resource.json kind', () => {
     const result = ResourceJsonSchema.safeParse({
       ...base,
       kind: 'custom',
-      model: 'ZoteroItem',
+      source: { model: 'ZoteroItem' },
       columns: { id: { idField: true, type: 'string' } },
     });
     expect(result.success).toBe(false);
-    expect(issuePaths(result)).toContain('model');
+    expect(issuePaths(result)).toContain('source.model');
   });
 
   it('allows database on a custom resource — it selects ctx.prisma', () => {
     const result = ResourceJsonSchema.safeParse({
       ...base,
       kind: 'custom',
-      database: 'maindb',
+      source: { database: 'maindb' },
       columns: { id: { idField: true, type: 'string' } },
     });
     expect(result.success).toBe(true);
@@ -90,7 +90,7 @@ describe('resource.json kind', () => {
   it('does not require column types on a prisma resource', () => {
     const result = ResourceJsonSchema.safeParse({
       ...base,
-      model: 'ZoteroItem',
+      source: { model: 'ZoteroItem' },
       columns: { id: { idField: true }, title: { searchable: true } },
     });
     expect(result.success).toBe(true);
@@ -140,9 +140,8 @@ describe('resource.json kind', () => {
   it('honours idType', () => {
     const parsed = ResourceJsonSchema.parse({
       ...base,
-      model: 'ZoteroItem',
-      idType: 'number',
+      source: { model: 'ZoteroItem', idType: 'number' },
     });
-    expect(parsed.idType).toBe('number');
+    expect((parsed as any).source?.idType).toBe('number');
   });
 });
