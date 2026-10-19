@@ -1712,6 +1712,22 @@
                     "type": "string"
                   }
                 },
+                "defaultSort": {
+                  "default": false,
+                  "description": "Default sort direction for the table. true/asc = ascending, desc = descending. Uses the first sortable column.",
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "string",
+                      "enum": [
+                        "asc",
+                        "desc"
+                      ]
+                    }
+                  ]
+                },
                 "items": {
                   "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
                   "type": "array",
@@ -1736,22 +1752,30 @@
                         "type": "object",
                         "properties": {
                           "component": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Name of the Vue component to render in this slot."
                           },
                           "colspan": {
+                            "default": 12,
+                            "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 12
                           },
                           "rowspan": {
+                            "default": 1,
+                            "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 6
                           },
                           "width": {
+                            "default": "full",
+                            "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                             "type": "string"
                           },
                           "label": {
+                            "description": "Optional label rendered above the component slot.",
                             "type": "string"
                           }
                         },
@@ -2332,31 +2356,43 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Column id this control is bound to."
                       },
                       "colspan": {
+                        "default": 12,
+                        "description": "Number of grid columns this control spans (1–12). Defaults to full width.",
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 12
                       },
                       "rowspan": {
+                        "default": 1,
+                        "description": "Number of grid rows this control spans (1–6). Defaults to 1.",
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 6
                       },
                       "width": {
+                        "default": "full",
+                        "description": "Tailwind width class applied to the input wrapper (e.g. \"w-48\", \"full\"). Defaults to full width.",
                         "type": "string"
                       },
                       "label": {
+                        "description": "Override the column label shown above the input.",
                         "type": "string"
                       },
                       "hideLabel": {
+                        "description": "Hide the label above the input.",
+                        "default": false,
                         "type": "boolean"
                       },
                       "type": {
+                        "description": "Override the field input type (e.g. \"text\", \"select\").",
                         "type": "string"
                       },
                       "options": {
+                        "description": "Field input options passed to the renderer.",
                         "type": "object",
                         "propertyNames": {
                           "type": "string"
@@ -2455,22 +2491,30 @@
                 "type": "object",
                 "properties": {
                   "component": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the Vue component to render in this slot."
                   },
                   "colspan": {
+                    "default": 12,
+                    "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 12
                   },
                   "rowspan": {
+                    "default": 1,
+                    "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 6
                   },
                   "width": {
+                    "default": "full",
+                    "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                     "type": "string"
                   },
                   "label": {
+                    "description": "Optional label rendered above the component slot.",
                     "type": "string"
                   }
                 },
@@ -2532,22 +2576,30 @@
                 "type": "object",
                 "properties": {
                   "component": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the Vue component to render in this slot."
                   },
                   "colspan": {
+                    "default": 12,
+                    "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 12
                   },
                   "rowspan": {
+                    "default": 1,
+                    "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 6
                   },
                   "width": {
+                    "default": "full",
+                    "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                     "type": "string"
                   },
                   "label": {
+                    "description": "Optional label rendered above the component slot.",
                     "type": "string"
                   }
                 },
@@ -2580,6 +2632,22 @@
                       "type": "string"
                     }
                   },
+                  "defaultSort": {
+                    "default": false,
+                    "description": "Default sort direction for the table. true/asc = ascending, desc = descending. Uses the first sortable column.",
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    ]
+                  },
                   "items": {
                     "description": "Ordered list of columns. Each entry is a column id string, a field control config, or a component cell.",
                     "type": "array",
@@ -2604,22 +2672,30 @@
                           "type": "object",
                           "properties": {
                             "component": {
-                              "type": "string"
+                              "type": "string",
+                              "description": "Name of the Vue component to render in this slot."
                             },
                             "colspan": {
+                              "default": 12,
+                              "description": "Number of grid columns this slot spans (1–12). Defaults to full width.",
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 12
                             },
                             "rowspan": {
+                              "default": 1,
+                              "description": "Number of grid rows this slot spans (1–6). Defaults to 1.",
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 6
                             },
                             "width": {
+                              "default": "full",
+                              "description": "Tailwind width class applied to the slot wrapper. Defaults to full width.",
                               "type": "string"
                             },
                             "label": {
+                              "description": "Optional label rendered above the component slot.",
                               "type": "string"
                             }
                           },

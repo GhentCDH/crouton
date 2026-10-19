@@ -31,25 +31,20 @@ export const LayoutTableFieldControlSchema = z
           .boolean()
           .default(false)
           .describe('Enables a sort toggle on the table column header.'),
-        defaultSort: z
-          .union([z.boolean(), z.enum(['asc', 'desc'])])
-          .default(false)
-          .describe(
-            'Default sort for this column. true = ascending. asc/desc sets direction. At most one column per table.',
-          ),
+
         width: z
           .union([z.enum(['xs', 'sm', 'md', 'lg', 'xl']), z.string()])
           .optional()
           .describe('Column width: named size (xs–xl, same scale as form) or a CSS value like "12rem".'),
-        minWidth: z.string().optional().describe('Minimum column width as a CSS value.'),
-        maxWidth: z.string().optional().describe('Maximum column width as a CSS value.'),
+        minWidth: z.string().default('8rem').describe('Minimum column width as a CSS value.'),
+        maxWidth: z.string().default('24rem').describe('Maximum column width as a CSS value.'),
         align: z
           .enum(['left', 'center', 'right'])
           .optional()
           .describe('Horizontal text alignment. Defaults to right for number columns, left otherwise.'),
         truncate: z
           .union([z.boolean(), z.number().int().positive()])
-          .optional()
+          .default(true)
           .describe('Truncate long text with ellipsis. true = 1-line clamp; number = line count.'),
         pin: z
           .enum(['left', 'right'])
@@ -57,9 +52,9 @@ export const LayoutTableFieldControlSchema = z
           .describe('Stick this column to the left or right edge of the table.'),
         visible: z
           .boolean()
-          .optional()
+          .default(true)
           .describe(
-            'false = hidden initially but available in column chooser. Default: true.',
+            'false = hidden initially but available in column chooser.',
           ),
         headerTooltip: z
           .string()
@@ -89,9 +84,30 @@ export const FilterFields = z.string();
  */
 export const TableNodeSchema = z.object({
   type: z.literal('table').optional(),
-  title: z.string().optional().describe('Static heading shown above the table.'),
-  label: z.string().optional().describe('Alias for title; title takes precedence.'),
+  title: z
+    .string()
+    .optional()
+    .describe('Static heading shown above the table.'),
+  label: z
+    .string()
+    .optional()
+    .describe('Alias for title; title takes precedence.'),
   filterFields: z.array(FilterFields).optional().default([]),
+  defaultSort: z
+    .object({
+      field: z
+        .string()
+        .optional()
+        .default('id')
+        .describe('Column id to sort by. Defaults to `id`.'),
+      sortDir: z
+        .enum(['asc', 'desc'])
+        .default('asc')
+        .describe('Sort direction. Default: asc.'),
+    })
+    .optional()
+    .default({ field: 'id', sortDir: 'asc' })
+    .describe('Default sort applied on initial table load.'),
   items: z
     .array(TableItemSchema)
     .optional()
@@ -101,24 +117,29 @@ export const TableNodeSchema = z.object({
   rowActions: z
     .array(JsonActionSchema)
     .default([])
-    .describe('Per-record row actions shown in the table. Each action receives the record id.'),
+    .describe(
+      'Per-record row actions shown in the table. Each action receives the record id.',
+    ),
   tableActions: z
     .array(JsonActionSchema)
     .default([])
-    .describe('Global table-level actions shown as toolbar buttons (no record id).'),
+    .describe(
+      'Global table-level actions shown as toolbar buttons (no record id).',
+    ),
   pageSize: z
     .number()
     .int()
     .positive()
-    .optional()
+    .default(20)
     .describe('Default page size. Server may cap it.'),
   pageSizes: z
     .array(z.number().int().positive())
-    .optional()
+    .default([20, 50, 100])
     .describe('Page-size options shown in the selector (e.g. [20, 50, 100]).'),
   density: z
     .enum(['normal', 'compact'])
     .optional()
+    .default('normal')
     .describe('Row density. Default: normal.'),
   selectable: z
     .boolean()
@@ -126,8 +147,8 @@ export const TableNodeSchema = z.object({
     .describe('Show row checkboxes for multi-select.'),
   rowClick: z
     .enum(['view', 'edit', 'none'])
-    .optional()
-    .describe('Action when a table row is clicked. Default: view.'),
+    .default('view')
+    .describe('Action when a table row is clicked.'),
   emptyText: z
     .string()
     .optional()

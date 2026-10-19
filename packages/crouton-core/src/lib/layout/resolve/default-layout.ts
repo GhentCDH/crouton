@@ -23,7 +23,7 @@ const defaultFormLayout = (
 const defaultTableLayout = (columns: JsonColumn[]): TableNode | undefined => {
   const visible = sortByPosition(columns.filter((c) => !c.hiddenInTable));
   if (!visible.length) return undefined;
-  return { items: visible.map((c) => c.id), filterFields: [], rowActions: [], tableActions: [] };
+  return { items: visible.map((c) => c.id), filterFields: [], defaultSort: false, rowActions: [], tableActions: [] };
 };
 
 /**

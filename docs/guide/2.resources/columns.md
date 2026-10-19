@@ -35,7 +35,8 @@ Both forms support the same options:
 ::: warning Moved to `layout.table`
 The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
 
-- `sortable` / `defaultSort` → `layout.table.items[{ id, sortable, defaultSort }]`
+- `sortable` → `layout.table.items[{ id, sortable }]`
+- `defaultSort` → `layout.table.defaultSort` (`{ field: "colId", sortDir: "asc" | "desc" }`)
 - `searchable` → `operations.findAll.search: ["colId"]`
 - `filterable` → `layout.table.filterFields: ["colId"]`
 - `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`

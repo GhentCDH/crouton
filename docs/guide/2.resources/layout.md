@@ -224,8 +224,9 @@ The table node carries all table-specific settings:
 ```json
 "table": {
   "title": "Books",
+  "defaultSort": { "field": "title", "sortDir": "asc" },
   "items": [
-    { "id": "title", "sortable": true, "defaultSort": true },
+    { "id": "title", "sortable": true },
     { "id": "status", "sortable": true, "showWhen": { "field": "active", "eq": true } },
     { "id": "authorId", "type": "select", "options": { "values": [] } },
     "createdAt",
@@ -260,7 +261,6 @@ Beyond the standard `label`/`type`/`options` overrides, table items accept:
 | Field | Type | Description |
 |---|---|---|
 | `sortable` | `boolean` | Enable sort toggle on this column header. |
-| `defaultSort` | `true \| "asc" \| "desc"` | Sort by this column on initial load. `true` = ascending. At most one column. |
 | `width` | `"xs" \| "sm" \| "md" \| "lg" \| "xl" \| CSS value` | Column width. Named sizes share the form width scale. |
 | `minWidth` | CSS value | Minimum column width (e.g. `"10rem"`). |
 | `maxWidth` | CSS value | Maximum column width. |
@@ -283,6 +283,7 @@ The table node accepts these options in addition to `items`, `rowActions`, `tabl
 
 | Field | Type | Description |
 |---|---|---|
+| `defaultSort` | `{ field?: string, sortDir?: "asc" \| "desc" }` | Default sort on initial load. `field` = column id (default: `"id"`), `sortDir` = direction (default: `"asc"`). |
 | `pageSize` | `number` | Initial page size (default 20). |
 | `pageSizes` | `number[]` | Page size selector options (default `[10, 20, 50, 100]`). |
 | `density` | `"normal" \| "compact"` | Row density. `compact` reduces row padding. |
@@ -293,6 +294,7 @@ The table node accepts these options in addition to `items`, `rowActions`, `tabl
 ```json
 "table": {
   "type": "table",
+  "defaultSort": { "field": "publishedYear", "sortDir": "desc" },
   "pageSize": 50,
   "pageSizes": [20, 50, 100],
   "density": "compact",
@@ -300,7 +302,7 @@ The table node accepts these options in addition to `items`, `rowActions`, `tabl
   "emptyText": "No books yet",
   "items": [
     { "id": "title", "width": "md", "truncate": true, "sortable": true },
-    { "id": "publishedYear", "width": "xs", "align": "right", "defaultSort": "desc" },
+    { "id": "publishedYear", "width": "xs", "align": "right", "sortable": true },
     { "id": "isbn", "visible": false },
     { "id": "status", "pin": "left" }
   ]
