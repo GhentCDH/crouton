@@ -30,7 +30,7 @@ describe('classify', () => {
   it('derives identity + operations + database + sidebar', () => {
     const d = classify(model, { database: 'docsdb' });
     expect((d.config as any).source?.model).toBe('text');
-    expect(d.config.tag).toBe('Text');
+    expect((d.config as any).openapi?.tag).toBe('Text');
     expect((d.config as any).source?.idType).toBe('string');
     expect((d.config as any).source?.database).toBe('docsdb');
     expect(d.config.sidebar).toEqual({ hide: false });
