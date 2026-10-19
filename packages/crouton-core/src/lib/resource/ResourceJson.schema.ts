@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
-import { type JsonColumn, JsonColumnSchema } from './Column';
+import { type JsonColumn, JsonColumnBaseSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
@@ -26,7 +26,7 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
 
 const JsonColumnsMapSchema = z.record(
   z.string(),
-  JsonColumnSchema.omit({ id: true }).catchall(z.unknown()),
+  JsonColumnBaseSchema.omit({ id: true }).catchall(z.unknown()),
 ); // map form — key becomes `id`
 export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;

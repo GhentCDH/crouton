@@ -95,7 +95,7 @@ export const normalizeUnique = (
 
 // ── Columns ───────────────────────────────────────────────────────────
 
-export const JsonColumnSchema = z.object({
+export const JsonColumnBaseSchema = z.object({
   id: z
     .string()
     .describe(
@@ -267,6 +267,17 @@ export const JsonColumnSchema = z.object({
     })
     .optional()
     .describe('SQL computed column. The column value is derived from a raw subquery at query time.'),
+});
+
+export const JsonColumnSchema = JsonColumnBaseSchema.superRefine((col, ctx) => {
+  if (col.enum && (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values']) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['fieldInput', 'options', 'values'],
+      message:
+        "Column has both 'enum' and 'fieldInput.options.values'; use 'enum' for shared lists or 'values' on fieldInput for local lists — not both.",
+    });
+  }
 });
 
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;

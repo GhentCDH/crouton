@@ -1,3 +1,18 @@
 {
-  "__error": "Resource cannot be parsed: [\n  {\n    \"code\": \"custom\",\n    \"path\": [\n      \"include\"\n    ],\n    \"message\": \"'include' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)\"\n  }\n]"
+  "name": "loan",
+  "route": "loans",
+  "tag": "Crouton",
+  "operations": [
+    "findAll",
+    "findOne",
+    "create",
+    "update",
+    "patch",
+    "delete"
+  ],
+  "display": {
+    "mode": "modal",
+    "customComponent": null
+  },
+  "schemas": {}
 }

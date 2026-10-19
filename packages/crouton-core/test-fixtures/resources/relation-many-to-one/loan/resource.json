@@ -20,9 +20,10 @@
       }
     }
   },
-  "include": [
-    "book"
-  ],
+  "operations": {
+    "findAll": { "include": ["book"] },
+    "findOne": { "include": ["book"] }
+  },
   "schemaVersion": 1,
   "source": {
     "model": "Loan"
