@@ -1,3 +1,13 @@
+## 0.0.1-alpha.85 (2026-10-19)
+
+### 🩹 Fixes
+
+- **crouton-vue:** inline crouton-ui-vue types in published dist ([#209](https://github.com/GhentCDH/crouton/pull/209))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.84 (2026-10-16)
 
 ### 🩹 Fixes
