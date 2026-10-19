@@ -118,16 +118,15 @@ describe('classify', () => {
     expect((col(d, 'author') as any).hiddenInForm).toBeUndefined();
   });
 
-  it('renders enums as a shared-enum reference + value/label envelope by default', () => {
+  it('renders enums as a shared-enum reference with no inline options by default', () => {
     const d = classify(model);
     const kind = col(d, 'kind') as any;
-    expect(kind).toMatchObject({
-      displayKey: 'label',
-      enum: 'TextKind',
-      fieldInput: { type: 'select', options: { emitObject: true } },
-    });
-    // shared-enum mode does NOT inline the values list
-    expect(kind.fieldInput.options.values).toBeUndefined();
+    // sharedEnums=true: only enum ref + position; defaults applied at runtime by applyEnumDefaults
+    expect(kind.enum).toBe('TextKind');
+    expect(kind.fieldInput).toMatchObject({ position: 1, defaultValue: 'a' });
+    expect(kind.fieldInput.type).toBeUndefined();
+    expect(kind.fieldInput.options).toBeUndefined();
+    expect(kind.displayKey).toBeUndefined();
   });
 
   it('inlines values (no enum ref) when sharedEnums is off', () => {
@@ -141,8 +140,8 @@ describe('classify', () => {
     expect(kind.fieldInput.options.emitObject).toBe(true);
   });
 
-  it('omits the value/label envelope when enumValueLabel is off', () => {
-    const d = classify(model, { ruleset: { ...defaultRuleset(), enumValueLabel: false } });
+  it('omits the value/label envelope when enumValueLabel is off (inline path)', () => {
+    const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false, enumValueLabel: false } });
     const kind = col(d, 'kind') as any;
     expect(kind.displayKey).toBeUndefined();
     expect((kind.fieldInput?.options ?? {}).emitObject).toBeUndefined();
