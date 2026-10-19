@@ -154,7 +154,7 @@ export const fromJson = (
     ...json,
     name: json.name,
     route: json.route,
-    tag: json.tag,
+    tag: json.openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
     display: derivedDisplay,
     modalSize: derivedModalSize,

@@ -199,7 +199,7 @@ export const buildSubResources = (
         ...(childJson?.table && { childTable: childJson.table }),
         foreignKey: (c.relation?.foreignKey ?? c.fieldInput?.foreignKey) ?? `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
         name: childJson?.name ?? childRoute,
-        title: childJson?.title ?? childJson?.tag ?? childRoute,
+        title: childJson?.title ?? childJson?.openapi?.tag ?? childJson?.tag ?? childRoute,
         idField: childLookupKey,
         idType: childJson?.idType ?? 'string',
         ...(c.hiddenInTable && { hiddenInTable: true }),

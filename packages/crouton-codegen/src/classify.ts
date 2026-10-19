@@ -171,7 +171,7 @@ export const classify = (
       ...(model.idType ? { idType: model.idType } : {}),
       ...(ctx.database ? { database: ctx.database } : {}),
     },
-    tag: names.tag,
+    openapi: { tag: names.tag },
     title: names.title,
     sidebar: { hide: false },
     operations: ruleset.defaultOperations,

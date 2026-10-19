@@ -52,9 +52,26 @@
     },
     "tag": {
       "default": "Crouton",
-      "description": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".",
+      "description": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\". Prefer openapi.tag for new resources.",
       "type": "string",
-      "markdownDescription": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+      "markdownDescription": "OpenAPI tag grouping for generated endpoints. Defaults to \"Crouton\". Prefer openapi.tag for new resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+    },
+    "openapi": {
+      "description": "OpenAPI metadata for generated endpoints. Supersedes the root-level tag field.",
+      "type": "object",
+      "properties": {
+        "tag": {
+          "description": "OpenAPI tag for grouping generated endpoints.",
+          "type": "string",
+          "markdownDescription": "OpenAPI tag for grouping generated endpoints.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        },
+        "description": {
+          "description": "Description shown in the OpenAPI spec for this tag group.",
+          "type": "string",
+          "markdownDescription": "Description shown in the OpenAPI spec for this tag group.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+        }
+      },
+      "markdownDescription": "OpenAPI metadata for generated endpoints. Supersedes the root-level tag field.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
     "title": {
       "description": "Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of \"name\".",

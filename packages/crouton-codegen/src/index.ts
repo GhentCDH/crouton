@@ -43,3 +43,4 @@ export * from './migrate/lookup-labels';
 export * from './migrate/root-include';
 export * from './migrate/source';
 export * from './migrate/calculated-columns';
+export * from './migrate/openapi-tag';
