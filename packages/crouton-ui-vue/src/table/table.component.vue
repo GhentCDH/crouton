@@ -174,7 +174,7 @@ const columnHeaderStyle = (column: any) => {
 const truncateStyle = (truncate: boolean | number | undefined) => {
   if (!truncate) return { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
   if (truncate === true) return { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
-  return { display: '-webkit-box', WebkitLineClamp: truncate, WebkitBoxOrient: 'vertical', overflow: 'hidden' };
+  return { display: '-webkit-box', WebkitLineClamp: truncate, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' };
 };
 
 // Multiselect
