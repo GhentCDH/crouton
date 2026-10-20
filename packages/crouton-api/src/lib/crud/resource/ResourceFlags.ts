@@ -1,4 +1,4 @@
-import type { RawResourceJson } from './WriteResourceJson';
+import type { RawResourceJson } from '../resource-file/WriteResourceJson';
 import { resolve } from 'node:path';
 
 export interface ResourceFlagPatch {

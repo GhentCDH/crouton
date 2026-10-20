@@ -14,13 +14,13 @@ import { IS_DEV } from '../dev-mode';
 import {
   type PatchResourceJson,
   PatchResourceJsonSchema,
-} from '../resource/PatchResourceJson.schema';
+} from '../resource-file/PatchResourceJson.schema';
 import {
   applyColumnPatch,
   readRawResourceJson,
   validateResourceJson,
   writeRawResourceJson,
-} from '../resource/WriteResourceJson';
+} from '../resource-file/WriteResourceJson';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
 import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';

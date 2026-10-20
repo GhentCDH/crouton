@@ -1,4 +1,4 @@
-import { type ResolveResource, readResourceJson } from '../resource/ReadResourceJson';
+import { type ResolveResource, readResourceJson } from '../resource-file/ReadResourceJson';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 

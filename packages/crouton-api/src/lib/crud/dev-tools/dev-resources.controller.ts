@@ -48,7 +48,7 @@ import {
   readRawResourceJson,
   validateResourceJson,
   writeRawResourceJson,
-} from '../resource/WriteResourceJson';
+} from '../resource-file/WriteResourceJson';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
