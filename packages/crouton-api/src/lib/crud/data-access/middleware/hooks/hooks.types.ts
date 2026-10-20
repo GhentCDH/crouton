@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
-import type { DataSourceAdapter } from '../data-source/data-source.adapter';
+import type { DataSourceAdapter } from '../../adapter/data-source.adapter';
 
 export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'delete']);
 export type WriteOp = z.infer<typeof WriteOpSchema>;

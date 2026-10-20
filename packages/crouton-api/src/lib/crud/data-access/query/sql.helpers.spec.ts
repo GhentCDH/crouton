@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { SubResourceConfig } from './resource/SubResource.schema';
 import { buildFindOneIncludes } from './sql.helpers';
+import type { SubResourceConfig } from '../../resource/SubResource.schema';
 
 const sub = (overrides: Partial<SubResourceConfig>): SubResourceConfig =>
   ({

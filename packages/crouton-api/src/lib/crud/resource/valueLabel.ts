@@ -1,4 +1,1 @@
-export {
-  type ValueLabelColumn,
-  ValueLabelColumnSchema,
-} from '@ghentcdh/crouton-core';
+export * from '../data-access/middleware/value-label';
