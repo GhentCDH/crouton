@@ -450,7 +450,7 @@ export class ReadRepository<T = any> {
       ? await mergeCalculatedColumnsForRows(
           data,
           sub.calculatedColumns,
-          sub.childModel,
+          sub.childTable ?? sub.childModel,
           this.prisma,
           sub.idField ?? 'id',
         )
@@ -546,7 +546,7 @@ export class ReadRepository<T = any> {
       ? await mergeCalculatedColumnsForRows(
           [record],
           sub.calculatedColumns,
-          sub.childModel,
+          sub.childTable ?? sub.childModel,
           this.prisma,
           sub.idField ?? 'id',
         )

@@ -220,8 +220,8 @@ export const buildSubResources = (
           display: { mode: childJson.layout.form.container.mode },
         }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
-        ...(childJson?.calculatedColumns?.length && {
-          calculatedColumns: childJson.calculatedColumns,
+        ...(childCalculatedColumns.length && {
+          calculatedColumns: childCalculatedColumns,
         }),
         ...((c.hiddenInForm === false || c.hiddenInView === false) && {
           includeInFindOne: true,
