@@ -1,1 +1,1 @@
-export { pickByColumns } from './schema.helpers';
+export { pickByColumns } from '@ghentcdh/crouton-core';

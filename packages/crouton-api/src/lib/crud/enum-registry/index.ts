@@ -3,8 +3,7 @@ export {
   EnumEntrySchema,
   type EnumRegistry,
   EnumRegistrySchema,
-} from './enum-registry.types';
+  injectEnumValues,
+} from '@ghentcdh/crouton-core';
 
 export { loadEnumRegistry } from './enum-registry.loader';
-
-export { injectEnumValues } from './enum-registry.injector';

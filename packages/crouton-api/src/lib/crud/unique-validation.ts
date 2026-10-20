@@ -6,7 +6,7 @@ import {
 
 import { PRISMA_UNIQUE_CONSTRAINT_CODE } from './constants';
 import { CroutonValidationError } from './crouton-validation.error';
-import { type DataSourceRegistry } from './data-source';
+import { type DataSourceRegistry } from './data-access/adapter';
 import { type Resource } from './resource/ResourceConfig.schema';
 
 /**

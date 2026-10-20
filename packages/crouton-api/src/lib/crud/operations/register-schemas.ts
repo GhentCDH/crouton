@@ -7,11 +7,11 @@ import {
   buildSubResourceViewsPayload,
   buildViewsPayload,
 } from './payload-builders';
+import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { CROUTON_SECURITY } from '../security';
-import { getRequestLanguage } from '../translation/language.context';
 
 export const defaultSchemas = (ctx: OperationContext) => {
   const { config, baseUrl, schemaEnricher } = ctx;

@@ -11,7 +11,7 @@ import {
   getResourceStatus,
   getVersion,
 } from './status.service';
-import type { DataSourceRegistry } from '../data-source';
+import type { DataSourceRegistry } from '../data-access/adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';

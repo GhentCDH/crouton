@@ -10,12 +10,12 @@ import {
 import type { DataSourceAdapter } from './adapter/data-source.adapter';
 import { PrismaDataSourceAdapter } from './adapter/prisma.adapter';
 import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './middleware/hooks';
+import { resolveValueLabelColumns } from './middleware/translation';
 import { ReadRepository } from './read.repository';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
-import { toSelectFields } from '../schema.utils';
-import { resolveValueLabelColumns } from './middleware/translation';
+import { toSelectFields } from './query/select';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */

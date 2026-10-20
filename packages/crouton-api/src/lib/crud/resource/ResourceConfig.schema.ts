@@ -1,11 +1,8 @@
 import { z } from 'zod';
 
-import { JsonIncludeEntrySchema, ResourceJsonShape, ViewConfigSchema } from '@ghentcdh/crouton-core';
+import { DefinitionSchema, JsonIncludeEntrySchema, LookupSchema, ResourceJsonShape, ValueLabelColumnSchema, ViewConfigSchema } from '@ghentcdh/crouton-core';
 
 import { SubResourceConfigSchema } from './SubResource.schema';
-import { DefinitionSchema } from './defintion.schema';
-import { LookupSchema } from './lookup.schema';
-import { ValueLabelColumnSchema } from './valueLabel';
 import {
   ResourceRowActionSchema,
   ResourceTableActionSchema,

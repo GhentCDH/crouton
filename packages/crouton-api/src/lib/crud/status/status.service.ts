@@ -1,7 +1,7 @@
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+import type { EnumRegistry } from '@ghentcdh/crouton-core';
 
 import { CUSTOM_OPS } from '../custom-repository';
-import type { DataSourceRegistry } from '../data-source';
 import type {
   CroutonStatus,
   DatabaseStatus,
@@ -11,11 +11,11 @@ import type {
   ResourceStatus,
   StatusSummary,
 } from './status.types';
-import type { EnumRegistry } from '../enum-registry/enum-registry.types';
+import type { DataSourceRegistry } from '../data-access/adapter';
+import type { TranslationRegistry } from '../data-access/middleware/translation/translation.registry';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
-import type { TranslationRegistry } from '../translation/translation.registry';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

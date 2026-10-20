@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { JsonOperationsSchema } from '@ghentcdh/crouton-core';
+import { JsonOperationsSchema, buildResourceDefinitions  } from '@ghentcdh/crouton-core';
 
-import { buildResourceDefinitions } from '../builder/schema.helpers';
 import { resolveDefinition } from '../crud.config';
 import { buildResourceOperations } from './payload-builders';
 

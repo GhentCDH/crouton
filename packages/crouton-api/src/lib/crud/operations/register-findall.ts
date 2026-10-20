@@ -1,13 +1,14 @@
 import { Get, Param, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+import { toJsonSchema } from '@ghentcdh/crouton-core';
+
 import type { OperationContext } from './operation-context';
 import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
-import type { CrudRepository } from '../crud-repository.factory';
+import type { CrudRepository } from '../data-access/repository';
 import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
-import { toJsonSchema } from '../schema.utils';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 
 const _findAll = async (

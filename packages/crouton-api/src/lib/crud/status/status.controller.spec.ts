@@ -5,7 +5,7 @@ import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
 
 import { createStatusController } from './status.controller';
-import { type DataSourceRegistry } from '../data-source';
+import { type DataSourceRegistry } from '../data-access/adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { type ResourceConfigRegistry } from '../resource-config.registry';

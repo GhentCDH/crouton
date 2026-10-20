@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
-import { createCrudRepository } from '../crud-repository.factory';
+import { createCrudRepository } from '../data-access/repository';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';

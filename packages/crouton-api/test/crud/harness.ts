@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
 import { CroutonApiModule } from '../../src/lib/crouton-api.module';
-import { PrismaDataSourceAdapter } from '../../src/lib/crud/data-source/prisma.adapter';
+import { PrismaDataSourceAdapter } from '../../src/lib/crud/data-access/adapter/prisma.adapter';
 import { FileSystemResourceConfigLoader } from '../../src/lib/crud/loader/fs-resource-config.loader';
 import { join } from 'node:path';
 

@@ -2,16 +2,16 @@ import { Body, Controller, SetMetadata, type Type, UseGuards } from '@nestjs/com
 import { ApiTags } from '@nestjs/swagger';
 
 import { type SecurityConfig, resourceControllerPath } from '@ghentcdh/crouton-core';
+import { isZodSchema } from '@ghentcdh/crouton-core';
 
-import { type CrudRepository, createCrudRepository } from './crud-repository.factory';
 import { type CrudOperation, resolveDefinition, schemaFor, securityFor, securityForSub } from './crud.config';
-import { DataSourceRegistry } from './data-source';
+import { DataSourceRegistry } from './data-access/adapter';
+import { type CrudRepository, createCrudRepository } from './data-access/repository';
 import type { OperationContext } from './operations/operation-context';
 import { registerEndpoints } from './operations/register-endpoints';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
-import { isZodSchema } from './schema.utils';
 import { CROUTON_SECURITY, CroutonSecurityGuard } from './security';
 import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
 

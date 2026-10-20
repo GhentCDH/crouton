@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { JsonColumn } from '@ghentcdh/crouton-core';
+import { type EnumRegistry, type JsonColumn } from '@ghentcdh/crouton-core';
+import { injectEnumValues } from '@ghentcdh/crouton-core';
 
-import { injectEnumValues } from './enum-registry.injector';
-import type { EnumRegistry } from './enum-registry.types';
 
 const registry: EnumRegistry = {
   bookStatus: [

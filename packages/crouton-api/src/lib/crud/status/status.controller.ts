@@ -1,11 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { DataSourceRegistry } from '../data-source';
+import type { EnumRegistry } from '@ghentcdh/crouton-core';
+
+import { DataSourceRegistry } from '../data-access/adapter';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildStatus } from './status.service';
-import type { EnumRegistry } from '../enum-registry/enum-registry.types';
-import type { TranslationRegistry } from '../translation/translation.registry';
+import type { TranslationRegistry } from '../data-access/middleware/translation/translation.registry';
 
 export const createStatusController = (
   enumRegistry: EnumRegistry,

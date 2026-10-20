@@ -12,7 +12,7 @@ export * from './lib/crud/loader/index';
 export * from './lib/crud/loader/resource-config.loader';
 export * from './lib/crud/loader/fs-resource-config.loader';
 export * from './lib/crud/resource-config.registry';
-export * from './lib/crud/data-source';
+export * from './lib/crud/data-access/adapter';
 export * from './lib/crud/crud.config';
 export * from './lib/crud/hooks';
 export * from './lib/crud/security';
@@ -31,4 +31,4 @@ export {
 export {
   buildFilterWhere,
   parseFilterString,
-} from './lib/crud/read.repository';
+} from './lib/crud/data-access/query/filter';

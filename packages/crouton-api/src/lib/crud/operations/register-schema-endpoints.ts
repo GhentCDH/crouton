@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
 import { IS_DEV } from '../dev-mode';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
 import {
@@ -23,7 +24,6 @@ import {
   writeRawResourceJson,
 } from '../resource-file/WriteResourceJson';
 import { CROUTON_SECURITY } from '../security';
-import { getRequestLanguage } from '../translation/language.context';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';

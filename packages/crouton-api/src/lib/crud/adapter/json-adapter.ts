@@ -3,12 +3,14 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type {
   CalculatedColumn,
   JsonColumn,
+  LookupConfig,
   RelationFieldInputOptions,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
   applyRelationFormatDefault,
   buildLayouts,
+  buildResourceDefinitions,
   buildValueLabelColumns,
   columnTypeSchemaSource,
   enrichActionColumns,
@@ -25,7 +27,6 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
-import { buildResourceDefinitions } from '../builder/schema.helpers';
 import type { CustomRepository } from '../custom-repository';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
@@ -34,7 +35,6 @@ import { expandExtendColumns } from './column-transforms';
 import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
-import type { LookupConfig } from '../resource/lookup.schema';
 
 const pickExtensions = (obj: Record<string, unknown>) =>
   Object.fromEntries(
