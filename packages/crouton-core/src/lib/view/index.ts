@@ -15,7 +15,7 @@ export {
   toViewColumn,
 } from './column.utils';
 export type { FieldContext } from './column.utils';
-export { deriveSortId, resolveDefaultSort } from './sort.helpers';
+export { deriveSortId, resolveDefaultSort } from '../layout/sort.helpers';
 export { applySchemaTransforms } from './schema-transforms';
 export {
   buildTableUiSchema,
@@ -36,8 +36,8 @@ export {
   patchFilterProperties,
   zodSchemaSource,
 } from './view.builder';
-export { buildFormUiSchemaFromLayout, flattenLayoutControlIds, flattenLayoutControls } from './layout-ui-schema.builder';
-export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resolveTableNode } from './layout-table-order';
+export { buildFormUiSchemaFromLayout, flattenLayoutControlIds, flattenLayoutControls } from '../layout/layout-ui-schema.builder';
+export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resolveTableNode } from '../layout/layout-table-order';
 export {
   columnToJsonSchemaProperty,
   columnTypeSchemaSource,
@@ -47,5 +47,5 @@ export {
 export { ViewColumnConfigSchema, ViewConfigSchema } from './view.schema';
 export type { ViewColumnConfig, ViewConfig, ViewDef } from './view.schema';
 export { isDecimalField, jsonSchemaOpts } from './json-schema.opts';
-export { collectLayoutFieldIds, resolveColumnVisibility } from './layout-visibility';
+export { collectLayoutFieldIds, resolveColumnVisibility } from '../layout/layout-visibility';
 export { buildLayouts, defaultLayoutFor } from '../layout';

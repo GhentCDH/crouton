@@ -5,11 +5,10 @@ import {
   JsonActionSchema,
   JsonDisplaySchema,
   JsonIncludeEntrySchema,
-  JsonOperationsSchema, ViewConfigSchema
+  JsonOperationsSchema, ValueLabelColumnSchema, ViewConfigSchema 
 } from '@ghentcdh/crouton-core';
 
 
-import { ValueLabelColumnSchema } from './valueLabel';
 import { CustomRepositorySchema } from '../custom-repository/custom-repository.types';
 import { ResourceHooksSchema } from '../hooks';
 

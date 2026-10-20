@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildFormControl, buildFormUiSchema } from './form-schema.builder';
-import { buildFormUiSchemaFromLayout } from './layout-ui-schema.builder';
+import { buildFormUiSchemaFromLayout } from '../layout/layout-ui-schema.builder';
 import { JsonColumnSchema } from '../resource/Column';
 
 

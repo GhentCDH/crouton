@@ -1,4 +1,5 @@
-import { type EnumRegistry, EnumRegistrySchema } from './enum-registry.types';
+import { type EnumRegistry, EnumRegistrySchema } from '@ghentcdh/crouton-core';
+
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 

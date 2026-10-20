@@ -15,7 +15,7 @@ import { vi } from 'vitest';
 import { clearResourceExtensions } from '@ghentcdh/crouton-core';
 
 import { CroutonApiModule } from '../../crouton-api.module';
-import type { DataSourceEntry } from '../data-source';
+import type { DataSourceEntry } from '../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../loader';
 import { FileSystemResourceConfigLoader } from '../loader/fs-resource-config.loader';
 import type { Resource } from '../resource/ResourceConfig.schema';

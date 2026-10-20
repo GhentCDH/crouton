@@ -1,7 +1,6 @@
 import type { JsonColumn } from '@ghentcdh/crouton-core';
-import { isRelationColumn } from '@ghentcdh/crouton-core';
+import { deriveRelationTypeFromColumns, isRelationColumn  } from '@ghentcdh/crouton-core';
 
-import { deriveRelationTypeFromColumns } from './relation-type';
 import { resolveChildResource } from './resource-resolver';
 
 /**

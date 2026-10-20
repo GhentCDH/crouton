@@ -3,8 +3,8 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { z } from 'zod';
 
 import { CroutonValidationError } from '../crouton-validation.error';
-import type { CrudRepository } from '../crud-repository.factory';
 import { isOperationEnabled } from '../crud.config';
+import type { CrudRepository } from '../data-access/repository';
 import {
   columnDbName,
   dbNameForId,

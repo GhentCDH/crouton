@@ -4,7 +4,7 @@ import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import type { OperationContext } from './operation-context';
 import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
-import type { CrudRepository } from '../crud-repository.factory';
+import type { CrudRepository } from '../data-access/repository';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 
 const defaultDelete = (ctx: OperationContext) => {

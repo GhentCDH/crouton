@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import type { SecurityConfig } from '@ghentcdh/crouton-core';
+import type { CrudDefinition as ResourceDefinition, SecurityConfig  } from '@ghentcdh/crouton-core';
 
 import { securityFor, securityForSub } from './crud.config';
 import type { Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
-import type { ResourceDefinition } from './resource/defintion.schema';
 
 const resource = (security?: SecurityConfig) =>
   ({ security }) as unknown as Resource;

@@ -1,4 +1,4 @@
-import { type CrudOperation, type SecurityConfig } from '@ghentcdh/crouton-core';
+import { type CrudDefinition as ResourceDefinition, type CrudOperation, type SecurityConfig  } from '@ghentcdh/crouton-core';
 
 export {
   type CrudOperation,
@@ -13,7 +13,6 @@ export { isRowProcedureAction, isTableProcedureAction } from './action';
 
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
-import { type ResourceDefinition } from './resource/defintion.schema';
 
 // ─── security ────────────────────────────────────────────────────────────────
 

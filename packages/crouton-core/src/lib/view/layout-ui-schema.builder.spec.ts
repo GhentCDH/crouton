@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildFormUiSchema } from './form-schema.builder';
-import { orderTableColumnsFromLayout } from './layout-table-order';
+import { buildTableUiSchema } from './table-schema.builder';
+import { orderTableColumnsFromLayout } from '../layout/layout-table-order';
 import {
   buildFormUiSchemaFromLayout,
   flattenLayoutControlIds,
-} from './layout-ui-schema.builder';
-import { buildTableUiSchema } from './table-schema.builder';
+} from '../layout/layout-ui-schema.builder';
+import type { LayoutNode } from '../layout/schema';
 import { JsonColumnSchema } from '../resource/Column';
-import type { LayoutNode } from '../resource/layout';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));

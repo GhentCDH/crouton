@@ -11,8 +11,8 @@ import { IS_DEV } from '../dev-mode';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
-import { getRequestLanguage } from '../translation/language.context';
-import { type TranslationRegistry } from '../translation/translation.registry';
+import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
+import { type TranslationRegistry } from '../data-access/middleware/translation/translation.registry';
 
 export const createAppLayoutController = (
   configs: Resource[],

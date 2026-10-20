@@ -1,6 +1,6 @@
-import { resolveDefaultSort } from './sort.helpers';
+import type { LayoutNode } from '../layout/schema';
+import { resolveDefaultSort } from '../layout/sort.helpers';
 import type { JsonColumn } from '../resource/Column';
-import type { LayoutNode } from '../resource/layout';
 
 const col = (id: string, extra: Partial<JsonColumn> = {}): JsonColumn =>
   ({ id, ...extra }) as JsonColumn;

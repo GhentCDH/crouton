@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
+import { localizeResource } from './data-access/middleware/translation/localize-resource';
+import type { TranslationRegistry } from './data-access/middleware/translation/translation.registry';
 import { IS_DEV } from './dev-mode';
 import type { ResourceConfigLoader } from './loader/resource-config.loader';
 import { type Resource } from './resource/ResourceConfig.schema';
-import { localizeResource } from './translation/localize-resource';
-import type { TranslationRegistry } from './translation/translation.registry';
 
 @Injectable()
 export class ResourceConfigRegistry<R extends Resource = Resource> {

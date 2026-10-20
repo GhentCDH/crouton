@@ -83,6 +83,64 @@ After creating the component and exporting it from `packages/crouton-ui-vue/src/
 4. Update or add a test in `packages/crouton-core/src/lib/view/form-schema.builder.spec.ts` (re-exports from `schema/column/form-control.ts`; edit the spec in `view/` or the canonical file in `schema/column/`) or the relevant codegen spec.
 5. Verify no drift: `git diff packages/crouton-core/src/lib/resource/resource.schema*.json docs/.vuepress/public/schema/`.
 
+## Adding a new HTTP operation
+
+1. Add the handler in `packages/crouton-api/src/lib/crud/operation/handlers/<name>.handler.ts` — call `registerOperation(...)` from `../operation-handler.ts`.
+2. Add the operation key to `packages/crouton-api/src/lib/crud/operation/route-order.ts` to control NestJS route priority.
+3. Wire it in `packages/crouton-api/src/lib/crud/operation/index.ts` (`registerOperations`).
+4. If the operation needs a `resource.json` entry, add it to the operation schema in `packages/crouton-core/src/lib/operation/`.
+
+## Adding a compile step
+
+1. Add the step function in `packages/crouton-core/src/lib/compile/steps/<name>.ts`.
+2. Import and call it at the right point in `packages/crouton-core/src/lib/compile/pipeline.ts`.
+3. Add a snapshot/unit test adjacent to the step or in `packages/crouton-core/src/lib/compile/__snapshots__/`.
+
+## Adding a data-source middleware
+
+Middlewares run after data is fetched (value-label decoration, translations, hooks).
+
+1. Add the middleware in `packages/crouton-api/src/lib/crud/data-access/middleware/<name>.ts`.
+2. Register it in the `read.repository.ts` or `write.repository.ts` pipeline inside `data-access/`.
+
+## Adding a layout kind
+
+1. Add the Zod schema in `packages/crouton-core/src/lib/layout/schema/<kind>.schema.ts`.
+2. Register the kind in `packages/crouton-core/src/lib/layout/registry.ts`.
+3. Add resolve/build logic in `packages/crouton-core/src/lib/layout/resolve/` and `layout/build/`.
+4. Run `pnpm nx run crouton-core:build` to regenerate JSON schemas.
+
+## Where does code go?
+
+| Concern | Package | Folder |
+|---------|---------|--------|
+| Zod schemas for `resource.json` | `crouton-core` | `resource/` |
+| JSON Schema utilities (`toJsonSchema`, `dropNullable`) | `crouton-core` | `schema/json/` |
+| JSON Forms builders (generic, no resource.json knowledge) | `crouton-core` | `schema/ui/` |
+| `ControlType` const | `crouton-core` | `schema/ui/control-type.ts` |
+| Column → form-control / table-cell mapping | `crouton-core` | `schema/column/` |
+| `buildFormControl` | `crouton-core` | `schema/column/form-control.ts` |
+| ViewConfig assembly | `crouton-core` | `schema/view/` |
+| `buildResourceDefinitions`, `DefinitionSchema` | `crouton-core` | `schema/definition/` |
+| HTTP response payload contracts | `crouton-core` | `schema/response/` |
+| `ListRequest`, `SortDirEnum`, filter helpers | `crouton-core` | `request/` |
+| Layout schema (from `resource.json`) | `crouton-core` | `layout/schema/` |
+| Layout builders (form/view/table) | `crouton-core` | `layout/build/` |
+| Operation schema / URI helpers | `crouton-core` | `operation/` |
+| Action schema / resolve | `crouton-core` | `action/` |
+| Compile pipeline steps | `crouton-core` | `compile/steps/` |
+| `/schemas` + `/definition` HTTP payloads | `crouton-core` | `compile/payload/` |
+| NestJS operation handlers | `crouton-api` | `crud/operation/handlers/` |
+| Action handlers (row/table) | `crouton-api` | `crud/action/` |
+| Public `/schemas` endpoint | `crouton-api` | `crud/schema-endpoints/` |
+| Dev-only endpoints (resource-json editor) | `crouton-api` | `crud/dev/` |
+| Prisma/in-memory adapters | `crouton-api` | `crud/data-access/adapter/` |
+| Post-fetch middleware (value-labels, translations, hooks) | `crouton-api` | `crud/data-access/middleware/` |
+| Query builders (filter, sort, search, select) | `crouton-api` | `crud/data-access/query/` |
+| Node file I/O for `resource.json` | `crouton-api` | `crud/resource-file/` |
+| `loadConfig` / `findConfigPath` | `crouton-codegen` | `src/config.ts` |
+| All shared Node-only codegen/Prisma tooling | `crouton-codegen` | `src/` |
+
 # Package Boundaries
 
 - `crouton-core` — browser-safe shared code (types, schemas, utilities). No Node-only imports (`child_process`, `fs`, etc.)
