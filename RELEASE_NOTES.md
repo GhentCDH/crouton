@@ -1,3 +1,27 @@
+## Internal refactor — module consolidation (PRs #217–#227)
+
+**No changes to `resource.json` format, HTTP routes, or OpenAPI document.**
+
+All public `@ghentcdh/crouton-*` exports remain available (re-export bridges kept; will be removed in a later cleanup).
+
+Canonical module locations after this refactor:
+
+| Concern | Canonical location |
+|---------|--------------------|
+| JSON Schema utilities | `crouton-core/schema/json/` |
+| JSON Forms builders, `ControlType` | `crouton-core/schema/ui/` |
+| Column → form-control / table-cell | `crouton-core/schema/column/` |
+| Response payload contracts | `crouton-core/schema/response/` |
+| `ListRequest`, `SortDirEnum`, filters | `crouton-core/request/` |
+| Layout schema + builders | `crouton-core/layout/` |
+| API data access | `crouton-api/crud/data-access/` |
+| API dev endpoints | `crouton-api/crud/dev/` (registered only when `IS_DEV`) |
+| `loadConfig`/`findConfigPath` | `crouton-codegen/src/config.ts` |
+
+Duplicate export count reduced from 152 → 140 (72 known bridges in allowlist, 0 untracked violations).
+
+---
+
 ## 0.0.1-alpha.86 (2026-10-19)
 
 This was a version bump only, there were no code changes.
