@@ -326,6 +326,9 @@ const router = createRouter({
 
 const app = createApp(App);
 app.use(CroutonPlugin(api, { title: 'My App', router }));
+
+// To restrict supported languages to English only:
+// app.use(CroutonPlugin(api, { title: 'My App', router, i18n: { languages: ['en'] } }));
 app.use(router);
 app.mount('#app');
 ```
