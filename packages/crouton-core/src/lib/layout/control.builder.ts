@@ -3,27 +3,9 @@ import type { UISchemaElement } from '@jsonforms/core';
 import { ElementBuilder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
 import type { NormalizedUnique } from '../resource/Column';
+import { ControlType } from '../schema/ui/control-type';
 
-export const ControlType = {
-  number: 'number',
-  string: 'string',
-  integer: 'Integer',
-  autocomplete: 'autocomplete',
-  textArea: 'textarea',
-  markdown: 'markdown',
-  array: 'array',
-  object: 'object',
-  custom: 'custom',
-  select: 'select',
-  mutliSelect: 'mutliSelect',
-  toggle: 'toggle',
-  boolean: 'boolean',
-  link: 'link',
-  relation: 'relation',
-  date: 'date',
-  dateTime: 'dateTime',
-  dateRange: 'date-range',
-} as const;
+export { ControlType };
 
 export interface DateRangeOptions extends ControlOption {
   format: 'date-range';
