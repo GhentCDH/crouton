@@ -5,6 +5,7 @@ import {
   type CellRendererEntry,
   cellTypeIs,
   isComponentElement,
+  isRelationControl,
   optionIsIgnoreCase,
 } from '@ghentcdh/crouton-forms-vue';
 
@@ -16,9 +17,10 @@ import RelationCell from '../relation/RelationCell.vue';
 import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
 import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 
+export { isRelationControl };
+
 export const isCustomFormat = (format: string) =>
   and(optionIsIgnoreCase('format', format));
-export const isRelationControl = isCustomFormat('relation');
 
 /** Matches any control that has `options.customComponent` set. */
 const hasCustomComponent = (uischema: { options?: Record<string, unknown> }) =>
