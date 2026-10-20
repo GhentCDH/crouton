@@ -1,27 +1,11 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { type JsonColumn, type JsonResourceOperations, isRelation } from '@ghentcdh/crouton-core';
+import { type JsonColumn, type JsonResourceOperations, pickByColumns } from '@ghentcdh/crouton-core';
 
 import { type OperationDef, type ResourceDefinition } from '../resource/defintion.schema';
 import { type SchemaInput } from '../resource/json.schema';
 
-/** Narrow a Zod object schema to the set of column ids listed in JSON. */
-export const pickByColumns = (
-  schema: ZodObject<ZodRawShape> | undefined,
-  columns: JsonColumn[] | undefined,
-  filter?: (col: JsonColumn) => boolean,
-): SchemaInput | undefined => {
-  if (!schema) return undefined;
-  if (!columns?.length) return schema;
-  // Relation columns are managed via sub-resource endpoints — always exclude from write schemas.
-  const baseFilter = (c: JsonColumn) =>
-    !isRelation(c) && (filter ? filter(c) : true);
-  const schemaKeys = new Set(Object.keys(schema.shape));
-  const filtered = columns.filter((c) => baseFilter(c) && schemaKeys.has(c.id));
-  if (!filtered.length) return undefined;
-  const mask = Object.fromEntries(filtered.map((c) => [c.id, true as const]));
-  return schema.pick(mask as any) as SchemaInput;
-};
+export { pickByColumns };
 
 export const opWithSchema = (
   enabled: boolean | Record<string, unknown> | undefined,
