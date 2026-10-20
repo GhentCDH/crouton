@@ -1,5 +1,5 @@
-import type { ValueLabelColumn } from '../resource/valueLabel';
-import type { ResourceConfigRegistry } from '../resource-config.registry';
+import type { ResourceConfigRegistry } from '../../../resource-config.registry';
+import type { ValueLabelColumn } from '../value-label';
 import { getRequestLanguage } from './language.context';
 
 /**

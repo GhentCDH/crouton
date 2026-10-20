@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
-import { createCrudController } from '../crud-controller.factory';
-import { loadResourceConfigsFromDir } from '../loader';
-import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { createCrudController } from '../../../crud-controller.factory';
+import { loadResourceConfigsFromDir } from '../../../loader';
+import { resourceLoadErrorsRegistry } from '../../../resource/resource-load-errors.registry';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

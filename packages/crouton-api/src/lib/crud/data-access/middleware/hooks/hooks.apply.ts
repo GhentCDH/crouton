@@ -6,12 +6,12 @@ import type {
   ResourceHooks,
   WriteOp,
 } from './hooks.types';
-import type { DataSourceAdapter } from '../data-source/data-source.adapter';
-import type { ValueLabelColumn } from '../resource/valueLabel';
+import type { DataSourceAdapter } from '../../adapter/data-source.adapter';
+import type { ValueLabelColumn } from '../value-label';
 import {
   applyValueLabelColumns,
   normalizeValueLabels,
-} from '../resource/valueLabel.apply';
+} from '../value-label.apply';
 
 /**
  * Lifecycle-hook application, extracted so every repository implementation

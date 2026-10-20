@@ -11,8 +11,8 @@ import {
   createTranslator,
 } from '@ghentcdh/crouton-core';
 
-import { IS_DEV } from '../dev-mode';
 import { loadTranslationBundles } from './translation.loader';
+import { IS_DEV } from '../../../dev-mode';
 
 export class TranslationRegistry {
   private bundles: Record<string, TranslationBundle>;

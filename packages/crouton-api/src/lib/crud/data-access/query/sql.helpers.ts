@@ -1,7 +1,7 @@
 import { buildSort } from '@ghentcdh/crouton-core';
 import type { CalculatedColumn, JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
-import type { SubResourceConfig } from './resource/SubResource.schema';
+import type { SubResourceConfig } from '../../resource/SubResource.schema';
 
 // ── SQL expression helpers ────────────────────────────────────────────────
 

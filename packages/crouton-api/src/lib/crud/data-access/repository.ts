@@ -2,20 +2,20 @@ import { NotFoundException } from '@nestjs/common';
 
 import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
 
-import { resolveDefinition, schemaFor } from './crud.config';
+import { resolveDefinition, schemaFor } from '../crud.config';
 import {
   type DataSourceResolver,
   createCustomRepository,
-} from './custom-repository';
-import type { DataSourceAdapter } from './data-source/data-source.adapter';
-import { PrismaDataSourceAdapter } from './data-source/prisma.adapter';
-import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './hooks';
+} from '../custom-repository';
+import type { DataSourceAdapter } from './adapter/data-source.adapter';
+import { PrismaDataSourceAdapter } from './adapter/prisma.adapter';
+import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './middleware/hooks';
 import { ReadRepository } from './read.repository';
-import { type Resource } from './resource/ResourceConfig.schema';
-import { type SubResourceConfig } from './resource/SubResource.schema';
-import type { ResourceConfigRegistry } from './resource-config.registry';
-import { toSelectFields } from './schema.utils';
-import { resolveValueLabelColumns } from './translation';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import { type SubResourceConfig } from '../resource/SubResource.schema';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { toSelectFields } from '../schema.utils';
+import { resolveValueLabelColumns } from './middleware/translation';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */

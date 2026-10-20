@@ -1,6 +1,6 @@
 import type { ResourceHooks } from './hooks.types';
-import { findModule, importDefault } from '../loader/module.loader';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { findModule, importDefault } from '../../../loader/module.loader';
+import type { SubResourceConfig } from '../../../resource/SubResource.schema';
 import { join } from 'node:path';
 
 export const loadResourceHooks = async (

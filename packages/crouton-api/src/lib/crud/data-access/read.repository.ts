@@ -3,8 +3,6 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   type JsonColumn,
   type ListRequest,
-  Operator,
-  type OperatorType,
   buildSort,
   offsetOf,
 } from '@ghentcdh/crouton-core';
@@ -12,218 +10,25 @@ import {
 import {
   childCtx,
   childRepositoryFn,
-} from './custom-repository/child-delegate';
-import type { DataSourceAdapter } from './data-source/data-source.adapter';
-import { type Resource } from './resource/ResourceConfig.schema';
-import { type SubResourceConfig } from './resource/SubResource.schema';
-import type { ValueLabelColumn } from './resource/valueLabel';
-import { applyValueLabelColumns } from './resource/valueLabel.apply';
-import type { ResourceConfigRegistry } from './resource-config.registry';
+} from '../custom-repository/child-delegate';
+import type { DataSourceAdapter } from './adapter/data-source.adapter';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import { type SubResourceConfig } from '../resource/SubResource.schema';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { resolveValueLabelColumns } from './middleware/translation';
+import { applyValueLabelColumns } from './middleware/value-label.apply';
+import { buildFilterWhere, buildNestedPath, parseFilterString } from './query/filter';
+import { orderableChildSort, sanitizeValueLabelSort } from './query/sort';
 import {
   buildChildSortClause,
   buildFindOneIncludes,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
-} from './sql.helpers';
-import { resolveValueLabelColumns } from './translation';
+} from './query/sql.helpers';
 
-// FilterOperator (OperatorType) and Operator list are imported from @ghentcdh/crouton-core
-
-/**
- * Parse a filter string of the form `field:value:operator`.
- * The last segment is treated as the operator only when it matches a known value.
- * Values that contain colons are handled correctly (everything between the first and last colon is the value).
- * Defaults to `contains` when no recognised operator is present.
- */
-export const parseFilterString = (
-  raw: string,
-): { field: string; value: string; operator: OperatorType } | null => {
-  const parts = raw.split(':');
-  if (parts.length < 2 || !parts[0]) return null;
-
-  const field = parts[0];
-  const lastPart = parts[parts.length - 1];
-  const hasOperator = (Operator as readonly string[]).includes(lastPart);
-
-  const value = hasOperator
-    ? parts.slice(1, -1).join(':')
-    : parts.slice(1).join(':');
-  const operator: OperatorType = hasOperator
-    ? (lastPart as OperatorType)
-    : 'contains';
-
-  return { field, value, operator };
-};
-
-/**
- * Build a nested Prisma condition object from a dot-separated field path.
- * `"author.name"` → `{ author: { name: condition } }`
- */
-const buildNestedPath = (
-  path: string[],
-  condition: unknown,
-): Record<string, unknown> => {
-  if (path.length === 1) return { [path[0]]: condition };
-  const [head, ...rest] = path;
-  return { [head]: buildNestedPath(rest, condition) };
-};
-
-/**
- * Separator marking a JSON (jsonb) column path in a filter key.
- * `"date_range->from"` targets the `from` key inside the `date_range` json column.
- */
-const JSON_PATH_SEP = '->';
-
-const isJsonPath = (field: string): boolean => field.includes(JSON_PATH_SEP);
-
-/**
- * Build a Prisma JSON-filter `where` fragment for a jsonb sub-path, e.g.
- * `date_range->from` + `gt` → `{ date_range: { path: ['from'], gt: value } }`.
- *
- * Values are kept as strings: ISO-8601 dates compare lexicographically, which
- * is the same as chronological order, so no casting is needed for `gt`/`lt`.
- * Returns `null` for operators that have no meaningful JSON-path mapping.
- */
-const buildJsonPathCondition = (
-  field: string,
-  value: string,
-  operator: OperatorType,
-): Record<string, unknown> | null => {
-  const [column, ...path] = field.split(JSON_PATH_SEP);
-  if (!column || path.length === 0) return null;
-  const frag = (extra: Record<string, unknown>) => ({
-    [column]: { path, ...extra },
-  });
-
-  switch (operator) {
-    case 'equals':
-      return frag({ equals: value });
-    case 'not_equals':
-      return frag({ not: value });
-    case 'gt':
-      return frag({ gt: value });
-    case 'lt':
-      return frag({ lt: value });
-    case 'contains':
-      return frag({ string_contains: value });
-    case 'not_contains':
-      return { NOT: frag({ string_contains: value }) };
-    // isnull/isnotnull on a json sub-path are not supported — filter on the
-    // whole column instead if you need an emptiness check.
-    default:
-      return null;
-  }
-};
-
-/**
- * Map a parsed operator + value to a Prisma field condition.
- * Numeric coercion is applied for `gt` and `lt`.
- */
-const operatorToCondition = (
-  value: string,
-  operator: OperatorType,
-): unknown => {
-  const num = Number(value);
-  const numVal = Number.isNaN(num) ? value : num;
-
-  switch (operator) {
-    case 'contains':
-      return { contains: value };
-    case 'not_contains':
-      return { not: { contains: value } };
-    case 'equals':
-      return { equals: value };
-    case 'not_equals':
-      return { not: value };
-    case 'gt':
-      return { gt: numVal };
-    case 'lt':
-      return { lt: numVal };
-    case 'isnull':
-      return null;
-    case 'isnotnull':
-      return { not: null };
-    default:
-      return undefined;
-  }
-};
-
-/**
- * Build a Prisma `where` clause from an array of filter strings.
- * Returns `undefined` (no filter) when the array is empty or all entries are unparseable.
- */
-export const buildFilterWhere = (
-  filter: string[] | undefined,
-): Record<string, unknown> | undefined => {
-  if (!filter?.length) return undefined;
-
-  const conditions = filter
-    .map(parseFilterString)
-    .filter((f): f is NonNullable<typeof f> => f !== null)
-    .map(({ field, value, operator }) =>
-      isJsonPath(field)
-        ? buildJsonPathCondition(field, value, operator)
-        : buildNestedPath(
-            field.split('.'),
-            operatorToCondition(value, operator),
-          ),
-    )
-    .filter((c): c is Record<string, unknown> => c !== null);
-
-  return conditions.length ? { AND: conditions } : undefined;
-};
-
-/**
- * Drop a trailing `.label` from a sort path when it targets a value-label
- * column — the label is a serialization envelope, not a DB field, so sorting
- * must fall back to the underlying scalar (e.g. `text_type.label` → `text_type`,
- * `author.origin.label` → `author.origin`). Real columns named `label` are not
- * affected: only paths whose value-label field sits right before `.label`.
- */
-export const sanitizeValueLabelSort = (
-  sort: string | undefined,
-  cols: ValueLabelColumn[] | undefined,
-): string | undefined => {
-  if (!sort || !cols?.length || !sort.endsWith('.label')) return sort;
-  const base = sort.slice(0, -'.label'.length);
-  const leaf = base.split('.').pop();
-  return cols.some((c) => c.field === base || c.field === leaf) ? base : sort;
-};
-
-/**
- * Sanitize a sub-resource `orderBy` field so Prisma never rejects it:
- *
- * - A nested path (`author.origin_name`) is kept as-is — Prisma builds a nested
- *   `orderBy` and validates the leaf against the related model.
- * - A single segment must be a real **scalar/enum** field of the child model
- *   (the Prisma field-reference API, `model.fields`, lists exactly those — not
- *   object relations). A bare relation name (`author`) or a computed/aliased
- *   column id is NOT orderable on its own and would throw
- *   (`Expected …OrderByWithRelationInput, provided String`), so it is dropped.
- * - This also covers join tables (composite PK, no `id`): the frontend's default
- *   `id` isn't a scalar field, so it's dropped instead of crashing.
- *
- * When the model exposes no field metadata we can't validate, so we trust the
- * caller (e.g. mocked models in tests).
- */
-export const orderableChildSort = (
-  sort: string | undefined,
-  childModel: any,
-  _sub: SubResourceConfig,
-): string | undefined => {
-  if (!sort) return undefined;
-  const scalarFields = new Set(
-    Object.keys((childModel?.fields ?? {}) as Record<string, unknown>),
-  );
-  if (scalarFields.size === 0) return sort; // no metadata → trust the caller
-  // Nested relation path: Prisma builds a valid nested orderBy.
-  if (sort.includes('.')) return sort;
-  // Single segment must be an orderable scalar/enum field of the child.
-  return scalarFields.has(sort) ? sort : undefined;
-};
-
-// Re-exported for backwards compatibility; the implementation now lives in
-// resource/valueLabel.apply so non-Prisma repositories can share it.
+// Re-exported for backwards compatibility
+export { buildFilterWhere, parseFilterString } from './query/filter';
+export { orderableChildSort, sanitizeValueLabelSort } from './query/sort';
 export { applyValueLabelColumns };
 
 /**

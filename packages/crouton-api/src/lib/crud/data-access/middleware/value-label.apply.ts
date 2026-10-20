@@ -1,6 +1,6 @@
 import { fromValueLabel, toValueLabel } from '@ghentcdh/crouton-core';
 
-import type { ValueLabelColumn } from './valueLabel';
+import type { ValueLabelColumn } from './value-label';
 
 /**
  * Value-label envelope transforms, shared by every repository implementation.

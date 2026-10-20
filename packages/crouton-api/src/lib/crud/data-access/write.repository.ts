@@ -2,17 +2,17 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
-import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from './constants';
+import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from '../constants';
 import {
   childCtx,
   childRepositoryFn,
   parentIdFromRequest,
-} from './custom-repository/child-delegate';
-import type { DataSourceAdapter } from './data-source/data-source.adapter';
-import { type Resource } from './resource/ResourceConfig.schema';
-import type { SubResourceConfig } from './resource/SubResource.schema';
-import { normalizeValueLabels } from './resource/valueLabel.apply';
-import { mapPrismaUniqueError } from './unique-validation';
+} from '../custom-repository/child-delegate';
+import type { DataSourceAdapter } from './adapter/data-source.adapter';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { mapPrismaUniqueError } from '../unique-validation';
+import { normalizeValueLabels } from './middleware/value-label.apply';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (
