@@ -117,13 +117,13 @@ server.tool(
   async ({ kind }) => {
     const schemaUrls: Record<string, string> = {
       resource: 'https://raw.githubusercontent.com/GhentCDH/crouton/main/packages/crouton-core/src/lib/resource/resource.schema.json',
-      datasource: 'https://raw.githubusercontent.com/GhentCDH/crouton/main/packages/crouton-core/src/lib/data-source/data-source.schema.json',
-      crouton: 'https://raw.githubusercontent.com/GhentCDH/crouton/main/packages/crouton-core/src/lib/crouton.schema.json',
+      datasource: 'https://raw.githubusercontent.com/GhentCDH/crouton/main/packages/crouton-core/src/lib/data-source/datasource.schema.json',
+      crouton: 'https://raw.githubusercontent.com/GhentCDH/crouton/main/packages/crouton-core/src/lib/config/crouton.schema.json',
     };
     const localPaths: Record<string, string> = {
       resource: 'src/lib/resource/resource.schema.json',
-      datasource: 'src/lib/data-source/data-source.schema.json',
-      crouton: 'src/lib/crouton.schema.json',
+      datasource: 'src/lib/data-source/datasource.schema.json',
+      crouton: 'src/lib/config/crouton.schema.json',
     };
 
     const resolvedKind = kind ?? 'resource';
