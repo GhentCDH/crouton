@@ -2,17 +2,21 @@
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "loan",
-  "model": "Loan",
   "title": "Loans",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
     "loanedAt": {
       "fieldInput": {
         "defaultValue": "$now",
         "type": "date"
       }
     },
-    "returnedAt": { "required": false },
+    "returnedAt": {
+      "required": false
+    },
     "userId": {
       "hiddenInTable": true,
       "hiddenInView": true,
@@ -77,7 +81,20 @@
     }
   },
   "operations": {
-    "findAll": { "include": ["user", "book"] },
-    "findOne": { "include": ["user", "book"] }
+    "findAll": {
+      "include": [
+        "user",
+        "book"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "user",
+        "book"
+      ]
+    }
+  },
+  "source": {
+    "model": "Loan"
   }
 }

@@ -2,12 +2,18 @@
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "book",
-  "model": "Book",
   "title": "Books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "sortable": true },
-    "isbn": { "sortable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "sortable": true
+    },
+    "isbn": {
+      "sortable": true
+    },
     "publishedYear": {
       "sortable": true
     },
@@ -22,7 +28,12 @@
         }
       }
     },
-    "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "summary": {
+      "fieldInput": {
+        "type": "textarea"
+      },
+      "hiddenInTable": true
+    },
     "rating": {
       "fieldInput": {
         "type": "custom",
@@ -74,25 +85,63 @@
     }
   },
   "operations": {
-    "findAll": { "search": ["title", "author"], "include": ["author", "categories"] },
-    "findOne": { "include": ["author", "categories"] }
+    "findAll": {
+      "search": [
+        "title",
+        "author"
+      ],
+      "include": [
+        "author",
+        "categories"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author",
+        "categories"
+      ]
+    }
   },
   "layout": {
     "form": {
       "type": "grid",
       "columns": 12,
       "items": [
-        { "id": "title", "colspan": 8 },
-        { "id": "isbn", "colspan": 4 },
-        { "id": "publishedYear", "colspan": 6 },
-        { "id": "status", "colspan": 6 },
-        { "id": "summary", "colspan": 12, "rowspan": 2 },
-        { "id": "rating", "colspan": 6 },
-        { "id": "authorId", "colspan": 6 },
+        {
+          "id": "title",
+          "colspan": 8
+        },
+        {
+          "id": "isbn",
+          "colspan": 4
+        },
+        {
+          "id": "publishedYear",
+          "colspan": 6
+        },
+        {
+          "id": "status",
+          "colspan": 6
+        },
+        {
+          "id": "summary",
+          "colspan": 12,
+          "rowspan": 2
+        },
+        {
+          "id": "rating",
+          "colspan": 6
+        },
+        {
+          "id": "authorId",
+          "colspan": 6
+        },
         {
           "type": "collapse",
           "title": "Categories",
-          "items": ["categories"]
+          "items": [
+            "categories"
+          ]
         }
       ]
     },
@@ -100,17 +149,40 @@
       "type": "grid",
       "columns": 12,
       "items": [
-        { "id": "title", "colspan": 8 },
-        { "id": "isbn", "colspan": 4 },
-        { "id": "publishedYear", "colspan": 6 },
-        { "id": "status", "colspan": 6 },
-        { "id": "summary", "colspan": 12 },
-        { "id": "rating", "colspan": 6 },
-        { "id": "author", "colspan": 6 },
+        {
+          "id": "title",
+          "colspan": 8
+        },
+        {
+          "id": "isbn",
+          "colspan": 4
+        },
+        {
+          "id": "publishedYear",
+          "colspan": 6
+        },
+        {
+          "id": "status",
+          "colspan": 6
+        },
+        {
+          "id": "summary",
+          "colspan": 12
+        },
+        {
+          "id": "rating",
+          "colspan": 6
+        },
+        {
+          "id": "author",
+          "colspan": 6
+        },
         {
           "type": "group",
           "title": "Categories",
-          "items": ["categories"]
+          "items": [
+            "categories"
+          ]
         }
       ]
     },
@@ -118,10 +190,16 @@
       "type": "grid",
       "columns": 12,
       "items": [
-        { "component": "CreateByIsbn" },
+        {
+          "component": "CreateByIsbn"
+        },
         {
           "type": "table",
-          "filterFields": ["title", "status", "author"],
+          "filterFields": [
+            "title",
+            "status",
+            "author"
+          ],
           "items": [
             "title",
             "author",
@@ -144,11 +222,17 @@
               "label": "Open on Open Library",
               "type": "link",
               "href": "https://openlibrary.org/isbn/{isbn}",
-              "condition": { "field": "isbn", "op": "exists" }
+              "condition": {
+                "field": "isbn",
+                "op": "exists"
+              }
             }
           ]
         }
       ]
     }
+  },
+  "source": {
+    "model": "Book"
   }
 }

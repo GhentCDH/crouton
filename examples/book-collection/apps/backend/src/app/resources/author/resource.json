@@ -2,12 +2,19 @@
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "author",
-  "model": "Author",
   "title": "Authors",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
     "name": {},
-    "bio": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "bio": {
+      "fieldInput": {
+        "type": "textarea"
+      },
+      "hiddenInTable": true
+    },
     "books": {
       "label": "Books",
       "hiddenInTable": false,
@@ -25,12 +32,28 @@
     }
   },
   "operations": {
-    "findAll": { "search": ["name"], "include": ["books"] },
-    "findOne": { "include": ["books"] }
+    "findAll": {
+      "search": [
+        "name"
+      ],
+      "include": [
+        "books"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "books"
+      ]
+    }
   },
   "layout": {
     "table": {
-      "filterFields": ["name"]
+      "filterFields": [
+        "name"
+      ]
     }
+  },
+  "source": {
+    "model": "Author"
   }
 }
