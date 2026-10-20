@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { collectLayoutFieldIds, resolveColumnVisibility } from '../layout/layout-visibility';
-import type { JsonColumn } from '../resource/Column';
 import type { Layout } from '../layout/schema/Layout.schema';
+import type { JsonColumn } from '../resource/Column';
 
 const col = (
   id: string,
