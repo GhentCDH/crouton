@@ -1,6 +1,6 @@
 import type { JsonColumn } from '../../resource/Column';
-import type { LayoutControl, WhenCondition } from '../../resource/layout/LayoutItem.schema';
-import { isComponentItem } from '../../resource/layout/LayoutItem.schema';
+import type { LayoutControl, WhenCondition } from '../schema/LayoutItem.schema';
+import { isComponentItem } from '../schema/LayoutItem.schema';
 
 export type ResolvedFieldControl = {
   label?: string;

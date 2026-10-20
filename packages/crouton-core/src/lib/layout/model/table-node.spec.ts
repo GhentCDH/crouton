@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { resolveTableNode } from './table-node';
-import { TableLayoutRootSchema } from '../../resource/layout/TableLayout.schema';
+import { TableLayoutRootSchema } from '../schema/TableLayout.schema';
 
 describe('resolveTableNode', () => {
   it('flat — returns node itself when no wrapper type', () => {

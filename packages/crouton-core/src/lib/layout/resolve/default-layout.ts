@@ -1,7 +1,7 @@
 import type { JsonColumn } from '../../resource/Column';
-import type { FormLayoutNode } from '../../resource/layout/LayoutNode.schema';
-import { type TableNode, TableNodeSchema } from '../../resource/layout/TableLayout.schema';
 import { sortByPosition } from '../../view/column.utils';
+import type { FormLayoutNode } from '../schema/LayoutNode.schema';
+import { type TableNode, TableNodeSchema } from '../schema/TableLayout.schema';
 
 /**
  * Generate a FormLayoutNode from column flags for form/view contexts.

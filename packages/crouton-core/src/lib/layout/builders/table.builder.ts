@@ -2,10 +2,10 @@ import type { z } from 'zod';
 
 import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import { buildView, emptyTableView } from './view-helpers';
-import type { TableLayoutRootSchema } from '../../resource/layout/TableLayout.schema';
 import { buildFormUiSchema, orderTableColumnsFromLayout, patchFilterProperties, resolveDefaultSort, resolveTableNode } from '../../view';
 import { columnForContext } from '../../view/column.utils';
 import { buildTableUiSchema } from '../../view/table-schema.builder';
+import type { TableLayoutRootSchema } from '../schema/TableLayout.schema';
 
 type TableLayoutRoot = z.infer<typeof TableLayoutRootSchema>;
 

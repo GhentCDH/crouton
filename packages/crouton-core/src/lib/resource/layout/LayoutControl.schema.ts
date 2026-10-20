@@ -1,3 +1,2 @@
-// Re-export everything from LayoutItem.schema.ts for backward compat.
-// Consumers should migrate to importing from LayoutItem.schema.ts directly.
-export * from './LayoutItem.schema';
+// moved to layout/schema — re-export bridge (removed in PR 10)
+export * from '../../layout/schema/LayoutControl.schema';
