@@ -19,7 +19,7 @@ const PRISMA_RAW = {
   route: 'articles',
   tag: 'Articles',
   kind: 'prisma',
-  model: 'Article',
+  source: { model: 'Article' },
   operations: { findAll: true, findOne: true, create: true, update: true, delete: true },
   columns: {
     id: { type: 'string', idField: true },

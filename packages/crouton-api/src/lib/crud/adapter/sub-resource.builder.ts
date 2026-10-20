@@ -194,15 +194,16 @@ export const buildSubResources = (
         childModel:
           childKind === 'custom'
             ? ''
-            : childJson?.model
-              ? childJson.model.charAt(0).toLowerCase() + childJson.model.slice(1)
-              : c.id,
-        ...(childJson?.table && { childTable: childJson.table }),
+            : (() => {
+                const m = (childJson as any)?.source?.model ?? childJson?.model;
+                return m ? m.charAt(0).toLowerCase() + m.slice(1) : c.id;
+              })(),
+        ...((childJson as any)?.source?.dbTable || childJson?.table ? { childTable: (childJson as any)?.source?.dbTable ?? childJson?.table } : {}),
         foreignKey: (c.relation?.foreignKey ?? c.fieldInput?.foreignKey) ?? `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
         name: childJson?.name ?? childRoute,
         title: childJson?.title ?? childJson?.openapi?.tag ?? childJson?.tag ?? childRoute,
         idField: childLookupKey,
-        idType: childJson?.idType ?? 'string',
+        idType: (childJson as any)?.source?.idType ?? childJson?.idType ?? 'string',
         ...(c.hiddenInTable && { hiddenInTable: true }),
         ...(childViews && { views: childViews }),
         operations: {

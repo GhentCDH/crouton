@@ -2,21 +2,34 @@
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "user",
-  "model": "User",
   "title": "Users",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
     "name": {},
     "email": {
       "unique": true
     }
   },
   "operations": {
-    "findAll": { "search": ["name", "email"] }
+    "findAll": {
+      "search": [
+        "name",
+        "email"
+      ]
+    }
   },
   "layout": {
     "table": {
-      "filterFields": ["name", "email"]
+      "filterFields": [
+        "name",
+        "email"
+      ]
     }
+  },
+  "source": {
+    "model": "User"
   }
 }

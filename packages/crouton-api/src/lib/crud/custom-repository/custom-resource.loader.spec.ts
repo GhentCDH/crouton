@@ -183,7 +183,7 @@ describe('custom resource loading', () => {
       {
         name: 'book',
         route: 'books',
-        model: 'Book',
+        source: { model: 'Book' },
         tag: 'Book',
         operations: {},
         schemaVersion: CURRENT_RESOURCE_VERSION,

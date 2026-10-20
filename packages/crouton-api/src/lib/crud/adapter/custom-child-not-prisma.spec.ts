@@ -67,7 +67,7 @@ describe('a custom child is a route, not a Prisma relation', () => {
       JSON.stringify({
         name: 'groups',
         route: 'groups',
-        model: 'Group',
+        source: { model: 'Group' },
         tag: 'Group',
         operations: {
           ...(include && { findAll: { include }, findOne: { include } }),

@@ -46,7 +46,7 @@ export default repository;
 const PARENT_JSON = {
   name: 'groups',
   route: 'groups',
-  model: 'Group',
+  source: { model: 'Group' },
   tag: 'Group',
   operations: {},
   schemaVersion: CURRENT_RESOURCE_VERSION,
@@ -286,7 +286,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
         {
           name: 'expense',
           route: 'expense',
-          model: 'Expense',
+          source: { model: 'Expense' },
           tag: 'Expense',
           operations: {},
           columns: { id: { idField: true }, label: {} },
@@ -325,7 +325,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
       write({
         name: 'expense',
         route: 'expense',
-        model: 'Expense',
+        source: { model: 'Expense' },
         tag: 'Expense',
         operations: {},
         columns: { id: { idField: true }, label: {} },

@@ -20,6 +20,11 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
   display: '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
   modalSize: '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
   include: '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
+  model: '\'model\' moved to source.model (run crouton migrate)',
+  table: '\'table\' moved to source.dbTable (run crouton migrate)',
+  database: '\'database\' moved to source.datasource (run crouton migrate)',
+  idType: '\'idType\' moved to source.idType (run crouton migrate)',
+  calculatedColumns: '\'calculatedColumns\' moved to columns[id].computed (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────

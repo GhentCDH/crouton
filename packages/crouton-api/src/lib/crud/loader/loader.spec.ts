@@ -21,7 +21,7 @@ import { join } from 'node:path';
 const validResource = {
   name: 'valid_resource',
   route: 'valid-resource',
-  model: 'ValidResource',
+  source: { model: 'ValidResource' },
   tag: 'valid',
   operations: {},
   schemaVersion: CURRENT_RESOURCE_VERSION,
@@ -194,7 +194,7 @@ describe('loadResourceConfigsFromDir', () => {
       route: 'custom-res',
       kind: 'custom',
       tag: 'Custom',
-      database: 'secondary',
+      source: { datasource: 'secondary' },
       operations: { create: false, update: false, patch: false, delete: false },
       schemaVersion: CURRENT_RESOURCE_VERSION,
       columns: { id: { type: 'string', idField: true } },

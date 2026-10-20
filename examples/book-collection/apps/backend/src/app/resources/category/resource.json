@@ -2,11 +2,16 @@
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "category",
-  "model": "Category",
   "title": "Categories",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
     "name": {},
     "slug": {}
+  },
+  "source": {
+    "model": "Category"
   }
 }
