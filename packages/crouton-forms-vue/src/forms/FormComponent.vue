@@ -147,11 +147,15 @@ watch(
   },
 );
 
-// Emit changes when vee-validate values change
+// Emit changes when vee-validate values change.
+// Emit 'valid' first so that auto-save listeners see the current validity
+// before acting on the change — mirrors the old crouton-vue FormComponent
+// which emitted valid then change in the same watcher.
 watch(
   values,
   (newValues) => {
     if (syncing) return;
+    emits('valid', meta.value.valid);
     emits('change', toRaw(newValues) as Data);
   },
   { deep: true },
