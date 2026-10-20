@@ -1,10 +1,10 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import type { JsonResourceOperations } from '../data-source';
-import type { JsonColumn } from '../resource';
 import type { CrudDefinition, OperationDef } from './definition.schema';
-import type { SchemaInput } from './schema-input';
-import { pickByColumns } from '../schema/json/pick-by-columns';
+import type { SchemaInput } from '../../compile/schema-input';
+import type { JsonResourceOperations } from '../../data-source';
+import type { JsonColumn } from '../../resource';
+import { pickByColumns } from '../json/pick-by-columns';
 
 export { pickByColumns };
 

@@ -1,7 +1,7 @@
 import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
-import { jsonSchemaOpts } from './json-schema.opts';
-import type { JsonColumn } from '../resource/Column';
+import type { JsonColumn } from '../../resource/Column';
+import { jsonSchemaOpts } from '../../view/json-schema.opts';
 
 /**
  * Produces the `json_schema` for one view from the columns that belong in it.

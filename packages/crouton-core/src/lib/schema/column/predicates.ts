@@ -1,8 +1,8 @@
-import type { JsonColumn } from '../resource/Column';
+import type { JsonColumn } from '../../resource/Column';
 import {
   isArrayColumnType,
   isObjectColumnType,
-} from '../resource/ColumnType.schema';
+} from '../../resource/ColumnType.schema';
 
 // ── Column type helpers ───────────────────────────────────────────────────
 

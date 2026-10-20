@@ -3,14 +3,14 @@ import {
   isDateRange,
   isObjectCell,
   isRecordCell,
-} from './column-predicates';
-import { deriveSortId } from './sort.helpers';
-import type { JsonColumn } from '../resource/Column';
+} from './predicates';
+import type { JsonColumn } from '../../resource/Column';
 import {
   BooleanCellBuilder,
   TableBuilder,
   TextCellBuilder,
-} from '../table/table.builder';
+} from '../../table/table.builder';
+import { deriveSortId } from '../../view/sort.helpers';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 

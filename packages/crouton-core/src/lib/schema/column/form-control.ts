@@ -1,10 +1,10 @@
-import { isArrayColumn, isObjectColumn } from './column-predicates';
-import { ControlBuilder } from '../layout/control.builder';
-import { LayoutBuilder } from '../layout/layout.builder';
-import { type JsonColumn, normalizeUnique } from '../resource/Column';
-import { columnTypeName, columnTypeToJsonSchema } from '../resource/ColumnType.schema';
-import type { DetailConfig } from '../resource/FieldInput.schema';
-import type { WhenCondition } from '../resource/layout/LayoutControl.schema';
+import { isArrayColumn, isObjectColumn } from './predicates';
+import { ControlBuilder } from '../../layout/control.builder';
+import { LayoutBuilder } from '../../layout/layout.builder';
+import { type JsonColumn, normalizeUnique } from '../../resource/Column';
+import { columnTypeName, columnTypeToJsonSchema } from '../../resource/ColumnType.schema';
+import type { DetailConfig } from '../../resource/FieldInput.schema';
+import type { WhenCondition } from '../../resource/layout/LayoutControl.schema';
 
 export type { WhenCondition };
 
