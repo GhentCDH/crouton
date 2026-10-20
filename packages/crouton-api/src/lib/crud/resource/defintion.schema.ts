@@ -1,47 +1,8 @@
-import { z } from 'zod';
-
-import { SecuritySchema } from '@ghentcdh/crouton-core';
-
-import { SchemaInputSchema } from './json.schema';
-
-const ExternalOperationDefSchema = z.object({
-  uri: z.string(),
-  method: z.string().optional(),
-});
-
-const OperationDefSchema = z.union([
-  z.literal(true),
-  ExternalOperationDefSchema,
-  z.object({
-    schema: SchemaInputSchema.optional(),
-    security: SecuritySchema.optional(),
-  }),
-]);
-
-export type OperationDef = z.infer<typeof OperationDefSchema>;
-
-export type PatchOperationDef = z.infer<typeof OperationDefSchema>;
-
-export const ResourceDefinitionSchema = z.object({
-  findAll: OperationDefSchema.optional(),
-  findOne: OperationDefSchema.optional(),
-  create: OperationDefSchema.optional(),
-  update: OperationDefSchema.optional(),
-  patch: OperationDefSchema.optional(),
-  delete: OperationDefSchema.optional(),
-});
-
-export type ResourceDefinition = z.infer<typeof ResourceDefinitionSchema>;
-
-// Functions aren't representable as data schemas — validate shape only if needed.
-const DefinitionCallbackSchema = z.function({
-  input: [],
-  output: ResourceDefinitionSchema,
-});
-
-export type DefinitionCallback = () => ResourceDefinition;
-
-export const DefinitionSchema = z.union([
-  ResourceDefinitionSchema,
-  DefinitionCallbackSchema,
-]);
+export {
+  CrudDefinitionSchema as ResourceDefinitionSchema,
+  type DefinitionCallback,
+  DefinitionSchema,
+  type OperationDef,
+  type PatchOperationDef,
+} from '@ghentcdh/crouton-core';
+export type { CrudDefinition as ResourceDefinition } from '@ghentcdh/crouton-core';

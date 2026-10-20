@@ -1,1 +1,1 @@
-export { opWithSchema, pickByColumns } from './schema.helpers';
+export { pickByColumns } from './schema.helpers';

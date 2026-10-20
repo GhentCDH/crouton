@@ -1,0 +1,52 @@
+import type { CrudDefinition } from './definition.schema';
+import type { SchemaInput } from '../../compile/schema-input';
+import type { JsonResourceOperations } from '../../data-source';
+
+export type CrudOperation =
+  | 'findAll'
+  | 'findOne'
+  | 'create'
+  | 'update'
+  | 'patch'
+  | 'delete';
+
+export const resolveDefinition = (config: {
+  definition: CrudDefinition | (() => CrudDefinition);
+}): CrudDefinition => {
+  const def = config.definition;
+  return typeof def === 'function' ? def() : def;
+};
+
+export const isOperationEnabled = (
+  def: CrudDefinition | JsonResourceOperations,
+  op: CrudOperation,
+): boolean => def[op] != null;
+
+export const schemaFor = (
+  def: CrudDefinition,
+  op: CrudOperation,
+): SchemaInput | undefined => {
+  const entry = def[op];
+  if (!entry || entry === true) return undefined;
+  return (entry as { schema?: SchemaInput }).schema;
+};
+
+export const isOperationExternal = (
+  def: CrudDefinition | JsonResourceOperations,
+  op: CrudOperation,
+): boolean => {
+  const entry = def[op];
+  return typeof entry === 'object' && entry !== null && 'uri' in entry;
+};
+
+export const externalRouteFor = (
+  def: CrudDefinition | JsonResourceOperations,
+  op: CrudOperation,
+): string | undefined => {
+  const entry = def[op];
+  if (typeof entry === 'object' && entry !== null && 'uri' in entry) {
+    return (entry as { uri: string }).uri;
+  }
+  return undefined;
+};
+

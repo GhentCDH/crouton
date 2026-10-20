@@ -1,1 +1,1 @@
-export type RelationType = 'oneToOne' | 'manyToOne' | 'oneToMany' | 'manyToMany';
+export * from './request/relation.types';
