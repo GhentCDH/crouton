@@ -28,7 +28,7 @@ import {
   toRef,
   watch,
 } from 'vue';
-import { fromJSONSchema } from 'zod';
+import { fromJSONSchema, z } from 'zod';
 
 import {
   dropNullableFromRequired,
@@ -64,10 +64,24 @@ const emits = defineEmits(JsonFormComponentEmits);
 
 const { showErrors, debugValue } = useCrouton();
 
+const rawSchema = (() => {
+  try {
+    return JSON.parse(JSON.stringify(toRaw(properties.schema)));
+  } catch {
+    return toRaw(properties.schema);
+  }
+})();
 const patched = enforceRequiredStringMinLength(
-  makeOptionalPropertiesNullable(dropNullableFromRequired(toRaw(properties.schema))),
+  makeOptionalPropertiesNullable(dropNullableFromRequired(rawSchema)),
 );
-const validationSchema = fromJSONSchema(patched as any);
+const validationSchema = (() => {
+  try {
+    return fromJSONSchema(patched as any);
+  } catch (e) {
+    console.warn('[crouton] fromJSONSchema failed, falling back to z.any()', e);
+    return z.any();
+  }
+})();
 
 const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema,
