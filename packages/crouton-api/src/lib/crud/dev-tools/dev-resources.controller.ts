@@ -44,15 +44,15 @@ import {
   applyResourceFlagPatch,
   resolveResourcePath,
 } from '../resource/ResourceFlags';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+import { type ResourceConfigRegistry } from '../resource-config.registry';
 import {
   readRawResourceJson,
   validateResourceJson,
   writeRawResourceJson,
 } from '../resource-file/WriteResourceJson';
-import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-import { ResourceConfigRegistry } from '../resource-config.registry';
+ 
 
 /**
  * Dev-only endpoints that reuse the `@ghentcdh/crouton-codegen` engine

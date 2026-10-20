@@ -1,13 +1,14 @@
+import { findConfigPath } from '@ghentcdh/crouton-codegen';
 import {
   CONFIG_FILES,
   type CroutonConfig,
   CroutonConfigSchema,
 } from '@ghentcdh/crouton-core';
 
-import { findConfigPath } from '@ghentcdh/crouton-codegen';
-
 import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve as pathResolve } from 'node:path';
+
+
 
 export { findConfigPath } from '@ghentcdh/crouton-codegen';
 
