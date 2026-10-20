@@ -4,7 +4,7 @@ import {
   LayoutComponentItemSchema,
   _LayoutFieldControlSchema,
 } from './LayoutItem.schema';
-import { JsonActionSchema } from '../TableAction.schema';
+import { JsonActionSchema } from '../../resource/TableAction.schema';
 
 const TABLE_REMOVED_KEYS = ['colspan', 'rowspan', 'hideLabel'] as const;
 

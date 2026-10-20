@@ -1,1 +1,1 @@
-export { collectLayoutFieldIds } from '../../view/layout-visibility';
+export { collectLayoutFieldIds } from '../layout-visibility';

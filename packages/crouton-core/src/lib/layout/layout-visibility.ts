@@ -1,9 +1,9 @@
 import { resolveTableNode } from './layout-table-order';
+import { isComponentItem, isNodeItem, resolveItemFieldId } from './schema';
 import type { JsonColumn } from '../resource/Column';
-import { isComponentItem, isNodeItem, resolveItemFieldId } from '../resource/layout';
-import type { Layout } from '../resource/layout/Layout.schema';
-import type { FormLayoutNode } from '../resource/layout/LayoutNode.schema';
-import type { TableNode } from '../resource/layout/TableLayout.schema';
+import type { Layout } from './schema/Layout.schema';
+import type { FormLayoutNode } from './schema/LayoutNode.schema';
+import type { TableNode } from './schema/TableLayout.schema';
 
 const collectFromFormNode = (node: FormLayoutNode, ids: Set<string>): void => {
   for (const item of node.items ?? []) {

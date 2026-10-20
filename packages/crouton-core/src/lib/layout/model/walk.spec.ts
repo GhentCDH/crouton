@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { collectLayoutFieldIds } from './walk';
-import type { Layout } from '../../resource/layout/Layout.schema';
+import type { Layout } from '../schema/Layout.schema';
 
 describe('collectLayoutFieldIds', () => {
   it('collects ids from flat form layout', () => {

@@ -1,8 +1,8 @@
 import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import { buildView } from './view-helpers';
-import type { FormLayoutNode } from '../../resource/layout/LayoutNode.schema';
 import { buildFormUiSchema, buildFormUiSchemaFromLayout } from '../../view';
 import { columnForContext } from '../../view/column.utils';
+import type { FormLayoutNode } from '../schema/LayoutNode.schema';
 
 /**
  * Build the detail (read-only) view for a resource.

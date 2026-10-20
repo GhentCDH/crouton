@@ -1,10 +1,10 @@
 import type { z } from 'zod';
 
 import { flattenLayoutItems } from './layout-ui-schema.builder';
-import type { ViewConfig } from './view.schema';
-import type { LayoutNode } from '../resource/layout';
-import { isComponentControl, isComponentItem } from '../resource/layout';
-import type { TableLayoutRootSchema, TableNode } from '../resource/layout/TableLayout.schema';
+import type { LayoutNode } from './schema';
+import { isComponentControl, isComponentItem } from './schema';
+import type { TableLayoutRootSchema, TableNode } from './schema/TableLayout.schema';
+import type { ViewConfig } from '../schema/view/view.schema';
 
 const LAYOUT_TYPE_MAP: Record<string, string> = {
   grid: 'GridLayout',

@@ -3,7 +3,7 @@ import type { LayoutBuildContext, ViewConfig } from './builders/layout-builder.t
 import { buildCustomLayouts } from './builders/registry';
 import { buildTableLayout } from './builders/table.builder';
 import { buildViewLayout } from './builders/view.builder';
-import type { Layout } from '../resource/layout/Layout.schema';
+import type { Layout } from './schema/Layout.schema';
 
 export type { LayoutBuildContext, ViewJsonSchemaSource } from './builders/layout-builder.types';
 export { type KindBuilderFn, registerLayoutBuilder, unregisterLayoutBuilder } from './builders/registry';

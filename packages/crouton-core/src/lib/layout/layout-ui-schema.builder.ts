@@ -1,9 +1,9 @@
-import { buildConditionSchema, buildFormControl } from './form-schema.builder';
+import type { LayoutControl, LayoutNode } from './schema';
+import { isComponentControl, isComponentItem, isNodeItem } from './schema';
 import { LayoutBuilder } from '../layout/layout.builder';
 import { LayoutType } from '../layout/layout.options';
 import type { JsonColumn } from '../resource/Column';
-import type { LayoutControl, LayoutNode } from '../resource/layout';
-import { isComponentControl, isComponentItem, isNodeItem } from '../resource/layout';
+import { buildConditionSchema, buildFormControl } from '../schema/column/form-control';
 
 const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
   const type = node.type ?? 'grid';

@@ -4,13 +4,13 @@ import {
   isObjectCell,
   isRecordCell,
 } from './predicates';
+import { deriveSortId } from '../../layout/sort.helpers';
 import type { JsonColumn } from '../../resource/Column';
 import {
   BooleanCellBuilder,
   TableBuilder,
   TextCellBuilder,
 } from '../../table/table.builder';
-import { deriveSortId } from '../../view/sort.helpers';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 

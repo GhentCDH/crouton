@@ -1,1 +1,1 @@
-export { resolveColumnVisibility } from '../../view/layout-visibility';
+export { resolveColumnVisibility } from '../layout-visibility';

@@ -1,6 +1,6 @@
 import type { JsonColumn } from '../../resource/Column';
-import { isComponentItem, isNodeItem, resolveItemFieldId } from '../../resource/layout/LayoutItem.schema';
-import type { FormLayoutNode } from '../../resource/layout/LayoutNode.schema';
+import { isComponentItem, isNodeItem, resolveItemFieldId } from '../schema/LayoutItem.schema';
+import type { FormLayoutNode } from '../schema/LayoutNode.schema';
 
 export type LayoutValidationResult = {
   errors: string[];
