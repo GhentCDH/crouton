@@ -133,6 +133,33 @@ router.push({ name: CROUTON_STATUS });
 | `cellRenderers`     | `CellRendererEntry[]`                 | `[]`        | Extra table cell renderers.                                                          |
 | `customComponents`  | `CustomComponentEntry[]`              | `[]`        | Custom Vue components for page-level display and custom format fields.               |
 | `VERSION`           | `string`                              | `'unknown'` | App version shown in the UI.                                                         |
+| `i18n`              | `{ languages?, defaultLanguage?, initial? }` | —    | Restrict which languages the app supports. See the section above.                    |
+
+### `i18n` option — restricting supported languages
+
+By default Crouton accepts every language the backend lists. Pass `i18n.languages` to narrow that set:
+
+```ts
+app.use(CroutonPlugin(api, {
+  i18n: {
+    languages: ['en', 'fr'],   // only these two are offered in the language picker
+    defaultLanguage: 'en',     // used when no other preference applies
+    // initial: 'en',          // force a specific start language, ignoring persisted/navigator
+  },
+}));
+```
+
+**Language resolution order** (each step limited to the supported set):
+
+1. `initial` — if set, always wins.
+2. Persisted value in `localStorage` — used only when it is in the supported set; otherwise overwritten.
+3. Browser `navigator.languages` — first match against the supported set.
+4. `defaultLanguage` — final fallback.
+
+**Supported set** = backend `i18n.languages` ∩ plugin `i18n.languages`.
+If the plugin does not list any languages, the full backend list is used (today's default behaviour).
+If the plugin lists languages but the backend has no i18n, the plugin list is used alone.
+If there is no overlap, the plugin default (or `'en'`) is used and a console warning is emitted.
 
 ### Title precedence
 

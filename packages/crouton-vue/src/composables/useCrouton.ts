@@ -16,6 +16,7 @@ import { ResourceDefinitionCache } from './resource-definition';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
+  configureAllowedLanguages,
   configureLanguage,
   installLanguageHeader,
   onLanguageChange,
@@ -60,6 +61,19 @@ export const AppConfig = {
   cellRenderers: [] as CellRendererEntry[],
   customComponents: [] as CustomComponentEntry[],
   /**
+   * Restrict the languages the app supports.
+   * `languages` narrows the backend's list to only the ones listed here.
+   * `defaultLanguage` is used when the effective language cannot be determined.
+   * `initial` forces the starting language, bypassing persisted/navigator resolution.
+   */
+  i18n: undefined as
+    | undefined
+    | {
+        languages?: string[];
+        defaultLanguage?: string;
+        initial?: string;
+      },
+  /**
    * Default token values resolved at form-open time.
    * Keys match token names (e.g. `"$user"`); values can be any shape.
    * Pass at plugin init or update at runtime via `useCrouton().setDefault()`.
@@ -96,12 +110,22 @@ const createCrouton = (
         if (res.data.isDev !== undefined) {
           config.value = { ...config.value, isDev: res.data.isDev };
         }
-        // i18n: configure language system from backend response.
+        // i18n: configure language system from backend response, narrowed by plugin config.
+        const i18nCfg = _config.i18n;
         if (res.data.i18n) {
           configureLanguage({
             languages: res.data.i18n.languages,
-            defaultLanguage: res.data.i18n.defaultLanguage,
+            defaultLanguage: res.data.i18n.defaultLanguage ?? i18nCfg?.defaultLanguage,
             displayNames: res.data.i18n.displayNames,
+            allowed: i18nCfg?.languages,
+            initial: i18nCfg?.initial,
+          });
+        } else if (i18nCfg?.languages?.length) {
+          // No backend i18n, but plugin has a list — apply it so the UI still reflects the restriction.
+          configureLanguage({
+            allowed: i18nCfg.languages,
+            defaultLanguage: i18nCfg.defaultLanguage,
+            initial: i18nCfg.initial,
           });
         }
         // Store ui dictionary for t() lookups.
@@ -222,7 +246,8 @@ export const CroutonPlugin = (
   options: Partial<typeof AppConfig> & { router?: Router } = {},
 ) => ({
   install(app: App) {
-    // useCrouton(); //.init(api, options);
+    // Apply plugin language restriction before the first request goes out.
+    configureAllowedLanguages(options.i18n);
     app.provide(
       CROUTON_EDITABLE_RENDERERS,
       [customControlRenderers, options.renderers ?? []].flat(),

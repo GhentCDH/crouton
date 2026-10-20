@@ -5,7 +5,8 @@ import { getUiDefaults } from '../i18n/ui-defaults';
 
 const STORAGE_KEY = 'crouton.language';
 
-// Pre-seed from localStorage so defaults are available before the first fetchLayout.
+// Pre-seed from localStorage so the first Accept-Language header is not always 'en'.
+// configureAllowedLanguages() corrects this if the plugin restricts the allowed set.
 const _persistedLang =
   typeof localStorage !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) ?? 'en') : 'en';
 
@@ -37,8 +38,41 @@ const mergeUiDictionary = () => {
 /** Callback invoked after language changes — wired by useCrouton. */
 let _onLanguageChange: (() => Promise<void>) | undefined;
 
+/**
+ * Compute the supported language set from the backend list and the plugin's allowed list.
+ *
+ * Rules:
+ * - No plugin list → use backend list as-is (today's behaviour).
+ * - No backend i18n → use plugin list alone.
+ * - Both present → intersection; if empty, fall back to plugin default and warn once.
+ */
+export const resolveLanguages = (
+  backend: string[] | undefined,
+  plugin: string[] | undefined,
+): { supported: string[]; defaultLanguage: string } => {
+  if (!plugin?.length) {
+    const supported = backend ?? [];
+    return { supported, defaultLanguage: supported[0] ?? 'en' };
+  }
+  if (!backend?.length) {
+    return { supported: plugin, defaultLanguage: plugin[0] ?? 'en' };
+  }
+  const intersection = backend.filter((l) => plugin.includes(l));
+  if (!intersection.length) {
+    const fallback = plugin[0] ?? 'en';
+    console.warn(
+      `[crouton] No language overlap between backend [${backend.join(', ')}] and plugin [${plugin.join(', ')}]. Using "${fallback}".`,
+    );
+    return { supported: [fallback], defaultLanguage: fallback };
+  }
+  return { supported: intersection, defaultLanguage: intersection[0] };
+};
+
 export type LanguageConfig = {
+  /** Languages from the backend (i18n.languages from /_app/layout). */
   languages?: string[];
+  /** Plugin's allowed set — narrows the backend list. Passed from CroutonPlugin options. */
+  allowed?: string[];
   defaultLanguage?: string;
   displayNames?: Record<string, string>;
   /** Initial language. Falls back to persisted → navigator → default. */
@@ -53,24 +87,78 @@ export type LanguageConfig = {
  */
 export const configureLanguage = (cfg: LanguageConfig = {}) => {
   const { persist = true } = cfg;
-  if (cfg.languages?.length) _languages.value = cfg.languages;
-  if (cfg.defaultLanguage) _defaultLanguage.value = cfg.defaultLanguage;
+
+  const { supported, defaultLanguage: resolvedDefault } = resolveLanguages(cfg.languages, cfg.allowed);
+
+  if (supported.length) _languages.value = supported;
+
+  // Effective default: plugin default if supported, backend default if supported, first supported.
+  const effectiveDefault =
+    (cfg.defaultLanguage && supported.includes(cfg.defaultLanguage)
+      ? cfg.defaultLanguage
+      : supported.includes(resolvedDefault)
+        ? resolvedDefault
+        : supported[0]) ?? 'en';
+  _defaultLanguage.value = effectiveDefault;
+
   if (cfg.displayNames) _displayNames.value = cfg.displayNames;
 
-  const initial =
-    cfg.initial ??
-    (persist ? localStorage.getItem(STORAGE_KEY) : null) ??
-    navigatorLanguage(_languages.value) ??
-    _defaultLanguage.value;
+  const persistedRaw =
+    persist && typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+  const persisted = persistedRaw && supported.includes(persistedRaw) ? persistedRaw : null;
 
-  _language.value = _languages.value.includes(initial)
-    ? initial
-    : _defaultLanguage.value;
+  // Overwrite persisted value that is no longer in the supported set.
+  if (persist && persistedRaw && !persisted && typeof localStorage !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, effectiveDefault);
+  }
+
+  const initial =
+    (cfg.initial && supported.includes(cfg.initial) ? cfg.initial : null) ??
+    persisted ??
+    navigatorLanguage(supported) ??
+    effectiveDefault;
+
+  _language.value = supported.includes(initial) ? initial : effectiveDefault;
 
   if (persist) {
     localStorage.setItem(STORAGE_KEY, _language.value);
   }
 
+  mergeUiDictionary();
+};
+
+/**
+ * Apply the plugin's i18n restriction at boot time, before the first backend request.
+ * Corrects the module-level localStorage pre-seed if the persisted language is not allowed.
+ * Called from CroutonPlugin.install before createCrouton.
+ */
+export const configureAllowedLanguages = (i18n?: {
+  languages?: string[];
+  defaultLanguage?: string;
+  initial?: string;
+}) => {
+  if (!i18n?.languages?.length) return; // No restriction — keep today's behaviour.
+
+  const pluginLanguages = i18n.languages;
+  const pluginDefault = i18n.defaultLanguage ?? pluginLanguages[0] ?? 'en';
+
+  let lang: string;
+  if (i18n.initial && pluginLanguages.includes(i18n.initial)) {
+    lang = i18n.initial;
+  } else {
+    const persisted =
+      typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+    if (persisted && pluginLanguages.includes(persisted)) {
+      lang = persisted;
+    } else {
+      lang = pluginDefault;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, lang);
+      }
+    }
+  }
+
+  _language.value = lang;
   mergeUiDictionary();
 };
 
