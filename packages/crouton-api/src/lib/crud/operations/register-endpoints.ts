@@ -19,6 +19,7 @@ import {
 import { registerSchemas } from './register-schemas';
 import { registerUniqueCheck } from './register-unique-check';
 import { registerUpdate } from './register-update';
+import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 export const registerEndpoints = (ctx: OperationContext): void => {
@@ -28,11 +29,13 @@ export const registerEndpoints = (ctx: OperationContext): void => {
   //register other routes
   registerFindAll(ctx);
 
-  registerResourceJsonRawGetEndpoint(ctx);
-  registerResourceJsonRawPutEndpoint(ctx);
-  registerResourceJsonPatchEndpoint(ctx);
+  if (IS_DEV) {
+    registerResourceJsonRawGetEndpoint(ctx);
+    registerResourceJsonRawPutEndpoint(ctx);
+    registerResourceJsonPatchEndpoint(ctx);
+    registerResourceColumnsEndpoint(ctx);
+  }
   registerResourceJsonEndpoint(ctx);
-  registerResourceColumnsEndpoint(ctx);
 
   registerDefinitionEndpoint(ctx);
   // Static `/unique` check must be registered before the `:id` routes below.

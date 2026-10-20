@@ -1,54 +1,19 @@
-import { type JsonResourceOperations, type SecurityConfig } from '@ghentcdh/crouton-core';
+import { type CrudOperation, type SecurityConfig } from '@ghentcdh/crouton-core';
+
+export {
+  type CrudOperation,
+  externalRouteFor,
+  isOperationEnabled,
+  isOperationExternal,
+  resolveDefinition,
+  schemaFor,
+} from '@ghentcdh/crouton-core';
+
+export { isRowProcedureAction, isTableProcedureAction } from './action';
 
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { type ResourceDefinition } from './resource/defintion.schema';
-import { type SchemaInput } from './resource/json.schema';
-
-export { isRowProcedureAction, isTableProcedureAction } from './action';
-
-export type CrudOperation =
-  'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete';
-
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-export const resolveDefinition = (config: Resource): ResourceDefinition => {
-  const def = config.definition;
-  return typeof def === 'function' ? def() : def;
-};
-
-export const isOperationEnabled = (
-  def: ResourceDefinition | JsonResourceOperations,
-  op: CrudOperation,
-): boolean => def[op] != null;
-
-export const schemaFor = (
-  def: ResourceDefinition,
-  op: CrudOperation,
-): SchemaInput | undefined => {
-  const entry = def[op];
-  if (!entry || entry === true) return undefined;
-  return (entry as { schema?: SchemaInput }).schema;
-};
-
-export const isOperationExternal = (
-  def: ResourceDefinition | JsonResourceOperations,
-  op: CrudOperation,
-): boolean => {
-  const entry = def[op];
-  return typeof entry === 'object' && entry !== null && 'uri' in entry;
-};
-
-export const externalRouteFor = (
-  def: ResourceDefinition | JsonResourceOperations,
-  op: CrudOperation,
-): string | undefined => {
-  const entry = def[op];
-  if (typeof entry === 'object' && entry !== null && 'uri' in entry) {
-    return (entry as { uri: string }).uri;
-  }
-  return undefined;
-};
 
 // ─── security ────────────────────────────────────────────────────────────────
 
@@ -65,7 +30,7 @@ export const securityFor = (
   op: CrudOperation,
   moduleDefault?: SecurityConfig,
 ): SecurityConfig | undefined =>
-  opSecurity(def[op]) ?? config.security ?? moduleDefault;
+  opSecurity((def as Record<string, unknown>)[op]) ?? config.security ?? moduleDefault;
 
 /** Same precedence for sub-resources: op-level → parent global → module default. */
 export const securityForSub = (
@@ -74,6 +39,6 @@ export const securityForSub = (
   op: CrudOperation,
   moduleDefault?: SecurityConfig,
 ): SecurityConfig | undefined => {
-  const entry = sub.operations[op];
+  const entry = (sub.operations as Record<string, unknown>)[op];
   return opSecurity(entry) ?? config.security ?? moduleDefault;
 };
