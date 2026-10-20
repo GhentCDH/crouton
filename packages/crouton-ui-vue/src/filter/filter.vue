@@ -50,7 +50,7 @@
           class="w-3 h-3 rounded-full shrink-0 ring-1 ring-black/10"
           :style="{ backgroundColor: item[colorKey] }"
         />
-        <span class="text-sm flex-1 select-none">{{ item[labelKey] }}</span>
+        <span class="text-sm flex-1 select-none break-words min-w-0">{{ item[labelKey] }}</span>
         <span
           v-if="item[countKey] > 0"
           class="badge badge-sm badge-ghost"
