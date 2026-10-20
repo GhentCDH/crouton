@@ -11,6 +11,9 @@ import {
   buildLayouts,
   buildValueLabelColumns,
   columnTypeSchemaSource,
+  enrichActionColumns,
+  enrichIncludeWithSort,
+  enrichRelationTypes,
   extractFindAllSearch,
   extractOpInclude,
   getResourceExtensions,
@@ -26,13 +29,8 @@ import { buildResourceDefinitions } from '../builder/schema.helpers';
 import type { CustomRepository } from '../custom-repository';
 import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
-import {
-  enrichActionColumns,
-  enrichIncludeWithSort,
-  enrichResourceRefColumns,
-} from './column-enrichment';
+import { enrichResourceRefColumns } from './column-enrichment';
 import { expandExtendColumns } from './column-transforms';
-import { enrichRelationTypes } from './relation-type';
 import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
