@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureLanguage, resolveLanguages } from './useLanguage';
+import { configureAllowedLanguages, configureLanguage, resolveLanguages } from './useLanguage';
 
 // ---------------------------------------------------------------------------
 // resolveLanguages — pure helper, no side effects
@@ -36,6 +36,12 @@ describe('resolveLanguages', () => {
   it('both undefined → empty supported, en default', () => {
     const { supported, defaultLanguage } = resolveLanguages(undefined, undefined);
     expect(supported).toEqual([]);
+    expect(defaultLanguage).toBe('en');
+  });
+
+  it('plugin without defaultLanguage → first plugin language used as default', () => {
+    const { supported, defaultLanguage } = resolveLanguages(undefined, ['en']);
+    expect(supported).toEqual(['en']);
     expect(defaultLanguage).toBe('en');
   });
 });
@@ -86,5 +92,32 @@ describe('configureLanguage', () => {
     configureLanguage({ languages: ['de'], allowed: ['en', 'fr'] });
     expect(storage.store['crouton.language']).toBe('en');
     warn.mockRestore();
+  });
+});
+
+describe('configureAllowedLanguages', () => {
+  let storage: ReturnType<typeof makeStorage>;
+
+  beforeEach(() => {
+    storage = makeStorage();
+    vi.stubGlobal('localStorage', storage);
+  });
+
+  it('languages without defaultLanguage → first language is default', () => {
+    storage.setItem('crouton.language', 'nl');
+    configureAllowedLanguages({ languages: ['en'] });
+    expect(storage.store['crouton.language']).toBe('en');
+  });
+
+  it('no i18n option → no-op, persisted language kept', () => {
+    storage.setItem('crouton.language', 'nl');
+    configureAllowedLanguages(undefined);
+    expect(storage.store['crouton.language']).toBe('nl');
+  });
+
+  it('empty languages array → no-op, persisted language kept', () => {
+    storage.setItem('crouton.language', 'nl');
+    configureAllowedLanguages({ languages: [] });
+    expect(storage.store['crouton.language']).toBe('nl');
   });
 });
