@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { JsonColumn } from '../resource';
 
-const EnumEntrySchema = z.object({
+export const EnumEntrySchema = z.object({
   value: z.unknown(),
   label: z.string(),
 });

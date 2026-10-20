@@ -1,37 +1,16 @@
+import { findConfigPath } from '@ghentcdh/crouton-codegen';
 import {
   CONFIG_FILES,
   type CroutonConfig,
   CroutonConfigSchema,
 } from '@ghentcdh/crouton-core';
 
-import { access, readFile } from 'node:fs/promises';
-import { dirname, isAbsolute, join, resolve, resolve as pathResolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { dirname, isAbsolute, resolve as pathResolve } from 'node:path';
 
-const fileExists = async (p: string): Promise<boolean> => {
-  try {
-    await access(p);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
-/** Walk up from `cwd` to find `crouton.json`. */
-export const findConfigPath = async (
-  cwd: string,
-): Promise<string | undefined> => {
-  let dir = resolve(cwd);
 
-  while (true) {
-    for (const name of CONFIG_FILES) {
-      const candidate = join(dir, name);
-      if (await fileExists(candidate)) return candidate;
-    }
-    const parent = dirname(dir);
-    if (parent === dir) return undefined;
-    dir = parent;
-  }
-};
+export { findConfigPath } from '@ghentcdh/crouton-codegen';
 
 export type LoadedConfig = CroutonConfig & {
   /** Absolute directory containing the resolved crouton config file. */
@@ -61,6 +40,6 @@ export const loadConfig = async (): Promise<LoadedConfig> => {
   const configDir = dirname(path);
   const enumsFile = isAbsolute(parsed.enumsFile)
     ? parsed.enumsFile
-    : resolve(configDir, parsed.enumsFile);
+    : pathResolve(configDir, parsed.enumsFile);
   return { ...parsed, configDir, enumsFile };
 };
