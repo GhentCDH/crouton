@@ -10,6 +10,7 @@ export type ResolvedFieldControl = {
   colspan?: number;
   rowspan?: number;
   width?: string;
+  disabled?: boolean;
   showWhen?: WhenCondition;
   hideWhen?: WhenCondition;
   disabledWhen?: WhenCondition;
@@ -37,8 +38,9 @@ export const resolveFieldControl = (
     colspan: item.colspan ?? (fieldOpt(col, 'colspan') as number | undefined),
     rowspan: item.rowspan ?? (fieldOpt(col, 'rowspan') as number | undefined),
     width: item.width ?? (fieldOpt(col, 'width') as string | undefined),
+    disabled: item.disabled ?? (fieldOpt(col, 'disabled') as boolean | undefined),
     showWhen: item.showWhen,
     hideWhen: item.hideWhen,
-    disabledWhen: item.disabledWhen,
+    disabledWhen: item.disabledWhen ?? (fieldOpt(col, 'disabledWhen') as WhenCondition | undefined),
   };
 };

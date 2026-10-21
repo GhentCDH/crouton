@@ -1235,6 +1235,43 @@
                         "description": "Render the field in read-only mode",
                         "type": "boolean"
                       },
+                      "disabled": {
+                        "description": "Always render the input disabled",
+                        "type": "boolean"
+                      },
+                      "disabledWhen": {
+                        "description": "Disable the input when the condition matches another field",
+                        "examples": [
+                          {
+                            "field": "id",
+                            "exists": true
+                          }
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "The other column id whose value is evaluated for the condition."
+                          },
+                          "eq": {
+                            "description": "Show/hide/disable when the field value equals this value."
+                          },
+                          "neq": {
+                            "description": "Show/hide/disable when the field value does NOT equal this value."
+                          },
+                          "exists": {
+                            "description": "When true, show/hide/disable when the field has a non-empty value.",
+                            "type": "boolean"
+                          },
+                          "notExists": {
+                            "description": "When true, show/hide/disable when the field has no value.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ]
+                      },
                       "colspan": {
                         "default": 12,
                         "description": "Grid column span (1–12); defaults to 12 for relation controls",
@@ -1583,6 +1620,43 @@
                         "description": "Render the field in read-only mode",
                         "type": "boolean"
                       },
+                      "disabled": {
+                        "description": "Always render the input disabled",
+                        "type": "boolean"
+                      },
+                      "disabledWhen": {
+                        "description": "Disable the input when the condition matches another field",
+                        "examples": [
+                          {
+                            "field": "id",
+                            "exists": true
+                          }
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "The other column id whose value is evaluated for the condition."
+                          },
+                          "eq": {
+                            "description": "Show/hide/disable when the field value equals this value."
+                          },
+                          "neq": {
+                            "description": "Show/hide/disable when the field value does NOT equal this value."
+                          },
+                          "exists": {
+                            "description": "When true, show/hide/disable when the field has a non-empty value.",
+                            "type": "boolean"
+                          },
+                          "notExists": {
+                            "description": "When true, show/hide/disable when the field has no value.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ]
+                      },
                       "colspan": {
                         "default": 12,
                         "description": "Grid column span (1–12); defaults to 12 for relation controls",
@@ -1771,9 +1845,9 @@
           "markdownDescription": "Prisma model name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "dbTable": {
-          "description": "Database table name override.",
+          "description": "Database table name override (snake_case DB name when different from Prisma model).",
           "type": "string",
-          "markdownDescription": "Database table name override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          "markdownDescription": "Database table name override (snake_case DB name when different from Prisma model).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "datasource": {
           "description": "Datasource name.",
@@ -2685,6 +2759,10 @@
                         "required": [
                           "field"
                         ]
+                      },
+                      "disabled": {
+                        "description": "Always render the input disabled.",
+                        "type": "boolean"
                       },
                       "disabledWhen": {
                         "description": "Conditionally disable this control when the condition matches another field value.",

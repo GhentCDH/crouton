@@ -56,13 +56,10 @@ const applyControlOverrides = (
     // ponytail: shallow merge — styles deep-merge not needed yet
     (base as any).opt(ctrl.options);
   }
-  // Layout-control conditions override column-level conditions
-  if (ctrl.disabledWhen) {
-    base.disableWhen(
-      `#/properties/${ctrl.disabledWhen.field}`,
-      buildConditionSchema(ctrl.disabledWhen),
-    );
-  } else if (ctrl.showWhen) {
+  // disabled/disabledWhen go into options so the rule slot stays free for show/hide
+  if (ctrl.disabled !== undefined) (base as any).opt({ disabled: ctrl.disabled });
+  if (ctrl.disabledWhen) (base as any).opt({ disabledWhen: ctrl.disabledWhen });
+  if (ctrl.showWhen) {
     base.showWhen(
       `#/properties/${ctrl.showWhen.field}`,
       buildConditionSchema(ctrl.showWhen),

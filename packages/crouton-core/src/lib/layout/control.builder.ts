@@ -2,6 +2,7 @@ import type { UISchemaElement } from '@jsonforms/core';
 
 import { ElementBuilder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
+import type { WhenCondition } from './schema/LayoutItem.schema';
 import type { NormalizedUnique } from '../resource/Column';
 import { ControlType } from '../schema/ui/control-type';
 
@@ -155,6 +156,10 @@ export interface ControlOption {
   rowspan?: number;
   /** Async uniqueness validation descriptor, from a column's `unique` flag. */
   unique?: NormalizedUnique;
+  /** Always render this input disabled. */
+  disabled?: boolean;
+  /** Disable this input when the condition matches another field. */
+  disabledWhen?: WhenCondition;
 }
 
 export type ControlTypes = {
