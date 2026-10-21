@@ -1,14 +1,10 @@
 # Migration Guide — next-alpha
 
-> **AI migration guide.** Give this file to an AI assistant (Claude, Cursor, etc.) along with each `resource.json` and ask it to apply all applicable transformations. The AI will check every rule below and rewrite only the sections that need updating.
->
-> For agent file sync (Claude skill / Cursor rule / `AGENTS.md` block), run: `crouton migrate`
+## Hand this file to your AI assistant
 
----
+Paste the following prompt into Claude, Cursor, or any AI assistant, followed by the contents of each `resource.json`
+you want to migrate:
 
-## How to use this guide with AI
-
-Prompt template:
 ```
 Read migrate-to-next-alpha.md and apply all applicable migrations to the resource.json below.
 Output the full updated JSON.
@@ -16,7 +12,86 @@ Output the full updated JSON.
 <resource.json content>
 ```
 
-The AI will apply every transformation whose trigger condition matches and output the corrected file. Review the diff before saving.
+The AI will check every rule in this guide and rewrite only the sections that need updating. Review the diff before
+saving.
+
+---
+
+## Step-by-step migration workflow
+
+Follow these steps in order.
+
+### Step 1 — Update packages to latest alpha
+
+In your project root, update every `@ghentcdh/crouton-*` package to the latest alpha:
+
+```bash
+pnpm add @ghentcdh/crouton-core@alpha @ghentcdh/crouton-api@alpha @ghentcdh/crouton-cli@alpha @ghentcdh/crouton-prisma@alpha
+```
+
+Adjust the package list to match what your project actually uses. After installing, run `pnpm install` to lock the new
+versions.
+
+### Step 2 — Verify Prisma setup uses crouton-prisma
+
+Open your `prisma/schema.prisma` (or equivalent). Confirm the generator block uses the crouton provider:
+
+```prisma
+generator crouton {
+  provider = "crouton-prisma"
+}
+```
+
+If it still references an old provider name or is missing, update it now and re-run `prisma generate`.
+
+### Step 3 — Validate crouton config files
+
+Check that every `crouton.config.ts` / `crouton.config.js` in the repo is valid against the installed version:
+
+```bash
+pnpm crouton validate-config
+```
+
+Fix any reported errors before migrating `resource.json` files.
+
+### Step 4 — Apply resource.json migrations (AI-assisted)
+
+Hand the AI this file and each `resource.json` using the prompt at the top of this document. Review the diff before
+saving.
+
+### Step 5 — Add `$schema` and `schemaVersion: 1`
+
+Every `resource.json` must have these two root keys after migration (the AI migration step above sets them, but
+double-check):
+
+```json
+{
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
+  "schemaVersion": 1
+}
+```
+
+### Step 6 — Validate all resource.json files
+
+After saving, validate every file against the schema:
+
+```bash
+pnpm crouton validate
+```
+
+Fix any remaining validation errors reported. The `$schema` key enables editor autocompletion during fixing.
+
+### Step 7 — Write a migration report
+
+After all files pass validation, ask the AI to summarise what changed:
+
+```
+You have just migrated the resource.json files listed below.
+Write a short migration report: list each file, which transformations were applied, and any manual decisions made.
+Keep it under one page.
+```
+
+Share the report with your team so everyone knows what changed and why.
 
 ---
 
@@ -36,13 +111,21 @@ Root-level `display` and `modalSize` have moved into the layout object.
 // AFTER
 {
   "layout": {
-    "form": { "container": "modal", "containerSize": "lg" },
-    "view": { "container": "modal", "containerSize": "lg" }
+    "form": {
+      "container": "modal",
+      "containerSize": "lg"
+    },
+    "view": {
+      "container": "modal",
+      "containerSize": "lg"
+    }
   }
 }
 ```
 
-**Rule:** Remove `display` and `modalSize` from root. Set `layout.form.container` and `layout.view.container` to the old `display` value, and `layout.form.containerSize` / `layout.view.containerSize` to the old `modalSize` value. Both form and view get the same values.
+**Rule:** Remove `display` and `modalSize` from root. Set `layout.form.container` and `layout.view.container` to the old
+`display` value, and `layout.form.containerSize` / `layout.view.containerSize` to the old `modalSize` value. Both form
+and view get the same values.
 
 ---
 
@@ -56,21 +139,30 @@ The column-level `showInLookup` flag is replaced by a resource-level `lookup.lab
 // BEFORE
 {
   "columns": {
-    "firstName": { "showInLookup": true },
-    "lastName":  { "showInLookup": true }
+    "firstName": {
+      "showInLookup": true
+    },
+    "lastName": {
+      "showInLookup": true
+    }
   }
 }
 
 // AFTER
 {
   "lookup": {
-    "labels": ["firstName", "lastName"],
+    "labels": [
+      "firstName",
+      "lastName"
+    ],
     "separator": " "
   }
 }
 ```
 
-**Rule:** Collect all column ids where `showInLookup: true`. Remove `showInLookup` from those columns. Add `lookup.labels` as an array of those ids (in the order they appear in `columns`). Add `"separator": " "` as default. If `lookup` already exists, merge `labels` in.
+**Rule:** Collect all column ids where `showInLookup: true`. Remove `showInLookup` from those columns. Add
+`lookup.labels` as an array of those ids (in the order they appear in `columns`). Add `"separator": " "` as default. If
+`lookup` already exists, merge `labels` in.
 
 ---
 
@@ -85,7 +177,12 @@ Top-level `include` split by operation:
 {
   "include": [
     "author",
-    { "relation": "chapters", "orderBy": { "position": "asc" } }
+    {
+      "relation": "chapters",
+      "orderBy": {
+        "position": "asc"
+      }
+    }
   ]
 }
 
@@ -95,20 +192,32 @@ Top-level `include` split by operation:
     "findAll": {
       "include": [
         "author",
-        { "relation": "chapters", "orderBy": { "position": "asc" } }
+        {
+          "relation": "chapters",
+          "orderBy": {
+            "position": "asc"
+          }
+        }
       ]
     },
     "findOne": {
       "include": [
         "author",
-        { "relation": "chapters", "orderBy": { "position": "asc" } }
+        {
+          "relation": "chapters",
+          "orderBy": {
+            "position": "asc"
+          }
+        }
       ]
     }
   }
 }
 ```
 
-**Rule:** Remove root `include`. Copy it to `operations.findAll.include` and `operations.findOne.include` (both get the same value). If `operations` already exists, merge in. When only `findAll.include` is set, `findOne` uses it as fallback — so setting both is safe and explicit.
+**Rule:** Remove root `include`. Copy it to `operations.findAll.include` and `operations.findOne.include` (both get the
+same value). If `operations` already exists, merge in. When only `findAll.include` is set, `findOne` uses it as
+fallback — so setting both is safe and explicit.
 
 ---
 
@@ -138,7 +247,8 @@ All datasource-identification fields have moved under a `source` object.
 }
 ```
 
-**Rule:** Move `model`, `table`, `database`, `idType` from root into `source`. Omit any that are not present. If `source` already exists, merge in. Remove the root-level keys.
+**Rule:** Move `model`, `table`, `database`, `idType` from root into `source`. Omit any that are not present. If`source`
+already exists, merge in. Remove the root-level keys.
 
 ---
 
@@ -178,7 +288,9 @@ Top-level `calculatedColumns` array replaced by a `computed` field on the column
 }
 ```
 
-**Rule:** For each entry in `calculatedColumns`: create or merge a column entry keyed by `id`. Move `label` and `position` to the column root. Move `sqlExpression` → `computed.sql` and `type` → `computed.type`. The `alias` field is dropped (redundant with `id`). Remove root `calculatedColumns` after processing all entries.
+**Rule:** For each entry in `calculatedColumns`: create or merge a column entry keyed by `id`. Move `label` and
+`position` to the column root. Move `sqlExpression` → `computed.sql` and `type` → `computed.type`. The `alias` field is
+dropped (redundant with `id`). Remove root `calculatedColumns` after processing all entries.
 
 ---
 
@@ -200,7 +312,8 @@ Top-level `calculatedColumns` array replaced by a `computed` field on the column
 }
 ```
 
-**Rule:** If `tag` exists at root and `openapi` does not, remove `tag` and add `openapi: { tag: <value> }`. If `openapi` already exists, leave the file unchanged (assume it was set intentionally).
+**Rule:** If `tag` exists at root and `openapi` does not, remove `tag` and add `openapi: { tag: <value> }`. If `openapi`
+already exists, leave the file unchanged (assume it was set intentionally).
 
 ---
 
@@ -223,7 +336,8 @@ The `id` field is redundant when it equals `name` (the default).
 }
 ```
 
-**Rule:** If `id` exists at root and `id === name`, remove `id`. If `id !== name`, leave it (it is a meaningful override).
+**Rule:** If `id` exists at root and `id === name`, remove `id`. If `id !== name`, leave it (it is a meaningful
+override).
 
 ---
 
@@ -272,10 +386,15 @@ Relation configuration has moved from `fieldInput` to a top-level `relation` fie
 }
 ```
 
-**Rule (per column):** If `fieldInput.resource` exists or `fieldInput.format === "relation"`, and `relation` is not yet set:
-1. Build a `relation` object: `resource` from `fieldInput.resource`, `type` from `fieldInput.relationType`, `foreignKey` from `fieldInput.foreignKey`, `prismaField` from `fieldInput.relation`, `sort` from `fieldInput.options.sort`, `sortDir` from `fieldInput.options.sortDir`. Omit keys that are undefined.
+**Rule (per column):** If `fieldInput.resource` exists or `fieldInput.format === "relation"`, and `relation` is not yet
+set:
+
+1. Build a `relation` object: `resource` from `fieldInput.resource`, `type` from `fieldInput.relationType`, `foreignKey`
+   from `fieldInput.foreignKey`, `prismaField` from `fieldInput.relation`, `sort` from `fieldInput.options.sort`,
+   `sortDir` from `fieldInput.options.sortDir`. Omit keys that are undefined.
 2. Lift `fieldInput.options.displayKey` to the column root as `displayKey` (if not already there).
-3. Remove from `fieldInput`: `resource`, `relationType`, `foreignKey`, `relation`, `format`. Remove from `fieldInput.options`: `sort`, `sortDir`, `resource`, `displayKey`.
+3. Remove from `fieldInput`: `resource`, `relationType`, `foreignKey`, `relation`, `format`. Remove from
+   `fieldInput.options`: `sort`, `sortDir`, `resource`, `displayKey`.
 4. If `fieldInput` has no remaining meaningful keys, delete it. Otherwise keep the remainder.
 5. Add `relation` to the column root.
 
@@ -297,14 +416,22 @@ All layout nodes now use a single `items` list. The separate `controls` list is 
       "type": "grid",
       "columns": 12,
       "controls": [
-        { "id": "title", "colspan": 9 },
-        { "id": "status", "colspan": 3 }
+        {
+          "id": "title",
+          "colspan": 9
+        },
+        {
+          "id": "status",
+          "colspan": 3
+        }
       ],
       "items": [
         {
           "type": "collapse",
           "title": "Meta",
-          "controls": ["createdAt"]
+          "controls": [
+            "createdAt"
+          ]
         }
       ]
     }
@@ -320,12 +447,20 @@ All layout nodes now use a single `items` list. The separate `controls` list is 
       "type": "grid",
       "columns": 12,
       "items": [
-        { "id": "title", "colspan": 9 },
-        { "id": "status", "colspan": 3 },
+        {
+          "id": "title",
+          "colspan": 9
+        },
+        {
+          "id": "status",
+          "colspan": 3
+        },
         {
           "type": "collapse",
           "title": "Meta",
-          "items": ["createdAt"]
+          "items": [
+            "createdAt"
+          ]
         }
       ]
     }
@@ -333,7 +468,9 @@ All layout nodes now use a single `items` list. The separate `controls` list is 
 }
 ```
 
-**Rule:** Recursively, on every layout node: append all entries from `controls` to the end of `items` (or create `items` if absent), then delete `controls`. Rename nested `controls` → `items` the same way. Set `schemaVersion: 1` and `$schema` at root. Order is fully preserved — fields and containers render in `items` order.
+**Rule:** Recursively, on every layout node: append all entries from `controls` to the end of `items` (or create `items`
+if absent), then delete `controls`. Rename nested `controls` → `items` the same way. Set `schemaVersion: 1` and`$schema`
+at root. Order is fully preserved — fields and containers render in `items` order.
 
 ### Table layout
 
@@ -342,10 +479,24 @@ All layout nodes now use a single `items` list. The separate `controls` list is 
 {
   "layout": {
     "table": {
-      "controls": ["title", "status", "createdAt"],
-      "actions": [{ "id": "approve", "label": "Approve", "type": "post" }],
-      "searchFields": ["title"],
-      "filterFields": ["status"]
+      "controls": [
+        "title",
+        "status",
+        "createdAt"
+      ],
+      "actions": [
+        {
+          "id": "approve",
+          "label": "Approve",
+          "type": "post"
+        }
+      ],
+      "searchFields": [
+        "title"
+      ],
+      "filterFields": [
+        "status"
+      ]
     }
   }
 }
@@ -356,14 +507,28 @@ All layout nodes now use a single `items` list. The separate `controls` list is 
   "schemaVersion": 1,
   "operations": {
     "findAll": {
-      "search": ["title"],
-      "filter": ["status"]
+      "search": [
+        "title"
+      ],
+      "filter": [
+        "status"
+      ]
     }
   },
   "layout": {
     "table": {
-      "items": ["title", "status", "createdAt"],
-      "rowActions": [{ "id": "approve", "label": "Approve", "type": "post" }]
+      "items": [
+        "title",
+        "status",
+        "createdAt"
+      ],
+      "rowActions": [
+        {
+          "id": "approve",
+          "label": "Approve",
+          "type": "post"
+        }
+      ]
     }
   }
 }
@@ -379,48 +544,113 @@ See also: `actions` → `rowActions` and `searchFields`/`filterFields` → `oper
 
 ```json
 // BEFORE
-{ "layout": { "table": { "actions": [...] } } }
+{
+  "layout": {
+    "table": {
+      "actions": [
+        ...
+      ]
+    }
+  }
+}
 
 // AFTER
-{ "layout": { "table": { "rowActions": [...] } } }
+{
+  "layout": {
+    "table": {
+      "rowActions": [
+        ...
+      ]
+    }
+  }
+}
 ```
 
 Sub-resources:
+
 ```json
 // BEFORE
-{ "subResources": [{ "childRoute": "chapters", "actions": [...] }] }
+{
+  "subResources": [
+    {
+      "childRoute": "chapters",
+      "actions": [
+        ...
+      ]
+    }
+  ]
+}
 
 // AFTER
-{ "subResources": [{ "childRoute": "chapters", "layout": { "table": { "rowActions": [...] } } }] }
+{
+  "subResources": [
+    {
+      "childRoute": "chapters",
+      "layout": {
+        "table": {
+          "rowActions": [
+            ...
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
 
-**Rule:** Rename `actions` → `rowActions` on every table node and sub-resource. For sub-resources that have a bare `actions` at root (not inside `layout.table`), move it to `layout.table.rowActions`.
+**Rule:** Rename `actions` → `rowActions` on every table node and sub-resource. For sub-resources that have a bare
+`actions` at root (not inside `layout.table`), move it to `layout.table.rowActions`.
 
 ---
 
 ## `searchFields` / `filterFields` → `operations.findAll` (breaking)
 
-**When to apply:** `layout.table.searchFields` or `layout.table.filterFields` exists (at any nesting level), or any column has `searchable: true`.
+**When to apply:** `layout.table.searchFields` or `layout.table.filterFields` exists (at any nesting level), or any
+column has `searchable: true`.
 
 ```json
 // BEFORE
 {
-  "columns": { "title": { "searchable": true } },
+  "columns": {
+    "title": {
+      "searchable": true
+    }
+  },
   "layout": {
-    "table": { "searchFields": ["body"], "filterFields": ["status"] }
+    "table": {
+      "searchFields": [
+        "body"
+      ],
+      "filterFields": [
+        "status"
+      ]
+    }
   }
 }
 
 // AFTER
 {
   "operations": {
-    "findAll": { "search": ["title", "body"], "filter": ["status"] }
+    "findAll": {
+      "search": [
+        "title",
+        "body"
+      ],
+      "filter": [
+        "status"
+      ]
+    }
   },
-  "layout": { "table": {} }
+  "layout": {
+    "table": {}
+  }
 }
 ```
 
-**Rule:** Collect all search fields from: (a) `layout.table.searchFields` (or recursively inside a wrapper table node), (b) column ids where `searchable: true`. Remove `searchable` from columns. Remove `searchFields` from layout. Set `operations.findAll.search` to the deduplicated union. Move `filterFields` → `operations.findAll.filter` the same way. Only apply if `operations.findAll.search` is not already set.
+**Rule:** Collect all search fields from: (a) `layout.table.searchFields` (or recursively inside a wrapper table node),
+(b) column ids where `searchable: true`. Remove `searchable` from columns. Remove `searchFields` from layout. Set
+`operations.findAll.search` to the deduplicated union. Move `filterFields` → `operations.findAll.filter` the same way.
+Only apply if `operations.findAll.search` is not already set.
 
 ---
 
@@ -428,20 +658,29 @@ Sub-resources:
 
 **When to apply:** any column has a `fieldView` or `columnType` key.
 
-These fields are silently deleted — they have no replacement (use `layout.view.items[].type/options` for per-column view overrides; use the column's top-level `type` instead of `columnType`).
+These fields are silently deleted — they have no replacement (use `layout.view.items[].type/options` for per-column view
+overrides; use the column's top-level `type` instead of `columnType`).
 
 ```json
 // BEFORE
 {
   "columns": {
-    "body": { "type": "text", "fieldView": { "type": "markdown" }, "columnType": "longtext" }
+    "body": {
+      "type": "text",
+      "fieldView": {
+        "type": "markdown"
+      },
+      "columnType": "longtext"
+    }
   }
 }
 
 // AFTER
 {
   "columns": {
-    "body": { "type": "text" }
+    "body": {
+      "type": "text"
+    }
   }
 }
 ```
@@ -450,7 +689,7 @@ These fields are silently deleted — they have no replacement (use `layout.view
 
 ---
 
-## Deprecated column fields: `sortable`, `searchable`, `filterable`, `showWhen`, `hideWhen`, `disabledWhen`, `fieldTable`
+## Deprecated column fields: `sortable`, `searchable`, `filterable`, `showWhen`, `hideWhen`, `disabledWhen`,`fieldTable`
 
 **When to apply:** any column has one of these keys at column level.
 
@@ -458,49 +697,151 @@ These fields are silently deleted — they have no replacement (use `layout.view
 
 ```json
 // BEFORE
-{ "columns": { "title": { "sortable": true }, "createdAt": { "sortable": true, "defaultSort": true } } }
+{
+  "columns": {
+    "title": {
+      "sortable": true
+    },
+    "createdAt": {
+      "sortable": true,
+      "defaultSort": true
+    }
+  }
+}
 
 // AFTER
-{ "layout": { "table": { "items": [{ "id": "title", "sortable": true }, { "id": "createdAt", "sortable": true, "defaultSort": true }] } } }
+{
+  "layout": {
+    "table": {
+      "items": [
+        {
+          "id": "title",
+          "sortable": true
+        },
+        {
+          "id": "createdAt",
+          "sortable": true,
+          "defaultSort": true
+        }
+      ]
+    }
+  }
+}
 ```
 
-**Rule:** Move `sortable` and `defaultSort` from column to the matching `layout.table.items[]` entry (match by `id`). Create the entry if it doesn't exist.
+**Rule:** Move `sortable` and `defaultSort` from column to the matching `layout.table.items[]` entry (match by `id`).
+Create the entry if it doesn't exist.
 
 ### `filterable`
 
 ```json
 // BEFORE
-{ "columns": { "status": { "filterable": true } } }
+{
+  "columns": {
+    "status": {
+      "filterable": true
+    }
+  }
+}
 
 // AFTER
-{ "operations": { "findAll": { "filter": ["status"] } } }
+{
+  "operations": {
+    "findAll": {
+      "filter": [
+        "status"
+      ]
+    }
+  }
+}
 ```
 
-**Rule:** Collect column ids where `filterable: true`. Remove `filterable` from those columns. Add to `operations.findAll.filter`.
+**Rule:** Collect column ids where `filterable: true`. Remove `filterable` from those columns. Add to
+`operations.findAll.filter`.
 
 ### `showWhen` / `hideWhen` / `disabledWhen`
 
-Move from the column to the matching item in `layout.table.items[]`, `layout.form.items[]`, or `layout.view.items[]` depending on context. For table context:
+Move from the column to the matching item in `layout.table.items[]`, `layout.form.items[]`, or `layout.view.items[]`
+depending on context. For table context:
 
 ```json
 // BEFORE
-{ "columns": { "endDate": { "showWhen": { "field": "status", "eq": "active" } } } }
+{
+  "columns": {
+    "endDate": {
+      "showWhen": {
+        "field": "status",
+        "eq": "active"
+      }
+    }
+  }
+}
 
 // AFTER
-{ "layout": { "table": { "items": [{ "id": "endDate", "showWhen": { "field": "status", "eq": "active" } }] } } }
+{
+  "layout": {
+    "table": {
+      "items": [
+        {
+          "id": "endDate",
+          "showWhen": {
+            "field": "status",
+            "eq": "active"
+          }
+        }
+      ]
+    }
+  }
+}
 ```
 
 ### `fieldTable`
 
 ```json
 // BEFORE
-{ "columns": { "status": { "fieldTable": { "type": "select", "options": { "values": [{ "value": "active", "label": "Active" }] } } } } }
+{
+  "columns": {
+    "status": {
+      "fieldTable": {
+        "type": "select",
+        "options": {
+          "values": [
+            {
+              "value": "active",
+              "label": "Active"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
 
 // AFTER
-{ "layout": { "table": { "items": [{ "id": "status", "type": "select", "options": { "values": [{ "value": "active", "label": "Active" }] } }] } } }
+{
+  "layout": {
+    "table": {
+      "items": [
+        {
+          "id": "status",
+          "type": "select",
+          "options": {
+            "values": [
+              {
+                "value": "active",
+                "label": "Active"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
 ```
 
-**Rule:** Move `fieldTable` content (its `type` and `options`) to the matching `layout.table.items[]` entry for that column id. Remove `fieldTable` from the column.
+**Rule:** Move `fieldTable` content (its `type` and `options`) to the matching `layout.table.items[]` entry for that
+column id. Remove `fieldTable` from the column.
 
 ---
 
@@ -520,14 +861,37 @@ Add as the first key in the file.
 
 ## Sub-resources
 
-Sub-resource configs (inline children of a resource) also had a top-level `actions` field. Move it into `layout.table.rowActions`:
+Sub-resource configs (inline children of a resource) also had a top-level `actions` field. Move it into
+`layout.table.rowActions`:
 
 ```json
 // BEFORE
-{ "subResources": [{ "childRoute": "chapters", "actions": [...] }] }
+{
+  "subResources": [
+    {
+      "childRoute": "chapters",
+      "actions": [
+        ...
+      ]
+    }
+  ]
+}
 
 // AFTER
-{ "subResources": [{ "childRoute": "chapters", "layout": { "table": { "rowActions": [...] } } }] }
+{
+  "subResources": [
+    {
+      "childRoute": "chapters",
+      "layout": {
+        "table": {
+          "rowActions": [
+            ...
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -596,9 +960,14 @@ grep -rn '"showInLookup"' --include="resource.json" .
 
 - **`controls` instead of `items`**: `"controls": [...]` fails validation with a migration hint.
 - **`actions` instead of `rowActions`**: `"actions": [...]` on a table node fails validation. Rename to `rowActions`.
-- **Table settings on the wrapper, not the table node**: in a wrapper layout, `rowActions`, `tableActions`, `searchFields`, `filterFields` must go on the `{ "type": "table", ... }` node, not the outer grid.
-- **Field ids directly in a wrapper node**: field ids (strings or `{ id }` objects) are only valid inside the table node's `items`.
-- **`sortable` on the column, not the item**: still validates (backward compat) but won't get autocomplete. Move to `layout.table.items[].sortable`.
-- **`$schema` path wrong**: it's `https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json` — an absolute URL, not a relative path.
+- **Table settings on the wrapper, not the table node**: in a wrapper layout, `rowActions`, `tableActions`,
+  `searchFields`, `filterFields` must go on the `{ "type": "table", ... }` node, not the outer grid.
+- **Field ids directly in a wrapper node**: field ids (strings or `{ id }` objects) are only valid inside the table
+  node's `items`.
+- **`sortable` on the column, not the item**: still validates (backward compat) but won't get autocomplete. Move to
+  `layout.table.items[].sortable`.
+- **`$schema` path wrong**: it's `https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json` — an absolute URL,
+  not a relative path.
 - **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
-- **`searchFields`/`filterFields` in `layout.table`**: removed — move to `operations.findAll.search` / `operations.findAll.filter`.
+- **`searchFields`/`filterFields` in `layout.table`**: removed — move to `operations.findAll.search` /
+  `operations.findAll.filter`.
