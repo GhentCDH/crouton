@@ -131,7 +131,8 @@ export const compileResource = (
       })),
   ];
 
-  const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
+  const regularColumns = enrichedColumns.filter((c) => !(c as any).computed);
+  const visibilityColumns = resolveColumnVisibility(regularColumns, json.layout);
   const layoutCtx = {
     columns: visibilityColumns,
     source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
