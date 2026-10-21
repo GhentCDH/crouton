@@ -108,7 +108,8 @@ export const fromJson = (
       })),
   ];
 
-  const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
+  const regularColumns = enrichedColumns.filter((c) => !(c as any).computed);
+  const visibilityColumns = resolveColumnVisibility(regularColumns, json.layout);
   const rawViews = buildLayouts(json.layout, {
     columns: visibilityColumns,
     source: schema

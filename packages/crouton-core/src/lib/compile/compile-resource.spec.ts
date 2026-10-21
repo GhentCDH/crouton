@@ -55,3 +55,20 @@ describe('compileResource — layout wired', () => {
     );
   });
 });
+
+describe('compileResource — computed columns not duplicated in table (#247)', () => {
+  const jsonWithComputed = {
+    ...baseJson,
+    columns: [
+      ...baseJson.columns,
+      { id: 'display_label', type: 'string', computed: { sql: 'first || \' \' || last', type: 'string' } },
+    ],
+  } as unknown as ResourceJson;
+
+  it('computed column appears exactly once in table ui_schema elements', () => {
+    const result = compileResource(jsonWithComputed);
+    const elements = ((result.views as any)?.table?.ui_schema as any)?.elements ?? [];
+    const ids = elements.map((e: any) => e.scope?.split('/').pop());
+    expect(ids.filter((id: string) => id === 'display_label')).toHaveLength(1);
+  });
+});

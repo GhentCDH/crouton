@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatDate, relativeDate } from '../displayValue/formatDate';
+import { formatDate, isDate, relativeDate } from '../displayValue/formatDate';
 
 describe('formatDate', () => {
   const iso = '2026-06-05T07:27:20.987Z';
@@ -13,6 +13,30 @@ describe('formatDate', () => {
     ${'not-a-date'} | ${'unparseable string'}
   `('returns null for $reason', ({ value }) => {
     expect(formatDate(value)).toBeNull();
+  });
+
+  describe('isDate — year/number false-positive guard (#249)', () => {
+    it.each`
+      value       | reason
+      ${'1990'}   | ${'bare year'}
+      ${'6641'}   | ${'large year'}
+      ${'42'}     | ${'integer'}
+      ${'0'}      | ${'zero'}
+    `('does not treat $reason as a date', ({ value }) => {
+      expect(isDate(value)).toBe(false);
+    });
+
+    it.each`
+      value
+      ${'2026-06-05'}
+      ${'2026-06-05T07:27:20.987Z'}
+    `('recognises ISO string $value as a date', ({ value }) => {
+      expect(isDate(value)).toBe(true);
+    });
+
+    it('accepts a Date instance', () => {
+      expect(isDate(new Date())).toBe(true);
+    });
   });
 
   it('formats date + time in UTC by default', () => {

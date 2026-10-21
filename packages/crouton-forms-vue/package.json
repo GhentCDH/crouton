@@ -39,7 +39,7 @@
   "peerDependencies": {
     "@ghentcdh/crouton-ui-vue": ">=0.0.1-alpha",
     "@jsonforms/core": ">=3.0.0",
-    "vee-validate": ">=5.0.0-beta.1",
+    "vee-validate": ">=5.0.0-beta.0",
     "vue": ">=3.0.0",
     "vue-router": "^5.0.0",
     "zod": "^4.0.0"
