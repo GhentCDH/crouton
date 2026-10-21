@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { opt } from './option-meta';
+import { WhenConditionSchema } from '../../layout/schema/LayoutItem.schema';
 
 export const BaseOptionsSchema = z
   .object({
@@ -17,6 +18,13 @@ export const BaseOptionsSchema = z
     }),
     readonly: opt(z.boolean().optional(), {
       description: 'Render the field in read-only mode',
+    }),
+    disabled: opt(z.boolean().optional(), {
+      description: 'Always render the input disabled',
+    }),
+    disabledWhen: opt(WhenConditionSchema.optional(), {
+      description: 'Disable the input when the condition matches another field',
+      examples: [{ field: 'id', exists: true }],
     }),
     colspan: opt(z.number().optional(), {
       description: 'Grid column span (1–12)',
