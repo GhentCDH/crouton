@@ -3,7 +3,6 @@
     v-bind="properties"
     :options="values"
     :is-open="isOpen"
-    :disabled="!enabled"
     :query="undefined"
     :is-active="hasValue"
     @close="close"
@@ -16,6 +15,7 @@
       :class="[style, width]"
       :aria-label="id"
       role="combobox"
+      :disabled="!enabled"
       @click="isOpen = true"
     >
       {{ displayValues ?? 'Select value' }}
