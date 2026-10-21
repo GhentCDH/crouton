@@ -24,7 +24,7 @@
         :hide-label="true"
         :hide-errors="true"
         :fetch-options="fetchOptions.fetchOptions ?? undefined"
-        :label-key="options.displayKey ?? options.labelKey"
+        :label-key="options.labelKey ?? options.displayKey"
         :value-key="options.valueKey ?? 'id'"
         :enable-create="fetchOptions.enableCreate"
         @change="onChange"
