@@ -111,7 +111,9 @@ export const fromJson = (
   const visibilityColumns = resolveColumnVisibility(enrichedColumns, json.layout);
   const rawViews = buildLayouts(json.layout, {
     columns: visibilityColumns,
-    source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
+    source: schema
+      ? (cols) => zodSchemaSource(schema)(cols) ?? columnTypeSchemaSource(cols)
+      : columnTypeSchemaSource,
     warn: console.warn,
   });
   let views = Object.keys(rawViews).length ? rawViews : undefined;
