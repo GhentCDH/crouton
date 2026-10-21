@@ -16,12 +16,19 @@ export const enrichActionColumns = (
     if (!isRelationColumn(col)) return col;
     const sub = subResources.find((s) => s.column === col.id);
     if (!sub) return col;
+    const userOpts = col.fieldInput?.options as Record<string, unknown> | undefined;
+    const userAutocomplete = userOpts?.autocompleteResource as string | undefined;
+    const resolvedAutocomplete = userAutocomplete
+      ? userAutocomplete.startsWith('http')
+        ? userAutocomplete
+        : `${base}/${userAutocomplete.replace(/^\//, '')}`
+      : `${base}/${sub.childRoute}/schemas`;
     return {
       ...col,
       fieldInput: {
         ...col.fieldInput,
         options: {
-          ...(col.fieldInput?.options as object | undefined),
+          ...userOpts,
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
           resourceUri: `${base}/${sub.childRoute}`,
           resource:
@@ -29,7 +36,7 @@ export const enrichActionColumns = (
               ? `${base}/${sub.childRoute}/schemas`
               : `${base}/${parentRoute}/${sub.childRoute}/schemas`,
           ...(sub.relationType !== 'manyToOne' && {
-            autocompleteResource: `${base}/${sub.childRoute}/schemas`,
+            autocompleteResource: resolvedAutocomplete,
           }),
         },
       },
