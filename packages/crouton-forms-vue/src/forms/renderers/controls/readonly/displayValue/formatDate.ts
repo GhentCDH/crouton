@@ -82,8 +82,11 @@ export const relativeDate = (
   return relativeFromNow(date, now ?? new Date(), locale);
 };
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
+
 export const parseDate = (value: string | Date | any) => {
   if (value == null || value === '') return null;
+  if (!(value instanceof Date) && !ISO_DATE_RE.test(String(value))) return null;
 
   const date = value instanceof Date ? value : new Date(String(value));
   if (Number.isNaN(date.getTime())) return null;
