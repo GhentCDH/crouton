@@ -34,7 +34,7 @@ export const ResourceSchema = ResourceJsonShape.extend({
   idField: z.string(),
   /** Prisma model name (flattened from source.model). */
   model: z.string().optional(),
-  /** Database table name override (flattened from source.table). */
+  /** Database table name override (flattened from source.dbTable). */
   table: z.string().optional(),
   /** Datasource name (flattened from source.database). */
   database: z.string().optional(),

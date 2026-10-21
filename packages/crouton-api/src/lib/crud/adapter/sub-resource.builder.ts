@@ -142,7 +142,7 @@ export const buildSubResources = (
           })),
       ];
       const rawChildViews = childJson
-        ? buildLayouts(undefined, {
+        ? buildLayouts(childJson.layout as any, {
             columns: enrichedChildColumns ?? [],
             source: nestedColumnSchemaSource,
             warn: console.warn,
