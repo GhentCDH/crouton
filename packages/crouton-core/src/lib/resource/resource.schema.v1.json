@@ -1845,9 +1845,9 @@
           "markdownDescription": "Prisma model name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "dbTable": {
-          "description": "Database table name override (snake_case DB name when different from Prisma model).",
+          "description": "Database table name override.",
           "type": "string",
-          "markdownDescription": "Database table name override (snake_case DB name when different from Prisma model).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          "markdownDescription": "Database table name override.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
         },
         "datasource": {
           "description": "Datasource name.",
