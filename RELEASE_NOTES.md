@@ -1,3 +1,31 @@
+## 0.0.1-alpha.87 (2026-10-21)
+
+### 🚀 Features
+
+- table column & node options ([#207](https://github.com/GhentCDH/crouton/pull/207))
+- relation config out of fieldInput → column.relation ([#211](https://github.com/GhentCDH/crouton/pull/211))
+- container schema defaults ([#216](https://github.com/GhentCDH/crouton/pull/216))
+- ⚠️  **crouton-core:** restructure resource schema — flatten source, layout, operations, and lookup namespaces ([#208](https://github.com/GhentCDH/crouton/pull/208))
+- ⚠️  **crouton-core:** enum column defaults — single source of truth, labelKey/valueKey, warn on unknown ([#214](https://github.com/GhentCDH/crouton/pull/214))
+- **crouton-editor-vue:** align to post-PR-B/C resource-json schema ([#212](https://github.com/GhentCDH/crouton/pull/212))
+- **crouton-vue:** add plugin i18n language restriction ([#218](https://github.com/GhentCDH/crouton/pull/218))
+
+### 🩹 Fixes
+
+- formcomponent files ([e1ed88f](https://github.com/GhentCDH/crouton/commit/e1ed88f))
+- **crouton-api:** read source.model for foreignKey derivation in buil… ([#215](https://github.com/GhentCDH/crouton/pull/215))
+- **crouton-api:** propagate computed-column calculatedColumns to sub-resource ([#228](https://github.com/GhentCDH/crouton/pull/228))
+- **crouton-core:** add migrate errors for all removed root keys ([#213](https://github.com/GhentCDH/crouton/pull/213))
+
+### ⚠️  Breaking Changes
+
+- **crouton-core:** enum column defaults — single source of truth, labelKey/valueKey, warn on unknown  ([#214](https://github.com/GhentCDH/crouton/pull/214))
+- **crouton-core:** restructure resource schema — flatten source, layout, operations, and lookup namespaces  ([#208](https://github.com/GhentCDH/crouton/pull/208))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## Internal refactor — module consolidation (PRs #217–#227)
 
 **No changes to `resource.json` format, HTTP routes, or OpenAPI document.**
