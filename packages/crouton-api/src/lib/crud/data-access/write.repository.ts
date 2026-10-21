@@ -305,9 +305,7 @@ export class WriteRepository<T = any> {
           ([k, v]) => !includeKeys.has(k) || isPrismaRelationWrite(v),
         ),
       ),
-      ...(sub.foreignKey in preparedEntries
-        ? { [sub.foreignKey]: this.toId(parentId) }
-        : {}),
+      [sub.foreignKey]: this.toId(parentId),
     };
     const result = await childModel.create({ data: prismaData });
     return sub.hooks?.afterWrite
