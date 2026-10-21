@@ -185,6 +185,7 @@ export const fromJson = (
 
 const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
+  !(c as any).computed &&
   c.fieldInput?.format !== 'relation' &&
   !c.fieldInput?.relationType &&
   c.fieldInput?.type !== 'date';

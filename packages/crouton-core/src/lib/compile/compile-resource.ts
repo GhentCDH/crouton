@@ -33,6 +33,7 @@ const pickExtensions = (obj: Record<string, unknown>) =>
 
 const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
+  !(c as any).computed &&
   c.relation === undefined &&
   c.fieldInput?.format !== 'relation' &&
   !c.fieldInput?.relationType &&
