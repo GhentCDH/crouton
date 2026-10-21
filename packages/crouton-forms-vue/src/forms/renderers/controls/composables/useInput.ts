@@ -1,7 +1,9 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
+import { useFormContext } from 'vee-validate';
 import { computed, inject, ref } from 'vue';
 
+import { evaluateWhen } from '@ghentcdh/crouton-core';
 import { type MyStyles, mergeStyles, useUiTranslator } from '@ghentcdh/crouton-ui-vue';
 
 import { formatError } from '../../../errorMessages';
@@ -97,6 +99,16 @@ export const useInputProps = (
   const errorMode = inject(ERROR_MODE_KEY, ref('onBlur'));
   const submitted = inject(FORM_SUBMITTED_KEY, ref(false));
   const formReadonly = inject(FORM_READONLY_KEY, ref(false));
+  const pathPrefix = inject<string>('pathPrefix', '');
+  const { values: formValues } = useFormContext();
+
+  const conditionallyDisabled = computed(() => {
+    if (!opts.disabledWhen) return false;
+    const scopedValues = (pathPrefix && (formValues as any)[pathPrefix])
+      ? (formValues as any)[pathPrefix]
+      : formValues;
+    return evaluateWhen(opts.disabledWhen, scopedValues as Record<string, unknown>);
+  });
 
   const shouldShowError = computed(() => {
     if (!errorMessage.value) return false;
@@ -133,7 +145,7 @@ export const useInputProps = (
       labelFromScope.charAt(0).toUpperCase() + labelFromScope.slice(1),
     visible: opts.visible ?? true,
     required: isRequired,
-    enabled: opts.readonly !== true && !formReadonly.value,
+    enabled: opts.readonly !== true && opts.disabled !== true && !conditionallyDisabled.value && !formReadonly.value,
     isFocused: false,
     isTouched: shouldShowError.value,
     hideLabel: opts.hideLabel ?? false,

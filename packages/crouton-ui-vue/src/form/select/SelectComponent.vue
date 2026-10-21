@@ -2,7 +2,6 @@
   <SelectWrapper
     v-bind="properties"
     :options="values"
-    :disabled="!enabled"
     :is-open="isOpen"
     :query="displayValue"
     :is-active="hasValue"
@@ -17,6 +16,7 @@
       :class="[style, width]"
       :aria-label="id"
       role="combobox"
+      :disabled="!enabled"
       @click="isOpen = true"
     >
       {{ displayValue ?? 'Select value' }}

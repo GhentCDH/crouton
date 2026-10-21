@@ -45,6 +45,7 @@ export const _LayoutFieldControlSchema = z.object({
   hideWhen: WhenConditionSchema.optional().describe(
     'Conditionally hide this control when the condition matches another field value.',
   ),
+  disabled: z.boolean().optional().describe('Always render the input disabled.'),
   disabledWhen: WhenConditionSchema.optional().describe(
     'Conditionally disable this control when the condition matches another field value.',
   ),

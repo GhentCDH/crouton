@@ -55,19 +55,32 @@ describe('buildFormUiSchema (golden output)', () => {
     expect(author.options.colspan).toBe(12);
   });
 
-  it('emits SHOW / DISABLE rules directly on the control (no post-build mutation)', () => {
+  it('emits SHOW rule for showWhen', () => {
     expect(byScope(uiSchema, 'status').rule).toEqual({
       effect: 'SHOW',
       condition: { scope: '#/properties/active', schema: { const: true } },
     });
-    expect(byScope(uiSchema, 'reason').rule).toEqual({
-      effect: 'DISABLE',
-      condition: { scope: '#/properties/locked', schema: { const: true } },
-    });
+  });
+
+  it('emits disabledWhen into options (not rule) so showWhen and disabledWhen can coexist', () => {
+    const reason = byScope(uiSchema, 'reason');
+    expect(reason.rule).toBeUndefined();
+    expect(reason.options.disabledWhen).toEqual({ field: 'locked', eq: true });
   });
 
   it('does not emit a rule for fields without conditions', () => {
     expect(byScope(uiSchema, 'name').rule).toBeUndefined();
+  });
+
+  it('disabled + showWhen coexist: both in options and rule', () => {
+    const cols2 = parse([{ id: 'title', fieldInput: { type: 'text' } }]);
+    const schema2 = buildFormUiSchemaFromLayout(
+      { items: [{ id: 'title', disabled: true, showWhen: { field: 'active', eq: true } }] } as any,
+      cols2,
+    ) as any;
+    const title = schema2.elements[0];
+    expect(title.options.disabled).toBe(true);
+    expect(title.rule).toMatchObject({ effect: 'SHOW' });
   });
 });
 
@@ -115,5 +128,23 @@ describe('buildFormControl option forwarding', () => {
     expect(built.options.format).toBe('date-range');
     expect(built.options.fromLabel).toBe('Start');
     expect(built.options.toLabel).toBe('End');
+  });
+
+  it('forwards disabled from column fieldInput.options into uischema', () => {
+    const col = JsonColumnSchema.parse({
+      id: 'slug',
+      fieldInput: { type: 'text', options: { disabled: true } },
+    });
+    const built = buildFormControl(col).build() as any;
+    expect(built.options.disabled).toBe(true);
+  });
+
+  it('forwards disabledWhen from column fieldInput.options into uischema', () => {
+    const col = JsonColumnSchema.parse({
+      id: 'status',
+      fieldInput: { type: 'text', options: { disabledWhen: { field: 'id', exists: true } } },
+    });
+    const built = buildFormControl(col).build() as any;
+    expect(built.options.disabledWhen).toEqual({ field: 'id', exists: true });
   });
 });

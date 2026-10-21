@@ -25,7 +25,7 @@
 
             <!-- Clear button -->
             <button
-              v-if="query && !isLoading && clearable"
+              v-if="query && !isLoading && clearable && enabled"
               type="button"
               class="pointer-events-auto btn btn-ghost btn-xs btn-circle opacity-60 hover:opacity-100"
               tabindex="-1"

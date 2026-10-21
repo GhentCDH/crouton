@@ -28,6 +28,50 @@
       "type": "boolean",
       "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
     },
+    "disabled": {
+      "description": "Always render the input disabled",
+      "type": "boolean",
+      "markdownDescription": "Always render the input disabled\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
+    "disabledWhen": {
+      "description": "Disable the input when the condition matches another field",
+      "examples": [
+        {
+          "field": "id",
+          "exists": true
+        }
+      ],
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The other column id whose value is evaluated for the condition.",
+          "markdownDescription": "The other column id whose value is evaluated for the condition.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+        },
+        "eq": {
+          "description": "Show/hide/disable when the field value equals this value.",
+          "markdownDescription": "Show/hide/disable when the field value equals this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+        },
+        "neq": {
+          "description": "Show/hide/disable when the field value does NOT equal this value.",
+          "markdownDescription": "Show/hide/disable when the field value does NOT equal this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+        },
+        "exists": {
+          "description": "When true, show/hide/disable when the field has a non-empty value.",
+          "type": "boolean",
+          "markdownDescription": "When true, show/hide/disable when the field has a non-empty value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+        },
+        "notExists": {
+          "description": "When true, show/hide/disable when the field has no value.",
+          "type": "boolean",
+          "markdownDescription": "When true, show/hide/disable when the field has no value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "markdownDescription": "Disable the input when the condition matches another field\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/markdown)"
+    },
     "colspan": {
       "description": "Grid column span (1–12)",
       "examples": [
