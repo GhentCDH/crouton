@@ -135,7 +135,7 @@ export const buildSubResources = (
             alias: c.id,
             label: c.label ?? c.id,
             sqlExpression: c.computed.sql as string,
-            type: c.computed.type ?? 'number',
+            type: c.computed.type ?? 'string',
             hiddenInTable: c.hiddenInTable,
             hiddenInView: c.hiddenInView,
             ...(c.fieldInput && { fieldInput: c.fieldInput }),
