@@ -51,9 +51,11 @@ export const resolveColumnVisibility = (
 ): JsonColumn[] => {
   if (!layout) return columns;
 
-  const formIds = layout.form ? collectLayoutFieldIds(layout, 'form') : null;
-  const viewIds = layout.view ? collectLayoutFieldIds(layout, 'view') : null;
-  // No items in layout.table → fall through to hiddenInTable flags (searchFields/filterFields only)
+  // No items in layout.<ctx> → fall through to authored hiddenIn* flags (container-only nodes)
+  const rawFormIds = layout.form ? collectLayoutFieldIds(layout, 'form') : null;
+  const formIds = rawFormIds?.size ? rawFormIds : null;
+  const rawViewIds = layout.view ? collectLayoutFieldIds(layout, 'view') : null;
+  const viewIds = rawViewIds?.size ? rawViewIds : null;
   const rawTableIds = layout.table ? collectLayoutFieldIds(layout, 'table') : null;
   const tableIds = rawTableIds?.size ? rawTableIds : null;
 
