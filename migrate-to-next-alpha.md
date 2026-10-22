@@ -112,12 +112,16 @@ Root-level `display` and `modalSize` have moved into the layout object.
 {
   "layout": {
     "form": {
-      "container": "modal",
-      "containerSize": "lg"
+      "container": {
+        "mode": "modal",
+        "size": "lg"
+      }
     },
     "view": {
-      "container": "modal",
-      "containerSize": "lg"
+      "container": {
+        "mode": "modal",
+        "size": "lg"
+      }
     }
   }
 }
