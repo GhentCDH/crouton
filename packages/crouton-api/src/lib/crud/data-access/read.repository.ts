@@ -261,6 +261,7 @@ export class ReadRepository<T = any> {
       this.tableName,
       this.prisma,
       this.config.idField ?? 'id',
+      this.adapter.provider,
     );
     // Resource-level afterRead + valueLabel decoration is applied by the factory wrapper.
     return withCalc;
@@ -328,6 +329,7 @@ export class ReadRepository<T = any> {
       this.tableName,
       this.prisma,
       this.config.idField ?? 'id',
+      this.adapter.provider,
     );
 
     // Enrich nested sub-resource arrays with their own calculated columns.
@@ -343,6 +345,7 @@ export class ReadRepository<T = any> {
         sub.childTable ?? sub.childModel,
         this.prisma,
         sub.idField ?? 'id',
+        this.adapter.provider,
       );
       enriched = { ...enriched, [sub.relation]: enrichedNested };
     }
@@ -453,6 +456,7 @@ export class ReadRepository<T = any> {
           sub.childTable ?? sub.childModel,
           this.prisma,
           sub.idField ?? 'id',
+          this.adapter.provider,
         )
       : data;
 
@@ -549,6 +553,7 @@ export class ReadRepository<T = any> {
           sub.childTable ?? sub.childModel,
           this.prisma,
           sub.idField ?? 'id',
+          this.adapter.provider,
         )
       : [record];
 

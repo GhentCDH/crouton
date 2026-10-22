@@ -43,6 +43,13 @@ export interface DataSourceAdapter {
    */
   readonly client?: unknown;
 
+  /**
+   * Database provider for placeholder syntax in raw SQL queries.
+   * Set automatically for Prisma adapters by reading the Prisma client's
+   * internal `_activeProvider`. Values: `'postgresql' | 'sqlite' | 'mysql' | 'cockroachdb'`.
+   */
+  readonly provider?: string;
+
   /** Return `true` when this adapter can serve the given model key. */
   supports?(model: string): boolean;
 

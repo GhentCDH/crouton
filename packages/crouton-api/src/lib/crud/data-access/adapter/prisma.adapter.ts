@@ -32,9 +32,13 @@ const DB_CHECK_TIMEOUT_MS = 3_000;
 export class PrismaDataSourceAdapter implements DataSourceAdapter {
   readonly kind = 'prisma' as const;
   readonly client: unknown;
+  readonly provider: string;
 
   constructor(prismaClient: unknown) {
     this.client = prismaClient;
+    // _activeProvider is a PrismaClient internal, but it's the only reliable
+    // way to know the dialect at runtime without duplicating schema parsing.
+    this.provider = ((prismaClient as any)?._activeProvider as string | undefined) ?? 'postgresql';
   }
 
   supports(model: string): boolean {

@@ -26,15 +26,29 @@ const coerceColumnValue = (col: CalculatedColumn) => {
   return (v: any) => Number(v ?? 0);
 };
 
+/**
+ * Choose the parameterised-placeholder syntax for the given database provider.
+ *
+ * - PostgreSQL / CockroachDB: `$1, $2, …` (positional)
+ * - SQLite / MySQL: `?, ?, …` (unnamed)
+ */
+const buildPlaceholders = (ids: unknown[], provider: string): string => {
+  if (provider === 'sqlite' || provider === 'mysql') {
+    return ids.map(() => '?').join(', ');
+  }
+  return ids.map((_, i) => `$${i + 1}`).join(', ');
+};
+
 /** Build the parameterised SQL for one calculated column query. */
 const buildCalculatedColumnSql = (
   col: CalculatedColumn,
   tableName: string,
   ids: unknown[],
   idField: string,
+  provider: string,
 ): string => {
   const alias = col.alias ?? col.id;
-  const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
+  const placeholders = buildPlaceholders(ids, provider);
   // The key column is aliased to `id` so the caller can merge on a stable name
   // regardless of what the resource's primary key is called.
   return `SELECT main."${idField}" AS id, ${castExpression(col)} AS "${alias}" FROM "${tableName}" main WHERE main."${idField}" IN (${placeholders})`;
@@ -47,6 +61,7 @@ const buildCalculatedColumnSql = (
  * Each `sqlExpression` may reference the row via the alias `main`.
  *
  * @param idField - Primary key column of `tableName`. Defaults to `'id'`.
+ * @param provider - Database provider for placeholder syntax (`'postgresql'`, `'sqlite'`, etc.).
  */
 export const mergeCalculatedColumnsForRows = async (
   rows: any[],
@@ -54,6 +69,7 @@ export const mergeCalculatedColumnsForRows = async (
   tableName: string,
   prisma: any,
   idField = 'id',
+  provider = 'postgresql',
 ): Promise<any[]> => {
   if (!calcCols.length || !rows.length) return rows;
 
@@ -61,7 +77,7 @@ export const mergeCalculatedColumnsForRows = async (
   const results = await Promise.all(
     calcCols.map(async (col) => {
       const alias = col.alias ?? col.id;
-      const sql = buildCalculatedColumnSql(col, tableName, ids, idField);
+      const sql = buildCalculatedColumnSql(col, tableName, ids, idField, provider);
       const defaultValue = defaultValueForType(col);
       const coerce = coerceColumnValue(col);
       try {
