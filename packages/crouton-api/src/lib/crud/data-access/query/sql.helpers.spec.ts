@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import type {
+  CalculatedColumn,
+} from '@ghentcdh/crouton-core';
+
 import { buildFindOneIncludes, mergeCalculatedColumnsForRows } from './sql.helpers';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
 
@@ -12,12 +16,12 @@ interface CalculatedColumnMock {
   sqlExpression: string;
 }
 
-const calcCol = (overrides: Partial<CalculatedColumnMock>): CalculatedColumnMock => ({
+const calcCol = (overrides: Partial<CalculatedColumnMock>={}): CalculatedColumn => ({
   id: 'calc',
   type: 'string',
   sqlExpression: 'main.status',
   ...overrides,
-});
+}as unknown) as CalculatedColumn;
 
 const sub = (overrides: Partial<SubResourceConfig>): SubResourceConfig =>
   ({
@@ -99,7 +103,7 @@ describe('mergeCalculatedColumnsForRows', () => {
     return { client, lastSql: () => lastSql };
   };
 
-  const col = (overrides?: Partial<CalculatedColumnMock>): CalculatedColumnMock =>
+  const col = (overrides?: Partial<CalculatedColumnMock>): CalculatedColumn =>
     calcCol(overrides);
 
   // ── Placeholder dialect ────────────────────────────────────────────────
