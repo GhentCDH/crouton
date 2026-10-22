@@ -267,6 +267,12 @@ export const JsonColumnBaseSchema = z.object({
     })
     .optional()
     .describe('SQL computed column. The column value is derived from a raw subquery at query time.'),
+  position: z
+    .number()
+    .optional()
+    .describe(
+      'Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).',
+    ),
 });
 
 export const JsonColumnSchema = JsonColumnBaseSchema.superRefine((col, ctx) => {

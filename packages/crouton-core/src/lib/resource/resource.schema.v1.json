@@ -1476,6 +1476,11 @@
               "sql"
             ],
             "markdownDescription": "SQL computed column. The column value is derived from a raw subquery at query time.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          },
+          "position": {
+            "description": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).",
+            "type": "number",
+            "markdownDescription": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "additionalProperties": {}
