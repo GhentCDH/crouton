@@ -56,6 +56,28 @@ describe('compileResource — layout wired', () => {
   });
 });
 
+describe('compileResource — search fallback excludes computed columns (#246)', () => {
+  const jsonWithComputed = {
+    ...baseJson,
+    columns: [
+      ...baseJson.columns,
+      { id: 'display_label', type: 'string', computed: { sql: 'first || \' \' || last', type: 'string' } },
+    ],
+  } as unknown as ResourceJson;
+
+  it('search fallback does not include computed column ids', () => {
+    const result = compileResource(jsonWithComputed);
+    const searchPaths = (result as any).search as string[] | undefined;
+    expect(searchPaths).not.toContain('display_label');
+  });
+
+  it('regular columns are still included in search fallback', () => {
+    const result = compileResource(jsonWithComputed);
+    const searchPaths = (result as any).search as string[] | undefined;
+    expect(searchPaths).toContain('title');
+  });
+});
+
 describe('compileResource — computed column type default (#248)', () => {
   it('computed column with no explicit type defaults to "string", not "number"', () => {
     const json = {
