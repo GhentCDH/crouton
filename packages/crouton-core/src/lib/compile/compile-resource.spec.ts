@@ -67,13 +67,13 @@ describe('compileResource — search fallback excludes computed columns (#246)',
 
   it('search fallback does not include computed column ids', () => {
     const result = compileResource(jsonWithComputed);
-    const searchPaths = (result as any).searchPaths as string[] | undefined;
+    const searchPaths = (result as any).search as string[] | undefined;
     expect(searchPaths).not.toContain('display_label');
   });
 
   it('regular columns are still included in search fallback', () => {
     const result = compileResource(jsonWithComputed);
-    const searchPaths = (result as any).searchPaths as string[] | undefined;
+    const searchPaths = (result as any).search as string[] | undefined;
     expect(searchPaths).toContain('title');
   });
 });
