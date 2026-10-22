@@ -66,10 +66,14 @@ export class ZodValidationPipe implements PipeTransform {
 
   /**
    * Convert empty strings (`''`) on all top-level fields:
-   * - Nullable fields (`z.string().nullable()`): `""` → `null`
+   *
+   * - **Nullable fields** (`z.string().nullable()`): `""` → `null`
    *   (clearing a nullable field should store null, not fail validation)
-   * - Required/optional fields (`z.string()` / `z.string().optional()`): `""` → `undefined`
-   *   (required → fails with invalid_type; optional → passes as absent)
+   *
+   * All other fields: `""` is left as-is and validated by the Zod schema.
+   * A required `z.string()` accepts `""` by default; a field with
+   * `.min(1)` rejects it with a `too_small` error. The user's schema
+   * controls whether `""` is valid.
    */
   private stripEmptyStrings(value: unknown): unknown {
     if (value == null || typeof value !== 'object' || Array.isArray(value)) {
@@ -77,8 +81,8 @@ export class ZodValidationPipe implements PipeTransform {
     }
     const out = { ...(value as Record<string, unknown>) };
     for (const key of Object.keys(out)) {
-      if (out[key] === '') {
-        out[key] = this.nullableKeys.includes(key) ? null : undefined;
+      if (out[key] === '' && this.nullableKeys.includes(key)) {
+        out[key] = null;
       }
     }
     return out;
