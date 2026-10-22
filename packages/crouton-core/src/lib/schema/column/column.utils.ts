@@ -2,9 +2,9 @@ import type { JsonColumn } from '../../resource/Column';
 import type { ViewColumnConfig } from '../view/view.schema';
 
 
-/** Resolve the sort position for a column: `fieldInput.position`, then natural index. */
+/** Resolve the sort position for a column: `fieldInput.position`, then `col.position`, then natural index. */
 export const colPosition = (col: JsonColumn, i: number): number =>
-  col.fieldInput?.position ?? i;
+  col.fieldInput?.position ?? col.position ?? i;
 
 /** Sort columns by position; columns without an explicit position keep array order. */
 export const sortByPosition = (cols: JsonColumn[]): JsonColumn[] =>
