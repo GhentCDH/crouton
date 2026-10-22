@@ -56,6 +56,22 @@ describe('compileResource — layout wired', () => {
   });
 });
 
+describe('compileResource — computed column type default (#248)', () => {
+  it('computed column with no explicit type defaults to "string", not "number"', () => {
+    const json = {
+      ...baseJson,
+      columns: [
+        ...baseJson.columns,
+        { id: 'label_col', type: 'string', computed: { sql: 'first || \' \' || last' } },
+      ],
+    } as unknown as ResourceJson;
+    const result = compileResource(json);
+    const calculatedCols = (result as any).calculatedColumns as any[];
+    const col = calculatedCols?.find((c) => c.id === 'label_col');
+    expect(col?.type).toBe('string');
+  });
+});
+
 describe('compileResource — computed columns not duplicated in table (#247)', () => {
   const jsonWithComputed = {
     ...baseJson,
