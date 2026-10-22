@@ -1,6 +1,7 @@
 # Relations
 
-A relation is configured on the **column** via `column.relation`. The `fieldInput` only picks and configures the UI widget.
+A relation is configured on the **column** via `column.relation`. The `fieldInput` only picks and configures the UI
+widget.
 
 ```json
 {
@@ -20,20 +21,21 @@ A relation is configured on the **column** via `column.relation`. The `fieldInpu
 ```
 
 ::: tip Migration
-`fieldInput.format: "relation"`, `fieldInput.relationType`, `fieldInput.resource`, and `fieldInput.foreignKey` are removed. Run `crouton migrate` to move them to `column.relation` automatically.
+`fieldInput.format: "relation"`, `fieldInput.relationType`, `fieldInput.resource`, and `fieldInput.foreignKey` are
+removed.
 :::
 
 ## column.relation reference
 
-| Field | Description |
-|---|---|
-| `resource` | Relative path to the target `resource.json` |
-| `type` | `"manyToOne"` \| `"oneToMany"` \| `"manyToMany"` |
+| Field        | Description                                                                      |
+|--------------|----------------------------------------------------------------------------------|
+| `resource`   | Relative path to the target `resource.json`                                      |
+| `type`       | `"manyToOne"` \| `"oneToMany"` \| `"manyToMany"`                                 |
 | `foreignKey` | FK column name (on **this** resource for manyToOne; on **target** for oneToMany) |
-| `name` | Prisma relation field name when different from the column id |
-| `displayKey` | Field on the related record shown in autocomplete / lookup |
-| `sort` | Default sort field for the related list |
-| `sortDir` | `"asc"` \| `"desc"` (default `"asc"`) |
+| `name`       | Prisma relation field name when different from the column id                     |
+| `displayKey` | Field on the related record shown in autocomplete / lookup                       |
+| `sort`       | Default sort field for the related list                                          |
+| `sortDir`    | `"asc"` \| `"desc"` (default `"asc"`)                                            |
 
 ## manyToOne (autocomplete lookup)
 
@@ -129,7 +131,8 @@ Use `isRelation(col)` (exported from `@ghentcdh/crouton-core`) — returns `true
 
 ## `parent.idType`
 
-When a resource is mounted under a parent via `parent.param`, the parent's id type defaults to `"number"`. If the parent uses string/UUID ids, declare it explicitly:
+When a resource is mounted under a parent via `parent.param`, the parent's id type defaults to `"number"`. If the parent
+uses string/UUID ids, declare it explicitly:
 
 ```json
 {

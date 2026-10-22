@@ -1,25 +1,20 @@
 # Common mistakes
 
-## 1. Using removed root keys — run `crouton migrate`
+## 1. Using removed root keys
 
-Many root keys moved. If `crouton validate` says *"moved to … (run crouton migrate)"*, run the codemod:
+Many root keys moved. Run `crouton validate` to detect them — it reports the correct replacement path for each key.
 
-```bash
-crouton migrate --dry-run   # preview
-crouton migrate             # apply
-```
-
-| Wrong (old) | Right (new) |
-|---|---|
-| `"model": "Book"` at root | `"source": { "model": "Book" }` |
-| `"database": "main"` at root | `"source": { "datasource": "main" }` |
-| `"table": "books"` at root | `"source": { "dbTable": "books" }` |
-| `"idType": "number"` at root | `"source": { "idType": "number" }` |
-| `"display": { "mode": "page" }` at root | `"layout": { "view": { "container": { "mode": "page" } } }` |
-| `"modalSize": "lg"` at root | `"layout": { "form": { "container": { "size": "lg" } } }` |
-| `"include": ["author"]` at root | `"operations": { "findAll": { "include": ["author"] }, "findOne": { "include": ["author"] } }` |
-| `"calculatedColumns": [...]` | `"columns": { "myCol": { "computed": { "sql": "..." } } }` |
-| `column.showInLookup: true` | `"lookup": { "labels": ["colId"] }` on resource root |
+| Wrong (old)                             | Right (new)                                                                                    |
+|-----------------------------------------|------------------------------------------------------------------------------------------------|
+| `"model": "Book"` at root               | `"source": { "model": "Book" }`                                                                |
+| `"database": "main"` at root            | `"source": { "datasource": "main" }`                                                           |
+| `"table": "books"` at root              | `"source": { "dbTable": "books" }`                                                             |
+| `"idType": "number"` at root            | `"source": { "idType": "number" }`                                                             |
+| `"display": { "mode": "page" }` at root | `"layout": { "view": { "container": { "mode": "page" } } }`                                    |
+| `"modalSize": "lg"` at root             | `"layout": { "form": { "container": { "size": "lg" } } }`                                      |
+| `"include": ["author"]` at root         | `"operations": { "findAll": { "include": ["author"] }, "findOne": { "include": ["author"] } }` |
+| `"calculatedColumns": [...]`            | `"columns": { "myCol": { "computed": { "sql": "..." } } }`                                     |
+| `column.showInLookup: true`             | `"lookup": { "labels": ["colId"] }` on resource root                                           |
 
 ## 2. Putting relation config in fieldInput instead of column.relation
 
@@ -48,8 +43,6 @@ crouton migrate             # apply
 }
 ```
 
-Run `crouton migrate` to auto-move relation keys.
-
 ## 3. Using `format: "relation"` to detect relations
 
 `fieldInput.format` is removed. Use `isRelation(col)` from `@ghentcdh/crouton-core` or check `!!col.relation`.
@@ -61,7 +54,8 @@ Use `enum` for shared lists, `fieldInput.options.values` for local inline lists 
 
 ## 5. Hand-editing auto-generated columns
 
-`crouton update` owns columns derived from Prisma. Edits to column names or types are overwritten on the next `crouton update`.
+`crouton update` owns columns derived from Prisma. Edits to column names or types are overwritten on the next
+`crouton update`.
 Only edit `fieldInput`, `label`, `hidden`, `required`, `relation` inside each column entry.
 
 ## 6. `kind: "custom"` when you need `adapter: "custom"`

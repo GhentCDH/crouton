@@ -49,7 +49,7 @@ If it still references an old provider name or is missing, update it now and re-
 Check that every `crouton.config.ts` / `crouton.config.js` in the repo is valid against the installed version:
 
 ```bash
-pnpm crouton validate-config
+pnpm crouton validate
 ```
 
 Fix any reported errors before migrating `resource.json` files.

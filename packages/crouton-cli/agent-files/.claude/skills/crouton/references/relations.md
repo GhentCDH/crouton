@@ -18,12 +18,22 @@ Use when: this resource has a FK column pointing to another resource (e.g. `book
         "foreignKey": "authorId",
         "displayKey": "name"
       },
-      "fieldInput": { "type": "autocomplete" }
+      "fieldInput": {
+        "type": "autocomplete"
+      }
     }
   },
   "operations": {
-    "findAll": { "include": ["author"] },
-    "findOne": { "include": ["author"] }
+    "findAll": {
+      "include": [
+        "author"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author"
+      ]
+    }
   }
 }
 ```
@@ -51,11 +61,17 @@ Use when: another resource has a FK pointing to this one (e.g. `review.bookId â†
         "sort": "createdAt",
         "sortDir": "desc"
       },
-      "fieldInput": { "type": "relation" }
+      "fieldInput": {
+        "type": "relation"
+      }
     }
   },
   "operations": {
-    "findOne": { "include": ["reviews"] }
+    "findOne": {
+      "include": [
+        "reviews"
+      ]
+    }
   }
 }
 ```
@@ -80,7 +96,9 @@ Use when: a join table connects both resources.
         "foreignKey": "bookId",
         "name": "tags"
       },
-      "fieldInput": { "type": "relation" }
+      "fieldInput": {
+        "type": "relation"
+      }
     }
   }
 }
@@ -93,31 +111,40 @@ Do not check `fieldInput.format` â€” that is removed.
 
 ## column.relation full reference
 
-| Field | Description |
-|---|---|
-| `resource` | Relative path to target `resource.json` |
-| `type` | `"manyToOne"` \| `"oneToMany"` \| `"manyToMany"` |
-| `foreignKey` | FK column name |
-| `name` | Prisma relation field name (when different from column id) |
+| Field        | Description                                                |
+|--------------|------------------------------------------------------------|
+| `resource`   | Relative path to target `resource.json`                    |
+| `type`       | `"manyToOne"` \| `"oneToMany"` \| `"manyToMany"`           |
+| `foreignKey` | FK column name                                             |
+| `name`       | Prisma relation field name (when different from column id) |
 | `displayKey` | Field on the related record to show in autocomplete/lookup |
-| `sort` | Default sort field for the related list |
-| `sortDir` | `"asc"` \| `"desc"` (default `"asc"`) |
+| `sort`       | Default sort field for the related list                    |
+| `sortDir`    | `"asc"` \| `"desc"` (default `"asc"`)                      |
 
 ## include goes in operations, not at root
 
 ```json
 // WRONG
 {
-  "include": ["author"]
+  "include": [
+    "author"
+  ]
 }
 
 // RIGHT
 {
   "operations": {
-    "findAll": { "include": ["author"] },
-    "findOne": { "include": ["author"] }
+    "findAll": {
+      "include": [
+        "author"
+      ]
+    },
+    "findOne": {
+      "include": [
+        "author"
+      ]
+    }
   }
 }
 ```
 
-Run `crouton migrate` to auto-move root `include` to `operations`.

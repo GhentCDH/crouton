@@ -2,17 +2,14 @@
 
 ### 💥 Breaking: layout `controls` → `items`, `actions` → `rowActions`
 
-**Migrate:** run `crouton migrate layout [paths] [--dry-run] [--check]`
-
 - Every layout node now has a single **`items`** list (replaces the separate `controls` and `items` lists). Order is preserved — components, fields, and nested nodes can be freely interleaved.
 - Table-specific settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`/`label`) now live on the **`type: "table"` node**, not on a wrapper grid.
 - `actions` is renamed to **`rowActions`** (per-record actions). The compiled `/schemas` output renames `Table.options.actions` → `Table.options.tableActions`.
 - `schemaVersion` bumped to **2**. Old resources with `schemaVersion: 1` must be migrated.
 - A table node with `title` or `label` renders a heading above the table.
+- **Migration:** use [migrate-to-next-alpha.md](./migrate-to-next-alpha) with an AI assistant to migrate existing resources.
 
 **Bug fix:** `sortable`/`defaultSort` on columns inside a wrapper table layout are now honoured (were silently ignored before).
-
-**Codemod:** `crouton migrate layout [paths] [--dry-run] [--check]`
 
 ---
 

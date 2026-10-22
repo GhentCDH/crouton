@@ -10,7 +10,8 @@ Two ways to start with crouton: **create a new project** from scratch, or **add 
 
 ## @ghentcdh/create-crouton
 
-Scaffold a complete crouton project — a NestJS backend with Prisma, pre-configured datasource, Docker Compose, and optionally an Nx monorepo layout with a Vue frontend.
+Scaffold a complete crouton project — a NestJS backend with Prisma, pre-configured datasource, Docker Compose, and
+optionally an Nx monorepo layout with a Vue frontend.
 
 ```sh
 npm create @ghentcdh/crouton my-app
@@ -40,21 +41,21 @@ node packages/create-crouton/dist/index.js my-test-app
 
 ### Flags
 
-| Flag | Default | Description |
-| --- | --- | --- |
-| `--nx` | prompt | Use Nx monorepo layout (backend + frontend + shared libs). |
-| `--no-nx` | — | Skip Nx layout (scaffold a regular single-app project). |
-| `--no-frontend` | — | Skip Vue frontend generation (Nx layout only). |
-| `--no-postgres` | — | Skip PostgreSQL setup (Prisma schema, adapter, Docker). |
-| `--sample` | — | Include a sample resource. |
-| `--pm <manager>` | prompt | Package manager: `pnpm`, `npm`, `yarn`, or `bun`. |
-| `--no-install` | — | Skip dependency installation. |
-| `--no-git` | — | Skip `git init`. |
-| `--no-docker` | — | Skip Docker files (Dockerfile, compose.yml). |
-| `--prefix <name>` | prompt | Subfolder prefix for apps/config (e.g. `split`). Implies Nx layout. |
-| `--db-url <url>` | prompt | Database connection URL. |
-| `-y, --yes` | — | Accept all defaults (non-interactive). |
-| `--force` | — | Overwrite existing files. |
+| Flag              | Default | Description                                                         |
+|-------------------|---------|---------------------------------------------------------------------|
+| `--nx`            | prompt  | Use Nx monorepo layout (backend + frontend + shared libs).          |
+| `--no-nx`         | —       | Skip Nx layout (scaffold a regular single-app project).             |
+| `--no-frontend`   | —       | Skip Vue frontend generation (Nx layout only).                      |
+| `--no-postgres`   | —       | Skip PostgreSQL setup (Prisma schema, adapter, Docker).             |
+| `--sample`        | —       | Include a sample resource.                                          |
+| `--pm <manager>`  | prompt  | Package manager: `pnpm`, `npm`, `yarn`, or `bun`.                   |
+| `--no-install`    | —       | Skip dependency installation.                                       |
+| `--no-git`        | —       | Skip `git init`.                                                    |
+| `--no-docker`     | —       | Skip Docker files (Dockerfile, compose.yml).                        |
+| `--prefix <name>` | prompt  | Subfolder prefix for apps/config (e.g. `split`). Implies Nx layout. |
+| `--db-url <url>`  | prompt  | Database connection URL.                                            |
+| `-y, --yes`       | —       | Accept all defaults (non-interactive).                              |
+| `--force`         | —       | Overwrite existing files.                                           |
 
 ### Layouts
 
@@ -113,7 +114,8 @@ my-app/
 
 #### Nx monorepo with prefix
 
-When using `--prefix split`, apps and generated code live under a subfolder. This is useful when the Nx workspace also contains non-crouton projects.
+When using `--prefix split`, apps and generated code live under a subfolder. This is useful when the Nx workspace also
+contains non-crouton projects.
 
 ```
 my-app/
@@ -138,7 +140,8 @@ The CLI runs these steps automatically (unless skipped via flags):
 
 1. **`git init`** — initialises a repository with an initial commit.
 2. **`<pm> install`** — installs all dependencies.
-3. **`crouton update resources`** — introspects the database and generates resource CRUD (best-effort; warns on failure if DB is not running).
+3. **`crouton update resources`** — introspects the database and generates resource CRUD (best-effort; warns on failure
+   if DB is not running).
 
 Then follow the printed next-steps:
 
@@ -157,7 +160,8 @@ crouton update resources --prefix split
 
 ## @ghentcdh/add-crouton
 
-Add crouton to an **existing** NestJS project — regular or Nx. This command is additive: it never overwrites existing files.
+Add crouton to an **existing** NestJS project — regular or Nx. This command is additive: it never overwrites existing
+files.
 
 ```sh
 npx @ghentcdh/add-crouton
@@ -167,32 +171,32 @@ npx @ghentcdh/add-crouton --cwd /path/to/project
 
 ### Flags
 
-| Flag | Default | Description |
-| --- | --- | --- |
-| `--cwd <dir>` | `.` | Project directory. |
-| `--backend <app>` | auto-detect | Backend app name (Nx only). |
-| `--frontend <app>` | auto-detect | Frontend app name (Nx only). |
-| `--no-frontend` | — | Skip frontend detection. |
-| `--pm <manager>` | auto-detect | Package manager. |
-| `--no-install` | — | Skip dependency installation. |
-| `--no-docker` | — | Skip Docker file generation. |
-| `-y, --yes` | — | Accept all defaults (non-interactive). |
+| Flag               | Default     | Description                            |
+|--------------------|-------------|----------------------------------------|
+| `--cwd <dir>`      | `.`         | Project directory.                     |
+| `--backend <app>`  | auto-detect | Backend app name (Nx only).            |
+| `--frontend <app>` | auto-detect | Frontend app name (Nx only).           |
+| `--no-frontend`    | —           | Skip frontend detection.               |
+| `--pm <manager>`   | auto-detect | Package manager.                       |
+| `--no-install`     | —           | Skip dependency installation.          |
+| `--no-docker`      | —           | Skip Docker file generation.           |
+| `-y, --yes`        | —           | Accept all defaults (non-interactive). |
 
 ### What it does
 
-1. **Detects project type** — checks for `nx.json` at or above the current directory to distinguish Nx workspaces from regular projects.
-2. **Discovers apps** (Nx only) — scans `apps/` subdirs, classifies them as backend (`@nestjs/core` in deps) or frontend (`vue`/`vite` in deps), and prompts which to use.
+1. **Detects project type** — checks for `nx.json` at or above the current directory to distinguish Nx workspaces from
+   regular projects.
+2. **Discovers apps** (Nx only) — scans `apps/` subdirs, classifies them as backend (`@nestjs/core` in deps) or frontend
+   (`vue`/`vite` in deps), and prompts which to use.
 3. **Detects package manager** — from lockfile presence (pnpm-lock.yaml, package-lock.json, yarn.lock, bun.lockb).
-4. **Scans dependencies** — reports missing backend deps (`@ghentcdh/crouton-api`, `@ghentcdh/crouton-core`, `prisma`, etc.).
+4. **Scans dependencies** — reports missing backend deps (`@ghentcdh/crouton-api`, `@ghentcdh/crouton-core`, `prisma`,
+   etc.).
 5. **Writes config files** (if absent):
-   - `crouton.json` — with detected `resourcesDir` and `dataSourcesDir`
-   - `crouton.enums.json` — empty enum registry
-   - `data-sources/default/` — default datasource with Prisma schema and config
-   - `.env.example` — with `DATABASE_URL` placeholder
+    - `crouton.json` — with detected `resourcesDir` and `dataSourcesDir`
+    - `crouton.enums.json` — empty enum registry
+    - `data-sources/default/` — default datasource with Prisma schema and config
+    - `.env.example` — with `DATABASE_URL` placeholder
 6. **Installs dependencies** — runs `<pm> install` if missing deps were detected.
 
-After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module — see [Backend setup](backend.md).
-
-## Keeping agent files current
-
-After upgrading crouton, run `crouton migrate` to update your `resource.json` files **and** refresh the Claude skill, Cursor rule, and `AGENTS.md` block to the new version. See [Migrations](../5.tooling/migrate.md#agent-files) for details.
+After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module —
+see [Backend setup](backend.md).

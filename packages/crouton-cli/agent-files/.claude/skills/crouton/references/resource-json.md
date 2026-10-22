@@ -323,4 +323,4 @@ All table-specific settings (`rowActions`, `tableActions`, `searchFields`, `filt
 
 ## Layout is the full list
 
-When `layout.<ctx>` is defined, its `items` list is exhaustive — only listed columns render. Columns not listed are hidden regardless of `hiddenIn*`. Run `crouton migrate` after adding a layout to an existing resource.
+When `layout.<ctx>` is defined, its `items` list is exhaustive — only listed columns render. Columns not listed are hidden regardless of `hiddenIn*`.
