@@ -46,7 +46,7 @@ const buildResourceJson = (
     title: input.title ?? label,
     ...((input.database || (input.idType && input.idType !== 'string')) ? {
       source: {
-        ...(input.database ? { database: input.database } : {}),
+        ...(input.database ? { datasource: input.database } : {}),
         ...(input.idType && input.idType !== 'string' ? { idType: input.idType } : {}),
       }
     } : {}),

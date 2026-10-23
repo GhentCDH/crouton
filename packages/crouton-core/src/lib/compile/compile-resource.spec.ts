@@ -110,3 +110,39 @@ describe('compileResource — computed columns not duplicated in table (#247)', 
     expect(ids.filter((id: string) => id === 'display_label')).toHaveLength(1);
   });
 });
+
+describe('compileResource — source flattening (dbTable/datasource, not the removed table/database)', () => {
+  it('flattens source.dbTable → table and source.datasource → database', () => {
+    const json = {
+      ...baseJson,
+      source: {
+        model: 'Article',
+        dbTable: 'articles_staging',
+        datasource: 'archivedb',
+        idType: 'number',
+      },
+    } as unknown as ResourceJson;
+    const result = compileResource(json);
+    expect(result.model).toBe('Article');
+    expect(result.table).toBe('articles_staging');
+    expect(result.database).toBe('archivedb');
+    expect(result.idType).toBe('number');
+  });
+
+  it('does not read the removed source.table / source.database keys', () => {
+    // These keys fail schema validation ("moved to source.dbTable / source.datasource").
+    // Even if one slips through, the compiler must not pick them up.
+    const json = {
+      ...baseJson,
+      source: {
+        model: 'Article',
+        table: 'legacy_table',
+        database: 'legacy_db',
+      },
+    } as unknown as ResourceJson;
+    const result = compileResource(json);
+    expect(result.table).toBeUndefined();
+    expect(result.database).toBeUndefined();
+    expect(result.model).toBe('Article');
+  });
+});

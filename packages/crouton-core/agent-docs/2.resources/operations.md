@@ -71,11 +71,7 @@ The second form restricts search to `name` and `email` only.
 
 ### Migration from `searchFields`
 
-The old `layout.table.searchFields` array and per-column `searchable: true` flag are deprecated. Run the codemod to migrate automatically:
-
-```sh
-crouton migrate
-```
+The old `layout.table.searchFields` array and per-column `searchable: true` flag are deprecated. Use [migrate-to-next-alpha.md](/migrate-to-next-alpha) with an AI assistant to migrate automatically.
 
 ## PUT vs PATCH
 

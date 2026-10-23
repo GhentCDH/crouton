@@ -127,7 +127,7 @@ This was a version bump only, there were no code changes.
 
 ### 💥 `model` / `table` / `database` / `idType` → `source.*`
 
-- Root-level datasource fields removed; move to `source: { model, table, database, idType }`
+- Root-level datasource fields removed; move to `source: { model, dbTable, datasource, idType }`
 
 ### 💥 `calculatedColumns` → `columns[id].computed`
 

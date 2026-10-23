@@ -66,7 +66,7 @@ describe('buildCustomResourceFiles', () => {
       route: 'zotero-items',
       tag: 'Zotero',
       title: 'Zotero items',
-      source: { database: 'maindb' },
+      source: { datasource: 'maindb' },
     });
   });
 

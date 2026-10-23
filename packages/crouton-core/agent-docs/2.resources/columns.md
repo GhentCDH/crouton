@@ -16,21 +16,21 @@
 
 Both forms support the same options:
 
-| Option                                            | Description                                                                                                                                                                                                                                                                                                                 |
-|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `idField`                                         | Marks the id column                                                                                                                                                                                                                                                                                                         |
-| `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](custom-resource.md#column-types)                   |
-| `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                   |
+| Option                                            | Description                                                                                                                                                                                                                                                                                                                                |
+|---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `idField`                                         | Marks the id column                                                                                                                                                                                                                                                                                                                        |
+| `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](custom-resource.md#column-types)                                  |
+| `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                                  |
 | `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context when **no layout is defined for that context**. When `layout.<ctx>` exists it is the full list — only listed columns are rendered, and these flags are ignored. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell |
-| `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                               |
-| `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable |
-| `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                |
-| `showInLookup` *(deprecated)*                     | **Use `lookup.labels` at the resource root instead** (run `crouton migrate`). Sets the display label when this resource appears as an autocomplete option in another resource. Does **not** affect `?q=` search.                                                                                                             |
-| `unique`                                          | Validate the value is unique: `true`, or `{ scope, caseInsensitive, message }`. Checks as-you-type and maps a DB unique violation to this field. Needs a matching `@unique` constraint. See [Unique fields](unique.md)                                                                                                       |
-| `column`                                          | Source column name when it differs from the key/`id` (defaults to `id`)                                                                                                                                                                                                                                                    |
-| `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                        |
-| `extend`                                          | Path to another `resource.json` whose columns are expanded as virtual sub-columns under this key (with a per-sub-column `columns` override map)                                                                                                                                                                             |
-| `fieldInput`                                      | Form control configuration, see below                                                                                                                                                                                                                                                                                       |
+| `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                                              |
+| `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable                |
+| `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                               |
+| `showInLookup` *(deprecated)*                     | **Use `lookup.labels` at the resource root instead**. Sets the display label when this resource appears as an autocomplete option in another resource. Does **not** affect `?q=` search.                                                                                                                                                   |
+| `unique`                                          | Validate the value is unique: `true`, or `{ scope, caseInsensitive, message }`. Checks as-you-type and maps a DB unique violation to this field. Needs a matching `@unique` constraint. See [Unique fields](unique.md)                                                                                                                     |
+| `column`                                          | Source column name when it differs from the key/`id` (defaults to `id`)                                                                                                                                                                                                                                                                    |
+| `enum`                                            | Name of a shared enum in `crouton.enums.json`; its `{ value, label }[]` is injected into `fieldInput.options.values`                                                                                                                                                                                                                       |
+| `extend`                                          | Path to another `resource.json` whose columns are expanded as virtual sub-columns under this key (with a per-sub-column `columns` override map)                                                                                                                                                                                            |
+| `fieldInput`                                      | Form control configuration, see below                                                                                                                                                                                                                                                                                                      |
 
 ::: warning Moved to `layout.table`
 The following column-level options are **deprecated** and will be removed. Use `layout.table` instead:
@@ -42,7 +42,8 @@ The following column-level options are **deprecated** and will be removed. Use `
 - `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`
 - `fieldTable` → `layout.table.items[{ id, type, options }]`
 
-See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-to-next-alpha.md](/migrate-to-next-alpha) for migration details.
+See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-to-next-alpha.md](/migrate-to-next-alpha)
+for migration details.
 :::
 
 ## Free-text search (`?q=`)
@@ -53,16 +54,23 @@ Declare which columns are included in free-text search via `operations.findAll.s
 {
   "operations": {
     "findAll": {
-      "search": ["title", "authorId"]
+      "search": [
+        "title",
+        "authorId"
+      ]
     }
   }
 }
 ```
 
-- **Multiple entries** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author name contains "tolkien".
-- **`manyToOne` relation columns** (e.g. `authorId`) automatically resolve to the related resource's first visible display field (e.g. `author.name`), so you never search against a raw foreign key string.
-- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete option somewhere else. Do not use it to drive `?q=` search; use `operations.findAll.search` instead.
-- **Default**: when `findAll: true` and no explicit `search` is declared, all simple (non-id, non-relation, non-date) columns are searched.
+- **Multiple entries** are ORed together: `?q=tolkien` matches books whose `title` contains "tolkien" OR whose author
+  name contains "tolkien".
+- **`manyToOne` relation columns** (e.g. `authorId`) automatically resolve to the related resource's first visible
+  display field (e.g. `author.name`), so you never search against a raw foreign key string.
+- **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete
+  option somewhere else. Do not use it to drive `?q=` search; use `operations.findAll.search` instead.
+- **Default**: when `findAll: true` and no explicit `search` is declared, all simple (non-id, non-relation, non-date)
+  columns are searched.
 
 ## Nested object and array columns
 
@@ -75,15 +83,21 @@ A column's `type` may be a full JSON Schema fragment, which is how you describe 
     "type": {
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" }
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
       }
     }
   },
   "tags": {
     "type": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     }
   }
 }
@@ -129,10 +143,10 @@ form-open time, not persisted until the user saves.
 
 #### Dynamic default tokens
 
-| Token      | Resolves to                                              |
-|------------|----------------------------------------------------------|
-| `"$now"`   | Current datetime as an ISO 8601 string                   |
-| `"$today"` | Current date as an ISO 8601 date string (`"2025-03-14"`) |
+| Token      | Resolves to                                                         |
+|------------|---------------------------------------------------------------------|
+| `"$now"`   | Current datetime as an ISO 8601 string                              |
+| `"$today"` | Current date as an ISO 8601 date string (`"2025-03-14"`)            |
 | `"$user"`  | Current user object (requires `defaults` in `CroutonPlugin` config) |
 
 **Using `$user`** requires passing the current user when setting up the plugin:
@@ -163,7 +177,8 @@ onMounted(async () => {
 
 ## Field variants — per-context overrides
 
-A single `fieldInput` drives the form, the read-only view, and the table cell. To render differently in a specific context, use layout item overrides:
+A single `fieldInput` drives the form, the read-only view, and the table cell. To render differently in a specific
+context, use layout item overrides:
 
 - **form** ← `fieldInput`
 - **view** ← `fieldInput` (override per-column via `layout.view.items[{ id, type, options }]`)
@@ -178,19 +193,32 @@ A single `fieldInput` drives the form, the read-only view, and the table cell. T
       "fieldInput": {
         "format": "relation",
         "resource": "./author/resource.json",
-        "options": { "display": "autocomplete", "displayKey": "name" }
+        "options": {
+          "display": "autocomplete",
+          "displayKey": "name"
+        }
       }
     }
   },
   "layout": {
     "view": {
       "items": [
-        { "id": "author", "options": { "display": "link" } }
+        {
+          "id": "author",
+          "options": {
+            "display": "link"
+          }
+        }
       ]
     },
     "table": {
       "items": [
-        { "id": "author", "options": { "displayKey": "shortName" } }
+        {
+          "id": "author",
+          "options": {
+            "displayKey": "shortName"
+          }
+        }
       ]
     }
   }
@@ -208,7 +236,12 @@ Add `customComponent` to the table layout item's `options` to override the cell 
   "layout": {
     "table": {
       "items": [
-        { "id": "section_number", "options": { "customComponent": "moveUpDown" } }
+        {
+          "id": "section_number",
+          "options": {
+            "customComponent": "moveUpDown"
+          }
+        }
       ]
     }
   }
@@ -236,12 +269,13 @@ Read-only columns derived from a raw SQL subquery at query time. Add a `computed
 }
 ```
 
-| Field        | Type     | Description                                                                 |
-|--------------|----------|-----------------------------------------------------------------------------|
-| `sql`        | `string` | Raw SQL subquery. Use `main` as the alias for the parent table row.         |
-| `type`       | `string` | Cast type for the result: `"number"` (default), `"string"`, or `"boolean"`. |
+| Field  | Type     | Description                                                                 |
+|--------|----------|-----------------------------------------------------------------------------|
+| `sql`  | `string` | Raw SQL subquery. Use `main` as the alias for the parent table row.         |
+| `type` | `string` | Cast type for the result: `"number"` (default), `"string"`, or `"boolean"`. |
 
-All standard column fields (`label`, `hiddenInTable`, `hiddenInView`, `position`, `fieldInput`, …) are valid alongside `computed`.
+All standard column fields (`label`, `hiddenInTable`, `hiddenInView`, `position`, `fieldInput`, …) are valid alongside
+`computed`.
 
 ::: warning
 Computed columns are not available on `kind: "custom"` resources — they run raw SQL against a real table.
@@ -249,7 +283,7 @@ Compute the value in `findAll` instead.
 :::
 
 ::: warning Deprecated: `calculatedColumns`
-The top-level `calculatedColumns` array is removed. Run `crouton migrate` to move each entry to `columns[id].computed`.
+The top-level `calculatedColumns` array is removed.
 :::
 
 ## Includes
@@ -262,13 +296,29 @@ Eagerly load relations with the list/detail queries. Declare them per operation 
     "findAll": {
       "include": [
         "author",
-        { "relation": "chapters", "orderBy": { "position": "asc" }, "include": ["sections"] }
+        {
+          "relation": "chapters",
+          "orderBy": {
+            "position": "asc"
+          },
+          "include": [
+            "sections"
+          ]
+        }
       ]
     },
     "findOne": {
       "include": [
         "author",
-        { "relation": "chapters", "orderBy": { "position": "asc" }, "include": ["sections"] }
+        {
+          "relation": "chapters",
+          "orderBy": {
+            "position": "asc"
+          },
+          "include": [
+            "sections"
+          ]
+        }
       ]
     }
   }
@@ -277,15 +327,16 @@ Eagerly load relations with the list/detail queries. Declare them per operation 
 
 When `findOne.include` is absent, crouton falls back to `findAll.include`.
 
-| Field      | Type             | Description                                                        |
-|------------|------------------|--------------------------------------------------------------------|
-| `relation` | `string`         | Prisma relation field name                                         |
-| `orderBy`  | `object`         | Optional sort: `{ field: 'asc' \| 'desc' }` for included records  |
-| `include`  | `array`          | Nested includes                                                    |
+| Field      | Type     | Description                                                      |
+|------------|----------|------------------------------------------------------------------|
+| `relation` | `string` | Prisma relation field name                                       |
+| `orderBy`  | `object` | Optional sort: `{ field: 'asc' \| 'desc' }` for included records |
+| `include`  | `array`  | Nested includes                                                  |
 
 When a relation column has a `sort` option (see [Relations](relations.md#sorting-related-records)), the loader
 automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
 
 ::: warning Deprecated: root `include`
-The top-level `include` field is removed. Run `crouton migrate` to move it to `operations.findAll.include` / `operations.findOne.include`.
+The top-level `include` field is removed. Move it to `operations.findAll.include` /
+`operations.findOne.include`.
 :::

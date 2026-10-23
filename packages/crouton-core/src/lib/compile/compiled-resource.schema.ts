@@ -26,9 +26,9 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   findOneInclude: z.array(JsonIncludeEntrySchema).optional(),
   /** Prisma model name (flattened from source.model). */
   model: z.string().optional(),
-  /** Database table name override (flattened from source.table). */
+  /** Database table name override (flattened from source.dbTable). */
   table: z.string().optional(),
-  /** Datasource name (flattened from source.database). */
+  /** Datasource name (flattened from source.datasource). */
   database: z.string().optional(),
   /** Primary key type (flattened from source.idType). */
   idType: z.enum(['string', 'number']).optional(),
