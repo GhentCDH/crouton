@@ -1141,6 +1141,11 @@
                   "desc"
                 ],
                 "markdownDescription": "Sort direction for related records\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "embed": {
+                "description": "When false, clients cannot request this relation via ?include=. Defaults to true (embeddable).",
+                "type": "boolean",
+                "markdownDescription": "When false, clients cannot request this relation via ?include=. Defaults to true (embeddable).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
             "required": [

@@ -38,6 +38,12 @@ export const ColumnRelationSchema = z.object({
     .enum(['asc', 'desc'])
     .optional()
     .describe('Sort direction for related records'),
+  embed: z
+    .boolean()
+    .optional()
+    .describe(
+      'When false, clients cannot request this relation via ?include=. Defaults to true (embeddable).',
+    ),
 });
 export type ColumnRelation = z.infer<typeof ColumnRelationSchema>;
 

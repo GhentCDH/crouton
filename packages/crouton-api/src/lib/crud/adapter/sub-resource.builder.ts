@@ -225,6 +225,7 @@ export const buildSubResources = (
         ...(childCalculatedColumns.length && {
           calculatedColumns: childCalculatedColumns,
         }),
+        ...(c.relation?.embed === false && { embed: false }),
         ...((c.hiddenInForm === false || c.hiddenInView === false) && {
           includeInFindOne: true,
           ...(() => {

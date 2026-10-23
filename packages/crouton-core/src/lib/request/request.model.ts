@@ -13,6 +13,18 @@ export const RequestSchema = z.object({
   // Filter is of the format key:value:operator (e.g. name:john:eq) operator is optional
   filter: StringOrArray().optional().default([]),
   q: z.string().optional(),
+  // Comma-separated or repeated relation column ids to embed per request, e.g. ?include=author,metadata
+  include: z
+    .preprocess(
+      (v) => {
+        if (v === undefined || v === null || v === '') return [];
+        const arr = Array.isArray(v) ? v : [String(v)];
+        return arr.flatMap((s: string) => s.split(',')).map((s: string) => s.trim()).filter(Boolean);
+      },
+      z.array(z.string()),
+    )
+    .optional()
+    .default([]),
 });
 
 export type ListRequest = z.infer<typeof RequestSchema>;

@@ -211,3 +211,32 @@ See [Custom renderers](../4.frontend/custom-renderers.md) for how to register th
 ```
 
 For a step-by-step walkthrough see [Add relations](../6.recipes/add-relation.md).
+
+## Including relations per request
+
+By default, related records load according to the `operations.findAll.include` and `operations.findOne.include` settings in `resource.json`. You can also request relations on the fly with the `?include=` query parameter:
+
+```
+GET /api/books?include=author
+GET /api/books?include=author,categories
+GET /api/books/42?include=categories
+```
+
+**Rules:**
+
+- Values are comma-separated column ids, or repeated params: `?include=author&include=categories`.
+- Only embeddable relation columns are allowed. A column with `"embed": false` on its `relation` block is excluded.
+- Nested paths (`include=author.publisher`) return `400`.
+- Unknown column ids return `400` with the list of allowed values.
+- Request includes combine with `operations.<op>.include` — they never remove statically configured relations.
+
+**Opting out of embedding** for a relation:
+
+```json
+"authorId": {
+  "relation": {
+    "resource": "./author/resource.json",
+    "embed": false
+  }
+}
+```

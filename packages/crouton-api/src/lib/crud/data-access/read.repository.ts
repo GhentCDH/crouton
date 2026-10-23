@@ -1,5 +1,11 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+const parseQueryInclude = (raw: unknown): string[] => {
+  if (!raw) return [];
+  const arr = Array.isArray(raw) ? raw : [String(raw)];
+  return arr.flatMap((s: string) => s.split(',')).map((s: string) => s.trim()).filter(Boolean);
+};
+
 import {
   type JsonColumn,
   type ListRequest,
@@ -128,6 +134,43 @@ export class ReadRepository<T = any> {
     };
   }
 
+  private validateDynamicIncludes(includes: string[]): void {
+    const dotted = includes.filter((i) => i.includes('.'));
+    if (dotted.length)
+      throw new BadRequestException(
+        `Nested includes are not supported: ${dotted.join(', ')}`,
+      );
+    const allowed = new Set(
+      (this.config.subResources ?? [])
+        .filter((s) => s.embed !== false)
+        .map((s) => s.column),
+    );
+    const unknown = includes.filter((i) => !allowed.has(i));
+    if (unknown.length)
+      throw new BadRequestException(
+        `Unknown include: ${unknown.join(', ')}. Allowed: ${[...allowed].join(', ')}`,
+      );
+  }
+
+  private dynamicRelationIncludes(
+    columnIds: string[],
+    excludeColumns?: Set<string>,
+  ): Record<string, boolean> | undefined {
+    if (!columnIds.length) return undefined;
+    const relations = columnIds
+      .filter((col) => !excludeColumns?.has(col))
+      .map(
+        (col) =>
+          (this.config.subResources ?? []).find(
+            (s) => s.column === col && s.childKind !== 'custom',
+          )?.relation,
+      )
+      .filter((r): r is string => !!r);
+    return relations.length
+      ? Object.fromEntries(relations.map((r) => [r, true]))
+      : undefined;
+  }
+
   /**
    * Fetch a paginated, sorted, and filtered list of records.
    * Sub-resource counts are merged onto each row; calculated columns are resolved via raw SQL.
@@ -135,6 +178,9 @@ export class ReadRepository<T = any> {
    * factory wrapper handles them so both Prisma and custom adapters use the same path.
    */
   async findAll(params: ListRequest, request?: any): Promise<T[]> {
+    const dynamicIncludes = params.include ?? [];
+    if (dynamicIncludes.length) this.validateDynamicIncludes(dynamicIncludes);
+
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
@@ -195,6 +241,16 @@ export class ReadRepository<T = any> {
     // Custom children join this set too: they cannot be Prisma-included at all,
     // so an entry naming one in `config.include` has to be dropped rather than
     // passed through to fail the query.
+    // Dynamic includes for oneToMany: swap _count for full relation data.
+    const dynamicOneToManyColumns = new Set(
+      dynamicIncludes.filter((col) =>
+        oneToManySubResources.some((s) => s.column === col),
+      ),
+    );
+    const effectiveCountableSubResources = countableSubResources.filter(
+      (s) => !dynamicOneToManyColumns.has(s.column),
+    );
+
     const countableRelations = new Set([
       ...oneToManySubResources.map((s) => s.relation),
       ...subResources
@@ -212,15 +268,16 @@ export class ReadRepository<T = any> {
       filteredConfigInclude && Object.keys(filteredConfigInclude).length
         ? filteredConfigInclude
         : undefined;
+    const dynamicInclude = this.dynamicRelationIncludes(dynamicIncludes);
     const mergedInclude =
-      flatIncludes || safeConfigInclude
-        ? { ...flatIncludes, ...safeConfigInclude }
+      flatIncludes || safeConfigInclude || dynamicInclude
+        ? { ...dynamicInclude, ...flatIncludes, ...safeConfigInclude }
         : undefined;
 
-    const countClause = countableSubResources.length
+    const countClause = effectiveCountableSubResources.length
       ? {
           select: Object.fromEntries(
-            countableSubResources.map((s) => [s.relation, true]),
+            effectiveCountableSubResources.map((s) => [s.relation, true]),
           ),
         }
       : undefined;
@@ -241,12 +298,12 @@ export class ReadRepository<T = any> {
 
     const rows = await this.prismaModel.findMany(query);
 
-    const mapped = countableSubResources.length
+    const mapped = effectiveCountableSubResources.length
       ? rows.map((row: any) => {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
-            countableSubResources.map((s) => [
+            effectiveCountableSubResources.map((s) => [
               s.column,
               _count[s.relation] ?? 0,
             ]),
@@ -298,6 +355,10 @@ export class ReadRepository<T = any> {
    * @throws {NotFoundException} When no record exists for the given id.
    */
   async findOne(id: number | string, request?: any): Promise<T> {
+    const dynamicIncludes = parseQueryInclude(request?.query?.include);
+    if (dynamicIncludes.length) this.validateDynamicIncludes(dynamicIncludes);
+    const dynamicInclude = this.dynamicRelationIncludes(dynamicIncludes);
+
     const projection = this.projection('findOne');
     const idField = this.config.idField ?? 'id';
     const query: Record<string, any> = {
@@ -305,10 +366,13 @@ export class ReadRepository<T = any> {
       ...projection,
     };
 
-    const mergedInclude = buildFindOneIncludes(
+    const staticInclude = buildFindOneIncludes(
       this.config.subResources ?? [],
       buildIncludeClause(this.config.findOneInclude ?? this.config.include),
     );
+    const mergedInclude = dynamicInclude
+      ? { ...dynamicInclude, ...(staticInclude ?? {}) }
+      : staticInclude;
 
     if (mergedInclude) {
       if (projection.select) {

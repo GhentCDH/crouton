@@ -84,6 +84,8 @@ export const SubResourceConfigSchema = z.object({
   relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne']).optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),
+  /** When false, clients cannot request this relation via ?include=. Mirrors column relation.embed. */
+  embed: z.boolean().optional(),
 });
 
 export type SubResourceConfig = z.infer<typeof SubResourceConfigSchema>;
