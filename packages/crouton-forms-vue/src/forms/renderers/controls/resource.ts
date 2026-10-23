@@ -1,34 +1,22 @@
 import { z } from 'zod';
 
-import { parseSchema, uiFromJsonSchema } from '@ghentcdh/crouton-core';
+import {
+  BooleanOperationSchema,
+  type Method,
+  MethodSchema,
+  type Operation,
+  OperationMap,
+  OperationSchema,
+  parseSchema,
+  uiFromJsonSchema,
+} from '@ghentcdh/crouton-core';
+
+export { BooleanOperationSchema, MethodSchema, OperationSchema };
+export type { Method, Operation };
 
 import type { HttpClient } from '../../../http-client';
 
-/** Supported HTTP methods for resource operations. */
-export const MethodSchema = z.enum([
-  'get',
-  'post',
-  'delete',
-  'put',
-  'patch',
-  'GET',
-  'POST',
-  'DELETE',
-  'PUT',
-  'PATCH',
-]);
-export type Method = z.infer<typeof MethodSchema>;
-export const OperationSchema = z.object({
-  uri: z.string(),
-  method: MethodSchema,
-});
-export type Operation = z.infer<typeof OperationSchema>;
-export const OperationsSchema = z.string().or(OperationSchema);
-export const BooleanOperationSchema = z
-  .boolean()
-  .or(OperationSchema)
-  .optional()
-  .default(false);
+const OperationsSchema = z.string().or(OperationSchema);
 
 const Operations = z.object({
   findAll: BooleanOperationSchema,
@@ -41,15 +29,6 @@ const Operations = z.object({
 });
 
 type OperationKey = keyof z.infer<typeof Operations>;
-const OperationMap: Record<OperationKey, Method> = {
-  create: 'post',
-  delete: 'delete',
-  findAll: 'get',
-  findOne: 'get',
-  lookup: 'get',
-  update: 'put',
-  patch: 'patch',
-};
 
 const schemaDef = z.object({
   ui: z.any().optional(),
@@ -91,7 +70,7 @@ export const ResourceSchema = z
     const operations = {} as Record<OperationKey, Operation | null>;
 
     for (const k in OperationMap) {
-      const key = k as OperationKey;
+      const key = k as Exclude<OperationKey, 'lookup'>;
       const defaultOperation = OperationMap[key];
       const operation = data.operations[key];
 

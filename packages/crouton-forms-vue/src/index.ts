@@ -83,12 +83,22 @@ export {
 export { default as ViewModal } from './view/modal/ViewModal.vue';
 export type { ViewModalResult } from './view/modal/ViewModal.properties';
 
+// FormComponent types
+export {
+  type Data,
+  JsonFormComponentEmits,
+  type JsonFormComponentProp,
+  JsonFormComponentProperties,
+  type SubmitFormEvent,
+} from './forms/FormComponent.properties';
+
 // Renderers & testers
 export * from './forms/renderers';
 export {
   isComponentElement,
   isCustomControlRender,
   isDateControl,
+  isRelationControl,
   optionIsIgnoreCase,
 } from './testers/tester';
 // Layout: colspan → Tailwind class maps, reused by the visual form canvas

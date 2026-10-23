@@ -13,11 +13,12 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
 import { nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
-import { fromJSONSchema } from 'zod';
+import { fromJSONSchema, z } from 'zod';
 
 import {
   dropNullableFromRequired,
   enforceRequiredStringMinLength,
+  makeOptionalPropertiesNullable,
 } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/crouton-ui-vue';
 
@@ -48,8 +49,15 @@ registerZodErrorMap();
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
+const rawSchema = (() => {
+  try {
+    return JSON.parse(JSON.stringify(toRaw(properties.schema)));
+  } catch {
+    return toRaw(properties.schema);
+  }
+})();
 const patched = enforceRequiredStringMinLength(
-  dropNullableFromRequired(properties.schema),
+  makeOptionalPropertiesNullable(dropNullableFromRequired(rawSchema)),
 );
 // Async "is this value already taken?" validation for columns declared unique.
 // Layered onto the generated schema so it runs through vee-validate's standard
@@ -57,7 +65,14 @@ const patched = enforceRequiredStringMinLength(
 const uniqueFields = collectUniqueFields(properties.uiSchema);
 const uniqueCheck = useUniqueCheckFn();
 const validationSchema = withUniqueChecks(
-  fromJSONSchema(patched as any),
+  (() => {
+    try {
+      return fromJSONSchema(patched as any);
+    } catch (e) {
+      console.warn('[crouton] fromJSONSchema failed, falling back to z.any()', e);
+      return z.any();
+    }
+  })(),
   uniqueFields,
   uniqueCheck,
   (properties.formData as Record<string, unknown> | undefined) ?? undefined,
@@ -132,11 +147,15 @@ watch(
   },
 );
 
-// Emit changes when vee-validate values change
+// Emit changes when vee-validate values change.
+// Emit 'valid' first so that auto-save listeners see the current validity
+// before acting on the change — mirrors the old crouton-vue FormComponent
+// which emitted valid then change in the same watcher.
 watch(
   values,
   (newValues) => {
     if (syncing) return;
+    emits('valid', meta.value.valid);
     emits('change', toRaw(newValues) as Data);
   },
   { deep: true },
@@ -179,5 +198,5 @@ const markSubmitted = () => {
 /** Returns a plain-object snapshot of the current vee-validate values. */
 const getCurrentValues = (): Data => toRaw(values) as Data;
 
-defineExpose({ markSubmitted, getCurrentValues });
+defineExpose({ markSubmitted, getCurrentValues, validate, errors, values });
 </script>
