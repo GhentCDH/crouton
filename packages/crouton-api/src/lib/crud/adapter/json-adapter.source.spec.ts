@@ -86,7 +86,7 @@ describe('fromJson — search path filtering', () => {
       },
     });
     const resource = fromJson(json, undefined, undefined);
-    expect(resource.search).toEqual(['title']);
+    expect((resource as any).search).toEqual(['title']);
   });
 
   it('excludes computed columns from auto-detected search paths', () => {
@@ -102,6 +102,6 @@ describe('fromJson — search path filtering', () => {
       },
     });
     const resource = fromJson(json, undefined, undefined);
-    expect(resource.search).toEqual(['title']);
+    expect((resource as any).search).toEqual(['title']);
   });
 });
