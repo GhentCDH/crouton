@@ -73,6 +73,7 @@ import { ControlLabel, useFormEvents } from '@ghentcdh/crouton-forms-vue';
 import RelationInline from './RelationInline.vue';
 import RelationAutocomplete from './RelationAutocomplete.vue';
 import RelationTable from './RelationTable.vue';
+import { confirmDelete } from '../resource/resource.actions';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
@@ -121,8 +122,10 @@ const operations = computed(() => {
   if (resource.value?.operations.update) ops['onEdit'] = res.edit;
   if (resource.value?.operations.delete)
     ops['onDelete'] = (value: unknown) => {
-      res.api.delete(value).then(() => {
-        formEvents.dispatch({ event: 'update-relation', type: 'text_metadata', data: { value } });
+      confirmDelete(() => {
+        res.api.delete(value).then(() => {
+          formEvents.dispatch({ event: 'update-relation', type: 'text_metadata', data: { value } });
+        });
       });
     };
   return ops;
