@@ -46,14 +46,29 @@ describe('resource.json kind', () => {
     expect(issuePaths(result)).toContain('source.model');
   });
 
-  it('allows database on a custom resource — it selects ctx.prisma', () => {
+  it('allows a datasource on a custom resource — it selects ctx.prisma', () => {
     const result = ResourceJsonSchema.safeParse({
       ...base,
       kind: 'custom',
-      source: { database: 'maindb' },
+      source: { datasource: 'maindb' },
       columns: { id: { idField: true, type: 'string' } },
     });
     expect(result.success).toBe(true);
+  });
+
+  it('rejects removed source.table / source.database with a pointer to the replacement', () => {
+    for (const legacy of [{ table: 'books' }, { database: 'maindb' }]) {
+      const key = Object.keys(legacy)[0];
+      const result = ResourceJsonSchema.safeParse({
+        ...base,
+        source: { model: 'Book', ...legacy },
+      });
+      expect(result.success, `expected source.${key} to fail`).toBe(false);
+      expect(issuePaths(result)).toContain(`source.${key}`);
+      expect(JSON.stringify(result.error?.issues)).toContain(
+        key === 'table' ? 'source.dbTable' : 'source.datasource',
+      );
+    }
   });
 
   it('requires a type on every column of a custom resource', () => {

@@ -244,15 +244,17 @@ All datasource-identification fields have moved under a `source` object.
 {
   "source": {
     "model": "Book",
-    "table": "books",
-    "database": "maindb",
+    "dbTable": "books",
+    "datasource": "maindb",
     "idType": "number"
   }
 }
 ```
 
-**Rule:** Move `model`, `table`, `database`, `idType` from root into `source`. Omit any that are not present. If`source`
-already exists, merge in. Remove the root-level keys.
+**Rule:** Move `model` → `source.model`, `table` → `source.dbTable`, `database` → `source.datasource`,
+`idType` → `source.idType`. Omit any that are not present. If `source` already exists, merge in.
+Remove the root-level keys. `source.table` and `source.database` are **removed** — they fail validation
+and are silently ignored at runtime. Use `source.dbTable` / `source.datasource` instead.
 
 ---
 

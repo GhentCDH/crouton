@@ -166,7 +166,7 @@ export const compileResource = (
   };
   const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
 
-  const src = (json as any).source as { model?: string; table?: string; database?: string; idType?: 'string' | 'number' } | undefined;
+  const src = (json as any).source as { model?: string; dbTable?: string; datasource?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
@@ -176,8 +176,8 @@ export const compileResource = (
     display: derivedDisplay,
     modalSize: derivedModalSize,
     ...(src?.model && { model: src.model }),
-    ...(src?.table && { table: src.table }),
-    ...(src?.database && { database: src.database }),
+    ...(src?.dbTable && { table: src.dbTable }),
+    ...(src?.datasource && { database: src.datasource }),
     ...(src?.idType && { idType: src.idType }),
     ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
     definition,

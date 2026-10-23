@@ -32,7 +32,7 @@ describe('classify', () => {
     expect((d.config as any).source?.model).toBe('text');
     expect((d.config as any).openapi?.tag).toBe('Text');
     expect((d.config as any).source?.idType).toBe('string');
-    expect((d.config as any).source?.database).toBe('docsdb');
+    expect((d.config as any).source?.datasource).toBe('docsdb');
     expect(d.config.sidebar).toEqual({ hide: false });
     expect(d.config.operations?.findAll).toBe(true);
   });

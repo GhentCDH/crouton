@@ -35,10 +35,10 @@ what the CLI / codegen needs to introspect and generate.
 
 | Field     | Description                                                                                                               |
 |-----------|---------------------------------------------------------------------------------------------------------------------------|
-| `name`    | **Required.** Unique identifier used by resources to select this data source (the `database` field in `resource.json`).   |
+| `name`    | **Required.** Unique identifier used by resources to select this data source (the `source.datasource` field in `resource.json`).   |
 | `type`    | Client type — currently `"postgres"`.                                                                                     |
 | `adapter` | Optional. Adapter type override — `"prisma"` (default) or `"custom"` (see [Custom adapter](#custom-adapter)).            |
-| `default` | Used by resources that don't specify a `database`. Exactly one datasource may be `default`.                               |
+| `default` | Used by resources that don't specify `source.datasource`. Exactly one datasource may be `default`.                               |
 
 ### Codegen fields
 
@@ -105,7 +105,7 @@ data-sources/
 └── archivedb/
 ```
 
-Resources without a `database` field use the data source marked `default: true`.
+Resources without a `source.datasource` field use the data source marked `default: true`.
 
 ## Custom adapter
 

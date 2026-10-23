@@ -31,6 +31,16 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
     '\'calculatedColumns\' moved to columns[id].computed (run crouton migrate)',
 };
 
+// ── Removed `source` keys ─────────────────────────────────────────────
+// Keys that were removed from the `source` object and where they moved to.
+// Same treatment as ROOT_REMOVED_KEYS: a file that still writes them fails
+// validation instead of silently dropping the table name / datasource.
+const SOURCE_REMOVED_KEYS: Record<string, string> = {
+  table: '\'source.table\' moved to source.dbTable (run crouton migrate)',
+  database:
+    '\'source.database\' moved to source.datasource (run crouton migrate)',
+};
+
 // ── Shared primitives ────────────────────────────────────────────────
 
 const JsonColumnsMapSchema = z.record(
@@ -575,6 +585,7 @@ export const buildResourceJsonSchema = () => {
   // ponytail: closure to pass raw layout errors from preprocess → superRefine without schema changes
   let _rawLayoutErrors: Array<{ path: string[]; message: string }> = [];
   let _rawRootErrors: Array<{ path: string[]; message: string }> = [];
+  let _rawSourceErrors: Array<{ path: string[]; message: string }> = [];
 
   return z.preprocess(
     (raw) => {
@@ -590,6 +601,15 @@ export const buildResourceJsonSchema = () => {
       _rawLayoutErrors = collectRemovedLayoutKeyErrors(obj['layout'], [
         'layout',
       ]);
+      _rawSourceErrors = [];
+
+      // Collect errors for removed keys inside `source` before Zod strips them
+      const sourceObj = obj['source'];
+      if (sourceObj && typeof sourceObj === 'object' && !Array.isArray(sourceObj)) {
+        _rawSourceErrors = Object.entries(SOURCE_REMOVED_KEYS)
+          .filter(([k]) => k in (sourceObj as Record<string, unknown>))
+          .map(([k, message]) => ({ path: ['source', k], message }));
+      }
 
       // Lift layout.table.searchFields → operations.findAll.search and remove from layout
       {
@@ -892,7 +912,7 @@ export const buildResourceJsonSchema = () => {
     shape
       .superRefine(refineByKind)
       .superRefine((_, ctx) => {
-        for (const err of [..._rawRootErrors, ..._rawLayoutErrors]) {
+        for (const err of [..._rawRootErrors, ..._rawLayoutErrors, ..._rawSourceErrors]) {
           ctx.addIssue({
             code: 'custom',
             path: err.path,

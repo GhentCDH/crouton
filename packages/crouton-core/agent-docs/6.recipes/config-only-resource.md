@@ -115,7 +115,7 @@ findAll: async (params, ctx) => {
 },
 ```
 
-`ctx.prisma` is the resolved datasource client (set via `"database"` in `resource.json`). It is `undefined` when the project has no datasource.
+`ctx.prisma` is the resolved datasource client (set via `source.datasource` in `resource.json`). It is `undefined` when the project has no datasource.
 
 ## What crouton still does for you
 
