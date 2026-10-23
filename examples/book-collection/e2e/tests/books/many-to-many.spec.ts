@@ -104,6 +104,9 @@ test.describe('manyToMany relation', () => {
     const firstChip = chipList.getByRole('button').first();
     await firstChip.locator('[data-testid="relation-chip-delete"]').click();
 
+    // Confirm the delete dialog that now appears
+    await page.getByRole('button', { name: 'Ok', exact: true }).click();
+
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(300);
 
