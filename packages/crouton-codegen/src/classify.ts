@@ -131,6 +131,7 @@ export const classify = (
         col = {
           enum: field.type,
           fieldInput: {
+            ...(field.isList ? { type: 'multiSelect' } : {}),
             position: position++,
             ...(field.defaultValue !== undefined
               ? { defaultValue: field.defaultValue }
@@ -147,7 +148,7 @@ export const classify = (
         col = {
           ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
           fieldInput: {
-            type: 'select',
+            type: field.isList ? 'multiSelect' : 'select',
             position: position++,
             options,
             ...(field.defaultValue !== undefined
