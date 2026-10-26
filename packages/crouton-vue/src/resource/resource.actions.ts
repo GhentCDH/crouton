@@ -62,22 +62,35 @@ const evaluateCondition = (
   }
 };
 
+export const confirmDelete = (
+  onConfirmed: () => void,
+  options?: { label?: string; onCancelled?: () => void },
+) => {
+  const { t } = useLanguage();
+  ModalService.showConfirm({
+    title: t('modal.deleteTitle', 'Delete record'),
+    message: options?.label
+      ? `Delete ${options.label}? The data will be lost.`
+      : t('modal.deleteMessage', 'Are you sure to delete, the data will be lost?'),
+    onClose: (result) => {
+      if (result.confirmed) onConfirmed();
+      else options?.onCancelled?.();
+    },
+  });
+};
+
 const openDeleteModal =
   (api: ResourceApiInstance, resource: Resource, handleEvent: HandleEvent) =>
   (data: any) => {
-    const { t } = useLanguage();
-    ModalService.showConfirm({
-      title: t('modal.deleteTitle', 'Delete record'),
-      message: t('modal.deleteMessage', 'Are you sure to delete, the data will be lost?'),
-      onClose: (result) => {
-        if (result.confirmed) {
-          api.delete(data).then((response: any) => {
-            if (response) resource.reload();
-            handleEvent('close', { delete: true, data });
-          });
-        } else handleEvent('close', {});
+    confirmDelete(
+      () => {
+        api.delete(data).then((response: any) => {
+          if (response) resource.reload();
+          handleEvent('close', { delete: true, data });
+        });
       },
-    });
+      { onCancelled: () => handleEvent('close', {}) },
+    );
   };
 
 const openViewModal =
