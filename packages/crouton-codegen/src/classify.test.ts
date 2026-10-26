@@ -16,6 +16,7 @@ const model: DbModel = {
     { name: 'id', kind: 'id', type: 'String', isList: false, isRequired: true, isId: true, isUnique: false, isUpdatedAt: false, hasDefault: true, isTimestamp: false },
     { name: 'title', kind: 'scalar', type: 'String', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: true, defaultValue: 'Untitled', isTimestamp: false },
     { name: 'kind', kind: 'enum', type: 'TextKind', isList: false, isRequired: true, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: true, defaultValue: 'a', isTimestamp: false, enumValues: ['a', 'b'] },
+    { name: 'tags', kind: 'enum', type: 'Tag', isList: true, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, enumValues: ['x', 'y'] },
     { name: 'author_id', kind: 'foreignKey', type: 'String', isList: false, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false },
     { name: 'author', kind: 'relation', type: 'Author', isList: false, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, relationModel: 'Author', relationType: 'manyToOne' },
     { name: 'sources', kind: 'relation', type: 'Source', isList: true, isRequired: false, isId: false, isUnique: false, isUpdatedAt: false, hasDefault: false, isTimestamp: false, relationModel: 'Source', relationType: 'oneToMany' },
@@ -165,5 +166,28 @@ describe('classify', () => {
   it('omits defaultValue when the DB field has none', () => {
     const d = classify(model);
     expect(col(d, 'author_id').fieldInput).toBeUndefined(); // hidden FK: no fieldInput at all
+  });
+
+  it('uses multiSelect for isList enum (sharedEnums on)', () => {
+    const d = classify(model);
+    const tags = col(d, 'tags') as any;
+    expect(tags.enum).toBe('Tag');
+    expect(tags.fieldInput.type).toBe('multiSelect');
+  });
+
+  it('uses multiSelect for isList enum (sharedEnums off)', () => {
+    const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false } });
+    const tags = col(d, 'tags') as any;
+    expect(tags.fieldInput.type).toBe('multiSelect');
+    expect(tags.fieldInput.options.values).toEqual([
+      { label: 'x', value: 'x' },
+      { label: 'y', value: 'y' },
+    ]);
+  });
+
+  it('uses select (not multiSelect) for non-list enum', () => {
+    const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false } });
+    const kind = col(d, 'kind') as any;
+    expect(kind.fieldInput.type).toBe('select');
   });
 });
