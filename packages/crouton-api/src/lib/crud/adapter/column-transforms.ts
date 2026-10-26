@@ -59,10 +59,6 @@ export const expandExtendColumns = (
         col.hiddenInTable === true || refCol.hiddenInTable === true
           ? true
           : (col.hiddenInTable ?? refCol.hiddenInTable);
-      const hiddenInForm =
-        col.hiddenInForm === true || refCol.hiddenInForm === true
-          ? true
-          : (col.hiddenInForm ?? refCol.hiddenInForm);
       const hiddenInView =
         col.hiddenInView === true || refCol.hiddenInView === true
           ? true
@@ -79,7 +75,6 @@ export const expandExtendColumns = (
         label: refCol.label ?? refCol.id,
         type: 'object',
         ...(hiddenInTable !== undefined && { hiddenInTable }),
-        ...(hiddenInForm !== undefined && { hiddenInForm }),
         ...(hiddenInView !== undefined && { hiddenInView }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
