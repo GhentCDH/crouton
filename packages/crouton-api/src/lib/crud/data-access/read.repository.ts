@@ -1,12 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import {
-  type JsonColumn,
   type ListRequest,
-  allowedIncludes,
   buildSort,
   offsetOf,
-  resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
 import {
@@ -78,10 +75,11 @@ export class ReadRepository<T = any> {
     const manyToOneSubs = (this.config.subResources ?? []).filter(
       (s) => s.relationType === 'manyToOne' && s.displayKey,
     );
-    const manyToOneCols = (
-      (this.config.columns as unknown as JsonColumn[] | undefined) ?? []
-    ).filter((c) => c.fieldInput?.relationType === 'manyToOne' && c.displayKey);
-    const needsRemap = manyToOneSubs.length || manyToOneCols.length;
+    const fields = this.config.data?.fields ?? {};
+    const hasManyToOneCols = Object.values(fields).some(
+      (f) => f.relation?.kind === 'manyToOne' && f.relation.displayKey,
+    );
+    const needsRemap = manyToOneSubs.length || hasManyToOneCols;
     const remapped = needsRemap
       ? filter.map((f) => {
           const parsed = parseFilterString(f);
@@ -90,9 +88,9 @@ export class ReadRepository<T = any> {
           if (sub?.displayKey) {
             return `${parsed.field}.${sub.displayKey}:${parsed.value}:${parsed.operator}`;
           }
-          const col = manyToOneCols.find((c) => c.id === parsed.field);
-          if (col?.displayKey) {
-            return `${parsed.field}.${col.displayKey}:${parsed.value}:${parsed.operator}`;
+          const field = fields[parsed.field];
+          if (field?.relation?.kind === 'manyToOne' && field.relation.displayKey) {
+            return `${parsed.field}.${field.relation.displayKey}:${parsed.value}:${parsed.operator}`;
           }
           return f;
         })
@@ -197,8 +195,7 @@ export class ReadRepository<T = any> {
           `Nested includes are not supported: ${nested.join(', ')}`,
         );
       }
-      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
-      const allowed = allowedIncludes(columns);
+      const allowed = this.config.data?.allowedIncludes ?? [];
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
         throw new BadRequestException({
@@ -206,9 +203,8 @@ export class ReadRepository<T = any> {
           allowed,
         });
       }
-      dynamicPrismaFields = requestedIncludes.map((id) =>
-        resolveIncludeToRelationField(id, columns),
-      );
+      const fields = this.config.data?.fields ?? {};
+      dynamicPrismaFields = requestedIncludes.map((id) => fields[id]?.dbName ?? id);
     }
 
     const allStaticAndDynamic = [
@@ -351,8 +347,7 @@ export class ReadRepository<T = any> {
           `Nested includes are not supported: ${nested.join(', ')}`,
         );
       }
-      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
-      const allowed = allowedIncludes(columns);
+      const allowed = this.config.data?.allowedIncludes ?? [];
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
         throw new BadRequestException({
@@ -360,9 +355,8 @@ export class ReadRepository<T = any> {
           allowed,
         });
       }
-      dynamicPrismaFields = requestedIncludes.map((colId) =>
-        resolveIncludeToRelationField(colId, columns),
-      );
+      const fields = this.config.data?.fields ?? {};
+      dynamicPrismaFields = requestedIncludes.map((colId) => fields[colId]?.dbName ?? colId);
     }
 
     const allStaticAndDynamic = [
