@@ -1,0 +1,42 @@
+{
+  "resource": {
+    "name": "category",
+    "title": "Categories",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "name": {
+        "searchable": true,
+        "filterable": true,
+        "sortable": true
+      },
+      "slug": {
+        "sortable": true
+      }
+    },
+    "schemaVersion": 1,
+    "source": {
+      "model": "Category"
+    }
+  },
+  "refs": {},
+  "enums": {
+    "bookStatus": [
+      {
+        "value": "draft",
+        "label": "Draft"
+      },
+      {
+        "value": "published",
+        "label": "Published"
+      },
+      {
+        "value": "archived",
+        "label": "Archived"
+      }
+    ]
+  },
+  "baseUrl": "http://localhost:3000"
+}

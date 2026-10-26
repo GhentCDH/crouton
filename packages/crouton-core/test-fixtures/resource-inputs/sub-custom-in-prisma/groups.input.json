@@ -1,0 +1,32 @@
+{
+  "resource": {
+    "name": "groups",
+    "route": "groups",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "name": {
+        "searchable": true
+      },
+      "expenses": {
+        "label": "Expenses",
+        "hiddenInTable": true,
+        "fieldInput": {
+          "format": "relation",
+          "relationType": "oneToMany",
+          "resource": "./expense/resource.json",
+          "foreignKey": "group_id"
+        }
+      }
+    },
+    "schemaVersion": 1,
+    "source": {
+      "model": "Group"
+    }
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}

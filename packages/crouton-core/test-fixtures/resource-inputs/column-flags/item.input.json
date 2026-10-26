@@ -1,0 +1,35 @@
+{
+  "resource": {
+    "name": "item",
+    "route": "items",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "name": {
+        "searchable": true,
+        "sortable": true,
+        "filterable": true
+      },
+      "description": {
+        "hiddenInTable": true
+      },
+      "createdAt": {
+        "defaultSort": true,
+        "hiddenInForm": true
+      },
+      "price": {
+        "type": "number",
+        "required": false
+      }
+    },
+    "schemaVersion": 1,
+    "source": {
+      "model": "Item"
+    }
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}
