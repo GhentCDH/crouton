@@ -1,6 +1,8 @@
 import { buildSubResourceOperations } from '../data-source';
+import { allowedIncludes } from '../request/include';
 import type { JsonAction } from '../resource';
 import { getResourceExtensions } from '../resource';
+import type { JsonColumn } from '../resource/Column';
 import { resolveTableNode } from '../view';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
@@ -257,6 +259,11 @@ export const buildViewsPayload = (
     operations,
     display: config.display,
     schemas,
+    allowedIncludes: allowedIncludes(
+      (Array.isArray(config.columns)
+        ? config.columns
+        : Object.entries(config.columns ?? {}).map(([id, col]) => ({ id, ...col }))) as JsonColumn[],
+    ),
     ...pickExtensions(config),
   };
 };
