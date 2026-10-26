@@ -4,4 +4,5 @@ import type { SubResourceStatus } from '../status.types';
 
 export const StatusSubResourceListProperties = {
   subResources: { type: Array as PropType<SubResourceStatus[]>, required: true as const },
+  parentName: { type: String, required: true as const },
 };
