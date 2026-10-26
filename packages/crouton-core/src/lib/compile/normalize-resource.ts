@@ -155,8 +155,8 @@ export const localizeSchemas = (resource: NormalizedResource, t: Translator): No
     Object.entries(resource.schemas).map(([view, schema]) => [
       view,
       {
-        data: patchDataTitles(schema.data, resource.i18n.keys, t),
-        ui: patchUiLabels(schema.ui, resource.i18n.keys, t),
+        data: patchDataTitles(schema.data, resource.i18n.keys, t) as Record<string, unknown>,
+        ui: patchUiLabels(schema.ui, resource.i18n.keys, t) as Record<string, unknown>,
       },
     ]),
   ),
