@@ -113,6 +113,7 @@
       <StatusSubResourceList
         v-if="props.resource.subResources?.length"
         :sub-resources="props.resource.subResources"
+        :parent-name="props.resource.name"
       />
 
       <StatusResourceDemo :resource="props.resource" />
