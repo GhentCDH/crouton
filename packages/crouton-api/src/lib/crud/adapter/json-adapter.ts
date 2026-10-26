@@ -201,20 +201,23 @@ const buildSearch = (
     const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
     return fallback.length ? fallback : undefined;
   }
-  return searchPaths.map((id) => {
-    const col = columns.find((c) => c.id === id);
-    if (!col) return id;
-    if (col.fieldInput?.format === 'relation') {
-      const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
-      if (opts?.displayKey) return `${id}.${opts.displayKey}`;
-    }
-    if (col.fieldInput?.relationType === 'manyToOne') {
-      const displayKey =
-        (col.fieldInput.options as any)?.displayKey ?? (col as any).displayKey;
-      if (displayKey) return `${id}.${displayKey}`;
-    }
-    return id;
-  });
+  return searchPaths
+    .flatMap((id) => {
+      const col = columns.find((c) => c.id === id);
+      if (!col) return [id];
+      if ((col as any).computed) return [];
+      if (col.fieldInput?.format === 'relation') {
+        const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
+        if (opts?.displayKey) return [`${id}.${opts.displayKey}`];
+      }
+      if (col.fieldInput?.relationType === 'manyToOne') {
+        const displayKey =
+          (col.fieldInput.options as any)?.displayKey ?? (col as any).displayKey;
+        if (displayKey) return [`${id}.${displayKey}`];
+      }
+      return [id];
+    })
+    .filter((p): p is string => !!p);
 };
 
 const buildLookup = (
