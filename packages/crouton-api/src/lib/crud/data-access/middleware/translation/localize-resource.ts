@@ -6,10 +6,9 @@
  * without rebuilding views from scratch (no Zod schema needed).
  */
 
-import type { JsonColumn, Translator, ViewConfig } from '@ghentcdh/crouton-core';
+import type { Translator, ViewConfig } from '@ghentcdh/crouton-core';
 import {
   actionKey,
-  buildValueLabelColumns,
   columnKey,
   enumKey,
   resourceSidebarKey,
@@ -38,29 +37,6 @@ const cloneResource = (config: Resource): Resource => {
   return localized;
 };
 
-/**
- * Translate enum option labels for columns that reference a shared enum.
- * Mutates the cloned column's `fieldInput.options.values[].label` in place.
- */
-const translateEnumOptions = (
-  columns: JsonColumn[] | undefined,
-  t: Translator,
-): void => {
-  if (!columns) return;
-  for (const col of columns) {
-    if (!col.enum) continue;
-    const opts = col.fieldInput?.options as
-      | { values?: { value: unknown; label: string }[] }
-      | undefined;
-    if (!Array.isArray(opts?.values)) continue;
-    for (const entry of opts!.values!) {
-      entry.label = t(
-        enumKey(col.enum!, String(entry.value)),
-        entry.label,
-      );
-    }
-  }
-};
 
 /**
  * Translate labels in pre-built `valueLabelColumns` entries that carry an
@@ -186,22 +162,17 @@ export const localizeResource = (
     }
   }
 
-  // Columns
+  // Column labels — built from data.fields (populated by fromJson/normalizeResource)
   const columnLabels = new Map<string, string>();
-  const columns = localized.columns as unknown as JsonColumn[] | undefined;
-  if (columns) {
-    for (const col of columns) {
-      const translated = t(
-        columnKey(name, col.id),
-        col.label ?? col.id,
-      );
-      col.label = translated;
-      columnLabels.set(col.id, translated);
-    }
-
-    // Translate enum option labels and rebuild valueLabelColumns
-    translateEnumOptions(columns, t);
-    localized.valueLabelColumns = buildValueLabelColumns(columns);
+  for (const colId of Object.keys(config.data?.fields ?? {})) {
+    const translated = t(columnKey(name, colId), colId);
+    columnLabels.set(colId, translated);
+  }
+  // Translate enum option labels via data.valueLabels and propagate to valueLabelColumns
+  const valueLabels = localized.data?.valueLabels;
+  if (valueLabels) {
+    translateValueLabelEntries(valueLabels, t);
+    localized.valueLabelColumns = [...valueLabels];
   }
 
   // Views — patch JSON Schema titles + view column labels
