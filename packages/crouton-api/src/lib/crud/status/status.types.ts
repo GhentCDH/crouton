@@ -4,6 +4,22 @@ export interface DatabaseStatus {
   error?: string;
 }
 
+export interface SubResourceStatus {
+  column: string;
+  name: string;
+  title?: string;
+  path: string;
+  file?: string;
+  relationType?: 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToOne';
+  kind: 'prisma' | 'custom';
+  operations?: string[];
+  customOperations?: string[];
+  hasHooks?: boolean;
+  valid: boolean;
+  error?: string;
+  warnings?: string[];
+}
+
 export interface ResourceStatus {
   name: string;
   path: string;
@@ -26,6 +42,9 @@ export interface ResourceStatus {
   hidden?: boolean;
   /** Non-fatal warnings recorded during load (e.g. stray repository.ts, all ops disabled). */
   warnings?: string[];
+  subResources?: SubResourceStatus[];
+  /** Set when the resource declares `parent: { route }`. */
+  parentRoute?: string;
 }
 
 export interface StatusSummary {
