@@ -15,8 +15,9 @@ vi.mock('./resource-resolver', () => ({
 }));
 
 // Import after mock setup
-import { buildSubResources } from './sub-resource.builder';
 import type { JsonColumn } from '@ghentcdh/crouton-core';
+
+import { buildSubResources } from './sub-resource.builder';
 
 const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
   ({
