@@ -7,6 +7,7 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { IS_DEV } from '../dev-mode';
+import { type Resource } from '../resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
 import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
