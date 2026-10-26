@@ -162,10 +162,19 @@ export const localizeResource = (
     }
   }
 
-  // Column labels — built from data.fields (populated by fromJson/normalizeResource)
+  // Column labels — built from data.fields (populated by fromJson/normalizeResource).
+  // Fallback labels come from view columns (label: explicit || colId) across all views,
+  // preserving human-readable labels set in resource.json when no translation exists.
   const columnLabels = new Map<string, string>();
+  const viewColumnFallbacks = new Map<string, string>();
+  for (const view of Object.values(localized.views ?? {})) {
+    for (const vc of view.columns ?? []) {
+      if (!viewColumnFallbacks.has(vc.id)) viewColumnFallbacks.set(vc.id, vc.label ?? vc.id);
+    }
+  }
   for (const colId of Object.keys(config.data?.fields ?? {})) {
-    const translated = t(columnKey(name, colId), colId);
+    const fallback = viewColumnFallbacks.get(colId) ?? colId;
+    const translated = t(columnKey(name, colId), fallback);
     columnLabels.set(colId, translated);
   }
   // Translate enum option labels via data.valueLabels and propagate to valueLabelColumns
