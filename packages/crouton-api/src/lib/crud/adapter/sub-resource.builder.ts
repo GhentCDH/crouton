@@ -143,7 +143,7 @@ export const buildSubResources = (
       ];
       const regularChildColumns = (enrichedChildColumns ?? []).filter((c) => !(c as any).computed);
       const rawChildViews = childJson
-        ? buildLayouts(undefined, {
+        ? buildLayouts(childJson?.layout, {
             columns: regularChildColumns,
             source: nestedColumnSchemaSource,
             warn: console.warn,
