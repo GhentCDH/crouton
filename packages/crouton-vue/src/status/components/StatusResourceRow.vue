@@ -23,6 +23,15 @@
         {{ state }}
       </span>
       <span
+        v-if="props.resource.subResources?.length"
+        class="text-xs px-1.5 py-0.5 rounded font-mono"
+        :class="props.resource.subResources.some(s => !s.valid)
+          ? 'bg-error/10 text-error'
+          : props.resource.subResources.some(s => s.warnings?.length)
+            ? 'bg-warning/10 text-warning'
+            : 'bg-base-200 text-base-content/60'"
+      >↳ {{ props.resource.subResources.length }}</span>
+      <span
         v-if="props.resource.version != null"
         class="text-xs font-mono text-base-content/60"
       >
@@ -101,6 +110,11 @@
         </li>
       </ul>
 
+      <StatusSubResourceList
+        v-if="props.resource.subResources?.length"
+        :sub-resources="props.resource.subResources"
+      />
+
       <StatusResourceDemo :resource="props.resource" />
 
       <div v-if="props.isDev" class="flex gap-2 flex-wrap pt-1">
@@ -149,6 +163,7 @@ import { computed } from 'vue';
 import { resourceState, stateClasses } from '../status.utils';
 import { StatusResourceRowProperties } from './StatusResourceRow.properties';
 import StatusResourceDemo from './StatusResourceDemo.vue';
+import StatusSubResourceList from './StatusSubResourceList.vue';
 
 const props = defineProps(StatusResourceRowProperties);
 const emit = defineEmits<{

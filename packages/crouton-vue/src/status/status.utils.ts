@@ -56,7 +56,9 @@ export const resourceState = (res: ResourceStatus): ResourceState => {
   if (res.draft) return 'draft';
   if (!res.valid) return 'error';
   if (res.expectedVersion != null && res.expectedVersion !== res.version) return 'migration';
+  if (res.subResources?.some((s) => !s.valid)) return 'error';
   if (res.warnings?.length) return 'warning';
+  if (res.subResources?.some((s) => s.warnings?.length)) return 'warning';
   if (res.hidden) return 'hidden';
   return 'ok';
 };
@@ -118,6 +120,26 @@ export const collectIssues = (status: CroutonStatus): StatusIssue[] => {
         message: w,
         anchor: `resource-${res.name}`,
       });
+    }
+    for (const sub of res.subResources ?? []) {
+      if (!sub.valid) {
+        issues.push({
+          severity: 'error',
+          source: 'resource',
+          target: `${res.name} › ${sub.name}`,
+          message: sub.error ?? 'Sub-resource failed to load',
+          anchor: `resource-${res.name}`,
+        });
+      }
+      for (const w of sub.warnings ?? []) {
+        issues.push({
+          severity: 'warning',
+          source: 'resource',
+          target: `${res.name} › ${sub.name}`,
+          message: w,
+          anchor: `resource-${res.name}`,
+        });
+      }
     }
   }
 

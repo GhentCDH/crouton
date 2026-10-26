@@ -6,6 +6,8 @@ export interface ResourceLoadError {
   version?: number;
   /** Version crouton expected (`CURRENT_RESOURCE_VERSION`). */
   expectedVersion?: number;
+  /** Set when the error originates from a sub-resource relation column. */
+  child?: { column: string; file: string };
 }
 
 class ResourceLoadErrorsRegistry {

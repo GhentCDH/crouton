@@ -1,3 +1,4 @@
+
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 import type { EnumRegistry } from '@ghentcdh/crouton-core';
 
@@ -10,15 +11,31 @@ import type {
   I18nStatus,
   ResourceStatus,
   StatusSummary,
+  SubResourceStatus,
 } from './status.types';
 import type { DataSourceRegistry } from '../data-access/adapter';
 import type { TranslationRegistry } from '../data-access/middleware/translation/translation.registry';
 import type { Resource } from '../resource/ResourceConfig.schema';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const toSubResourceStatus = (sub: SubResourceConfig): SubResourceStatus => ({
+  column: sub.column,
+  name: sub.name ?? sub.childRoute,
+  title: sub.title,
+  path: sub.childRoute,
+  relationType: sub.relationType,
+  kind: sub.childKind ?? 'prisma',
+  operations: Object.entries(sub.operations ?? {})
+    .filter(([, v]) => v)
+    .map(([k]) => k),
+  hasHooks: !!sub.hooks,
+  valid: true,
+});
 
 const CONNECTION_STRING_PATTERN =
   /(?:postgresql|postgres|mysql|mongodb|sqlserver|sqlite):\/\/[^\s"')]+/gi;
@@ -85,34 +102,66 @@ export const getResourceStatus = (
     warningsByName.set(w.name, existing);
   }
 
-  const valid: ResourceStatus[] = loadedConfigs.map((c) => ({
-    name: c.name,
-    path: c.route,
-    valid: true,
-    version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
-    kind: c.kind ?? 'prisma',
-    // Which operations the user's repository.ts actually implements.
-    ...(c.kind === 'custom' && c.repository
-      ? {
-          customOperations: CUSTOM_OPS.filter(
-            (op) => typeof (c.repository as any)?.[op] === 'function',
-          ),
-        }
-      : {}),
-    ...(c.sidebar?.hide ? { hidden: true } : {}),
-    ...(warningsByName.has(c.name) ? { warnings: warningsByName.get(c.name) } : {}),
-  }));
+  // Group child errors by parent name so they can be folded into subResources.
+  const childErrorsByParent = new Map<string, ResourceStatus['subResources']>();
+  const topLevelErrors: ReturnType<typeof resourceLoadErrorsRegistry.getAll> = [];
+  for (const e of resourceLoadErrorsRegistry.getAll()) {
+    if (e.child) {
+      const list = childErrorsByParent.get(e.name) ?? [];
+      list.push({
+        column: e.child.column,
+        name: e.child.file,
+        path: e.child.file,
+        file: e.child.file,
+        kind: 'prisma',
+        valid: false,
+        error: e.error,
+      });
+      childErrorsByParent.set(e.name, list);
+    } else {
+      topLevelErrors.push(e);
+    }
+  }
 
-  const failed: ResourceStatus[] = resourceLoadErrorsRegistry
-    .getAll()
-    .map((e) => ({
-      name: e.name,
-      path: e.path,
-      valid: false,
-      error: e.error,
-      version: e.version,
-      expectedVersion: e.expectedVersion,
-    }));
+  const valid: ResourceStatus[] = loadedConfigs.map((c) => {
+    const subResourceStatuses = c.subResources?.map(toSubResourceStatus) ?? [];
+    const childErrors = childErrorsByParent.get(c.route) ?? [];
+    const allSubResources = [...subResourceStatuses, ...childErrors];
+    const hasChildError = allSubResources.some((s) => !s.valid);
+    const childWarnings = hasChildError
+      ? [`${childErrors.length} sub-resource(s) failed to load`]
+      : [];
+
+    return {
+      name: c.name,
+      path: c.route,
+      valid: true,
+      version: c.schemaVersion ?? CURRENT_RESOURCE_VERSION,
+      kind: c.kind ?? 'prisma',
+      ...(c.kind === 'custom' && c.repository
+        ? {
+            customOperations: CUSTOM_OPS.filter(
+              (op) => typeof (c.repository as any)?.[op] === 'function',
+            ),
+          }
+        : {}),
+      ...(c.sidebar?.hide ? { hidden: true } : {}),
+      ...(warningsByName.has(c.name) || childWarnings.length
+        ? { warnings: [...(warningsByName.get(c.name) ?? []), ...childWarnings] }
+        : {}),
+      ...(allSubResources.length ? { subResources: allSubResources } : {}),
+      ...((c as any).parent?.route ? { parentRoute: (c as any).parent.route } : {}),
+    };
+  });
+
+  const failed: ResourceStatus[] = topLevelErrors.map((e) => ({
+    name: e.name,
+    path: e.path,
+    valid: false,
+    error: e.error,
+    version: e.version,
+    expectedVersion: e.expectedVersion,
+  }));
 
   // Drafts are present-but-not-served — informational, not errors (valid: true).
   const draft: ResourceStatus[] = resourceLoadReportRegistry
@@ -133,8 +182,15 @@ export const buildSummary = (
   resources: ResourceStatus[],
 ): StatusSummary => {
   const databaseErrors = databases.filter((d) => !d.connected).length;
-  const resourceErrors = resources.filter((r) => !r.valid).length;
-  const warningCount = resources.reduce((acc, r) => acc + (r.warnings?.length ?? 0), 0);
+  const resourceErrors = resources.filter((r) => !r.valid).length
+    + resources.reduce((acc, r) => acc + (r.subResources?.filter((s) => !s.valid).length ?? 0), 0);
+  const warningCount = resources.reduce(
+    (acc, r) =>
+      acc +
+      (r.warnings?.length ?? 0) +
+      (r.subResources?.reduce((a, s) => a + (s.warnings?.length ?? 0), 0) ?? 0),
+    0,
+  );
 
   return {
     ok: databaseErrors === 0 && resourceErrors === 0,

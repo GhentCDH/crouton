@@ -32,7 +32,7 @@
     <div class="space-y-2">
       <StatusResourceRow
         v-for="res in filtered"
-        :key="res.name"
+        :key="`${res.name}:${res.path}`"
         :resource="res"
         :expanded="expandedSet.has(res.name)"
         :is-dev="props.isDev"
@@ -99,7 +99,14 @@ const filtered = computed(() => {
   }
   if (currentSearch.value) {
     const q = currentSearch.value.toLowerCase();
-    list = list.filter((r) => r.name.toLowerCase().includes(q) || r.path.toLowerCase().includes(q));
+    list = list.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.path.toLowerCase().includes(q) ||
+        r.subResources?.some(
+          (s) => s.name.toLowerCase().includes(q) || s.path.toLowerCase().includes(q),
+        ),
+    );
   }
   return list;
 });
@@ -111,7 +118,9 @@ watch(
   () => props.resources,
   (resources) => {
     for (const r of resources ?? []) {
-      if (resourceState(r) === 'error') expandedSet.value.add(r.name);
+      if (resourceState(r) === 'error' || r.subResources?.some((s) => !s.valid)) {
+        expandedSet.value.add(r.name);
+      }
     }
   },
   { immediate: true },
