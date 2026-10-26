@@ -1,6 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
-
-import type { JsonColumn } from '@ghentcdh/crouton-core';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const RESOLVED = {
   json: {
@@ -18,6 +16,7 @@ vi.mock('./resource-resolver', () => ({
 
 // Import after mock setup
 import { buildSubResources } from './sub-resource.builder';
+import type { JsonColumn } from '@ghentcdh/crouton-core';
 
 const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
   ({
@@ -133,3 +132,60 @@ describe('buildSubResources', () => {
     expect(result[0].findOneOrderBy).toBeUndefined();
   });
 });
+
+describe('buildSubResources — child layout forwarded to views', () => {
+  const parentRoute = '/parent';
+  const parentModel = 'parent';
+  const parentDir = '/mock/parent';
+
+  const savedJson = RESOLVED.json;
+
+  beforeEach(() => {
+    (RESOLVED as any).json = {
+      route: 'child',
+      operations: {},
+      columns: [
+        { id: 'title', hiddenInForm: false, hiddenInTable: false },
+        { id: 'notes', hiddenInForm: false, hiddenInTable: false },
+      ],
+    };
+  });
+
+  afterEach(() => {
+    (RESOLVED as any).json = savedJson;
+  });
+
+  it('no layout → both columns appear in auto-generated form', () => {
+    const columns = [col({ id: 'content', hiddenInForm: false })];
+    const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
+    const scopes = formScopes(result[0].views);
+    expect(scopes).toContain('#/properties/title');
+    expect(scopes).toContain('#/properties/notes');
+  });
+
+  it('layout.form.items restricts which columns appear in the form', () => {
+    (RESOLVED as any).json.layout = {
+      form: { type: 'grid', items: ['title'] },
+    };
+    const columns = [col({ id: 'content', hiddenInForm: false })];
+    const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
+    const scopes = formScopes(result[0].views);
+    expect(scopes).toContain('#/properties/title');
+    expect(scopes).not.toContain('#/properties/notes');
+  });
+
+  it('layout.form.container → modalSize and display forwarded', () => {
+    (RESOLVED as any).json.layout = {
+      form: { container: { mode: 'modal', size: 'xl' }, type: 'grid', items: ['title'] },
+    };
+    const columns = [col({ id: 'content', hiddenInForm: false })];
+    const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
+    expect(result[0].modalSize).toBe('xl');
+    expect(result[0].display).toEqual({ mode: 'modal' });
+  });
+});
+
+const formScopes = (views: Record<string, any> | undefined): string[] => {
+  const elements = views?.form?.ui_schema?.elements as any[] | undefined;
+  return elements?.map((e: any) => e.scope) ?? [];
+};
