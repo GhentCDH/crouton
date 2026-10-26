@@ -1,14 +1,18 @@
-export { ModelSchema, ResourceInputSchema, ResourceRefSchema } from './model.schema';
+export {
+  ModelSchema,
+  ResourceInputSchema,
+  ResourceRefSchema,
+} from './model.schema';
 export type { ModelRelation, ResourceInput, ResourceRef } from './model.schema';
 export {
   DataFieldSchema,
-  NormalizedDataSchema,
   NormalizeResultSchema,
+  NormalizedDataSchema,
   NormalizedResourceSchema,
 } from './normalized-resource.schema';
 export type {
   DataField,
-  NormalizedData,
   NormalizeResult,
+  NormalizedData,
   NormalizedResource,
 } from './normalized-resource.schema';
