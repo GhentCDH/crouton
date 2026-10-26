@@ -4,10 +4,12 @@ import type {
   CalculatedColumn,
   JsonColumn,
   LookupConfig,
+  NormalizedData,
   RelationFieldInputOptions,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
+  allowedIncludes,
   applyRelationFormatDefault,
   buildLayouts,
   buildResourceDefinitions,
@@ -18,9 +20,12 @@ import {
   enrichRelationTypes,
   extractFindAllSearch,
   extractOpInclude,
+  getPrismaRelationField,
+  getRelationType,
   getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  isRelationColumn,
   resolveColumnFieldVariants,
   resolveColumnVisibility,
   zodSchemaSource,
@@ -144,6 +149,59 @@ export const fromJson = (
     enrichedColumns,
   );
 
+  const data: NormalizedData = {
+    ...(src?.datasource && { datasource: src.datasource }),
+    ...(src?.dbTable && { dbTable: src.dbTable }),
+    ...(src?.model && { prismaModel: src.model }),
+    idField: lookup?.key ?? 'id',
+    idType: src?.idType ?? 'string',
+    fields: Object.fromEntries(
+      enrichedColumns.map((col) => {
+        const isRel = isRelationColumn(col);
+        const kind = getRelationType(col);
+        const relOpts = col.fieldInput?.options as { displayKey?: string; valueKey?: string } | undefined;
+        return [
+          col.id,
+          {
+            id: col.id,
+            dbName: col.column ?? col.id,
+            type: isRel ? 'relation' : ((col as any).type ?? col.fieldInput?.type ?? 'string'),
+            required: false,
+            ...(col.unique !== undefined && { unique: !!col.unique }),
+            ...(isRel && kind && {
+              relation: {
+                kind: kind as 'manyToOne' | 'oneToMany' | 'manyToMany',
+                target: getPrismaRelationField(col),
+                ...((col.displayKey ?? relOpts?.displayKey) ? { displayKey: col.displayKey ?? relOpts?.displayKey } : {}),
+                ...(relOpts?.valueKey ? { valueKey: relOpts.valueKey } : {}),
+              },
+            }),
+            ...((col as any).computed?.sql ? { computed: { sql: (col as any).computed.sql as string } } : {}),
+          },
+        ];
+      }),
+    ),
+    search: searchPaths ?? [],
+    ...(lookup && { lookup }),
+    include: {
+      findAll: (enrichedInclude ?? []).map((e) => (typeof e === 'string' ? e : (e as any).relation)),
+      findOne: (enrichedFindOneInclude ?? []).map((e) => (typeof e === 'string' ? e : (e as any).relation)),
+    },
+    allowedIncludes: allowedIncludes(enrichedColumns),
+    valueLabels: buildValueLabelColumns(enrichedColumns),
+    computed: enrichedColumns
+      .filter((c) => (c as any).computed?.sql)
+      .map((c) => ({ id: c.id, sql: (c as any).computed.sql as string, type: ((c as any).computed.type as string | undefined) ?? 'string' })),
+    subResources: subResources.map((s) => ({
+      childRoute: s.childRoute,
+      target: s.relation ?? s.childRoute,
+      relationType: (s.relationType ?? 'oneToMany') as 'oneToMany' | 'manyToOne' | 'manyToMany',
+      column: s.column,
+      ...(s.displayKey && { displayKey: s.displayKey }),
+    })),
+    actions: [],
+  };
+
   const formContainer = (json.layout?.form as any)?.container;
   const viewContainer = (json.layout?.view as any)?.container;
   const derivedDisplay = {
@@ -179,6 +237,7 @@ export const fromJson = (
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
+    data,
     ...pickExtensions(json as Record<string, unknown>),
   } as unknown as Resource;
 };
