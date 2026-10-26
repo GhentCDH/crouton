@@ -1,0 +1,67 @@
+{
+  "resource": {
+    "name": "author",
+    "title": "Authors",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "name": {
+        "searchable": true,
+        "filterable": true,
+        "sortable": true
+      },
+      "bio": {
+        "fieldInput": {
+          "type": "textarea"
+        },
+        "hiddenInTable": true
+      },
+      "books": {
+        "label": "Books",
+        "hiddenInTable": true,
+        "hiddenInForm": true,
+        "fieldInput": {
+          "format": "relation",
+          "relationType": "oneToMany",
+          "resource": "./book.resource"
+        }
+      }
+    },
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": {
+        "include": [
+          "books"
+        ]
+      },
+      "findOne": {
+        "include": [
+          "books"
+        ]
+      }
+    },
+    "source": {
+      "model": "Author"
+    }
+  },
+  "refs": {},
+  "enums": {
+    "bookStatus": [
+      {
+        "value": "draft",
+        "label": "Draft"
+      },
+      {
+        "value": "published",
+        "label": "Published"
+      },
+      {
+        "value": "archived",
+        "label": "Archived"
+      }
+    ]
+  },
+  "baseUrl": "http://localhost:3000"
+}

@@ -54,20 +54,6 @@ export const expandExtendColumns = (
         ? `${refCol.id}.${refCol.displayKey}`
         : refCol.id;
 
-      // The more restrictive visibility wins (true = hidden beats false = visible)
-      const hiddenInTable =
-        col.hiddenInTable === true || refCol.hiddenInTable === true
-          ? true
-          : (col.hiddenInTable ?? refCol.hiddenInTable);
-      const hiddenInForm =
-        col.hiddenInForm === true || refCol.hiddenInForm === true
-          ? true
-          : (col.hiddenInForm ?? refCol.hiddenInForm);
-      const hiddenInView =
-        col.hiddenInView === true || refCol.hiddenInView === true
-          ? true
-          : (col.hiddenInView ?? refCol.hiddenInView);
-
       // Per-sub-column overrides keyed by virtual id or ref column id
       const override =
         col.columns?.[virtualId] ?? col.columns?.[refCol.id] ?? {};
@@ -78,9 +64,6 @@ export const expandExtendColumns = (
         displayKey,
         label: refCol.label ?? refCol.id,
         type: 'object',
-        ...(hiddenInTable !== undefined && { hiddenInTable }),
-        ...(hiddenInForm !== undefined && { hiddenInForm }),
-        ...(hiddenInView !== undefined && { hiddenInView }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
       } as unknown as JsonColumn;

@@ -1,0 +1,88 @@
+{
+  "resource": {
+    "name": "book",
+    "title": "Books",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "title": {
+        "searchable": true,
+        "filterable": true,
+        "sortable": true
+      },
+      "isbn": {
+        "sortable": true
+      },
+      "publishedYear": {
+        "type": "integer",
+        "sortable": true
+      },
+      "status": {
+        "enum": "bookStatus",
+        "filterable": true
+      },
+      "summary": {
+        "fieldInput": {
+          "type": "textarea"
+        },
+        "hiddenInTable": true
+      },
+      "authorId": {
+        "label": "Author",
+        "searchable": true,
+        "fieldInput": {
+          "type": "autocomplete",
+          "relationType": "manyToOne",
+          "resource": "./author.resource"
+        }
+      },
+      "categories": {
+        "label": "Categories",
+        "fieldInput": {
+          "format": "relation",
+          "relationType": "manyToMany",
+          "resource": "./category.resource"
+        },
+        "hiddenInTable": true
+      }
+    },
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": {
+        "include": [
+          "author",
+          "categories"
+        ]
+      },
+      "findOne": {
+        "include": [
+          "author",
+          "categories"
+        ]
+      }
+    },
+    "source": {
+      "model": "Book"
+    }
+  },
+  "refs": {},
+  "enums": {
+    "bookStatus": [
+      {
+        "value": "draft",
+        "label": "Draft"
+      },
+      {
+        "value": "published",
+        "label": "Published"
+      },
+      {
+        "value": "archived",
+        "label": "Archived"
+      }
+    ]
+  },
+  "baseUrl": "http://localhost:3000"
+}

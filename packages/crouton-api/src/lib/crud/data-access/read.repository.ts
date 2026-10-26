@@ -1,12 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import {
-  type JsonColumn,
   type ListRequest,
-  allowedIncludes,
   buildSort,
   offsetOf,
-  resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
 import {
@@ -78,10 +75,11 @@ export class ReadRepository<T = any> {
     const manyToOneSubs = (this.config.subResources ?? []).filter(
       (s) => s.relationType === 'manyToOne' && s.displayKey,
     );
-    const manyToOneCols = (
-      (this.config.columns as unknown as JsonColumn[] | undefined) ?? []
-    ).filter((c) => c.fieldInput?.relationType === 'manyToOne' && c.displayKey);
-    const needsRemap = manyToOneSubs.length || manyToOneCols.length;
+    const fields = this.config.data?.fields ?? {};
+    const hasManyToOneCols = Object.values(fields).some(
+      (f) => f.relation?.kind === 'manyToOne' && f.relation.displayKey,
+    );
+    const needsRemap = manyToOneSubs.length || hasManyToOneCols;
     const remapped = needsRemap
       ? filter.map((f) => {
           const parsed = parseFilterString(f);
@@ -90,9 +88,9 @@ export class ReadRepository<T = any> {
           if (sub?.displayKey) {
             return `${parsed.field}.${sub.displayKey}:${parsed.value}:${parsed.operator}`;
           }
-          const col = manyToOneCols.find((c) => c.id === parsed.field);
-          if (col?.displayKey) {
-            return `${parsed.field}.${col.displayKey}:${parsed.value}:${parsed.operator}`;
+          const field = fields[parsed.field];
+          if (field?.relation?.kind === 'manyToOne' && field.relation.displayKey) {
+            return `${parsed.field}.${field.relation.displayKey}:${parsed.value}:${parsed.operator}`;
           }
           return f;
         })
@@ -197,8 +195,7 @@ export class ReadRepository<T = any> {
           `Nested includes are not supported: ${nested.join(', ')}`,
         );
       }
-      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
-      const allowed = allowedIncludes(columns);
+      const allowed = this.config.data?.allowedIncludes ?? [];
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
         throw new BadRequestException({
@@ -206,17 +203,14 @@ export class ReadRepository<T = any> {
           allowed,
         });
       }
-      dynamicPrismaFields = requestedIncludes.map((id) =>
-        resolveIncludeToRelationField(id, columns),
-      );
+      const fields = this.config.data?.fields ?? {};
+      dynamicPrismaFields = requestedIncludes.map((id) => fields[id]?.dbName ?? id);
     }
 
-    const allStaticAndDynamic = [
-      ...(this.config.include ?? []),
-      ...dynamicPrismaFields,
-    ];
+    // Static includes go through the countableRelations filter (existing behaviour).
+    // Dynamic includes bypass it: the client explicitly asked for records, not a count.
     const configInclude = buildIncludeClause(
-      allStaticAndDynamic.length ? allStaticAndDynamic : undefined,
+      this.config.include?.length ? this.config.include : undefined,
     );
     // Exclude every oneToMany sub-resource from configInclude in findAll: a
     // counted one would have its records overwritten by the count mapping below,
@@ -244,15 +238,29 @@ export class ReadRepository<T = any> {
       filteredConfigInclude && Object.keys(filteredConfigInclude).length
         ? filteredConfigInclude
         : undefined;
+
+    // Dynamic includes are added after the countable-relations filter so they are
+    // always fetched as records even when the same relation would normally be counted.
+    const dynamicPrismaSet = new Set(dynamicPrismaFields);
+    const dynamicIncludeObj = dynamicPrismaFields.length
+      ? Object.fromEntries(dynamicPrismaFields.map((r) => [r, true]))
+      : undefined;
+
     const mergedInclude =
-      flatIncludes || safeConfigInclude
-        ? { ...flatIncludes, ...safeConfigInclude }
+      flatIncludes || safeConfigInclude || dynamicIncludeObj
+        ? { ...flatIncludes, ...safeConfigInclude, ...dynamicIncludeObj }
         : undefined;
 
-    const countClause = countableSubResources.length
+    // Exclude dynamically-included relations from the _count clause and the row
+    // mapping below: the client asked for records, so the count must not overwrite them.
+    const effectiveCountableSubResources = countableSubResources.filter(
+      (s) => !dynamicPrismaSet.has(s.relation),
+    );
+
+    const countClause = effectiveCountableSubResources.length
       ? {
           select: Object.fromEntries(
-            countableSubResources.map((s) => [s.relation, true]),
+            effectiveCountableSubResources.map((s) => [s.relation, true]),
           ),
         }
       : undefined;
@@ -273,12 +281,12 @@ export class ReadRepository<T = any> {
 
     const rows = await this.prismaModel.findMany(query);
 
-    const mapped = countableSubResources.length
+    const mapped = effectiveCountableSubResources.length
       ? rows.map((row: any) => {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
-            countableSubResources.map((s) => [
+            effectiveCountableSubResources.map((s) => [
               s.column,
               _count[s.relation] ?? 0,
             ]),
@@ -351,8 +359,7 @@ export class ReadRepository<T = any> {
           `Nested includes are not supported: ${nested.join(', ')}`,
         );
       }
-      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
-      const allowed = allowedIncludes(columns);
+      const allowed = this.config.data?.allowedIncludes ?? [];
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
         throw new BadRequestException({
@@ -360,9 +367,8 @@ export class ReadRepository<T = any> {
           allowed,
         });
       }
-      dynamicPrismaFields = requestedIncludes.map((colId) =>
-        resolveIncludeToRelationField(colId, columns),
-      );
+      const fields = this.config.data?.fields ?? {};
+      dynamicPrismaFields = requestedIncludes.map((colId) => fields[colId]?.dbName ?? colId);
     }
 
     const allStaticAndDynamic = [
