@@ -26,6 +26,7 @@ export const ResourceDefinitionResponseZ = z
     modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
     operations: Operations,
     schemas: FormDevSchemas,
+    allowedIncludes: z.array(z.string()).default([]),
   })
   .transform((data) => {
     const operations = {} as Record<OperationKey, Operation | null>;
