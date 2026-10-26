@@ -14,7 +14,6 @@ import {
   enumKey,
   resourceSidebarKey,
   resourceTitleKey,
-  subResourceColumnKey,
   subResourceTitleKey,
 } from '@ghentcdh/crouton-core';
 
@@ -237,7 +236,7 @@ export const localizeResource = (
           if (view.columns) {
             for (const vc of view.columns) {
               const translated = t(
-                subResourceColumnKey(name, subName, vc.id),
+                columnKey(subName, vc.id),
                 vc.label ?? vc.id,
               );
               vc.label = translated;
