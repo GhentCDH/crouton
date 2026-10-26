@@ -14,6 +14,7 @@ const listParams = (over: Record<string, unknown> = {}) => ({
   sort: 'id',
   sortDir: 'asc' as const,
   filter: [] as string[],
+  include: [] as string[],
   ...over,
 });
 

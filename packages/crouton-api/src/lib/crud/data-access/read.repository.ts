@@ -3,8 +3,10 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   type JsonColumn,
   type ListRequest,
+  allowedIncludes,
   buildSort,
   offsetOf,
+  resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
 import {
@@ -185,7 +187,37 @@ export class ReadRepository<T = any> {
     const flatIncludes = manyToOneIncludes.length
       ? Object.fromEntries(manyToOneIncludes.map((r) => [r, true]))
       : undefined;
-    const configInclude = buildIncludeClause(this.config.include);
+
+    const requestedIncludes: string[] = params.include ?? [];
+    let dynamicPrismaFields: string[] = [];
+    if (requestedIncludes.length) {
+      const nested = requestedIncludes.filter((v) => v.includes('.'));
+      if (nested.length) {
+        throw new BadRequestException(
+          `Nested includes are not supported: ${nested.join(', ')}`,
+        );
+      }
+      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
+      const allowed = allowedIncludes(columns);
+      const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
+      if (unknown.length) {
+        throw new BadRequestException({
+          message: `Unknown or forbidden include: ${unknown.join(', ')}`,
+          allowed,
+        });
+      }
+      dynamicPrismaFields = requestedIncludes.map((id) =>
+        resolveIncludeToRelationField(id, columns),
+      );
+    }
+
+    const allStaticAndDynamic = [
+      ...(this.config.include ?? []),
+      ...dynamicPrismaFields,
+    ];
+    const configInclude = buildIncludeClause(
+      allStaticAndDynamic.length ? allStaticAndDynamic : undefined,
+    );
     // Exclude every oneToMany sub-resource from configInclude in findAll: a
     // counted one would have its records overwritten by the count mapping below,
     // and an uncounted one is hidden from the table, so fetching whole child rows
@@ -305,9 +337,41 @@ export class ReadRepository<T = any> {
       ...projection,
     };
 
+    const rawInclude = (request as any)?.query?.include;
+    const requestedIncludes: string[] = rawInclude
+      ? (Array.isArray(rawInclude) ? rawInclude : [rawInclude]).flatMap(
+          (s: string) => s.split(',').map((v) => v.trim()).filter(Boolean),
+        )
+      : [];
+    let dynamicPrismaFields: string[] = [];
+    if (requestedIncludes.length) {
+      const nested = requestedIncludes.filter((v) => v.includes('.'));
+      if (nested.length) {
+        throw new BadRequestException(
+          `Nested includes are not supported: ${nested.join(', ')}`,
+        );
+      }
+      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
+      const allowed = allowedIncludes(columns);
+      const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
+      if (unknown.length) {
+        throw new BadRequestException({
+          message: `Unknown or forbidden include: ${unknown.join(', ')}`,
+          allowed,
+        });
+      }
+      dynamicPrismaFields = requestedIncludes.map((colId) =>
+        resolveIncludeToRelationField(colId, columns),
+      );
+    }
+
+    const allStaticAndDynamic = [
+      ...(this.config.findOneInclude ?? this.config.include ?? []),
+      ...dynamicPrismaFields,
+    ];
     const mergedInclude = buildFindOneIncludes(
       this.config.subResources ?? [],
-      buildIncludeClause(this.config.findOneInclude ?? this.config.include),
+      buildIncludeClause(allStaticAndDynamic.length ? allStaticAndDynamic : undefined),
     );
 
     if (mergedInclude) {

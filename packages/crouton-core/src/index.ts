@@ -1,5 +1,6 @@
 export * from './lib/filter';
 export * from './lib/request.model';
+export * from './lib/request/include';
 export * from './lib/response.model';
 export * from './lib/zod.types';
 export * from './lib/create-schema';

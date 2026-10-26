@@ -13,6 +13,14 @@ export const RequestSchema = z.object({
   // Filter is of the format key:value:operator (e.g. name:john:eq) operator is optional
   filter: StringOrArray().optional().default([]),
   q: z.string().optional(),
+  include: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .default([])
+    .transform((val) => {
+      const arr = Array.isArray(val) ? val : [val];
+      return arr.flatMap((s) => s.split(',').map((v) => v.trim()).filter(Boolean));
+    }),
 });
 
 export type ListRequest = z.infer<typeof RequestSchema>;

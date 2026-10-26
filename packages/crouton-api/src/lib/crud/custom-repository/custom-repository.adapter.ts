@@ -312,6 +312,7 @@ export const createCustomRepository = <T = any>(
           sort: idField,
           sortDir: 'asc',
           filter: filter ?? [],
+          include: [],
         })
       ).count,
     findOne,

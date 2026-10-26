@@ -111,6 +111,7 @@ describe('a custom child is a route, not a Prisma relation', () => {
     sort: 'id',
     sortDir: 'asc' as const,
     filter: [] as string[],
+    include: [] as string[],
   };
 
   beforeEach(() => {

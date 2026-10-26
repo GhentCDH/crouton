@@ -1141,6 +1141,12 @@
                   "desc"
                 ],
                 "markdownDescription": "Sort direction for related records\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
+              "embed": {
+                "default": true,
+                "description": "When false, this relation cannot be dynamically included via the ?include= query param.",
+                "type": "boolean",
+                "markdownDescription": "When false, this relation cannot be dynamically included via the ?include= query param.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
             "required": [
