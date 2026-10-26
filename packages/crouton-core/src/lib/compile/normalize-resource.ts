@@ -103,10 +103,10 @@ const extractI18nKeys = (name: string, fields: Record<string, DataField>): Recor
 
 const SCOPE_RE = /^#\/properties\/([^/]+)$/;
 
-const patchDataTitles = (data: unknown, keys: Record<string, string>, t: Translator): unknown => {
-  if (!data || typeof data !== 'object') return data;
+const patchDataTitles = (data: unknown, keys: Record<string, string>, t: Translator): Record<string, unknown> => {
+  if (!data || typeof data !== 'object') return data as Record<string, unknown>;
   const d = data as Record<string, unknown>;
-  if (!d['properties'] || typeof d['properties'] !== 'object') return data;
+  if (!d['properties'] || typeof d['properties'] !== 'object') return d;
   const props = d['properties'] as Record<string, unknown>;
   return {
     ...d,
@@ -140,10 +140,10 @@ const patchUiElement = (el: unknown, keys: Record<string, string>, t: Translator
   return patched;
 };
 
-const patchUiLabels = (ui: unknown, keys: Record<string, string>, t: Translator): unknown => {
-  if (!ui || typeof ui !== 'object') return ui;
+const patchUiLabels = (ui: unknown, keys: Record<string, string>, t: Translator): Record<string, unknown> => {
+  if (!ui || typeof ui !== 'object') return ui as Record<string, unknown>;
   const u = ui as Record<string, unknown>;
-  if (!Array.isArray(u['elements'])) return ui;
+  if (!Array.isArray(u['elements'])) return u;
   return { ...u, elements: (u['elements'] as unknown[]).map((el) => patchUiElement(el, keys, t)) };
 };
 
@@ -272,10 +272,13 @@ export const normalizeResource = (input: ResourceInput): NormalizeResult => {
     ? `${input.baseUrl ?? ''}/${json.parent.route}/{${json.parent.param}}/${json.route}`
     : `${input.baseUrl ?? ''}/${json.route}`;
 
-  const rawSchemas = Object.fromEntries(
+  const rawSchemas: Record<string, { data: Record<string, unknown>; ui: Record<string, unknown> }> = Object.fromEntries(
     Object.entries(compiled.views ?? {}).map(([key, v]) => [
       key,
-      { data: v.json_schema ?? v.data ?? {}, ui: v.ui_schema ?? v.ui ?? {} },
+      {
+        data: (v.json_schema ?? v.data ?? {}) as Record<string, unknown>,
+        ui: (v.ui_schema ?? v.ui ?? {}) as Record<string, unknown>,
+      },
     ]),
   );
 
