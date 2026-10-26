@@ -1,0 +1,73 @@
+{
+  "resource": {
+    "name": "loan",
+    "title": "Loans",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "loanedAt": {
+        "type": "string",
+        "sortable": true,
+        "defaultSort": true
+      },
+      "returnedAt": {
+        "type": "string",
+        "required": false
+      },
+      "userId": {
+        "label": "User",
+        "fieldInput": {
+          "type": "autocomplete",
+          "relationType": "manyToOne",
+          "resource": "./user.resource"
+        }
+      },
+      "bookId": {
+        "label": "Book",
+        "fieldInput": {
+          "type": "autocomplete",
+          "relationType": "manyToOne",
+          "resource": "./book.resource"
+        }
+      }
+    },
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": {
+        "include": [
+          "user",
+          "book"
+        ]
+      },
+      "findOne": {
+        "include": [
+          "user",
+          "book"
+        ]
+      }
+    },
+    "source": {
+      "model": "Loan"
+    }
+  },
+  "refs": {},
+  "enums": {
+    "bookStatus": [
+      {
+        "value": "draft",
+        "label": "Draft"
+      },
+      {
+        "value": "published",
+        "label": "Published"
+      },
+      {
+        "value": "archived",
+        "label": "Archived"
+      }
+    ]
+  },
+  "baseUrl": "http://localhost:3000"
+}

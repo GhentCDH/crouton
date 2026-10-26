@@ -1,0 +1,33 @@
+{
+  "resource": {
+    "name": "group",
+    "route": "groups",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "name": {
+        "searchable": true,
+        "sortable": true
+      },
+      "chapters": {
+        "label": "Chapters",
+        "hiddenInTable": true,
+        "fieldInput": {
+          "format": "relation",
+          "relationType": "oneToMany",
+          "resource": "./chapter/resource.json",
+          "foreignKey": "group_id"
+        }
+      }
+    },
+    "schemaVersion": 1,
+    "source": {
+      "model": "Group"
+    }
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}

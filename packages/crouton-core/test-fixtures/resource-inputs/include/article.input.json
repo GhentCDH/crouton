@@ -1,0 +1,60 @@
+{
+  "resource": {
+    "name": "article",
+    "route": "articles",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "title": {
+        "searchable": true,
+        "sortable": true
+      },
+      "authorId": {
+        "label": "Author",
+        "fieldInput": {
+          "type": "autocomplete",
+          "relationType": "manyToOne",
+          "resource": "./author.resource"
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "hiddenInTable": true,
+        "hiddenInForm": true
+      }
+    },
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": {
+        "include": [
+          "author",
+          {
+            "relation": "tags",
+            "include": [
+              "category"
+            ]
+          }
+        ]
+      },
+      "findOne": {
+        "include": [
+          "author",
+          {
+            "relation": "tags",
+            "include": [
+              "category"
+            ]
+          }
+        ]
+      }
+    },
+    "source": {
+      "model": "Article"
+    }
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}
