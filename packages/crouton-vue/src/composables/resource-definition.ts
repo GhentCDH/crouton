@@ -77,8 +77,17 @@ const localizeSchema = (
   if (!schema) return schema;
   const ui = schema.ui as Record<string, unknown> | undefined;
   const elements = ui?.elements as unknown[] | undefined;
+  const columns = Array.isArray(schema.columns)
+    ? schema.columns.map((col) => ({
+        ...col,
+        ...(col.label !== undefined && {
+          label: t(columnKey(name, col.id), col.label),
+        }),
+      }))
+    : schema.columns;
   return {
     ...schema,
+    columns,
     ui: elements
       ? { ...ui, elements: translateUiElements(elements, t, name) }
       : schema.ui,
