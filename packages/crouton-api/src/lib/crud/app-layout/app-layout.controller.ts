@@ -4,11 +4,9 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   type I18nConfig,
   type SidebarGroupConfig,
-  sidebarGroupKey,
 } from '@ghentcdh/crouton-core';
 
 import { IS_DEV } from '../dev-mode';
-import { type Resource } from '../resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
 import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
@@ -43,22 +41,15 @@ export const createAppLayoutController = (
       const language = getRequestLanguage();
 
       let payload;
-      if (IS_DEV || language) {
-        const fresh = await this.configRegistry.getAll(language);
-        payload = buildLayoutPayload(
-          fresh,
-          language
-            ? translateSidebarGroups(sidebarGroups, language, translationRegistry)
-            : sidebarGroups,
-          language ? translateTitle(title, language, translationRegistry) : title,
-          autoSave,
-          IS_DEV,
-        );
+      if (IS_DEV) {
+        const fresh = await this.configRegistry.getAll();
+        payload = buildLayoutPayload(fresh, sidebarGroups, title, autoSave, IS_DEV);
       } else {
         payload = layoutPayload;
       }
 
-      // Append i18n metadata + ui dictionary when translations are active
+      // Append i18n metadata + ui dictionary when translations are active.
+      // Labels (sidebar, title, columns) are now translated client-side via /_app/translations.
       if (translationRegistry?.active && i18nConfig) {
         const lang = language ?? i18nConfig.defaultLanguage;
         const bundle = translationRegistry.bundleFor(lang);
@@ -79,22 +70,18 @@ export const createAppLayoutController = (
 
     @Get('translations')
     @ApiOperation({
-      summary: 'Get ui + validation translation dictionaries',
+      summary: 'Get the full translation bundle for the current language',
     })
     @ApiResponse({
       status: 200,
-      description: 'Translation dictionaries for the current language',
+      description: 'Full translation bundle (resources, enums, sidebarGroups, ui, validation)',
     })
     getTranslations() {
       if (!translationRegistry?.active || !i18nConfig) {
-        return { ui: {}, validation: {} };
+        return {};
       }
       const language = getRequestLanguage() ?? i18nConfig.defaultLanguage;
-      const bundle = translationRegistry.bundleFor(language);
-      return {
-        ui: bundle.ui ?? {},
-        validation: bundle.validation ?? {},
-      };
+      return translationRegistry.bundleFor(language);
     }
   }
 
@@ -107,29 +94,3 @@ export const createAppLayoutController = (
   return AppLayoutController;
 };
 
-/** Translate sidebar group labels using the translator. */
-const translateSidebarGroups = (
-  groups: Record<string, SidebarGroupConfig>,
-  language: string,
-  registry?: TranslationRegistry,
-): Record<string, SidebarGroupConfig> => {
-  if (!registry?.active) return groups;
-  const t = registry.translatorFor(language);
-  const translated: Record<string, SidebarGroupConfig> = {};
-  for (const [slug, cfg] of Object.entries(groups)) {
-    const label = t(sidebarGroupKey(slug), cfg.label);
-    translated[slug] = label !== cfg.label ? { ...cfg, label } : cfg;
-  }
-  return translated;
-};
-
-/** Translate app title using app.title key. */
-const translateTitle = (
-  title: string | undefined,
-  language: string,
-  registry?: TranslationRegistry,
-): string | undefined => {
-  if (!title || !registry?.active) return title;
-  const t = registry.translatorFor(language);
-  return t('app.title', title);
-};

@@ -48,10 +48,9 @@ export const registerDefinitionEndpoint = (ctx: OperationContext): void => {
     cls,
     'getDefinition',
     async function (this: { configRegistry: ResourceConfigRegistry }) {
-      const language = getRequestLanguage();
       let payload = definitionPayload;
-      if (IS_DEV || language) {
-        const fresh = await this.configRegistry.getByRoute(route, language);
+      if (IS_DEV) {
+        const fresh = await this.configRegistry.getByRoute(route);
         if (fresh) payload = buildDefinitionPayload(fresh);
       }
       if (!schemaEnricher) return payload;
@@ -89,10 +88,9 @@ export const registerResourceJsonEndpoint = (ctx: OperationContext): void => {
     cls,
     'getResourceJson',
     async function (this: { configRegistry: ResourceConfigRegistry }) {
-      const language = getRequestLanguage();
       let payload = resourceJsonPayload;
-      if (IS_DEV || language) {
-        const fresh = await this.configRegistry.getByRoute(route, language);
+      if (IS_DEV) {
+        const fresh = await this.configRegistry.getByRoute(route);
         if (fresh) payload = buildResourceJsonPayload(fresh, baseUrl);
       }
       if (!schemaEnricher) return payload;

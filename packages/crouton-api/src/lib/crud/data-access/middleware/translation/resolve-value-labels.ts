@@ -1,17 +1,16 @@
 import type { ResourceConfigRegistry } from '../../../resource-config.registry';
 import type { ValueLabelColumn } from '../value-label';
-import { getRequestLanguage } from './language.context';
 
 /**
- * Resolve value-label columns for the current request language.
+ * Resolve value-label columns for the given route.
  *
- * When a language is active and the config registry holds a localized config,
- * the localized `valueLabelColumns` (with translated enum labels) are returned.
- * Otherwise the boot-time columns are returned unchanged.
+ * Returns the boot-time `valueLabelColumns` from the config registry,
+ * or falls back to `bootTimeCols` when the registry has no entry.
+ * Enum label translation for `__label` fields is handled client-side.
  *
- * @param route        - Resource route (used to look up the localized config).
+ * @param route        - Resource route (used to look up the config).
  * @param bootTimeCols - The valueLabelColumns from the boot-time config.
- * @param configRegistry - Optional config registry for localized lookup.
+ * @param configRegistry - Optional config registry for lookup.
  * @param childRoute   - When set, resolve the sub-resource's valueLabelColumns instead.
  */
 export const resolveValueLabelColumns = async (
@@ -21,12 +20,10 @@ export const resolveValueLabelColumns = async (
   childRoute?: string,
 ): Promise<ValueLabelColumn[] | undefined> => {
   if (!configRegistry) return bootTimeCols;
-  const language = getRequestLanguage();
-  if (!language) return bootTimeCols;
-  const localized = await configRegistry.getByRoute(route, language);
-  if (!localized) return bootTimeCols;
-  if (!childRoute) return localized.valueLabelColumns ?? bootTimeCols;
-  const sub = (localized.subResources ?? []).find(
+  const config = await configRegistry.getByRoute(route);
+  if (!config) return bootTimeCols;
+  if (!childRoute) return config.valueLabelColumns ?? bootTimeCols;
+  const sub = (config.subResources ?? []).find(
     (s) => s.childRoute === childRoute,
   );
   return sub?.valueLabelColumns ?? bootTimeCols;

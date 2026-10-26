@@ -20,6 +20,7 @@ import {
   configureLanguage,
   installLanguageHeader,
   onLanguageChange,
+  setBundle,
   setUiDictionary,
   useLanguage,
 } from './useLanguage';
@@ -90,6 +91,14 @@ const createCrouton = (
   _config: Partial<typeof AppConfig> = {},
 ) => {
   configureApi(api);
+  const fetchBundle = () =>
+    useApi()
+      .get('/_app/translations')
+      .then((res) => setBundle(res.data))
+      .catch(() => {
+        // No translations endpoint — silently skip.
+      });
+
   const fetchLayout = (overrides: Partial<typeof AppConfig> = {}) =>
     useApi()
       .get('/_app/layout')
@@ -147,14 +156,16 @@ const createCrouton = (
     installLanguageHeader(api);
     config.value = { ...AppConfig, ..._config };
 
-    // When language changes, refresh layout (sidebar, title, ui dict) and
-    // re-fetch all cached FormDefs so labels match the new language.
+    // When language changes, refresh layout (sidebar, title, ui dict),
+    // re-fetch translation bundle, and invalidate cached FormDefs so
+    // labels are re-translated in the new language.
     onLanguageChange(async () => {
       formDefCache.invalidateAll();
       await fetchLayout(_config);
+      await fetchBundle();
     });
 
-    return fetchLayout(_config);
+    return fetchLayout(_config).then(() => fetchBundle());
   };
 
   return {

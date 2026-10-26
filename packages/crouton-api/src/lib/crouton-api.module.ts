@@ -178,7 +178,6 @@ export class CroutonApiModule {
         translationsDir,
         config.i18n,
       );
-      configRegistry.setTranslationRegistry(translationRegistry);
     }
 
     const controllers = [

@@ -35,6 +35,14 @@
           >
             complete
           </span>
+          <!-- Client-side bundle indicator for the active language -->
+          <span
+            v-if="b.language === language"
+            class="ml-auto rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs text-base-content/60"
+            title="Translations loaded client-side"
+          >
+            client: {{ clientBundleKeyCount }}
+          </span>
         </li>
       </ul>
     </div>
@@ -42,7 +50,24 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
+import { useLanguage } from '../../composables/useLanguage';
 import { StatusI18nSectionProperties } from './StatusI18nSection.properties';
 
 const props = defineProps(StatusI18nSectionProperties);
+
+const { language, bundle } = useLanguage();
+
+/** Count non-empty leaf strings in a nested object. */
+const countLeafStrings = (obj: unknown): number => {
+  if (typeof obj === 'string') return obj !== '' ? 1 : 0;
+  if (!obj || typeof obj !== 'object') return 0;
+  return Object.values(obj as Record<string, unknown>).reduce(
+    (sum: number, v) => sum + countLeafStrings(v),
+    0,
+  );
+};
+
+const clientBundleKeyCount = computed(() => countLeafStrings(bundle.value));
 </script>
