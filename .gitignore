@@ -74,3 +74,4 @@ e2e.db
 /examples/book-collection/apps/generated/default/types/src/
 /examples/book-collection/apps/generated/default/types/src/modelSchema/
 .playwright-mcp
+/Claude outputs/
