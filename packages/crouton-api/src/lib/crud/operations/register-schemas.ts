@@ -1,12 +1,13 @@
 import { Get, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-import { def, desc } from './decorator.utils';
-import type { OperationContext } from './operation-context';
 import {
   buildSubResourceViewsPayload,
   buildViewsPayload,
-} from './payload-builders';
+} from '@ghentcdh/crouton-core';
+
+import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
