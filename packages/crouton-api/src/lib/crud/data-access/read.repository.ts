@@ -1,11 +1,11 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import {
-  type JsonColumn,
-  type ListRequest,
   allowedIncludes,
   buildChildSortClause,
   buildSort,
+  type JsonColumn,
+  type ListRequest,
   offsetOf,
   parseFilterString,
   resolveIncludeToRelationField,
@@ -20,13 +20,13 @@ import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
-import { buildFilterWhere, buildNestedPath, parseFilterString } from './query/filter';
+import { buildFilterWhere, buildNestedPath } from './query/filter';
 import { orderableChildSort } from './query/sort';
 import {
   buildFindOneIncludes,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
-} from './query/sql.helpers';
+} from './query/sql.helpers'; // Re-exported for backwards compatibility
 
 // Re-exported for backwards compatibility
 export { buildFilterWhere } from './query/filter';
@@ -332,7 +332,11 @@ export class ReadRepository<T = any> {
     const rawInclude = (request as any)?.query?.include;
     const requestedIncludes: string[] = rawInclude
       ? (Array.isArray(rawInclude) ? rawInclude : [rawInclude]).flatMap(
-          (s: string) => s.split(',').map((v) => v.trim()).filter(Boolean),
+          (s: string) =>
+            s
+              .split(',')
+              .map((v) => v.trim())
+              .filter(Boolean),
         )
       : [];
     let dynamicPrismaFields: string[] = [];
@@ -363,7 +367,9 @@ export class ReadRepository<T = any> {
     ];
     const mergedInclude = buildFindOneIncludes(
       this.config.subResources ?? [],
-      buildIncludeClause(allStaticAndDynamic.length ? allStaticAndDynamic : undefined),
+      buildIncludeClause(
+        allStaticAndDynamic.length ? allStaticAndDynamic : undefined,
+      ),
     );
 
     if (mergedInclude) {
@@ -457,7 +463,9 @@ export class ReadRepository<T = any> {
             ),
           )
         : rows;
-      const labeled = decorated.map((r: any) => applyValueLabelColumns(r, sub.valueLabelColumns));
+      const labeled = decorated.map((r: any) =>
+        applyValueLabelColumns(r, sub.valueLabelColumns),
+      );
       return { data: labeled, count: result?.count ?? labeled.length };
     }
 
@@ -512,7 +520,9 @@ export class ReadRepository<T = any> {
         )
       : withCalc;
 
-    const labeled = decorated.map((r: any) => applyValueLabelColumns(r, sub.valueLabelColumns));
+    const labeled = decorated.map((r: any) =>
+      applyValueLabelColumns(r, sub.valueLabelColumns),
+    );
     return { data: labeled, count };
   }
 
