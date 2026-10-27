@@ -39,10 +39,12 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.document.columns.title"
         },
         {
-          "id": "summary"
+          "id": "summary",
+          "labelKey": "resources.document.columns.summary"
         }
       ],
       "defaultSort": "id",
@@ -119,13 +121,16 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.document.columns.title"
         },
         {
-          "id": "summary"
+          "id": "summary",
+          "labelKey": "resources.document.columns.summary"
         },
         {
-          "id": "content"
+          "id": "content",
+          "labelKey": "resources.document.columns.content"
         }
       ]
     },
@@ -219,16 +224,20 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.document.columns.id"
         },
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.document.columns.title"
         },
         {
-          "id": "summary"
+          "id": "summary",
+          "labelKey": "resources.document.columns.summary"
         },
         {
-          "id": "content"
+          "id": "content",
+          "labelKey": "resources.document.columns.content"
         }
       ]
     }

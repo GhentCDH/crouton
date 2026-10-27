@@ -8,7 +8,6 @@ import {
 
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
-import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';

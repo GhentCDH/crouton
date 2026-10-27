@@ -61,7 +61,19 @@
           "defaultSortId": "id",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.page.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.page.columns.name"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -94,7 +106,14 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.page.columns.name"
+        }
+      ]
     },
     "view": {
       "data": {
@@ -147,7 +166,19 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.page.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.page.columns.name"
+        }
+      ]
     }
   },
   "allowedIncludes": []

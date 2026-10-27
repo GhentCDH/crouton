@@ -112,7 +112,14 @@
             "initialData": {}
           }
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.author.columns.name"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -165,7 +172,22 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.author.columns.name"
+        },
+        {
+          "id": "bio",
+          "label": "Bio",
+          "labelKey": "resources.author.columns.bio",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -258,7 +280,43 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.author.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.author.columns.name"
+        },
+        {
+          "id": "bio",
+          "label": "Bio",
+          "labelKey": "resources.author.columns.bio",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        },
+        {
+          "id": "books",
+          "label": "Books",
+          "labelKey": "resources.author.columns.books",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./book.resource",
+            "relationType": "oneToMany",
+            "options": {
+              "uri": "http://localhost:3000/author/{id}/book",
+              "resourceUri": "http://localhost:3000/book",
+              "resource": "http://localhost:3000/author/book/schemas",
+              "autocompleteResource": "http://localhost:3000/book/schemas"
+            }
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

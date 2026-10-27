@@ -15,7 +15,6 @@ import {
   buildResourceJsonPayload,
 } from '@ghentcdh/crouton-core';
 
-import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
 import { IS_DEV } from '../dev-mode';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
 import {

@@ -202,7 +202,24 @@
             "initialData": {}
           }
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "isbn",
+          "label": "Isbn",
+          "labelKey": "resources.book.columns.isbn"
+        },
+        {
+          "id": "publishedYear",
+          "label": "Published year",
+          "labelKey": "resources.book.columns.publishedYear"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -371,7 +388,81 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "isbn",
+          "label": "Isbn",
+          "labelKey": "resources.book.columns.isbn"
+        },
+        {
+          "id": "publishedYear",
+          "label": "Published year",
+          "labelKey": "resources.book.columns.publishedYear"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "labelKey": "resources.book.columns.status",
+          "fieldInput": {
+            "type": "select",
+            "options": {
+              "emitObject": true,
+              "labelKey": "label",
+              "valueKey": "value",
+              "values": [
+                {
+                  "value": "draft",
+                  "label": "Draft"
+                },
+                {
+                  "value": "published",
+                  "label": "Published"
+                },
+                {
+                  "value": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "colspan": 12
+            }
+          },
+          "enumName": "bookStatus"
+        },
+        {
+          "id": "summary",
+          "label": "Summary",
+          "labelKey": "resources.book.columns.summary",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        },
+        {
+          "id": "authorId",
+          "label": "Author",
+          "labelKey": "resources.book.columns.authorId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./author.resource",
+            "relationType": "manyToOne"
+          }
+        },
+        {
+          "id": "categories",
+          "label": "Categories",
+          "labelKey": "resources.book.columns.categories",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./category.resource",
+            "relationType": "manyToMany"
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -560,7 +651,86 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.book.columns.id"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "isbn",
+          "label": "Isbn",
+          "labelKey": "resources.book.columns.isbn"
+        },
+        {
+          "id": "publishedYear",
+          "label": "Published year",
+          "labelKey": "resources.book.columns.publishedYear"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "labelKey": "resources.book.columns.status",
+          "fieldInput": {
+            "type": "select",
+            "options": {
+              "emitObject": true,
+              "labelKey": "label",
+              "valueKey": "value",
+              "values": [
+                {
+                  "value": "draft",
+                  "label": "Draft"
+                },
+                {
+                  "value": "published",
+                  "label": "Published"
+                },
+                {
+                  "value": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "colspan": 12
+            }
+          },
+          "enumName": "bookStatus"
+        },
+        {
+          "id": "summary",
+          "label": "Summary",
+          "labelKey": "resources.book.columns.summary",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        },
+        {
+          "id": "authorId",
+          "label": "Author",
+          "labelKey": "resources.book.columns.authorId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./author.resource",
+            "relationType": "manyToOne"
+          }
+        },
+        {
+          "id": "categories",
+          "label": "Categories",
+          "labelKey": "resources.book.columns.categories",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./category.resource",
+            "relationType": "manyToMany"
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []
