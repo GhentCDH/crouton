@@ -1,3 +1,4 @@
+/* eslint-disable import-x/order */
 /**
  * Phase 0 baseline: records the drift between `compileResource` (crouton-core)
  * and `fromJson` (crouton-api) when both run WITHOUT filesystem resolvers
@@ -8,11 +9,12 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { buildResourceJsonSchema, compileResource } from '@ghentcdh/crouton-core';
 import type { ResourceJson } from '@ghentcdh/crouton-core';
+import { buildResourceJsonSchema, compileResource } from '@ghentcdh/crouton-core';
 
 import { fromJson } from './index';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const FIXTURES_ROOT = resolve(
@@ -26,7 +28,12 @@ const DRIFT_SNAPSHOT = resolve(
 );
 
 // Fields that only exist in api Resource by design (Node-only / code-bearing).
-const API_ONLY_FIELDS = new Set(['hooks', 'repository', 'actions', 'tableActions']);
+const API_ONLY_FIELDS = new Set([
+  'hooks',
+  'repository',
+  'actions',
+  'tableActions',
+]);
 
 const loadJson = (path: string): unknown => {
   try {
@@ -54,9 +61,12 @@ const diffObjects = (
     if (API_ONLY_FIELDS.has(key)) continue;
     // columns: compare length only (order-sensitive details captured in snapshots)
     if (key === 'columns') {
-      const cLen = Array.isArray(core[key]) ? (core[key] as unknown[]).length : 0;
+      const cLen = Array.isArray(core[key])
+        ? (core[key] as unknown[]).length
+        : 0;
       const aLen = Array.isArray(api[key]) ? (api[key] as unknown[]).length : 0;
-      if (cLen !== aLen) diff[key] = { coreValue: `[${cLen} cols]`, apiValue: `[${aLen} cols]` };
+      if (cLen !== aLen)
+        diff[key] = { coreValue: `[${cLen} cols]`, apiValue: `[${aLen} cols]` };
       continue;
     }
     if (!deepEqual(core[key], api[key])) {
@@ -94,13 +104,19 @@ describe('core-vs-api drift', () => {
         let coreResult: Record<string, unknown>;
         let apiResult: Record<string, unknown>;
         try {
-          coreResult = compileResource(json) as unknown as Record<string, unknown>;
+          coreResult = compileResource(json) as unknown as Record<
+            string,
+            unknown
+          >;
         } catch {
           drift[key] = 'error';
           return;
         }
         try {
-          apiResult = fromJson(json, undefined, undefined) as unknown as Record<string, unknown>;
+          apiResult = fromJson(json, undefined, undefined) as unknown as Record<
+            string,
+            unknown
+          >;
         } catch {
           drift[key] = 'error';
           return;
@@ -117,6 +133,8 @@ describe('core-vs-api drift', () => {
     const sorted = Object.fromEntries(
       Object.entries(drift).sort(([a], [b]) => a.localeCompare(b)),
     );
-    await expect(JSON.stringify(sorted, null, 2)).toMatchFileSnapshot(DRIFT_SNAPSHOT);
+    await expect(JSON.stringify(sorted, null, 2)).toMatchFileSnapshot(
+      DRIFT_SNAPSHOT,
+    );
   });
 });

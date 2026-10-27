@@ -17,8 +17,8 @@
  * the same output for the same inputs. The primary value is as documentation
  * of where the copies live.
  */
-import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 
 import { isDecimalField } from '@ghentcdh/crouton-core';
 
@@ -35,7 +35,11 @@ describe('I: unwrap — core (via isDecimalField) vs api (via toSelectFields)', 
     });
     const result = toSelectFields(schema);
     // Unwrapping optional → object → select:true structure
-    expect(result).toMatchObject({ id: true, name: true, nested: { select: { city: true } } });
+    expect(result).toMatchObject({
+      id: true,
+      name: true,
+      nested: { select: { city: true } },
+    });
   });
 
   it('isDecimalField unwraps nullable/optional wrappers before checking instanceof', () => {
