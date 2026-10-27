@@ -43,8 +43,9 @@ export class CroutonApiModule {
   async onModuleInit() {
     // BigInt has no toJSON — JSON.stringify throws "Do not know how to serialize a BigInt".
     // Patch once so every response containing BigInt fields (e.g. Prisma Int8 / BigInt columns) works.
-    if (!(BigInt.prototype as any).toJSON) {
-      (BigInt.prototype as any).toJSON = function () {
+    type WithToJSON = { toJSON?: () => unknown };
+    if (!(BigInt.prototype as WithToJSON).toJSON) {
+      (BigInt.prototype as WithToJSON).toJSON = function () {
         return Number(this);
       };
     }
@@ -53,7 +54,7 @@ export class CroutonApiModule {
     // Import from runtime/client (stable, no generated client needed) with a fallback for older Prisma.
     try {
       const { Decimal } = await import('@prisma/client/runtime/client');
-      (Decimal.prototype as any).toJSON = function () {
+      (Decimal.prototype as WithToJSON).toJSON = function () {
         return parseFloat(this.toString());
       };
     } catch {

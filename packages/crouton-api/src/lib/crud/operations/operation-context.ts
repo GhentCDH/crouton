@@ -9,7 +9,7 @@ import type { ZodValidationPipeOptions } from '../zod-validation.pipe';
 
 export type OperationContext = {
   /** The dynamically-built controller class. */
-  cls: any;
+  cls: { prototype: object };
   config: Resource;
   definition: ReturnType<typeof resolveDefinition>;
   listSchema: ReturnType<typeof schemaFor>;

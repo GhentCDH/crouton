@@ -25,7 +25,7 @@ const defaultDelete = (ctx: OperationContext) => {
     decorators: () => {
       //
     },
-    deleteFn: function (this: { repo: CrudRepository }, id: string, req: any) {
+    deleteFn: function (this: { repo: CrudRepository }, id: string, req: unknown) {
       return this.repo.delete(id, req);
     },
   };
@@ -41,7 +41,7 @@ export const deleteChild =
       this: { repo: CrudRepository },
       childId: string,
       parentId: string,
-      req: any,
+      req: unknown,
     ) {
       return this.repo.deleteChild(sub, childId, parentId, req);
     };

@@ -38,6 +38,6 @@ export const loadSubResourceHooks = async (
       (sub.childDir ? findModule(sub.childDir, 'hooks') : undefined);
     if (!file) continue;
     const hooks = await importDefault<ResourceHooks>(file);
-    if (hooks) (sub as any).hooks = hooks;
+    if (hooks) Object.assign(sub, { hooks });
   }
 };

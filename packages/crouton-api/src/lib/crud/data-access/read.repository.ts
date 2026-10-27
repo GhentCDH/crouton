@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   type JsonColumn,
   type ListRequest,
+  type Row,
   allowedIncludes,
   buildChildSortClause,
   buildSort,
@@ -187,7 +188,7 @@ export class ReadRepository<T = unknown> {
           `Nested includes are not supported: ${nested.join(', ')}`,
         );
       }
-      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
+      const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
       const allowed = allowedIncludes(columns);
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
@@ -278,7 +279,7 @@ export class ReadRepository<T = unknown> {
       : rows;
 
     const withCalc = await mergeCalculatedColumnsForRows(
-      mapped,
+      mapped as Row[],
       this.config.calculatedColumns ?? [],
       this.tableName,
       this.prisma,
@@ -286,13 +287,13 @@ export class ReadRepository<T = unknown> {
       this.adapter.provider,
     );
     // Resource-level afterRead + valueLabel decoration is applied by the factory wrapper.
-    return withCalc;
+    return withCalc as T[];
   }
 
   private buildSearchOrWhere(
     q: string | undefined,
   ): Record<string, unknown> | undefined {
-    const search = (this.config as any).search as string[] | undefined;
+    const search = this.config.search;
     if (!q || !search?.length) return undefined;
     return {
       OR: search.map((path) =>
@@ -345,7 +346,7 @@ export class ReadRepository<T = unknown> {
           `Nested includes are not supported: ${nested.join(', ')}`,
         );
       }
-      const columns = ((this.config as any).columns as JsonColumn[]) ?? [];
+      const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
       const allowed = allowedIncludes(columns);
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
@@ -384,7 +385,7 @@ export class ReadRepository<T = unknown> {
         `${this.config.name} with id ${id} not found`,
       );
     const [withCalc] = await mergeCalculatedColumnsForRows(
-      [record],
+      [record as Row],
       this.config.calculatedColumns ?? [],
       this.tableName,
       this.prisma,
@@ -505,7 +506,7 @@ export class ReadRepository<T = unknown> {
 
     const withCalc = sub.calculatedColumns?.length
       ? await mergeCalculatedColumnsForRows(
-          data,
+          data as Row[],
           sub.calculatedColumns,
           sub.childTable ?? sub.childModel,
           this.prisma,
@@ -602,7 +603,7 @@ export class ReadRepository<T = unknown> {
 
     const [withCalc] = sub.calculatedColumns?.length
       ? await mergeCalculatedColumnsForRows(
-          [record],
+          [record as Row],
           sub.calculatedColumns,
           sub.childTable ?? sub.childModel,
           this.prisma,
