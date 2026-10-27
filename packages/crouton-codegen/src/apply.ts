@@ -6,14 +6,14 @@
  * sub-resources, …). `commit` performs the actual writes.
  */
 
-import type { JsonColumnInput } from '@ghentcdh/crouton-core';
+import {
+  type JsonColumnInput,
+  serializeResourceJson,
+  withResourceHeader,
+} from '@ghentcdh/crouton-core';
 
 import type { ResolvedDiff } from './decision';
-import {
-  serializeResourceJson,
-  serializeSchemaTs,
-  withResourceHeader,
-} from './serialize';
+import { serializeSchemaTs } from './serialize';
 import { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
 import type { WritePlan } from './write-plan';
 
@@ -41,10 +41,12 @@ type Column = Omit<JsonColumnInput, 'id'>;
 
 export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
   const { diff, resolutions } = resolved;
-  const exportNameFor = ctx.schemaExportName ?? ((p: string) => `${p}WithRelationsSchema`);
+  const exportNameFor =
+    ctx.schemaExportName ?? ((p: string) => `${p}WithRelationsSchema`);
   const dir = joinPath(ctx.resourcesDir, diff.name);
   const notes = diff.draft.unwiredRelations.map(
-    (r) => `Relation "${r.field}" → model "${r.targetModel}": target resource not found; left hidden.`,
+    (r) =>
+      `Relation "${r.field}" → model "${r.targetModel}": target resource not found; left hidden.`,
   );
   const files: WritePlan['files'] = [];
 
@@ -60,7 +62,9 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
     });
   } else {
     const existing = clone(diff.existing!);
-    const draftMap = new Map<string, Column>(columnEntries(diff.draft.config.columns));
+    const draftMap = new Map<string, Column>(
+      columnEntries(diff.draft.config.columns),
+    );
     const entries = columnEntries(existing.columns);
     const indexOf = (id: string) => entries.findIndex(([eid]) => eid === id);
 

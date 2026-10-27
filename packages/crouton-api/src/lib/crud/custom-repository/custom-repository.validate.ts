@@ -1,10 +1,16 @@
 import {
+  isOperationEnabled,
+  isOperationExternal,
+  resolveDefinition,
+} from '@ghentcdh/crouton-core';
+import { type CrudOperation } from '@ghentcdh/crouton-core';
+
+import {
   CUSTOM_OPS,
   type CustomParentRepository,
   type CustomRepository,
   PARENT_METHOD,
 } from './custom-repository.types';
-import { type CrudOperation, isOperationEnabled, isOperationExternal, resolveDefinition } from '../crud.config';
 import { type Resource } from '../resource/ResourceConfig.schema';
 
 /**
@@ -21,9 +27,10 @@ export const validateCustomRepository = (
   adapterClient?: unknown,
 ): string | undefined => {
   const definition = resolveDefinition(config);
-  const enabled = CUSTOM_OPS.filter((op) =>
-    isOperationEnabled(definition, op as CrudOperation) &&
-    !isOperationExternal(definition, op as CrudOperation),
+  const enabled = CUSTOM_OPS.filter(
+    (op) =>
+      isOperationEnabled(definition, op as CrudOperation) &&
+      !isOperationExternal(definition, op as CrudOperation),
   );
 
   // A nested resource is only reachable under its parent, so it implements the
@@ -38,7 +45,9 @@ export const validateCustomRepository = (
     // as the repository — no repository.ts needed.
     if (adapterClient && typeof adapterClient === 'object') {
       const missing = enabled.filter(
-        (op) => typeof (adapterClient as Record<string, unknown>)[methodFor(op)] !== 'function',
+        (op) =>
+          typeof (adapterClient as Record<string, unknown>)[methodFor(op)] !==
+          'function',
       );
       if (missing.length === 0) return undefined;
     }
@@ -49,8 +58,11 @@ export const validateCustomRepository = (
     );
   }
 
-  const implemented = (name: keyof CustomRepository | keyof CustomParentRepository) =>
-    typeof (repository as Record<string, unknown>)[name as string] === 'function';
+  const implemented = (
+    name: keyof CustomRepository | keyof CustomParentRepository,
+  ) =>
+    typeof (repository as Record<string, unknown>)[name as string] ===
+    'function';
 
   // `patch` is satisfied by `update` — the adapter falls back, matching the
   // Prisma repository where patch is an update with a partial schema.

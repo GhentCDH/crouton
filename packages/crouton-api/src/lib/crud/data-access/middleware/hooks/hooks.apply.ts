@@ -1,4 +1,4 @@
-import type { ListRequest } from '@ghentcdh/crouton-core';
+import type { ListRequest, ValueLabelColumn  } from '@ghentcdh/crouton-core';
 
 import type {
   ParentHookContext,
@@ -7,7 +7,6 @@ import type {
   WriteOp,
 } from './hooks.types';
 import type { DataSourceAdapter } from '../../adapter/data-source.adapter';
-import type { ValueLabelColumn } from '../value-label';
 import {
   applyValueLabelColumns,
   normalizeValueLabels,

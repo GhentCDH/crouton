@@ -1,5 +1,6 @@
+import type { ValueLabelColumn } from '@ghentcdh/crouton-core';
+
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
-import type { ValueLabelColumn } from '../middleware/value-label';
 
 /**
  * Drop a trailing `.label` from a sort path when it targets a value-label column.

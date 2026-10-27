@@ -6,11 +6,12 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 
-import { toJsonSchema } from '@ghentcdh/crouton-core';
+import {
+  isOperationEnabled,
+  isOperationExternal, toJsonSchema } from '@ghentcdh/crouton-core';
 
-import type { OperationContext } from './operation-context';
-import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../data-access/repository';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 

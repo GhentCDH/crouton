@@ -1,11 +1,8 @@
-export { buildLayouts } from '@ghentcdh/crouton-core';
-
 export * from './lib/crouton-api.module';
 export type { CroutonAppConfig } from './lib/crud/app-config';
 export {
   type ParseAppConfig,
   type ParseSchemaInput,
-  type ParseSchemaView,
   parseSchema,
 } from './lib/crud/parse-schema';
 export * from './lib/crud/loader/index';
@@ -26,7 +23,4 @@ export {
   type CustomRepositoryContext,
 } from './lib/crud/custom-repository';
 
-// Filter-grammar helpers, so a custom repository can reuse the
-// `field:value:operator` parsing instead of reimplementing it.
-export { buildFilterWhere } from './lib/crud/data-access/query/filter';
 export { parseFilterString } from '@ghentcdh/crouton-core';
