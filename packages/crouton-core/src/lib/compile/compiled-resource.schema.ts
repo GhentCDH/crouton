@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ResourceJsonShape } from '../resource';
+import { JsonIncludeEntrySchema, ResourceJsonShape } from '../resource';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { LookupSchema } from './lookup.schema';
@@ -16,7 +16,7 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   // search: z.array(z.string()).optional(),
   // TODO Is this still valid
   lookup: LookupSchema.optional(),
-  // TODO Is this still valid shemas?
+  // TODO Is this still valid schemas?
   views: z.record(z.string(), ViewConfigSchema),
   // definition: DefinitionSchema,
   // TODO should be moved to source
@@ -30,8 +30,8 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   // TODO remove it moved to operations
   // include: z.array(JsonIncludeEntrySchema).optional(),
   /** Eager-loaded relations for findOne (detail) queries. From operations.findOne.include. */
-  // TODO remove it moved to source
-  // findOneInclude: z.array(JsonIncludeEntrySchema).optional(),
+  // TODO what is this?
+  findOneInclude: z.array(JsonIncludeEntrySchema).optional(),
   /** Prisma model name (flattened from source.model). */
   // TODO remove it moved to source
   model: z.string().optional(),

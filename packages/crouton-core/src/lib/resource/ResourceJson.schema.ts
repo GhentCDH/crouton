@@ -86,6 +86,13 @@ export const normalizeColumns = (
   }));
 };
 
+export const SourceSchema = z.object({
+  model: z.string().optional().describe('Prisma model name.'),
+  dbTable: z.string().optional().describe('Database table name override.'),
+  datasource: z.string().optional().describe('Datasource name.'),
+  idType: z.enum(['string', 'number']).optional().describe('Primary key type.'),
+});
+
 // ── Top-level resource.json ──────────────────────────────────────────
 
 export const ResourceJsonShape = z.object({
@@ -232,20 +239,9 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.',
     ),
-  source: z
-    .object({
-      model: z.string().optional().describe('Prisma model name.'),
-      dbTable: z.string().optional().describe('Database table name override.'),
-      datasource: z.string().optional().describe('Datasource name.'),
-      idType: z
-        .enum(['string', 'number'])
-        .optional()
-        .describe('Primary key type.'),
-    })
-    .optional()
-    .describe(
-      'Where the data comes from (replaces root model/table/database/idType).',
-    ),
+  source: SourceSchema.optional().describe(
+    'Where the data comes from (replaces root model/table/database/idType).',
+  ),
   lookup: z
     .object({
       labels: z
@@ -259,7 +255,6 @@ export const ResourceJsonShape = z.object({
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
   ),
 });
-
 /**
  * Per-kind rules that a plain `z.object` cannot express.
  *

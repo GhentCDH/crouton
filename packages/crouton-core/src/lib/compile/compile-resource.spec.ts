@@ -82,7 +82,7 @@ describe('compileResource — search fallback excludes computed columns (#246)',
       {
         id: 'display_label',
         type: 'string',
-        computed: { sql: "first || ' ' || last", type: 'string' },
+        computed: { sql: 'first || \' \' || last', type: 'string' },
       },
     ],
   } as unknown as ResourceJson;
@@ -109,7 +109,7 @@ describe('compileResource — computed column type default (#248)', () => {
         {
           id: 'label_col',
           type: 'string',
-          computed: { sql: "first || ' ' || last" },
+          computed: { sql: 'first || \' \' || last' },
         },
       ],
     } as unknown as ResourceJson;
@@ -128,7 +128,7 @@ describe('compileResource — computed columns not duplicated in table (#247)', 
       {
         id: 'display_label',
         type: 'string',
-        computed: { sql: "first || ' ' || last", type: 'string' },
+        computed: { sql: 'first || \' \' || last', type: 'string' },
       },
     ],
   } as unknown as ResourceJson;
