@@ -3,14 +3,15 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type {
   CalculatedColumn,
   JsonColumn,
-  LookupConfig,
   RelationFieldInputOptions,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
   applyRelationFormatDefault,
   buildLayouts,
+  buildLookup,
   buildResourceDefinitions,
+  buildSearch,
   buildValueLabelColumns,
   columnTypeSchemaSource,
   enrichActionColumns,
@@ -129,7 +130,8 @@ export const fromJson = (
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && !isCustom;
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const lookup = buildLookup(enrichedColumns, dirPath, searchPaths, (json as any).lookup);
+  const resolvedDisplayKeys = resolveLookupDisplayKeys(enrichedColumns, dirPath);
+  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup, resolvedDisplayKeys);
   const findOneOp = json.operations?.findOne;
   const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
   const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
@@ -178,90 +180,19 @@ export const fromJson = (
   } as unknown as Resource;
 };
 
-const isSearchableColumn = (c: JsonColumn): boolean =>
-  !c.idField &&
-  !(c as any).computed &&
-  c.fieldInput?.format !== 'relation' &&
-  !c.fieldInput?.relationType &&
-  c.fieldInput?.type !== 'date';
-
-const buildSearch = (
-  columns: JsonColumn[] | undefined,
-  searchPaths: string[] | undefined,
-  findAllEnabled = false,
-): string[] | undefined => {
-  if (!columns) return undefined;
-  if (!searchPaths?.length) {
-    if (!findAllEnabled) return undefined;
-    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
-    return fallback.length ? fallback : undefined;
+const resolveLookupDisplayKeys = (
+  columns: JsonColumn[],
+  dirPath: string | undefined,
+): Record<string, string> => {
+  const result: Record<string, string> = {};
+  if (!dirPath) return result;
+  for (const col of columns) {
+    if (!col.showInLookup || col.fieldInput?.relationType !== 'manyToOne') continue;
+    if (!col.fieldInput?.resource) continue;
+    const child = resolveChildResource(col.fieldInput.resource, dirPath);
+    const childColumns = child ? expandExtendColumns(child.json.columns ?? [], dirPath) : undefined;
+    const displayCol = childColumns?.find((c) => !c.idField && !c.hiddenInTable);
+    if (displayCol) result[col.id] = `${col.id.replace(/Id$/, '')}.${displayCol.id}`;
   }
-  return searchPaths
-    .flatMap((id) => {
-      const col = columns.find((c) => c.id === id);
-      if (!col) return [id];
-      if ((col as any).computed) return [];
-      if (col.fieldInput?.format === 'relation') {
-        const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
-        if (opts?.displayKey) return [`${id}.${opts.displayKey}`];
-      }
-      if (col.fieldInput?.relationType === 'manyToOne') {
-        const displayKey =
-          (col.fieldInput.options as any)?.displayKey ?? (col as any).displayKey;
-        if (displayKey) return [`${id}.${displayKey}`];
-      }
-      return [id];
-    })
-    .filter((p): p is string => !!p);
-};
-
-const buildLookup = (
-  columns: JsonColumn[] | undefined,
-  dirPath?: string,
-  search?: string[],
-  lookupConfig?: { labels?: string[]; separator?: string },
-): LookupConfig | undefined => {
-  if (!columns) return undefined;
-
-  const keyCol = columns.find((c) => c.idField);
-  const legacyLookupCols = columns.filter((c) => c.showInLookup);
-
-  // Prefer explicit lookup.labels, fall back to showInLookup (deprecated), then search
-  if (lookupConfig?.labels?.length) {
-    return {
-      key: keyCol?.id ?? 'id',
-      ...(lookupConfig.labels.length === 1 && { label: lookupConfig.labels[0] }),
-      labels: lookupConfig.labels,
-      ...(lookupConfig.separator && { separator: lookupConfig.separator }),
-    };
-  }
-
-  if (!keyCol && !legacyLookupCols.length && !search?.length) return undefined;
-
-  const labels = legacyLookupCols.length
-    ? legacyLookupCols.map((col) => {
-        if (col.fieldInput?.relationType === 'manyToOne') {
-          const relationName = col.id.replace(/Id$/, '');
-          if (col.fieldInput?.resource && dirPath) {
-            const child = resolveChildResource(col.fieldInput.resource, dirPath);
-            const childColumns = child
-              ? expandExtendColumns(child.json.columns ?? [], dirPath)
-              : undefined;
-            const displayCol = childColumns?.find(
-              (c) => !c.idField && !c.hiddenInTable,
-            );
-            if (displayCol) return `${relationName}.${displayCol.id}`;
-          }
-          const displayKey =
-            col.displayKey ?? (col.fieldInput?.options as any)?.displayKey;
-          if (displayKey) return `${relationName}.${displayKey}`;
-        }
-        return col.id;
-      })
-    : (search ?? []);
-
-  return {
-    key: keyCol?.id ?? 'id',
-    ...(labels.length && { label: labels[0], labels }),
-  };
+  return result;
 };

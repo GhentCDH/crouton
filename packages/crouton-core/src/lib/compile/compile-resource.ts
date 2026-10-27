@@ -2,7 +2,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 
 import { extractFindAllSearch, extractOpInclude } from '../data-source/Operations.schema';
 import { buildLayouts, resolveColumnVisibility } from '../layout';
-import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
+import type { CalculatedColumn, JsonColumn, ResourceJson } from '../resource';
 import {
   columnTypeSchemaSource,
   injectCalculatedColumns,
@@ -19,70 +19,11 @@ import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 import type { EnumRegistry } from './enum-registry';
 import { injectEnumValues } from './enum-registry';
-import type { LookupConfig } from './lookup.schema';
 import { enrichRelationTypes } from './relation-type';
 import { buildResourceDefinitions } from './schema.helpers';
+import { buildLookup, buildSearch } from './search-lookup';
 import { pickExtensions } from '../resource/extensions';
 
-const isSearchableColumn = (c: JsonColumn): boolean =>
-  !c.idField &&
-  !(c as any).computed &&
-  c.relation === undefined &&
-  c.fieldInput?.format !== 'relation' &&
-  !c.fieldInput?.relationType &&
-  c.fieldInput?.type !== 'date';
-
-const buildSearch = (
-  columns: JsonColumn[] | undefined,
-  searchPaths: string[] | undefined,
-  findAllEnabled = false,
-): string[] | undefined => {
-  if (!columns) return undefined;
-  if (!searchPaths?.length) {
-    if (!findAllEnabled) return undefined;
-    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
-    return fallback.length ? fallback : undefined;
-  }
-  return searchPaths.map((id) => {
-    const col = columns.find((c) => c.id === id);
-    if (!col) return id;
-    if (col.relation !== undefined || col.fieldInput?.format === 'relation') {
-      const displayKey = col.displayKey ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
-      if (displayKey) return `${id}.${displayKey}`;
-    }
-    return id;
-  });
-};
-
-const buildLookup = (
-  columns: JsonColumn[] | undefined,
-  search: string[] | undefined,
-  lookupConfig?: { labels?: string[]; separator?: string },
-): LookupConfig | undefined => {
-  if (!columns) return undefined;
-  const keyCol = columns.find((c) => c.idField);
-  // Prefer explicit lookup.labels, fall back to showInLookup (deprecated), then search
-  const explicitLabels = lookupConfig?.labels;
-  const legacyLookupCols = columns.filter((c) => c.showInLookup);
-  const rawLabels: string[] = explicitLabels?.length
-    ? explicitLabels
-    : legacyLookupCols.length
-      ? legacyLookupCols.map((c) => {
-          if (c.fieldInput?.format === 'relation') {
-            const opts = c.fieldInput.options as RelationFieldInputOptions | undefined;
-            if (opts?.displayKey) return `${c.id}.${opts.displayKey}`;
-          }
-          return c.id;
-        })
-      : (search ?? []);
-  if (!keyCol && !rawLabels.length) return undefined;
-  return {
-    key: keyCol?.id ?? 'id',
-    ...(rawLabels.length === 1 && { label: rawLabels[0] }),
-    ...(rawLabels.length > 0 && { labels: rawLabels }),
-    ...(lookupConfig?.separator && { separator: lookupConfig.separator }),
-  };
-};
 
 /**
  * Pure compile of a ResourceJson to a CompiledResource — no Node.js fs access.
