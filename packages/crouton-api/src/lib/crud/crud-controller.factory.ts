@@ -1,19 +1,37 @@
-import { Body, Controller, SetMetadata, type Type, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  SetMetadata,
+  type Type,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { type SecurityConfig, resourceControllerPath } from '@ghentcdh/crouton-core';
+import {
+  type CrudOperation,
+  type SecurityConfig,
+  resolveDefinition,
+  resourceControllerPath,
+  schemaFor
+} from '@ghentcdh/crouton-core';
 import { isZodSchema } from '@ghentcdh/crouton-core';
 
-import { type CrudOperation, resolveDefinition, schemaFor, securityFor, securityForSub } from './crud.config';
+import { securityFor, securityForSub } from './crud.config';
 import { DataSourceRegistry } from './data-access/adapter';
-import { type CrudRepository, createCrudRepository } from './data-access/repository';
+import {
+  type CrudRepository,
+  createCrudRepository,
+} from './data-access/repository';
 import type { OperationContext } from './operations/operation-context';
 import { registerEndpoints } from './operations/register-endpoints';
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
 import { ResourceConfigRegistry } from './resource-config.registry';
 import { CROUTON_SECURITY, CroutonSecurityGuard } from './security';
-import { ZodValidationPipe, type ZodValidationPipeOptions } from './zod-validation.pipe';
+import {
+  ZodValidationPipe,
+  type ZodValidationPipeOptions,
+} from './zod-validation.pipe';
 
 /**
  * Dynamically build a NestJS controller class for the given resource config.
@@ -32,7 +50,9 @@ export function createCrudController(
   moduleDefaultSecurity?: SecurityConfig,
   securityEnabled = false,
   prefix?: string,
-  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>,
+  schemaEnricher?: <T extends Record<string, unknown>>(
+    schema: T,
+  ) => Record<string, unknown>,
 ): Type<any> {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
@@ -88,12 +108,21 @@ export function createCrudController(
       // datasources at all, so a resolve failure is not fatal for it — the
       // repository simply receives `ctx.prisma === undefined`.
       const prisma = resolveClient(registry, config);
-      this.repo = createCrudRepository(prisma, config, registry, configRegistry);
+      this.repo = createCrudRepository(
+        prisma,
+        config,
+        registry,
+        configRegistry,
+      );
       this.configRegistry = configRegistry;
     }
   }
 
-  const secure = (methodName: string, op: CrudOperation, sub?: SubResourceConfig): void => {
+  const secure = (
+    methodName: string,
+    op: CrudOperation,
+    sub?: SubResourceConfig,
+  ): void => {
     const sec = sub
       ? securityForSub(config, sub, op, moduleDefaultSecurity)
       : securityFor(config, definition, op, moduleDefaultSecurity);
@@ -101,7 +130,10 @@ export function createCrudController(
       SetMetadata(CROUTON_SECURITY, sec)(
         CrudControllerBase.prototype,
         methodName,
-        Object.getOwnPropertyDescriptor(CrudControllerBase.prototype, methodName)!,
+        Object.getOwnPropertyDescriptor(
+          CrudControllerBase.prototype,
+          methodName,
+        )!,
       );
     }
   };
@@ -134,7 +166,9 @@ export function createCrudController(
   // route (``, `:id`, `schemas`, …) inherits the prefix, and the parent id is
   // available to handlers through the request they already receive.
   const controllerPath = resourceControllerPath(route, config.parent);
-  Controller(prefix ? `${prefix}/${controllerPath}` : controllerPath)(CrudControllerBase);
+  Controller(prefix ? `${prefix}/${controllerPath}` : controllerPath)(
+    CrudControllerBase,
+  );
   // Only apply the dispatching guard when the module has security configured.
   // Without this, the guard's DI dependencies would fail to resolve in
   // projects that do not configure security at all.
