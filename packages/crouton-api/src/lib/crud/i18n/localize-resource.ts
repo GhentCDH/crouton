@@ -17,9 +17,9 @@ import {
   subResourceTitleKey,
 } from '@ghentcdh/crouton-core';
 
-import { type Resource } from '../../../resource/ResourceConfig.schema';
-import type { SubResourceConfig } from '../../../resource/SubResource.schema';
-import type { ValueLabelColumn } from '../value-label';
+import type { ValueLabelColumn } from '../data-access/middleware/value-label';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 /** Deep-clone a plain object (JSON-safe). */
 const clone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));

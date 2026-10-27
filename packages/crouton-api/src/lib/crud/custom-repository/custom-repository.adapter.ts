@@ -18,7 +18,6 @@ import type { DataSourceAdapter } from '../data-access/adapter/data-source.adapt
 import { PrismaDataSourceAdapter } from '../data-access/adapter/prisma.adapter';
 import type { CrudRepository } from '../data-access/repository';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
-import { resolveValueLabelColumns } from '../i18n';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 
@@ -149,19 +148,10 @@ export const createCustomRepository = <T = any>(
       );
     }
 
-    const vlCols = await resolveValueLabelColumns(
-      config.route,
-      config.valueLabelColumns,
-      configRegistry,
-    );
-    const target =
-      vlCols === config.valueLabelColumns
-        ? config
-        : { hooks: config.hooks, valueLabelColumns: vlCols };
     const data = await decorateRows(
       result?.data ?? [],
       'findAll',
-      target,
+      config,
       adapter,
       request,
       parentHookCtx(request),

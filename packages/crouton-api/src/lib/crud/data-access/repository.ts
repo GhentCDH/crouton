@@ -7,7 +7,6 @@ import {
   type DataSourceResolver,
   createCustomRepository,
 } from '../custom-repository';
-import { resolveValueLabelColumns } from '../i18n';
 import type { DataSourceAdapter } from './adapter/data-source.adapter';
 import { PrismaDataSourceAdapter } from './adapter/prisma.adapter';
 import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './middleware/hooks';
@@ -138,9 +137,7 @@ export function createCrudRepository<T = any>(
 
     const mkDecorateFindAll = (adapter: DataSourceAdapter) =>
       async (rows: any[], request?: any): Promise<any[]> => {
-        const vlCols = await resolveValueLabelColumns(config.route, config.valueLabelColumns, configRegistry);
-        const target = vlCols === config.valueLabelColumns ? config : { hooks: config.hooks, valueLabelColumns: vlCols };
-        const decorated = await decorateRows(rows, 'findAll', target, adapter, request);
+        const decorated = await decorateRows(rows, 'findAll', config, adapter, request);
         return applyAfterFindAll(decorated, config, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
@@ -295,16 +292,7 @@ export function createCrudRepository<T = any>(
 
   // ── Resource-level decoration helpers ────────────────────────────────────
   const decorateFindAll = async (rows: any[], request?: any): Promise<any[]> => {
-    const vlCols = await resolveValueLabelColumns(
-      config.route,
-      config.valueLabelColumns,
-      configRegistry,
-    );
-    const target =
-      vlCols === config.valueLabelColumns
-        ? config
-        : { hooks: config.hooks, valueLabelColumns: vlCols };
-    const decorated = await decorateRows(rows, 'findAll', target, adapter, request);
+    const decorated = await decorateRows(rows, 'findAll', config, adapter, request);
     return applyAfterFindAll(decorated, config, adapter, request);
   };
 

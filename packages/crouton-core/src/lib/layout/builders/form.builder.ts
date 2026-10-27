@@ -26,6 +26,7 @@ export const buildFormLayout = (
       !c.idField &&
       !c.hiddenInForm &&
       (c.createable === true || c.updateable === true),
+    ctx.resourceName,
   );
   if (form) applyRequiredColumns(form.json_schema as Record<string, unknown>, columns);
   return form;

@@ -1,5 +1,5 @@
-import type { ResourceConfigRegistry } from '../../../resource-config.registry';
-import type { ValueLabelColumn } from '../value-label';
+import type { ValueLabelColumn } from '../data-access/middleware/value-label';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
 
 /**
  * Resolve value-label columns for the given route.

@@ -18,5 +18,5 @@ export const buildViewLayout = (
     ? (cols: typeof columns) => buildFormUiSchemaFromLayout(node as any, cols, ctx.warn)
     : buildFormUiSchema;
 
-  return buildView(source, viewCols, (c) => !c.hiddenInView, uiBuilder, true);
+  return buildView(source, viewCols, (c) => !c.hiddenInView, uiBuilder, true, undefined, ctx.resourceName);
 };

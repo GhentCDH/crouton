@@ -138,6 +138,7 @@ export const compileResource = (
     columns: visibilityColumns,
     source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
     warn: console.warn,
+    resourceName: json.name ?? json.route,
   };
   const rawViews = buildLayouts(json.layout, layoutCtx);
   let views = Object.keys(rawViews).length ? rawViews : undefined;
