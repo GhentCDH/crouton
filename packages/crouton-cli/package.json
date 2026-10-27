@@ -40,6 +40,7 @@
     "prisma-case-format": "^2.2.1"
   },
   "devDependencies": {
+    "@crouton/i18n": "workspace:*",
     "@clack/prompts": "^1.8.1",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",

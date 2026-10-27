@@ -11,7 +11,7 @@ import {
   type NestInterceptor,
 } from '@nestjs/common';
 
-import { resolveLanguage } from '@ghentcdh/crouton-core';
+import { resolveLanguage } from '@crouton/i18n';
 
 import { runWithLanguage } from './language.context';
 import { type TranslationRegistry } from './translation.registry';

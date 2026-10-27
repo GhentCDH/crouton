@@ -49,7 +49,8 @@ import {
   syncAgentFiles,
   upsertAgentBlock,
 } from '@ghentcdh/crouton-codegen';
-import { type DataSource, type TranslationBundle } from '@ghentcdh/crouton-core';
+import { type DataSource } from '@ghentcdh/crouton-core';
+import { type TranslationBundle } from '@crouton/i18n';
 
 import { formatResourceChange } from './preview';
 import { CancelledError, interactiveResolver } from './resolver';

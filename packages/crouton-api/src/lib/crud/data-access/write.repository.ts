@@ -42,12 +42,17 @@ const isPrismaRelationWrite = (value: unknown): boolean => {
 };
 
 /** Remove sub-resource count columns from a write payload. Module-level so the factory can use it. */
-export const stripSubResourceKeys = (config: Resource, data: unknown): unknown => {
+export const stripSubResourceKeys = (
+  config: Resource,
+  data: unknown,
+): unknown => {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
   const subKeys = new Set((config.subResources ?? []).map((s) => s.column));
   if (!subKeys.size) return data;
   return Object.fromEntries(
-    Object.entries(data as Record<string, unknown>).filter(([k]) => !subKeys.has(k)),
+    Object.entries(data as Record<string, unknown>).filter(
+      ([k]) => !subKeys.has(k),
+    ),
   );
 };
 
@@ -147,18 +152,7 @@ export class WriteRepository<T = any> {
    * Partial-update a record. Same contract as `update`.
    */
   async patch(id: number | string, data: unknown, _request?: any): Promise<T> {
-    const idField = this.config.idField ?? 'id';
-    try {
-      return await this.prismaModel.update({
-        where: { [idField]: this.toId(id) },
-        data,
-      });
-    } catch (e: any) {
-      if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
-      const uniqueError = mapPrismaUniqueError(e, this.config);
-      if (uniqueError) throw uniqueError;
-      throw e;
-    }
+    return this.update(id, data, _request);
   }
 
   async delete(id: number | string, _request?: any): Promise<T> {
@@ -261,19 +255,31 @@ export class WriteRepository<T = any> {
     request?: any,
   ): Promise<any> {
     if (sub.childKind === 'custom') {
-      return this.delegateChildWrite(sub, 'create', parentId, undefined, data, request);
+      return this.delegateChildWrite(
+        sub,
+        'create',
+        parentId,
+        undefined,
+        data,
+        request,
+      );
     }
 
     if (sub.relationType === 'manyToMany') {
       const idField = sub.idField ?? 'id';
       const raw = data as any;
       const rawValue = raw?.value ?? raw;
-      const childId = rawValue && typeof rawValue === 'object' ? rawValue[idField] : rawValue;
-      if (childId == null) throw new Error('Missing child id for manyToMany connect');
-      const coercedId = (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
+      const childId =
+        rawValue && typeof rawValue === 'object' ? rawValue[idField] : rawValue;
+      if (childId == null)
+        throw new Error('Missing child id for manyToMany connect');
+      const coercedId =
+        (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
       return this.prismaModel.update({
         where: { [this.config.idField ?? 'id']: this.toId(parentId) },
-        data: { [sub.relation ?? sub.column]: { connect: { [idField]: coercedId } } },
+        data: {
+          [sub.relation ?? sub.column]: { connect: { [idField]: coercedId } },
+        },
       });
     }
 
@@ -411,10 +417,13 @@ export class WriteRepository<T = any> {
 
     if (sub.relationType === 'manyToMany') {
       const idField = sub.idField ?? 'id';
-      const id = (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
+      const id =
+        (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
       return this.prismaModel.update({
         where: { [this.config.idField ?? 'id']: this.toId(parentId ?? '') },
-        data: { [sub.relation ?? sub.column]: { disconnect: { [idField]: id } } },
+        data: {
+          [sub.relation ?? sub.column]: { disconnect: { [idField]: id } },
+        },
       });
     }
 

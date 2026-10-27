@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ResourceJson, TranslationBundle } from '@ghentcdh/crouton-core';
+import type { ResourceJson } from '@ghentcdh/crouton-core';
+import type { TranslationBundle } from '@crouton/i18n';
 
 import type { EnumRegistry } from './enum-registry';
 import {

@@ -6,7 +6,7 @@ import {
   Optional,
 } from '@nestjs/common';
 
-import { resolveLanguage, validationKey } from '@ghentcdh/crouton-core';
+import { resolveLanguage, validationKey } from '@crouton/i18n';
 
 import { CroutonValidationError } from './crouton-validation.error';
 import { TranslationRegistry, getRequestLanguage } from './i18n';

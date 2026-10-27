@@ -3,7 +3,7 @@ import {
   actionKey,
   columnKey,
   resourceTitleKey,
-} from '@ghentcdh/crouton-core';
+} from '@crouton/i18n';
 
 import { useLanguage } from './useLanguage';
 

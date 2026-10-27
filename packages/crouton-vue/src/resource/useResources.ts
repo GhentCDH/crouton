@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash-es';
 import { type Component, type Ref, computed, reactive, shallowRef } from 'vue';
 
 import type { Action, ResourceDefinition, ViewColumnConfig } from '@ghentcdh/crouton-core';
-import { enumKey } from '@ghentcdh/crouton-core';
+import { enumKey } from '@crouton/i18n';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';

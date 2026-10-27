@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "types": ["vite/client"],
-    "rootDir": "src"
+    "rootDir": "../..",
+    "paths": {
+      "@crouton/i18n": [],
+      "@crouton/status": []
+    }
   },
   "include": [
     "src/**/*.js",

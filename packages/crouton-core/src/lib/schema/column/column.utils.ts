@@ -1,7 +1,6 @@
-import { columnKey } from '../../i18n/translation-keys';
+import { columnKey } from '@crouton/i18n';
 import type { JsonColumn } from '../../resource/Column';
 import type { ViewColumnConfig } from '../view/view.schema';
-
 
 /** Resolve the sort position for a column: `fieldInput.position`, then `col.position`, then natural index. */
 export const colPosition = (col: JsonColumn, i: number): number =>
@@ -33,10 +32,15 @@ export const columnForContext = (
   return col; // form / view / filter → base fieldInput
 };
 
-export const toViewColumn = (col: JsonColumn, resourceName?: string): ViewColumnConfig => ({
+export const toViewColumn = (
+  col: JsonColumn,
+  resourceName?: string,
+): ViewColumnConfig => ({
   id: col.id,
   ...(col.label && { label: col.label }),
-  labelKey: col.labelKey ?? (resourceName ? columnKey(resourceName, col.id) : undefined),
+  labelKey:
+    col.labelKey ??
+    (resourceName ? columnKey(resourceName, col.id) : undefined),
   ...(col.fieldInput && { fieldInput: col.fieldInput }),
   ...(col.enum && { enumName: col.enum }),
 });

@@ -19,7 +19,8 @@ import {
   resolveFromRoot,
   serializeTranslationBundle,
 } from '@ghentcdh/crouton-codegen';
-import type { I18nConfig, TranslationBundle } from '@ghentcdh/crouton-core';
+import type { I18nConfig } from '@ghentcdh/crouton-core';
+import type { TranslationBundle } from '@crouton/i18n';
 
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
