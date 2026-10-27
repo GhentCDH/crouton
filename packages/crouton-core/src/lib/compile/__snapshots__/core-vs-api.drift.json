@@ -1,0 +1,128 @@
+{
+  "book-collection/author": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "book-collection/book": {
+    "subResources": {
+      "coreValue": []
+    },
+    "lookup": {
+      "coreValue": {
+        "key": "id",
+        "labels": [
+          "title",
+          "authorId"
+        ]
+      },
+      "apiValue": {
+        "key": "id",
+        "label": "title",
+        "labels": [
+          "title",
+          "authorId"
+        ]
+      }
+    }
+  },
+  "book-collection/category": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "book-collection/loan": {
+    "subResources": {
+      "coreValue": []
+    },
+    "lookup": {
+      "coreValue": {
+        "key": "id",
+        "labels": [
+          "loanedAt",
+          "returnedAt"
+        ]
+      },
+      "apiValue": {
+        "key": "id",
+        "label": "loanedAt",
+        "labels": [
+          "loanedAt",
+          "returnedAt"
+        ]
+      }
+    }
+  },
+  "book-collection/user": {
+    "subResources": {
+      "coreValue": []
+    },
+    "lookup": {
+      "coreValue": {
+        "key": "id",
+        "labels": [
+          "name",
+          "email"
+        ]
+      },
+      "apiValue": {
+        "key": "id",
+        "label": "name",
+        "labels": [
+          "name",
+          "email"
+        ]
+      }
+    }
+  },
+  "column-flags/item": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "column-types/product": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "enum-column/book": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "include/article": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "minimal-custom/page": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "minimal-prisma/book": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "relation-many-to-many/book": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "relation-many-to-one/loan": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "sub-custom-in-prisma/groups": {
+    "subResources": {
+      "coreValue": []
+    }
+  },
+  "sub-prisma-in-prisma/group": {
+    "subResources": {
+      "coreValue": []
+    }
+  }
+}
