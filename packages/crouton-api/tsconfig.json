@@ -3,7 +3,7 @@
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "../..",
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

@@ -94,7 +94,7 @@ import { Drawer } from '@ghentcdh/crouton-ui-vue';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
-import { resourceSidebarKey, sidebarGroupKey } from '@ghentcdh/crouton-core';
+import { resourceSidebarKey, sidebarGroupKey } from '@crouton/i18n';
 
 import { CROUTON_DEV_RESOURCES, CROUTON_FORM } from '../router';
 import { isSidebarGroup } from '../composables/sidebar';

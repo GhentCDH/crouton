@@ -17,6 +17,10 @@
     "target": "es2022",
     "customConditions": ["@ghentcdh/crouton"],
     "noUncheckedSideEffectImports": false,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@crouton/status": ["./libs/status/src/index.ts"],
+      "@crouton/i18n": ["./libs/i18n/src/index.ts"]
+    }
   }
 }

@@ -4,6 +4,7 @@
  * response headers.
  */
 
+import { resolveLanguage } from '@crouton/i18n';
 import {
   type CallHandler,
   type ExecutionContext,
@@ -11,7 +12,6 @@ import {
   type NestInterceptor,
 } from '@nestjs/common';
 
-import { resolveLanguage } from '@ghentcdh/crouton-core';
 
 import { runWithLanguage } from './language.context';
 import { type TranslationRegistry } from './translation.registry';

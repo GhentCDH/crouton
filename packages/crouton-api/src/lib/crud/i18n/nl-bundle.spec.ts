@@ -6,12 +6,12 @@
  *  - Validation error codes are present
  *  - Fallback to EN works for missing keys
  */
-import { describe, expect, it } from 'vitest';
-
 import {
   TranslationBundleSchema,
   createTranslator,
-} from '@ghentcdh/crouton-core';
+} from '@crouton/i18n';
+import { describe, expect, it } from 'vitest';
+
 
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';

@@ -11,8 +11,8 @@ import {
   type DataSourceResolver,
   createCustomRepository,
 } from '../custom-repository';
-import type { DataSourceAdapter } from './adapter/data-source.adapter';
-import { PrismaDataSourceAdapter } from './adapter/prisma.adapter';
+import type { DataSourceAdapter } from './adapter';
+import { PrismaDataSourceAdapter } from './adapter';
 import {
   applyAfterFindAll,
   applyBeforeFindAll,
@@ -99,6 +99,10 @@ export interface CrudRepository<T = any> {
  * @param prisma - Full PrismaClient instance (may be `undefined` for a custom
  *   resource in a project with no datasources).
  * @param config - Resource config. `config.model` must match a key on the PrismaClient.
+ * @param dataSources
+ * @param configRegistry
+ * @param dataSources
+ * @param configRegistry
  * @throws {Error} When `config.model` is not found on the provided PrismaClient.
  */
 export function createCrudRepository<T = any>(

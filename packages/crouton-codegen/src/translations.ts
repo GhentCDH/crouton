@@ -6,7 +6,9 @@
  * with the current set of resources and enums.
  */
 
-import type { ResourceJson, TranslationBundle } from '@ghentcdh/crouton-core';
+import type { TranslationBundle } from '@crouton/i18n';
+
+import type { ResourceJson } from '@ghentcdh/crouton-core';
 import { labelFromId, resolveTableNode  } from '@ghentcdh/crouton-core';
 
 import type { EnumRegistry } from './enum-registry';

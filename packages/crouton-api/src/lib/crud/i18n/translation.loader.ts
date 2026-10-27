@@ -3,7 +3,7 @@
  * Mirrors `enum-registry.loader.ts`.
  */
 
-import type { TranslationBundle } from '@ghentcdh/crouton-core';
+import type { TranslationBundle } from '@crouton/i18n';
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';

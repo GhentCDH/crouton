@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - libs/*
   - examples/book-collection/apps/*
   - examples/book-collection/apps/generated/default/types
 

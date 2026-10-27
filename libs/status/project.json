@@ -1,0 +1,19 @@
+{
+  "name": "status",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/status/src",
+  "projectType": "library",
+  "tags": ["type:util"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/status",
+        "main": "libs/status/src/index.ts",
+        "tsConfig": "libs/status/tsconfig.lib.json",
+        "assets": ["libs/status/*.md"]
+      }
+    }
+  }
+}

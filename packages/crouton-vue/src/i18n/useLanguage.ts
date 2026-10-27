@@ -1,7 +1,7 @@
+import type { TranslationBundle } from '@crouton/i18n';
 import type { AxiosInstance } from 'axios';
 import { type Ref, ref } from 'vue';
 
-import type { TranslationBundle } from '@ghentcdh/crouton-core';
 
 import { getUiDefaults } from '../i18n/ui-defaults';
 

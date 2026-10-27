@@ -11,11 +11,11 @@ import {
   resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
+import type { DataSourceAdapter } from './adapter';
 import {
   childCtx,
   childRepositoryFn,
 } from '../custom-repository/child-delegate';
-import type { DataSourceAdapter } from './adapter/data-source.adapter';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
@@ -413,7 +413,16 @@ export class ReadRepository<T = any> {
 
   /**
    * Fetch a paginated list of child records belonging to the given parent.
+   * @param parentId
+   * @param parentId
+   * @param params
+   * @param request
+   * @param parentId
+   * @param params
+   * @param request
    * @param childRoute - Matches the `childRoute` key on a `SubResourceConfig`.
+   * @param params
+   * @param request
    * @throws {Error} When no matching sub-resource config or Prisma model is found.
    */
   async findAllByParent(
