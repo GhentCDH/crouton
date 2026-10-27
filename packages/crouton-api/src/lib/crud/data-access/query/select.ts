@@ -4,8 +4,7 @@ import {
   type ZodType,
 } from 'zod';
 
-import { type SchemaInput, isZodSchema, unwrap } from '@ghentcdh/crouton-core';
-import type { ZodTypeInternal } from '@ghentcdh/crouton-core';
+import { type SchemaInput, type ZodTypeInternal, isZodSchema, unwrap  } from '@ghentcdh/crouton-core';
 
 const typeOf = (schema: ZodType): string | undefined =>
   (schema as ZodTypeInternal)?._zod?.def?.type;
