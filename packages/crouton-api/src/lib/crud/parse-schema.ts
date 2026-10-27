@@ -11,7 +11,6 @@ import {
 import type { ResourceRowAction, ResourceTableAction } from './action';
 import { buildResolvers } from './adapter/resolver-builder';
 import type { CroutonAppConfig } from './app-config';
-import type { EnumRegistry } from './enum-registry';
 import type { ResourceHooks } from './hooks';
 
 export type { ParseSchemaView };
@@ -62,7 +61,12 @@ export const parseSchema = (
   const payload = coreParseSchema(
     {
       ...normalized,
-      resolvers: buildResolvers(parseResult.data.kind === 'custom', dirPath, appConfig.baseUrl, enums),
+      resolvers: buildResolvers(
+        parseResult.data.kind === 'custom',
+        dirPath,
+        appConfig.baseUrl,
+        enums,
+      ),
     },
     appConfig,
     view,
@@ -73,13 +77,19 @@ export const parseSchema = (
   if (view === 'schemas') {
     const formDef = ResourceDefinitionResponseZ.parse(payload);
     if (appConfig.schemaEnricher) {
-      return { ...formDef, ...appConfig.schemaEnricher(formDef) } as ResourceDefinitionResponse;
+      return {
+        ...formDef,
+        ...appConfig.schemaEnricher(formDef),
+      } as ResourceDefinitionResponse;
     }
     return formDef;
   }
 
   if (appConfig.schemaEnricher) {
-    return { ...payload, ...appConfig.schemaEnricher(payload) } as ResourceDefinitionResponse;
+    return {
+      ...payload,
+      ...appConfig.schemaEnricher(payload),
+    } as ResourceDefinitionResponse;
   }
 
   return payload as unknown as ResourceDefinitionResponse;
