@@ -1,6 +1,6 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import type { JsonColumn, RelationFieldInputOptions, ResourceJson } from '@ghentcdh/crouton-core';
+import type { JsonColumn, ResourceJson } from '@ghentcdh/crouton-core';
 import { compileResource } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from '../action';
@@ -35,12 +35,21 @@ export const fromJson = (
     enums,
     resolvers: {
       expandColumns: (cols) => expandExtendColumns(cols, dirPath),
-      enrichResourceRefs: (cols) => enrichResourceRefColumns(cols, dirPath, baseUrl) ?? cols,
+      enrichResourceRefs: (cols) =>
+        enrichResourceRefColumns(cols, dirPath, baseUrl) ?? cols,
       buildSubResources: (cols, ctx) =>
         json.kind === 'custom'
           ? []
-          : buildSubResources(cols, ctx.route, ctx.model, dirPath, enums, baseUrl),
-      resolveLookupDisplayKeys: (cols) => resolveLookupDisplayKeys(cols, dirPath),
+          : buildSubResources(
+              cols,
+              ctx.route,
+              ctx.model,
+              dirPath,
+              enums,
+              baseUrl,
+            ),
+      resolveLookupDisplayKeys: (cols) =>
+        resolveLookupDisplayKeys(cols, dirPath),
     },
   });
 
@@ -60,12 +69,18 @@ const resolveLookupDisplayKeys = (
   const result: Record<string, string> = {};
   if (!dirPath) return result;
   for (const col of columns) {
-    if (!col.showInLookup || col.fieldInput?.relationType !== 'manyToOne') continue;
+    if (!col.showInLookup || col.fieldInput?.relationType !== 'manyToOne')
+      continue;
     if (!col.fieldInput?.resource) continue;
     const child = resolveChildResource(col.fieldInput.resource, dirPath);
-    const childColumns = child ? expandExtendColumns(child.json.columns ?? [], dirPath) : undefined;
-    const displayCol = childColumns?.find((c) => !c.idField && !c.hiddenInTable);
-    if (displayCol) result[col.id] = `${col.id.replace(/Id$/, '')}.${displayCol.id}`;
+    const childColumns = child
+      ? expandExtendColumns(child.json.columns ?? [], dirPath)
+      : undefined;
+    const displayCol = childColumns?.find(
+      (c) => !c.idField && !c.hiddenInTable,
+    );
+    if (displayCol)
+      result[col.id] = `${col.id.replace(/Id$/, '')}.${displayCol.id}`;
   }
   return result;
 };
