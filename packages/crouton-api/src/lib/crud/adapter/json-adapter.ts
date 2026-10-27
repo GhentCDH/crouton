@@ -107,7 +107,6 @@ export const fromJson = (
         label: c.label ?? c.id,
         sqlExpression: (c as any).computed.sql as string,
         type: (c as any).computed.type ?? 'string',
-        hiddenInTable: c.hiddenInTable,
         ...(c.fieldInput && { fieldInput: c.fieldInput }),
       })),
   ];

@@ -54,11 +54,6 @@ export const expandExtendColumns = (
         ? `${refCol.id}.${refCol.displayKey}`
         : refCol.id;
 
-      // The more restrictive visibility wins (true = hidden beats false = visible)
-      const hiddenInTable =
-        col.hiddenInTable === true || refCol.hiddenInTable === true
-          ? true
-          : (col.hiddenInTable ?? refCol.hiddenInTable);
       const hiddenInForm =
         col.hiddenInForm === true || refCol.hiddenInForm === true
           ? true
@@ -74,7 +69,6 @@ export const expandExtendColumns = (
         displayKey,
         label: refCol.label ?? refCol.id,
         type: 'object',
-        ...(hiddenInTable !== undefined && { hiddenInTable }),
         ...(hiddenInForm !== undefined && { hiddenInForm }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
