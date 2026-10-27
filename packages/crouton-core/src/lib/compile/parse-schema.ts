@@ -49,12 +49,10 @@ export const parseSchema = (
     throw new Error(`Resource cannot be parsed: ${parseResult.error.message}`);
   }
 
-  const resource = compileResource(
-    parseResult.data,
-    normalized.schema,
-    appConfig.baseUrl,
-    normalized.enums ?? {},
-  );
+  const resource = compileResource(parseResult.data, normalized.schema, {
+    baseUrl: appConfig.baseUrl,
+    enums: normalized.enums ?? {},
+  });
 
   let payload: Record<string, unknown> | undefined;
   if (view === 'schemas') {
