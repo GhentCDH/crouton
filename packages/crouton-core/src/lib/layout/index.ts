@@ -1,20 +1,27 @@
 import { buildFormLayout } from './builders/form.builder';
-import type { LayoutBuildContext, ViewConfig } from './builders/layout-builder.types';
+import type {
+  LayoutBuildContext,
+  ViewConfig,
+} from './builders/layout-builder.types';
 import { buildCustomLayouts } from './builders/registry';
 import { buildTableLayout } from './builders/table.builder';
 import { buildViewLayout } from './builders/view.builder';
 import type { Layout } from './schema/Layout.schema';
 
-export type { LayoutBuildContext, ViewJsonSchemaSource } from './builders/layout-builder.types';
-export { type KindBuilderFn, registerLayoutBuilder, unregisterLayoutBuilder } from './builders/registry';
+export type {
+  LayoutBuildContext,
+  ViewJsonSchemaSource,
+} from './builders/layout-builder.types';
+export {
+  type KindBuilderFn,
+  registerLayoutBuilder,
+  unregisterLayoutBuilder,
+} from './builders/registry';
 export { defaultLayoutFor } from './resolve/default-layout';
-export { resolveColumnVisibility } from './resolve/visibility';
 export { resolveFieldControl } from './resolve/resolve-field';
 export type { ResolvedFieldControl } from './resolve/resolve-field';
 export { validateLayout } from './resolve/validate';
 export type { LayoutValidationResult } from './resolve/validate';
-export { resolveTableNode } from './model/table-node';
-export { collectLayoutFieldIds } from './model/walk';
 
 /**
  * Build a single named view kind from the layout.
@@ -27,7 +34,13 @@ export const buildLayout = (
 ): Record<string, ViewConfig> => {
   if (kind === 'table' || kind === 'filter') {
     const all = buildTableLayout(layout?.table as any, ctx);
-    return kind === 'filter' ? (all.filter ? { filter: all.filter } : {}) : (all.table ? { table: all.table } : {});
+    return kind === 'filter'
+      ? all.filter
+        ? { filter: all.filter }
+        : {}
+      : all.table
+        ? { table: all.table }
+        : {};
   }
   if (kind === 'form') {
     const form = buildFormLayout(layout?.form as any, ctx);
@@ -60,4 +73,3 @@ export const buildLayouts = (
   Object.assign(result, buildCustomLayouts(layout, ctx));
   return result;
 };
-

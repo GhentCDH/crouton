@@ -3,8 +3,9 @@
  * one `{ value, label }[]` per Prisma enum, referenced from columns by name.
  */
 
+import { labelFromId } from '@ghentcdh/crouton-core';
+
 import type { DbModel } from './db-model';
-import { labelFromId } from './naming';
 
 export interface EnumOption {
   value: string;

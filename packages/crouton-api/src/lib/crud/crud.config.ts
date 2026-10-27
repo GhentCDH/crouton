@@ -1,15 +1,8 @@
-import { type CrudDefinition as ResourceDefinition, type CrudOperation, type SecurityConfig  } from '@ghentcdh/crouton-core';
-
-export {
+import {
+  type CrudDefinition as ResourceDefinition,
   type CrudOperation,
-  externalRouteFor,
-  isOperationEnabled,
-  isOperationExternal,
-  resolveDefinition,
-  schemaFor,
+  type SecurityConfig,
 } from '@ghentcdh/crouton-core';
-
-export { isRowProcedureAction, isTableProcedureAction } from './action';
 
 import { type Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
@@ -29,7 +22,9 @@ export const securityFor = (
   op: CrudOperation,
   moduleDefault?: SecurityConfig,
 ): SecurityConfig | undefined =>
-  opSecurity((def as Record<string, unknown>)[op]) ?? config.security ?? moduleDefault;
+  opSecurity((def as Record<string, unknown>)[op]) ??
+  config.security ??
+  moduleDefault;
 
 /** Same precedence for sub-resources: op-level → parent global → module default. */
 export const securityForSub = (

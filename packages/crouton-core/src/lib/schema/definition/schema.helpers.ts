@@ -6,15 +6,16 @@ import type { JsonResourceOperations } from '../../data-source';
 import type { JsonColumn } from '../../resource';
 import { pickByColumns } from '../json/pick-by-columns';
 
-export { pickByColumns };
-
 const opWithSchema = (
   enabled: boolean | Record<string, unknown> | undefined,
   schema: SchemaInput | undefined,
 ): OperationDef | undefined => {
   if (enabled === false) return undefined;
   if (typeof enabled === 'object' && enabled !== null && 'uri' in enabled) {
-    return { uri: enabled['uri'] as string, ...(enabled['method'] ? { method: enabled['method'] as string } : {}) };
+    return {
+      uri: enabled['uri'] as string,
+      ...(enabled['method'] ? { method: enabled['method'] as string } : {}),
+    };
   }
   return schema ? { schema } : true;
 };

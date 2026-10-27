@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { JsonOperationsSchema, buildResourceDefinitions, buildResourceOperations } from '@ghentcdh/crouton-core';
+import {
+  JsonOperationsSchema,
+  buildResourceDefinitions,
+  buildResourceOperations, resolveDefinition 
+} from '@ghentcdh/crouton-core';
 
-import { resolveDefinition } from '../crud.config';
 
 const BASE = 'http://host/example';
 
@@ -18,9 +21,15 @@ describe('external uri — end-to-end', () => {
     });
 
     const definition = buildResourceDefinitions(undefined, ops, undefined);
-    const result = buildResourceOperations(resolveDefinition({ definition } as any), BASE);
+    const result = buildResourceOperations(
+      resolveDefinition({ definition } as any),
+      BASE,
+    );
 
-    expect(result['delete']).toEqual({ uri: '/annotation/{id}', method: 'delete' });
+    expect(result['delete']).toEqual({
+      uri: '/annotation/{id}',
+      method: 'delete',
+    });
     expect(result['findOne']).toEqual({ uri: `${BASE}/{id}`, method: 'get' });
     expect(result['findAll']).toBeUndefined();
   });
@@ -30,8 +39,14 @@ describe('external uri — end-to-end', () => {
       delete: { uri: '/annotation/{id}', method: 'post' },
     });
     const definition = buildResourceDefinitions(undefined, ops, undefined);
-    const result = buildResourceOperations(resolveDefinition({ definition } as any), BASE);
+    const result = buildResourceOperations(
+      resolveDefinition({ definition } as any),
+      BASE,
+    );
 
-    expect(result['delete']).toEqual({ uri: '/annotation/{id}', method: 'post' });
+    expect(result['delete']).toEqual({
+      uri: '/annotation/{id}',
+      method: 'post',
+    });
   });
 });

@@ -1,15 +1,22 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import { extractFindAllSearch, extractOpInclude } from '../data-source/Operations.schema';
-import { buildLayouts, resolveColumnVisibility } from '../layout';
+import {
+  extractFindAllSearch,
+  extractOpInclude,
+} from '../data-source/Operations.schema';
+import { buildLayouts } from '../layout';
 import type { CalculatedColumn, JsonColumn, ResourceJson } from '../resource';
 import {
   columnTypeSchemaSource,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  resolveColumnVisibility,
   zodSchemaSource,
 } from '../view';
-import { enrichActionColumns, enrichIncludeWithSort } from './column-enrichment';
+import {
+  enrichActionColumns,
+  enrichIncludeWithSort,
+} from './column-enrichment';
 import {
   applyRelationFormatDefault,
   buildValueLabelColumns,
@@ -30,7 +37,10 @@ export type CompileResolvers = {
   /** Add options that need another resource (resource-ref URIs, nested relation columns). Default: identity. */
   enrichResourceRefs?: (columns: JsonColumn[]) => JsonColumn[];
   /** Build sub-resources from relation columns. Default: returns `[]`. */
-  buildSubResources?: (columns: JsonColumn[], ctx: { route: string; model: string }) => CompiledSubResourceConfig[];
+  buildSubResources?: (
+    columns: JsonColumn[],
+    ctx: { route: string; model: string },
+  ) => CompiledSubResourceConfig[];
   /** Pre-resolve lookup display keys for manyToOne showInLookup columns. Default: `{}`. */
   resolveLookupDisplayKeys?: (columns: JsonColumn[]) => Record<string, string>;
 };
@@ -51,11 +61,18 @@ export const compileResource = (
   options: CompileOptions = {},
 ): CompiledResource => {
   const { baseUrl, enums = {}, resolvers = {} } = options;
-  const src = (json as any).source as { model?: string; dbTable?: string; datasource?: string; idType?: 'string' | 'number' } | undefined;
+  const src = (json as any).source as
+    | {
+        model?: string;
+        dbTable?: string;
+        datasource?: string;
+        idType?: 'string' | 'number';
+      }
+    | undefined;
 
   const rawColumns: JsonColumn[] = resolvers.expandColumns
     ? resolvers.expandColumns((json.columns as JsonColumn[] | undefined) ?? [])
-    : (json.columns as JsonColumn[] | undefined) ?? [];
+    : ((json.columns as JsonColumn[] | undefined) ?? []);
 
   const columns: JsonColumn[] = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -70,9 +87,12 @@ export const compileResource = (
       })
     : [];
 
-  const actionEnriched = enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;
+  const actionEnriched =
+    enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;
   const enrichedColumns = resolveColumnFieldVariants(
-    resolvers.enrichResourceRefs ? resolvers.enrichResourceRefs(actionEnriched) : actionEnriched,
+    resolvers.enrichResourceRefs
+      ? resolvers.enrichResourceRefs(actionEnriched)
+      : actionEnriched,
   )!;
 
   const calculatedColumns: CalculatedColumn[] = [
@@ -92,7 +112,10 @@ export const compileResource = (
   ];
 
   const regularColumns = enrichedColumns.filter((c) => !(c as any).computed);
-  const visibilityColumns = resolveColumnVisibility(regularColumns, json.layout);
+  const visibilityColumns = resolveColumnVisibility(
+    regularColumns,
+    json.layout,
+  );
   const layoutCtx = {
     columns: visibilityColumns,
     source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
@@ -102,31 +125,59 @@ export const compileResource = (
   const rawViews = buildLayouts(json.layout, layoutCtx);
   let views = Object.keys(rawViews).length ? rawViews : undefined;
   if (views && calculatedColumns.length) {
-    views = { ...views, table: injectCalculatedColumns(views.table, calculatedColumns) };
+    views = {
+      ...views,
+      table: injectCalculatedColumns(views.table, calculatedColumns),
+    };
     if (views.view) {
-      views = { ...views, view: injectCalculatedColumnsToView(views.view, calculatedColumns) };
+      views = {
+        ...views,
+        view: injectCalculatedColumnsToView(views.view, calculatedColumns),
+      };
     }
   }
 
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && json.kind !== 'custom';
-  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
+  const searchPaths = buildSearch(
+    enrichedColumns,
+    extractFindAllSearch(findAll),
+    findAllEnabled,
+  );
   const resolvedDisplayKeys = resolvers.resolveLookupDisplayKeys
     ? resolvers.resolveLookupDisplayKeys(enrichedColumns)
     : {};
-  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup, resolvedDisplayKeys);
+  const lookup = buildLookup(
+    enrichedColumns,
+    searchPaths,
+    (json as any).lookup,
+    resolvedDisplayKeys,
+  );
   const findOneOp = json.operations?.findOne;
-  const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
-  const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
-  const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
+  const enrichedInclude = enrichIncludeWithSort(
+    extractOpInclude(findAll),
+    enrichedColumns,
+  );
+  const enrichedFindOneInclude = enrichIncludeWithSort(
+    extractOpInclude(findOneOp),
+    enrichedColumns,
+  );
+  const definition = buildResourceDefinitions(
+    schema,
+    json.operations,
+    enrichedColumns,
+  );
 
   const formContainer = (json.layout?.form as any)?.container;
   const viewContainer = (json.layout?.view as any)?.container;
   const derivedDisplay = {
-    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as 'modal' | 'page',
-    customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
+    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as
+      'modal' | 'page',
+    customComponent: ((json.layout?.view as any)?.component ?? null) as
+      string | null,
   };
-  const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
+  const derivedModalSize = (formContainer?.size ?? 'sm') as
+    'xs' | 'sm' | 'lg' | 'xl';
 
   return {
     ...json,
@@ -148,7 +199,9 @@ export const compileResource = (
     ...(lookup && { lookup }),
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
-    ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
+    ...(enrichedFindOneInclude?.length && {
+      findOneInclude: enrichedFindOneInclude,
+    }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),

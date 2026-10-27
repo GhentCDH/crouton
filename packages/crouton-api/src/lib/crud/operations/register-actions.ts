@@ -1,7 +1,11 @@
 import { Param, Post, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
-import { isRowProcedureAction, isTableProcedureAction } from '../crud.config';
+import {
+  isRowProcedureAction,
+  isTableProcedureAction,
+} from '@ghentcdh/crouton-core';
+
 import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
@@ -18,15 +22,31 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
 
   for (const action of procedureActions) {
     const methodName = `procedure_${action.id}`;
-    def(cls, methodName, async function (this: { repo: CrudRepository }, recordId: string) {
-      return action.procedure(this.repo.prisma, recordId);
-    });
+    def(
+      cls,
+      methodName,
+      async function (this: { repo: CrudRepository }, recordId: string) {
+        return action.procedure(this.repo.prisma, recordId);
+      },
+    );
     const d = desc(cls, methodName);
     Post(`procedure/${action.id}/:recordId`)(cls.prototype, methodName, d);
     Param('recordId')(cls.prototype, methodName, 0);
-    ApiOperation({ summary: `Execute action "${action.label}" on a ${name}` })(cls.prototype, methodName, d);
-    ApiParam({ name: 'recordId', type: 'string' })(cls.prototype, methodName, d);
-    ApiResponse({ status: 200, description: `Action "${action.id}" result` })(cls.prototype, methodName, d);
+    ApiOperation({ summary: `Execute action "${action.label}" on a ${name}` })(
+      cls.prototype,
+      methodName,
+      d,
+    );
+    ApiParam({ name: 'recordId', type: 'string' })(
+      cls.prototype,
+      methodName,
+      d,
+    );
+    ApiResponse({ status: 200, description: `Action "${action.id}" result` })(
+      cls.prototype,
+      methodName,
+      d,
+    );
 
     const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
     if (sec) {
@@ -42,7 +62,9 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
 export const registerTableActionRoutes = (ctx: OperationContext): void => {
   const { cls, config } = ctx;
   const { name } = config;
-  const procedureActions = (config.tableActions ?? []).filter(isTableProcedureAction);
+  const procedureActions = (config.tableActions ?? []).filter(
+    isTableProcedureAction,
+  );
 
   for (const action of procedureActions) {
     const methodName = `tableAction_${action.id}`;
@@ -51,8 +73,13 @@ export const registerTableActionRoutes = (ctx: OperationContext): void => {
     });
     const d = desc(cls, methodName);
     Post(`table-action/${action.id}`)(cls.prototype, methodName, d);
-    ApiOperation({ summary: `Execute table action "${action.label ?? action.id}" on ${name}` })(cls.prototype, methodName, d);
-    ApiResponse({ status: 200, description: `Table action "${action.id}" result` })(cls.prototype, methodName, d);
+    ApiOperation({
+      summary: `Execute table action "${action.label ?? action.id}" on ${name}`,
+    })(cls.prototype, methodName, d);
+    ApiResponse({
+      status: 200,
+      description: `Table action "${action.id}" result`,
+    })(cls.prototype, methodName, d);
 
     const sec = ctx.config.security ?? ctx.moduleDefaultSecurity;
     if (sec) {

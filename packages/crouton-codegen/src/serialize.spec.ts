@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
-
-import {
+import { CURRENT_RESOURCE_VERSION,
   RESOURCE_SCHEMA_URL,
   serializeResourceJson,
-  withResourceHeader,
-} from './serialize';
+  withResourceHeader } from '@ghentcdh/crouton-core';
+
 
 const base = {
   name: 'author',

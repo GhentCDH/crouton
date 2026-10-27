@@ -1,6 +1,8 @@
-import { type JsonColumn, normalizeUnique } from '@ghentcdh/crouton-core';
+import {
+  type CrudOperation, type JsonColumn,
+  isOperationEnabled, normalizeUnique,
+  resolveDefinition } from '@ghentcdh/crouton-core';
 
-import { type CrudOperation, isOperationEnabled, resolveDefinition } from '../crud.config';
 import type { Resource } from './ResourceConfig.schema';
 import { validateCustomRepository } from '../custom-repository/custom-repository.validate';
 
@@ -31,7 +33,9 @@ export const validateResourceConfig = (
   const enabledOps = ALL_OPS.filter((op) => isOperationEnabled(definition, op));
 
   if (enabledOps.length === 0) {
-    warnings.push('All operations are disabled — this resource serves nothing.');
+    warnings.push(
+      'All operations are disabled — this resource serves nothing.',
+    );
   }
 
   if (config.kind === 'custom') {

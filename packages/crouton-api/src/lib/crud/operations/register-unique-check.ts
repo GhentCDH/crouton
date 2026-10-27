@@ -2,8 +2,9 @@ import { Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { z } from 'zod';
 
+import { isOperationEnabled } from '@ghentcdh/crouton-core';
+
 import { CroutonValidationError } from '../crouton-validation.error';
-import { isOperationEnabled } from '../crud.config';
 import type { CrudRepository } from '../data-access/repository';
 import {
   columnDbName,
@@ -109,11 +110,9 @@ export const registerUniqueCheck = (ctx: OperationContext): void => {
     methodName,
     0,
   );
-  ApiOperation({ summary: `Check whether a ${config.name} field value is unique` })(
-    cls.prototype,
-    methodName,
-    d,
-  );
+  ApiOperation({
+    summary: `Check whether a ${config.name} field value is unique`,
+  })(cls.prototype, methodName, d);
   ApiResponse({
     status: 200,
     description: 'Uniqueness result',

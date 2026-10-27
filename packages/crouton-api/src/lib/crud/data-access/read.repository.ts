@@ -28,11 +28,6 @@ import {
   mergeCalculatedColumnsForRows,
 } from './query/sql.helpers'; // Re-exported for backwards compatibility
 
-// Re-exported for backwards compatibility
-export { buildFilterWhere } from './query/filter';
-export { orderableChildSort, sanitizeValueLabelSort } from './query/sort';
-export { applyValueLabelColumns };
-
 /**
  * Handles all read operations for a resource — list, count, detail, and sub-resource queries.
  * Pure data access: hooks and valueLabel decoration are applied by the factory wrapper.

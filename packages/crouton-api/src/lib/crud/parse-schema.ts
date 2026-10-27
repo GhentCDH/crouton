@@ -3,17 +3,16 @@ import {
   type ParseSchemaView,
   type ResourceDefinitionResponse,
   ResourceDefinitionResponseZ,
+  type ResourceRowAction,
+  type ResourceTableAction,
   buildResourceJsonSchema,
   parseSchema as coreParseSchema,
   registerResourceExtensions,
 } from '@ghentcdh/crouton-core';
 
-import type { ResourceRowAction, ResourceTableAction } from './action';
 import { buildResolvers } from './adapter/resolver-builder';
 import type { CroutonAppConfig } from './app-config';
 import type { ResourceHooks } from './hooks';
-
-export type { ParseSchemaView };
 
 export interface ParseSchemaInput extends CoreParseSchemaInput {
   /** Enables sibling-resource features (extend columns, resource-ref options, sub-resources). */

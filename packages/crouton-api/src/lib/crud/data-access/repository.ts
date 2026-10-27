@@ -1,15 +1,26 @@
 import { NotFoundException } from '@nestjs/common';
 
-import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
+import {
+  type ListRequest,
+  offsetOf,
+  resolveDefinition,
+  schemaFor,
+} from '@ghentcdh/crouton-core';
 
-import { resolveDefinition, schemaFor } from '../crud.config';
 import {
   type DataSourceResolver,
   createCustomRepository,
 } from '../custom-repository';
 import type { DataSourceAdapter } from './adapter/data-source.adapter';
 import { PrismaDataSourceAdapter } from './adapter/prisma.adapter';
-import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './middleware/hooks';
+import {
+  applyAfterFindAll,
+  applyBeforeFindAll,
+  decorateRow,
+  decorateRows,
+  postWrite,
+  prepareWrite,
+} from './middleware/hooks';
 import { ReadRepository } from './read.repository';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
 import { type Resource } from '../resource/ResourceConfig.schema';
@@ -130,24 +141,50 @@ export function createCrudRepository<T = any>(
   //   - kind:custom  + adapter:custom  (no repository.ts needed)
   //   - kind:prisma  + adapter:custom  (custom backend with generated schema)
   if (resolvedAdapter?.findAll && resolvedAdapter.count) {
-    const baseCtx = { config, op: 'n/a', offset: 0, listSelect, oneSelect, configRegistry };
+    const baseCtx = {
+      config,
+      op: 'n/a',
+      offset: 0,
+      listSelect,
+      oneSelect,
+      configRegistry,
+    };
     const ctx = (request?: any, op = 'findAll', id?: string | number) => ({
-      ...baseCtx, op, request, ...(id !== undefined && { id }),
+      ...baseCtx,
+      op,
+      request,
+      ...(id !== undefined && { id }),
     });
 
-    const mkDecorateFindAll = (adapter: DataSourceAdapter) =>
+    const mkDecorateFindAll =
+      (adapter: DataSourceAdapter) =>
       async (rows: any[], request?: any): Promise<any[]> => {
-        const decorated = await decorateRows(rows, 'findAll', config, adapter, request);
+        const decorated = await decorateRows(
+          rows,
+          'findAll',
+          config,
+          adapter,
+          request,
+        );
         return applyAfterFindAll(decorated, config, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
     const applyBefore = (params: ListRequest, request?: any) =>
       applyBeforeFindAll(params, config, resolvedAdapter, request);
-    const decorateFindOne = (row: any, request?: any) => decorateRow(row, 'findOne', config, resolvedAdapter, request);
-    const prepareData = (data: unknown, op: 'create'|'update'|'patch', id?: string|number, request?: any) =>
-      prepareWrite(data, op, config, resolvedAdapter, id, request);
-    const postData = (result: any, op: 'create'|'update'|'patch'|'delete', id?: string|number, request?: any) =>
-      postWrite(result, op, config, resolvedAdapter, id, request);
+    const decorateFindOne = (row: any, request?: any) =>
+      decorateRow(row, 'findOne', config, resolvedAdapter, request);
+    const prepareData = (
+      data: unknown,
+      op: 'create' | 'update' | 'patch',
+      id?: string | number,
+      request?: any,
+    ) => prepareWrite(data, op, config, resolvedAdapter, id, request);
+    const postData = (
+      result: any,
+      op: 'create' | 'update' | 'patch' | 'delete',
+      id?: string | number,
+      request?: any,
+    ) => postWrite(result, op, config, resolvedAdapter, id, request);
     const toId = (id: string | number): string | number =>
       (config.idType ?? 'string') === 'number' ? +id : String(id);
 
@@ -158,14 +195,35 @@ export function createCrudRepository<T = any>(
       request?: any,
     ): Promise<{ data: T[]; count: number }> => {
       if (resolvedAdapter.findAllByParent) {
-        const sub = config.subResources?.find((s) => s.childRoute === childRoute);
-        if (!sub) throw new Error(`No sub-resource "${childRoute}" on "${config.name}"`);
-        return resolvedAdapter.findAllByParent(adapterModelKey, parentId, sub, params, ctx(request, 'findAll'));
+        const sub = config.subResources?.find(
+          (s) => s.childRoute === childRoute,
+        );
+        if (!sub)
+          throw new Error(
+            `No sub-resource "${childRoute}" on "${config.name}"`,
+          );
+        return resolvedAdapter.findAllByParent(
+          adapterModelKey,
+          parentId,
+          sub,
+          params,
+          ctx(request, 'findAll'),
+        );
       }
       // Fallback: only available when prisma model exists (Prisma adapter).
-      if (!config.model) throw new Error(`Adapter for "${config.name}" does not implement findAllByParent`);
+      if (!config.model)
+        throw new Error(
+          `Adapter for "${config.name}" does not implement findAllByParent`,
+        );
       const prismaModel = prisma[config.model];
-      const reader = new ReadRepository<T>(prismaModel, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
+      const reader = new ReadRepository<T>(
+        prismaModel,
+        resolvedAdapter,
+        config,
+        listSelect,
+        oneSelect,
+        configRegistry,
+      );
       return reader.findAllByParent(parentId, childRoute, params, request);
     };
 
@@ -176,74 +234,158 @@ export function createCrudRepository<T = any>(
       request?: any,
     ): Promise<T> => {
       if (resolvedAdapter.findOneChild) {
-        const row = await resolvedAdapter.findOneChild(adapterModelKey, sub, childId, parentId, ctx(request, 'findOne', childId));
-        if (row === null || row === undefined) throw new NotFoundException(`${sub.childRoute} with id ${childId} not found`);
+        const row = await resolvedAdapter.findOneChild(
+          adapterModelKey,
+          sub,
+          childId,
+          parentId,
+          ctx(request, 'findOne', childId),
+        );
+        if (row === null || row === undefined)
+          throw new NotFoundException(
+            `${sub.childRoute} with id ${childId} not found`,
+          );
         return row;
       }
-      if (!config.model) throw new Error(`Adapter for "${config.name}" does not implement findOneChild`);
+      if (!config.model)
+        throw new Error(
+          `Adapter for "${config.name}" does not implement findOneChild`,
+        );
       const prismaModel = prisma[config.model];
-      const reader = new ReadRepository<T>(prismaModel, resolvedAdapter, config, listSelect, oneSelect, configRegistry);
+      const reader = new ReadRepository<T>(
+        prismaModel,
+        resolvedAdapter,
+        config,
+        listSelect,
+        oneSelect,
+        configRegistry,
+      );
       return reader.findOneChild(sub, childId, parentId, request);
     };
 
     const prismaModel = config.model ? prisma?.[config.model] : undefined;
-    const writer = prismaModel ? new WriteRepository<T>(prismaModel, resolvedAdapter, config) : undefined;
+    const writer = prismaModel
+      ? new WriteRepository<T>(prismaModel, resolvedAdapter, config)
+      : undefined;
 
     return {
       prisma,
       findAllWithCount: async (params, request) => {
         const effectiveParams = await applyBefore(params, request);
-        const { data, count } = await resolvedAdapter.findAll!(adapterModelKey, effectiveParams, { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) });
+        const { data, count } = await resolvedAdapter.findAll!(
+          adapterModelKey,
+          effectiveParams,
+          { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) },
+        );
         return { data: await decorateFindAll(data, request), count };
       },
       findAll: async (params, request) => {
         const effectiveParams = await applyBefore(params, request);
-        const { data } = await resolvedAdapter.findAll!(adapterModelKey, effectiveParams, { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) });
+        const { data } = await resolvedAdapter.findAll!(
+          adapterModelKey,
+          effectiveParams,
+          { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) },
+        );
         return decorateFindAll(data, request);
       },
-      count: (filter, q) => resolvedAdapter.count!(adapterModelKey, filter, { ...baseCtx, q }),
+      count: (filter, q) =>
+        resolvedAdapter.count!(adapterModelKey, filter, { ...baseCtx, q }),
       findOne: async (id, request) => {
-        const row = await resolvedAdapter.findOne!(adapterModelKey, id, ctx(request, 'findOne', id));
-        if (row === null || row === undefined) throw new NotFoundException(`${config.name} with id ${id} not found`);
+        const row = await resolvedAdapter.findOne!(
+          adapterModelKey,
+          id,
+          ctx(request, 'findOne', id),
+        );
+        if (row === null || row === undefined)
+          throw new NotFoundException(`${config.name} with id ${id} not found`);
         return decorateFindOne(row, request);
       },
       findAllByParent: adapterFindAllByParent,
       findOneChild: adapterFindOneChild,
       create: async (data, request) => {
         const stripped = stripSubResourceKeys(config, data);
-        const prepared = await prepareData(stripped, 'create', undefined, request);
-        const result = await resolvedAdapter.create!(adapterModelKey, prepared, ctx(request, 'create'));
+        const prepared = await prepareData(
+          stripped,
+          'create',
+          undefined,
+          request,
+        );
+        const result = await resolvedAdapter.create!(
+          adapterModelKey,
+          prepared,
+          ctx(request, 'create'),
+        );
         return postData(result, 'create', undefined, request);
       },
       update: async (id, data, request) => {
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
-        const prepared = await prepareData(stripped, 'update', coercedId, request);
-        const result = await resolvedAdapter.update!(adapterModelKey, id, prepared, ctx(request, 'update', coercedId));
+        const prepared = await prepareData(
+          stripped,
+          'update',
+          coercedId,
+          request,
+        );
+        const result = await resolvedAdapter.update!(
+          adapterModelKey,
+          id,
+          prepared,
+          ctx(request, 'update', coercedId),
+        );
         return postData(result, 'update', coercedId, request);
       },
       patch: async (id, data, request) => {
         const coercedId = toId(id);
         const stripped = stripSubResourceKeys(config, data);
-        const prepared = await prepareData(stripped, 'patch', coercedId, request);
-        const patchOrUpdate = (resolvedAdapter.patch ?? resolvedAdapter.update)!.bind(resolvedAdapter);
-        const result = await patchOrUpdate(adapterModelKey, id, prepared, ctx(request, 'patch', coercedId));
+        const prepared = await prepareData(
+          stripped,
+          'patch',
+          coercedId,
+          request,
+        );
+        const patchOrUpdate = (resolvedAdapter.patch ??
+          resolvedAdapter.update)!.bind(resolvedAdapter);
+        const result = await patchOrUpdate(
+          adapterModelKey,
+          id,
+          prepared,
+          ctx(request, 'patch', coercedId),
+        );
         return postData(result, 'patch', coercedId, request);
       },
       delete: async (id, request) => {
         const coercedId = toId(id);
-        const result = await resolvedAdapter.delete!(adapterModelKey, id, ctx(request, 'delete', coercedId));
+        const result = await resolvedAdapter.delete!(
+          adapterModelKey,
+          id,
+          ctx(request, 'delete', coercedId),
+        );
         return postData(result, 'delete', coercedId, request);
       },
       createChild: writer
         ? writer.createChild.bind(writer)
-        : () => Promise.reject(new Error(`createChild not supported for "${config.name}" (no Prisma model)`)),
+        : () =>
+            Promise.reject(
+              new Error(
+                `createChild not supported for "${config.name}" (no Prisma model)`,
+              ),
+            ),
       updateChild: writer
         ? writer.updateChild.bind(writer)
-        : () => Promise.reject(new Error(`updateChild not supported for "${config.name}" (no Prisma model)`)),
+        : () =>
+            Promise.reject(
+              new Error(
+                `updateChild not supported for "${config.name}" (no Prisma model)`,
+              ),
+            ),
       deleteChild: writer
         ? writer.deleteChild.bind(writer)
-        : () => Promise.reject(new Error(`deleteChild not supported for "${config.name}" (no Prisma model)`)),
+        : () =>
+            Promise.reject(
+              new Error(
+                `deleteChild not supported for "${config.name}" (no Prisma model)`,
+              ),
+            ),
     };
   }
 
@@ -291,8 +433,17 @@ export function createCrudRepository<T = any>(
   const writer = new WriteRepository<T>(legacyModel, adapter, config);
 
   // ── Resource-level decoration helpers ────────────────────────────────────
-  const decorateFindAll = async (rows: any[], request?: any): Promise<any[]> => {
-    const decorated = await decorateRows(rows, 'findAll', config, adapter, request);
+  const decorateFindAll = async (
+    rows: any[],
+    request?: any,
+  ): Promise<any[]> => {
+    const decorated = await decorateRows(
+      rows,
+      'findAll',
+      config,
+      adapter,
+      request,
+    );
     return applyAfterFindAll(decorated, config, adapter, request);
   };
 
@@ -319,8 +470,16 @@ export function createCrudRepository<T = any>(
   return {
     prisma,
     findAll: async (params, request) => {
-      const effectiveParams = await applyBeforeFindAll(params, config, adapter, request);
-      return decorateFindAll(await reader.findAll(effectiveParams, request), request);
+      const effectiveParams = await applyBeforeFindAll(
+        params,
+        config,
+        adapter,
+        request,
+      );
+      return decorateFindAll(
+        await reader.findAll(effectiveParams, request),
+        request,
+      );
     },
     count: reader.count.bind(reader),
     findOne: async (id, request) =>
@@ -329,14 +488,24 @@ export function createCrudRepository<T = any>(
     findOneChild: reader.findOneChild.bind(reader),
     create: async (data, request) => {
       const stripped = stripSubResourceKeys(config, data);
-      const prepared = await prepareData(stripped, 'create', undefined, request);
+      const prepared = await prepareData(
+        stripped,
+        'create',
+        undefined,
+        request,
+      );
       const result = await writer.create(prepared, request);
       return postData(result, 'create', undefined, request);
     },
     update: async (id, data, request) => {
       const coercedId = toId(id);
       const stripped = stripSubResourceKeys(config, data);
-      const prepared = await prepareData(stripped, 'update', coercedId, request);
+      const prepared = await prepareData(
+        stripped,
+        'update',
+        coercedId,
+        request,
+      );
       const result = await writer.update(id, prepared, request);
       return postData(result, 'update', coercedId, request);
     },

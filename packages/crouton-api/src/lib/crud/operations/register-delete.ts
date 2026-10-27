@@ -1,9 +1,13 @@
 import { Delete, Param, Req } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
-import type { OperationContext } from './operation-context';
-import { isOperationEnabled, isOperationExternal } from '../crud.config';
+import {
+  isOperationEnabled,
+  isOperationExternal,
+} from '@ghentcdh/crouton-core';
+
 import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../data-access/repository';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 

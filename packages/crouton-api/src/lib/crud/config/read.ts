@@ -8,10 +8,6 @@ import {
 import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve as pathResolve } from 'node:path';
 
-
-
-export { findConfigPath } from '@ghentcdh/crouton-codegen';
-
 export type LoadedConfig = CroutonConfig & {
   /** Absolute directory containing the resolved crouton config file. */
   configDir: string;

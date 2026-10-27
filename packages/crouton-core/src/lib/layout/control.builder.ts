@@ -6,8 +6,6 @@ import type { WhenCondition } from './schema/LayoutItem.schema';
 import type { NormalizedUnique } from '../resource/Column';
 import { ControlType } from '../schema/ui/control-type';
 
-export { ControlType };
-
 export interface DateRangeOptions extends ControlOption {
   format: 'date-range';
   /** Label shown above the start date input. Defaults to "From". */

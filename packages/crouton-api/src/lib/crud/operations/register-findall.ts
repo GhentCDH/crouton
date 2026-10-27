@@ -1,21 +1,18 @@
 import { Get, Param, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-import { toJsonSchema } from '@ghentcdh/crouton-core';
+import {
+  isOperationEnabled,
+  isOperationExternal, toJsonSchema } from '@ghentcdh/crouton-core';
 
-import type { OperationContext } from './operation-context';
-import { isOperationEnabled, isOperationExternal } from '../crud.config';
 import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../data-access/repository';
 import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 
-const _findAll = async (
-  repo: CrudRepository,
-  params: any,
-  request?: any,
-) => {
+const _findAll = async (repo: CrudRepository, params: any, request?: any) => {
   // Repositories that cannot count separately (custom repositories backed by a
   // remote API) implement `findAllWithCount` and return both in one round trip.
   const { data, count } = repo.findAllWithCount

@@ -7,9 +7,8 @@
  */
 
 import type { ResourceJsonInput } from '@ghentcdh/crouton-core';
+import { labelFromId, serializeResourceJson, withResourceHeader } from '@ghentcdh/crouton-core';
 
-import { labelFromId } from './naming';
-import { serializeResourceJson, withResourceHeader } from './serialize';
 import type { FileWrite } from './write-plan';
 
 export interface CustomResourceScaffoldInput {

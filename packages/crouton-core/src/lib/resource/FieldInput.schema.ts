@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { fieldInputRegistry } from './field-input/registry';
 import { RelationOptionsSchema } from './field-input/types/relation.options';
 
-export { RelationOptionsSchema as RelationFieldInputOptionsSchema } from './field-input/types/relation.options';
 export type { RelationOptions as RelationFieldInputOptions } from './field-input/types/relation.options';
 
 export const RelationType = z.enum([
