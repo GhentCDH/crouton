@@ -1,3 +1,5 @@
+import { columnKey, resourceTitleKey } from '../i18n/translation-keys';
+import type { Translator } from '../i18n/translator';
 import { allowedIncludes } from '../request/include';
 import type { RelationFieldInputOptions } from '../resource';
 import { ResourceJsonSchema } from '../resource';
@@ -86,6 +88,79 @@ const colToDataField = (col: JsonColumn, required: boolean): DataField => {
     }),
   };
 };
+
+// ---------------------------------------------------------------------------
+// i18n helpers
+// ---------------------------------------------------------------------------
+
+const extractI18nKeys = (name: string, fields: Record<string, DataField>): Record<string, string> => {
+  const keys: Record<string, string> = { __title: resourceTitleKey(name) };
+  for (const colId of Object.keys(fields)) {
+    keys[colId] = columnKey(name, colId);
+  }
+  return keys;
+};
+
+const SCOPE_RE = /^#\/properties\/([^/]+)$/;
+
+const patchDataTitles = (data: unknown, keys: Record<string, string>, t: Translator): unknown => {
+  if (!data || typeof data !== 'object') return data;
+  const d = data as Record<string, unknown>;
+  if (!d['properties'] || typeof d['properties'] !== 'object') return data;
+  const props = d['properties'] as Record<string, unknown>;
+  return {
+    ...d,
+    properties: Object.fromEntries(
+      Object.entries(props).map(([id, prop]) => {
+        const i18nKey = keys[id];
+        if (!i18nKey || !prop || typeof prop !== 'object') return [id, prop];
+        return [id, { ...(prop as Record<string, unknown>), title: t(i18nKey, (prop as any).title ?? id) }];
+      }),
+    ),
+  };
+};
+
+const patchUiElement = (el: unknown, keys: Record<string, string>, t: Translator): unknown => {
+  if (!el || typeof el !== 'object') return el;
+  const e = el as Record<string, unknown>;
+  const scopeMatch = (e['scope'] as string | undefined)?.match(SCOPE_RE);
+  const colId = scopeMatch?.[1];
+  const i18nKey = colId ? keys[colId] : undefined;
+  const patched = i18nKey
+    ? { ...e, options: { ...((e['options'] as Record<string, unknown>) ?? {}), label: t(i18nKey, colId) } }
+    : e;
+  if (Array.isArray((patched as Record<string, unknown>)['elements'])) {
+    return {
+      ...patched,
+      elements: ((patched as Record<string, unknown>)['elements'] as unknown[]).map(
+        (child) => patchUiElement(child, keys, t),
+      ),
+    };
+  }
+  return patched;
+};
+
+const patchUiLabels = (ui: unknown, keys: Record<string, string>, t: Translator): unknown => {
+  if (!ui || typeof ui !== 'object') return ui;
+  const u = ui as Record<string, unknown>;
+  if (!Array.isArray(u['elements'])) return ui;
+  return { ...u, elements: (u['elements'] as unknown[]).map((el) => patchUiElement(el, keys, t)) };
+};
+
+/** Patch a NormalizedResource with translated titles/labels. Pure, browser-safe. */
+export const localizeSchemas = (resource: NormalizedResource, t: Translator): NormalizedResource => ({
+  ...resource,
+  title: t(resourceTitleKey(resource.name), resource.title),
+  schemas: Object.fromEntries(
+    Object.entries(resource.schemas).map(([view, schema]) => [
+      view,
+      {
+        data: patchDataTitles(schema.data, resource.i18n.keys, t) as Record<string, unknown>,
+        ui: patchUiLabels(schema.ui, resource.i18n.keys, t) as Record<string, unknown>,
+      },
+    ]),
+  ),
+});
 
 // ---------------------------------------------------------------------------
 // Operation helpers
@@ -254,8 +329,8 @@ export const normalizeResource = (input: ResourceInput): NormalizeResult => {
     operations['lookup'] = { enabled: true, uri: `${baseUri}?q={text}`, method: 'GET' };
   }
 
-  // Stage 2.5 — i18n (stub)
-  const i18n = { keys: {} as Record<string, string> };
+  // Stage 2.5 — i18n keys
+  const i18n = { keys: extractI18nKeys(json.name, fields) };
 
   // Build NormalizedData
   const enrichedInclude = enrichIncludeWithSort(

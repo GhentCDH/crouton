@@ -207,12 +207,10 @@ export class ReadRepository<T = any> {
       dynamicPrismaFields = requestedIncludes.map((id) => fields[id]?.dbName ?? id);
     }
 
-    const allStaticAndDynamic = [
-      ...(this.config.include ?? []),
-      ...dynamicPrismaFields,
-    ];
+    // Static includes go through the countableRelations filter (existing behaviour).
+    // Dynamic includes bypass it: the client explicitly asked for records, not a count.
     const configInclude = buildIncludeClause(
-      allStaticAndDynamic.length ? allStaticAndDynamic : undefined,
+      this.config.include?.length ? this.config.include : undefined,
     );
     // Exclude every oneToMany sub-resource from configInclude in findAll: a
     // counted one would have its records overwritten by the count mapping below,
@@ -240,15 +238,29 @@ export class ReadRepository<T = any> {
       filteredConfigInclude && Object.keys(filteredConfigInclude).length
         ? filteredConfigInclude
         : undefined;
+
+    // Dynamic includes are added after the countable-relations filter so they are
+    // always fetched as records even when the same relation would normally be counted.
+    const dynamicPrismaSet = new Set(dynamicPrismaFields);
+    const dynamicIncludeObj = dynamicPrismaFields.length
+      ? Object.fromEntries(dynamicPrismaFields.map((r) => [r, true]))
+      : undefined;
+
     const mergedInclude =
-      flatIncludes || safeConfigInclude
-        ? { ...flatIncludes, ...safeConfigInclude }
+      flatIncludes || safeConfigInclude || dynamicIncludeObj
+        ? { ...flatIncludes, ...safeConfigInclude, ...dynamicIncludeObj }
         : undefined;
 
-    const countClause = countableSubResources.length
+    // Exclude dynamically-included relations from the _count clause and the row
+    // mapping below: the client asked for records, so the count must not overwrite them.
+    const effectiveCountableSubResources = countableSubResources.filter(
+      (s) => !dynamicPrismaSet.has(s.relation),
+    );
+
+    const countClause = effectiveCountableSubResources.length
       ? {
           select: Object.fromEntries(
-            countableSubResources.map((s) => [s.relation, true]),
+            effectiveCountableSubResources.map((s) => [s.relation, true]),
           ),
         }
       : undefined;
@@ -269,12 +281,12 @@ export class ReadRepository<T = any> {
 
     const rows = await this.prismaModel.findMany(query);
 
-    const mapped = countableSubResources.length
+    const mapped = effectiveCountableSubResources.length
       ? rows.map((row: any) => {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
-            countableSubResources.map((s) => [
+            effectiveCountableSubResources.map((s) => [
               s.column,
               _count[s.relation] ?? 0,
             ]),
