@@ -47,7 +47,7 @@ export const OperatorsByType: Record<FieldType, OperatorType[]> = {
 
 export type Filter = {
   key: string;
-  value: any;
+  value: string;
   operator: OperatorType;
   label?: string;
 };
@@ -72,7 +72,7 @@ const getFilterValues = (filter: string): Filter => {
   return { key: parsed.field, value: parsed.value, operator: parsed.operator };
 };
 
-const buildFilterKey = (keys: string[], filterObj: any): any => {
+const buildFilterKey = (keys: string[], filterObj: Record<string, unknown>): { key: string; filterObj: Record<string, unknown> } => {
   if (keys.length === 1) return { key: keys[0], filterObj };
   const buildKey = keys.pop() as string;
   return buildFilterKey(keys, { [buildKey]: filterObj });
@@ -95,14 +95,14 @@ export const buildChildSortClause = (
   );
 };
 
-export const buildSortKey = (keys: string[], sortDir: any): any => {
+export const buildSortKey = (keys: string[], sortDir: 'asc' | 'desc' | Record<string, unknown>): Record<string, unknown> => {
   if (keys.length === 1) return { [keys[0]]: sortDir };
   const buildKey = keys.pop() as string;
   return buildSortKey(keys, { [buildKey]: sortDir });
 };
 
 export const buildFilter = (filters: string[]) => {
-  const filter: Record<string, any> = {};
+  const filter: Record<string, unknown> = {};
   filters?.forEach((f) => {
     const { key, value, operator } = getFilterValues(f);
     if (!key) return;

@@ -25,7 +25,7 @@ export const zodSchemaSource =
       .filter((id) => schemaKeys.has(id));
     if (!schemaIds.length) return undefined;
     const mask = Object.fromEntries(schemaIds.map((id) => [id, true as const]));
-    const picked = schema.pick(mask as any);
+    const picked = schema.pick(mask as { [k in keyof ZodRawShape]?: true });
     try {
       return toJSONSchema(picked, {
         target: 'draft-07',

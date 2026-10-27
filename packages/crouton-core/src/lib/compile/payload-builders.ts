@@ -1,4 +1,5 @@
 import { buildSubResourceOperations } from '../data-source';
+import type { LayoutNode } from '../layout/schema/LayoutNode.schema';
 import { allowedIncludes } from '../request/include';
 import type { JsonAction } from '../resource';
 import { pickExtensions } from '../resource/extensions';
@@ -24,13 +25,13 @@ interface TableInjectOptions {
 }
 
 const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
-  const u = ui as any;
-  if (!u) return u;
-  if (u.type === 'Table') {
+  if (!ui || typeof ui !== 'object') return ui;
+  const u = ui as Record<string, unknown>;
+  if (u['type'] === 'Table') {
     return {
       ...u,
       options: {
-        ...(u.options ?? {}),
+        ...((u['options'] as object) ?? {}),
         ...(opts.tableActions.length && { tableActions: opts.tableActions }),
         ...(opts.rowActions.length && { rowActions: opts.rowActions }),
         ...(opts.defaultSortId !== undefined && { defaultSortId: opts.defaultSortId }),
@@ -39,11 +40,11 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
       },
     };
   }
-  if (Array.isArray(u.elements)) {
+  if (Array.isArray(u['elements'])) {
     return {
       ...u,
-      elements: u.elements.map((e: any) =>
-        e.type === 'Table' ? injectTableOptions(e, opts) : e,
+      elements: (u['elements'] as unknown[]).map((e) =>
+        (e as Record<string, unknown>)['type'] === 'Table' ? injectTableOptions(e, opts) : e,
       ),
     };
   }
@@ -220,13 +221,13 @@ export const buildViewsPayload = (
   );
 
   const tableSchema = schemas['table'] ?? {};
-  const filterSchema = schemas['filter'] as any;
+  const filterSchema = schemas['filter'] as Record<string, unknown> | undefined;
   delete (schemas as Record<string, unknown>)['filter'];
   (schemas as Record<string, unknown>)['table'] = {
     ...tableSchema,
-    ui: injectTableOptions((tableSchema as any).ui, {
-      rowActions: resolveActions(baseUri, resolveTableNode(config.layout?.table)?.rowActions as any),
-      tableActions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions as any),
+    ui: injectTableOptions((tableSchema as Record<string, unknown>)['ui'], {
+      rowActions: resolveActions(baseUri, resolveTableNode(config.layout?.table)?.rowActions),
+      tableActions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions),
       defaultSortId: config.views['table']?.defaultSort,
       defaultSortDir: config.views['table']?.defaultSortDir,
       ...(filterSchema && {
@@ -269,9 +270,8 @@ export const buildSubResourceViewsPayload = (
     idField: sub.idField ?? 'id',
     ...(sub.modalSize && { modalSize: sub.modalSize }),
     ...(sub.display && { display: sub.display }),
-    // ponytail: cast because JsonOperationsSchema uses boolean|{security?} but buildSubResourceOperations wants boolean
     operations: buildSubResourceOperations(
-      sub.operations as any,
+      sub.operations,
       childUri,
       sub.idField ?? 'id',
     ),
@@ -283,14 +283,15 @@ export const buildSubResourceViewsPayload = (
         ]),
       );
       const subTable = subSchemas['table'] ?? {};
-      const subFilterSchema = subSchemas['filter'] as any;
+      const subFilterSchema = subSchemas['filter'] as Record<string, unknown> | undefined;
       delete (subSchemas as Record<string, unknown>)['filter'];
       const subChildUri = `${baseUrl}/${sub.childRoute}`;
+      const subExtra = sub as unknown as Record<string, unknown>;
       (subSchemas as Record<string, unknown>)['table'] = {
         ...subTable,
-        ui: injectTableOptions((subTable as any).ui, {
-          rowActions: resolveActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.rowActions ?? (sub as any).rowActions ?? sub.actions),
-          tableActions: resolveTableActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.tableActions ?? (sub as any).tableActions),
+        ui: injectTableOptions((subTable as Record<string, unknown>)['ui'], {
+          rowActions: resolveActions(subChildUri, resolveTableNode((subExtra['layout'] as Record<string, unknown> | undefined)?.['table'] as LayoutNode | undefined)?.rowActions ?? (subExtra['rowActions'] as JsonAction[] | undefined) ?? sub.actions),
+          tableActions: resolveTableActions(subChildUri, resolveTableNode((subExtra['layout'] as Record<string, unknown> | undefined)?.['table'] as LayoutNode | undefined)?.tableActions ?? (subExtra['tableActions'] as JsonAction[] | undefined)),
           defaultSortId: sub.views['table']?.defaultSort,
           defaultSortDir: sub.views['table']?.defaultSortDir,
           ...(subFilterSchema && {
