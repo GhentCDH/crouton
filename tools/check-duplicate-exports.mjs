@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Report exported names defined in more than one package.
-// --fail  exit 1 when duplicates exist outside the allowlist (CI enforcement).
+// --fail  exit 1 when duplicates exist outside the BRIDGES+DEFERRED allowlists (CI enforcement).
+//         COPIES are always reported as violations — they must reach zero.
 // --all   also print allowlisted duplicates (default: hide them).
 
 import { readdir, readFile } from 'node:fs/promises';
@@ -11,11 +12,9 @@ const packagesDir = join(rootDir, 'packages');
 const FAIL_MODE = process.argv.includes('--fail');
 const SHOW_ALL = process.argv.includes('--all');
 
-// Intentional re-export bridges — allowed to exist in multiple packages.
-// Pairs are {name, packages: [a, b]} where packages is the exact two-package set.
-// Remove entries here as bridges are deleted in later PRs.
-const ALLOWLIST = new Set([
-  // api re-exports core (bridges from PRs 2-8, removed in a later cleanup PR)
+// §2.3 Re-export bridges: api file that re-exports from core with no logic.
+// Remove entries here as bridges are deleted in phase 7.
+const BRIDGES = new Set([
   'buildDefinitionPayload|crouton-api,crouton-core',
   'buildLayouts|crouton-api,crouton-core',
   'buildResourceJsonPayload|crouton-api,crouton-core',
@@ -30,7 +29,50 @@ const ALLOWLIST = new Set([
   'isOperationEnabled|crouton-api,crouton-core',
   'isOperationExternal|crouton-api,crouton-core',
   'ValueLabelColumnSchema|crouton-api,crouton-core',
+  'pickByColumns|crouton-api,crouton-core',
+  'resolveActions|crouton-api,crouton-core',
+  'resolveDefinition|crouton-api,crouton-core',
+  'resolveTableActions|crouton-api,crouton-core',
+  'schemaFor|crouton-api,crouton-core',
+  'SchemaInputSchema|crouton-api,crouton-core',
+]);
+
+// §2.1 Real copies: same logic written twice. Goal = zero. Removed phase by phase.
+// Phase 2 removes D entries. Phase 6 removes C entries. Phase 1 removes K.
+const COPIES = new Set([
+  // D — action contracts (phase 2)
+  'isRowProcedureAction|crouton-api,crouton-core',
+  'isTableProcedureAction|crouton-api,crouton-core',
+  'ResourceLinkAction|crouton-api,crouton-core',
+  'ResourceRowAction|crouton-api,crouton-core',
+  'ResourceRowActionSchema|crouton-api,crouton-core',
+  'ResourceRowProcedureAction|crouton-api,crouton-core',
+  'ResourceTableAction|crouton-api,crouton-core',
+  'ResourceTableActionSchema|crouton-api,crouton-core',
+  'ResourceTableProcedureAction|crouton-api,crouton-core',
+  // C — parseSchema + types (phase 6)
+  'ParseAppConfig|crouton-api,crouton-core',
+  'parseSchema|crouton-api,crouton-core,crouton-vue',
+  'ParseSchemaInput|crouton-api,crouton-core',
+  'ParseSchemaView|crouton-api,crouton-core',
+  // K — RawResourceJson (phase 1)
+  'RawResourceJson|crouton-api,crouton-core',
+  // SidebarGroupSchema name clash (phase 1)
+  'SidebarGroupSchema|crouton-api,crouton-core',
+]);
+
+// Codegen bridges (out of scope for this plan)
+const CODEGEN_BRIDGES = new Set([
+  'labelFromId|crouton-codegen,crouton-core,crouton-forms-vue',
+  'loadConfig|crouton-api,crouton-codegen',
+  'LoadedConfig|crouton-api,crouton-codegen',
+  'RESOURCE_SCHEMA_URL|crouton-codegen,crouton-core',
+  'serializeResourceJson|crouton-codegen,crouton-core',
   'withResourceHeader|crouton-codegen,crouton-core',
+]);
+
+// Everything else — out of scope for this plan (frontend dedup, api↔vue types, etc.)
+const DEFERRED = new Set([
   // frontend re-export bridges (frontend dedup deferred to separate plan)
   'BooleanCellBuilder|crouton-core,crouton-forms-vue',
   'BooleanOperationSchema|crouton-core,crouton-forms-vue',
@@ -86,34 +128,6 @@ const ALLOWLIST = new Set([
   // other
   'ColumnDef|crouton-core,crouton-ui-vue',
   'EnumRegistry|crouton-codegen,crouton-core',
-  // api ↔ core bridges not yet resolved in PRs 2-8 (deferred cleanup)
-  'isRowProcedureAction|crouton-api,crouton-core',
-  'isTableProcedureAction|crouton-api,crouton-core',
-  'ParseAppConfig|crouton-api,crouton-core',
-  'parseSchema|crouton-api,crouton-core,crouton-vue',
-  'ParseSchemaInput|crouton-api,crouton-core',
-  'ParseSchemaView|crouton-api,crouton-core',
-  'pickByColumns|crouton-api,crouton-core',
-  'RawResourceJson|crouton-api,crouton-core',
-  'resolveActions|crouton-api,crouton-core',
-  'resolveDefinition|crouton-api,crouton-core',
-  'resolveTableActions|crouton-api,crouton-core',
-  'ResourceLinkAction|crouton-api,crouton-core',
-  'ResourceRowAction|crouton-api,crouton-core',
-  'ResourceRowActionSchema|crouton-api,crouton-core',
-  'ResourceRowProcedureAction|crouton-api,crouton-core',
-  'ResourceTableAction|crouton-api,crouton-core',
-  'ResourceTableActionSchema|crouton-api,crouton-core',
-  'ResourceTableProcedureAction|crouton-api,crouton-core',
-  'schemaFor|crouton-api,crouton-core',
-  'SchemaInputSchema|crouton-api,crouton-core',
-  'SidebarGroupSchema|crouton-api,crouton-core',
-  // codegen ↔ core bridges
-  'labelFromId|crouton-codegen,crouton-core,crouton-forms-vue',
-  'loadConfig|crouton-api,crouton-codegen',
-  'LoadedConfig|crouton-api,crouton-codegen',
-  'RESOURCE_SCHEMA_URL|crouton-codegen,crouton-core',
-  'serializeResourceJson|crouton-codegen,crouton-core',
   // api ↔ vue shared types (deferred)
   'Resource|crouton-api,crouton-vue',
   'ResourceStatus|crouton-api,crouton-vue',
@@ -121,6 +135,7 @@ const ALLOWLIST = new Set([
   'SidebarLeaf|crouton-api,crouton-vue',
   'SidebarNode|crouton-api,crouton-vue',
   'StatusSummary|crouton-api,crouton-vue',
+  'SubResourceStatus|crouton-api,crouton-vue',
   // frontend bridges (deferred to frontend dedup plan)
   'isRelationControl|crouton-forms-vue,crouton-vue',
   'JsonFormComponentEmits|crouton-forms-vue,crouton-vue',
@@ -157,10 +172,14 @@ const ALLOWLIST = new Set([
   'TableBuilder|crouton-core,crouton-forms-vue',
 ]);
 
-const isAllowlisted = (name, entries) => {
-  const pkgs = entries.map((e) => e.pkg).sort().join(',');
-  return ALLOWLIST.has(`${name}|${pkgs}`);
-};
+const key = (name, entries) => `${name}|${entries.map((e) => e.pkg).sort().join(',')}`;
+const isCopy = (name, entries) => COPIES.has(key(name, entries));
+const isBridge = (name, entries) =>
+  BRIDGES.has(key(name, entries)) ||
+  CODEGEN_BRIDGES.has(key(name, entries)) ||
+  DEFERRED.has(key(name, entries));
+// Copies are always violations; bridges and deferred are allowlisted.
+const isAllowlisted = (name, entries) => !isCopy(name, entries) && isBridge(name, entries);
 
 // ponytail: O(files) scan, no incremental cache — fast enough for ~200 source files
 const collectExports = async (pkgName, srcDir) => {
@@ -213,29 +232,49 @@ const duplicates = [...allExports.entries()]
   .filter(([, entries]) => entries.length > 1)
   .sort(([a], [b]) => a.localeCompare(b));
 
-const violations = duplicates.filter(([name, entries]) => !isAllowlisted(name, entries));
+const copies = duplicates.filter(([name, entries]) => isCopy(name, entries));
+const violations = duplicates.filter(([name, entries]) => !isAllowlisted(name, entries) && !isCopy(name, entries));
 const allowed = duplicates.filter(([name, entries]) => isAllowlisted(name, entries));
 
-const toShow = SHOW_ALL ? duplicates : violations;
+const toShow = SHOW_ALL ? duplicates : [...copies, ...violations];
 
-if (!toShow.length && !violations.length) {
+if (!toShow.length && !violations.length && !copies.length) {
   console.log('No duplicate exports found outside allowlist.');
   process.exit(0);
 }
 
-if (toShow.length) {
-  const label = SHOW_ALL ? `Duplicate exports (${duplicates.length} names, ${allowed.length} allowlisted):` : `Duplicate exports outside allowlist (${violations.length} of ${duplicates.length}):`;
-  console.log(`\n${label}\n`);
+if (copies.length) {
+  console.log(`\n§2.1 Copies — must reach zero (${copies.length} remaining):\n`);
   console.log('| Name | Packages |');
   console.log('|------|----------|');
-  for (const [name, entries] of toShow) {
+  for (const [name, entries] of copies) {
     const pkgs = entries.map((e) => e.pkg).join(', ');
     console.log(`| ${name} | ${pkgs} |`);
   }
 }
 
-console.log(`\nTotal: ${duplicates.length} duplicated names (${violations.length} violations, ${allowed.length} allowlisted) across ${pkgDirs.length} packages.\n`);
+if (violations.length) {
+  console.log(`\nUntracked violations — add to BRIDGES, COPIES or DEFERRED (${violations.length}):\n`);
+  console.log('| Name | Packages |');
+  console.log('|------|----------|');
+  for (const [name, entries] of violations) {
+    const pkgs = entries.map((e) => e.pkg).join(', ');
+    console.log(`| ${name} | ${pkgs} |`);
+  }
+}
 
-if (FAIL_MODE && violations.length > 0) {
+if (SHOW_ALL && allowed.length) {
+  console.log(`\nAllowlisted (bridges + deferred, ${allowed.length}):\n`);
+  console.log('| Name | Packages |');
+  console.log('|------|----------|');
+  for (const [name, entries] of allowed) {
+    const pkgs = entries.map((e) => e.pkg).join(', ');
+    console.log(`| ${name} | ${pkgs} |`);
+  }
+}
+
+console.log(`\nTotal: ${duplicates.length} duplicated names (${copies.length} copies, ${violations.length} untracked violations, ${allowed.length} allowlisted) across ${pkgDirs.length} packages.\n`);
+
+if (FAIL_MODE && (violations.length > 0 || copies.length > 0)) {
   process.exit(1);
 }
