@@ -160,9 +160,11 @@ const createCrouton = (
     // re-fetch translation bundle, and invalidate cached FormDefs so
     // labels are re-translated in the new language.
     onLanguageChange(async () => {
+      // Fetch bundle first so localizeDefinition uses the new bundle when
+      // components re-fetch after invalidateAll() bumps the version.
+      await fetchBundle();
       formDefCache.invalidateAll();
       await fetchLayout(_config);
-      await fetchBundle();
     });
 
     return fetchLayout(_config).then(() => fetchBundle());
