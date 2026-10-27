@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const ViewSchemaZ = z.object({
   data: z.any(),
   ui: z.any(),
+  columns: z.array(z.any()).optional(),
 });
 
 export const TableSchema = ViewSchemaZ;

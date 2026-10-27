@@ -69,7 +69,10 @@ const localizeSchema = (
   name: string,
 ): ViewConfig | undefined => {
   if (!schema) return schema;
-  const ui = schema.ui_schema as Record<string, unknown> | undefined;
+  // API response uses 'ui'/'data'; ViewConfig builder uses 'ui_schema'/'json_schema' — support both.
+  const s = schema as any;
+  const ui = (schema.ui_schema ?? s.ui) as Record<string, unknown> | undefined;
+  const rawData = schema.json_schema ?? s.data;
   const elements = ui?.elements as unknown[] | undefined;
   const columns: ViewColumnConfig[] = (schema.columns ?? []).map((col) => ({
     ...col,
@@ -77,14 +80,17 @@ const localizeSchema = (
       label: t(col.labelKey ?? columnKey(name, col.id), col.label),
     }),
   }));
+  const translatedUi = elements ? { ...ui, elements: translateUiElements(elements, t, name) } : ui;
+  const translatedData = translateJsonSchemaProps(rawData, t, name) as Record<string, unknown>;
   return {
     ...schema,
     columns,
-    ui_schema: elements
-      ? { ...ui, elements: translateUiElements(elements, t, name) }
-      : schema.ui_schema,
-    json_schema: translateJsonSchemaProps(schema.json_schema, t, name) as Record<string, unknown>,
-  };
+    // Write to both field-name variants so all consumers work.
+    ui: translatedUi,
+    ui_schema: translatedUi,
+    data: translatedData,
+    json_schema: translatedData,
+  } as unknown as ViewConfig;
 };
 
 /**
