@@ -1,7 +1,6 @@
 import { buildSubResourceOperations } from '../data-source';
 import { allowedIncludes } from '../request/include';
 import type { JsonAction } from '../resource';
-import type { JsonColumn } from '../resource/Column';
 import { pickExtensions } from '../resource/extensions';
 import { readEnv } from '../utils/env';
 import { resolveTableNode } from '../view';
@@ -161,7 +160,7 @@ export const buildDefinitionPayload = (
       ...(updateSchema && { update: toJsonSchema(updateSchema) }),
       ...(patchSchema && { patch: toJsonSchema(patchSchema) }),
     },
-    ...pickExtensions(config as unknown as Record<string, unknown>),
+    ...pickExtensions(config),
   };
 };
 
@@ -189,7 +188,7 @@ export const buildResourceJsonPayload = (
     uri,
     operations,
     schema,
-    ...pickExtensions(config as unknown as Record<string, unknown>),
+    ...pickExtensions(config),
   };
 };
 
@@ -247,12 +246,8 @@ export const buildViewsPayload = (
     operations,
     display: config.display,
     schemas,
-    allowedIncludes: allowedIncludes(
-      (Array.isArray(config.columns)
-        ? config.columns
-        : Object.entries(config.columns ?? {}).map(([id, col]) => ({ id, ...col }))) as JsonColumn[],
-    ),
-    ...pickExtensions(config as unknown as Record<string, unknown>),
+    allowedIncludes: allowedIncludes(config.columns ?? []),
+    ...pickExtensions(config),
   };
 };
 

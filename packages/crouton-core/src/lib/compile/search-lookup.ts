@@ -3,7 +3,7 @@ import type { LookupConfig } from './lookup.schema';
 
 export const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
-  !(c as any).computed &&
+  !c.computed &&
   c.relation === undefined &&
   c.fieldInput?.format !== 'relation' &&
   !c.fieldInput?.relationType &&
@@ -24,7 +24,7 @@ export const buildSearch = (
     .flatMap((id) => {
       const col = columns.find((c) => c.id === id);
       if (!col) return [id];
-      if ((col as any).computed) return [];
+      if (col.computed) return [];
       if (col.fieldInput?.format === 'relation') {
         const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
         if (opts?.displayKey) return [`${id}.${opts.displayKey}`];
