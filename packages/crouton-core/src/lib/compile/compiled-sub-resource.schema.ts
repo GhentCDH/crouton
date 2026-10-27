@@ -34,7 +34,7 @@ export const CompiledSubResourceConfigSchema = z.object({
   hiddenInTable: z.boolean().optional(),
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
   valueLabelColumns: z.array(ValueLabelColumnSchema).optional(),
-  relationType: z.enum(['oneToMany', 'manyToOne']).optional(),
+  relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne']).optional(),
 });
 
 export type CompiledSubResourceConfig = z.infer<typeof CompiledSubResourceConfigSchema>;

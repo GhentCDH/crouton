@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import z from 'zod';
 
-import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
-
-import { fromJson } from './adapter';
-import {
+import { ResourceJsonSchema,
   buildDefinitionPayload,
   buildResourceJsonPayload,
-  buildViewsPayload,
-} from './operations/payload-builders';
+  buildViewsPayload } from '@ghentcdh/crouton-core';
+
+import { fromJson } from './adapter';
 import { parseSchema } from './parse-schema';
 
 const BASE_URL = 'http://localhost:3000';

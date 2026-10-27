@@ -1,12 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+import { CURRENT_RESOURCE_VERSION, buildViewsPayload  } from '@ghentcdh/crouton-core';
 
 import { validateCustomRepository } from './custom-repository.validate';
 import { buildLayoutPayload } from '../app-layout/app-layout.builder';
 import { createCrudController } from '../crud-controller.factory';
 import { loadResourceConfigsFromDir } from '../loader';
-import { buildViewsPayload } from '../operations/payload-builders';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

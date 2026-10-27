@@ -4,56 +4,8 @@ import {
   resolveTableField,
   resolveViewField,
 } from '@ghentcdh/crouton-core';
-import {
-  buildDefinitionPayload as _buildDefinitionPayload,
-  buildResourceJsonPayload as _buildResourceJsonPayload,
-  buildResourceOperations,
-  buildSubResourceViewsPayload as _buildSubResourceViewsPayload,
-  buildViewsPayload as _buildViewsPayload,
-  resolveActions as _resolveActions,
-  resolveTableActions as _resolveTableActions,
-} from '@ghentcdh/crouton-core';
 
-import type { ResourceRowAction, ResourceTableAction } from '../action';
 import { type Resource } from '../resource/ResourceConfig.schema';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
-
-export { buildResourceOperations };
-
-// Typed wrappers so callers pass Resource/ResourceRowAction instead of the
-// crouton-core CompiledResource/JsonAction types (structurally compatible at
-// runtime; `as any` is contained to this boundary).
-
-export const resolveActions = (
-  baseUrl: string,
-  actions: ResourceRowAction[] | undefined,
-) => _resolveActions(baseUrl, actions as any);
-
-export const resolveTableActions = (
-  baseUrl: string,
-  actions: ResourceTableAction[] | undefined,
-) => _resolveTableActions(baseUrl, actions as any);
-
-export const buildDefinitionPayload = (
-  config: Resource,
-): Record<string, unknown> => _buildDefinitionPayload(config as any);
-
-export const buildResourceJsonPayload = (
-  config: Resource,
-  baseUrl?: string,
-): Record<string, unknown> => _buildResourceJsonPayload(config as any, baseUrl);
-
-export const buildViewsPayload = (
-  config: Resource,
-  baseUrl?: string,
-): Record<string, unknown> | undefined => _buildViewsPayload(config as any, baseUrl);
-
-export const buildSubResourceViewsPayload = (
-  config: Resource,
-  sub: SubResourceConfig,
-  baseUrl?: string,
-): Record<string, unknown> | undefined =>
-  _buildSubResourceViewsPayload(config as any, sub as any, baseUrl);
 
 // ── crouton-api only ──────────────────────────────────────────────────────
 

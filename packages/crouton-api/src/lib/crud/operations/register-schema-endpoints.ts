@@ -10,6 +10,11 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+import {
+  buildDefinitionPayload,
+  buildResourceJsonPayload,
+} from '@ghentcdh/crouton-core';
+
 import { getRequestLanguage } from '../data-access/middleware/translation/language.context';
 import { IS_DEV } from '../dev-mode';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
@@ -27,11 +32,7 @@ import { CROUTON_SECURITY } from '../security';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
-import {
-  buildDefinitionPayload,
-  buildEditableColumnsPayload,
-  buildResourceJsonPayload,
-} from './payload-builders';
+import { buildEditableColumnsPayload } from './payload-builders';
 import { join } from 'node:path';
 
 /**
