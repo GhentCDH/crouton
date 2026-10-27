@@ -186,7 +186,7 @@ importers:
         version: 10.0.1(eslint@10.13.0(jiti@2.7.0)(supports-color@7.2.0))
       '@ghentcdh/ui':
         specifier: ^3.0.6
-        version: 3.1.1(@playwright/test@1.64.1)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3)))(vue@3.5.43(typescript@6.0.3))
+        version: 3.1.1(@playwright/test@1.64.1)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3)))(vue@3.5.43(typescript@6.0.3))
       '@jsonforms/core':
         specifier: ^3.8.0
         version: 3.8.0
@@ -327,16 +327,16 @@ importers:
         version: 0.18.0
       '@nestjs/common':
         specifier: ^12.0.0
-        version: 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
+        version: 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
       '@nestjs/core':
         specifier: ^12.0.0
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+        version: 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/platform-express':
         specifier: ^12.0.0
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.1)(supports-color@5.5.0)
+        version: 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.2)(supports-color@5.5.0)
       '@nestjs/swagger':
         specifier: ^12.0.0
-        version: 12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@5.9.3)
+        version: 12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@5.9.3)
       '@prisma/adapter-libsql':
         specifier: ^7.10.0
         version: 7.10.1
@@ -516,13 +516,13 @@ importers:
     dependencies:
       '@nestjs/common':
         specifier: '>=10.0.0'
-        version: 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+        version: 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
       '@nestjs/core':
         specifier: '>=10.0.0'
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+        version: 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/swagger':
         specifier: '>=7.0.0'
-        version: 12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3)
+        version: 12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@6.0.3)
       '@prisma/client':
         specifier: '>=7.0.0'
         version: 7.10.1(prisma@7.10.1(@types/node@26.6.5)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3))(typescript@6.0.3)
@@ -531,7 +531,7 @@ importers:
         version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
       nestjs-zod:
         specifier: '>=5.0.0'
-        version: 5.5.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/swagger@12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3))(rxjs@7.8.2)(zod@4.6.7)
+        version: 5.5.0(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/swagger@12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@6.0.3))(rxjs@7.8.2)(zod@4.6.7)
       zod:
         specifier: ^4.0.0
         version: 4.6.7
@@ -547,10 +547,10 @@ importers:
         version: link:../crouton-core
       '@nestjs/platform-express':
         specifier: '>=10.0.0'
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(supports-color@7.2.0)
+        version: 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(supports-color@7.2.0)
       '@nestjs/testing':
         specifier: '>=10.0.0'
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(@nestjs/platform-express@12.3.1)
+        version: 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(@nestjs/platform-express@12.3.2)
       '@swc/core':
         specifier: ^1.7.0
         version: 1.16.13(@swc/helpers@0.5.23)
@@ -758,7 +758,7 @@ importers:
         version: 3.27.1
       '@tiptap/vue-3':
         specifier: 3.27.1
-        version: 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.39(typescript@6.0.3))
+        version: 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.39(typescript@6.0.3))
       daisyui:
         specifier: ^5.7.47
         version: 5.7.50
@@ -767,7 +767,7 @@ importers:
         version: 4.3.1
       tiptap-markdown:
         specifier: ^0.9.0
-        version: 0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))
+        version: 0.9.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@6.0.3)
@@ -2542,8 +2542,8 @@ packages:
   '@neon-rs/load@0.0.4':
     resolution: {integrity: sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw==}
 
-  '@nestjs/common@12.3.1':
-    resolution: {integrity: sha512-Wn1cOLkC/TmWnGmfhGfYPjH3sgHppANXws5ofWazPdtA6U6x5/5gNAlAX0tqMRC9t7ts1DE8+N5mMyL6ZXdMWQ==}
+  '@nestjs/common@12.3.2':
+    resolution: {integrity: sha512-XPNu75rXiDBuQ/EECiA0urFJ7bAycA1/xTrKnKct5vEF7A5FE0LyOem/EhRZI0Cq1xAGPDuTB89sFMqeSPWjzQ==}
     peerDependencies:
       class-transformer: '>=0.4.1'
       class-validator: '>=0.13.2'
@@ -2555,8 +2555,8 @@ packages:
       class-validator:
         optional: true
 
-  '@nestjs/core@12.3.1':
-    resolution: {integrity: sha512-3EgzLTttWTjPvdQjveDv6YH/7IyzyIsMk9vC3oVYMrnRFWvRqfkQZZaon9YlBQgp94+NdGZi+3Ppig6q23HxNg==}
+  '@nestjs/core@12.3.2':
+    resolution: {integrity: sha512-lCDN5iC4BoG9k5Sk/tG2EF4VAtoZABFjN4e0nk9xKK3ytD4eSMc9ma1Y092t/navenlf3roTtCDUZ/RIHzYjCw==}
     engines: {node: '>= 20'}
     peerDependencies:
       '@nestjs/common': ^12.0.0
@@ -2587,8 +2587,8 @@ packages:
       class-validator:
         optional: true
 
-  '@nestjs/platform-express@12.3.1':
-    resolution: {integrity: sha512-Rff4YaHOUhoEe+i2BlINXg1DussmYM/zN0m5DHj5sviC+SeyIKffmK98GSL5bivjgszHAyoIAiHfuO05wInJMA==}
+  '@nestjs/platform-express@12.3.2':
+    resolution: {integrity: sha512-wbe1zd6xWLW8qI6t3RP3SqqQnp32pVAfXKqttcp/geL5ys6xw6c/HkASXLNvwlf7IzMLxnpqANtHHwcF4waqRA==}
     peerDependencies:
       '@nestjs/common': ^12.0.0
       '@nestjs/core': ^12.0.0
@@ -2614,8 +2614,8 @@ packages:
       typescript:
         optional: true
 
-  '@nestjs/testing@12.3.1':
-    resolution: {integrity: sha512-W808aiXWCD3jjK2+rr+nzHjami0R9FlPoFeGPJD4oMBqOcrH+TdMxwxVkuq+q4qnUY66Qjz2DDbij64AnOLl+g==}
+  '@nestjs/testing@12.3.2':
+    resolution: {integrity: sha512-l1m+uHTp4hJ1K+Gw8ENrLSj2TxZlKVre7aoluUdxMHCodK2kZnpjvD8H8Oh460hj/Z6PDJ/m9r6t8NIK6OyDxA==}
     peerDependencies:
       '@nestjs/common': ^12.0.0
       '@nestjs/core': ^12.0.0
@@ -3919,6 +3919,11 @@ packages:
 
   '@testcontainers/postgresql@10.28.0':
     resolution: {integrity: sha512-NN25rruG5D4Q7pCNIJuHwB+G85OSeJ3xHZ2fWx0O6sPoPEfCYwvpj8mq99cyn68nxFkFYZeyrZJtSFO+FnydiA==}
+
+  '@tiptap/core@3.27.1':
+    resolution: {integrity: sha512-rV6Qn4wmC6BxfF+4mu6bqGWj9vA4oXXhsrpXaJL2uhjxeHAGofjwcHof2X84VYzeyXgdlsGmqKie4TAppVXZUQ==}
+    peerDependencies:
+      '@tiptap/pm': 3.27.1
 
   '@tiptap/core@3.32.0':
     resolution: {integrity: sha512-Ghh2h02GKSqzytQGcLV4espYOG4EHxjj0MsrUB2Vnr47xmlZYRf6r7k2J09H+JpBdaGrWwrTkyBEi5i3c3yy2Q==}
@@ -10798,6 +10803,17 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@ghentcdh/ui@3.1.1(@playwright/test@1.64.1)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3)))(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      vue: 3.5.43(typescript@6.0.3)
+      vue-router: 5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
+    optionalDependencies:
+      '@playwright/test': 1.64.1
+      '@tiptap/pm': 3.27.1
+      '@tiptap/starter-kit': 3.27.1
+      '@tiptap/vue-3': 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3))
+      tiptap-markdown: 0.9.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))
+
   '@ghentcdh/ui@3.1.1(@playwright/test@1.64.1)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))':
     dependencies:
       vue: 3.5.43(typescript@5.9.3)
@@ -10807,17 +10823,6 @@ snapshots:
       '@tiptap/pm': 3.27.1
       '@tiptap/starter-kit': 3.27.1
       '@tiptap/vue-3': 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3))
-      tiptap-markdown: 0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))
-
-  '@ghentcdh/ui@3.1.1(@playwright/test@1.64.1)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3)))(vue@3.5.43(typescript@6.0.3))':
-    dependencies:
-      vue: 3.5.43(typescript@6.0.3)
-      vue-router: 5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
-    optionalDependencies:
-      '@playwright/test': 1.64.1
-      '@tiptap/pm': 3.27.1
-      '@tiptap/starter-kit': 3.27.1
-      '@tiptap/vue-3': 3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3))
       tiptap-markdown: 0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))
 
   '@grpc/grpc-js@1.14.6':
@@ -11284,7 +11289,7 @@ snapshots:
 
   '@neon-rs/load@0.0.4': {}
 
-  '@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)':
+  '@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       file-type: 22.2.0(supports-color@5.5.0)
@@ -11297,7 +11302,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)':
+  '@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       file-type: 22.2.0(supports-color@7.2.0)
@@ -11310,9 +11315,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nestjs/core@12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
+  '@nestjs/core@12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
       path-to-regexp: 8.4.2
@@ -11321,11 +11326,11 @@ snapshots:
       tslib: 2.8.1
       uid: 2.0.2
     optionalDependencies:
-      '@nestjs/platform-express': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.1)(supports-color@5.5.0)
+      '@nestjs/platform-express': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.2)(supports-color@5.5.0)
 
-  '@nestjs/core@12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
+  '@nestjs/core@12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
       path-to-regexp: 8.4.2
@@ -11334,22 +11339,22 @@ snapshots:
       tslib: 2.8.1
       uid: 2.0.2
     optionalDependencies:
-      '@nestjs/platform-express': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(supports-color@7.2.0)
+      '@nestjs/platform-express': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(supports-color@7.2.0)
 
-  '@nestjs/mapped-types@12.0.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(reflect-metadata@0.2.2)':
+  '@nestjs/mapped-types@12.0.0(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(reflect-metadata@0.2.2)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
       reflect-metadata: 0.2.2
 
-  '@nestjs/mapped-types@12.0.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)':
+  '@nestjs/mapped-types@12.0.0(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
       reflect-metadata: 0.2.2
 
-  '@nestjs/platform-express@12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.1)(supports-color@5.5.0)':
+  '@nestjs/platform-express@12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.2)(supports-color@5.5.0)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
-      '@nestjs/core': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
+      '@nestjs/core': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       cors: 2.8.6
       express: 5.3.0(supports-color@5.5.0)
       multer: 2.5.0
@@ -11358,10 +11363,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nestjs/platform-express@12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(supports-color@7.2.0)':
+  '@nestjs/platform-express@12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(supports-color@7.2.0)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
-      '@nestjs/core': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/core': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       cors: 2.8.6
       express: 5.3.0(supports-color@7.2.0)
       multer: 2.5.0
@@ -11370,12 +11375,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nestjs/swagger@12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@5.9.3)':
+  '@nestjs/swagger@12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@5.9.3)':
     dependencies:
       '@microsoft/tsdoc': 0.17.1
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
-      '@nestjs/core': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/mapped-types': 12.0.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(reflect-metadata@0.2.2)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0)
+      '@nestjs/core': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/mapped-types': 12.0.0(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@5.5.0))(reflect-metadata@0.2.2)
       '@standard-schema/spec': 1.1.0
       es-toolkit: 1.52.0
       js-yaml: 5.5.0
@@ -11385,12 +11390,12 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  '@nestjs/swagger@12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3)':
+  '@nestjs/swagger@12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@6.0.3)':
     dependencies:
       '@microsoft/tsdoc': 0.17.1
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
-      '@nestjs/core': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/mapped-types': 12.0.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/core': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/mapped-types': 12.0.0(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)
       '@standard-schema/spec': 1.1.0
       es-toolkit: 1.52.0
       js-yaml: 5.5.0
@@ -11400,13 +11405,13 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
-  '@nestjs/testing@12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(@nestjs/platform-express@12.3.1)':
+  '@nestjs/testing@12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(@nestjs/platform-express@12.3.2)':
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
-      '@nestjs/core': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/core': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       tslib: 2.8.1
     optionalDependencies:
-      '@nestjs/platform-express': 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(supports-color@7.2.0)
+      '@nestjs/platform-express': 12.3.2(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(supports-color@7.2.0)
 
   '@noble/hashes@1.8.0': {}
 
@@ -12693,6 +12698,10 @@ snapshots:
       - react-native-b4a
       - supports-color
 
+  '@tiptap/core@3.27.1(@tiptap/pm@3.27.1)':
+    dependencies:
+      '@tiptap/pm': 3.27.1
+
   '@tiptap/core@3.32.0(@tiptap/pm@3.27.1)':
     dependencies:
       '@tiptap/pm': 3.27.1
@@ -12705,6 +12714,13 @@ snapshots:
   '@tiptap/extension-bold@3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))':
     dependencies:
       '@tiptap/core': 3.32.0(@tiptap/pm@3.27.1)
+
+  '@tiptap/extension-bubble-menu@3.32.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)':
+    dependencies:
+      '@floating-ui/dom': 1.8.0
+      '@tiptap/core': 3.27.1(@tiptap/pm@3.27.1)
+      '@tiptap/pm': 3.27.1
+    optional: true
 
   '@tiptap/extension-bubble-menu@3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)':
     dependencies:
@@ -12733,6 +12749,13 @@ snapshots:
   '@tiptap/extension-dropcursor@3.32.0(@tiptap/extensions@3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1))':
     dependencies:
       '@tiptap/extensions': 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
+
+  '@tiptap/extension-floating-menu@3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)':
+    dependencies:
+      '@floating-ui/dom': 1.8.0
+      '@tiptap/core': 3.27.1(@tiptap/pm@3.27.1)
+      '@tiptap/pm': 3.27.1
+    optional: true
 
   '@tiptap/extension-floating-menu@3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)':
     dependencies:
@@ -12849,6 +12872,27 @@ snapshots:
       '@tiptap/extensions': 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
       '@tiptap/pm': 3.27.1
 
+  '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.39(typescript@6.0.3))':
+    dependencies:
+      '@floating-ui/dom': 1.8.0
+      '@tiptap/core': 3.27.1(@tiptap/pm@3.27.1)
+      '@tiptap/pm': 3.27.1
+      vue: 3.5.39(typescript@6.0.3)
+    optionalDependencies:
+      '@tiptap/extension-bubble-menu': 3.32.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
+      '@tiptap/extension-floating-menu': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
+
+  '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      '@floating-ui/dom': 1.8.0
+      '@tiptap/core': 3.27.1(@tiptap/pm@3.27.1)
+      '@tiptap/pm': 3.27.1
+      vue: 3.5.43(typescript@6.0.3)
+    optionalDependencies:
+      '@tiptap/extension-bubble-menu': 3.32.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
+      '@tiptap/extension-floating-menu': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
+    optional: true
+
   '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.8.0
@@ -12858,25 +12902,6 @@ snapshots:
     optionalDependencies:
       '@tiptap/extension-bubble-menu': 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
       '@tiptap/extension-floating-menu': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-
-  '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.39(typescript@6.0.3))':
-    dependencies:
-      '@floating-ui/dom': 1.8.0
-      '@tiptap/pm': 3.27.1
-      vue: 3.5.39(typescript@6.0.3)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-      '@tiptap/extension-floating-menu': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-
-  '@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@6.0.3))':
-    dependencies:
-      '@floating-ui/dom': 1.8.0
-      '@tiptap/pm': 3.27.1
-      vue: 3.5.43(typescript@6.0.3)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-      '@tiptap/extension-floating-menu': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)
-    optional: true
 
   '@tokenizer/inflate@0.5.2(supports-color@5.5.0)':
     dependencies:
@@ -17072,14 +17097,14 @@ snapshots:
     dependencies:
       content-type: 2.1.0
 
-  nestjs-zod@5.5.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/swagger@12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3))(rxjs@7.8.2)(zod@4.6.7):
+  nestjs-zod@5.5.0(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/swagger@12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@6.0.3))(rxjs@7.8.2)(zod@4.6.7):
     dependencies:
-      '@nestjs/common': 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/common': 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
       deepmerge: 4.3.1
       rxjs: 7.8.2
       zod: 4.6.7
     optionalDependencies:
-      '@nestjs/swagger': 12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3)
+      '@nestjs/swagger': 12.0.5(@nestjs/common@12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.2)(reflect-metadata@0.2.2)(typescript@6.0.3)
 
   new-github-issue-url@0.2.1: {}
 
@@ -18549,6 +18574,14 @@ snapshots:
       picomatch: 4.0.4
 
   tinyrainbow@3.2.0: {}
+
+  tiptap-markdown@0.9.0(@tiptap/core@3.27.1(@tiptap/pm@3.27.1)):
+    dependencies:
+      '@tiptap/core': 3.27.1(@tiptap/pm@3.27.1)
+      '@types/markdown-it': 13.0.9
+      markdown-it: 14.3.3
+      markdown-it-task-lists: 2.1.1
+      prosemirror-markdown: 1.13.9
 
   tiptap-markdown@0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1)):
     dependencies:

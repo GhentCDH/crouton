@@ -136,11 +136,16 @@ export const loadResourceConfigsFromDir = async (
           : undefined;
       // If the repository.ts file exists but failed to import, an error was already
       // recorded by loadCustomRepository. Skip further validation to avoid a double error.
-      const repositoryImportFailed = resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
+      const repositoryImportFailed =
+        resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
       const tableLayoutRoot = json.layout?.table as any;
       const tableLayout = resolveTableNode(tableLayoutRoot) ?? tableLayoutRoot;
-      const actions = await loadActions(tableLayout?.rowActions ?? [], basePath, 'row');
+      const actions = await loadActions(
+        tableLayout?.rowActions ?? [],
+        basePath,
+        'row',
+      );
       const tableActions = await loadActions(
         tableLayout?.tableActions ?? [],
         basePath,
@@ -162,17 +167,28 @@ export const loadResourceConfigsFromDir = async (
 
       const repositoryFileExistsOnDisk =
         json.kind !== 'custom' && !!findModule(basePath, 'repository');
-      const { errors, warnings } = validateResourceConfig(config, { repositoryFileExistsOnDisk });
+      const { errors, warnings } = validateResourceConfig(config, {
+        repositoryFileExistsOnDisk,
+      });
 
       if (errors.length > 0) {
         for (const error of errors) {
-          resourceLoadErrorsRegistry.record({ name: dir, path: jsonFile, error });
+          resourceLoadErrorsRegistry.record({
+            name: dir,
+            path: jsonFile,
+            error,
+          });
         }
         continue;
       }
 
       for (const warning of warnings) {
-        resourceLoadReportRegistry.record({ state: 'warning', name: config.name, path: jsonFile, warning });
+        resourceLoadReportRegistry.record({
+          state: 'warning',
+          name: config.name,
+          path: jsonFile,
+          warning,
+        });
       }
 
       await loadSubResourceHooks(config.subResources ?? [], basePath);
@@ -191,7 +207,8 @@ export const loadResourceConfigsFromDir = async (
         resourceLoadErrorsRegistry.record({
           name: dir,
           path: tsFile,
-          error: 'resource.ts has no default export — add `export default { name, route, ... }`.',
+          error:
+            'resource.ts has no default export — add `export default { name, route, ... }`.',
         });
         continue;
       }
@@ -216,7 +233,12 @@ export const loadResourceConfigsFromDir = async (
       }
 
       for (const warning of warnings) {
-        resourceLoadReportRegistry.record({ state: 'warning', name: merged.name, path: tsFile, warning });
+        resourceLoadReportRegistry.record({
+          state: 'warning',
+          name: merged.name,
+          path: tsFile,
+          warning,
+        });
       }
 
       configs.push(merged);

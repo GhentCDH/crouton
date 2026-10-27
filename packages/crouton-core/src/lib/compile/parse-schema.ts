@@ -1,6 +1,9 @@
 import type { ZodObject, ZodRawShape, ZodType } from 'zod';
 
-import { buildResourceJsonSchema, registerResourceExtensions } from '../resource';
+import {
+  buildResourceJsonSchema,
+  registerResourceExtensions,
+} from '../resource';
 import { type CompileResolvers, compileResource } from './compile-resource';
 import type { EnumRegistry } from './enum-registry';
 import {
@@ -8,6 +11,7 @@ import {
   buildResourceJsonPayload,
   buildViewsPayload,
 } from './payload-builders';
+import { ResourceDefinitionResponse } from '../schema/response';
 
 export type ParseSchemaView = 'schemas' | 'definition' | 'resource.json';
 
@@ -27,7 +31,9 @@ export type ParseAppConfig = {
   baseUrl?: string;
   prefix?: string;
   extensions?: Record<string, ZodType>;
-  schemaEnricher?: <T extends Record<string, unknown>>(schema: T) => Record<string, unknown>;
+  schemaEnricher?: <T extends Record<string, unknown>>(
+    schema: T,
+  ) => Record<string, unknown>;
 };
 
 /**
@@ -38,9 +44,8 @@ export const parseSchema = (
   input: ParseSchemaInput | unknown,
   appConfig: ParseAppConfig,
   view: ParseSchemaView = 'schemas',
-): Record<string, unknown> | undefined => {
+): ResourceDefinitionResponse | undefined => {
   if (appConfig.extensions) registerResourceExtensions(appConfig.extensions);
-
   const normalized: ParseSchemaInput =
     input !== null && typeof input === 'object' && 'json' in (input as object)
       ? (input as ParseSchemaInput)
@@ -58,6 +63,7 @@ export const parseSchema = (
   });
 
   let payload: Record<string, unknown> | undefined;
+
   if (view === 'schemas') {
     payload = buildViewsPayload(resource, appConfig.baseUrl);
   } else if (view === 'definition') {
@@ -70,5 +76,5 @@ export const parseSchema = (
     payload = { ...payload, ...appConfig.schemaEnricher(payload) };
   }
 
-  return payload;
+  return payload as unknown as ResourceDefinitionResponse;
 };
