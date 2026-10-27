@@ -53,7 +53,7 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
 
 
 const resolveEnvPlaceholders = (value: string): string =>
-  value.replace(/\{env\.([^}]+)\}/g, (match, varName) => readEnv(varName) ?? match);
+  value.replace(/\{env\.([^}]+)\}/g, (match: string, varName: string) => readEnv(varName) ?? match);
 
 const RESOURCE_OPS = [
   'findAll',
@@ -286,12 +286,12 @@ export const buildSubResourceViewsPayload = (
       const subFilterSchema = subSchemas['filter'] as Record<string, unknown> | undefined;
       delete (subSchemas as Record<string, unknown>)['filter'];
       const subChildUri = `${baseUrl}/${sub.childRoute}`;
-      const subExtra = sub as unknown as Record<string, unknown>;
+      const tableLayout = resolveTableNode(sub.layout?.['table'] as LayoutNode | undefined);
       (subSchemas as Record<string, unknown>)['table'] = {
         ...subTable,
         ui: injectTableOptions((subTable as Record<string, unknown>)['ui'], {
-          rowActions: resolveActions(subChildUri, resolveTableNode((subExtra['layout'] as Record<string, unknown> | undefined)?.['table'] as LayoutNode | undefined)?.rowActions ?? (subExtra['rowActions'] as JsonAction[] | undefined) ?? sub.actions),
-          tableActions: resolveTableActions(subChildUri, resolveTableNode((subExtra['layout'] as Record<string, unknown> | undefined)?.['table'] as LayoutNode | undefined)?.tableActions ?? (subExtra['tableActions'] as JsonAction[] | undefined)),
+          rowActions: resolveActions(subChildUri, tableLayout?.rowActions ?? sub.rowActions ?? sub.actions),
+          tableActions: resolveTableActions(subChildUri, tableLayout?.tableActions ?? sub.tableActions),
           defaultSortId: sub.views['table']?.defaultSort,
           defaultSortDir: sub.views['table']?.defaultSortDir,
           ...(subFilterSchema && {

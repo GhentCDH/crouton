@@ -101,7 +101,7 @@ const transformTableLayout = (raw: unknown): unknown => {
 /** Transform sub-resource actions → rowActions */
 const transformSubResources = (subResources: unknown): unknown => {
   if (!Array.isArray(subResources)) return subResources;
-  return subResources.map((sr) => {
+  return (subResources as unknown[]).map((sr) => {
     if (typeof sr !== 'object' || sr === null) return sr;
     const s = sr as RawNode;
     if (s['actions'] !== undefined && s['rowActions'] === undefined) {
