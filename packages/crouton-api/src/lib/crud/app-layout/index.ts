@@ -1,5 +1,7 @@
 export {
   type SidebarGroup,
+  type SidebarGroupNode,
+  SidebarGroupNodeSchema,
   SidebarGroupSchema,
   type SidebarLeaf,
   SidebarLeafSchema,

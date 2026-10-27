@@ -22,3 +22,11 @@ export const registerResourceExtensions = (map: Record<string, ZodType> = {}): v
 export const getResourceExtensions = (): ReadonlyMap<string, ZodType> => registry;
 
 export const clearResourceExtensions = (): void => registry.clear();
+
+/** Pick only registered extension fields from an arbitrary object. */
+export const pickExtensions = (obj: Record<string, unknown>): Record<string, unknown> =>
+  Object.fromEntries(
+    [...registry.keys()]
+      .filter((k) => obj[k] !== undefined)
+      .map((k) => [k, obj[k]]),
+  );

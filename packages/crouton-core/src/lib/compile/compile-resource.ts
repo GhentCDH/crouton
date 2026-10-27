@@ -3,7 +3,6 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import { extractFindAllSearch, extractOpInclude } from '../data-source/Operations.schema';
 import { buildLayouts, resolveColumnVisibility } from '../layout';
 import type { CalculatedColumn, JsonColumn, RelationFieldInputOptions, ResourceJson } from '../resource';
-import { getResourceExtensions } from '../resource';
 import {
   columnTypeSchemaSource,
   injectCalculatedColumns,
@@ -23,13 +22,7 @@ import { injectEnumValues } from './enum-registry';
 import type { LookupConfig } from './lookup.schema';
 import { enrichRelationTypes } from './relation-type';
 import { buildResourceDefinitions } from './schema.helpers';
-
-const pickExtensions = (obj: Record<string, unknown>) =>
-  Object.fromEntries(
-    [...getResourceExtensions().keys()]
-      .filter((k) => obj[k] !== undefined)
-      .map((k) => [k, obj[k]]),
-  );
+import { pickExtensions } from '../resource/extensions';
 
 const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&

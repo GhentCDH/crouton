@@ -52,14 +52,24 @@ export type Filter = {
   label?: string;
 };
 
+/** Parse a filter string `field:value:operator`. Returns null when no field present. */
+export const parseFilterString = (
+  raw: string,
+): { field: string; value: string; operator: OperatorType } | null => {
+  const parts = raw.split(':');
+  if (parts.length < 2 || !parts[0]) return null;
+  const field = parts[0];
+  const lastPart = parts[parts.length - 1];
+  const hasOperator = (Operator as readonly string[]).includes(lastPart);
+  const value = hasOperator ? parts.slice(1, -1).join(':') : parts.slice(1).join(':');
+  const operator: OperatorType = hasOperator ? (lastPart as OperatorType) : 'contains';
+  return { field, value, operator };
+};
+
 const getFilterValues = (filter: string): Filter => {
-  const parts = filter.split(':');
-  const key = parts[0] ?? '';
-  const lastPart = parts[parts.length - 1] as OperatorType;
-  const hasOp = parts.length >= 3 && Operator.includes(lastPart);
-  const operator: OperatorType = hasOp ? lastPart : 'contains';
-  const value = hasOp ? parts.slice(1, -1).join(':') : parts.slice(1).join(':');
-  return { key, value, operator };
+  const parsed = parseFilterString(filter);
+  if (!parsed) return { key: '', value: filter.split(':').slice(1).join(':'), operator: 'contains' };
+  return { key: parsed.field, value: parsed.value, operator: parsed.operator };
 };
 
 const buildFilterKey = (keys: string[], filterObj: any): any => {
@@ -70,6 +80,20 @@ const buildFilterKey = (keys: string[], filterObj: any): any => {
 
 export const buildSort = (key: string, sortDir?: string) =>
   buildSortKey(key.split('.'), SortDirEnum.safeParse(sortDir).data ?? 'asc');
+
+/** Build Prisma `orderBy` supporting dotted paths like `"author.origin"`. Plain names delegate to `buildSort`. */
+export const buildChildSortClause = (
+  sort: string,
+  sortDir: string | undefined,
+): Record<string, unknown> => {
+  const parts = sort.split('.');
+  if (parts.length === 1) return buildSort(sort, sortDir) as Record<string, unknown>;
+  const dir = (sortDir ?? 'asc') as 'asc' | 'desc';
+  return parts.reduceRight<Record<string, unknown>>(
+    (acc, part, i) => (i === parts.length - 1 ? { [part]: dir } : { [part]: acc }),
+    {},
+  );
+};
 
 export const buildSortKey = (keys: string[], sortDir: any): any => {
   if (keys.length === 1) return { [keys[0]]: sortDir };

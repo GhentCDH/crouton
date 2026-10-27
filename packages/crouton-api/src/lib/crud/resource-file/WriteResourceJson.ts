@@ -2,6 +2,7 @@
 import {
   type FieldInput,
   type FieldVariant,
+  type RawResourceJson,
   buildResourceJsonSchema,
   mergeFieldVariant,
   serializeResourceJson,
@@ -28,8 +29,6 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
  * result back verbatim. `ResourceJsonSchema` is still used, but only to
  * *validate* the merged result before writing — never to shape what's written.
  */
-export type RawResourceJson = Record<string, unknown>;
-
 export const readRawResourceJson = (
   jsonPath: string,
 ): RawResourceJson | undefined => {

@@ -1,3 +1,4 @@
+import { buildChildSortClause } from '../request/filter';
 import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions } from '../resource';
 import { isRelationColumn } from '../resource/Column';
 
@@ -44,19 +45,6 @@ export const enrichActionColumns = (
   });
 };
 
-// ponytail: inlined from crouton-api sql.helpers; move there if logic diverges
-const buildChildSortClause = (
-  sort: string,
-  sortDir: string | undefined,
-): Record<string, unknown> => {
-  const parts = sort.split('.');
-  const dir = (sortDir ?? 'asc') as 'asc' | 'desc';
-  if (parts.length === 1) return { [sort]: dir };
-  return parts.reduceRight<Record<string, unknown>>(
-    (acc, part, i) => (i === parts.length - 1 ? { [part]: dir } : { [part]: acc }),
-    {},
-  );
-};
 
 export const enrichIncludeWithSort = (
   include: JsonIncludeEntry[] | undefined,

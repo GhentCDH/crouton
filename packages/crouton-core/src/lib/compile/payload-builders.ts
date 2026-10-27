@@ -1,8 +1,8 @@
 import { buildSubResourceOperations } from '../data-source';
 import { allowedIncludes } from '../request/include';
 import type { JsonAction } from '../resource';
-import { getResourceExtensions } from '../resource';
 import type { JsonColumn } from '../resource/Column';
+import { pickExtensions } from '../resource/extensions';
 import { resolveTableNode } from '../view';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
@@ -50,12 +50,6 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
   return u;
 };
 
-const pickExtensions = (config: CompiledResource) =>
-  Object.fromEntries(
-    [...getResourceExtensions().keys()]
-      .filter((k) => (config as Record<string, unknown>)[k] !== undefined)
-      .map((k) => [k, (config as Record<string, unknown>)[k]]),
-  );
 
 const resolveEnvPlaceholders = (value: string): string =>
   value.replace(
@@ -173,7 +167,7 @@ export const buildDefinitionPayload = (
       ...(updateSchema && { update: toJsonSchema(updateSchema) }),
       ...(patchSchema && { patch: toJsonSchema(patchSchema) }),
     },
-    ...pickExtensions(config),
+    ...pickExtensions(config as unknown as Record<string, unknown>),
   };
 };
 
@@ -201,7 +195,7 @@ export const buildResourceJsonPayload = (
     uri,
     operations,
     schema,
-    ...pickExtensions(config),
+    ...pickExtensions(config as unknown as Record<string, unknown>),
   };
 };
 
@@ -264,7 +258,7 @@ export const buildViewsPayload = (
         ? config.columns
         : Object.entries(config.columns ?? {}).map(([id, col]) => ({ id, ...col }))) as JsonColumn[],
     ),
-    ...pickExtensions(config),
+    ...pickExtensions(config as unknown as Record<string, unknown>),
   };
 };
 

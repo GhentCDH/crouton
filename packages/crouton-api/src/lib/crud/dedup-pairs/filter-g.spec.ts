@@ -54,22 +54,17 @@ describe('G: filter string parsing — core (stringToFilter) vs api (parseFilter
       expect(api).toBeNull();
     });
 
-    it('field:op — two parts — known difference in operator detection', () => {
-      // Core: parts.length >= 3 required for operator detection.
-      // 'title:contains' has length=2 → hasOp=false → 'contains' treated as value.
+    it('field:op — two parts — UNIFIED after P1-G (both detect operator with 2 parts)', () => {
+      // After P1-G, stringToFilter delegates to the same parseFilterString from core.
+      // Both now detect a known operator in the last part regardless of part count.
       const core = stringToFilter('title:contains');
-      expect(core.key).toBe('title');
-      expect(core.operator).toBe('contains'); // default
-      expect(core.value).toBe('contains');   // 'contains' is the value, not the operator
-
-      // Api: detects operator with just 2 parts when lastPart is a known operator.
-      // 'title:contains' → hasOperator=true → operator='contains', value=''
       const api = parseFilterString('title:contains');
+      expect(core.key).toBe('title');
       expect(api?.field).toBe('title');
+      expect(core.operator).toBe('contains');
       expect(api?.operator).toBe('contains');
-      expect(api?.value).toBe(''); // empty — the operator was consumed
-
-      // DIFFERENCE: core.value='contains' (unrecognised as op), api.value=''
+      expect(core.value).toBe('');  // operator consumed, value is empty
+      expect(api?.value).toBe('');
     });
 
     it('return shape: core uses {key} api uses {field}', () => {
