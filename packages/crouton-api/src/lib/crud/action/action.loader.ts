@@ -1,6 +1,5 @@
-import type { JsonAction } from '@ghentcdh/crouton-core';
+import type { JsonAction, ResourceRowAction, ResourceTableAction } from '@ghentcdh/crouton-core';
 
-import type { ResourceRowAction, ResourceTableAction } from './action.types';
 import { findModule, importDefault } from '../loader/module.loader';
 import { join } from 'node:path';
 

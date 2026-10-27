@@ -35,12 +35,10 @@ const BRIDGES = new Set([
   'resolveTableActions|crouton-api,crouton-core',
   'schemaFor|crouton-api,crouton-core',
   'SchemaInputSchema|crouton-api,crouton-core',
-]);
-
-// §2.1 Real copies: same logic written twice. Goal = zero. Removed phase by phase.
-// Phase 2 removes D entries. Phase 6 removes C entries. Phase 1 removes K.
-const COPIES = new Set([
-  // D — action contracts (phase 2)
+  // P1 — now re-exports from core
+  'RawResourceJson|crouton-api,crouton-core',
+  'SidebarGroupSchema|crouton-api,crouton-core',
+  // P2 — action contracts now re-exported from core
   'isRowProcedureAction|crouton-api,crouton-core',
   'isTableProcedureAction|crouton-api,crouton-core',
   'ResourceLinkAction|crouton-api,crouton-core',
@@ -50,15 +48,16 @@ const COPIES = new Set([
   'ResourceTableAction|crouton-api,crouton-core',
   'ResourceTableActionSchema|crouton-api,crouton-core',
   'ResourceTableProcedureAction|crouton-api,crouton-core',
+]);
+
+// §2.1 Real copies: same logic written twice. Goal = zero. Removed phase by phase.
+// Phase 6 removes C entries.
+const COPIES = new Set([
   // C — parseSchema + types (phase 6)
   'ParseAppConfig|crouton-api,crouton-core',
   'parseSchema|crouton-api,crouton-core,crouton-vue',
   'ParseSchemaInput|crouton-api,crouton-core',
   'ParseSchemaView|crouton-api,crouton-core',
-  // K — RawResourceJson (phase 1)
-  'RawResourceJson|crouton-api,crouton-core',
-  // SidebarGroupSchema name clash (phase 1)
-  'SidebarGroupSchema|crouton-api,crouton-core',
 ]);
 
 // Codegen bridges (out of scope for this plan)
