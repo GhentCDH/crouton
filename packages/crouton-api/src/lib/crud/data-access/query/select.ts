@@ -4,19 +4,8 @@ import {
   type ZodType,
 } from 'zod';
 
-import { type SchemaInput, isZodSchema } from '@ghentcdh/crouton-core';
-
-type ZodTypeInternal = ZodType & { _zod?: { def?: { type?: string; innerType?: ZodType; element?: ZodType } } };
-
-const unwrap = (schema: ZodType): ZodType => {
-  let s: ZodTypeInternal = schema;
-  let t: string | undefined = s._zod?.def?.type;
-  while (t === 'optional' || t === 'nullable' || t === 'default' || t === 'readonly') {
-    s = (s._zod?.def?.innerType ?? s) as ZodTypeInternal;
-    t = s._zod?.def?.type;
-  }
-  return s;
-};
+import { type SchemaInput, isZodSchema, unwrap } from '@ghentcdh/crouton-core';
+import type { ZodTypeInternal } from '@ghentcdh/crouton-core';
 
 const typeOf = (schema: ZodType): string | undefined =>
   (schema as ZodTypeInternal)?._zod?.def?.type;
