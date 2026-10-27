@@ -8,7 +8,7 @@ import {
   childRepositoryFn,
   parentIdFromRequest,
 } from '../custom-repository/child-delegate';
-import type { DataSourceAdapter } from './adapter/data-source.adapter';
+import type { DataSourceAdapter } from './adapter';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { mapPrismaUniqueError } from '../unique-validation';

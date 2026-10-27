@@ -7,6 +7,7 @@
  */
 
 import * as clack from '@clack/prompts';
+import type { TranslationBundle } from '@crouton/i18n';
 import pc from 'picocolors';
 
 import {
@@ -20,7 +21,6 @@ import {
   serializeTranslationBundle,
 } from '@ghentcdh/crouton-codegen';
 import type { I18nConfig } from '@ghentcdh/crouton-core';
-import type { TranslationBundle } from '@crouton/i18n';
 
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';

@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { CURRENT_RESOURCE_VERSION, buildViewsPayload  } from '@ghentcdh/crouton-core';
+import {
+  CURRENT_RESOURCE_VERSION,
+  buildViewsPayload,
+} from '@ghentcdh/crouton-core';
 
 import { validateCustomRepository } from './custom-repository.validate';
-import { buildLayoutPayload } from '../app-layout/app-layout.builder';
+import { buildLayoutPayload } from '../app-layout';
 import { createCrudController } from '../crud-controller.factory';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -49,7 +52,12 @@ const RESOURCE_JSON = {
   schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true, hiddenInForm: true },
-    label: { type: 'string', searchable: true, sortable: true, defaultSort: true },
+    label: {
+      type: 'string',
+      searchable: true,
+      sortable: true,
+      defaultSort: true,
+    },
   },
 };
 
@@ -131,7 +139,7 @@ describe('a nested custom resource', () => {
       await boot();
     });
 
-    it('lists only the requested parent\'s children', async () => {
+    it("lists only the requested parent's children", async () => {
       const result = await controller.findAll(
         listParams,
         req({ groupId: 'g1' }),
@@ -165,7 +173,7 @@ describe('a nested custom resource', () => {
       });
     });
 
-    it('scopes findOne, so another parent\'s row is a 404', async () => {
+    it("scopes findOne, so another parent's row is a 404", async () => {
       await expect(
         controller.findOne('e1', req({ groupId: 'g1' })),
       ).resolves.toMatchObject({ id: 'e1' });
@@ -194,9 +202,9 @@ describe('a nested custom resource', () => {
 
     it('refuses to run unscoped rather than listing every parent', async () => {
       // No parent id in the request => explicit 400, never a full-table read.
-      await expect(
-        controller.findAll(listParams, req({})),
-      ).rejects.toThrow(/no "groupId" was supplied/);
+      await expect(controller.findAll(listParams, req({}))).rejects.toThrow(
+        /no "groupId" was supplied/,
+      );
     });
   });
 

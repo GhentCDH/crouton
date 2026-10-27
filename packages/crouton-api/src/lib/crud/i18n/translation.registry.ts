@@ -5,14 +5,15 @@
  */
 
 import {
-  type I18nConfig,
-} from '@ghentcdh/crouton-core';
-
-import {
   type TranslationBundle,
   type Translator,
   createTranslator,
 } from '@crouton/i18n';
+
+import {
+  type I18nConfig,
+} from '@ghentcdh/crouton-core';
+
 
 import { loadTranslationBundles } from './translation.loader';
 import { IS_DEV } from '../dev-mode';

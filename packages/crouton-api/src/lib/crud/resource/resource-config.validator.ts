@@ -1,10 +1,13 @@
 import {
-  type CrudOperation, type JsonColumn,
-  isOperationEnabled, normalizeUnique,
-  resolveDefinition } from '@ghentcdh/crouton-core';
+  type CrudOperation,
+  type JsonColumn,
+  isOperationEnabled,
+  normalizeUnique,
+  resolveDefinition,
+} from '@ghentcdh/crouton-core';
 
 import type { Resource } from './ResourceConfig.schema';
-import { validateCustomRepository } from '../custom-repository/custom-repository.validate';
+import { validateCustomRepository } from '../custom-repository';
 
 const ALL_OPS: readonly CrudOperation[] = [
   'findAll',
@@ -19,8 +22,10 @@ const ALL_OPS: readonly CrudOperation[] = [
  * Run structural checks on a fully-built Resource config before it is served.
  * Returns errors (→ resourceLoadErrorsRegistry) and warnings (→ resourceLoadReportRegistry).
  *
- * @param repositoryFileExistsOnDisk - pass true when a repository.ts file exists next to
  *   a prisma resource, so the validator can warn that it will be ignored.
+ * @param opts
+ * @param config
+ * @param opts
  */
 export const validateResourceConfig = (
   config: Resource,

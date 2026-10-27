@@ -1,4 +1,5 @@
 import { columnKey } from '@crouton/i18n';
+
 import type { JsonColumn } from '../../resource/Column';
 import type { ViewColumnConfig } from '../view/view.schema';
 

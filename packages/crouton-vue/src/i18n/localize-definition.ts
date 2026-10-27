@@ -1,9 +1,10 @@
-import type { ResourceDefinition, ViewColumnConfig, ViewConfig } from '@ghentcdh/crouton-core';
 import {
   actionKey,
   columnKey,
   resourceTitleKey,
 } from '@crouton/i18n';
+
+import type { ResourceDefinition, ViewColumnConfig, ViewConfig } from '@ghentcdh/crouton-core';
 
 import { useLanguage } from './useLanguage';
 

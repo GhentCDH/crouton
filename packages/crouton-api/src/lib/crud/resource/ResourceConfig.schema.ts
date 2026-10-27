@@ -1,9 +1,13 @@
 import { z } from 'zod';
 
-import { CompiledResourceSchema, ResourceRowActionSchema, ResourceTableActionSchema } from '@ghentcdh/crouton-core';
+import {
+  CompiledResourceSchema,
+  ResourceRowActionSchema,
+  ResourceTableActionSchema,
+} from '@ghentcdh/crouton-core';
 
 import { SubResourceConfigSchema } from './SubResource.schema';
-import { CustomRepositorySchema } from '../custom-repository/custom-repository.types';
+import { CustomRepositorySchema } from '../custom-repository';
 import { ResourceHooksSchema } from '../hooks';
 
 export const ResourceSchema = CompiledResourceSchema.extend({
