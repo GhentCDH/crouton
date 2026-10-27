@@ -1,4 +1,4 @@
-import { buildSort } from '@ghentcdh/crouton-core';
+import { buildChildSortClause, buildSort } from '@ghentcdh/crouton-core';
 import type { CalculatedColumn, JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
@@ -154,22 +154,7 @@ export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Rec
   );
 };
 
-/**
- * Build Prisma `orderBy` supporting dotted paths like `"author.origin"`.
- * Plain names delegate to the standard `buildSort` helper.
- */
-export const buildChildSortClause = (
-  sort: string,
-  sortDir: string | undefined,
-): Record<string, unknown> => {
-  const parts = sort.split('.');
-  if (parts.length === 1) return buildSort(sort, sortDir) as Record<string, unknown>;
-  const dir = (sortDir ?? 'asc') as 'asc' | 'desc';
-  return parts.reduceRight<Record<string, unknown>>(
-    (acc, part, i) => (i === parts.length - 1 ? { [part]: dir } : { [part]: acc }),
-    {},
-  );
-};
+export { buildChildSortClause };
 
 /**
  * Build the merged Prisma `include` clause for `findOne`.
