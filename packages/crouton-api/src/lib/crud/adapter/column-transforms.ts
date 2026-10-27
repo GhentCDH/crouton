@@ -63,10 +63,6 @@ export const expandExtendColumns = (
         col.hiddenInForm === true || refCol.hiddenInForm === true
           ? true
           : (col.hiddenInForm ?? refCol.hiddenInForm);
-      const hiddenInView =
-        col.hiddenInView === true || refCol.hiddenInView === true
-          ? true
-          : (col.hiddenInView ?? refCol.hiddenInView);
 
       // Per-sub-column overrides keyed by virtual id or ref column id
       const override =
@@ -80,7 +76,6 @@ export const expandExtendColumns = (
         type: 'object',
         ...(hiddenInTable !== undefined && { hiddenInTable }),
         ...(hiddenInForm !== undefined && { hiddenInForm }),
-        ...(hiddenInView !== undefined && { hiddenInView }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
       } as unknown as JsonColumn;
