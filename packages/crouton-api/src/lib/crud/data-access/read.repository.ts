@@ -11,11 +11,11 @@ import {
   resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
+import type { DataSourceAdapter } from './adapter';
 import {
   childCtx,
   childRepositoryFn,
 } from '../custom-repository/child-delegate';
-import type { DataSourceAdapter } from './adapter';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
