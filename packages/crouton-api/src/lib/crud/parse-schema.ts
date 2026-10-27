@@ -3,7 +3,10 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import {
   type ResourceDefinitionResponse,
   ResourceDefinitionResponseZ,
+  buildDefinitionPayload,
+  buildResourceJsonPayload,
   buildResourceJsonSchema,
+  buildViewsPayload,
   registerResourceExtensions,
 } from '@ghentcdh/crouton-core';
 
@@ -12,11 +15,6 @@ import { fromJson } from './adapter';
 import type { CroutonAppConfig } from './app-config';
 import type { EnumRegistry } from './enum-registry';
 import type { ResourceHooks } from './hooks';
-import {
-  buildDefinitionPayload,
-  buildResourceJsonPayload,
-  buildViewsPayload,
-} from './operations/payload-builders';
 
 export type ParseSchemaView = 'schemas' | 'definition' | 'resource.json';
 
