@@ -78,7 +78,14 @@
           "defaultSortId": "name",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.group.columns.name"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -131,7 +138,31 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.group.columns.name"
+        },
+        {
+          "id": "chapters",
+          "label": "Chapters",
+          "labelKey": "resources.group.columns.chapters",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./chapter/resource.json",
+            "relationType": "oneToMany",
+            "foreignKey": "group_id",
+            "options": {
+              "uri": "http://localhost:3000/groups/{id}/chapter",
+              "resourceUri": "http://localhost:3000/chapter",
+              "resource": "http://localhost:3000/groups/chapter/schemas",
+              "autocompleteResource": "http://localhost:3000/chapter/schemas"
+            }
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -204,7 +235,36 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.group.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.group.columns.name"
+        },
+        {
+          "id": "chapters",
+          "label": "Chapters",
+          "labelKey": "resources.group.columns.chapters",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./chapter/resource.json",
+            "relationType": "oneToMany",
+            "foreignKey": "group_id",
+            "options": {
+              "uri": "http://localhost:3000/groups/{id}/chapter",
+              "resourceUri": "http://localhost:3000/chapter",
+              "resource": "http://localhost:3000/groups/chapter/schemas",
+              "autocompleteResource": "http://localhost:3000/chapter/schemas"
+            }
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

@@ -1,10 +1,11 @@
+import { ref } from 'vue';
 import { fromJSONSchema, z } from 'zod';
 
 import type { ResourceDefinition, ResourceViewSchema } from '@ghentcdh/crouton-core';
 import { ResourceDefinitionResponseZ } from '@ghentcdh/crouton-core';
 
 import { useApi } from './useApi';
-import { useLanguage } from './useLanguage';
+import { localizeDefinition } from '../i18n/localize-definition';
 
 const stripAdditionalProperties = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripAdditionalProperties);
@@ -47,20 +48,20 @@ const createViewSchema = (
   return { ...formSchema, zodSchema, parseValue };
 };
 
-const cacheKey = (uri: string, language: string): string =>
-  language ? `${language}:${uri}` : uri;
-
 export class ResourceDefinitionCache {
   private cache = new Map<string, Promise<ResourceDefinition>>();
+  // Reactive version — reading it in a computedAsync makes the async re-run on invalidateAll().
+  readonly version = ref(0);
 
   async getById(formId: string): Promise<ResourceDefinition> {
     return this.getByUri(`${formId}/schemas`);
   }
 
   async getByUri(uri: string): Promise<ResourceDefinition> {
-    const { language } = useLanguage();
-    const key = cacheKey(uri, language.value);
-    const cached = this.cache.get(key);
+    // Read version so any computedAsync calling this re-runs after invalidateAll().
+    void this.version.value;
+
+    const cached = this.cache.get(uri);
     if (cached) return cached;
 
     const promise = useApi()
@@ -83,24 +84,18 @@ export class ResourceDefinitionCache {
             view: createViewSchema(result.schemas.view),
           },
         };
-        return resourceDefinition;
+        return localizeDefinition(resourceDefinition);
       });
 
-    this.cache.set(key, promise);
+    this.cache.set(uri, promise);
     return promise;
   }
 
   /**
-   * Drops cached entries for `formId` across all languages so the
-   * next call refetches from the backend.
+   * Drops the cached entry for `formId` so the next call refetches from the backend.
    */
   invalidate(formId: string): void {
-    const suffix = `${formId}/schemas`;
-    for (const key of this.cache.keys()) {
-      if (key === suffix || key.endsWith(`:${suffix}`)) {
-        this.cache.delete(key);
-      }
-    }
+    this.cache.delete(`${formId}/schemas`);
   }
 
   /**
@@ -109,5 +104,6 @@ export class ResourceDefinitionCache {
    */
   invalidateAll(): void {
     this.cache.clear();
+    this.version.value++;
   }
 }

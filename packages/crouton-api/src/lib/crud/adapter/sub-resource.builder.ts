@@ -149,6 +149,7 @@ export const buildSubResources = (
             columns: regularChildColumns,
             source: nestedColumnSchemaSource,
             warn: console.warn,
+            resourceName: childJson?.name ?? childJson?.route,
           })
         : undefined;
       const cols = enrichedChildColumns ?? [];

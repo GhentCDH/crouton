@@ -1,9 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../lodash-es-shim.d.ts" />
 import { cloneDeep } from 'lodash-es';
-import { type Component, type Ref, reactive, shallowRef } from 'vue';
+import { type Component, type Ref, computed, reactive, shallowRef } from 'vue';
 
-import type { Action, ResourceDefinition } from '@ghentcdh/crouton-core';
+import type { Action, ResourceDefinition, ViewColumnConfig } from '@ghentcdh/crouton-core';
+import { enumKey } from '@ghentcdh/crouton-core';
 
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
@@ -16,8 +17,22 @@ import {
 import { type ResourceApiInstance, resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { useCrouton } from '../composables/useCrouton';
+import { useLanguage } from '../i18n/useLanguage';
 import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
+
+const translateEnumValue = (val: any, enumName: string, t: (k: string, f?: string) => string): any => {
+  if (!val || typeof val !== 'object') return val;
+  if (Array.isArray(val)) {
+    return val.map((v: any) =>
+      v && typeof v === 'object' && 'value' in v
+        ? { ...v, label: t(enumKey(enumName, String(v.value)), v.label) }
+        : v,
+    );
+  }
+  if ('value' in val) return { ...val, label: t(enumKey(enumName, String(val.value)), val.label) };
+  return val;
+};
 
 /** When the table ui_schema is a wrapper layout, extract the inner Table element. */
 const resolveTableUiSchema = (ui: unknown): any => {
@@ -123,6 +138,22 @@ export const useResources = (
 
   const filterSchema = resolveTableUiSchema(_formDef.schemas.table.ui)?.options?.filter
     ?.schema as Record<string, any> | undefined;
+
+  const { translator } = useLanguage();
+  const enumCols: ViewColumnConfig[] = ((_formDef.schemas.table as any).columns ?? []).filter(
+    (c: ViewColumnConfig) => c.enumName,
+  );
+  const data =
+    enumCols.length === 0
+      ? resource.data
+      : computed(() =>
+          (resource.data.value ?? []).map((row: any) => {
+            const out = { ...row };
+            for (const col of enumCols) out[col.id] = translateEnumValue(out[col.id], col.enumName!, translator);
+            return out;
+          }),
+        );
+
   if (readonly) {
     _formDef.operations.delete = null;
     _formDef.operations.update = null;
@@ -144,7 +175,7 @@ export const useResources = (
     schema: _formDef.schemas.table.data,
     filterSchema,
     loading: resource.loading,
-    data: resource.data,
+    data,
     page: resource.pageData,
     sort: resource.sort,
     filter: initialRequestParams.filter

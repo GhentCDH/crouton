@@ -14,7 +14,7 @@ import type {
   SubResourceStatus,
 } from './status.types';
 import type { DataSourceRegistry } from '../data-access/adapter';
-import type { TranslationRegistry } from '../data-access/middleware/translation/translation.registry';
+import type { TranslationRegistry } from '../i18n/translation.registry';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';

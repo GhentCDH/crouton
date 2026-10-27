@@ -287,6 +287,77 @@ t('unknown.key', 'My fallback'); // "My fallback"
 
 No i18n library is needed. The dictionary is a plain nested object; `t()` does a dotted-path lookup.
 
+## Column-level translation properties
+
+Each column in a resource exposes two translation-related fields in the `/schemas` payload:
+
+### `labelKey`
+
+The dotted translation key used to look up this column's label. Auto-generated as:
+
+```
+resources.<resourceName>.columns.<columnId>
+```
+
+For example, a `status` column on the `book` resource uses key `resources.book.columns.status`.
+
+You can override `labelKey` per column in `resource.json`:
+
+```json
+{
+  "columns": {
+    "status": {
+      "label": "Status",
+      "labelKey": "shared.columns.status"
+    }
+  }
+}
+```
+
+Useful when multiple resources share the same column and you want one translation key for all of them.
+
+### `enumName`
+
+Links a column to an enum translation group. When set, the frontend translates `{ value, label }` cell values using:
+
+```
+enums.<enumName>.<value>
+```
+
+Set via the `enum` field on the column in `resource.json`:
+
+```json
+{
+  "columns": {
+    "status": {
+      "label": "Status",
+      "enum": "bookStatus"
+    }
+  }
+}
+```
+
+Translation file entry:
+
+```json
+{
+  "enums": {
+    "bookStatus": {
+      "draft": "Concept",
+      "published": "Gepubliceerd",
+      "archived": "Gearchiveerd"
+    }
+  }
+}
+```
+
+### Client-side translation
+
+The frontend fetches a lightweight translation bundle from `GET /_app/translations` on startup and on language switch. It applies translations client-side via `localizeDefinition`, using `labelKey` for column headers and `enumName` for cell values. This means:
+
+- Column headers and enum cell values update instantly on language switch without a full page reload.
+- The bundle only contains `ui`, `validation`, `resources`, and `enums` keys — **not** the full JSON Schema titles (those are still translated server-side via `Accept-Language`).
+
 ## Status page
 
 When translations are active, the status page (`/crouton/status.json`) includes an `i18n` section showing:

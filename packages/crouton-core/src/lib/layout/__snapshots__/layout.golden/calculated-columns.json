@@ -50,10 +50,12 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.post.columns.title"
         },
         {
-          "id": "authorId"
+          "id": "authorId",
+          "labelKey": "resources.post.columns.authorId"
         },
         {
           "id": "commentCount",
@@ -115,10 +117,12 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.post.columns.title"
         },
         {
-          "id": "authorId"
+          "id": "authorId",
+          "labelKey": "resources.post.columns.authorId"
         }
       ]
     },
@@ -193,13 +197,16 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.post.columns.id"
         },
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.post.columns.title"
         },
         {
-          "id": "authorId"
+          "id": "authorId",
+          "labelKey": "resources.post.columns.authorId"
         }
       ]
     }

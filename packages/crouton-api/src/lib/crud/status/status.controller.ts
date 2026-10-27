@@ -6,7 +6,7 @@ import type { EnumRegistry } from '@ghentcdh/crouton-core';
 import { DataSourceRegistry } from '../data-access/adapter';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildStatus } from './status.service';
-import type { TranslationRegistry } from '../data-access/middleware/translation/translation.registry';
+import type { TranslationRegistry } from '../i18n/translation.registry';
 
 export const createStatusController = (
   enumRegistry: EnumRegistry,

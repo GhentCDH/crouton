@@ -78,7 +78,14 @@
           "defaultSortId": "loanedAt",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "loanedAt",
+          "label": "Loaned at",
+          "labelKey": "resources.loan.columns.loanedAt"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -130,7 +137,24 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "loanedAt",
+          "label": "Loaned at",
+          "labelKey": "resources.loan.columns.loanedAt"
+        },
+        {
+          "id": "bookId",
+          "label": "Book",
+          "labelKey": "resources.loan.columns.bookId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./book.resource",
+            "relationType": "manyToOne"
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -202,7 +226,29 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.loan.columns.id"
+        },
+        {
+          "id": "loanedAt",
+          "label": "Loaned at",
+          "labelKey": "resources.loan.columns.loanedAt"
+        },
+        {
+          "id": "bookId",
+          "label": "Book",
+          "labelKey": "resources.loan.columns.bookId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./book.resource",
+            "relationType": "manyToOne"
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

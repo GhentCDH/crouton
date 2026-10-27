@@ -982,6 +982,11 @@
             "type": "string",
             "markdownDescription": "Human-readable label shown in forms and table headers. Defaults to a title-cased version of \"id\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
+          "labelKey": {
+            "description": "Override the auto-generated i18n key for this column's label. When omitted, the key is derived as columnKey(resourceName, id). Set a custom key to use a different translation per context (e.g. a shared label across resources).",
+            "type": "string",
+            "markdownDescription": "Override the auto-generated i18n key for this column's label. When omitted, the key is derived as columnKey(resourceName, id). Set a custom key to use a different translation per context (e.g. a shared label across resources).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+          },
           "hiddenInTable": {
             "default": false,
             "description": "When true, this column is not rendered in the list/table view.",

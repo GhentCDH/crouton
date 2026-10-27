@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { localizeResource } from './data-access/middleware/translation/localize-resource';
-import type { TranslationRegistry } from './data-access/middleware/translation/translation.registry';
 import { IS_DEV } from './dev-mode';
 import type { ResourceConfigLoader } from './loader/resource-config.loader';
 import { type Resource } from './resource/ResourceConfig.schema';
@@ -9,13 +7,6 @@ import { type Resource } from './resource/ResourceConfig.schema';
 @Injectable()
 export class ResourceConfigRegistry<R extends Resource = Resource> {
   private configs: R[];
-  private translationRegistry?: TranslationRegistry;
-
-  /**
-   * Per-language memo: `Map<language, Map<route, R>>`.
-   * Cleared whenever the underlying configs reload (dev mode).
-   */
-  private localizedCache = new Map<string, Map<string, R>>();
 
   constructor(
     private readonly loader: ResourceConfigLoader,
@@ -24,41 +15,29 @@ export class ResourceConfigRegistry<R extends Resource = Resource> {
     this.configs = initialConfigs;
   }
 
-  setTranslationRegistry(registry: TranslationRegistry): void {
-    this.translationRegistry = registry;
-  }
-
-  async getAll(language?: string): Promise<R[]> {
+  async getAll(): Promise<R[]> {
     if (IS_DEV) {
       this.configs = (await this.loader.loadAll()) as R[];
-      this.localizedCache.clear();
     }
-    if (!language || !this.translationRegistry?.active) {
-      return this.configs;
-    }
-    return this.configs.map((c) => this.getLocalized(c, language));
+    return this.configs;
   }
 
-  async getByRoute(route: string, language?: string): Promise<R | undefined> {
+  async getByRoute(route: string): Promise<R | undefined> {
     if (IS_DEV) {
       const fresh = await this.loader.loadByRoute(route);
-      this.localizedCache.clear();
-      if (!fresh) return undefined;
-      if (language && this.translationRegistry?.active) {
-        return this.localize(fresh as R, language);
+      if (fresh !== undefined) {
+        // Update the in-memory list to reflect any on-disk changes.
+        const idx = this.configs.findIndex((c) => c.route === route);
+        if (idx >= 0) this.configs[idx] = fresh as R;
+        else this.configs.push(fresh as R);
       }
-      return fresh as R;
+      return fresh as R | undefined;
     }
-    const config = this.configs.find((c) => c.route === route);
-    if (!config) return undefined;
-    if (language && this.translationRegistry?.active) {
-      return this.getLocalized(config, language);
-    }
-    return config;
+    return this.configs.find((c) => c.route === route);
   }
 
-  async findById(id: string, language?: string): Promise<R | undefined> {
-    const all = await this.getAll(language);
+  async findById(id: string): Promise<R | undefined> {
+    const all = await this.getAll();
     return all.find((c) => c.id === id);
   }
 
@@ -70,25 +49,5 @@ export class ResourceConfigRegistry<R extends Resource = Resource> {
    */
   getResourceDir(route: string): string | undefined {
     return this.loader.getResourceDir(route);
-  }
-
-  private getLocalized(config: R, language: string): R {
-    let langMap = this.localizedCache.get(language);
-    if (!langMap) {
-      langMap = new Map();
-      this.localizedCache.set(language, langMap);
-    }
-    let localized = langMap.get(config.route);
-    if (!localized) {
-      localized = this.localize(config, language);
-      langMap.set(config.route, localized);
-    }
-    return localized;
-  }
-
-  private localize(config: R, language: string): R {
-    if (!this.translationRegistry) return config;
-    const t = this.translationRegistry.translatorFor(language);
-    return localizeResource(config, t) as R;
   }
 }

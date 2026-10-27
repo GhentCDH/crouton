@@ -12,7 +12,7 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { loadTranslationBundles } from './translation.loader';
-import { IS_DEV } from '../../../dev-mode';
+import { IS_DEV } from '../dev-mode';
 
 export class TranslationRegistry {
   private bundles: Record<string, TranslationBundle>;

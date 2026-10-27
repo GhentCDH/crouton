@@ -78,7 +78,14 @@
           "defaultSortId": "loanedAt",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "loanedAt",
+          "label": "Loaned at",
+          "labelKey": "resources.loan.columns.loanedAt"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -173,7 +180,47 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "loanedAt",
+          "label": "Loaned at",
+          "labelKey": "resources.loan.columns.loanedAt"
+        },
+        {
+          "id": "returnedAt",
+          "label": "Returned at",
+          "labelKey": "resources.loan.columns.returnedAt"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "labelKey": "resources.loan.columns.userId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./user.resource",
+            "relationType": "manyToOne",
+            "options": {
+              "resourceUri": "http://localhost:3000/user",
+              "schemasUri": "http://localhost:3000/user/schemas"
+            }
+          }
+        },
+        {
+          "id": "bookId",
+          "label": "Book",
+          "labelKey": "resources.loan.columns.bookId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./book.resource",
+            "relationType": "manyToOne",
+            "options": {
+              "resourceUri": "http://localhost:3000/book",
+              "schemasUri": "http://localhost:3000/book/schemas"
+            }
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -288,7 +335,52 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.loan.columns.id"
+        },
+        {
+          "id": "loanedAt",
+          "label": "Loaned at",
+          "labelKey": "resources.loan.columns.loanedAt"
+        },
+        {
+          "id": "returnedAt",
+          "label": "Returned at",
+          "labelKey": "resources.loan.columns.returnedAt"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "labelKey": "resources.loan.columns.userId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./user.resource",
+            "relationType": "manyToOne",
+            "options": {
+              "resourceUri": "http://localhost:3000/user",
+              "schemasUri": "http://localhost:3000/user/schemas"
+            }
+          }
+        },
+        {
+          "id": "bookId",
+          "label": "Book",
+          "labelKey": "resources.loan.columns.bookId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./book.resource",
+            "relationType": "manyToOne",
+            "options": {
+              "resourceUri": "http://localhost:3000/book",
+              "schemasUri": "http://localhost:3000/book/schemas"
+            }
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

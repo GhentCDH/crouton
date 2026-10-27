@@ -130,7 +130,19 @@
             "initialData": {}
           }
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.item.columns.name"
+        },
+        {
+          "id": "createdAt",
+          "label": "Created at",
+          "labelKey": "resources.item.columns.createdAt"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -202,7 +214,24 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.item.columns.name"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "labelKey": "resources.item.columns.description"
+        },
+        {
+          "id": "price",
+          "label": "Price",
+          "labelKey": "resources.item.columns.price"
+        }
+      ]
     },
     "view": {
       "data": {
@@ -314,7 +343,34 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.item.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.item.columns.name"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "labelKey": "resources.item.columns.description"
+        },
+        {
+          "id": "createdAt",
+          "label": "Created at",
+          "labelKey": "resources.item.columns.createdAt"
+        },
+        {
+          "id": "price",
+          "label": "Price",
+          "labelKey": "resources.item.columns.price"
+        }
+      ]
     }
   },
   "allowedIncludes": []

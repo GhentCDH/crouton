@@ -70,6 +70,7 @@ export const buildView = (
   buildUiSchema: (cols: JsonColumn[]) => Record<string, unknown>,
   sort = false,
   schemaVisible?: (column: JsonColumn) => boolean,
+  resourceName?: string,
 ): ViewConfig | undefined => {
   if (!source || !columns?.length) return undefined;
   const visibleCols = sort
@@ -103,7 +104,7 @@ export const buildView = (
   return {
     json_schema: jsonSchema,
     ui_schema: buildUiSchema(visibleCols),
-    columns: visibleCols.map(toViewColumn),
+    columns: visibleCols.map((col) => toViewColumn(col, resourceName)),
   };
 };
 

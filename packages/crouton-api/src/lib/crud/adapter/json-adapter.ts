@@ -116,6 +116,7 @@ export const fromJson = (
       ? (cols) => zodSchemaSource(schema)(cols) ?? columnTypeSchemaSource(cols)
       : columnTypeSchemaSource,
     warn: console.warn,
+    resourceName: json.name ?? json.route,
   });
   let views = Object.keys(rawViews).length ? rawViews : undefined;
   if (views && calculatedColumns.length) {

@@ -124,7 +124,47 @@
           "defaultSortId": "id",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.product.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.product.columns.name"
+        },
+        {
+          "id": "quantity",
+          "label": "Quantity",
+          "labelKey": "resources.product.columns.quantity"
+        },
+        {
+          "id": "price",
+          "label": "Price",
+          "labelKey": "resources.product.columns.price"
+        },
+        {
+          "id": "available",
+          "label": "Available",
+          "labelKey": "resources.product.columns.available"
+        },
+        {
+          "id": "listedAt",
+          "label": "Listed at",
+          "labelKey": "resources.product.columns.listedAt"
+        },
+        {
+          "id": "notes",
+          "label": "Notes",
+          "labelKey": "resources.product.columns.notes",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        }
+      ]
     },
     "form": {
       "data": {
@@ -255,7 +295,42 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.product.columns.name"
+        },
+        {
+          "id": "quantity",
+          "label": "Quantity",
+          "labelKey": "resources.product.columns.quantity"
+        },
+        {
+          "id": "price",
+          "label": "Price",
+          "labelKey": "resources.product.columns.price"
+        },
+        {
+          "id": "available",
+          "label": "Available",
+          "labelKey": "resources.product.columns.available"
+        },
+        {
+          "id": "listedAt",
+          "label": "Listed at",
+          "labelKey": "resources.product.columns.listedAt"
+        },
+        {
+          "id": "notes",
+          "label": "Notes",
+          "labelKey": "resources.product.columns.notes",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -406,7 +481,47 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.product.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.product.columns.name"
+        },
+        {
+          "id": "quantity",
+          "label": "Quantity",
+          "labelKey": "resources.product.columns.quantity"
+        },
+        {
+          "id": "price",
+          "label": "Price",
+          "labelKey": "resources.product.columns.price"
+        },
+        {
+          "id": "available",
+          "label": "Available",
+          "labelKey": "resources.product.columns.available"
+        },
+        {
+          "id": "listedAt",
+          "label": "Listed at",
+          "labelKey": "resources.product.columns.listedAt"
+        },
+        {
+          "id": "notes",
+          "label": "Notes",
+          "labelKey": "resources.product.columns.notes",
+          "fieldInput": {
+            "type": "textarea"
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

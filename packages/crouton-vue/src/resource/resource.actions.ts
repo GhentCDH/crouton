@@ -22,7 +22,7 @@ import { replaceUriParams } from './uri.utils';
 import { useResources } from './useResources';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
-import { useLanguage } from '../composables/useLanguage';
+import { useLanguage } from '../i18n/useLanguage';
 import { findCustomComponent } from '../utils/custom-component';
 
 const getTableNode = (ui: any): any => {

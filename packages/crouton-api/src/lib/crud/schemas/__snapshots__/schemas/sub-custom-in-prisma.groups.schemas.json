@@ -87,7 +87,19 @@
           "defaultSortId": "id",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.groups.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.groups.columns.name"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -140,7 +152,31 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.groups.columns.name"
+        },
+        {
+          "id": "expenses",
+          "label": "Expenses",
+          "labelKey": "resources.groups.columns.expenses",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./expense/resource.json",
+            "relationType": "oneToMany",
+            "foreignKey": "group_id",
+            "options": {
+              "uri": "http://localhost:3000/groups/{id}/expense",
+              "resourceUri": "http://localhost:3000/expense",
+              "resource": "http://localhost:3000/groups/expense/schemas",
+              "autocompleteResource": "http://localhost:3000/expense/schemas"
+            }
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -213,7 +249,36 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.groups.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.groups.columns.name"
+        },
+        {
+          "id": "expenses",
+          "label": "Expenses",
+          "labelKey": "resources.groups.columns.expenses",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./expense/resource.json",
+            "relationType": "oneToMany",
+            "foreignKey": "group_id",
+            "options": {
+              "uri": "http://localhost:3000/groups/{id}/expense",
+              "resourceUri": "http://localhost:3000/expense",
+              "resource": "http://localhost:3000/groups/expense/schemas",
+              "autocompleteResource": "http://localhost:3000/expense/schemas"
+            }
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

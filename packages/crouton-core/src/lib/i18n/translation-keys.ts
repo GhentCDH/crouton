@@ -15,12 +15,6 @@ export const subResourceTitleKey = (
   sub: string,
 ): string => `resources.${resource}.subResources.${sub}.title`;
 
-export const subResourceColumnKey = (
-  resource: string,
-  sub: string,
-  column: string,
-): string => `resources.${resource}.subResources.${sub}.columns.${column}`;
-
 export const enumKey = (enumName: string, value: string): string =>
   `enums.${enumName}.${value}`;
 

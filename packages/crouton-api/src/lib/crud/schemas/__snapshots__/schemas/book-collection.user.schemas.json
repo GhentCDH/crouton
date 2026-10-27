@@ -149,7 +149,19 @@
             "initialData": {}
           }
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.user.columns.name"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "labelKey": "resources.user.columns.email"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -202,7 +214,19 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.user.columns.name"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "labelKey": "resources.user.columns.email"
+        }
+      ]
     },
     "view": {
       "data": {
@@ -275,7 +299,24 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.user.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.user.columns.name"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "labelKey": "resources.user.columns.email"
+        }
+      ]
     }
   },
   "allowedIncludes": []

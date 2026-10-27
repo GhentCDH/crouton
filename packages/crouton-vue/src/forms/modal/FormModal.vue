@@ -81,7 +81,7 @@ import {
   provideUniqueCheck,
   useFormLogic,
 } from '@ghentcdh/crouton-forms-vue';
-import { useLanguage } from '../../composables/useLanguage';
+import { useLanguage } from '../../i18n/useLanguage';
 
 import FormComponent from '../FormComponent.vue';
 

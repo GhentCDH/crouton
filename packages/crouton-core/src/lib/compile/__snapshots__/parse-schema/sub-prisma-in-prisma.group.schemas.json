@@ -78,7 +78,14 @@
           "defaultSortId": "name",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.group.columns.name"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -127,7 +134,25 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.group.columns.name"
+        },
+        {
+          "id": "chapters",
+          "label": "Chapters",
+          "labelKey": "resources.group.columns.chapters",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./chapter/resource.json",
+            "relationType": "oneToMany",
+            "foreignKey": "group_id"
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -196,7 +221,30 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.group.columns.id"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "labelKey": "resources.group.columns.name"
+        },
+        {
+          "id": "chapters",
+          "label": "Chapters",
+          "labelKey": "resources.group.columns.chapters",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./chapter/resource.json",
+            "relationType": "oneToMany",
+            "foreignKey": "group_id"
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

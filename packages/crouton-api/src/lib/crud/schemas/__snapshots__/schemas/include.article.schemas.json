@@ -78,7 +78,14 @@
           "defaultSortId": "title",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.article.columns.title"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -132,7 +139,28 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.article.columns.title"
+        },
+        {
+          "id": "authorId",
+          "label": "Author",
+          "labelKey": "resources.article.columns.authorId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./author.resource",
+            "relationType": "manyToOne",
+            "options": {
+              "resourceUri": "http://localhost:3000/author",
+              "schemasUri": "http://localhost:3000/author/schemas"
+            }
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -226,7 +254,38 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.article.columns.id"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.article.columns.title"
+        },
+        {
+          "id": "authorId",
+          "label": "Author",
+          "labelKey": "resources.article.columns.authorId",
+          "fieldInput": {
+            "type": "autocomplete",
+            "resource": "./author.resource",
+            "relationType": "manyToOne",
+            "options": {
+              "resourceUri": "http://localhost:3000/author",
+              "schemasUri": "http://localhost:3000/author/schemas"
+            }
+          }
+        },
+        {
+          "id": "tags",
+          "label": "Tags",
+          "labelKey": "resources.article.columns.tags"
+        }
+      ]
     }
   },
   "allowedIncludes": []

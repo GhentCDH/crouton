@@ -50,13 +50,16 @@
       },
       "columns": [
         {
-          "id": "name"
+          "id": "name",
+          "labelKey": "resources.product.columns.name"
         },
         {
-          "id": "sku"
+          "id": "sku",
+          "labelKey": "resources.product.columns.sku"
         },
         {
-          "id": "price"
+          "id": "price",
+          "labelKey": "resources.product.columns.price"
         }
       ],
       "defaultSort": "name",
@@ -150,16 +153,20 @@
       },
       "columns": [
         {
-          "id": "name"
+          "id": "name",
+          "labelKey": "resources.product.columns.name"
         },
         {
-          "id": "sku"
+          "id": "sku",
+          "labelKey": "resources.product.columns.sku"
         },
         {
-          "id": "price"
+          "id": "price",
+          "labelKey": "resources.product.columns.price"
         },
         {
-          "id": "stock"
+          "id": "stock",
+          "labelKey": "resources.product.columns.stock"
         }
       ]
     },
@@ -270,19 +277,24 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.product.columns.id"
         },
         {
-          "id": "name"
+          "id": "name",
+          "labelKey": "resources.product.columns.name"
         },
         {
-          "id": "sku"
+          "id": "sku",
+          "labelKey": "resources.product.columns.sku"
         },
         {
-          "id": "price"
+          "id": "price",
+          "labelKey": "resources.product.columns.price"
         },
         {
-          "id": "stock"
+          "id": "stock",
+          "labelKey": "resources.product.columns.stock"
         }
       ]
     }

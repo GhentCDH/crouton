@@ -1,6 +1,8 @@
 import type { AxiosInstance } from 'axios';
 import { type Ref, ref } from 'vue';
 
+import type { TranslationBundle } from '@ghentcdh/crouton-core';
+
 import { getUiDefaults } from '../i18n/ui-defaults';
 
 const STORAGE_KEY = 'crouton.language';
@@ -18,6 +20,9 @@ const _userUiDict = ref<Record<string, unknown>>({});
 const _uiDictionary = ref<Record<string, unknown>>(
   getUiDefaults(_persistedLang) as Record<string, unknown>,
 );
+
+/** Full translation bundle for the current language (resources, enums, sidebarGroups, ui, validation). */
+const _bundle = ref<TranslationBundle>({});
 
 const mergeUiDictionary = () => {
   const defaults = getUiDefaults(_language.value) as Record<string, unknown>;
@@ -184,6 +189,31 @@ export const setUiDictionary = (dict: Record<string, unknown>) => {
 };
 
 /**
+ * Look up a key in the full translation bundle (resources, enums, sidebarGroups, ui, validation).
+ * Supports dotted paths: `translator('resources.books.columns.title')`.
+ * Returns `fallback` (defaults to the key itself) when the path is missing.
+ */
+const translator = (path: string, fallback?: string): string => {
+  const parts = path.split('.');
+  let current: unknown = _bundle.value;
+  for (const part of parts) {
+    if (current === null || typeof current !== 'object') return fallback ?? path;
+    current = (current as Record<string, unknown>)[part];
+  }
+  return typeof current === 'string' && current !== '' ? current : (fallback ?? path);
+};
+
+/** Replace the full translation bundle (called by useCrouton after /_app/translations fetch). */
+export const setBundle = (bundle: TranslationBundle) => {
+  _bundle.value = bundle;
+  // Keep ui dict in sync so t() still works.
+  if (bundle.ui) {
+    _userUiDict.value = bundle.ui as Record<string, unknown>;
+    mergeUiDictionary();
+  }
+};
+
+/**
  * Reactive language state for the application.
  *
  * Mirrors the `useApi()` singleton pattern: module-level refs, one
@@ -194,15 +224,21 @@ export const useLanguage = (): {
   languages: Ref<string[]>;
   defaultLanguage: Ref<string>;
   displayNames: Ref<Record<string, string>>;
+  bundle: Ref<TranslationBundle>;
   setLanguage: (lang: string) => Promise<void>;
+  /** Translate a key in the ui dictionary (backward-compat). */
   t: (path: string, fallback?: string) => string;
+  /** Translate any key in the full bundle (resources, enums, sidebarGroups, ui, validation). */
+  translator: (path: string, fallback?: string) => string;
 } => ({
   language: _language,
   languages: _languages,
   defaultLanguage: _defaultLanguage,
   displayNames: _displayNames,
+  bundle: _bundle,
   setLanguage,
   t,
+  translator,
 });
 
 /**
