@@ -2,7 +2,6 @@ import type {
   CalculatedColumn,
   JsonIncludeEntry,
 } from '@ghentcdh/crouton-core';
-import { buildChildSortClause } from '@ghentcdh/crouton-core';
 
 import type { SubResourceConfig } from '../../resource/SubResource.schema'; // ── SQL expression helpers ────────────────────────────────────────────────
 
@@ -173,8 +172,6 @@ export const buildIncludeClause = (
     }),
   );
 };
-
-export { buildChildSortClause };
 
 /**
  * Build the merged Prisma `include` clause for `findOne`.
