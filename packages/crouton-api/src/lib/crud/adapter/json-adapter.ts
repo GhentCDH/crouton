@@ -3,7 +3,6 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type {
   CalculatedColumn,
   JsonColumn,
-  RelationFieldInputOptions,
   ResourceJson,
 } from '@ghentcdh/crouton-core';
 import {
@@ -37,7 +36,6 @@ import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
 
-
 export const fromJson = (
   json: ResourceJson,
   schema: ZodObject<ZodRawShape> | undefined,
@@ -56,7 +54,14 @@ export const fromJson = (
   repository?: CustomRepository,
 ): Resource => {
   const isCustom = json.kind === 'custom';
-  const src = (json as any).source as { model?: string; dbTable?: string; datasource?: string; idType?: 'string' | 'number' } | undefined;
+  const src = (json as any).source as
+    | {
+        model?: string;
+        dbTable?: string;
+        datasource?: string;
+        idType?: 'string' | 'number';
+      }
+    | undefined;
   const rawColumns = expandExtendColumns(json.columns ?? [], dirPath);
   const columns = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -104,7 +109,10 @@ export const fromJson = (
   ];
 
   const regularColumns = enrichedColumns.filter((c) => !(c as any).computed);
-  const visibilityColumns = resolveColumnVisibility(regularColumns, json.layout);
+  const visibilityColumns = resolveColumnVisibility(
+    regularColumns,
+    json.layout,
+  );
   const rawViews = buildLayouts(json.layout, {
     columns: visibilityColumns,
     source: schema
@@ -129,12 +137,30 @@ export const fromJson = (
 
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && !isCustom;
-  const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const resolvedDisplayKeys = resolveLookupDisplayKeys(enrichedColumns, dirPath);
-  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup, resolvedDisplayKeys);
+  const searchPaths = buildSearch(
+    enrichedColumns,
+    extractFindAllSearch(findAll),
+    findAllEnabled,
+  );
+  const resolvedDisplayKeys = resolveLookupDisplayKeys(
+    enrichedColumns,
+    dirPath,
+  );
+  const lookup = buildLookup(
+    enrichedColumns,
+    searchPaths,
+    (json as any).lookup,
+    resolvedDisplayKeys,
+  );
   const findOneOp = json.operations?.findOne;
-  const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
-  const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
+  const enrichedInclude = enrichIncludeWithSort(
+    extractOpInclude(findAll),
+    enrichedColumns,
+  );
+  const enrichedFindOneInclude = enrichIncludeWithSort(
+    extractOpInclude(findOneOp),
+    enrichedColumns,
+  );
   const definition = buildResourceDefinitions(
     schema,
     json.operations,
@@ -144,10 +170,13 @@ export const fromJson = (
   const formContainer = (json.layout?.form as any)?.container;
   const viewContainer = (json.layout?.view as any)?.container;
   const derivedDisplay = {
-    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as 'modal' | 'page',
-    customComponent: ((json.layout?.view as any)?.component ?? null) as string | null,
+    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as
+      'modal' | 'page',
+    customComponent: ((json.layout?.view as any)?.component ?? null) as
+      string | null,
   };
-  const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
+  const derivedModalSize = (formContainer?.size ?? 'sm') as
+    'xs' | 'sm' | 'lg' | 'xl';
   return {
     ...json,
     name: json.name,
@@ -172,7 +201,9 @@ export const fromJson = (
     ...(actions?.length && { actions }),
     ...(tableActions?.length && { tableActions }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
-    ...(enrichedFindOneInclude?.length && { findOneInclude: enrichedFindOneInclude }),
+    ...(enrichedFindOneInclude?.length && {
+      findOneInclude: enrichedFindOneInclude,
+    }),
     ...(buildValueLabelColumns(enrichedColumns).length && {
       valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
@@ -187,12 +218,18 @@ const resolveLookupDisplayKeys = (
   const result: Record<string, string> = {};
   if (!dirPath) return result;
   for (const col of columns) {
-    if (!col.showInLookup || col.fieldInput?.relationType !== 'manyToOne') continue;
+    if (!col.showInLookup || col.fieldInput?.relationType !== 'manyToOne')
+      continue;
     if (!col.fieldInput?.resource) continue;
     const child = resolveChildResource(col.fieldInput.resource, dirPath);
-    const childColumns = child ? expandExtendColumns(child.json.columns ?? [], dirPath) : undefined;
-    const displayCol = childColumns?.find((c) => !c.idField && !c.hiddenInTable);
-    if (displayCol) result[col.id] = `${col.id.replace(/Id$/, '')}.${displayCol.id}`;
+    const childColumns = child
+      ? expandExtendColumns(child.json.columns ?? [], dirPath)
+      : undefined;
+    const displayCol = childColumns?.find(
+      (c) => !c.idField && !c.hiddenInTable,
+    );
+    if (displayCol)
+      result[col.id] = `${col.id.replace(/Id$/, '')}.${displayCol.id}`;
   }
   return result;
 };
