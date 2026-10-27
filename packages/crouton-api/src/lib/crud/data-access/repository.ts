@@ -10,13 +10,12 @@ import {
 import type { DataSourceAdapter } from './adapter/data-source.adapter';
 import { PrismaDataSourceAdapter } from './adapter/prisma.adapter';
 import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from './middleware/hooks';
-import { resolveValueLabelColumns } from './middleware/translation';
 import { ReadRepository } from './read.repository';
+import { WriteRepository, stripSubResourceKeys } from './write.repository';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { toSelectFields } from './query/select';
-import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = any> {
@@ -138,9 +137,7 @@ export function createCrudRepository<T = any>(
 
     const mkDecorateFindAll = (adapter: DataSourceAdapter) =>
       async (rows: any[], request?: any): Promise<any[]> => {
-        const vlCols = await resolveValueLabelColumns(config.route, config.valueLabelColumns, configRegistry);
-        const target = vlCols === config.valueLabelColumns ? config : { hooks: config.hooks, valueLabelColumns: vlCols };
-        const decorated = await decorateRows(rows, 'findAll', target, adapter, request);
+        const decorated = await decorateRows(rows, 'findAll', config, adapter, request);
         return applyAfterFindAll(decorated, config, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
@@ -295,16 +292,7 @@ export function createCrudRepository<T = any>(
 
   // ── Resource-level decoration helpers ────────────────────────────────────
   const decorateFindAll = async (rows: any[], request?: any): Promise<any[]> => {
-    const vlCols = await resolveValueLabelColumns(
-      config.route,
-      config.valueLabelColumns,
-      configRegistry,
-    );
-    const target =
-      vlCols === config.valueLabelColumns
-        ? config
-        : { hooks: config.hooks, valueLabelColumns: vlCols };
-    const decorated = await decorateRows(rows, 'findAll', target, adapter, request);
+    const decorated = await decorateRows(rows, 'findAll', config, adapter, request);
     return applyAfterFindAll(decorated, config, adapter, request);
   };
 

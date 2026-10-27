@@ -5,9 +5,13 @@ import { FieldInputSchema } from '../../resource/FieldInput.schema';
 export const ViewColumnConfigSchema = z.object({
   id: z.string(),
   label: z.string().optional(),
+  /** i18n key for the column header label. Frontend: `translator(labelKey, label)`. Auto-populated from columnKey(resourceName, id); override via JsonColumn.labelKey for per-context differences. */
+  labelKey: z.string().optional(),
   sortable: z.boolean().optional(),
   searchable: z.boolean().optional(),
   fieldInput: FieldInputSchema.optional(),
+  // When set, the frontend translates cell values via enumKey(enumName, value).
+  enumName: z.string().optional(),
 });
 
 export type ViewColumnConfig = z.infer<typeof ViewColumnConfigSchema>;

@@ -39,10 +39,12 @@
       },
       "columns": [
         {
-          "id": "number"
+          "id": "number",
+          "labelKey": "resources.order.columns.number"
         },
         {
-          "id": "status"
+          "id": "status",
+          "labelKey": "resources.order.columns.status"
         }
       ],
       "defaultSort": "id",
@@ -100,10 +102,12 @@
       },
       "columns": [
         {
-          "id": "number"
+          "id": "number",
+          "labelKey": "resources.order.columns.number"
         },
         {
-          "id": "status"
+          "id": "status",
+          "labelKey": "resources.order.columns.status"
         }
       ]
     },
@@ -178,13 +182,16 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.order.columns.id"
         },
         {
-          "id": "number"
+          "id": "number",
+          "labelKey": "resources.order.columns.number"
         },
         {
-          "id": "status"
+          "id": "status",
+          "labelKey": "resources.order.columns.status"
         }
       ]
     }

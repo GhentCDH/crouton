@@ -78,7 +78,14 @@
           "defaultSortId": "title",
           "defaultSortDir": "asc"
         }
-      }
+      },
+      "columns": [
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.book.columns.title"
+        }
+      ]
     },
     "form": {
       "data": {
@@ -127,7 +134,24 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "categories",
+          "label": "Categories",
+          "labelKey": "resources.book.columns.categories",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./category.resource",
+            "relationType": "manyToMany"
+          }
+        }
+      ]
     },
     "view": {
       "data": {
@@ -196,7 +220,29 @@
             }
           }
         ]
-      }
+      },
+      "columns": [
+        {
+          "id": "id",
+          "label": "Id",
+          "labelKey": "resources.book.columns.id"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "categories",
+          "label": "Categories",
+          "labelKey": "resources.book.columns.categories",
+          "fieldInput": {
+            "format": "relation",
+            "resource": "./category.resource",
+            "relationType": "manyToMany"
+          }
+        }
+      ]
     }
   },
   "allowedIncludes": []

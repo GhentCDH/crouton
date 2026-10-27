@@ -16,6 +16,8 @@ export type LayoutBuildContext = {
   columns: JsonColumn[];
   source: ViewJsonSchemaSource;
   warn: (msg: string) => void;
+  /** Resource name/route — used to auto-generate labelKey on ViewColumnConfig columns. */
+  resourceName?: string;
 };
 
 export type { ViewConfig };

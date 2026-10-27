@@ -9,8 +9,7 @@ import {
 import { resolveLanguage, validationKey } from '@ghentcdh/crouton-core';
 
 import { CroutonValidationError } from './crouton-validation.error';
-import { getRequestLanguage } from './data-access/middleware/translation/language.context';
-import { TranslationRegistry } from './data-access/middleware/translation/translation.registry';
+import { TranslationRegistry, getRequestLanguage } from './i18n';
 
 /**
  * Handles `CroutonValidationError` thrown by `ZodValidationPipe`.

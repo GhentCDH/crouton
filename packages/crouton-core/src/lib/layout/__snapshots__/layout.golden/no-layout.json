@@ -50,13 +50,16 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.item.columns.id"
         },
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.item.columns.title"
         },
         {
-          "id": "status"
+          "id": "status",
+          "labelKey": "resources.item.columns.status"
         }
       ],
       "defaultSort": "id",
@@ -133,13 +136,16 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.item.columns.title"
         },
         {
-          "id": "description"
+          "id": "description",
+          "labelKey": "resources.item.columns.description"
         },
         {
-          "id": "status"
+          "id": "status",
+          "labelKey": "resources.item.columns.status"
         }
       ]
     },
@@ -233,16 +239,20 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.item.columns.id"
         },
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.item.columns.title"
         },
         {
-          "id": "description"
+          "id": "description",
+          "labelKey": "resources.item.columns.description"
         },
         {
-          "id": "status"
+          "id": "status",
+          "labelKey": "resources.item.columns.status"
         }
       ]
     }

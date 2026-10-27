@@ -51,13 +51,16 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.task.columns.title"
         },
         {
-          "id": "priority"
+          "id": "priority",
+          "labelKey": "resources.task.columns.priority"
         },
         {
-          "id": "assignee"
+          "id": "assignee",
+          "labelKey": "resources.task.columns.assignee"
         }
       ],
       "defaultSort": "id",
@@ -134,13 +137,16 @@
       },
       "columns": [
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.task.columns.title"
         },
         {
-          "id": "priority"
+          "id": "priority",
+          "labelKey": "resources.task.columns.priority"
         },
         {
-          "id": "assignee"
+          "id": "assignee",
+          "labelKey": "resources.task.columns.assignee"
         }
       ]
     },
@@ -196,10 +202,12 @@
       },
       "columns": [
         {
-          "id": "priority"
+          "id": "priority",
+          "labelKey": "resources.task.columns.priority"
         },
         {
-          "id": "assignee"
+          "id": "assignee",
+          "labelKey": "resources.task.columns.assignee"
         }
       ]
     },
@@ -293,16 +301,20 @@
       },
       "columns": [
         {
-          "id": "id"
+          "id": "id",
+          "labelKey": "resources.task.columns.id"
         },
         {
-          "id": "title"
+          "id": "title",
+          "labelKey": "resources.task.columns.title"
         },
         {
-          "id": "priority"
+          "id": "priority",
+          "labelKey": "resources.task.columns.priority"
         },
         {
-          "id": "assignee"
+          "id": "assignee",
+          "labelKey": "resources.task.columns.assignee"
         }
       ]
     }

@@ -119,6 +119,12 @@ export const JsonColumnBaseSchema = z.object({
     .describe(
       'Human-readable label shown in forms and table headers. Defaults to a title-cased version of "id".',
     ),
+  labelKey: z
+    .string()
+    .optional()
+    .describe(
+      'Override the auto-generated i18n key for this column\'s label. When omitted, the key is derived as columnKey(resourceName, id). Set a custom key to use a different translation per context (e.g. a shared label across resources).',
+    ),
   hiddenInTable: z
     .boolean()
     .default(false)

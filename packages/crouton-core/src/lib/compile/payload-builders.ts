@@ -228,7 +228,7 @@ export const buildViewsPayload = (
   const schemas = Object.fromEntries(
     Object.entries(config.views).map(([key, v]) => [
       key,
-      { data: v.json_schema, ui: v.ui_schema },
+      { data: v.json_schema, ui: v.ui_schema, ...(v.columns?.length && { columns: v.columns }) },
     ]),
   );
 

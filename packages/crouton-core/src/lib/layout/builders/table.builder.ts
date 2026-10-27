@@ -21,7 +21,7 @@ export const buildTableLayout = (
   const views: Record<string, ViewConfig> = {};
 
   const tableCols = columns?.map((c) => columnForContext(c, 'table'));
-  let table = buildView(source, tableCols, (c) => !c.hiddenInTable, buildTableUiSchema, true);
+  let table = buildView(source, tableCols, (c) => !c.hiddenInTable, buildTableUiSchema, true, undefined, ctx.resourceName);
   if (table) {
     const defaultSortResult = resolveDefaultSort(
       table.columns as any[],
@@ -64,6 +64,8 @@ export const buildTableLayout = (
       (c) => isFilterable(c),
       buildFormUiSchema,
       true,
+      undefined,
+      ctx.resourceName,
     );
     if (filter) {
       patchFilterProperties(filter.json_schema as Record<string, any>, columns?.filter(isFilterable));

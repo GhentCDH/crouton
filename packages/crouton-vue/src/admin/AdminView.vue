@@ -12,7 +12,7 @@
             <!-- Group with children -->
             <li v-if="isSidebarGroup(node)">
               <details open>
-                <summary class="font-semibold">{{ node.label }}</summary>
+                <summary class="font-semibold">{{ lang.translator(sidebarGroupKey(node.id), node.label) }}</summary>
                 <ul>
                   <li v-for="child in node.children" :key="child.id">
                     <RouterLink
@@ -20,7 +20,7 @@
                       :to="{ name: CROUTON_FORM, params: { formId: child.id } }"
                       active-class="bg-white font-bold"
                     >
-                      {{ child.label }}
+                      {{ lang.translator(resourceSidebarKey(child.id), child.label) }}
                     </RouterLink>
                   </li>
                 </ul>
@@ -34,7 +34,7 @@
                 :to="{ name: CROUTON_FORM, params: { formId: node.id } }"
                 active-class="bg-white font-bold"
               >
-                {{ node.label }}
+                {{ lang.translator(resourceSidebarKey(node.id), node.label) }}
               </RouterLink>
             </li>
           </template>
@@ -94,13 +94,17 @@ import { Drawer } from '@ghentcdh/crouton-ui-vue';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
+import { resourceSidebarKey, sidebarGroupKey } from '@ghentcdh/crouton-core';
+
 import { CROUTON_DEV_RESOURCES, CROUTON_FORM } from '../router';
 import { isSidebarGroup } from '../composables/sidebar';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import { useLanguage } from '../i18n/useLanguage';
 import LanguageSelect from '../i18n/LanguageSelect.vue';
 
 const app = useCrouton();
+const lang = useLanguage();
 
 interface VisibilityResource {
   name: string;
