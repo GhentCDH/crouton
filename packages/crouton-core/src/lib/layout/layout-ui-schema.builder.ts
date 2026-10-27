@@ -1,32 +1,35 @@
+import type { UISchemaElement } from '@jsonforms/core';
+
 import type { LayoutControl, LayoutNode } from './schema';
 import { isComponentControl, isComponentItem, isNodeItem } from './schema';
+import type { ControlOption } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import { LayoutType } from '../layout/layout.options';
 import type { JsonColumn } from '../resource/Column';
 import { buildConditionSchema, buildFormControl } from '../schema/column/form-control';
 
-const buildContainerForNode = (node: LayoutNode): LayoutBuilder<any> => {
+const buildContainerForNode = (node: LayoutNode): LayoutBuilder => {
   const type = node.type ?? 'grid';
-  let builder: LayoutBuilder<any>;
+  let builder: LayoutBuilder;
   switch (type) {
     case 'collapse':
-      builder = LayoutBuilder.collapse<any>();
+      builder = LayoutBuilder.collapse();
       if (node.title) builder.title(node.title);
       if (node.titleKey) builder.titleKey(node.titleKey);
       break;
     case 'group':
-      builder = LayoutBuilder.group<any>();
+      builder = LayoutBuilder.group();
       if (node.title) builder.title(node.title);
       if (node.titleKey) builder.titleKey(node.titleKey);
       break;
     case 'horizontal':
-      builder = LayoutBuilder.horizontal<any>();
+      builder = LayoutBuilder.horizontal();
       break;
     case 'vertical':
-      builder = LayoutBuilder.vertical<any>();
+      builder = LayoutBuilder.vertical();
       break;
     default:
-      builder = LayoutBuilder.grid<any>(node.columns);
+      builder = LayoutBuilder.grid(node.columns);
   }
   if (node.colspan !== undefined) builder.colspan(node.colspan);
   if (node.rowspan !== undefined) builder.rowspan(node.rowspan);
@@ -47,18 +50,18 @@ const applyControlOverrides = (
   if (typeof ctrl === 'string' || isComponentControl(ctrl)) return base;
   if (ctrl.colspan !== undefined) base.colspan(ctrl.colspan);
   if (ctrl.rowspan !== undefined) base.rowspan(ctrl.rowspan);
-  if (ctrl.width !== undefined) base.width(ctrl.width as any);
+  if (ctrl.width !== undefined) base.width(ctrl.width);
   if (ctrl.label !== undefined) base.label(ctrl.label);
   if (ctrl.hideLabel) base.hideLabel();
   if (ctrl.type !== undefined) {
-    base.control(ctrl.type, ctrl.options as any);
+    base.control(ctrl.type, ctrl.options as Partial<ControlOption>);
   } else if (ctrl.options !== undefined) {
     // ponytail: shallow merge — styles deep-merge not needed yet
-    (base as any).opt(ctrl.options);
+    base.opt(ctrl.options as Partial<ControlOption>);
   }
   // disabled/disabledWhen go into options so the rule slot stays free for show/hide
-  if (ctrl.disabled !== undefined) (base as any).opt({ disabled: ctrl.disabled });
-  if (ctrl.disabledWhen) (base as any).opt({ disabledWhen: ctrl.disabledWhen });
+  if (ctrl.disabled !== undefined) base.opt({ disabled: ctrl.disabled });
+  if (ctrl.disabledWhen) base.opt({ disabledWhen: ctrl.disabledWhen });
   if (ctrl.showWhen) {
     base.showWhen(
       `#/properties/${ctrl.showWhen.field}`,
@@ -78,13 +81,13 @@ const buildNodeInto = (
   colMap: Map<string, JsonColumn>,
   warn: (msg: string) => void,
   seenIds: Set<string>,
-): LayoutBuilder<any> => {
+): LayoutBuilder => {
   const container = buildContainerForNode(node);
 
   // Single items list: components, field controls, nested nodes — in declared order
   for (const item of (node.items ?? [])) {
     if (isComponentItem(item)) {
-      const ctrl = item as any;
+      const ctrl = item;
       container.addControl({
         build: () => ({
           type: LayoutType.ComponentElement,
@@ -128,19 +131,19 @@ export const buildFormUiSchemaFromLayout = (
   node: LayoutNode,
   cols: JsonColumn[],
   warn: (msg: string) => void = console.warn,
-): Record<string, unknown> => {
+): UISchemaElement => {
   const colMap = new Map(cols.map((c) => [c.id, c]));
   const seenIds = new Set<string>();
 
   const root = buildNodeInto(node, colMap, warn, seenIds);
-  return root.build() as unknown as Record<string, unknown>;
+  return root.build();
 };
 
 /** Flatten the layout node tree depth-first into an ordered list of all leaf items (fields + components). */
 export const flattenLayoutItems = (node: LayoutNode): LayoutControl[] => {
   const result: LayoutControl[] = [];
   const visit = (n: LayoutNode): void => {
-    for (const item of (n as any).items ?? []) {
+    for (const item of (n.items ?? [])) {
       if (isNodeItem(item)) visit(item as LayoutNode);
       else result.push(item as LayoutControl);
     }

@@ -1,5 +1,8 @@
+import type { Layout } from '@jsonforms/core';
+
 import { isArrayColumn, isObjectColumn } from './predicates';
 import { ControlBuilder } from '../../layout/control.builder';
+import type { MarkdownOptions } from '../../layout/control.builder';
 import { LayoutBuilder } from '../../layout/layout.builder';
 import type { WhenCondition } from '../../layout/schema/LayoutControl.schema';
 import { type JsonColumn, normalizeUnique } from '../../resource/Column';
@@ -28,19 +31,19 @@ export const buildRule = (
 const buildDetailLayout = (detail: DetailConfig) => {
   const inner =
     detail.layout === 'collapse'
-      ? LayoutBuilder.collapse<any>()
-      : LayoutBuilder.horizontal<any>();
+      ? LayoutBuilder.collapse()
+      : LayoutBuilder.horizontal();
 
   inner.addControls(
     ...detail.controls.map((dc) => {
-      const ctrl = ControlBuilder.properties<any>(dc.property as keyof any);
+      const ctrl = ControlBuilder.propertiesStr(dc.property);
       if (dc.type === 'markdown') {
-        ctrl.markdown(dc.options as any);
+        ctrl.markdown(dc.options as Partial<Omit<MarkdownOptions, 'format'>>);
       } else if (dc.type) {
         ctrl.control(dc.type, dc.options ?? {});
       }
       if (dc.hideLabel) ctrl.hideLabel();
-      if (dc.width) ctrl.width(dc.width as any);
+      if (dc.width) ctrl.width(dc.width);
       return ctrl;
     }),
   );
@@ -64,20 +67,20 @@ const defaultControlFormat = (col: JsonColumn): string => {
   return 'text';
 };
 
-export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
-  const control = ControlBuilder.properties<any>(col.id as keyof any);
+export const buildFormControl = (col: JsonColumn): ControlBuilder<Record<string, unknown>> => {
+  const control = ControlBuilder.propertiesStr(col.id);
   const fieldInput = col.fieldInput;
 
   if (col.relation !== undefined || fieldInput?.format === 'relation') {
-    const options: any = { ...(fieldInput?.options as object | undefined) };
-    if (!options.colspan) options.colspan = 12;
+    const options: Record<string, unknown> = { ...(fieldInput?.options as object | undefined) };
+    if (!options['colspan']) options['colspan'] = 12;
     const relationType = col.relation?.type ?? fieldInput?.relationType;
-    if (relationType) options.relationType = relationType;
+    if (relationType) options['relationType'] = relationType;
     control.control('relation', options).width('full');
   } else if (fieldInput?.type === 'autocomplete') {
-    const options: any = { ...(fieldInput.options as object | undefined) };
-    if (!options.colspan) options.colspan = 12;
-    if (fieldInput.relationType) options.relationType = fieldInput.relationType;
+    const options: Record<string, unknown> = { ...(fieldInput.options as object | undefined) };
+    if (!options['colspan']) options['colspan'] = 12;
+    if (fieldInput.relationType) options['relationType'] = fieldInput.relationType;
     // Use explicit format when set; otherwise the type itself is the format.
     const format = fieldInput.format ?? fieldInput.type;
     control.control(format, options).width('full');
@@ -93,20 +96,20 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
     // Explicit branch (like date-range below) so the datepicker's date options
     // — withTime / min / max / locale — survive into the uischema. Without it
     // these fall through the generic else and are silently dropped.
-    const options: any = { ...(fieldInput.options as object | undefined) };
-    if (!options.colspan) options.colspan = 12;
+    const options: Record<string, unknown> = { ...(fieldInput.options as object | undefined) };
+    if (!options['colspan']) options['colspan'] = 12;
     const format = fieldInput.format === 'dateTime' ? 'dateTime' : 'date';
     control.control(format, options).width('full');
   } else if (fieldInput?.format === 'date-range') {
     // Drive the renderer off the explicit `format` so its option-based tester
     // matches, not `type` (which for this json column is 'object' and has no
     // renderer). Mirrors the relation branch.
-    const options: any = { ...(fieldInput.options as object | undefined) };
-    if (!options.colspan) options.colspan = 12;
+    const options: Record<string, unknown> = { ...(fieldInput.options as object | undefined) };
+    if (!options['colspan']) options['colspan'] = 12;
     control.control('date-range', options).width('full');
   } else {
-    const options: any = fieldInput?.options ?? {};
-    if (!options.colspan) options.colspan = 12;
+    const options: Record<string, unknown> = { ...(fieldInput?.options as object | undefined) };
+    if (!options['colspan']) options['colspan'] = 12;
     // Drive the renderer off the column's declared shape when no widget is
     // named. Without this an object/array column falls through to `text`, whose
     // tester requires a string schema, and no renderer matches at all.
@@ -127,10 +130,8 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<any> => {
 };
 
 /** Build the GridLayout UI schema for a form view. */
-export const buildFormUiSchema = (
-  cols: JsonColumn[],
-): Record<string, unknown> => {
-  const layout = LayoutBuilder.grid<any>();
+export const buildFormUiSchema = (cols: JsonColumn[]): Layout => {
+  const layout = LayoutBuilder.grid();
   for (const col of cols) layout.addControl(buildFormControl(col));
-  return layout.build() as unknown as Record<string, unknown>;
+  return layout.build();
 };

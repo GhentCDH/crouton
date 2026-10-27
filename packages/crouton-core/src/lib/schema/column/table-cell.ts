@@ -46,23 +46,25 @@ export const pickSharedCellOptions = (
 export const buildTableUiSchema = (
   cols: JsonColumn[],
 ): Record<string, unknown> => {
-  const layout = TableBuilder.init<any>()
+  const layout = TableBuilder.init()
     .addControls(
       ...cols.map((col) => {
         const cellBuilder = isBoolean(col)
           ? BooleanCellBuilder
           : TextCellBuilder;
-        let builder = cellBuilder.properties<any>(col.id as keyof any);
+        let builder = cellBuilder.propertiesStr(col.id);
         if (col.displayKey) builder = builder.key(col.displayKey);
         if (col.sortId) builder = builder.setSortId(col.sortId);
         return builder;
       }),
     )
-    .build() as any;
+    .build();
 
   const colMap = Object.fromEntries(cols.map((c) => [c.id, c]));
-  layout.elements = (layout.elements as any[]).map((el: any) => {
-    const id = el.scope?.replace('#/properties/', '');
+  const elements = (layout.elements ?? []) as unknown as Record<string, unknown>[];
+   
+  layout.elements = elements.map((el) => {
+    const id = (el['scope'] as string | undefined)?.replace('#/properties/', '');
     const col = id ? colMap[id] : undefined;
     if (!col) return el;
     // Record cells get all fieldInput options; plain cells still receive the
@@ -83,7 +85,7 @@ export const buildTableUiSchema = (
     return {
       ...el,
       options: {
-        ...(el.options ?? {}),
+        ...((el['options'] as Record<string, unknown>) ?? {}),
         ...fieldInputOptions,
         ...dataPathOption,
         ...sortOptions,
@@ -96,7 +98,7 @@ export const buildTableUiSchema = (
       ...((isRecordCell(col) || isObjectCell(col)) && { type: 'RecordCell' }),
       ...(isDateRange(col) && { type: 'Control' }),
     };
-  });
+  }) as unknown as typeof layout.elements;
 
-  return layout as Record<string, unknown>;
+  return layout as unknown as Record<string, unknown>;
 };
