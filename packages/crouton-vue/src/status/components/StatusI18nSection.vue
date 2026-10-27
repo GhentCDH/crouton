@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { useLanguage } from '../../composables/useLanguage';
+import { useLanguage } from '../../i18n/useLanguage';
 import { StatusI18nSectionProperties } from './StatusI18nSection.properties';
 
 const props = defineProps(StatusI18nSectionProperties);

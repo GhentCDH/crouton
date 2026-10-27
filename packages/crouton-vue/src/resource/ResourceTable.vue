@@ -8,7 +8,7 @@ import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { Request } from '../utils/request';
-import { useLanguage } from '../composables/useLanguage';
+import { useLanguage } from '../i18n/useLanguage';
 import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
 import TableWrapperLayout from './TableWrapperLayout.vue';
 import { useResources } from './useResources';

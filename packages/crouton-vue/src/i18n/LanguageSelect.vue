@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { LanguageIcon } from '@heroicons/vue/24/outline';
 import { LanguageSelectProperties } from './LanguageSelect.properties';
-import { useLanguage } from '../composables/useLanguage';
+import { useLanguage } from './useLanguage';
 
 defineProps(LanguageSelectProperties);
 

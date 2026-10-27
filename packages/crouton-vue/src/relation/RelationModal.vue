@@ -5,7 +5,7 @@ import { useResources } from '../resource';
 import { TableComponent } from '@ghentcdh/crouton-forms-vue';
 import { type PropType, shallowRef, watch } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
-import { useLanguage } from '../composables/useLanguage';
+import { useLanguage } from '../i18n/useLanguage';
 import { customCellRenderers } from '../resource/renderers';
 
 const properties = defineProps({

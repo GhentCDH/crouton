@@ -13,11 +13,11 @@ import {
   childCtx,
   childRepositoryFn,
 } from '../custom-repository/child-delegate';
+import { resolveValueLabelColumns } from '../i18n';
 import type { DataSourceAdapter } from './adapter/data-source.adapter';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
-import { resolveValueLabelColumns } from './middleware/translation';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath, parseFilterString } from './query/filter';
 import { orderableChildSort, sanitizeValueLabelSort } from './query/sort';

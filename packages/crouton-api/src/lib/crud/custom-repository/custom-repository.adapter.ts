@@ -16,9 +16,9 @@ import {
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { DataSourceAdapter } from '../data-access/adapter/data-source.adapter';
 import { PrismaDataSourceAdapter } from '../data-access/adapter/prisma.adapter';
-import { resolveValueLabelColumns } from '../data-access/middleware/translation';
 import type { CrudRepository } from '../data-access/repository';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
+import { resolveValueLabelColumns } from '../i18n';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 

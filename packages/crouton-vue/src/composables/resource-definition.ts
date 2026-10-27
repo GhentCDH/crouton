@@ -5,7 +5,7 @@ import type { ResourceDefinition, ResourceViewSchema } from '@ghentcdh/crouton-c
 import { ResourceDefinitionResponseZ } from '@ghentcdh/crouton-core';
 
 import { useApi } from './useApi';
-import { localizeDefinition } from './localize-definition';
+import { localizeDefinition } from '../i18n/localize-definition';
 
 const stripAdditionalProperties = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripAdditionalProperties);

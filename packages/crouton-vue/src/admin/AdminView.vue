@@ -100,7 +100,7 @@ import { CROUTON_DEV_RESOURCES, CROUTON_FORM } from '../router';
 import { isSidebarGroup } from '../composables/sidebar';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
-import { useLanguage } from '../composables/useLanguage';
+import { useLanguage } from '../i18n/useLanguage';
 import LanguageSelect from '../i18n/LanguageSelect.vue';
 
 const app = useCrouton();

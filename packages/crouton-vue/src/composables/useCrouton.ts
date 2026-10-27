@@ -23,7 +23,7 @@ import {
   setBundle,
   setUiDictionary,
   useLanguage,
-} from './useLanguage';
+} from '../i18n/useLanguage';
 import {
   customControlRenderers,
   relationReadonlyRenderers,
