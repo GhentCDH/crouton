@@ -20,7 +20,11 @@ interface TableInjectOptions {
   tableActions: unknown[];
   defaultSortId?: string;
   defaultSortDir?: 'asc' | 'desc';
-  filter?: { schema: unknown; uischema: unknown; initialData: Record<string, never> };
+  filter?: {
+    schema: unknown;
+    uischema: unknown;
+    initialData: Record<string, never>;
+  };
 }
 
 const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
@@ -33,8 +37,12 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
         ...(u.options ?? {}),
         ...(opts.tableActions.length && { tableActions: opts.tableActions }),
         ...(opts.rowActions.length && { rowActions: opts.rowActions }),
-        ...(opts.defaultSortId !== undefined && { defaultSortId: opts.defaultSortId }),
-        ...(opts.defaultSortDir !== undefined && { defaultSortDir: opts.defaultSortDir }),
+        ...(opts.defaultSortId !== undefined && {
+          defaultSortId: opts.defaultSortId,
+        }),
+        ...(opts.defaultSortDir !== undefined && {
+          defaultSortDir: opts.defaultSortDir,
+        }),
         ...(opts.filter && { filter: opts.filter }),
       },
     };
@@ -49,7 +57,6 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
   }
   return u;
 };
-
 
 const resolveEnvPlaceholders = (value: string): string =>
   value.replace(
@@ -143,7 +150,7 @@ export const buildDefinitionPayload = (
   config: CompiledResource,
 ): Record<string, unknown> => {
   const { route, name, tag } = config;
-  const definition = resolveDefinition(config);
+  const definition = resolveDefinition(config as any);
   const listSchema = schemaFor(definition, 'findAll');
   const oneSchema = schemaFor(definition, 'findOne') ?? listSchema;
   const createSchema = schemaFor(definition, 'create');
@@ -159,7 +166,7 @@ export const buildDefinitionPayload = (
     route,
     tag,
     operations,
-    display: config.display,
+    // display: config.display,
     schemas: {
       ...(listSchema && { findAll: toJsonSchema(listSchema) }),
       ...(oneSchema && { findOne: toJsonSchema(oneSchema) }),
@@ -176,7 +183,7 @@ export const buildResourceJsonPayload = (
   baseUrl?: string,
 ): Record<string, unknown> => {
   const { route } = config;
-  const definition = resolveDefinition(config);
+  const definition = resolveDefinition(config as any);
   const uri = `${baseUrl}/${route}`;
   const operations: Record<string, unknown> = Object.fromEntries(
     RESOURCE_OPS.map((op) => [op, isOperationEnabled(definition, op)]),
@@ -204,7 +211,7 @@ export const buildViewsPayload = (
   baseUrl?: string,
 ): Record<string, unknown> | undefined => {
   if (!config.views || !Object.keys(config.views).length) return undefined;
-  const definition = resolveDefinition(config);
+  const definition = resolveDefinition(config as any);
   const baseUri = config.parent
     ? `${baseUrl}/${config.parent.route}/{${config.parent.param}}/${config.route}`
     : `${baseUrl}/${config.route}`;
@@ -222,7 +229,11 @@ export const buildViewsPayload = (
   const schemas = Object.fromEntries(
     Object.entries(config.views).map(([key, v]) => [
       key,
-      { data: v.json_schema, ui: v.ui_schema, ...(v.columns?.length && { columns: v.columns }) },
+      {
+        data: v.json_schema,
+        ui: v.ui_schema,
+        ...(v.columns?.length && { columns: v.columns }),
+      },
     ]),
   );
 
@@ -232,12 +243,22 @@ export const buildViewsPayload = (
   (schemas as Record<string, unknown>)['table'] = {
     ...tableSchema,
     ui: injectTableOptions((tableSchema as any).ui, {
-      rowActions: resolveActions(baseUri, resolveTableNode(config.layout?.table)?.rowActions as any),
-      tableActions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions as any),
+      rowActions: resolveActions(
+        baseUri,
+        resolveTableNode(config.layout?.table)?.rowActions as any,
+      ),
+      tableActions: resolveTableActions(
+        baseUri,
+        resolveTableNode(config.layout?.table)?.tableActions as any,
+      ),
       defaultSortId: config.views['table']?.defaultSort,
       defaultSortDir: config.views['table']?.defaultSortDir,
       ...(filterSchema && {
-        filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },
+        filter: {
+          schema: filterSchema.data,
+          uischema: filterSchema.ui,
+          initialData: {},
+        },
       }),
     }),
   };
@@ -249,14 +270,17 @@ export const buildViewsPayload = (
     uri: baseUri,
     title: config.title ?? config.tag,
     idField: config.lookup?.key ?? 'id',
-    ...(config.modalSize && { modalSize: config.modalSize }),
+    // ...(config.modalSize && { modalSize: config.modalSize }),
     operations,
-    display: config.display,
+    // display: config.display,
     schemas,
     allowedIncludes: allowedIncludes(
       (Array.isArray(config.columns)
         ? config.columns
-        : Object.entries(config.columns ?? {}).map(([id, col]) => ({ id, ...col }))) as JsonColumn[],
+        : Object.entries(config.columns ?? {}).map(([id, col]) => ({
+            id,
+            ...col,
+          }))) as JsonColumn[],
     ),
     ...pickExtensions(config as unknown as Record<string, unknown>),
   };
@@ -300,12 +324,25 @@ export const buildSubResourceViewsPayload = (
       (subSchemas as Record<string, unknown>)['table'] = {
         ...subTable,
         ui: injectTableOptions((subTable as any).ui, {
-          rowActions: resolveActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.rowActions ?? (sub as any).rowActions ?? sub.actions),
-          tableActions: resolveTableActions(subChildUri, resolveTableNode((sub as any).layout?.table)?.tableActions ?? (sub as any).tableActions),
+          rowActions: resolveActions(
+            subChildUri,
+            resolveTableNode((sub as any).layout?.table)?.rowActions ??
+              (sub as any).rowActions ??
+              sub.actions,
+          ),
+          tableActions: resolveTableActions(
+            subChildUri,
+            resolveTableNode((sub as any).layout?.table)?.tableActions ??
+              (sub as any).tableActions,
+          ),
           defaultSortId: sub.views['table']?.defaultSort,
           defaultSortDir: sub.views['table']?.defaultSortDir,
           ...(subFilterSchema && {
-            filter: { schema: subFilterSchema.data, uischema: subFilterSchema.ui, initialData: {} },
+            filter: {
+              schema: subFilterSchema.data,
+              uischema: subFilterSchema.ui,
+              initialData: {},
+            },
           }),
         }),
       };

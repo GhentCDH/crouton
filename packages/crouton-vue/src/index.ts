@@ -16,7 +16,6 @@ export * from './router';
 export * from './composables/useCrouton';
 export { useLanguage } from './i18n/useLanguage';
 export { default as LanguageSelect } from './i18n/LanguageSelect.vue';
-export * from './resource/resource-modal';
 export * from './resource/useResources';
 export * from './relation/useRelationBinding';
 export { default as RelationButton } from './relation/RelationButton.vue';

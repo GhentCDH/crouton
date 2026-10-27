@@ -195,7 +195,7 @@ export const loadResourceConfigsFromDir = async (
       // A custom sub-resource brings its own data access; the parent's
       // repository delegates to it instead of querying a Prisma model.
       await loadSubResourceRepositories(config.subResources ?? [], config.name);
-      onResourceDir?.(config.route, basePath);
+      onResourceDir?.(config.route!, basePath);
       configs.push(config);
       continue;
     }

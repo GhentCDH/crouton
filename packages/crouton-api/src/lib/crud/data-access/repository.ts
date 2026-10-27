@@ -133,7 +133,7 @@ export function createCrudRepository<T = any>(
   // model key passed to adapter methods so they can route to the right collection.
   const adapterModelKey = config.model ?? config.name;
 
-  const definition = resolveDefinition(config);
+  const definition = resolveDefinition(config as any);
   const listSchema = schemaFor(definition, 'findAll');
   const oneSchema = schemaFor(definition, 'findOne');
   const listSelect = listSchema ? toSelectFields(listSchema) : undefined;

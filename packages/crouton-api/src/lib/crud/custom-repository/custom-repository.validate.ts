@@ -26,7 +26,7 @@ export const validateCustomRepository = (
   repository: CustomRepository | undefined,
   adapterClient?: unknown,
 ): string | undefined => {
-  const definition = resolveDefinition(config);
+  const definition = resolveDefinition(config as any);
   const enabled = CUSTOM_OPS.filter(
     (op) =>
       isOperationEnabled(definition, op as CrudOperation) &&

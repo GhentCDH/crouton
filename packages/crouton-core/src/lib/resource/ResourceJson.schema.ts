@@ -18,17 +18,17 @@ import { labelFromId } from '../schema/label.helper';
 // Keys that were removed from the root schema and where they moved to.
 const ROOT_REMOVED_KEYS: Record<string, string> = {
   display:
-    "'display' moved to layout.form.container / layout.view.container (run crouton migrate)",
+    '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
   modalSize:
-    "'modalSize' moved to layout.form.container.size (run crouton migrate)",
+    '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
   include:
-    "'include' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)",
-  model: "'model' moved to source.model (run crouton migrate)",
-  table: "'table' moved to source.dbTable (run crouton migrate)",
-  database: "'database' moved to source.datasource (run crouton migrate)",
-  idType: "'idType' moved to source.idType (run crouton migrate)",
+    '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
+  model: '\'model\' moved to source.model (run crouton migrate)',
+  table: '\'table\' moved to source.dbTable (run crouton migrate)',
+  database: '\'database\' moved to source.datasource (run crouton migrate)',
+  idType: '\'idType\' moved to source.idType (run crouton migrate)',
   calculatedColumns:
-    "'calculatedColumns' moved to columns[id].computed (run crouton migrate)",
+    '\'calculatedColumns\' moved to columns[id].computed (run crouton migrate)',
 };
 
 // ── Removed `source` keys ─────────────────────────────────────────────
@@ -36,9 +36,9 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
 // Same treatment as ROOT_REMOVED_KEYS: a file that still writes them fails
 // validation instead of silently dropping the table name / datasource.
 const SOURCE_REMOVED_KEYS: Record<string, string> = {
-  table: "'source.table' moved to source.dbTable (run crouton migrate)",
+  table: '\'source.table\' moved to source.dbTable (run crouton migrate)',
   database:
-    "'source.database' moved to source.datasource (run crouton migrate)",
+    '\'source.database\' moved to source.datasource (run crouton migrate)',
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -183,7 +183,7 @@ export const ResourceJsonShape = z.object({
     .string()
     .optional()
     .describe(
-      "Database table name override. Defaults to the Prisma model's table name.",
+      'Database table name override. Defaults to the Prisma model\'s table name.',
     ),
   // TODO remove it moved to source
   idType: z
@@ -197,7 +197,7 @@ export const ResourceJsonShape = z.object({
     .string()
     .optional()
     .describe(
-      "Name of the datasource this resource uses. Defaults to the project's default datasource.",
+      'Name of the datasource this resource uses. Defaults to the project\'s default datasource.',
     ),
   /**
    * Mount this resource under a parent route instead of at the top level —
@@ -254,7 +254,7 @@ export const ResourceJsonShape = z.object({
       separator: z.string().optional().default(' '),
     })
     .optional()
-    .describe("How this resource is labelled in other resources' dropdowns."),
+    .describe('How this resource is labelled in other resources\' dropdowns.'),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
   ),
@@ -532,19 +532,19 @@ const collectRemovedLayoutKeyErrors = (
   if ('controls' in obj) {
     errors.push({
       path: [...path, 'controls'],
-      message: "'controls' was removed — use 'items'.",
+      message: '\'controls\' was removed — use \'items\'.',
     });
   }
   if ('searchFields' in obj) {
     errors.push({
       path: [...path, 'searchFields'],
-      message: "'searchFields' was moved to 'operations.findAll.search'.",
+      message: '\'searchFields\' was moved to \'operations.findAll.search\'.',
     });
   }
   if ('actions' in obj && path.some((p) => p === 'table')) {
     errors.push({
       path: [...path, 'actions'],
-      message: "'actions' was renamed to 'rowActions'.",
+      message: '\'actions\' was renamed to \'rowActions\'.',
     });
   }
 

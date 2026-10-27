@@ -11,7 +11,7 @@ import {
   buildResourceJsonPayload,
   buildViewsPayload,
 } from './payload-builders';
-import { ResourceDefinitionResponse } from '../schema/response';
+import { type ResourceDefinitionResponse } from '../schema/response';
 
 export type ParseSchemaView = 'schemas' | 'definition' | 'resource.json';
 

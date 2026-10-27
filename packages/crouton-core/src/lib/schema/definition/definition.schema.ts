@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { SchemaInputSchema } from '../../compile/schema-input';
 import { SecuritySchema } from '../../data-source/Security.schema';
 
-
 export type { JsonSchemaInput, SchemaInput } from '../../compile/schema-input';
 
 const ExternalOperationDefSchema = z.object({
@@ -34,15 +33,3 @@ export const CrudDefinitionSchema = z.object({
 });
 
 export type CrudDefinition = z.infer<typeof CrudDefinitionSchema>;
-
-const DefinitionCallbackSchema = z.function({
-  input: [],
-  output: CrudDefinitionSchema,
-});
-
-export type DefinitionCallback = () => CrudDefinition;
-
-export const DefinitionSchema = z.union([
-  CrudDefinitionSchema,
-  DefinitionCallbackSchema,
-]);
