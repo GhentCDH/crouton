@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import { isPrismaKnownError } from '@ghentcdh/crouton-core';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from '../constants';
@@ -124,7 +125,7 @@ export class WriteRepository<T = any> {
   async create(data: unknown, _request?: any): Promise<T> {
     try {
       return await this.prismaModel.create({ data });
-    } catch (e: any) {
+    } catch (e: unknown) {
       throw mapPrismaUniqueError(e, this.config) ?? e;
     }
   }
@@ -140,8 +141,8 @@ export class WriteRepository<T = any> {
         where: { [idField]: this.toId(id) },
         data,
       });
-    } catch (e: any) {
-      if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+    } catch (e: unknown) {
+      if (isPrismaKnownError(e) && e.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       const uniqueError = mapPrismaUniqueError(e, this.config);
       if (uniqueError) throw uniqueError;
       throw e;
@@ -161,8 +162,8 @@ export class WriteRepository<T = any> {
       return await this.prismaModel.delete({
         where: { [idField]: this.toId(id) },
       });
-    } catch (e: any) {
-      if (e?.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+    } catch (e: unknown) {
+      if (isPrismaKnownError(e) && e.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
       const uniqueError = mapPrismaUniqueError(e, this.config);
       if (uniqueError) throw uniqueError;
       throw e;
@@ -384,8 +385,8 @@ export class WriteRepository<T = any> {
             request,
           })
         : result;
-    } catch (e: any) {
-      if (e?.code === PRISMA_NOT_FOUND_CODE)
+    } catch (e: unknown) {
+      if (isPrismaKnownError(e) && e.code === PRISMA_NOT_FOUND_CODE)
         throw new NotFoundException(
           `${sub.childRoute} with id ${childId} not found`,
         );
@@ -452,8 +453,8 @@ export class WriteRepository<T = any> {
             request,
           })
         : result;
-    } catch (e: any) {
-      if (e?.code === PRISMA_NOT_FOUND_CODE)
+    } catch (e: unknown) {
+      if (isPrismaKnownError(e) && e.code === PRISMA_NOT_FOUND_CODE)
         throw new NotFoundException(
           `${sub.childRoute} with id ${childId} not found`,
         );
