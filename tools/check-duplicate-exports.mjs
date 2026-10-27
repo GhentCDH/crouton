@@ -39,26 +39,31 @@ const BRIDGES = new Set([
   'RawResourceJson|crouton-api,crouton-core',
   'SidebarGroupSchema|crouton-api,crouton-core',
   // P2 — action contracts now re-exported from core
+  'ActionMetadataSchema|crouton-api,crouton-core',
   'isRowProcedureAction|crouton-api,crouton-core',
   'isTableProcedureAction|crouton-api,crouton-core',
   'ResourceLinkAction|crouton-api,crouton-core',
+  'ResourceLinkActionSchema|crouton-api,crouton-core',
   'ResourceRowAction|crouton-api,crouton-core',
   'ResourceRowActionSchema|crouton-api,crouton-core',
   'ResourceRowProcedureAction|crouton-api,crouton-core',
+  'ResourceRowProcedureActionSchema|crouton-api,crouton-core',
   'ResourceTableAction|crouton-api,crouton-core',
   'ResourceTableActionSchema|crouton-api,crouton-core',
   'ResourceTableProcedureAction|crouton-api,crouton-core',
-]);
-
-// §2.1 Real copies: same logic written twice. Goal = zero. Removed phase by phase.
-// Phase 6 removes C entries.
-const COPIES = new Set([
-  // C — parseSchema + types (phase 6)
+  'ResourceTableProcedureActionSchema|crouton-api,crouton-core',
+  // P3 — parseFilterString re-exported from core in api index
+  'parseFilterString|crouton-api,crouton-core',
+  // P6 — parseSchema types: api extends/wraps core; api keeps the public name
   'ParseAppConfig|crouton-api,crouton-core',
-  'parseSchema|crouton-api,crouton-core,crouton-vue',
   'ParseSchemaInput|crouton-api,crouton-core',
   'ParseSchemaView|crouton-api,crouton-core',
+  'parseSchema|crouton-api,crouton-core,crouton-vue',
 ]);
+
+// §2.1 Real copies: same logic written twice. Goal = zero.
+// P0–P6 eliminated all copies. P7 confirms zero copies.
+const COPIES = new Set([]);
 
 // Codegen bridges (out of scope for this plan)
 const CODEGEN_BRIDGES = new Set([
