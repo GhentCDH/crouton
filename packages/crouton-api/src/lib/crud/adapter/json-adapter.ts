@@ -1,13 +1,12 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import { compileResource } from '@ghentcdh/crouton-core';
-import type { ResourceJson,
+import type { EnumRegistry, ResourceJson,
   ResourceRowAction,
-  ResourceTableAction } from '@ghentcdh/crouton-core';
+  ResourceTableAction  } from '@ghentcdh/crouton-core';
 
 
 import type { CustomRepository } from '../custom-repository';
-import type { EnumRegistry } from '../enum-registry';
 import type { ResourceHooks } from '../hooks';
 import { buildResolvers } from './resolver-builder';
 import { type Resource } from '../resource/ResourceConfig.schema';

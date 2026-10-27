@@ -1,9 +1,17 @@
-import type { JsonColumn, JsonIncludeEntry, RelationFieldInputOptions, ViewConfig } from '@ghentcdh/crouton-core';
+import {
+  type EnumRegistry,
+  type JsonColumn,
+  type JsonIncludeEntry,
+  type RelationFieldInputOptions,
+  type ViewConfig,
+  injectEnumValues,
+} from '@ghentcdh/crouton-core';
 import {
   applyRelationFormatDefault,
   buildChildSortClause,
   buildLayouts,
-  buildValueLabelColumns, deriveRelationTypeFromColumns,
+  buildValueLabelColumns,
+  deriveRelationTypeFromColumns,
   fixNestedUiSchemaScopes,
   getPrismaRelationField,
   getRelationResource,
@@ -11,10 +19,9 @@ import {
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
   isRelationColumn,
-  nestedColumnSchemaSource
+  nestedColumnSchemaSource,
 } from '@ghentcdh/crouton-core';
 
-import { type EnumRegistry, injectEnumValues } from '../enum-registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { expandExtendColumns } from './column-transforms';
 import { resolveChildResourceDetailed } from './resource-resolver';
@@ -28,7 +35,7 @@ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.reg
  */
 const REMOTE_RESOURCE = /^https?:\/\//i;
 
-/**
+/**q
  * Build `SubResourceConfig` entries for columns with `fieldInput.format === "action"`.
  */
 export const buildSubResources = (
@@ -115,11 +122,11 @@ export const buildSubResources = (
         )
         .map((col) => getPrismaRelationField(col));
       const explicitIncludes: JsonIncludeEntry[] =
-        (childJson?.operations?.findAll as any)?.include ?? childJson?.include ?? [];
+        (childJson?.operations?.findAll as any)?.include ??
+        childJson?.include ??
+        [];
       const explicitNames = new Set(
-        explicitIncludes.map((e) =>
-          typeof e === 'string' ? e : e.relation,
-        ),
+        explicitIncludes.map((e) => (typeof e === 'string' ? e : e.relation)),
       );
       const mergedIncludes: JsonIncludeEntry[] = [
         ...explicitIncludes,
@@ -143,7 +150,9 @@ export const buildSubResources = (
             ...(c.fieldInput && { fieldInput: c.fieldInput }),
           })),
       ];
-      const regularChildColumns = (enrichedChildColumns ?? []).filter((c) => !(c as any).computed);
+      const regularChildColumns = (enrichedChildColumns ?? []).filter(
+        (c) => !(c as any).computed,
+      );
       const rawChildViews = childJson
         ? buildLayouts(childJson?.layout, {
             columns: regularChildColumns,
@@ -153,14 +162,21 @@ export const buildSubResources = (
           })
         : undefined;
       const cols = enrichedChildColumns ?? [];
-      let childViews: Record<string, ViewConfig> | undefined = rawChildViews && Object.keys(rawChildViews).length
-        ? (Object.fromEntries(
-            Object.entries(rawChildViews).map(([k, v]) => [
-              k,
-              { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, cols) },
-            ]),
-          ) as Record<string, ViewConfig>)
-        : undefined;
+      let childViews: Record<string, ViewConfig> | undefined =
+        rawChildViews && Object.keys(rawChildViews).length
+          ? (Object.fromEntries(
+              Object.entries(rawChildViews).map(([k, v]) => [
+                k,
+                {
+                  ...v,
+                  ui_schema: fixNestedUiSchemaScopes(
+                    v.ui_schema as Record<string, unknown>,
+                    cols,
+                  ),
+                },
+              ]),
+            ) as Record<string, ViewConfig>)
+          : undefined;
       if (childViews && childCalculatedColumns.length) {
         childViews = {
           ...childViews,
@@ -204,9 +220,16 @@ export const buildSubResources = (
         ...((childJson as any)?.source?.dbTable
           ? { childTable: (childJson as any)?.source?.dbTable }
           : {}),
-        foreignKey: (c.relation?.foreignKey ?? c.fieldInput?.foreignKey) ?? `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
+        foreignKey:
+          c.relation?.foreignKey ??
+          c.fieldInput?.foreignKey ??
+          `${parentModel.charAt(0).toLowerCase() + parentModel.slice(1)}Id`,
         name: childJson?.name ?? childRoute,
-        title: childJson?.title ?? childJson?.openapi?.tag ?? childJson?.tag ?? childRoute,
+        title:
+          childJson?.title ??
+          childJson?.openapi?.tag ??
+          childJson?.tag ??
+          childRoute,
         idField: childLookupKey,
         idType: (childJson as any)?.source?.idType ?? 'string',
         ...(c.hiddenInTable && { hiddenInTable: true }),
@@ -219,7 +242,9 @@ export const buildSubResources = (
           patch: childOps.patch !== false,
           delete: childOps.delete !== false,
         },
-        ...((childJson?.layout?.table as any)?.actions?.length && { actions: (childJson?.layout?.table as any)?.actions }),
+        ...((childJson?.layout?.table as any)?.actions?.length && {
+          actions: (childJson?.layout?.table as any)?.actions,
+        }),
         ...(childJson?.layout?.form?.container && {
           modalSize: childJson.layout.form.container.size,
           display: { mode: childJson.layout.form.container.mode },
@@ -231,18 +256,32 @@ export const buildSubResources = (
         ...((c.hiddenInForm === false || c.hiddenInView === false) && {
           includeInFindOne: true,
           ...(() => {
-            const sort = c.relation?.sort ?? (c.fieldInput?.options as RelationFieldInputOptions | undefined)?.sort;
-            const sortDir = c.relation?.sortDir ?? (c.fieldInput?.options as RelationFieldInputOptions | undefined)?.sortDir;
-            if (sort) return { findOneOrderBy: buildChildSortClause(sort, sortDir) };
+            const sort =
+              c.relation?.sort ??
+              (c.fieldInput?.options as RelationFieldInputOptions | undefined)
+                ?.sort;
+            const sortDir =
+              c.relation?.sortDir ??
+              (c.fieldInput?.options as RelationFieldInputOptions | undefined)
+                ?.sortDir;
+            if (sort)
+              return { findOneOrderBy: buildChildSortClause(sort, sortDir) };
             return {};
           })(),
         }),
         ...(buildValueLabelColumns(childColumns).length && {
           valueLabelColumns: buildValueLabelColumns(childColumns),
         }),
-        relationType: (getRelationType(c) ?? deriveRelationTypeFromColumns(c, columns!)) as SubResourceConfig['relationType'],
+        relationType: (getRelationType(c) ??
+          deriveRelationTypeFromColumns(
+            c,
+            columns!,
+          )) as SubResourceConfig['relationType'],
         ...(() => {
-          const displayKey = c.displayKey ?? (c.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
+          const displayKey =
+            c.displayKey ??
+            (c.fieldInput?.options as RelationFieldInputOptions | undefined)
+              ?.displayKey;
           return displayKey ? { displayKey } : {};
         })(),
       } satisfies SubResourceConfig;

@@ -1,7 +1,5 @@
 import { labelFromId } from '@ghentcdh/crouton-core';
 
-export { labelFromId };
-
 /**
  * PrismaClient accessor for a model name.
  * `Language` → `language`, `InternalAuthor` → `internalAuthor`,

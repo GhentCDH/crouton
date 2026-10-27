@@ -1,6 +1,5 @@
-import type { CompileResolvers, JsonColumn } from '@ghentcdh/crouton-core';
+import type { CompileResolvers, EnumRegistry, JsonColumn  } from '@ghentcdh/crouton-core';
 
-import type { EnumRegistry } from '../enum-registry';
 import { enrichResourceRefColumns } from './column-enrichment';
 import { expandExtendColumns } from './column-transforms';
 import { resolveChildResource } from './resource-resolver';

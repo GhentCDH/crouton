@@ -7,10 +7,9 @@
  */
 
 import type { ResourceJson, TranslationBundle } from '@ghentcdh/crouton-core';
-import { resolveTableNode } from '@ghentcdh/crouton-core';
+import { labelFromId, resolveTableNode  } from '@ghentcdh/crouton-core';
 
 import type { EnumRegistry } from './enum-registry';
-import { labelFromId } from './naming';
 
 // ── helpers ─────────────────────────────────────────────────────────
 
