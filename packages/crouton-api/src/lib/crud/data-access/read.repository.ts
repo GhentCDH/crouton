@@ -4,8 +4,10 @@ import {
   type JsonColumn,
   type ListRequest,
   allowedIncludes,
+  buildChildSortClause,
   buildSort,
   offsetOf,
+  parseFilterString,
   resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
@@ -21,14 +23,13 @@ import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath, parseFilterString } from './query/filter';
 import { orderableChildSort } from './query/sort';
 import {
-  buildChildSortClause,
   buildFindOneIncludes,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
 } from './query/sql.helpers';
 
 // Re-exported for backwards compatibility
-export { buildFilterWhere, parseFilterString } from './query/filter';
+export { buildFilterWhere } from './query/filter';
 export { orderableChildSort, sanitizeValueLabelSort } from './query/sort';
 export { applyValueLabelColumns };
 
