@@ -1,7 +1,3 @@
-import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
-import type { EnumRegistry } from '@ghentcdh/crouton-core';
-
-import { CUSTOM_OPS } from '../custom-repository';
 import type {
   CroutonStatus,
   DatabaseStatus,
@@ -11,7 +7,12 @@ import type {
   ResourceStatus,
   StatusSummary,
   SubResourceStatus,
-} from './status.types';
+} from '@crouton/status';
+
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+import type { EnumRegistry } from '@ghentcdh/crouton-core';
+
+import { CUSTOM_OPS } from '../custom-repository';
 import type { DataSourceRegistry } from '../data-access/adapter';
 import type { TranslationRegistry } from '../i18n';
 import type { Resource } from '../resource/ResourceConfig.schema';

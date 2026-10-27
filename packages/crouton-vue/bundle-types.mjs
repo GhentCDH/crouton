@@ -37,8 +37,8 @@ const rewriteTarget = (fromDir, target) => {
   return rel === '' ? `./${target.replace(/^\.\//, '')}` : `./${rel.replace(/\\/g, '/')}`;
 };
 
-const collectDts = (dir): string[] => {
-  const out: string[] = [];
+const collectDts = (dir) => {
+  const out = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
