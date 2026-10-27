@@ -977,3 +977,47 @@ grep -rn '"showInLookup"' --include="resource.json" .
 - **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
 - **`searchFields`/`filterFields` in `layout.table`**: removed — move to `operations.findAll.search` /
   `operations.findAll.filter`.
+
+---
+
+## CustomRepository and ResourceHooks now generic over the row type
+
+The default row type changed from `any` to `Row` (`Record<string, unknown>`).
+Existing code that does not annotate the type argument still compiles; the only
+change is that reading `ctx.request` requires a cast (it was `any`, now
+`unknown`).
+
+**Before:**
+```ts
+export default {
+  async findAll(params, ctx) {
+    const req = ctx.request; // any
+    return { data: [], count: 0 };
+  },
+} satisfies CustomRepository;
+```
+
+**After (no type arg — Row default):**
+```ts
+export default {
+  async findAll(params, ctx) {
+    const req = ctx.request as CroutonRequest; // unknown, cast explicitly
+    return { data: [], count: 0 };
+  },
+} satisfies CustomRepository;
+```
+
+**After (typed rows):**
+```ts
+interface Book { id: number; title: string }
+export default {
+  async findAll(params, ctx): Promise<CustomListResult<Book>> {
+    return { data: [], count: 0 };
+  },
+} satisfies CustomRepository<Book>;
+```
+
+**What to look for:**
+```bash
+grep -rn "CustomRepository\|ResourceHooks\|CustomRepositoryContext" --include="*.ts" .
+```

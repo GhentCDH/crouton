@@ -30,9 +30,9 @@ import { toSelectFields } from './query/select';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = any> {
-  /** Raw Prisma client — used by action procedures. */
-  readonly prisma: any;
-  findAll(params: ListRequest, request?: any): Promise<T[]>;
+  /** Raw backend client — used by action procedures. */
+  readonly prisma: unknown;
+  findAll(params: ListRequest, request?: unknown): Promise<T[]>;
   count(filter: string[], q?: string): Promise<number>;
   /**
    * Fetch rows *and* their total count in a single call.
@@ -44,43 +44,43 @@ export interface CrudRepository<T = any> {
    */
   findAllWithCount?(
     params: ListRequest,
-    request?: any,
+    request?: unknown,
   ): Promise<{ data: T[]; count: number }>;
-  findOne(id: number | string, request?: any): Promise<T>;
+  findOne(id: number | string, request?: unknown): Promise<T>;
   findAllByParent(
     parentId: string | number,
     childRoute: string,
     params: ListRequest,
-    request?: any,
+    request?: unknown,
   ): Promise<{ data: T[]; count: number }>;
   findOneChild(
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
-    request?: any,
+    request?: unknown,
   ): Promise<T>;
   createChild(
     parentId: string | number,
     sub: SubResourceConfig,
     data: unknown,
-    request?: any,
+    request?: unknown,
   ): Promise<T>;
   updateChild(
     sub: SubResourceConfig,
     childId: string | number,
     data: unknown,
-    request?: any,
+    request?: unknown,
   ): Promise<T>;
   deleteChild(
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
-    request?: any,
+    request?: unknown,
   ): Promise<T>;
-  create(data: unknown, request?: any): Promise<T>;
-  update(id: number | string, data: unknown, request?: any): Promise<T>;
-  patch(id: number | string, data: unknown, request?: any): Promise<T>;
-  delete(id: number | string, request?: any): Promise<T>;
+  create(data: unknown, request?: unknown): Promise<T>;
+  update(id: number | string, data: unknown, request?: unknown): Promise<T>;
+  patch(id: number | string, data: unknown, request?: unknown): Promise<T>;
+  delete(id: number | string, request?: unknown): Promise<T>;
 }
 
 /**
