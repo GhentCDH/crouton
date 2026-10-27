@@ -71,7 +71,7 @@ const localizeSchema = (
   if (!schema) return schema;
   const ui = schema.ui_schema as Record<string, unknown> | undefined;
   const elements = ui?.elements as unknown[] | undefined;
-  const columns: ViewColumnConfig[] = schema.columns.map((col) => ({
+  const columns: ViewColumnConfig[] = (schema.columns ?? []).map((col) => ({
     ...col,
     ...(col.label !== undefined && {
       label: t(col.labelKey ?? columnKey(name, col.id), col.label),
