@@ -18,9 +18,9 @@ import {
   enrichRelationTypes,
   extractFindAllSearch,
   extractOpInclude,
-  getResourceExtensions,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
+  pickExtensions,
   resolveColumnFieldVariants,
   resolveColumnVisibility,
   zodSchemaSource,
@@ -36,12 +36,6 @@ import { resolveChildResource } from './resource-resolver';
 import { buildSubResources } from './sub-resource.builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
 
-const pickExtensions = (obj: Record<string, unknown>) =>
-  Object.fromEntries(
-    [...getResourceExtensions().keys()]
-      .filter((k) => obj[k] !== undefined)
-      .map((k) => [k, obj[k]]),
-  );
 
 export const fromJson = (
   json: ResourceJson,

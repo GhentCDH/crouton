@@ -1,33 +1,9 @@
 import {
-  Operator,
   type OperatorType,
+  parseFilterString,
 } from '@ghentcdh/crouton-core';
 
-/**
- * Parse a filter string of the form `field:value:operator`.
- * The last segment is treated as the operator only when it matches a known value.
- * Values that contain colons are handled correctly (everything between the first and last colon is the value).
- * Defaults to `contains` when no recognised operator is present.
- */
-export const parseFilterString = (
-  raw: string,
-): { field: string; value: string; operator: OperatorType } | null => {
-  const parts = raw.split(':');
-  if (parts.length < 2 || !parts[0]) return null;
-
-  const field = parts[0];
-  const lastPart = parts[parts.length - 1];
-  const hasOperator = (Operator as readonly string[]).includes(lastPart);
-
-  const value = hasOperator
-    ? parts.slice(1, -1).join(':')
-    : parts.slice(1).join(':');
-  const operator: OperatorType = hasOperator
-    ? (lastPart as OperatorType)
-    : 'contains';
-
-  return { field, value, operator };
-};
+export { parseFilterString };
 
 export const buildNestedPath = (
   path: string[],

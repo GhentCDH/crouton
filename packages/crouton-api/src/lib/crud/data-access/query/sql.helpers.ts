@@ -1,7 +1,10 @@
-import { buildSort } from '@ghentcdh/crouton-core';
-import type { CalculatedColumn, JsonIncludeEntry } from '@ghentcdh/crouton-core';
+import type {
+  CalculatedColumn,
+  JsonIncludeEntry,
+} from '@ghentcdh/crouton-core';
+import { buildChildSortClause } from '@ghentcdh/crouton-core';
 
-import type { SubResourceConfig } from '../../resource/SubResource.schema';
+import type { SubResourceConfig } from '../../resource/SubResource.schema'; // ── SQL expression helpers ────────────────────────────────────────────────
 
 // ── SQL expression helpers ────────────────────────────────────────────────
 
@@ -22,7 +25,8 @@ const defaultValueForType = (col: CalculatedColumn): unknown => {
 /** Coercion function for the column's type. */
 const coerceColumnValue = (col: CalculatedColumn) => {
   if (col.type === 'boolean') return (v: any) => Boolean(v);
-  if (col.type === 'string') return (v: any) => (v === undefined || v === null ? null : String(v));
+  if (col.type === 'string')
+    return (v: any) => (v === undefined || v === null ? null : String(v));
   return (v: any) => Number(v ?? 0);
 };
 
@@ -77,7 +81,13 @@ export const mergeCalculatedColumnsForRows = async (
   const results = await Promise.all(
     calcCols.map(async (col) => {
       const alias = col.alias ?? col.id;
-      const sql = buildCalculatedColumnSql(col, tableName, ids, idField, provider);
+      const sql = buildCalculatedColumnSql(
+        col,
+        tableName,
+        ids,
+        idField,
+        provider,
+      );
       const defaultValue = defaultValueForType(col);
       const coerce = coerceColumnValue(col);
       try {
@@ -85,10 +95,15 @@ export const mergeCalculatedColumnsForRows = async (
         return {
           id: col.id,
           defaultValue,
-          map: Object.fromEntries(calcRows.map((r) => [String(r.id), coerce(r[alias])])),
+          map: Object.fromEntries(
+            calcRows.map((r) => [String(r.id), coerce(r[alias])]),
+          ),
         };
       } catch (e) {
-        console.error(`[calculatedColumns] Failed for "${tableName}.${col.id}":`, e);
+        console.error(
+          `[calculatedColumns] Failed for "${tableName}.${col.id}":`,
+          e,
+        );
         return { id: col.id, defaultValue, map: {} };
       }
     }),
@@ -115,7 +130,9 @@ export const mergeCalculatedColumnsForRows = async (
  *   `["author", "author.internal_author"]`
  *   → `{ author: { include: { internal_author: true } } }`
  */
-export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Record<string, unknown> | undefined => {
+export const buildIncludeClause = (
+  include: JsonIncludeEntry[] | undefined,
+): Record<string, unknown> | undefined => {
   if (!include?.length) return undefined;
 
   // Normalise every entry to { relation, nestedIncludes[], orderBy? }
@@ -136,7 +153,10 @@ export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Rec
       }
     } else {
       // Object form: { relation, include[], orderBy? }
-      map.set(entry.relation, [...(map.get(entry.relation) ?? []), ...(entry.include ?? [])]);
+      map.set(entry.relation, [
+        ...(map.get(entry.relation) ?? []),
+        ...(entry.include ?? []),
+      ]);
       if (entry.orderBy) orderByMap.set(entry.relation, entry.orderBy);
     }
   }
@@ -154,22 +174,7 @@ export const buildIncludeClause = (include: JsonIncludeEntry[] | undefined): Rec
   );
 };
 
-/**
- * Build Prisma `orderBy` supporting dotted paths like `"author.origin"`.
- * Plain names delegate to the standard `buildSort` helper.
- */
-export const buildChildSortClause = (
-  sort: string,
-  sortDir: string | undefined,
-): Record<string, unknown> => {
-  const parts = sort.split('.');
-  if (parts.length === 1) return buildSort(sort, sortDir) as Record<string, unknown>;
-  const dir = (sortDir ?? 'asc') as 'asc' | 'desc';
-  return parts.reduceRight<Record<string, unknown>>(
-    (acc, part, i) => (i === parts.length - 1 ? { [part]: dir } : { [part]: acc }),
-    {},
-  );
-};
+export { buildChildSortClause };
 
 /**
  * Build the merged Prisma `include` clause for `findOne`.

@@ -1,4 +1,5 @@
-import type { RawResourceJson } from '../resource-file/WriteResourceJson';
+import type { RawResourceJson } from '@ghentcdh/crouton-core';
+
 import { resolve } from 'node:path';
 
 export interface ResourceFlagPatch {
