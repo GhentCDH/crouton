@@ -1,0 +1,22 @@
+{
+  "resource": {
+    "name": "page",
+    "kind": "custom",
+    "route": "pages",
+    "columns": {
+      "id": {
+        "type": "string",
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "name": {
+        "type": "string",
+        "searchable": true
+      }
+    },
+    "schemaVersion": 1
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}

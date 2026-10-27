@@ -1,0 +1,23 @@
+{
+  "resource": {
+    "name": "book",
+    "route": "books",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "title": {
+        "searchable": true,
+        "sortable": true
+      }
+    },
+    "schemaVersion": 1,
+    "source": {
+      "model": "Book"
+    }
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}

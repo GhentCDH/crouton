@@ -1,0 +1,42 @@
+{
+  "resource": {
+    "name": "book",
+    "route": "books",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "title": {
+        "searchable": true,
+        "sortable": true
+      },
+      "status": {
+        "enum": "bookStatus",
+        "filterable": true
+      }
+    },
+    "schemaVersion": 1,
+    "source": {
+      "model": "Book"
+    }
+  },
+  "refs": {},
+  "enums": {
+    "bookStatus": [
+      {
+        "value": "draft",
+        "label": "Draft"
+      },
+      {
+        "value": "published",
+        "label": "Published"
+      },
+      {
+        "value": "archived",
+        "label": "Archived"
+      }
+    ]
+  },
+  "baseUrl": "http://localhost:3000"
+}
