@@ -1,6 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import { isPrismaKnownError } from '@ghentcdh/crouton-core';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from '../constants';
@@ -14,6 +13,7 @@ import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { mapPrismaUniqueError } from '../unique-validation';
 import { normalizeValueLabels } from './middleware/value-label.apply';
+import { isPrismaKnownError } from '../errors/prisma.errors';
 
 /** Extract the top-level relation names from a `JsonIncludeEntry[]` (for payload stripping). */
 const includeRelationNames = (
@@ -99,8 +99,12 @@ export class WriteRepository<T = any> {
     return (this.config.idType ?? 'string') === 'number' ? +id : String(id);
   }
 
-  private notFound(id: string | number): NotFoundException {
-    return new NotFoundException(`${this.config.name} with id ${id} not found`);
+  private testIfFoundOrThrow(error: any, id: string | number) {
+    if (isPrismaKnownError(error) && error.code === PRISMA_NOT_FOUND_CODE) {
+      throw new NotFoundException(
+        `${this.config.name} with id ${id} not found`,
+      );
+    }
   }
 
   /**
@@ -124,7 +128,7 @@ export class WriteRepository<T = any> {
    */
   async create(data: unknown, _request?: any): Promise<T> {
     try {
-      return await this.prismaModel.create({ data });
+      return this.prismaModel.create({ data });
     } catch (e: unknown) {
       throw mapPrismaUniqueError(e, this.config) ?? e;
     }
@@ -137,12 +141,12 @@ export class WriteRepository<T = any> {
   async update(id: number | string, data: unknown, _request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      return await this.prismaModel.update({
+      return this.prismaModel.update({
         where: { [idField]: this.toId(id) },
         data,
       });
     } catch (e: unknown) {
-      if (isPrismaKnownError(e) && e.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+      this.testIfFoundOrThrow(e, id);
       const uniqueError = mapPrismaUniqueError(e, this.config);
       if (uniqueError) throw uniqueError;
       throw e;
@@ -163,7 +167,7 @@ export class WriteRepository<T = any> {
         where: { [idField]: this.toId(id) },
       });
     } catch (e: unknown) {
-      if (isPrismaKnownError(e) && e.code === PRISMA_NOT_FOUND_CODE) throw this.notFound(id);
+      this.testIfFoundOrThrow(e, id);
       const uniqueError = mapPrismaUniqueError(e, this.config);
       if (uniqueError) throw uniqueError;
       throw e;
