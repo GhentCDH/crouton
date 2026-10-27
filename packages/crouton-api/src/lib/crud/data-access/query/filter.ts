@@ -3,8 +3,6 @@ import {
   parseFilterString,
 } from '@ghentcdh/crouton-core';
 
-export { parseFilterString };
-
 export const buildNestedPath = (
   path: string[],
   condition: unknown,

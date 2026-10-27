@@ -35,6 +35,8 @@ export const CompiledSubResourceConfigSchema = z.object({
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
   valueLabelColumns: z.array(ValueLabelColumnSchema).optional(),
   relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne']).optional(),
+  /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
+  displayKey: z.string().optional(),
 });
 
 export type CompiledSubResourceConfig = z.infer<typeof CompiledSubResourceConfigSchema>;

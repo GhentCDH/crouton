@@ -28,7 +28,5 @@ export {
 
 // Filter-grammar helpers, so a custom repository can reuse the
 // `field:value:operator` parsing instead of reimplementing it.
-export {
-  buildFilterWhere,
-  parseFilterString,
-} from './lib/crud/data-access/query/filter';
+export { buildFilterWhere } from './lib/crud/data-access/query/filter';
+export { parseFilterString } from '@ghentcdh/crouton-core';

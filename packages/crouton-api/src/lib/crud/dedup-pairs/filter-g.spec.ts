@@ -8,9 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { stringToFilter } from '@ghentcdh/crouton-core';
-
-import { parseFilterString } from '../data-access/query/filter';
+import { parseFilterString, stringToFilter } from '@ghentcdh/crouton-core';
 
 describe('G: filter string parsing — core (stringToFilter) vs api (parseFilterString)', () => {
   describe('identical behaviour', () => {
