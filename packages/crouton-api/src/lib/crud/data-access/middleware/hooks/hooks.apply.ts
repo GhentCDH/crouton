@@ -1,4 +1,4 @@
-import type { ListRequest, ValueLabelColumn  } from '@ghentcdh/crouton-core';
+import type { ListRequest, ValueLabelColumn } from '@ghentcdh/crouton-core';
 
 import type {
   ParentHookContext,
@@ -6,7 +6,7 @@ import type {
   ResourceHooks,
   WriteOp,
 } from './hooks.types';
-import type { DataSourceAdapter } from '../../adapter/data-source.adapter';
+import type { DataSourceAdapter } from '../../adapter';
 import {
   applyValueLabelColumns,
   normalizeValueLabels,
@@ -27,7 +27,12 @@ export type HookTarget = {
   valueLabelColumns?: ValueLabelColumn[];
 };
 
-const hookCtxRead = (adapter: DataSourceAdapter, op: ReadOp, request?: any, parent?: ParentHookContext) => ({
+const hookCtxRead = (
+  adapter: DataSourceAdapter,
+  op: ReadOp,
+  request?: any,
+  parent?: ParentHookContext,
+) => ({
   dataSource: adapter,
   prisma: adapter.client,
   op,
@@ -115,7 +120,9 @@ export const applyBeforeFindAll = async (
   parent?: ParentHookContext,
 ): Promise<ListRequest> => {
   const hook = target.hooks?.beforeFindAll;
-  return hook ? hook(params, hookCtxRead(adapter, 'findAll', request, parent)) : params;
+  return hook
+    ? hook(params, hookCtxRead(adapter, 'findAll', request, parent))
+    : params;
 };
 
 /** Run `afterFindAll` on the full result list, after per-row `afterRead` decoration. */
@@ -127,7 +134,9 @@ export const applyAfterFindAll = async (
   parent?: ParentHookContext,
 ): Promise<any[]> => {
   const hook = target.hooks?.afterFindAll;
-  return hook ? hook(rows, hookCtxRead(adapter, 'findAll', request, parent)) : rows;
+  return hook
+    ? hook(rows, hookCtxRead(adapter, 'findAll', request, parent))
+    : rows;
 };
 
 /** Run `afterWrite` on the persisted result. */
@@ -141,5 +150,7 @@ export const postWrite = async (
   parent?: ParentHookContext,
 ): Promise<any> => {
   const hook = target.hooks?.afterWrite;
-  return hook ? hook(result, hookCtxWrite(adapter, op, id, request, parent)) : result;
+  return hook
+    ? hook(result, hookCtxWrite(adapter, op, id, request, parent))
+    : result;
 };

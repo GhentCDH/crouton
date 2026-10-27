@@ -1,8 +1,3 @@
-
-import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
-import type { EnumRegistry } from '@ghentcdh/crouton-core';
-
-import { CUSTOM_OPS } from '../custom-repository';
 import type {
   CroutonStatus,
   DatabaseStatus,
@@ -12,9 +7,14 @@ import type {
   ResourceStatus,
   StatusSummary,
   SubResourceStatus,
-} from './status.types';
+} from '@crouton/status';
+
+import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+import type { EnumRegistry } from '@ghentcdh/crouton-core';
+
+import { CUSTOM_OPS } from '../custom-repository';
 import type { DataSourceRegistry } from '../data-access/adapter';
-import type { TranslationRegistry } from '../i18n/translation.registry';
+import type { TranslationRegistry } from '../i18n';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
@@ -65,8 +65,7 @@ export const getCroutonVersion = (): string => {
   return 'unknown';
 };
 
-export const getVersion = (): string =>
-  process.env['APP_VERSION'] ?? 'unknown';
+export const getVersion = (): string => process.env['APP_VERSION'] ?? 'unknown';
 
 export const getEnvironment = (): string =>
   process.env['ENVIRONMENT'] ?? process.env['NODE_ENV'] ?? 'unknown';
@@ -104,7 +103,8 @@ export const getResourceStatus = (
 
   // Group child errors by parent name so they can be folded into subResources.
   const childErrorsByParent = new Map<string, ResourceStatus['subResources']>();
-  const topLevelErrors: ReturnType<typeof resourceLoadErrorsRegistry.getAll> = [];
+  const topLevelErrors: ReturnType<typeof resourceLoadErrorsRegistry.getAll> =
+    [];
   for (const e of resourceLoadErrorsRegistry.getAll()) {
     if (e.child) {
       const list = childErrorsByParent.get(e.name) ?? [];
@@ -147,10 +147,14 @@ export const getResourceStatus = (
         : {}),
       ...(c.sidebar?.hide ? { hidden: true } : {}),
       ...(warningsByName.has(c.name) || childWarnings.length
-        ? { warnings: [...(warningsByName.get(c.name) ?? []), ...childWarnings] }
+        ? {
+            warnings: [...(warningsByName.get(c.name) ?? []), ...childWarnings],
+          }
         : {}),
       ...(allSubResources.length ? { subResources: allSubResources } : {}),
-      ...((c as any).parent?.route ? { parentRoute: (c as any).parent.route } : {}),
+      ...((c as any).parent?.route
+        ? { parentRoute: (c as any).parent.route }
+        : {}),
     };
   });
 
@@ -182,8 +186,12 @@ export const buildSummary = (
   resources: ResourceStatus[],
 ): StatusSummary => {
   const databaseErrors = databases.filter((d) => !d.connected).length;
-  const resourceErrors = resources.filter((r) => !r.valid).length
-    + resources.reduce((acc, r) => acc + (r.subResources?.filter((s) => !s.valid).length ?? 0), 0);
+  const resourceErrors =
+    resources.filter((r) => !r.valid).length +
+    resources.reduce(
+      (acc, r) => acc + (r.subResources?.filter((s) => !s.valid).length ?? 0),
+      0,
+    );
   const warningCount = resources.reduce(
     (acc, r) =>
       acc +

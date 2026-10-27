@@ -8,6 +8,7 @@
  */
 
 import * as clack from '@clack/prompts';
+import { type TranslationBundle } from '@crouton/i18n';
 import pc from 'picocolors';
 
 import {
@@ -49,7 +50,7 @@ import {
   syncAgentFiles,
   upsertAgentBlock,
 } from '@ghentcdh/crouton-codegen';
-import { type DataSource, type TranslationBundle } from '@ghentcdh/crouton-core';
+import { type DataSource } from '@ghentcdh/crouton-core';
 
 import { formatResourceChange } from './preview';
 import { CancelledError, interactiveResolver } from './resolver';

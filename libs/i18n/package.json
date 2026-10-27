@@ -1,0 +1,14 @@
+{
+  "name": "@crouton/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "zod": "^4.6.5",
+    "vitest": "~4.1.0",
+    "@nx/vite": "23.2.1"
+  }
+}

@@ -63,6 +63,22 @@ const buildCalculatedColumnSql = (
  * Run raw SQL for each calculated column and merge results onto rows by id.
  * Each `sqlExpression` may reference the row via the alias `main`.
  *
+ * @param rows
+ * @param calcCols
+ * @param tableName
+ * @param prisma
+ * @param rows
+ * @param calcCols
+ * @param tableName
+ * @param prisma
+ * @param rows
+ * @param calcCols
+ * @param tableName
+ * @param prisma
+ * @param rows
+ * @param calcCols
+ * @param tableName
+ * @param prisma
  * @param idField - Primary key column of `tableName`. Defaults to `'id'`.
  * @param provider - Database provider for placeholder syntax (`'postgresql'`, `'sqlite'`, etc.).
  */

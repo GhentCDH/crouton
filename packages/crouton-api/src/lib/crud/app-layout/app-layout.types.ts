@@ -19,9 +19,6 @@ export const SidebarGroupNodeSchema = z.object({
   children: z.array(SidebarLeafSchema).default([]),
 });
 
-/** @deprecated Use SidebarGroupNodeSchema */
-export const SidebarGroupSchema = SidebarGroupNodeSchema;
-
 export type SidebarGroupNode = z.infer<typeof SidebarGroupNodeSchema>;
 export type SidebarGroup = SidebarGroupNode;
 

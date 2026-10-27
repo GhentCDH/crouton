@@ -6,7 +6,14 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mts', '**/*.mjs'],
+    files: [
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.mts',
+      '**/*.mjs',
+    ],
     ignores: ['**/eslint.config.mjs'],
     rules: {
       '@nx/enforce-module-boundaries': [
@@ -48,7 +55,17 @@ export default [
   },
   importPlugin.flatConfigs.recommended,
   {
-    ignores: ['**/dist', '**/node_modules', '**/generated/**', '**/vite.config.*.timestamp*', 'docs/.vuepress/.cache', 'docs/.vuepress/.temp', '**/playwright-report/**', '**/test-results/**'],
+    ignores: [
+      '**/dist',
+      '**/node_modules',
+      '**/generated/**',
+      '**/vite.config.*.timestamp*',
+      'docs/.vuepress/.cache',
+      'docs/.vuepress/.temp',
+      '**/playwright-report/**',
+      '**/test-results/**',
+      '**/vitest.config.*.timestamp*',
+    ],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

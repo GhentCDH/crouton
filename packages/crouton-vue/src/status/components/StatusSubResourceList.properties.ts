@@ -1,8 +1,11 @@
+import type { SubResourceStatus } from '@crouton/status';
 import type { PropType } from 'vue';
 
-import type { SubResourceStatus } from '../status.types';
 
 export const StatusSubResourceListProperties = {
-  subResources: { type: Array as PropType<SubResourceStatus[]>, required: true as const },
+  subResources: {
+    type: Array as PropType<SubResourceStatus[]>,
+    required: true as const,
+  },
   parentName: { type: String, required: true as const },
 };

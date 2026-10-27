@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "types": ["vite/client"],
-    "rootDir": "src"
+    "rootDir": "../.."
   },
   "include": [
     "src/**/*.js",

@@ -9,15 +9,21 @@ import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
-import type { DataSourceAdapter, DataSourceEntry } from './crud/data-access/adapter';
-import { DataSourceRegistry, loadDataSourcesFromDir } from './crud/data-access/adapter';
+import type {
+  DataSourceAdapter,
+  DataSourceEntry,
+} from './crud/data-access/adapter';
+import {
+  DataSourceRegistry,
+  loadDataSourcesFromDir,
+} from './crud/data-access/adapter';
 import { DevResourcesController } from './crud/dev/dev-resources.controller';
 import { IS_DEV } from './crud/dev-mode';
 import { loadEnumRegistry } from './crud/enum-registry';
 import { LanguageInterceptor, TranslationRegistry } from './crud/i18n';
 import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
+import { loadResourceConfigsFromDir } from './crud/loader';
 import { FileSystemResourceConfigLoader } from './crud/loader/fs-resource-config.loader';
-import { loadResourceConfigsFromDir } from './crud/loader/index';
 import { type ResourceConfigLoader } from './crud/loader/resource-config.loader';
 import { type Resource } from './crud/resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from './crud/resource/resource-load-errors.registry';

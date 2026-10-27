@@ -2,7 +2,7 @@ import type { z } from 'zod';
 
 import { CompiledSubResourceConfigSchema } from '@ghentcdh/crouton-core';
 
-import { CustomRepositorySchema } from '../custom-repository/custom-repository.types';
+import { CustomRepositorySchema } from '../custom-repository';
 import { ResourceHooksSchema } from '../hooks';
 
 export const SubResourceConfigSchema = CompiledSubResourceConfigSchema.extend({

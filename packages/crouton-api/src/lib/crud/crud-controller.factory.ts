@@ -12,7 +12,7 @@ import {
   type SecurityConfig,
   resolveDefinition,
   resourceControllerPath,
-  schemaFor
+  schemaFor,
 } from '@ghentcdh/crouton-core';
 import { isZodSchema } from '@ghentcdh/crouton-core';
 
@@ -43,6 +43,22 @@ import {
  *
  * @param config - Resource definition including model, route, operations, views, etc.
  * @param baseUrl - Absolute base URL prepended to operation URIs in schema payloads (e.g. `https://api.example.com`).
+ * @param moduleDefaultSecurity
+ * @param securityEnabled
+ * @param prefix
+ * @param schemaEnricher
+ * @param moduleDefaultSecurity
+ * @param securityEnabled
+ * @param prefix
+ * @param schemaEnricher
+ * @param moduleDefaultSecurity
+ * @param securityEnabled
+ * @param prefix
+ * @param schemaEnricher
+ * @param moduleDefaultSecurity
+ * @param securityEnabled
+ * @param prefix
+ * @param schemaEnricher
  */
 export function createCrudController(
   config: Resource,
@@ -53,7 +69,7 @@ export function createCrudController(
   schemaEnricher?: <T extends Record<string, unknown>>(
     schema: T,
   ) => Record<string, unknown>,
-): Type<any> {
+): Type {
   const { route, name, tag, idType = 'string' } = config;
   const definition = resolveDefinition(config);
   const listSchema = schemaFor(definition, 'findAll');

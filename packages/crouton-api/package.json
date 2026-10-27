@@ -31,6 +31,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@crouton/i18n": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "@nestjs/platform-express": ">=10.0.0",

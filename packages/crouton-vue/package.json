@@ -43,6 +43,8 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@crouton/i18n": "workspace:*",
+    "@crouton/status": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "@ghentcdh/crouton-editor-vue": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*",

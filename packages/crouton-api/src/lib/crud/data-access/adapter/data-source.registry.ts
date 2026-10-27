@@ -6,7 +6,7 @@ import type { DataSourceEntry } from './data-source.types';
 @Injectable()
 export class DataSourceRegistry implements OnModuleDestroy {
   private readonly adapters = new Map<string, DataSourceAdapter>();
-  private defaultName: string | undefined;
+  private readonly defaultName: string | undefined;
 
   constructor(entries: DataSourceEntry[]) {
     for (const entry of entries) {

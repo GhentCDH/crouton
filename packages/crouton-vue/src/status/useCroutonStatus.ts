@@ -1,6 +1,6 @@
+import type { CroutonStatus } from '@crouton/status';
 import { computed, onUnmounted, ref } from 'vue';
 
-import type { CroutonStatus } from './status.types';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
@@ -86,7 +86,9 @@ export const useCroutonStatus = () => {
     actionLoading.value = name;
     try {
       const api = useApi();
-      await api.post(`/_app/resources/${encodeURIComponent(name)}/remove-from-menu`);
+      await api.post(
+        `/_app/resources/${encodeURIComponent(name)}/remove-from-menu`,
+      );
       await refresh();
       await app.refreshLayout();
     } catch (err) {

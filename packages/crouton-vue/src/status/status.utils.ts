@@ -1,4 +1,4 @@
-import type { CroutonStatus, ResourceStatus } from './status.types';
+import type { CroutonStatus, ResourceStatus } from '@crouton/status';
 
 export type StatusIssue = {
   severity: 'error' | 'warning' | 'info';
@@ -8,7 +8,8 @@ export type StatusIssue = {
   anchor: string;
 };
 
-export type ResourceState = 'error' | 'migration' | 'warning' | 'draft' | 'hidden' | 'ok';
+export type ResourceState =
+  'error' | 'migration' | 'warning' | 'draft' | 'hidden' | 'ok';
 
 export const stateClasses: Record<
   ResourceState,
@@ -55,7 +56,8 @@ export const stateClasses: Record<
 export const resourceState = (res: ResourceStatus): ResourceState => {
   if (res.draft) return 'draft';
   if (!res.valid) return 'error';
-  if (res.expectedVersion != null && res.expectedVersion !== res.version) return 'migration';
+  if (res.expectedVersion != null && res.expectedVersion !== res.version)
+    return 'migration';
   if (res.subResources?.some((s) => !s.valid)) return 'error';
   if (res.warnings?.length) return 'warning';
   if (res.subResources?.some((s) => s.warnings?.length)) return 'warning';
@@ -72,9 +74,12 @@ const stateSortOrder: Record<ResourceState, number> = {
   ok: 5,
 };
 
-export const sortResources = (resources: ResourceStatus[] | undefined): ResourceStatus[] =>
+export const sortResources = (
+  resources: ResourceStatus[] | undefined,
+): ResourceStatus[] =>
   [...(resources ?? [])].sort((a, b) => {
-    const diff = stateSortOrder[resourceState(a)] - stateSortOrder[resourceState(b)];
+    const diff =
+      stateSortOrder[resourceState(a)] - stateSortOrder[resourceState(b)];
     return diff !== 0 ? diff : a.name.localeCompare(b.name);
   });
 
@@ -103,7 +108,10 @@ export const collectIssues = (status: CroutonStatus): StatusIssue[] => {
         message: res.error ?? 'Invalid resource',
         anchor: `resource-${res.name}`,
       });
-    } else if (res.expectedVersion != null && res.expectedVersion !== res.version) {
+    } else if (
+      res.expectedVersion != null &&
+      res.expectedVersion !== res.version
+    ) {
       issues.push({
         severity: 'warning',
         source: 'resource',

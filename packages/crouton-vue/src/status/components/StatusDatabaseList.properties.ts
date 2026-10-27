@@ -1,7 +1,10 @@
+import type { DatabaseStatus } from '@crouton/status';
 import type { PropType } from 'vue';
 
-import type { DatabaseStatus } from '../status.types';
 
 export const StatusDatabaseListProperties = {
-  databases: { type: Array as PropType<DatabaseStatus[]>, required: true as const },
+  databases: {
+    type: Array as PropType<DatabaseStatus[]>,
+    required: true as const,
+  },
 };

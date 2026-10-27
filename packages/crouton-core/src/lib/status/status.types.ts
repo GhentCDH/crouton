@@ -1,3 +1,5 @@
+// TODO should move to crouton-core
+
 export interface DatabaseStatus {
   name: string;
   connected: boolean;
@@ -40,7 +42,7 @@ export interface ResourceStatus {
   draft?: boolean;
   /** Loaded and served, but hidden from the admin sidebar menu. */
   hidden?: boolean;
-  /** Non-fatal warnings recorded during load. */
+  /** Non-fatal warnings recorded during load (e.g. stray repository.ts, all ops disabled). */
   warnings?: string[];
   subResources?: SubResourceStatus[];
   /** Set when the resource declares `parent: { route }`. */

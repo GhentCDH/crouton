@@ -10,8 +10,8 @@ import { IS_DEV } from '../dev-mode';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
-import { getRequestLanguage } from '../i18n/language.context';
-import { type TranslationRegistry } from '../i18n/translation.registry';
+import { getRequestLanguage } from '../i18n';
+import { type TranslationRegistry } from '../i18n';
 
 export const createAppLayoutController = (
   configs: Resource[],
@@ -44,7 +44,13 @@ export const createAppLayoutController = (
       let payload;
       if (IS_DEV) {
         const fresh = await this.configRegistry.getAll();
-        payload = buildLayoutPayload(fresh, sidebarGroups, title, autoSave, IS_DEV);
+        payload = buildLayoutPayload(
+          fresh,
+          sidebarGroups,
+          title,
+          autoSave,
+          IS_DEV,
+        );
       } else {
         payload = layoutPayload;
       }
@@ -60,7 +66,9 @@ export const createAppLayoutController = (
             languages: i18nConfig.languages,
             defaultLanguage: i18nConfig.defaultLanguage,
             current: lang,
-            ...(i18nConfig.displayNames && { displayNames: i18nConfig.displayNames }),
+            ...(i18nConfig.displayNames && {
+              displayNames: i18nConfig.displayNames,
+            }),
           },
           ...(bundle.ui && { ui: bundle.ui }),
         };
@@ -75,7 +83,8 @@ export const createAppLayoutController = (
     })
     @ApiResponse({
       status: 200,
-      description: 'Full translation bundle (resources, enums, sidebarGroups, ui, validation)',
+      description:
+        'Full translation bundle (resources, enums, sidebarGroups, ui, validation)',
     })
     getTranslations() {
       if (!translationRegistry?.active || !i18nConfig) {
@@ -94,4 +103,3 @@ export const createAppLayoutController = (
 
   return AppLayoutController;
 };
-
