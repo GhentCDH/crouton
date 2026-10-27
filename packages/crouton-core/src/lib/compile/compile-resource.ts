@@ -24,35 +24,60 @@ import { buildResourceDefinitions } from './schema.helpers';
 import { buildLookup, buildSearch } from './search-lookup';
 import { pickExtensions } from '../resource/extensions';
 
+export type CompileResolvers = {
+  /** Expand `extends` columns from a sibling resource. Default: identity. */
+  expandColumns?: (columns: JsonColumn[]) => JsonColumn[];
+  /** Add options that need another resource (resource-ref URIs, nested relation columns). Default: identity. */
+  enrichResourceRefs?: (columns: JsonColumn[]) => JsonColumn[];
+  /** Build sub-resources from relation columns. Default: returns `[]`. */
+  buildSubResources?: (columns: JsonColumn[], ctx: { route: string; model: string }) => CompiledSubResourceConfig[];
+  /** Pre-resolve lookup display keys for manyToOne showInLookup columns. Default: `{}`. */
+  resolveLookupDisplayKeys?: (columns: JsonColumn[]) => Record<string, string>;
+};
+
+export type CompileOptions = {
+  baseUrl?: string;
+  enums?: EnumRegistry;
+  resolvers?: CompileResolvers;
+};
 
 /**
- * Pure compile of a ResourceJson to a CompiledResource — no Node.js fs access.
- * Features that require sibling files (extend columns, resource-ref options,
- * sub-resource views) are skipped; pass those pre-resolved if needed.
+ * Pure compile of a ResourceJson to a CompiledResource. Steps that need
+ * the filesystem are injected via `options.resolvers`; core never reads files.
  */
 export const compileResource = (
   json: ResourceJson,
   schema?: ZodObject<ZodRawShape>,
-  baseUrl?: string,
-  enums: EnumRegistry = {},
+  options: CompileOptions = {},
 ): CompiledResource => {
-  // columns is always JsonColumn[] after ResourceJsonSchema.parse
-  const rawColumns = json.columns as JsonColumn[] | undefined;
+  const { baseUrl, enums = {}, resolvers = {} } = options;
+  const src = (json as any).source as { model?: string; dbTable?: string; datasource?: string; idType?: 'string' | 'number' } | undefined;
+
+  const rawColumns: JsonColumn[] = resolvers.expandColumns
+    ? resolvers.expandColumns((json.columns as JsonColumn[] | undefined) ?? [])
+    : (json.columns as JsonColumn[] | undefined) ?? [];
+
   const columns: JsonColumn[] = enrichRelationTypes(
-    applyRelationFormatDefault(rawColumns) ?? rawColumns ?? [],
+    applyRelationFormatDefault(rawColumns) ?? rawColumns,
     schema,
   );
   injectEnumValues(columns, enums);
 
-  const subResources: CompiledSubResourceConfig[] = [];
+  const subResources: CompiledSubResourceConfig[] = resolvers.buildSubResources
+    ? resolvers.buildSubResources(columns, {
+        route: json.route,
+        model: src?.model ?? (json as any).model ?? '',
+      })
+    : [];
 
+  const actionEnriched = enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;
   const enrichedColumns = resolveColumnFieldVariants(
-    enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns,
+    resolvers.enrichResourceRefs ? resolvers.enrichResourceRefs(actionEnriched) : actionEnriched,
   )!;
 
   const calculatedColumns: CalculatedColumn[] = [
     ...((json as any).calculatedColumns ?? []),
-    ...((json.columns ?? []) as JsonColumn[])
+    ...enrichedColumns
       .filter((c) => (c as any).computed)
       .map((c): CalculatedColumn => ({
         id: c.id,
@@ -86,13 +111,15 @@ export const compileResource = (
   const findAll = json.operations?.findAll;
   const findAllEnabled = findAll !== false && json.kind !== 'custom';
   const searchPaths = buildSearch(enrichedColumns, extractFindAllSearch(findAll), findAllEnabled);
-  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup);
+  const resolvedDisplayKeys = resolvers.resolveLookupDisplayKeys
+    ? resolvers.resolveLookupDisplayKeys(enrichedColumns)
+    : {};
+  const lookup = buildLookup(enrichedColumns, searchPaths, (json as any).lookup, resolvedDisplayKeys);
   const findOneOp = json.operations?.findOne;
   const enrichedInclude = enrichIncludeWithSort(extractOpInclude(findAll), enrichedColumns);
   const enrichedFindOneInclude = enrichIncludeWithSort(extractOpInclude(findOneOp), enrichedColumns);
   const definition = buildResourceDefinitions(schema, json.operations, enrichedColumns);
 
-  // Derive display/modalSize from layout.container (Block 2 migration)
   const formContainer = (json.layout?.form as any)?.container;
   const viewContainer = (json.layout?.view as any)?.container;
   const derivedDisplay = {
@@ -101,7 +128,6 @@ export const compileResource = (
   };
   const derivedModalSize = (formContainer?.size ?? 'sm') as 'xs' | 'sm' | 'lg' | 'xl';
 
-  const src = (json as any).source as { model?: string; dbTable?: string; datasource?: string; idType?: 'string' | 'number' } | undefined;
   return {
     ...json,
     name: json.name,
