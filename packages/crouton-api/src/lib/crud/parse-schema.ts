@@ -1,31 +1,23 @@
-import type { ZodObject, ZodRawShape } from 'zod';
-
 import {
+  type ParseSchemaInput as CoreParseSchemaInput,
+  type ParseSchemaView,
   type ResourceDefinitionResponse,
   ResourceDefinitionResponseZ,
-  buildDefinitionPayload,
-  buildResourceJsonPayload,
   buildResourceJsonSchema,
-  buildViewsPayload,
+  parseSchema as coreParseSchema,
   registerResourceExtensions,
 } from '@ghentcdh/crouton-core';
 
 import type { ResourceRowAction, ResourceTableAction } from './action';
-import { fromJson } from './adapter';
+import { buildResolvers } from './adapter/resolver-builder';
 import type { CroutonAppConfig } from './app-config';
-import type { EnumRegistry } from './enum-registry';
 import type { ResourceHooks } from './hooks';
 
-export type ParseSchemaView = 'schemas' | 'definition' | 'resource.json';
+export type { ParseSchemaView };
 
-export interface ParseSchemaInput {
-  /** Raw resource.json (validated internally) or an already-parsed ResourceJson. */
-  json: unknown;
-  /** Sibling schema.ts default export. Required for prisma resources; omit for kind:"custom". */
-  schema?: ZodObject<ZodRawShape>;
+export interface ParseSchemaInput extends CoreParseSchemaInput {
   /** Enables sibling-resource features (extend columns, resource-ref options, sub-resources). */
   dirPath?: string;
-  enums?: EnumRegistry;
   hooks?: ResourceHooks;
   actions?: ResourceRowAction[];
   tableActions?: ResourceTableAction[];
@@ -64,37 +56,40 @@ export const parseSchema = (
     throw new Error(`Resource cannot be parsed: ${parseResult.error.message}`);
   }
 
-  const resource = fromJson(
-    parseResult.data,
-    normalized.schema,
-    normalized.hooks,
-    normalized.dirPath,
-    appConfig.baseUrl,
-    normalized.actions,
-    normalized.tableActions,
-    normalized.enums ?? {},
-    undefined,
-  );
+  const { dirPath, enums = {} } = normalized;
 
-  let payload: Record<string, unknown> | undefined;
-  if (view === 'schemas') {
-    payload = buildViewsPayload(resource, appConfig.baseUrl);
-    if (!payload) return undefined;
-    const formDef = ResourceDefinitionResponseZ.parse(payload);
-    if (appConfig.schemaEnricher) {
-      return { ...formDef, ...appConfig.schemaEnricher(formDef) } as ResourceDefinitionResponse;
-    }
-    return formDef;
-  } else if (view === 'definition') {
-    payload = buildDefinitionPayload(resource);
-  } else {
-    payload = buildResourceJsonPayload(resource, appConfig.baseUrl);
-  }
+  const payload = coreParseSchema(
+    {
+      ...normalized,
+      resolvers: buildResolvers(
+        parseResult.data.kind === 'custom',
+        dirPath,
+        appConfig.baseUrl,
+        enums,
+      ),
+    },
+    appConfig,
+    view,
+  ) as Record<string, unknown> | undefined;
 
   if (!payload) return undefined;
 
+  if (view === 'schemas') {
+    const formDef = ResourceDefinitionResponseZ.parse(payload);
+    if (appConfig.schemaEnricher) {
+      return {
+        ...formDef,
+        ...appConfig.schemaEnricher(formDef),
+      } as ResourceDefinitionResponse;
+    }
+    return formDef;
+  }
+
   if (appConfig.schemaEnricher) {
-    return { ...payload, ...appConfig.schemaEnricher(payload) } as ResourceDefinitionResponse;
+    return {
+      ...payload,
+      ...appConfig.schemaEnricher(payload),
+    } as ResourceDefinitionResponse;
   }
 
   return payload as unknown as ResourceDefinitionResponse;
