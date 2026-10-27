@@ -7,23 +7,6 @@
   "book-collection/book": {
     "subResources": {
       "coreValue": []
-    },
-    "lookup": {
-      "coreValue": {
-        "key": "id",
-        "labels": [
-          "title",
-          "authorId"
-        ]
-      },
-      "apiValue": {
-        "key": "id",
-        "label": "title",
-        "labels": [
-          "title",
-          "authorId"
-        ]
-      }
     }
   },
   "book-collection/category": {
@@ -34,45 +17,11 @@
   "book-collection/loan": {
     "subResources": {
       "coreValue": []
-    },
-    "lookup": {
-      "coreValue": {
-        "key": "id",
-        "labels": [
-          "loanedAt",
-          "returnedAt"
-        ]
-      },
-      "apiValue": {
-        "key": "id",
-        "label": "loanedAt",
-        "labels": [
-          "loanedAt",
-          "returnedAt"
-        ]
-      }
     }
   },
   "book-collection/user": {
     "subResources": {
       "coreValue": []
-    },
-    "lookup": {
-      "coreValue": {
-        "key": "id",
-        "labels": [
-          "name",
-          "email"
-        ]
-      },
-      "apiValue": {
-        "key": "id",
-        "label": "name",
-        "labels": [
-          "name",
-          "email"
-        ]
-      }
     }
   },
   "column-flags/item": {

@@ -13,5 +13,6 @@ export * from './payload-builders';
 export * from './relation-type';
 export * from './schema.helpers';
 export * from './schema-input';
+export * from './search-lookup';
 export * from './to-json-schema';
 export * from './value-label-column';
