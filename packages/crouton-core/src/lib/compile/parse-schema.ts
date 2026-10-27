@@ -1,7 +1,7 @@
 import type { ZodObject, ZodRawShape, ZodType } from 'zod';
 
 import { buildResourceJsonSchema, registerResourceExtensions } from '../resource';
-import { compileResource } from './compile-resource';
+import { type CompileResolvers, compileResource } from './compile-resource';
 import type { EnumRegistry } from './enum-registry';
 import {
   buildDefinitionPayload,
@@ -19,6 +19,8 @@ export interface ParseSchemaInput {
   /** Accepted for API parity but ignored — no fs access in the pure path. */
   dirPath?: string;
   enums?: EnumRegistry;
+  /** Filesystem resolvers for sibling-resource features; defaults to no-ops. */
+  resolvers?: CompileResolvers;
 }
 
 export type ParseAppConfig = {
@@ -52,6 +54,7 @@ export const parseSchema = (
   const resource = compileResource(parseResult.data, normalized.schema, {
     baseUrl: appConfig.baseUrl,
     enums: normalized.enums ?? {},
+    resolvers: normalized.resolvers,
   });
 
   let payload: Record<string, unknown> | undefined;
