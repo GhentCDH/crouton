@@ -1,6 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import type { PrismaClientLike, PrismaDelegateLike } from '../types/prisma.types';
 
 import { isPrismaKnownError } from '@ghentcdh/crouton-core';
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
@@ -14,6 +13,7 @@ import {
 } from '../custom-repository/child-delegate';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
+import type { PrismaClientLike, PrismaDelegateLike } from '../types/prisma.types';
 import { mapPrismaUniqueError } from '../unique-validation';
 import { normalizeValueLabels } from './middleware/value-label.apply';
 import { isPrismaKnownError } from '../errors/prisma.errors';

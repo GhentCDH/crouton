@@ -10,8 +10,7 @@ import {
   parseFilterString,
   resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
-import type { CroutonRequest } from '../types/request.types';
-import { getDelegate, type PrismaClientLike, type PrismaDelegateLike } from '../types/prisma.types';
+
 
 import type { DataSourceAdapter } from './adapter';
 import {
@@ -21,6 +20,8 @@ import {
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../types/prisma.types';
+import type { CroutonRequest } from '../types/request.types';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath } from './query/filter';
 import { orderableChildSort } from './query/sort';

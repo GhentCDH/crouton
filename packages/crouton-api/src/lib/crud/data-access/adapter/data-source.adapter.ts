@@ -1,8 +1,8 @@
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
 import type { Resource } from '../../resource/ResourceConfig.schema';
-import type { ResourceConfigRegistry } from '../../resource-config.registry';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
+import type { ResourceConfigRegistry } from '../../resource-config.registry';
 
 export interface AdapterCrudContext {
   config: Resource;

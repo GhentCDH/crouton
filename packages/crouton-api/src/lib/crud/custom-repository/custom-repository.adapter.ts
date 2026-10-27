@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { type ListRequest, type Row, offsetOf } from '@ghentcdh/crouton-core';
-import type { CroutonRequest } from '../types/request.types';
+
 
 import {
   type CustomListResult,
@@ -21,6 +21,7 @@ import type { CrudRepository } from '../data-access/repository';
 import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
+import type { CroutonRequest } from '../types/request.types';
 
 /** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
 export type DataSourceResolver = {
