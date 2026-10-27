@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
 
 import { buildCustomResourceFiles } from './custom-resource-scaffold';
-import { RESOURCE_SCHEMA_URL, withResourceHeader } from './serialize';
+import { RESOURCE_SCHEMA_URL, withResourceHeader } from '@ghentcdh/crouton-core';
 
 const build = (over: Record<string, unknown> = {}) =>
   buildCustomResourceFiles({

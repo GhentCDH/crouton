@@ -6,7 +6,7 @@ import {
   RESOURCE_SCHEMA_URL,
   serializeResourceJson,
   withResourceHeader,
-} from './serialize';
+} from '@ghentcdh/crouton-core';
 
 const base = {
   name: 'author',
