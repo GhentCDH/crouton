@@ -11,7 +11,7 @@ export const SidebarLeafSchema = z.object({
 
 export type SidebarLeaf = z.infer<typeof SidebarLeafSchema>;
 
-export const SidebarGroupSchema = z.object({
+export const SidebarGroupNodeSchema = z.object({
   kind: z.literal('group').default('group'),
   id: z.string(),
   label: z.string(),
@@ -19,11 +19,15 @@ export const SidebarGroupSchema = z.object({
   children: z.array(SidebarLeafSchema).default([]),
 });
 
-export type SidebarGroup = z.infer<typeof SidebarGroupSchema>;
+/** @deprecated Use SidebarGroupNodeSchema */
+export const SidebarGroupSchema = SidebarGroupNodeSchema;
+
+export type SidebarGroupNode = z.infer<typeof SidebarGroupNodeSchema>;
+export type SidebarGroup = SidebarGroupNode;
 
 export const SidebarNodeSchema = z.discriminatedUnion('kind', [
   SidebarLeafSchema,
-  SidebarGroupSchema,
+  SidebarGroupNodeSchema,
 ]);
 
 export type SidebarNode = z.infer<typeof SidebarNodeSchema>;
