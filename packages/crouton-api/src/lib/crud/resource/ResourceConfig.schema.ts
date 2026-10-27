@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { DefinitionSchema, JsonIncludeEntrySchema, LookupSchema, ResourceJsonShape, ValueLabelColumnSchema, ViewConfigSchema } from '@ghentcdh/crouton-core';
+import { DefinitionSchema, JsonIncludeEntrySchema, LookupSchema, NormalizedDataSchema, ResourceJsonShape, ValueLabelColumnSchema, ViewConfigSchema } from '@ghentcdh/crouton-core';
 
 import { SubResourceConfigSchema } from './SubResource.schema';
 import {
@@ -44,6 +44,8 @@ export const ResourceSchema = ResourceJsonShape.extend({
   include: z.array(JsonIncludeEntrySchema).optional(),
   /** Eager-loaded relations for findOne (detail) queries. From operations.findOne.include. */
   findOneInclude: z.array(JsonIncludeEntrySchema).optional(),
+  /** Normalized data facts (fields, allowedIncludes, etc.) — populated by json-adapter. */
+  data: NormalizedDataSchema.optional(),
 });
 
 export type Resource = z.infer<typeof ResourceSchema>;
