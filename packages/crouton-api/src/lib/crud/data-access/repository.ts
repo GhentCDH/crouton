@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 
 import {
   type ListRequest,
+  type Row,
   offsetOf,
   resolveDefinition,
   schemaFor,
@@ -13,6 +14,7 @@ import {
 } from '../custom-repository';
 import type { DataSourceAdapter } from './adapter';
 import { PrismaDataSourceAdapter } from './adapter';
+import { getDelegate, type PrismaClientLike } from '../types/prisma.types';
 import {
   applyAfterFindAll,
   applyBeforeFindAll,
@@ -29,7 +31,7 @@ import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { toSelectFields } from './query/select';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
-export interface CrudRepository<T = any> {
+export interface CrudRepository<T = Row> {
   /** Raw backend client — used by action procedures. */
   readonly prisma: unknown;
   findAll(params: ListRequest, request?: unknown): Promise<T[]>;
@@ -105,8 +107,8 @@ export interface CrudRepository<T = any> {
  * @param configRegistry
  * @throws {Error} When `config.model` is not found on the provided PrismaClient.
  */
-export function createCrudRepository<T = any>(
-  prisma: any,
+export function createCrudRepository<T = Row>(
+  prisma: unknown,
   config: Resource,
   dataSources?: DataSourceResolver,
   configRegistry?: ResourceConfigRegistry,
@@ -153,7 +155,7 @@ export function createCrudRepository<T = any>(
       oneSelect,
       configRegistry,
     };
-    const ctx = (request?: any, op = 'findAll', id?: string | number) => ({
+    const ctx = (request?: unknown, op = 'findAll', id?: string | number) => ({
       ...baseCtx,
       op,
       request,
@@ -162,7 +164,7 @@ export function createCrudRepository<T = any>(
 
     const mkDecorateFindAll =
       (adapter: DataSourceAdapter) =>
-      async (rows: any[], request?: any): Promise<any[]> => {
+      async (rows: unknown[], request?: unknown): Promise<unknown[]> => {
         const decorated = await decorateRows(
           rows,
           'findAll',
@@ -173,21 +175,21 @@ export function createCrudRepository<T = any>(
         return applyAfterFindAll(decorated, config, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
-    const applyBefore = (params: ListRequest, request?: any) =>
+    const applyBefore = (params: ListRequest, request?: unknown) =>
       applyBeforeFindAll(params, config, resolvedAdapter, request);
-    const decorateFindOne = (row: any, request?: any) =>
+    const decorateFindOne = (row: unknown, request?: unknown) =>
       decorateRow(row, 'findOne', config, resolvedAdapter, request);
     const prepareData = (
       data: unknown,
       op: 'create' | 'update' | 'patch',
       id?: string | number,
-      request?: any,
+      request?: unknown,
     ) => prepareWrite(data, op, config, resolvedAdapter, id, request);
     const postData = (
-      result: any,
+      result: unknown,
       op: 'create' | 'update' | 'patch' | 'delete',
       id?: string | number,
-      request?: any,
+      request?: unknown,
     ) => postWrite(result, op, config, resolvedAdapter, id, request);
     const toId = (id: string | number): string | number =>
       (config.idType ?? 'string') === 'number' ? +id : String(id);
@@ -196,7 +198,7 @@ export function createCrudRepository<T = any>(
       parentId: string | number,
       childRoute: string,
       params: ListRequest,
-      request?: any,
+      request?: unknown,
     ): Promise<{ data: T[]; count: number }> => {
       if (resolvedAdapter.findAllByParent) {
         const sub = config.subResources?.find(
@@ -212,16 +214,16 @@ export function createCrudRepository<T = any>(
           sub,
           params,
           ctx(request, 'findAll'),
-        );
+        ) as Promise<{ data: T[]; count: number }>;
       }
       // Fallback: only available when prisma model exists (Prisma adapter).
       if (!config.model)
         throw new Error(
           `Adapter for "${config.name}" does not implement findAllByParent`,
         );
-      const prismaModel = prisma[config.model];
+      const prismaModel = getDelegate(prisma as PrismaClientLike, config.model);
       const reader = new ReadRepository<T>(
-        prismaModel,
+        prismaModel!,
         resolvedAdapter,
         config,
         listSelect,
@@ -235,7 +237,7 @@ export function createCrudRepository<T = any>(
       sub: SubResourceConfig,
       childId: string | number,
       parentId?: string | number,
-      request?: any,
+      request?: unknown,
     ): Promise<T> => {
       if (resolvedAdapter.findOneChild) {
         const row = await resolvedAdapter.findOneChild(
@@ -249,25 +251,25 @@ export function createCrudRepository<T = any>(
           throw new NotFoundException(
             `${sub.childRoute} with id ${childId} not found`,
           );
-        return row;
+        return row as T;
       }
       if (!config.model)
         throw new Error(
           `Adapter for "${config.name}" does not implement findOneChild`,
         );
-      const prismaModel = prisma[config.model];
+      const prismaModel = getDelegate(prisma as PrismaClientLike, config.model);
       const reader = new ReadRepository<T>(
-        prismaModel,
+        prismaModel!,
         resolvedAdapter,
         config,
         listSelect,
         oneSelect,
         configRegistry,
       );
-      return reader.findOneChild(sub, childId, parentId, request);
+      return reader.findOneChild(sub, childId, parentId, request) as Promise<T>;
     };
 
-    const prismaModel = config.model ? prisma?.[config.model] : undefined;
+    const prismaModel = config.model ? getDelegate(prisma as PrismaClientLike, config.model) : undefined;
     const writer = prismaModel
       ? new WriteRepository<T>(prismaModel, resolvedAdapter, config)
       : undefined;
@@ -390,7 +392,7 @@ export function createCrudRepository<T = any>(
                 `deleteChild not supported for "${config.name}" (no Prisma model)`,
               ),
             ),
-    };
+    } as CrudRepository<T>;
   }
 
   // If non-prisma adapter has no CRUD surface, fall back to createCustomRepository
@@ -438,9 +440,9 @@ export function createCrudRepository<T = any>(
 
   // ── Resource-level decoration helpers ────────────────────────────────────
   const decorateFindAll = async (
-    rows: any[],
-    request?: any,
-  ): Promise<any[]> => {
+    rows: unknown[],
+    request?: unknown,
+  ): Promise<unknown[]> => {
     const decorated = await decorateRows(
       rows,
       'findAll',
@@ -451,21 +453,21 @@ export function createCrudRepository<T = any>(
     return applyAfterFindAll(decorated, config, adapter, request);
   };
 
-  const decorateFindOne = (row: any, request?: any): Promise<any> =>
+  const decorateFindOne = (row: unknown, request?: unknown): Promise<unknown> =>
     decorateRow(row, 'findOne', config, adapter, request);
 
   const prepareData = (
     data: unknown,
     op: 'create' | 'update' | 'patch',
     id?: string | number,
-    request?: any,
+    request?: unknown,
   ) => prepareWrite(data, op, config, adapter, id, request);
 
   const postData = (
-    result: any,
+    result: unknown,
     op: 'create' | 'update' | 'patch' | 'delete',
     id?: string | number,
-    request?: any,
+    request?: unknown,
   ) => postWrite(result, op, config, adapter, id, request);
 
   const toId = (id: string | number): string | number =>
@@ -528,5 +530,5 @@ export function createCrudRepository<T = any>(
     createChild: writer.createChild.bind(writer),
     updateChild: writer.updateChild.bind(writer),
     deleteChild: writer.deleteChild.bind(writer),
-  };
+  } as CrudRepository<T>;
 }

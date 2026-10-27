@@ -1,4 +1,4 @@
-import type { ListRequest, ValueLabelColumn } from '@ghentcdh/crouton-core';
+import type { ListRequest, Row, ValueLabelColumn  } from '@ghentcdh/crouton-core';
 
 import type {
   ParentHookContext,
@@ -27,12 +27,7 @@ export type HookTarget = {
   valueLabelColumns?: ValueLabelColumn[];
 };
 
-const hookCtxRead = (
-  adapter: DataSourceAdapter,
-  op: ReadOp,
-  request?: any,
-  parent?: ParentHookContext,
-) => ({
+const hookCtxRead = (adapter: DataSourceAdapter, op: ReadOp, request?: unknown, parent?: ParentHookContext) => ({
   dataSource: adapter,
   prisma: adapter.client,
   op,
@@ -44,7 +39,7 @@ const hookCtxWrite = (
   adapter: DataSourceAdapter,
   op: WriteOp,
   id?: string | number,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
 ) => ({
   dataSource: adapter,
@@ -63,11 +58,11 @@ const hookCtxWrite = (
  * submits the scalar back.
  */
 export const decorateRows = async (
-  rows: any[],
+  rows: unknown[],
   op: ReadOp,
   target: HookTarget,
   adapter: DataSourceAdapter,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
 ): Promise<any[]> => {
   const hook = target.hooks?.afterRead;
@@ -77,33 +72,33 @@ export const decorateRows = async (
     : rows;
   const cols = target.valueLabelColumns;
   return cols?.length
-    ? hooked.map((r) => applyValueLabelColumns(r, cols))
+    ? hooked.map((r) => applyValueLabelColumns(r as Row, cols))
     : hooked;
 };
 
 /** `afterRead` for a single row. Deliberately no value-label envelope. */
 export const decorateRow = async (
-  row: any,
+  row: unknown,
   op: ReadOp,
   target: HookTarget,
   adapter: DataSourceAdapter,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
-): Promise<any> => {
+): Promise<unknown> => {
   const hook = target.hooks?.afterRead;
   return hook ? hook(row, hookCtxRead(adapter, op, request, parent)) : row;
 };
 
 /** Unwrap value-label envelopes, then run `beforeWrite`. */
 export const prepareWrite = async (
-  data: any,
+  data: unknown,
   op: WriteOp,
   target: HookTarget,
   adapter: DataSourceAdapter,
   id?: string | number,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
-): Promise<any> => {
+): Promise<unknown> => {
   const normalized = normalizeValueLabels(data, target.valueLabelColumns);
   const hook = target.hooks?.beforeWrite;
   return hook
@@ -116,7 +111,7 @@ export const applyBeforeFindAll = async (
   params: ListRequest,
   target: HookTarget,
   adapter: DataSourceAdapter,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
 ): Promise<ListRequest> => {
   const hook = target.hooks?.beforeFindAll;
@@ -127,12 +122,12 @@ export const applyBeforeFindAll = async (
 
 /** Run `afterFindAll` on the full result list, after per-row `afterRead` decoration. */
 export const applyAfterFindAll = async (
-  rows: any[],
+  rows: unknown[],
   target: HookTarget,
   adapter: DataSourceAdapter,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
-): Promise<any[]> => {
+): Promise<unknown[]> => {
   const hook = target.hooks?.afterFindAll;
   return hook
     ? hook(rows, hookCtxRead(adapter, 'findAll', request, parent))
@@ -141,12 +136,12 @@ export const applyAfterFindAll = async (
 
 /** Run `afterWrite` on the persisted result. */
 export const postWrite = async (
-  result: any,
+  result: unknown,
   op: WriteOp,
   target: HookTarget,
   adapter: DataSourceAdapter,
   id?: string | number,
-  request?: any,
+  request?: unknown,
   parent?: ParentHookContext,
 ): Promise<any> => {
   const hook = target.hooks?.afterWrite;

@@ -4,7 +4,8 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
-import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
+import { type ListRequest, type Row, offsetOf } from '@ghentcdh/crouton-core';
+import type { CroutonRequest } from '../types/request.types';
 
 import {
   type CustomListResult,
@@ -23,7 +24,7 @@ import type { ResourceConfigRegistry } from '../resource-config.registry';
 
 /** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
 export type DataSourceResolver = {
-  resolve(name?: string): any;
+  resolve(name?: string): unknown;
   entries(): { name: string; client: unknown }[];
   /** Resolve the full adapter for a datasource (optional — not all callers supply it). */
   resolveAdapter?(name?: string): DataSourceAdapter;
@@ -51,8 +52,8 @@ const unsupported = (config: Resource, op: CustomOp): never => {
  * are derived from Prisma relations. They throw rather than silently returning
  * nothing.
  */
-export const createCustomRepository = <T = any>(
-  prisma: any,
+export const createCustomRepository = <T = Row>(
+  prisma: unknown,
   config: Resource,
   dataSources: DataSourceResolver,
   repository: CustomRepository<T> | undefined,
@@ -80,8 +81,8 @@ export const createCustomRepository = <T = any>(
    * present in practice. Missing means the repository was called outside the
    * controller — fail loudly rather than silently querying across all parents.
    */
-  const parentIdFrom = (request: any): string | number => {
-    const raw = request?.params?.[parentRef!.param];
+  const parentIdFrom = (request: unknown): string | number => {
+    const raw = (request as CroutonRequest | undefined)?.params?.[parentRef!.param];
     if (raw === undefined || raw === null || raw === '') {
       throw new BadRequestException(
         `Resource "${config.name}" is nested under "${parentRef!.route}" but no "${parentRef!.param}" was supplied.`,
@@ -91,7 +92,7 @@ export const createCustomRepository = <T = any>(
   };
 
   const parentCtx = (
-    request: any,
+    _request: unknown,
     parentId: string | number,
   ): { parent: NonNullable<CustomRepositoryContext['parent']> } => ({
     parent: { route: parentRef!.route, param: parentRef!.param, id: parentId },
@@ -103,9 +104,9 @@ export const createCustomRepository = <T = any>(
    * `undefined` when the resource is not nested, or when the request carries no
    * parent id to read (a hook must not be handed a fabricated one).
    */
-  const parentHookCtx = (request: any) => {
+  const parentHookCtx = (request: unknown) => {
     if (!parentRef) return undefined;
-    const raw = request?.params?.[parentRef.param];
+    const raw = (request as CroutonRequest | undefined)?.params?.[parentRef.param];
     if (raw === undefined || raw === null || raw === '') return undefined;
     return {
       route: parentRef.route,
@@ -118,7 +119,7 @@ export const createCustomRepository = <T = any>(
     op: CustomOp,
     params?: ListRequest,
     id?: string | number,
-    request?: any,
+    request?: unknown,
   ): CustomRepositoryContext => ({
     prisma,
     dataSources,
@@ -131,7 +132,7 @@ export const createCustomRepository = <T = any>(
 
   const findAllWithCount = async (
     params: ListRequest,
-    request?: any,
+    request?: unknown,
   ): Promise<CustomListResult<T>> => {
     let result: CustomListResult<T> | undefined;
 
@@ -161,7 +162,7 @@ export const createCustomRepository = <T = any>(
     return { data, count: result?.count ?? data.length };
   };
 
-  const findOne = async (id: string | number, request?: any): Promise<T> => {
+  const findOne = async (id: string | number, request?: unknown): Promise<T> => {
     let row: T | null | undefined;
 
     if (parentRef) {
@@ -189,14 +190,14 @@ export const createCustomRepository = <T = any>(
       adapter,
       request,
       parentHookCtx(request),
-    );
+    ) as Promise<T>;
   };
 
   const write = async (
     op: 'create' | 'update' | 'patch',
     data: unknown,
     id?: string | number,
-    request?: any,
+    request?: unknown,
   ): Promise<T> => {
     const coercedId = id !== undefined ? toId(id) : undefined;
 
