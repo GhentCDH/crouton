@@ -5,8 +5,8 @@ import {
   IdTypeSchema,
   ModalSizeSchema,
   OptionalIncludeListSchema,
+  OptionalViewsSchema,
   ValueLabelColumnsSchema,
-  ViewsSchema,
 } from './compiled-shared.schema';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { JsonColumnBaseSchema } from '../resource/Column';
@@ -44,7 +44,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   subResources: z.array(CompiledSubResourceConfigSchema),
   search: z.array(z.string()).optional(),
   lookup: LookupSchema.optional(),
-  views: ViewsSchema,
+  /** Omitted when the resource has no layout-derived views. */
+  views: OptionalViewsSchema,
   definition: DefinitionSchema,
   idField: z.string(),
   modalSize: ModalSizeSchema.optional(),

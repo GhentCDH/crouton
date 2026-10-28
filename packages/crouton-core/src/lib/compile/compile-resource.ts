@@ -203,7 +203,7 @@ export const compileResource = (
     idField,
     definition,
     subResources,
-    views: views ?? {},
+    ...(views && { views }),
     ...(searchPaths?.length && { search: searchPaths }),
     lookup,
     ...(calculatedColumns.length && { calculatedColumns }),
