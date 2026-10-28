@@ -1,5 +1,8 @@
+import type { z } from 'zod';
+
 import { resolveTableNode } from './layout-table-order';
 import { isComponentItem, isNodeItem, resolveItemFieldId } from './schema';
+import type { LayoutFieldItemSchema } from './schema/LayoutItem.schema';
 import type { JsonColumn } from '../resource/Column';
 import type { Layout } from './schema/Layout.schema';
 import type { FormLayoutNode } from './schema/LayoutNode.schema';
@@ -10,7 +13,7 @@ const collectFromFormNode = (node: FormLayoutNode, ids: Set<string>): void => {
     if (isNodeItem(item)) {
       collectFromFormNode(item as FormLayoutNode, ids);
     } else if (!isComponentItem(item)) {
-      ids.add(resolveItemFieldId(item as any));
+      ids.add(resolveItemFieldId(item as z.infer<typeof LayoutFieldItemSchema>));
     }
   }
 };
@@ -18,7 +21,7 @@ const collectFromFormNode = (node: FormLayoutNode, ids: Set<string>): void => {
 const collectFromTableNode = (node: TableNode, ids: Set<string>): void => {
   for (const item of node.items ?? []) {
     if (!isComponentItem(item)) {
-      ids.add(typeof item === 'string' ? item : (item as any).id);
+      ids.add(typeof item === 'string' ? item : (item as { id: string }).id);
     }
   }
 };
@@ -33,7 +36,7 @@ export const collectLayoutFieldIds = (
   } else if (ctx === 'view' && layout.view) {
     collectFromFormNode(layout.view, ids);
   } else if (ctx === 'table' && layout.table) {
-    const tableNode = resolveTableNode(layout.table as any);
+    const tableNode = resolveTableNode(layout.table);
     if (tableNode) collectFromTableNode(tableNode, ids);
   }
   return ids;

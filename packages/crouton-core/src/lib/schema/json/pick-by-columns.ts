@@ -17,5 +17,5 @@ export const pickByColumns = (
   const filtered = columns.filter((c) => baseFilter(c) && schemaKeys.has(c.id));
   if (!filtered.length) return undefined;
   const mask = Object.fromEntries(filtered.map((c) => [c.id, true as const]));
-  return schema.pick(mask as any) as SchemaInput;
+  return schema.pick(mask as { [k in keyof ZodRawShape]?: true }) as SchemaInput;
 };

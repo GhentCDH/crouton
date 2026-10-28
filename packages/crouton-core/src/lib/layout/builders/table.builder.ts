@@ -2,9 +2,11 @@ import type { z } from 'zod';
 
 import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import { buildView, emptyTableView } from './view-helpers';
+import type { JsonColumn } from '../../resource/Column';
 import { buildFormUiSchema, orderTableColumnsFromLayout, patchFilterProperties, resolveDefaultSort, resolveTableNode } from '../../view';
 import { columnForContext } from '../../view/column.utils';
 import { buildTableUiSchema } from '../../view/table-schema.builder';
+import type { LayoutNode } from '../schema/LayoutNode.schema';
 import type { TableLayoutRootSchema } from '../schema/TableLayout.schema';
 
 type TableLayoutRoot = z.infer<typeof TableLayoutRootSchema>;
@@ -24,15 +26,15 @@ export const buildTableLayout = (
   let table = buildView(source, tableCols, (c) => !c.hiddenInTable, buildTableUiSchema, true, undefined, ctx.resourceName);
   if (table) {
     const defaultSortResult = resolveDefaultSort(
-      table.columns as any[],
+      (table.columns ?? []) as JsonColumn[],
       columns,
-      resolveTableNode(node) as any,
+      resolveTableNode(node) as LayoutNode | undefined,
     );
     table.defaultSort = defaultSortResult?.id;
     table.defaultSortDir = defaultSortResult?.dir;
-    if (node) table = orderTableColumnsFromLayout(table, node as any, ctx.warn);
+    if (node) table = orderTableColumnsFromLayout(table, node as LayoutNode, ctx.warn);
 
-    const tableNode = resolveTableNode(node as any);
+    const tableNode = resolveTableNode(node);
     if (tableNode) {
       const { pageSize, pageSizes, density, rowClick, selectable, emptyText } = tableNode;
       const ui = table.ui_schema as Record<string, unknown>;
@@ -68,7 +70,7 @@ export const buildTableLayout = (
       ctx.resourceName,
     );
     if (filter) {
-      patchFilterProperties(filter.json_schema as Record<string, any>, columns?.filter(isFilterable));
+      patchFilterProperties(filter.json_schema as Record<string, unknown>, columns?.filter(isFilterable));
       views.filter = filter;
     }
   }

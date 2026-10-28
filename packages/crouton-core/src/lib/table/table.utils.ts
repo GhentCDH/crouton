@@ -10,5 +10,5 @@ export const findColumnDef = (
   schema: JsonSchema,
 ): TextCellType & { id: string } => {
   const { id, property } = findProperty(column, schema);
-  return { ...column, id, ...property };
+  return { ...column, id: id ?? '', ...property };
 };

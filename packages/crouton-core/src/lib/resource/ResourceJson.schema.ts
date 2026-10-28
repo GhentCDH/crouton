@@ -331,7 +331,8 @@ export const refineByKind = (
   // Cross-kind: enum + fieldInput.options.values conflict
   for (const [id, col] of Object.entries(obj.columns ?? {})) {
     const hasEnum = !!col.enum;
-    const hasValues = !!(col.fieldInput?.options as any)?.values?.length;
+    const optValues = (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values'];
+    const hasValues = Array.isArray(optValues) && optValues.length > 0;
     if (hasEnum && hasValues) {
       ctx.addIssue({
         code: 'custom',
@@ -441,9 +442,9 @@ export const refineLayout = (
     );
     if (tableNode) {
       const ids = ((tableNode['items'] as unknown[] | undefined) ?? [])
-        .filter((item) => !(item as any)?.component)
+        .filter((item) => !(item as Record<string, unknown>)?.['component'])
         .map((item) =>
-          typeof item === 'string' ? item : ((item as any)?.id as string),
+          typeof item === 'string' ? item : ((item as Record<string, unknown>)?.['id'] as string),
         )
         .filter(Boolean);
       validateIds(ids, ['layout', 'table'], 'table');
@@ -499,7 +500,7 @@ const patchTableNodeInLayout = (
   const updatedNode = { ...tableNode, ...updates };
   if (!isWrapper) return { ...layout, table: updatedNode };
   const outerItems = (outerTable['items'] as Record<string, unknown>[]) ?? [];
-  const idx = outerItems.findIndex((i: any) => i?.['type'] === 'table');
+  const idx = outerItems.findIndex((i: Record<string, unknown>) => i?.['type'] === 'table');
   if (idx < 0) return { ...layout, table: updatedNode };
   return {
     ...layout,
@@ -638,7 +639,7 @@ export const buildResourceJsonSchema = () => {
                   const findAll = ops['findAll'];
                   const existingSearch: string[] =
                     typeof findAll === 'object' && findAll !== null
-                      ? ((findAll as any).search ?? [])
+                      ? (((findAll as Record<string, unknown>)['search'] as string[] | undefined) ?? [])
                       : [];
                   const merged = [
                     ...existingSearch,
@@ -693,7 +694,7 @@ export const buildResourceJsonSchema = () => {
                     const findAll = ops['findAll'];
                     const existingSearch: string[] =
                       typeof findAll === 'object' && findAll !== null
-                        ? ((findAll as any).search ?? [])
+                        ? (((findAll as Record<string, unknown>)['search'] as string[] | undefined) ?? [])
                         : [];
                     const merged = [
                       ...existingSearch,
@@ -772,7 +773,7 @@ export const buildResourceJsonSchema = () => {
               const outerItems =
                 (outerTable['items'] as Record<string, unknown>[]) ?? [];
               const idx = outerItems.findIndex(
-                (i: any) => i?.['type'] === 'table',
+                (i: Record<string, unknown>) => i?.['type'] === 'table',
               );
               const newItems =
                 idx >= 0
@@ -884,7 +885,7 @@ export const buildResourceJsonSchema = () => {
               const findAll = ops['findAll'];
               const existingSearch: string[] =
                 typeof findAll === 'object' && findAll !== null
-                  ? ((findAll as any).search ?? [])
+                  ? (((findAll as Record<string, unknown>)['search'] as string[] | undefined) ?? [])
                   : [];
               const merged = [
                 ...existingSearch,

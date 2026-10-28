@@ -29,7 +29,7 @@
   },
   "crouton-api": {
     "prod": {
-      "explicit_any": 293,
+      "explicit_any": 292,
       "as_any": 40,
       "as_unknown_as": 7,
       "disable_no_reason": 0
@@ -71,8 +71,8 @@
   },
   "crouton-core": {
     "prod": {
-      "explicit_any": 90,
-      "as_any": 42,
+      "explicit_any": 26,
+      "as_any": 0,
       "as_unknown_as": 5,
       "disable_no_reason": 0
     },

@@ -10,7 +10,12 @@ import { z } from 'zod';
  * - Object with orderBy: `{ relation: "sections", orderBy: { title: "asc" } }`
  *   → `{ sections: { orderBy: { title: "asc" } } }`
  */
-export const JsonIncludeEntrySchema: z.ZodType<any> = z.lazy(() =>
+export type JsonIncludeEntry =
+  | string
+  | { relation: string; include?: JsonIncludeEntry[]; orderBy?: Record<string, unknown> };
+
+// z.ZodType<JsonIncludeEntry> needed for the recursive self-reference
+export const JsonIncludeEntrySchema: z.ZodType<JsonIncludeEntry> = z.lazy(() =>
   z.union([
     z.string(), // plain relation name → `{ [name]: true }`
     z.object({
@@ -21,5 +26,3 @@ export const JsonIncludeEntrySchema: z.ZodType<any> = z.lazy(() =>
     }),
   ]),
 );
-
-export type JsonIncludeEntry = z.infer<typeof JsonIncludeEntrySchema>;

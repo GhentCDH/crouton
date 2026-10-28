@@ -7,6 +7,7 @@ import { buildCustomLayouts } from './builders/registry';
 import { buildTableLayout } from './builders/table.builder';
 import { buildViewLayout } from './builders/view.builder';
 import type { Layout } from './schema/Layout.schema';
+import type { FormLayoutNode } from './schema/LayoutNode.schema';
 
 export type {
   LayoutBuildContext,
@@ -33,7 +34,7 @@ export const buildLayout = (
   ctx: LayoutBuildContext,
 ): Record<string, ViewConfig> => {
   if (kind === 'table' || kind === 'filter') {
-    const all = buildTableLayout(layout?.table as any, ctx);
+    const all = buildTableLayout(layout?.table, ctx);
     return kind === 'filter'
       ? all.filter
         ? { filter: all.filter }
@@ -43,11 +44,11 @@ export const buildLayout = (
         : {};
   }
   if (kind === 'form') {
-    const form = buildFormLayout(layout?.form as any, ctx);
+    const form = buildFormLayout(layout?.form as FormLayoutNode | undefined, ctx);
     return form ? { form } : {};
   }
   if (kind === 'view') {
-    const view = buildViewLayout(layout?.view as any, ctx);
+    const view = buildViewLayout(layout?.view as FormLayoutNode | undefined, ctx);
     return view ? { view } : {};
   }
   return buildCustomLayouts(layout, ctx);
@@ -62,9 +63,9 @@ export const buildLayouts = (
   layout: Layout | undefined,
   ctx: LayoutBuildContext,
 ): Record<string, ViewConfig> => {
-  const tableViews = buildTableLayout(layout?.table as any, ctx);
-  const form = buildFormLayout(layout?.form as any, ctx);
-  const view = buildViewLayout(layout?.view as any, ctx);
+  const tableViews = buildTableLayout(layout?.table, ctx);
+  const form = buildFormLayout(layout?.form as FormLayoutNode | undefined, ctx);
+  const view = buildViewLayout(layout?.view as FormLayoutNode | undefined, ctx);
   const result: Record<string, ViewConfig> = {};
   if (tableViews.table) result.table = tableViews.table;
   if (form) result.form = form;

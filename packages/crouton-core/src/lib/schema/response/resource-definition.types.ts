@@ -7,7 +7,7 @@ export type ResourceViewSchema = {
   data: JsonSchema;
   ui: Layout;
   zodSchema: ZodType;
-  parseValue: (value: any) => any;
+  parseValue: (value: unknown) => unknown;
 };
 
 export type ResourceTableViewSchema = ResourceViewSchema;

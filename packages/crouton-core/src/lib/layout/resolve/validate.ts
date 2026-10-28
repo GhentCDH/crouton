@@ -1,5 +1,8 @@
+import type { z } from 'zod';
+
 import type { JsonColumn } from '../../resource/Column';
 import { isComponentItem, isNodeItem, resolveItemFieldId } from '../schema/LayoutItem.schema';
+import type { LayoutFieldItemSchema } from '../schema/LayoutItem.schema';
 import type { FormLayoutNode } from '../schema/LayoutNode.schema';
 
 export type LayoutValidationResult = {
@@ -13,7 +16,7 @@ const collectFieldIds = (node: FormLayoutNode): string[] => {
     if (isNodeItem(item)) {
       ids.push(...collectFieldIds(item as FormLayoutNode));
     } else if (!isComponentItem(item)) {
-      ids.push(resolveItemFieldId(item as any));
+      ids.push(resolveItemFieldId(item as z.infer<typeof LayoutFieldItemSchema>));
     }
   }
   return ids;

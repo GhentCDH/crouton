@@ -101,10 +101,10 @@ export const findProperty = <F extends Field>(column: F, schema: JsonSchema) => 
   const id = column.scope.substring('#/properties/'.length);
   const segments = id.split('/properties/');
 
-  let property: any = schema?.properties?.[segments[0]] ?? {};
+  let property: Record<string, unknown> = (schema?.properties?.[segments[0]] ?? {}) as Record<string, unknown>;
   for (const segment of segments.slice(1)) {
-    property = property?.properties?.[segment] ?? {};
+    property = ((property['properties'] as Record<string, unknown> | undefined)?.[segment] ?? {}) as Record<string, unknown>;
   }
 
-  return { id, property } as { id: string; property: any };
+  return { id, property };
 };
