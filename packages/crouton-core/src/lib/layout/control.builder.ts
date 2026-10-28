@@ -362,6 +362,6 @@ export class ControlBuilder<TYPE = Record<string, unknown>, KEY = keyof TYPE> ex
       scope: this.scope,
       options,
       ...(this._rule ? { rule: this._rule } : {}),
-    } as unknown as ControlTypes;
+    } as ControlTypes;
   }
 }

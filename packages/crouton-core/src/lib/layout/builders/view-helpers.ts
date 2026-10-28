@@ -104,7 +104,7 @@ export const buildView = (
   return {
     json_schema: jsonSchema,
      
-    ui_schema: buildUiSchema(visibleCols) as unknown as Record<string, unknown>,
+    ui_schema: buildUiSchema(visibleCols) as Record<string, unknown>,
     columns: visibleCols.map((col) => toViewColumn(col, resourceName)),
   };
 };

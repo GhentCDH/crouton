@@ -34,8 +34,9 @@ export type FormSchemaModel = {
 const simplifyNullableAnyOf = (property: Record<string, unknown>): boolean => {
   const anyOf = property['anyOf'];
   if (!Array.isArray(anyOf) || anyOf.length !== 2) return false;
-  const nonNull = anyOf.find((s: Record<string, unknown>) => s['type'] !== 'null');
-  const hasNull = anyOf.some((s: Record<string, unknown>) => s['type'] === 'null');
+  const items = anyOf as Record<string, unknown>[];
+  const nonNull = items.find((s) => s['type'] !== 'null');
+  const hasNull = items.some((s) => s['type'] === 'null');
   if (nonNull && hasNull) {
     delete property['anyOf'];
     Object.assign(property, nonNull);
