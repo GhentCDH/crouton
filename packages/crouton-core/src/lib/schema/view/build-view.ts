@@ -47,11 +47,11 @@ export const zodSchemaSource =
  * filterable columns (already enum-injected by `injectEnumValues`).
  */
 export const patchFilterProperties = (
-  jsonSchema: Record<string, any>,
+  jsonSchema: Record<string, unknown>,
   columns: JsonColumn[] | undefined,
 ): void => {
   if (!columns?.length) return;
-  const properties = jsonSchema.properties as Record<string, any> | undefined;
+  const properties = jsonSchema['properties'] as Record<string, unknown> | undefined;
   if (!properties) return;
 
   for (const col of columns) {
@@ -88,11 +88,11 @@ export const patchFilterProperties = (
       properties[col.id] = { type: 'string', title: col.label ?? col.id };
     }
 
-    const prop = properties[col.id];
+    const prop = properties[col.id] as Record<string, unknown> | undefined;
     if (!prop) continue;
 
     // Always inject title from the column label.
-    prop.title = col.label ?? col.id;
+    prop['title'] = col.label ?? col.id;
 
     // Inject enum values so the UI can render a select box.
     const values = (

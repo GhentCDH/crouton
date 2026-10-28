@@ -32,7 +32,7 @@ const optionValues = (col: JsonColumn): unknown[] | undefined => {
     ?.['values'];
   if (!Array.isArray(values)) return undefined;
   // Options are either primitives or `{ value, label }` envelopes.
-  const unwrapped = values.map((v) =>
+  const unwrapped = (values as unknown[]).map((v) =>
     v && typeof v === 'object' && 'value' in (v as Record<string, unknown>)
       ? (v as Record<string, unknown>).value
       : v,

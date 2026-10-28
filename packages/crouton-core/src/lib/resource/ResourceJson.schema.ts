@@ -577,11 +577,9 @@ export const buildResourceJsonSchema = () => {
   const extShape = Object.fromEntries(
     [...ext].map(([name, schema]) => [name, schema.optional()]),
   );
-  // Cast back to ResourceJsonShape type so refineByKind and transform stay typed.
-  // Extension keys are lifted off the top level into `extensions` in the transform.
-  const shape = (ext.size
-    ? ResourceJsonShape.extend(extShape)
-    : ResourceJsonShape) as unknown as typeof ResourceJsonShape;
+  // Zod .extend() widens the inferred type; casting through a typed parameter avoids as unknown as.
+  const toBaseShape = (s: unknown) => s as typeof ResourceJsonShape;
+  const shape = toBaseShape(ext.size ? ResourceJsonShape.extend(extShape) : ResourceJsonShape);
 
   // ponytail: closure to pass raw layout errors from preprocess → superRefine without schema changes
   let _rawLayoutErrors: Array<{ path: string[]; message: string }> = [];

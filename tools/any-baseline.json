@@ -71,9 +71,9 @@
   },
   "crouton-core": {
     "prod": {
-      "explicit_any": 26,
+      "explicit_any": 21,
       "as_any": 0,
-      "as_unknown_as": 5,
+      "as_unknown_as": 1,
       "disable_no_reason": 0
     },
     "spec": {

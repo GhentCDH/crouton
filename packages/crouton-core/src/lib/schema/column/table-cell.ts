@@ -61,16 +61,12 @@ export const buildTableUiSchema = (
     .build();
 
   const colMap = Object.fromEntries(cols.map((c) => [c.id, c]));
-  const elements = (layout.elements ?? []) as unknown as Record<string, unknown>[];
-   
-  layout.elements = elements.map((el) => {
+  const elements = (layout.elements ?? []) as object[] as Record<string, unknown>[];
+
+  const mappedElements = elements.map((el) => {
     const id = (el['scope'] as string | undefined)?.replace('#/properties/', '');
     const col = id ? colMap[id] : undefined;
     if (!col) return el;
-    // Record cells get all fieldInput options; plain cells still receive the
-    // shared ones (select values, resource URIs) so they can reuse form logic.
-    // Date-range reuses the form control renderer, so it needs its full options
-    // (format, fromField/toField, labels).
     const fieldInputOptions =
       isRecordCell(col) || isDateRange(col) || isObjectCell(col)
         ? ((col.fieldInput?.options as object) ?? {})
@@ -93,12 +89,10 @@ export const buildTableUiSchema = (
         ...(isDateRange(col) && { format: 'date-range' }),
         label: col.label,
       },
-      // An object column with a displayKey renders the same way as a relation:
-      // one nested key out of an object value.
       ...((isRecordCell(col) || isObjectCell(col)) && { type: 'RecordCell' }),
       ...(isDateRange(col) && { type: 'Control' }),
     };
-  }) as unknown as typeof layout.elements;
+  });
 
-  return layout as unknown as Record<string, unknown>;
+  return { ...layout, elements: mappedElements } as Record<string, unknown>;
 };

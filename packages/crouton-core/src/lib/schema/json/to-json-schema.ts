@@ -8,22 +8,23 @@ export const isZodSchema = (
   schema: SchemaInput,
 ): schema is ZodObject<ZodRawShape> => schema instanceof ZodObject;
 
-const dropNullableFromRequiredMut = (jsonSchema: Record<string, any>): void => {
+const dropNullableFromRequiredMut = (jsonSchema: Record<string, unknown>): void => {
   const { properties, required } = jsonSchema;
   if (!properties || !Array.isArray(required)) return;
-  jsonSchema.required = required.filter(
-    (key: string) => !isNullableProperty(properties[key]),
+  const props = properties as Record<string, unknown>;
+  jsonSchema.required = (required as string[]).filter(
+    (key) => !isNullableProperty(props[key] as Record<string, unknown>),
   );
 };
 
 export const toJsonSchema = (schema: SchemaInput): JsonSchemaInput => {
   if (isZodSchema(schema)) {
-    let jsonSchema: Record<string, any>;
+    let jsonSchema: Record<string, unknown>;
     try {
       jsonSchema = toJSONSchema(schema, {
         target: 'openApi3',
         ...jsonSchemaOpts,
-      }) as Record<string, any>;
+      }) as Record<string, unknown>;
     } catch {
       return { type: 'object' } as JsonSchemaInput;
     }
