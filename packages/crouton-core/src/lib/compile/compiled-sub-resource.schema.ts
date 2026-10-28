@@ -27,7 +27,7 @@ export const CompiledSubResourceConfigSchema = z.object({
   name: z.string().optional(),
   title: z.string().optional(),
   idField: z.string().optional(),
-  idType: IdTypeSchema.optional(),
+  idType: IdTypeSchema.default('string'),
   views: OptionalViewsSchema,
   operations: JsonOperationsSchema,
   actions: z.array(JsonActionSchema).optional(),

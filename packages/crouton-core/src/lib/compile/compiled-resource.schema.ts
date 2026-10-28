@@ -55,8 +55,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   table: z.string().optional(),
   /** Datasource name (flattened from source.datasource). */
   database: z.string().optional(),
-  /** Primary key type (flattened from source.idType). */
-  idType: IdTypeSchema.optional(),
+  /** Primary key type (flattened from source.idType). Defaults to "string". */
+  idType: IdTypeSchema.default('string'),
 });
 
 export type CompiledResource = z.infer<typeof CompiledResourceSchema>;
