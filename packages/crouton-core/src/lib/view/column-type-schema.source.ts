@@ -1,4 +1,3 @@
-import { isAutocomplete } from '../schema/column/predicates';
 import { applySchemaTransforms } from './schema-transforms';
 import type { JsonColumn } from '../resource/Column';
 import {
@@ -6,6 +5,7 @@ import {
   columnTypeName,
   columnTypeToJsonSchema,
 } from '../resource/ColumnType.schema';
+import { isAutocomplete } from '../schema/column/predicates';
 
 /**
  * Assemble a view's `json_schema` from the columns' declared `type`s.

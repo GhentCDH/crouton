@@ -1,10 +1,10 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import type { CrudDefinition, OperationDef } from './definition.schema';
-import type { SchemaInput } from '../json/schema-input';
 import type { JsonResourceOperations } from '../../data-source';
 import type { JsonColumn } from '../../resource';
 import { pickByColumns } from '../json/pick-by-columns';
+import type { SchemaInput } from '../json/schema-input';
 
 const opWithSchema = (
   enabled: boolean | Record<string, unknown> | undefined,
