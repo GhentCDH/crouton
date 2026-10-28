@@ -50,11 +50,11 @@ export const buildResourceDefinitions = (
     ...(opWithSchema(operations.update, updateSchema) && {
       update: opWithSchema(operations.update, updateSchema)!,
     }),
-    ...(opWithSchema(operations.patch as any, undefined) && {
-      patch: opWithSchema(operations.patch as any, undefined)!,
+    ...(opWithSchema(operations.patch as boolean | Record<string, unknown>, undefined) && {
+      patch: opWithSchema(operations.patch as boolean | Record<string, unknown>, undefined)!,
     }),
-    ...(opWithSchema(operations.delete as any, undefined) && {
-      delete: opWithSchema(operations.delete as any, undefined)!,
+    ...(opWithSchema(operations.delete as boolean | Record<string, unknown>, undefined) && {
+      delete: opWithSchema(operations.delete as boolean | Record<string, unknown>, undefined)!,
     }),
   };
 };

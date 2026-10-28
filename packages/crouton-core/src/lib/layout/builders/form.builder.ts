@@ -2,6 +2,7 @@ import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import { applyRequiredColumns, buildView } from './view-helpers';
 import { buildFormUiSchema, buildFormUiSchemaFromLayout } from '../../view';
 import type { FormLayoutNode } from '../schema/LayoutNode.schema';
+import type { LayoutNode } from '../schema/LayoutNode.schema';
 
 /**
  * Build the form view (create/edit) for a resource.
@@ -13,7 +14,7 @@ export const buildFormLayout = (
 ): ViewConfig | undefined => {
   const { columns, source } = ctx;
   const uiBuilder = node
-    ? (cols: typeof columns) => buildFormUiSchemaFromLayout(node as any, cols, ctx.warn)
+    ? (cols: typeof columns) => buildFormUiSchemaFromLayout(node as LayoutNode, cols, ctx.warn)
     : buildFormUiSchema;
 
   const form = buildView(

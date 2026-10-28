@@ -34,7 +34,7 @@ export const ResourceRowProcedureActionSchema = ActionMetadataSchema.extend({
   /** Static data payload merged into the request body by the frontend. */
   data: z.record(z.string(), z.unknown()).optional(),
   /** Procedure called with `(prisma, recordId)`. */
-  procedure: z.custom<(prisma: any, recordId: string | number) => Promise<any>>(
+  procedure: z.custom<(prisma: unknown, recordId: string | number) => Promise<unknown>>(
     (v) => typeof v === 'function',
   ),
 });
@@ -48,7 +48,7 @@ export const ResourceTableProcedureActionSchema = ActionMetadataSchema.extend({
   /** Static data payload merged into the request body by the frontend. */
   data: z.record(z.string(), z.unknown()).optional(),
   /** Procedure called with `(prisma)` — no record id. */
-  procedure: z.custom<(prisma: any) => Promise<any>>(
+  procedure: z.custom<(prisma: unknown) => Promise<unknown>>(
     (v) => typeof v === 'function',
   ),
 });

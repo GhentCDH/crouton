@@ -74,14 +74,7 @@ export const extractOpInclude = (op: unknown): z.infer<typeof JsonIncludeEntrySc
  * `baseUri` is the collection endpoint, e.g. `http://host/text/{id}/content`.
  */
 export const buildSubResourceOperations = (
-  ops:
-    | Partial<
-        Record<
-          'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete',
-          boolean
-        >
-      >
-    | undefined,
+  ops: JsonResourceOperations | undefined,
   baseUri: string,
   idField = 'id',
 ): Record<string, unknown> => {

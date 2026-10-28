@@ -91,18 +91,18 @@ export const columnTypeSchemaSource = (
  * actual API response shape for manyToOne relations.
  */
 export const nestedColumnSchemaSource = (cols: JsonColumn[]): Record<string, unknown> => {
-  const properties: Record<string, any> = {};
+  const properties: Record<string, Record<string, unknown>> = {};
   for (const c of cols) {
     if (c.column && c.column !== c.id) {
       if (!properties[c.column]) {
         properties[c.column] = { type: 'object', properties: {} };
       }
       const keyPath = (c.displayKey ?? c.id).split('.');
-      let target = properties[c.column].properties;
+      let target = properties[c.column]['properties'] as Record<string, Record<string, unknown>>;
       for (let i = 0; i < keyPath.length - 1; i++) {
         const segment = keyPath[i];
         if (!target[segment]) target[segment] = { type: 'object', properties: {} };
-        target = target[segment].properties;
+        target = target[segment]['properties'] as Record<string, Record<string, unknown>>;
       }
       target[keyPath[keyPath.length - 1]] = { type: 'string', title: c.label ?? c.id };
     } else if (c.type !== undefined) {
@@ -132,17 +132,18 @@ export const fixNestedUiSchemaScopes = (
   cols: JsonColumn[],
 ): Record<string, unknown> => {
   const colMap = Object.fromEntries(cols.map((c) => [c.id, c]));
-  const elements = (uiSchema as any).elements as any[] | undefined;
+  const elements = (uiSchema as Record<string, unknown>)['elements'] as unknown[] | undefined;
   if (!elements) return uiSchema;
   return {
     ...uiSchema,
     elements: elements.map((el) => {
-      const id = (el.scope as string | undefined)?.replace('#/properties/', '');
+      const elem = el as Record<string, unknown>;
+      const id = (elem['scope'] as string | undefined)?.replace('#/properties/', '');
       const col = id ? colMap[id] : undefined;
-      if (!col?.column || col.column === col.id) return el;
+      if (!col?.column || col.column === col.id) return elem;
       const keyPath = (col.displayKey ?? col.id).split('.');
       const propPath = keyPath.map((k) => `properties/${k}`).join('/');
-      return { ...el, scope: `#/properties/${col.column}/${propPath}` };
+      return { ...elem, scope: `#/properties/${col.column}/${propPath}` };
     }),
   };
 };
