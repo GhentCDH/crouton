@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { JsonDisplaySchema, ResourceJsonShape } from '../resource';
+import { JsonColumnBaseSchema } from '../resource/Column';
 import { JsonIncludeEntrySchema } from '../resource/include.schema';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
@@ -9,6 +10,8 @@ import { LookupSchema } from './lookup.schema';
 import { ValueLabelColumnSchema } from './value-label-column';
 
 export const CompiledResourceSchema = ResourceJsonShape.extend({
+  // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
+  columns: z.array(JsonColumnBaseSchema).optional(),
   route: z.string(),
   valueLabelColumns: z.array(ValueLabelColumnSchema).default([]),
   subResources: z.lazy(() => z.array(CompiledSubResourceConfigSchema)).default([]),
