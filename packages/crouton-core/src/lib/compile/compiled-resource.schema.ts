@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
 import {   ResourceJsonShape } from '../resource';
-import { JsonColumnBaseSchema } from '../resource';
-import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import {
   IdTypeSchema,
   ModalSizeSchema,
@@ -10,8 +8,10 @@ import {
   ValueLabelColumnsSchema,
   ViewsSchema,
 } from './compiled-shared.schema';
-import { DefinitionSchema } from './definition.schema';
-import { LookupSchema } from './lookup.schema';
+import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
+import { JsonColumnBaseSchema } from '../resource/Column';
+import { DefinitionSchema } from '../schema/definition/definition.schema';
+import { LookupSchema } from '../schema/definition/lookup.schema';
 
 export const CompiledResourceSchema = ResourceJsonShape.extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
