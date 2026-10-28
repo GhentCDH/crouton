@@ -27,7 +27,7 @@ import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 import type { EnumRegistry } from './enum-registry';
 import { injectEnumValues } from './enum-registry';
 import { enrichRelationTypes } from './relation-type';
-import { buildResourceDefinitions } from './schema.helpers';
+import { buildResourceDefinitions } from '../schema/definition/schema.helpers';
 import { buildLookup, buildSearch } from './search-lookup';
 import { pickExtensions } from '../resource/extensions';
 

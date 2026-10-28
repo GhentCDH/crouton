@@ -5,8 +5,8 @@ import { JsonColumnBaseSchema } from '../resource/Column';
 import { JsonIncludeEntrySchema } from '../resource/include.schema';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
-import { DefinitionSchema } from './definition.schema';
-import { LookupSchema } from './lookup.schema';
+import { DefinitionSchema } from '../schema/definition/definition.schema';
+import { LookupSchema } from '../schema/definition/lookup.schema';
 import { ValueLabelColumnSchema } from './value-label-column';
 
 export const CompiledResourceSchema = ResourceJsonShape.extend({

@@ -13,15 +13,19 @@ import {
   isOperationExternal,
   resolveDefinition,
   schemaFor,
-} from './crud-config';
-import { toJsonSchema } from './to-json-schema';
+} from '../schema/definition/crud-config';
+import { toJsonSchema } from '../schema/json';
 
 interface TableInjectOptions {
   rowActions: unknown[];
   tableActions: unknown[];
   defaultSortId?: string;
   defaultSortDir?: 'asc' | 'desc';
-  filter?: { schema: unknown; uischema: unknown; initialData: Record<string, never> };
+  filter?: {
+    schema: unknown;
+    uischema: unknown;
+    initialData: Record<string, never>;
+  };
 }
 
 const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
@@ -34,8 +38,12 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
         ...((u['options'] as object) ?? {}),
         ...(opts.tableActions.length && { tableActions: opts.tableActions }),
         ...(opts.rowActions.length && { rowActions: opts.rowActions }),
-        ...(opts.defaultSortId !== undefined && { defaultSortId: opts.defaultSortId }),
-        ...(opts.defaultSortDir !== undefined && { defaultSortDir: opts.defaultSortDir }),
+        ...(opts.defaultSortId !== undefined && {
+          defaultSortId: opts.defaultSortId,
+        }),
+        ...(opts.defaultSortDir !== undefined && {
+          defaultSortDir: opts.defaultSortDir,
+        }),
         ...(opts.filter && { filter: opts.filter }),
       },
     };
@@ -50,7 +58,6 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
   }
   return u;
 };
-
 
 const resolveEnvPlaceholders = (value: string): string =>
   value.replace(/\{env\.([^}]+)\}/g, (match: string, varName: string) => readEnv(varName) ?? match);
@@ -216,7 +223,11 @@ export const buildViewsPayload = (
   const schemas = Object.fromEntries(
     Object.entries(config.views).map(([key, v]) => [
       key,
-      { data: v.json_schema, ui: v.ui_schema, ...(v.columns?.length && { columns: v.columns }) },
+      {
+        data: v.json_schema,
+        ui: v.ui_schema,
+        ...(v.columns?.length && { columns: v.columns }),
+      },
     ]),
   );
 
@@ -231,7 +242,11 @@ export const buildViewsPayload = (
       defaultSortId: config.views['table']?.defaultSort,
       defaultSortDir: config.views['table']?.defaultSortDir,
       ...(filterSchema && {
-        filter: { schema: filterSchema.data, uischema: filterSchema.ui, initialData: {} },
+        filter: {
+          schema: filterSchema.data,
+          uischema: filterSchema.ui,
+          initialData: {},
+        },
       }),
     }),
   };
@@ -295,7 +310,11 @@ export const buildSubResourceViewsPayload = (
           defaultSortId: sub.views['table']?.defaultSort,
           defaultSortDir: sub.views['table']?.defaultSortDir,
           ...(subFilterSchema && {
-            filter: { schema: subFilterSchema.data, uischema: subFilterSchema.ui, initialData: {} },
+            filter: {
+              schema: subFilterSchema.data,
+              uischema: subFilterSchema.ui,
+              initialData: {},
+            },
           }),
         }),
       };

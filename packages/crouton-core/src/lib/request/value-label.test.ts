@@ -35,7 +35,10 @@ describe('fromValueLabel', () => {
     expect(fromValueLabel(null)).toBeNull();
   });
   it('unwraps arrays element-wise', () => {
-    expect(fromValueLabel([{ value: 'a', label: 'Alpha' }, 'b'])).toEqual(['a', 'b']);
+    expect(fromValueLabel([{ value: 'a', label: 'Alpha' }, 'b'])).toEqual([
+      'a',
+      'b',
+    ]);
   });
   it('round-trips with toValueLabel', () => {
     expect(fromValueLabel(toValueLabel('a', values))).toBe('a');

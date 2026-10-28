@@ -7,26 +7,26 @@ export {
   isObjectColumn,
   isRecordCell,
   isRelation,
-} from './column-predicates';
+} from '../schema/column/predicates';
 export {
   colPosition,
   columnForContext,
   sortByPosition,
   toViewColumn,
-} from './column.utils';
-export type { FieldContext } from './column.utils';
+} from '../schema/column/column.utils';
+export type { FieldContext } from '../schema/column/column.utils';
 export { deriveSortId, resolveDefaultSort } from '../layout/sort.helpers';
 export { applySchemaTransforms } from './schema-transforms';
 export {
   buildTableUiSchema,
   pickSharedCellOptions,
-} from './table-schema.builder';
+} from '../schema/column/table-cell';
 export {
   buildConditionSchema,
   buildFormControl,
   buildFormUiSchema,
   buildRule,
-} from './form-schema.builder';
+} from '../schema/column/form-control';
 export {
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
@@ -35,7 +35,7 @@ export {
   type ViewJsonSchemaSource,
   patchFilterProperties,
   zodSchemaSource,
-} from './view.builder';
+} from '../schema/view/build-view';
 export { buildFormUiSchemaFromLayout, flattenLayoutControlIds, flattenLayoutControls } from '../layout/layout-ui-schema.builder';
 export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resolveTableNode } from '../layout/layout-table-order';
 export {
@@ -44,8 +44,8 @@ export {
   fixNestedUiSchemaScopes,
   nestedColumnSchemaSource,
 } from './column-type-schema.source';
-export { ViewColumnConfigSchema, ViewConfigSchema } from './view.schema';
-export type { ViewColumnConfig, ViewConfig, ViewDef } from './view.schema';
+export { ViewColumnConfigSchema, ViewConfigSchema } from '../schema/view/view.schema';
+export type { ViewColumnConfig, ViewConfig, ViewDef } from '../schema/view/view.schema';
 export { isDecimalField, jsonSchemaOpts } from './json-schema.opts';
 export { collectLayoutFieldIds, resolveColumnVisibility } from '../layout/layout-visibility';
 export { buildLayouts, defaultLayoutFor } from '../layout';

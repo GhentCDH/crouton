@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { columnTypeSchemaSource, fixNestedUiSchemaScopes, nestedColumnSchemaSource } from './column-type-schema.source';
-import { zodSchemaSource } from './view.builder';
-import type { ViewConfig } from './view.schema';
+import { zodSchemaSource } from '../schema/view/build-view';
 import { buildLayouts } from '../layout';
 import type { JsonColumn } from '../resource/Column';
 import { invalid } from '../utils/test-utils';
+import { ViewConfig } from '../schema';
 
 const propsOf = (views: Record<string, ViewConfig>, view = 'form'): Record<string, Record<string, unknown>> =>
   (views?.[view]?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;

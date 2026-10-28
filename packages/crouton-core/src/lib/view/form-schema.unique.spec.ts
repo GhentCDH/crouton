@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFormUiSchema } from './form-schema.builder';
+import { buildFormUiSchema } from '../schema/column/form-control';
 import { JsonColumnSchema } from '../resource/Column';
 import { type TestControl, asControl, asLayout } from '../utils/test-utils';
 

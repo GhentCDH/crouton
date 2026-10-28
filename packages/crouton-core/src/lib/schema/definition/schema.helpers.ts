@@ -1,7 +1,7 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import type { CrudDefinition, OperationDef } from './definition.schema';
-import type { SchemaInput } from '../../compile/schema-input';
+import type { SchemaInput } from '../json/schema-input';
 import type { JsonResourceOperations } from '../../data-source';
 import type { JsonColumn } from '../../resource';
 import { pickByColumns } from '../json/pick-by-columns';

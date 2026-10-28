@@ -1,4 +1,4 @@
-import { isAutocomplete } from './column-predicates';
+import { isAutocomplete } from '../schema/column/predicates';
 import { applySchemaTransforms } from './schema-transforms';
 import type { JsonColumn } from '../resource/Column';
 import {

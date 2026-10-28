@@ -2,9 +2,6 @@ import type { UISchemaElement } from '@jsonforms/core';
 import { describe, expect, it, vi } from 'vitest';
 
 
-import { buildFormUiSchema } from './form-schema.builder';
-import { buildTableUiSchema } from './table-schema.builder';
-import type { ViewConfig } from './view.schema';
 import { orderTableColumnsFromLayout } from '../layout/layout-table-order';
 import {
   buildFormUiSchemaFromLayout,

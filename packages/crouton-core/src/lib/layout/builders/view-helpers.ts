@@ -1,10 +1,10 @@
 import type { ViewJsonSchemaSource } from './layout-builder.types';
 import type { JsonColumn } from '../../resource/Column';
-import { isRelation } from '../../view/column-predicates';
-import { sortByPosition, toViewColumn } from '../../view/column.utils';
+import { isRelation } from '../../schema/column/predicates';
+import { sortByPosition, toViewColumn } from '../../schema/column/column.utils';
 import { applySchemaTransforms } from '../../view/schema-transforms';
-import { buildTableUiSchema } from '../../view/table-schema.builder';
-import type { ViewConfig } from '../../view/view.schema';
+import { buildTableUiSchema } from '../../schema/column/table-cell';
+import type { ViewConfig } from '../../schema/view/view.schema';
 
 const NON_NULL_TYPES = ['object', 'array', 'string', 'number', 'boolean'];
 const SHAPE_KEYS = ['type', 'enum', 'const', 'anyOf', 'oneOf', 'allOf', '$ref'];

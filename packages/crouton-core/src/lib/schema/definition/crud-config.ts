@@ -1,5 +1,5 @@
 import type { CrudDefinition } from './definition.schema';
-import type { SchemaInput } from '../../compile/schema-input';
+import type { SchemaInput } from '../json/schema-input';
 import type { JsonResourceOperations } from '../../data-source';
 
 export type CrudOperation =
