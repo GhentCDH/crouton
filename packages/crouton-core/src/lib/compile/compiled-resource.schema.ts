@@ -21,6 +21,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   openapi: true,
   // Input-only: the loader reads it before compiling and skips the resource.
   draft: true,
+  // Input-only: editor autocomplete pointer, ignored at runtime.
+  $schema: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),
