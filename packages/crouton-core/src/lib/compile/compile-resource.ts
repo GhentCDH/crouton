@@ -146,6 +146,8 @@ export const compileResource = (
     json.lookup,
     resolvedDisplayKeys,
   );
+  // The primary key is a first-class compiled field; `lookup` no longer carries it.
+  const idField = enrichedColumns.find((c) => c.idField)?.id ?? 'id';
   const findOneOp = json.operations?.findOne;
   const enrichedInclude = enrichIncludeWithSort(
     extractOpInclude(findAll),
@@ -198,7 +200,7 @@ export const compileResource = (
     ...(flattenedTable && { table: flattenedTable }),
     ...(flattenedDatabase && { database: flattenedDatabase }),
     idType: flattenedIdType ?? 'string',
-    idField: lookup?.key ?? 'id',
+    idField,
     definition,
     subResources,
     views: views ?? {},

@@ -267,7 +267,7 @@ export const buildViewsPayload = (
     route: config.route,
     uri: baseUri,
     title: config.title ?? config.tag,
-    idField: config.lookup?.key ?? 'id',
+    idField: config.idField,
     ...(config.modalSize && { modalSize: config.modalSize }),
     operations,
     display: deriveDisplay(config.layout),
