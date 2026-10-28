@@ -201,7 +201,7 @@ export const buildIncludeClause = (
 /**
  * Build the merged Prisma `include` clause for `findOne`.
  *
- * Auto-included sub-resources (`includeInFindOne`) are merged with explicit
+ * Auto-included sub-resources (`includeRelationInParentFindOne`) are merged with explicit
  * `configInclude` entries. `configInclude` wins when both specify the same relation.
  *
  * A `kind: "custom"` child is skipped: it is reached through its own
@@ -213,7 +213,7 @@ export const buildFindOneIncludes = (
   configInclude: Record<string, unknown> | undefined,
 ): Record<string, unknown> | undefined => {
   const autoSubs = subResources.filter(
-    (s) => s.includeInFindOne && s.childKind !== 'custom',
+    (s) => s.includeRelationInParentFindOne && s.childKind !== 'custom',
   );
   const flatIncludes: Record<string, unknown> | undefined = autoSubs.length
     ? (Object.fromEntries(

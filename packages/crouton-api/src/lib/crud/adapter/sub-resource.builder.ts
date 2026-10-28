@@ -252,12 +252,12 @@ export const buildSubResources = (
         ...(childJson?.layout?.form?.container && {
           modalSize: childJson.layout.form.container.size,
         }),
-        ...(mergedIncludes.length && { include: mergedIncludes }),
+        ...(mergedIncludes.length && { childInclude: mergedIncludes }),
         ...(childCalculatedColumns.length && {
           calculatedColumns: childCalculatedColumns,
         }),
         ...((c.hiddenInForm === false || c.hiddenInView === false) && {
-          includeInFindOne: true,
+          includeRelationInParentFindOne: true,
           ...(() => {
             const sort =
               c.relation?.sort ??

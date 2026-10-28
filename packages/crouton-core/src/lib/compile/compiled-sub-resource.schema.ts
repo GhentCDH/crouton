@@ -32,9 +32,11 @@ export const CompiledSubResourceConfigSchema = z.object({
   operations: JsonOperationsSchema,
   actions: z.array(JsonActionSchema).optional(),
   modalSize: ModalSizeSchema.optional(),
-  include: OptionalIncludeListSchema,
+  /** Child relations eager-loaded by the child's own read/write queries. */
+  childInclude: OptionalIncludeListSchema,
   calculatedColumns: OptionalCalculatedColumnsSchema,
-  includeInFindOne: z.boolean().optional(),
+  /** Include the relation itself when the parent is fetched with findOne. */
+  includeRelationInParentFindOne: z.boolean().optional(),
   hiddenInTable: z.boolean().optional(),
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
   valueLabelColumns: OptionalValueLabelColumnsSchema,
