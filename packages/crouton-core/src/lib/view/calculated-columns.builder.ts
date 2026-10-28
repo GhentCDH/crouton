@@ -47,22 +47,23 @@ const injectCalculatedColumnsIntoView = (
   const visible = calculated.filter((c) => isVisibleInMode(c, mode));
   if (!visible.length) return viewConfig;
 
-  const jsonSchema = { ...(viewConfig.json_schema as any) };
-  jsonSchema.properties = { ...jsonSchema.properties };
+  const jsonSchema = { ...(viewConfig.json_schema ?? {}) } as Record<string, unknown>;
+  jsonSchema['properties'] = { ...(jsonSchema['properties'] as Record<string, unknown>) };
+  const props = jsonSchema['properties'] as Record<string, unknown>;
   for (const c of visible) {
-    jsonSchema.properties[c.id] = {
+    props[c.id] = {
       type: c.type === 'boolean' ? 'boolean' : 'string',
       title: c.label ?? c.id,
     };
   }
 
-  const uiSchema = { ...(viewConfig.ui_schema as any) };
-  const existing: any[] = [...(uiSchema.elements ?? [])];
+  const uiSchema = { ...(viewConfig.ui_schema ?? {}) } as Record<string, unknown>;
+  const existing: Record<string, unknown>[] = [...((uiSchema['elements'] as Record<string, unknown>[] | undefined) ?? [])];
 
   // Merge-sort existing elements (implicit position = index + 0.5) with calculated
   // elements (explicit position). Using i + 0.5 means `position: N` slots a calculated
   // column before the regular column currently at index N.
-  const tagged: Array<{ el: any; pos: number }> = [
+  const tagged: Array<{ el: Record<string, unknown>; pos: number }> = [
     ...existing.map((el, i) => ({ el, pos: i + 0.5 })),
     ...visible.map((c) => ({
       el: buildCalculatedElement(c, mode),
