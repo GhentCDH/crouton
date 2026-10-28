@@ -196,7 +196,7 @@ export const compileResource = (
     ...(flattenedModel && { model: flattenedModel }),
     ...(flattenedTable && { table: flattenedTable }),
     ...(flattenedDatabase && { database: flattenedDatabase }),
-    ...(flattenedIdType && { idType: flattenedIdType }),
+    idType: flattenedIdType ?? 'string',
     idField: lookup?.key ?? 'id',
     definition,
     subResources,

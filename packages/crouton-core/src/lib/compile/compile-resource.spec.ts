@@ -170,6 +170,12 @@ describe('compileResource — source flattening (dbTable/datasource, not the rem
   });
 });
 
+describe('compileResource — idType default', () => {
+  it('defaults idType to "string" when no source.idType is set', () => {
+    expect(compileResource(baseJson).idType).toBe('string');
+  });
+});
+
 describe('compileResource — input-only keys are not copied to the compiled resource', () => {
   it('does not expose the raw operation toggles', () => {
     const result = compileResource(baseJson);
