@@ -29,7 +29,6 @@ export const CompiledSubResourceConfigSchema = z.object({
   idType: IdTypeSchema.default('string'),
   views: OptionalViewsSchema,
   operations: JsonOperationsSchema,
-  actions: z.array(JsonActionSchema).optional(),
   /** Child relations eager-loaded by the child's own read/write queries. */
   childInclude: OptionalIncludeListSchema,
   calculatedColumns: OptionalCalculatedColumnsSchema,

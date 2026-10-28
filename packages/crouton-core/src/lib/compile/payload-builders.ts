@@ -331,7 +331,7 @@ export const buildSubResourceViewsPayload = (
       (subSchemas as Record<string, unknown>)['table'] = {
         ...subTable,
         ui: injectTableOptions((subTable as Record<string, unknown>)['ui'], {
-          rowActions: resolveActions(subChildUri, tableLayout?.rowActions ?? sub.rowActions ?? sub.actions),
+          rowActions: resolveActions(subChildUri, tableLayout?.rowActions ?? sub.rowActions),
           tableActions: resolveTableActions(subChildUri, tableLayout?.tableActions ?? sub.tableActions),
           defaultSortId: sub.views['table']?.defaultSort,
           defaultSortDir: sub.views['table']?.defaultSortDir,
