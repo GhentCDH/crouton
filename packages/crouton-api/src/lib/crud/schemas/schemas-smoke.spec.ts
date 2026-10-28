@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { type BootedCase, bootCase } from './test-utils';
+import { bodyOf } from '../test-utils';
 
 describe('schema endpoint smoke test — minimal-prisma', () => {
   let ctx: BootedCase;
@@ -20,12 +21,13 @@ describe('schema endpoint smoke test — minimal-prisma', () => {
 
   it('payload has route, id, uri, operations, schemas', async () => {
     const res = await ctx.http.get('/api/books/schemas');
-    expect(res.body).toMatchObject({
+    const body = bodyOf(res);
+    expect(body).toMatchObject({
       route: 'books',
       id: 'book',
       uri: 'http://localhost:3000/books',
-      operations: expect.any(Object),
-      schemas: expect.any(Object),
     });
+    expect(typeof body['operations']).toBe('object');
+    expect(typeof body['schemas']).toBe('object');
   });
 });

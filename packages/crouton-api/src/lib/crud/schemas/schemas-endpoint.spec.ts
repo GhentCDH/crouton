@@ -11,6 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { type BootedCase, bootCase } from './test-utils';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { bodyOf } from '../test-utils';
 
 describe('prefix configuration', () => {
   let ctx: BootedCase;
@@ -68,19 +69,19 @@ describe('schemaEnricher', () => {
   it('schemaEnricher result is merged on /schemas', async () => {
     const res = await ctx.http.get('/api/books/schemas');
     expect(res.status).toBe(200);
-    expect(res.body.extra).toBe('injected');
+    expect(bodyOf(res)['extra']).toBe('injected');
   });
 
   it('schemaEnricher result is merged on /definition', async () => {
     const res = await ctx.http.get('/api/books/definition');
     expect(res.status).toBe(200);
-    expect(res.body.extra).toBe('injected');
+    expect(bodyOf(res)['extra']).toBe('injected');
   });
 
   it('schemaEnricher result is merged on /resource.json', async () => {
     const res = await ctx.http.get('/api/books/resource.json');
     expect(res.status).toBe(200);
-    expect(res.body.extra).toBe('injected');
+    expect(bodyOf(res)['extra']).toBe('injected');
   });
 });
 

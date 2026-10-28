@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { fixNestedUiSchemaScopes, nestedColumnSchemaSource } from './column-type-schema.source';
 import { buildLayouts } from '../layout';
 import type { JsonColumn } from '../resource/Column';
+import { invalid } from '../utils/test-utils';
 
 /**
  * `buildViewsFromColumns` is the no-Zod path used for sub-resources. It predates
@@ -20,19 +21,19 @@ import type { JsonColumn } from '../resource/Column';
  */
 
 const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
-  overrides as JsonColumn;
+  invalid<JsonColumn>(overrides);
 
 const buildNestedViews = (columns: JsonColumn[]) => {
   if (!columns.length) return undefined;
-  const raw = buildLayouts(undefined, { columns, source: nestedColumnSchemaSource });
+  const raw = buildLayouts(undefined, { columns, source: nestedColumnSchemaSource, warn: () => undefined });
   return Object.fromEntries(
-    Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as any, columns) }])
+    Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, columns) }])
   );
 };
 
-const formProps = (columns: JsonColumn[]) => {
+const formProps = (columns: JsonColumn[]): Record<string, Record<string, unknown>> => {
   const views = buildNestedViews(columns);
-  return (views?.['form']?.json_schema as any)?.properties;
+  return (views?.['form']?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
 };
 
 describe('buildViewsFromColumns honours a declared column type', () => {
@@ -43,24 +44,24 @@ describe('buildViewsFromColumns honours a declared column type', () => {
         id: 'amount',
         label: 'Amount',
         type: 'number',
-        fieldInput: { type: 'number' } as any,
+        fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'number' }),
       }),
     ]);
-    expect(props.amount.type).toBe('number');
+    expect(props.amount?.['type']).toBe('number');
   });
 
   it('does not slip minLength onto a number', () => {
     const props = formProps([
       col({ id: 'amount', label: 'Amount', type: 'number' }),
     ]);
-    expect(props.amount.minLength).toBeUndefined();
+    expect(props.amount?.['minLength']).toBeUndefined();
   });
 
   it('carries the label through as the title', () => {
     const props = formProps([
       col({ id: 'amount', label: 'Amount', type: 'number' }),
     ]);
-    expect(props.amount.title).toBe('Amount');
+    expect(props.amount?.['title']).toBe('Amount');
   });
 
   it('maps integer, boolean and date shorthands', () => {
@@ -70,8 +71,8 @@ describe('buildViewsFromColumns honours a declared column type', () => {
       col({ id: 'spentOn', type: 'date' }),
       col({ id: 'seenAt', type: 'date-time' }),
     ]);
-    expect(props.year.type).toBe('integer');
-    expect(props.paid.type).toBe('boolean');
+    expect(props.year?.['type']).toBe('integer');
+    expect(props.paid?.['type']).toBe('boolean');
     expect(props.spentOn).toMatchObject({ type: 'string', format: 'date' });
     expect(props.seenAt).toMatchObject({ type: 'string', format: 'date-time' });
   });
@@ -80,25 +81,25 @@ describe('buildViewsFromColumns honours a declared column type', () => {
     const props = formProps([
       col({
         id: 'member',
-        type: {
+        type: invalid<JsonColumn['type']>({
           type: 'object',
           properties: { id: { type: 'string' }, share: { type: 'number' } },
-        } as any,
+        }),
       }),
     ]);
-    expect(props.member.type).toBe('object');
-    expect(props.member.properties.share.type).toBe('number');
+    expect(props.member?.['type']).toBe('object');
+    expect((props.member?.['properties'] as Record<string, Record<string, unknown>>).share?.['type']).toBe('number');
   });
 
   it('still defaults to string when no type is declared', () => {
     const props = formProps([col({ id: 'label' })]);
-    expect(props.label.type).toBe('string');
+    expect(props.label?.['type']).toBe('string');
   });
 
   it('leaves an autocomplete column typeless', () => {
     const props = formProps([
-      col({ id: 'paidBy', fieldInput: { type: 'autocomplete' } as any }),
+      col({ id: 'paidBy', fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'autocomplete' }) }),
     ]);
-    expect(props.paidBy.type).toBeUndefined();
+    expect(props.paidBy?.['type']).toBeUndefined();
   });
 });

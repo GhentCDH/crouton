@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const RESOLVED = {
+const RESOLVED: { json: Record<string, unknown>; dir: string } = {
   json: {
     route: 'child',
     columns: [],
@@ -142,7 +142,7 @@ describe('buildSubResources — child layout forwarded to views', () => {
   const savedJson = RESOLVED.json;
 
   beforeEach(() => {
-    (RESOLVED as any).json = {
+    RESOLVED.json = {
       route: 'child',
       operations: {},
       columns: [
@@ -153,7 +153,7 @@ describe('buildSubResources — child layout forwarded to views', () => {
   });
 
   afterEach(() => {
-    (RESOLVED as any).json = savedJson;
+    RESOLVED.json = savedJson;
   });
 
   it('no layout → both columns appear in auto-generated form', () => {
@@ -165,7 +165,7 @@ describe('buildSubResources — child layout forwarded to views', () => {
   });
 
   it('layout.form.items restricts which columns appear in the form', () => {
-    (RESOLVED as any).json.layout = {
+    RESOLVED.json['layout'] = {
       form: { type: 'grid', items: ['title'] },
     };
     const columns = [col({ id: 'content', hiddenInForm: false })];
@@ -176,7 +176,7 @@ describe('buildSubResources — child layout forwarded to views', () => {
   });
 
   it('layout.form.container → modalSize and display forwarded', () => {
-    (RESOLVED as any).json.layout = {
+    RESOLVED.json['layout'] = {
       form: { container: { mode: 'modal', size: 'xl' }, type: 'grid', items: ['title'] },
     };
     const columns = [col({ id: 'content', hiddenInForm: false })];
@@ -189,7 +189,9 @@ describe('buildSubResources — child layout forwarded to views', () => {
   });
 });
 
-const formScopes = (views: Record<string, any> | undefined): string[] => {
-  const elements = views?.form?.ui_schema?.elements as any[] | undefined;
-  return elements?.map((e: any) => e.scope) ?? [];
+const formScopes = (views: Record<string, unknown> | undefined): string[] => {
+  const form = (views?.['form'] as Record<string, unknown> | undefined);
+  const uiSchema = (form?.['ui_schema'] as Record<string, unknown> | undefined);
+  const elements = uiSchema?.['elements'] as Record<string, unknown>[] | undefined;
+  return elements?.map((e: Record<string, unknown>) => e['scope'] as string) ?? [];
 };

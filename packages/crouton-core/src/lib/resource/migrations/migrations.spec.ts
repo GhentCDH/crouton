@@ -9,6 +9,7 @@ import {
   runResourceMigrations,
 } from './index';
 
+import { invalid } from '../../utils/test-utils';
 import { CURRENT_RESOURCE_VERSION } from '../version';
 
 const step = (
@@ -20,7 +21,7 @@ describe('resourceVersionOf', () => {
   it('defaults a missing field to the baseline (1)', () => {
     expect(resourceVersionOf({})).toBe(1);
     expect(resourceVersionOf({ schemaVersion: 3 })).toBe(3);
-    expect(resourceVersionOf({ schemaVersion: 'x' as unknown as number })).toBe(1);
+    expect(resourceVersionOf({ schemaVersion: invalid<number>('x') })).toBe(1);
   });
 });
 

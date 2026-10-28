@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { applyEnumDefaults, injectEnumValues } from './enum-registry';
 import type { JsonColumn } from '../resource';
+import { invalid } from '../utils/test-utils';
 
 const registry = {
   bookStatus: [
@@ -10,7 +11,7 @@ const registry = {
   ],
 };
 
-const enumCol = (): JsonColumn => ({ id: 'status', type: 'string', enum: 'bookStatus' });
+const enumCol = (): JsonColumn => invalid<JsonColumn>({ id: 'status', type: 'string', enum: 'bookStatus' });
 
 describe('applyEnumDefaults', () => {
   it('sets fieldInput.type = select when absent', () => {
@@ -20,13 +21,13 @@ describe('applyEnumDefaults', () => {
   });
 
   it('sets fieldInput.type = select when fieldInput exists without type', () => {
-    const col: JsonColumn = { ...enumCol(), fieldInput: { position: 0 } as any };
+    const col: JsonColumn = { ...enumCol(), fieldInput: invalid<JsonColumn['fieldInput']>({ position: 0 }) };
     applyEnumDefaults(col);
     expect(col.fieldInput!.type).toBe('select');
   });
 
   it('respects existing fieldInput.type', () => {
-    const col: JsonColumn = { ...enumCol(), fieldInput: { type: 'multiSelect' } as any };
+    const col: JsonColumn = { ...enumCol(), fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'multiSelect' }) };
     applyEnumDefaults(col);
     expect(col.fieldInput!.type).toBe('multiSelect');
   });
@@ -34,19 +35,19 @@ describe('applyEnumDefaults', () => {
   it('defaults emitObject: true', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as any).emitObject).toBe(true);
+    expect((col.fieldInput!.options as Record<string, unknown>)['emitObject']).toBe(true);
   });
 
   it('defaults labelKey: label', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as any).labelKey).toBe('label');
+    expect((col.fieldInput!.options as Record<string, unknown>)['labelKey']).toBe('label');
   });
 
   it('defaults valueKey: value', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as any).valueKey).toBe('value');
+    expect((col.fieldInput!.options as Record<string, unknown>)['valueKey']).toBe('value');
   });
 
   it('sets col.displayKey = label when emitObject is true', () => {
@@ -58,7 +59,7 @@ describe('applyEnumDefaults', () => {
   it('does not set col.displayKey when emitObject: false', () => {
     const col: JsonColumn = {
       ...enumCol(),
-      fieldInput: { type: 'select', options: { emitObject: false } as any },
+      fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'select', options: { emitObject: false } }),
     };
     applyEnumDefaults(col);
     expect(col.displayKey).toBeUndefined();
@@ -67,10 +68,10 @@ describe('applyEnumDefaults', () => {
   it('respects explicit emitObject: false', () => {
     const col: JsonColumn = {
       ...enumCol(),
-      fieldInput: { type: 'select', options: { emitObject: false } as any },
+      fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'select', options: { emitObject: false } }),
     };
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as any).emitObject).toBe(false);
+    expect((col.fieldInput!.options as Record<string, unknown>)['emitObject']).toBe(false);
   });
 
   it('respects existing col.displayKey', () => {
@@ -82,23 +83,23 @@ describe('applyEnumDefaults', () => {
   it('injects values when provided', () => {
     const col = enumCol();
     applyEnumDefaults(col, registry.bookStatus);
-    expect((col.fieldInput!.options as any).values).toEqual(registry.bookStatus);
+    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toEqual(registry.bookStatus);
   });
 
   it('does not set values when not provided (unknown enum)', () => {
     const col = enumCol();
     applyEnumDefaults(col, undefined);
-    expect((col.fieldInput!.options as any).values).toBeUndefined();
+    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toBeUndefined();
   });
 
   it('respects explicit options.values override', () => {
     const custom = [{ value: 'x', label: 'X' }];
     const col: JsonColumn = {
       ...enumCol(),
-      fieldInput: { type: 'select', options: { values: custom } as any },
+      fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'select', options: { values: custom } }),
     };
     applyEnumDefaults(col, registry.bookStatus);
-    expect((col.fieldInput!.options as any).values).toEqual(custom);
+    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toEqual(custom);
   });
 });
 
@@ -107,25 +108,25 @@ describe('injectEnumValues', () => {
     const col = enumCol();
     injectEnumValues([col], registry);
     expect(col.fieldInput!.type).toBe('select');
-    expect((col.fieldInput!.options as any).emitObject).toBe(true);
-    expect((col.fieldInput!.options as any).labelKey).toBe('label');
-    expect((col.fieldInput!.options as any).values).toEqual(registry.bookStatus);
+    expect((col.fieldInput!.options as Record<string, unknown>)['emitObject']).toBe(true);
+    expect((col.fieldInput!.options as Record<string, unknown>)['labelKey']).toBe('label');
+    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toEqual(registry.bookStatus);
     expect(col.displayKey).toBe('label');
   });
 
   it('warns and applies defaults (without values) for unknown enum', () => {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const col: JsonColumn = { id: 'foo', type: 'string', enum: 'unknownEnum' };
+    const col = invalid<JsonColumn>({ id: 'foo', type: 'string', enum: 'unknownEnum' });
     injectEnumValues([col], registry);
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('unknownEnum'));
     expect(col.fieldInput!.type).toBe('select');
-    expect((col.fieldInput!.options as any).values).toBeUndefined();
+    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toBeUndefined();
     warnSpy.mockRestore();
   });
 
   it('skips columns with no enum ref', () => {
-    const col: JsonColumn = { id: 'name', type: 'string' };
+    const col = invalid<JsonColumn>({ id: 'name', type: 'string' });
     injectEnumValues([col], registry);
     expect(col.fieldInput).toBeUndefined();
   });

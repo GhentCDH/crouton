@@ -131,7 +131,6 @@ export const buildSubResources = (
         explicitIncludes.map((e) => (typeof e === 'string' ? e : (e as { relation: string }).relation)),
       );
       const mergedIncludes: JsonIncludeEntry[] = [
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JsonIncludeEntry is `any` due to z.lazy
         ...explicitIncludes,
         ...autoIncludes.filter((name) => !explicitNames.has(name)),
       ];

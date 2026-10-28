@@ -7,7 +7,7 @@ const PACKAGES_DIR = join(ROOT, 'packages');
 const BASELINE_PATH = join(ROOT, 'tools/any-baseline.json');
 const SKIP = new Set(['crouton-editor-vue']);
 
-const isSpec = (p) => /\.(spec|test)\.(ts|vue)$/.test(p);
+const isSpec = (p) => /\.(spec|test)\.(ts|vue)$/.test(p) || /[\\/]test-utils\.ts$/.test(p);
 
 const extractScript = (src) => {
   const m = src.match(/<script(?:\s[^>]*)?>(\s*[\s\S]*?)<\/script>/);
@@ -23,13 +23,50 @@ const addCounts = (a, b) => ({
   disable_no_reason: a.disable_no_reason + b.disable_no_reason,
 });
 
-const countContent = (src) => ({
-  explicit_any: (src.match(/\bany\b/g) ?? []).length,
-  as_any: (src.match(/\bas\s+any\b/g) ?? []).length,
-  as_unknown_as: (src.match(/\bas\s+unknown\s+as\b/g) ?? []).length,
-  // disable line for no-explicit-any with no -- reason after the rule name
-  disable_no_reason: (src.match(/\/\/\s*eslint-disable(?:-next-line)?\b[^\n]*\bno-explicit-any\b(?!.*--)/g) ?? []).length,
-});
+// Replace comments with whitespace so prose and eslint-disable reasons can't
+// inflate the counts. Newlines are preserved to keep line numbers stable.
+const stripComments = (src) => {
+  let out = '';
+  let i = 0;
+  let state = 'code';
+  let quote = '';
+  while (i < src.length) {
+    const c = src[i];
+    const d = src[i + 1];
+    if (state === 'code') {
+      if (c === '/' && d === '/') { state = 'line'; out += '  '; i += 2; continue; }
+      if (c === '/' && d === '*') { state = 'block'; out += '  '; i += 2; continue; }
+      if (c === '"' || c === "'" || c === '`') { state = 'string'; quote = c; out += c; i++; continue; }
+      out += c; i++; continue;
+    }
+    if (state === 'line') {
+      if (c === '\n') { state = 'code'; out += c; } else out += ' ';
+      i++; continue;
+    }
+    if (state === 'block') {
+      if (c === '*' && d === '/') { state = 'code'; out += '  '; i += 2; continue; }
+      out += c === '\n' ? '\n' : ' ';
+      i++; continue;
+    }
+    // string
+    if (c === '\\') { out += c + (d ?? ''); i += 2; continue; }
+    out += c;
+    if (c === quote) state = 'code';
+    i++;
+  }
+  return out;
+};
+
+const countContent = (src) => {
+  const code = stripComments(src);
+  return {
+    explicit_any: (code.match(/(?<![\w.])any\b/g) ?? []).length,
+    as_any: (code.match(/\bas\s+any\b/g) ?? []).length,
+    as_unknown_as: (code.match(/\bas\s+unknown\s+as\b/g) ?? []).length,
+    // disable line for no-explicit-any with no -- reason after the rule name
+    disable_no_reason: (src.match(/\/\/\s*eslint-disable(?:-next-line)?\b[^\n]*\bno-explicit-any\b(?!.*--)/g) ?? []).length,
+  };
+};
 
 const walk = (dir, exts, out = []) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {

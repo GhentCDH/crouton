@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createTestApp } from './harness';
 import { seed } from './seed';
+import { bodyOf } from '../../src/lib/crud/test-utils';
 
 let app: Awaited<ReturnType<typeof createTestApp>>;
 
@@ -41,11 +42,15 @@ describe('GET /api/authors (findAll)', () => {
 
   it('sorts ascending and descending', async () => {
     const asc = await app.request.get('/api/authors?sort=name&sortDir=asc').expect(200);
-    const names = asc.body.data.map((a: any) => a.name);
+    const names = (bodyOf(asc)['data'] as Array<Record<string, unknown>>).map((a) =>
+      String(a['name']),
+    );
     expect(names).toEqual([...names].sort());
 
     const desc = await app.request.get('/api/authors?sort=name&sortDir=desc').expect(200);
-    const namesDesc = desc.body.data.map((a: any) => a.name);
+    const namesDesc = (bodyOf(desc)['data'] as Array<Record<string, unknown>>).map((a) =>
+      String(a['name']),
+    );
     expect(namesDesc).toEqual([...namesDesc].sort().reverse());
   });
 
@@ -70,7 +75,11 @@ describe('GET /api/authors (findAll)', () => {
 
   it('q search works', async () => {
     const res = await app.request.get('/api/authors?q=joyce').expect(200);
-    expect(res.body.data.some((a: any) => a.name.toLowerCase().includes('joyce'))).toBe(true);
+    expect(
+      (bodyOf(res)['data'] as Array<Record<string, unknown>>).some((a) =>
+        String(a['name']).toLowerCase().includes('joyce'),
+      ),
+    ).toBe(true);
   });
 });
 

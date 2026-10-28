@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { LayoutBuildContext } from './layout-builder.types';
+import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import {
   buildCustomLayouts,
   registerLayoutBuilder,
   unregisterLayoutBuilder,
 } from './registry';
 import type { JsonColumn } from '../../resource/Column';
+import { invalid } from '../../utils/test-utils';
 
 const ctx: LayoutBuildContext = {
   columns: [] as JsonColumn[],
@@ -21,7 +22,7 @@ afterEach(() => {
 describe('registerLayoutBuilder', () => {
   it('custom kind appears in buildCustomLayouts output', () => {
     const cardView = { json_schema: {}, ui_schema: {}, columns: [] };
-    registerLayoutBuilder('card', (_node, _ctx) => ({ card: cardView as any }));
+    registerLayoutBuilder('card', (_node, _ctx) => ({ card: cardView }));
 
     const result = buildCustomLayouts(undefined, ctx);
     expect(result['card']).toBe(cardView);
@@ -29,7 +30,7 @@ describe('registerLayoutBuilder', () => {
 
   it('builder receives layout node for its kind', () => {
     const cardNode = { items: ['title'] };
-    const layout = { card: cardNode } as any;
+    const layout = { card: cardNode } as Record<string, unknown>;
     let received: unknown;
     registerLayoutBuilder('card', (node, _ctx) => {
       received = node;
@@ -45,10 +46,10 @@ describe('registerLayoutBuilder', () => {
   });
 
   it('overwriting a kind replaces the builder', () => {
-    registerLayoutBuilder('card', () => ({ card: { a: 1 } as any }));
-    registerLayoutBuilder('card', () => ({ card: { b: 2 } as any }));
+    registerLayoutBuilder('card', () => invalid<Record<string, ViewConfig>>({ card: { a: 1 } }));
+    registerLayoutBuilder('card', () => invalid<Record<string, ViewConfig>>({ card: { b: 2 } }));
 
     const result = buildCustomLayouts(undefined, ctx);
-    expect((result['card'] as any).b).toBe(2);
+    expect((result['card'] as Record<string, unknown>)['b']).toBe(2);
   });
 });

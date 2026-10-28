@@ -78,7 +78,7 @@ export class ReadRepository<T = unknown> {
       (s) => s.relationType === 'manyToOne' && s.displayKey,
     );
     const manyToOneCols = (
-      (this.config.columns as unknown as JsonColumn[] | undefined) ?? []
+      this.config.columns ?? []
     ).filter((c) => c.fieldInput?.relationType === 'manyToOne' && c.displayKey);
     const needsRemap = manyToOneSubs.length || manyToOneCols.length;
     const remapped = needsRemap
@@ -203,7 +203,6 @@ export class ReadRepository<T = unknown> {
     }
 
     const allStaticAndDynamic = [
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JsonIncludeEntry is `any` due to z.lazy
       ...(this.config.include ?? []),
       ...dynamicPrismaFields,
     ];
@@ -362,7 +361,6 @@ export class ReadRepository<T = unknown> {
     }
 
     const allStaticAndDynamic = [
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JsonIncludeEntry is `any` due to z.lazy
       ...(this.config.findOneInclude ?? this.config.include ?? []),
       ...dynamicPrismaFields,
     ];

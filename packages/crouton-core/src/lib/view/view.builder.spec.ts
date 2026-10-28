@@ -3,8 +3,14 @@ import { z } from 'zod';
 
 import { columnTypeSchemaSource, fixNestedUiSchemaScopes, nestedColumnSchemaSource } from './column-type-schema.source';
 import { zodSchemaSource } from './view.builder';
+import type { ViewConfig } from './view.schema';
 import { buildLayouts } from '../layout';
+import type { Layout } from '../layout/schema';
 import { JsonColumnSchema } from '../resource/Column';
+import { invalid } from '../utils/test-utils';
+
+const propsOf = (view: ViewConfig | undefined): Record<string, Record<string, unknown>> =>
+  (view?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));
@@ -22,15 +28,15 @@ describe('buildViews — fieldInput.defaultValue', () => {
     { id: 'bio', fieldInput: { type: 'textarea' } },
   ]);
 
-  const views = buildLayouts(undefined, { columns, source: zodSchemaSource(schema) });
-  const formProps = (views.form?.json_schema as any).properties;
+  const views = buildLayouts(undefined, { columns, source: zodSchemaSource(schema), warn: () => undefined });
+  const formProps = propsOf(views.form);
 
   it('injects defaultValue as JSON Schema `default` on the form view', () => {
-    expect(formProps.role.default).toBe('admin');
+    expect(formProps.role?.['default']).toBe('admin');
   });
 
   it('does not add `default` when fieldInput has no defaultValue', () => {
-    expect(formProps.bio.default).toBeUndefined();
+    expect(formProps.bio?.['default']).toBeUndefined();
   });
 });
 
@@ -42,26 +48,26 @@ describe('buildViews — no schema fallback to column types', () => {
     { id: 'register', fieldInput: { type: 'autocomplete' } },
   ]);
 
-  const views = buildLayouts({ table: { filterFields: ['title'] } } as any, { columns, source: columnTypeSchemaSource });
+  const views = buildLayouts(invalid<Layout>({ table: { filterFields: ['title'] } }), { columns, source: columnTypeSchemaSource, warn: () => undefined });
 
   it('produces table, form, filter, and view', () => {
     expect(Object.keys(views).sort()).toEqual(['filter', 'form', 'table', 'view']);
   });
 
   it('derives table properties from column types', () => {
-    const props = (views.table?.json_schema as any).properties;
-    expect(props.title.type).toBe('string');
-    expect(props.count.type).toBe('integer');
+    const props = propsOf(views.table);
+    expect(props.title?.['type']).toBe('string');
+    expect(props.count?.['type']).toBe('integer');
   });
 
   it('includes typeless autocomplete column in the schema', () => {
-    const props = (views.form?.json_schema as any).properties;
+    const props = propsOf(views.form);
     expect(props.register).toBeDefined();
-    expect(props.register.type).toBeUndefined();
+    expect(props.register?.['type']).toBeUndefined();
   });
 
   it('matches direct buildLayouts call with columnTypeSchemaSource', () => {
-    const expected = buildLayouts({ table: { filterFields: ['title'] } } as any, { columns, source: columnTypeSchemaSource });
+    const expected = buildLayouts(invalid<Layout>({ table: { filterFields: ['title'] } }), { columns, source: columnTypeSchemaSource, warn: () => undefined });
     expect(views).toEqual(expected);
   });
 });
@@ -79,14 +85,14 @@ describe('buildViews — hiddenInForm is absolute even when updateable', () => {
     { id: 'modified', type: 'date', hiddenInForm: true, updateable: true },
   ]);
 
-  const views = buildLayouts(undefined, { columns, source: zodSchemaSource(schema) });
+  const views = buildLayouts(undefined, { columns, source: zodSchemaSource(schema), warn: () => undefined });
 
   it('excludes hiddenInForm column from form schema even when updateable', () => {
-    expect((views.form?.json_schema as any).properties.modified).toBeUndefined();
+    expect(propsOf(views.form).modified).toBeUndefined();
   });
 
   it('still includes non-hidden columns', () => {
-    expect((views.form?.json_schema as any).properties.title).toBeDefined();
+    expect(propsOf(views.form).title).toBeDefined();
   });
 });
 
@@ -97,12 +103,12 @@ describe('buildViewsFromColumns — fieldInput.defaultValue (sub-resource path)'
   ]);
 
   it('injects defaultValue on the flat (non-nested) property', () => {
-    const raw = buildLayouts(undefined, { columns, source: nestedColumnSchemaSource });
+    const raw = buildLayouts(undefined, { columns, source: nestedColumnSchemaSource, warn: () => undefined });
     const views = Object.fromEntries(
-      Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as any, columns) }])
+      Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, columns) }])
     );
-    const formProps = (views['form']?.json_schema as any)?.properties;
-    expect(formProps.role.default).toBe('admin');
-    expect(formProps.bio.default).toBeUndefined();
+    const formProps = propsOf(views['form'] as ViewConfig | undefined);
+    expect(formProps.role?.['default']).toBe('admin');
+    expect(formProps.bio?.['default']).toBeUndefined();
   });
 });
