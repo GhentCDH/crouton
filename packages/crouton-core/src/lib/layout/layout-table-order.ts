@@ -64,7 +64,7 @@ export const orderTableColumnsFromLayout = (
   const controls = flattenLayoutItems(tableNode);
   if (!controls.length) return view;
 
-  const elements: Record<string, unknown>[] = (view.ui_schema?.['elements'] as Record<string, unknown>[] | undefined) ?? [];
+  const elements: Record<string, unknown>[] = (view.ui?.['elements'] as Record<string, unknown>[] | undefined) ?? [];
   const columns: ViewColumnConfig[] = view.columns ?? [];
 
   const elementById = new Map(
@@ -142,14 +142,14 @@ export const orderTableColumnsFromLayout = (
   }
 
   const innerTableUi: Record<string, unknown> = {
-    ...(view.ui_schema as Record<string, unknown>),
+    ...(view.ui as Record<string, unknown>),
     elements: reorderedElements,
   };
 
   if (!isTableWrapperLayout(node)) {
     return {
       ...view,
-      ui_schema: innerTableUi,
+      ui: innerTableUi,
       columns: reorderedColumns,
     };
   }
@@ -170,7 +170,7 @@ export const orderTableColumnsFromLayout = (
 
   return {
     ...view,
-    ui_schema: {
+    ui: {
       type: outerType,
       ...(node.columns != null && { columns: node.columns }),
       elements: outerElements,

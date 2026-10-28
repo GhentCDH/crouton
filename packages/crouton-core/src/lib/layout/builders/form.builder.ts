@@ -28,6 +28,6 @@ export const buildFormLayout = (
       (c.createable === true || c.updateable === true),
     ctx.resourceName,
   );
-  if (form) applyRequiredColumns(form.json_schema as Record<string, unknown>, columns);
+  if (form) applyRequiredColumns(form.data as Record<string, unknown>, columns);
   return form;
 };

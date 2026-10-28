@@ -170,8 +170,8 @@ export const buildSubResources = (
                 k,
                 {
                   ...v,
-                  ui_schema: fixNestedUiSchemaScopes(
-                    v.ui_schema as Record<string, unknown>,
+                  ui: fixNestedUiSchemaScopes(
+                    v.ui as Record<string, unknown>,
                     cols,
                   ),
                 },

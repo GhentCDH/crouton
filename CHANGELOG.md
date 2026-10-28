@@ -11,6 +11,12 @@
 
 **Bug fix:** `sortable`/`defaultSort` on columns inside a wrapper table layout are now honoured (were silently ignored before).
 
+### 💥 Breaking: view config keys `json_schema`/`ui_schema` → `data`/`ui`
+
+- The compiled `ViewConfig` (`crouton-core`) and the `views` prop of `CroutonForm` now use **`data`** (JSON schema) and **`ui`** (UI schema). The `json_schema`/`ui_schema` aliases are removed.
+- The `/schemas` and `/definition` wire payloads already used `data`/`ui` and are unchanged.
+- **Migration:** replace `json_schema` → `data` and `ui_schema` → `ui` wherever you build a `views`/`ViewConfig` object by hand (custom layout builders, hand-written `views` props).
+
 ---
 
 ## 0.0.1-alpha.1 (2026-06-23)

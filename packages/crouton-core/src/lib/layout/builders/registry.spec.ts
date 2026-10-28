@@ -21,7 +21,7 @@ afterEach(() => {
 
 describe('registerLayoutBuilder', () => {
   it('custom kind appears in buildCustomLayouts output', () => {
-    const cardView = { json_schema: {}, ui_schema: {}, columns: [] };
+    const cardView = { data: {}, ui: {}, columns: [] };
     registerLayoutBuilder('card', (_node, _ctx) => ({ card: cardView }));
 
     const result = buildCustomLayouts(undefined, ctx);

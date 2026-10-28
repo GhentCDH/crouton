@@ -14,7 +14,7 @@ import { invalid } from '../utils/test-utils';
 const propsOf = (
   view: ViewConfig | undefined,
 ): Record<string, Record<string, unknown>> =>
-  (view?.json_schema?.['properties'] ?? {}) as Record<
+  (view?.data?.['properties'] ?? {}) as Record<
     string,
     Record<string, unknown>
   >;
@@ -143,8 +143,8 @@ describe('buildViewsFromColumns — fieldInput.defaultValue (sub-resource path)'
         k,
         {
           ...v,
-          ui_schema: fixNestedUiSchemaScopes(
-            v.ui_schema as Record<string, unknown>,
+          ui: fixNestedUiSchemaScopes(
+            v.ui as Record<string, unknown>,
             columns,
           ),
         },

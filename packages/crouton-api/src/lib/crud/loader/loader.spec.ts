@@ -184,11 +184,11 @@ describe('loadResourceConfigsFromDir', () => {
     const views = configs[0].views;
     expect(views?.table).toBeDefined();
     expect(views?.form).toBeDefined();
-    const tableProps = (views?.table?.json_schema as Record<string, unknown>)['properties'] as Record<
+    const tableProps = (views?.table?.data as Record<string, unknown>)['properties'] as Record<
       string,
       { type: string }
     >;
-    const formProps = (views?.form?.json_schema as Record<string, unknown>)['properties'] as Record<
+    const formProps = (views?.form?.data as Record<string, unknown>)['properties'] as Record<
       string,
       { type: string }
     >;

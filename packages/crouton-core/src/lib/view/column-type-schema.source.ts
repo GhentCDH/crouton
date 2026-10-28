@@ -8,7 +8,7 @@ import {
 import { isAutocomplete } from '../schema/column/predicates';
 
 /**
- * Assemble a view's `json_schema` from the columns' declared `type`s.
+ * Assemble a view's JSON schema (`data`) from the columns' declared `type`s.
  *
  * This is the `kind: "custom"` counterpart to `zodSchemaSource`: a custom
  * resource has no `schema.ts`, so the column configuration is the only

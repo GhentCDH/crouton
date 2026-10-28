@@ -5,7 +5,7 @@ import { z } from 'zod';
  *
  * A column's `type` is either a shorthand string or a JSON Schema fragment.
  * For a `kind: "custom"` resource these are the *only* source of the resource's
- * json_schema — there is no Prisma model to derive it from.
+ * JSON schema — there is no Prisma model to derive it from.
  */
 
 /** Shorthand names, expanded to a JSON Schema fragment by `columnTypeToJsonSchema`. */

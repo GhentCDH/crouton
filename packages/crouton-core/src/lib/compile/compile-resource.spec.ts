@@ -23,12 +23,12 @@ const baseJson = invalid<ResourceJson>({
 });
 
 describe('compileResource — layout wired', () => {
-  it('no layout → form ui_schema defaults to GridLayout', () => {
+  it('no layout → form ui defaults to GridLayout', () => {
     const result = compileResource(baseJson);
-    expect(result.views['form']?.ui_schema?.['type']).toBe('GridLayout');
+    expect(result.views['form']?.ui?.['type']).toBe('GridLayout');
   });
 
-  it('layout.form collapse → CollapseLayout appears in ui_schema', () => {
+  it('layout.form collapse → CollapseLayout appears in ui', () => {
     const json = invalid<ResourceJson>({
       ...baseJson,
       layout: {
@@ -37,25 +37,25 @@ describe('compileResource — layout wired', () => {
         },
       },
     });
-    const ui = compileResource(json).views['form']?.ui_schema as Record<string, unknown>;
+    const ui = compileResource(json).views['form']?.ui as Record<string, unknown>;
     const elements = ui?.['elements'] as Record<string, unknown>[] | undefined;
     expect(elements?.some((e) => e['type'] === 'CollapseLayout')).toBe(true);
   });
 
-  it('layout.table reorders table ui_schema elements', () => {
+  it('layout.table reorders table ui elements', () => {
     const json = invalid<ResourceJson>({
       ...baseJson,
       layout: { table: { items: ['status', 'title'] } },
     });
-    const elements = (compileResource(json).views['table']?.ui_schema?.['elements'] as Record<string, unknown>[]) ?? [];
+    const elements = (compileResource(json).views['table']?.ui?.['elements'] as Record<string, unknown>[]) ?? [];
     expect((elements[0]['scope'] as string)).toContain('status');
     expect((elements[1]['scope'] as string)).toContain('title');
   });
 
-  it('empty layout → same form ui_schema as no layout (regression guard)', () => {
+  it('empty layout → same form ui as no layout (regression guard)', () => {
     const noLayout = compileResource(baseJson);
     const emptyLayout = compileResource(invalid<ResourceJson>({ ...baseJson, layout: {} }));
-    expect(noLayout.views['form']?.ui_schema).toEqual(emptyLayout.views['form']?.ui_schema);
+    expect(noLayout.views['form']?.ui).toEqual(emptyLayout.views['form']?.ui);
   });
 });
 
@@ -104,9 +104,9 @@ describe('compileResource — computed columns not duplicated in table (#247)', 
     ],
   });
 
-  it('computed column appears exactly once in table ui_schema elements', () => {
+  it('computed column appears exactly once in table ui elements', () => {
     const result = compileResource(jsonWithComputed);
-    const elements = (result.views['table']?.ui_schema?.['elements'] as Record<string, unknown>[]) ?? [];
+    const elements = (result.views['table']?.ui?.['elements'] as Record<string, unknown>[]) ?? [];
     const ids = elements.map((e) => (e['scope'] as string | undefined)?.split('/').pop());
     expect(ids.filter((id) => id === 'display_label')).toHaveLength(1);
   });

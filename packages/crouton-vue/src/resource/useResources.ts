@@ -34,7 +34,7 @@ const translateEnumValue = (val: any, enumName: string, t: (k: string, f?: strin
   return val;
 };
 
-/** When the table ui_schema is a wrapper layout, extract the inner Table element. */
+/** When the table UI schema is a wrapper layout, extract the inner Table element. */
 const resolveTableUiSchema = (ui: unknown): any => {
   const u = ui as any;
   if (!u || u.type === 'Table') return u;

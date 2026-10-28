@@ -60,7 +60,7 @@ const views = computed(() => {
 });
 
 const tableView = computed(() => (views.value as any)?.table);
-const formUiSchema = computed(() => (views.value as any)?.form?.ui_schema);
+const formUiSchema = computed(() => (views.value as any)?.form?.ui);
 
 const SAMPLE_VALUES: Record<string, string[]> = {
   title:       ['Introduction', 'Chapter One', 'Appendix'],
@@ -129,8 +129,8 @@ const onLayoutInput = (e: Event) => {
           <TableComponent
             v-if="tableView"
             id="layout-demo-table"
-            :ui-schema="tableView.ui_schema"
-            :schema="tableView.json_schema"
+            :ui-schema="tableView.ui"
+            :schema="tableView.data"
             :data="sampleRows"
             :hide-pagination="true"
           />

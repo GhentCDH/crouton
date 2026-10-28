@@ -288,7 +288,7 @@ export const refineByKind = (
         ctx.addIssue({
           code: 'custom',
           path: ['columns', id, 'type'],
-          message: `Column "${id}" needs a "type": a custom resource has no schema.ts, so its json_schema is built from the column types.`,
+          message: `Column "${id}" needs a "type": a custom resource has no schema.ts, so its JSON schema is built from the column types.`,
         });
       }
     }

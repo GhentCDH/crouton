@@ -214,7 +214,7 @@ export const JsonColumnBaseSchema = z.object({
    * ```
    *
    * Required on every column of a `kind: "custom"` resource, where it is the
-   * only source of the resource's json_schema. Optional on a `prisma`
+   * only source of the resource's JSON schema. Optional on a `prisma`
    * resource, whose schema is derived from the Zod model.
    */
   type: ColumnTypeSchema.optional().describe(

@@ -138,8 +138,8 @@ const onCreate = () => {
   const form = fetchOptions.value!.form as any;
   if (form) {
     JsonFormModalService.openModal({
-      schema: form.json_schema,
-      uiSchema: form.ui_schema,
+      schema: form.data,
+      uiSchema: form.ui,
       modalTitle: `Create new ${props.label}`,
       http,
       onClose: (result) => {

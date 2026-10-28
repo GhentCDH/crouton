@@ -27,13 +27,13 @@ const buildNestedViews = (columns: JsonColumn[]) => {
   if (!columns.length) return undefined;
   const raw = buildLayouts(undefined, { columns, source: nestedColumnSchemaSource, warn: () => undefined });
   return Object.fromEntries(
-    Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, columns) }])
+    Object.entries(raw).map(([k, v]) => [k, { ...v, ui: fixNestedUiSchemaScopes(v.ui as Record<string, unknown>, columns) }])
   );
 };
 
 const formProps = (columns: JsonColumn[]): Record<string, Record<string, unknown>> => {
   const views = buildNestedViews(columns);
-  return (views?.['form']?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
+  return (views?.['form']?.data?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
 };
 
 describe('buildViewsFromColumns honours a declared column type', () => {

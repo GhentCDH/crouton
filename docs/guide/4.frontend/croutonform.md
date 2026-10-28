@@ -14,7 +14,7 @@ import { CroutonForm } from '@ghentcdh/crouton-vue';
 
 | Prop              | Type                          | Default      | Description                                                                          |
 | ----------------- | ----------------------------- | ------------ | ------------------------------------------------------------------------------------ |
-| `views`           | `ViewDef`                     | **required** | View definitions object containing `form` and/or `view` keys with schema + ui_schema |
+| `views`           | `ViewDef`                     | **required** | View definitions object containing `form` and/or `view` keys with `data` (JSON schema) + `ui` (UI schema) |
 | `data`            | `object`                      | **required** | Initial form data                                                                    |
 | `title`           | `string`                      | —            | Optional title shown in header with back button                                      |
 | `saveLabel`       | `string`                      | `'Save'`     | Label for save button (normal mode only)                                             |
@@ -43,17 +43,17 @@ The `views` object maps view types to their schema definitions. CroutonForm read
 ```ts
 const views = {
   form: {
-    json_schema: { /* JSON Schema */ },
-    ui_schema: { /* UI Schema */ },
+    data: { /* JSON Schema */ },
+    ui: { /* UI Schema */ },
   },
   view: {
-    json_schema: { /* JSON Schema */ },
-    ui_schema: { /* UI Schema for readonly */ },
+    data: { /* JSON Schema */ },
+    ui: { /* UI Schema for readonly */ },
   },
 };
 ```
 
-Each view config supports both new (`json_schema`/`ui_schema`) and legacy (`data`/`ui`) key names.
+Each view config carries `data` (the JSON schema) and `ui` (the UI schema).
 
 ## Events
 
@@ -142,7 +142,7 @@ When `autoSave` is true:
 | Before (`AutoSaveForm`)                        | After (`CroutonForm`)                      |
 | ---------------------------------------------- | ------------------------------------------ |
 | `import { AutoSaveForm } from '@ghentcdh/crouton-forms-vue'` | `import { CroutonForm } from '@ghentcdh/crouton-vue'` |
-| `:schema` + `:ui-schema`                       | `:views="{ form: { json_schema, ui_schema } }"` |
+| `:schema` + `:ui-schema`                       | `:views="{ form: { data, ui } }"`          |
 | `:modal-title="..."`                           | `:title="..."` (optional)                  |
 | No `showButtons` prop                          | `:show-buttons="false"` to hide buttons    |
 | No `readonly` prop                             | `:readonly="true"` for readonly mode       |
@@ -164,7 +164,7 @@ When `autoSave` is true:
 **After:**
 ```vue
 <CroutonForm
-  :views="{ form: { json_schema: schema, ui_schema: uiSchema } }"
+  :views="{ form: { data: schema, ui: uiSchema } }"
   :data="data"
   title="Edit Book"
   @close-modal="onClose"

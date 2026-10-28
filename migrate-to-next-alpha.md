@@ -915,6 +915,46 @@ Sub-resource configs (inline children of a resource) also had a top-level `actio
 
 ---
 
+## View config keys: `json_schema` / `ui_schema` → `data` / `ui` (breaking)
+
+> **This section affects custom frontends or integrations that build a `views` object or a `ViewConfig` by hand.**
+> The compiled `/schemas` / `/definition` / `/resource.json` payloads already used `data`/`ui` and are **unchanged**.
+
+The view config previously accepted two names for the same two fields. The `json_schema`/`ui_schema` aliases are
+removed; use `data` (JSON schema) and `ui` (UI schema) everywhere.
+
+```ts
+// BEFORE
+const views = {
+  form: {
+    json_schema: { /* JSON Schema */ },
+    ui_schema: { /* UI Schema */ },
+  },
+};
+
+// AFTER
+const views = {
+  form: {
+    data: { /* JSON Schema */ },
+    ui: { /* UI Schema */ },
+  },
+};
+```
+
+**Rule:** In application code (not `resource.json`), replace `json_schema` → `data` and `ui_schema` → `ui` wherever you:
+
+1. pass a `views` prop to `CroutonForm` (`views.form` / `views.view`), or
+2. construct a `ViewConfig` object (e.g. a custom layout builder returning `{ json_schema, ui_schema, columns }`).
+
+The renamed fields are also exposed as `ViewConfig.data` / `ViewConfig.ui` in `@ghentcdh/crouton-core`.
+
+```bash
+# find hand-built view configs that need the rename
+grep -rn "json_schema\|ui_schema" --include="*.ts" --include="*.vue" src
+```
+
+---
+
 ## Automated detection — grep checklist
 
 Run these from the repo root to find files needing migration:
