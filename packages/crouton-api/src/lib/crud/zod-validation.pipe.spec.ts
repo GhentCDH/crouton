@@ -9,7 +9,7 @@ const schema = z.object({
   label: z.string(),
 });
 
-const pipe = new ZodValidationPipe(schema as any);
+const pipe = new ZodValidationPipe(schema);
 
 describe('ZodValidationPipe — Decimal coercion', () => {
   it('coerces number to Decimal', () => {
@@ -36,7 +36,7 @@ describe('ZodValidationPipe — Decimal coercion', () => {
       amount: z.instanceof(Decimal).nullable(),
       label: z.string(),
     });
-    const nullablePipe = new ZodValidationPipe(nullableSchema as any);
+    const nullablePipe = new ZodValidationPipe(nullableSchema);
     const result = nullablePipe.transform({ amount: null, label: 'test' });
     expect(result.amount).toBeNull();
   });
@@ -55,7 +55,7 @@ describe('ZodValidationPipe — Decimal coercion', () => {
       amount: z.instanceof(Decimal).optional(),
       label: z.string().optional(),
     });
-    const patchPipe = new ZodValidationPipe(patchSchema as any);
+    const patchPipe = new ZodValidationPipe(patchSchema);
     const result = patchPipe.transform({ label: 'only-label' });
     expect(result.amount).toBeUndefined();
     expect(result.label).toBe('only-label');
@@ -67,55 +67,55 @@ describe('ZodValidationPipe — Decimal coercion', () => {
 describe('ZodValidationPipe — empty-string handling', () => {
   it('converts "" to null on nullable string field', () => {
     const s = z.object({ name: z.string().nullable() });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: '' });
     expect(result).toEqual({ name: null });
   });
 
   it('converts "" to null on nullable+optional string field', () => {
     const s = z.object({ name: z.string().nullable().optional() });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: '' });
     expect(result).toEqual({ name: null });
   });
 
   it('leaves "" as-is on required non-nullable string', () => {
     const s = z.object({ name: z.string() });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: '' });
     expect(result).toEqual({ name: '' });
   });
 
   it('leaves "" as-is on optional non-nullable string', () => {
     const s = z.object({ name: z.string().optional() });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: '' });
     expect(result).toEqual({ name: '' });
   });
 
   it('leaves "" as-is on string with min(0)', () => {
     const s = z.object({ name: z.string().min(0) });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: '' });
     expect(result).toEqual({ name: '' });
   });
 
   it('rejects "" when schema has min(1)', () => {
     const s = z.object({ name: z.string().min(1) });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     expect(() => p.transform({ name: '' })).toThrow();
   });
 
   it('passes non-empty string unchanged on nullable field', () => {
     const s = z.object({ name: z.string().nullable() });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: 'hello' });
     expect(result).toEqual({ name: 'hello' });
   });
 
   it('leaves non-string values untouched', () => {
     const s = z.object({ name: z.string().nullable(), count: z.number() });
-    const p = new ZodValidationPipe(s as any);
+    const p = new ZodValidationPipe(s);
     const result = p.transform({ name: null, count: 42 });
     expect(result).toEqual({ name: null, count: 42 });
   });

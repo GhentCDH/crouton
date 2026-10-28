@@ -12,6 +12,8 @@ import { describe, expect, it } from 'vitest';
 import type { ResourceJson } from '@ghentcdh/crouton-core';
 import { buildResourceJsonSchema, compileResource } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../test-utils';
+
 import { fromJson } from './index';
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -104,19 +106,13 @@ describe('core-vs-api drift', () => {
         let coreResult: Record<string, unknown>;
         let apiResult: Record<string, unknown>;
         try {
-          coreResult = compileResource(json) as unknown as Record<
-            string,
-            unknown
-          >;
+          coreResult = invalid<Record<string, unknown>>(compileResource(json));
         } catch {
           drift[key] = 'error';
           return;
         }
         try {
-          apiResult = fromJson(json, undefined, undefined) as unknown as Record<
-            string,
-            unknown
-          >;
+          apiResult = invalid<Record<string, unknown>>(fromJson(json, undefined, undefined));
         } catch {
           drift[key] = 'error';
           return;

@@ -1,6 +1,5 @@
 import {
   type FieldInput,
-  type JsonColumn,
   resolveTableField,
   resolveViewField,
 } from '@ghentcdh/crouton-core';
@@ -54,7 +53,7 @@ export const buildEditableColumnsPayload = (
   route: string;
   columns: EditableColumn[];
 } => {
-  const columns = (config.columns as unknown as JsonColumn[] | undefined) ?? [];
+  const columns = config.columns ?? [];
 
   return {
     id: config.name,

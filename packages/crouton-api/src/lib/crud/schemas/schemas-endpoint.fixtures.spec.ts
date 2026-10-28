@@ -41,8 +41,9 @@ const resourceDirs = (caseName: string): string[] =>
 const routeFor = (caseName: string, resourceDir: string): string | null => {
   const jsonPath = join(FIXTURES_ROOT, caseName, resourceDir, 'resource.json');
   if (!existsSync(jsonPath)) return null;
-  const json = loadJson(jsonPath) as any;
-  return json?.route ?? resourceDir;
+  const json = loadJson(jsonPath) as Record<string, unknown>;
+  const route = json?.['route'];
+  return typeof route === 'string' ? route : resourceDir;
 };
 
 // Cases 1–8 + 17 (book-collection): all cases without apiOnly meta.

@@ -186,7 +186,6 @@ export function createCrudRepository<T = Row>(
       request?: unknown,
     ) => prepareWrite(data, op, config, resolvedAdapter, id, request);
     // postWrite returns Promise<any> because afterWrite hook is user-provided
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const postData = (
       result: unknown,
       op: 'create' | 'update' | 'patch' | 'delete',
@@ -466,7 +465,6 @@ export function createCrudRepository<T = Row>(
   ) => prepareWrite(data, op, config, adapter, id, request);
 
   // postWrite returns Promise<any> because afterWrite hook is user-provided
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   const postData = (
     result: unknown,
     op: 'create' | 'update' | 'patch' | 'delete',

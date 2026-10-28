@@ -44,8 +44,8 @@ describe('parseSchema — input normalization', () => {
     expect(withSchema).toBeDefined();
     expect(withoutSchema).toBeDefined();
     // schemas key holds different shapes
-    const withSchemas = (withSchema as any).schemas;
-    const withoutSchemas = (withoutSchema as any).schemas;
+    const withSchemas = (withSchema as Record<string, unknown>)['schemas'];
+    const withoutSchemas = (withoutSchema as Record<string, unknown>)['schemas'];
     expect(withSchemas).not.toEqual(withoutSchemas);
   });
 });
@@ -58,7 +58,7 @@ describe('parseSchema — views', () => {
   });
 
   it('schemas view builds table/form/filter views from columns', () => {
-    const result = parseSchema(minimalPrisma, {}) as any;
+    const result = parseSchema(minimalPrisma, {}) as Record<string, unknown>;
     // buildViewsPayload always returns something: views include at least table
     expect(result).toBeDefined();
     expect(result.schemas).toHaveProperty('table');
@@ -71,14 +71,13 @@ describe('parseSchema — views', () => {
   });
 
   it('resource.json view includes uri composed from baseUrl + route', () => {
-    const result = parseSchema(minimalCustom, { baseUrl: 'http://host' }, 'resource.json') as any;
+    const result = parseSchema(minimalCustom, { baseUrl: 'http://host' }, 'resource.json') as Record<string, unknown>;
     expect(result.uri).toBe('http://host/pages');
   });
 });
 
 describe('parseSchema — validation errors', () => {
   it('throws /Resource cannot be parsed/ on invalid column shape (bad type)', () => {
-    const bad = { ...minimalPrisma, columns: { id: { type: 'not-a-valid-type', idField: true } } };
     // 'not-a-valid-type' is not in ColumnTypeShorthandSchema — should fail
     // Actually Zod strips unknown values in catchall — let's test a clearly wrong top-level
     expect(() => parseSchema({ name: 'x', route: 'x', kind: 'unknown-kind', tag: 'x', operations: {} }, {})).toThrow(
@@ -122,18 +121,18 @@ describe('parseSchema — validation errors', () => {
 
 describe('parseSchema — appConfig', () => {
   it('baseUrl absent → uri ends with route', () => {
-    const result = parseSchema(minimalCustom, {}, 'resource.json') as any;
+    const result = parseSchema(minimalCustom, {}, 'resource.json') as Record<string, unknown>;
     expect(result.uri).toMatch(/\/pages$/);
   });
 
   it('baseUrl present → absolute uri in resource.json view', () => {
-    const result = parseSchema(minimalCustom, { baseUrl: 'https://api.example.com' }, 'resource.json') as any;
+    const result = parseSchema(minimalCustom, { baseUrl: 'https://api.example.com' }, 'resource.json') as Record<string, unknown>;
     expect(result.uri).toBe('https://api.example.com/pages');
   });
 
   it('schemaEnricher merged on top (can override keys)', () => {
     const enricher = (payload: Record<string, unknown>) => ({ extra: 'injected', route: 'overridden' });
-    const result = parseSchema(minimalCustom, { schemaEnricher: enricher }, 'resource.json') as any;
+    const result = parseSchema(minimalCustom, { schemaEnricher: enricher }, 'resource.json') as Record<string, unknown>;
     expect(result.extra).toBe('injected');
     expect(result.route).toBe('overridden');
   });

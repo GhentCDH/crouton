@@ -29,15 +29,15 @@
   },
   "crouton-api": {
     "prod": {
-      "explicit_any": 24,
-      "as_any": 2,
-      "as_unknown_as": 7,
+      "explicit_any": 4,
+      "as_any": 0,
+      "as_unknown_as": 0,
       "disable_no_reason": 0
     },
     "spec": {
-      "explicit_any": 155,
-      "as_any": 83,
-      "as_unknown_as": 16,
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
       "disable_no_reason": 0
     }
   },
@@ -71,15 +71,15 @@
   },
   "crouton-core": {
     "prod": {
-      "explicit_any": 160,
-      "as_any": 64,
-      "as_unknown_as": 5,
+      "explicit_any": 10,
+      "as_any": 0,
+      "as_unknown_as": 0,
       "disable_no_reason": 0
     },
     "spec": {
-      "explicit_any": 163,
-      "as_any": 150,
-      "as_unknown_as": 16,
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
       "disable_no_reason": 0
     }
   },

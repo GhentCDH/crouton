@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createTestApp } from './harness';
 import { seed } from './seed';
+import { bodyOf } from '../../src/lib/crud/test-utils';
 
 let app: Awaited<ReturnType<typeof createTestApp>>;
 let ids: Awaited<ReturnType<typeof seed>>;
@@ -18,8 +19,9 @@ afterAll(async () => {
 describe('GET /api/books/:id/loans (sub-resource findAll)', () => {
   it('returns only the loans for that book', async () => {
     const res = await app.request.get(`/api/books/${ids.b1.id}/loans`).expect(200);
-    expect(res.body.data).toHaveLength(2); // Dune has 2 loans
-    expect(res.body.data.every((l: any) => l.bookId === ids.b1.id)).toBe(true);
+    const loans = bodyOf(res)['data'] as Array<Record<string, unknown>>;
+    expect(loans).toHaveLength(2); // Dune has 2 loans
+    expect(loans.every((l) => l['bookId'] === ids.b1.id)).toBe(true);
   });
 
   it('Ulysses has 5 loans', async () => {

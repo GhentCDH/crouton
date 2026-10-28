@@ -5,9 +5,10 @@ import type { CrudDefinition as ResourceDefinition, SecurityConfig  } from '@ghe
 import { securityFor, securityForSub } from './crud.config';
 import type { Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
+import { invalid } from './test-utils';
 
 const resource = (security?: SecurityConfig) =>
-  ({ security }) as unknown as Resource;
+  invalid<Resource>({ security });
 
 describe('securityFor', () => {
   it('returns undefined when nothing is set', () => {
@@ -60,7 +61,7 @@ describe('securityFor', () => {
 
 describe('securityForSub', () => {
   const sub = (ops: Record<string, unknown>) =>
-    ({ operations: ops }) as unknown as SubResourceConfig;
+    invalid<SubResourceConfig>({ operations: ops });
 
   it('inherits parent global when sub-op has no security', () => {
     const res = resource({ guard: 'admin' });

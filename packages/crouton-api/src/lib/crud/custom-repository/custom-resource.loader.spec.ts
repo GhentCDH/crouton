@@ -4,7 +4,9 @@ import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
 import { validateCustomRepository } from './custom-repository.validate';
 import { loadResourceConfigsFromDir } from '../loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -91,12 +93,16 @@ describe('custom resource loading', () => {
 
     expect(Object.keys(views).sort()).toEqual(['form', 'table', 'view']);
     // layout.table is auto-generated from sortable:true on title → only title is in the table.
-    const tableProps = (views.table.json_schema as any).properties;
+    const tableProps = invalid<Record<string, Record<string, unknown>>>(
+      (views.table.json_schema as Record<string, unknown>)['properties'],
+    );
     expect(tableProps.title.type).toBe('string');
     expect(tableProps.metadata).toBeUndefined(); // layout.table only lists title
 
     // No layout.form → all columns visible; metadata still appears in the form schema
-    const formProps = (views.form.json_schema as any).properties;
+    const formProps = invalid<Record<string, Record<string, unknown>>>(
+      (views.form.json_schema as Record<string, unknown>)['properties'],
+    );
     expect(formProps.metadata).toMatchObject({
       type: 'object',
       properties: { name: { type: 'string' } },
@@ -198,7 +204,7 @@ describe('custom resource loading', () => {
 });
 
 describe('validateCustomRepository', () => {
-  const config = {
+  const config = invalid<Resource>({
     name: 'zotero_item',
     definition: {
       findAll: true,
@@ -206,7 +212,7 @@ describe('validateCustomRepository', () => {
       create: true,
       patch: true,
     },
-  } as any;
+  });
 
   it('passes when every enabled operation is implemented', () => {
     expect(
@@ -246,10 +252,10 @@ describe('validateCustomRepository', () => {
   });
 
   it('ignores operations the resource has disabled', () => {
-    const readOnly = {
+    const readOnly = invalid<Resource>({
       name: 'zotero_item',
       definition: { findAll: true },
-    } as any;
+    });
     expect(
       validateCustomRepository(readOnly, {
         findAll: async () => ({ data: [], count: 0 }),

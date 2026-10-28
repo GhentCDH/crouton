@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
 
 import { fromJson } from './json-adapter';
+import { invalid } from '../test-utils';
 
 const PRISMA_RAW = {
   $schema: 'https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json',
@@ -57,10 +58,10 @@ describe('fromJson — source.flattening (dbTable/datasource)', () => {
   it('does not read source.table / source.database even if they slip past parsing', () => {
     // The schema strips these, but guard the adapter too: a parasitic object with the
     // removed keys must not get its table name / datasource silently picked up.
-    const json = {
+    const json = invalid<ReturnType<typeof ResourceJsonSchema.parse>>({
       ...ResourceJsonSchema.parse({ ...PRISMA_RAW, source: { model: 'Article' } }),
       source: { model: 'Article', table: 'legacy_table', database: 'legacy_db' },
-    } as unknown as ReturnType<typeof ResourceJsonSchema.parse>;
+    });
     const resource = fromJson(json, undefined, undefined);
     expect(resource.table).toBeUndefined();
     expect(resource.database).toBeUndefined();

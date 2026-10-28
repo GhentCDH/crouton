@@ -3,11 +3,17 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
 import { createCrudController } from '../crud-controller.factory';
+import type { DataSourceRegistry } from '../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+type MockController = Record<string, (...args: unknown[]) => Promise<unknown>>;
 
 /**
  * A `kind: "custom"` child nested inside a **prisma** parent, the layout where
@@ -91,8 +97,8 @@ const listParams = {
 
 describe('a custom sub-resource inside a prisma parent', () => {
   let tempDir: string;
-  let controller: any;
-  let parent: any;
+  let controller: MockController;
+  let parent: Resource;
 
   const write = (
     childJson: Record<string, unknown> = CHILD_JSON,
@@ -116,17 +122,15 @@ describe('a custom sub-resource inside a prisma parent', () => {
 
   const boot = async () => {
     const configs = await loadResourceConfigsFromDir(tempDir, '/api');
-    parent = configs.find((c) => c.name === 'groups');
+    parent = configs.find((c) => c.name === 'groups') as Resource;
     const ControllerClass = createCrudController(parent, '/api');
     // The parent IS prisma-backed, so its own model must exist — the child's
     // does not, which is the whole point.
-    const prisma: any = {
-      Group: { findMany: async () => [], count: async () => 0 },
-    };
+    const prisma = { Group: { findMany: async () => [], count: async () => 0 } };
     controller = new ControllerClass(
-      { resolve: () => prisma, entries: () => [] } as any,
-      { getByRoute: async () => undefined } as any,
-    );
+      invalid<DataSourceRegistry>({ resolve: () => prisma, entries: () => [] }),
+      invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+    ) as MockController;
   };
 
   beforeEach(() => {
@@ -160,7 +164,7 @@ describe('a custom sub-resource inside a prisma parent', () => {
     });
 
     it('attaches the child\'s repository', () => {
-      expect(typeof parent.subResources[0].repository.findAllByParent).toBe(
+      expect(typeof parent.subResources?.[0]?.repository?.findAllByParent).toBe(
         'function',
       );
     });
@@ -175,7 +179,9 @@ describe('a custom sub-resource inside a prisma parent', () => {
     });
 
     it('serves the child\'s schemas endpoint', async () => {
-      const payload = await controller.getSchemas_expense();
+      const payload = invalid<{ route: string; schemas: Record<string, unknown> }>(
+        await controller.getSchemas_expense(),
+      );
       expect(payload.route).toBe('expense');
       expect(Object.keys(payload.schemas)).toContain('table');
     });
@@ -188,22 +194,18 @@ describe('a custom sub-resource inside a prisma parent', () => {
     });
 
     it('lists only the requested group\'s expenses', async () => {
-      const result = await controller.findAllBy_expense(
-        listParams,
-        'g1',
-        { params: { id: 'g1' } },
+      const result = invalid<{ data: Record<string, unknown>[]; request: { count: number } }>(
+        await controller.findAllBy_expense(listParams, 'g1', { params: { id: 'g1' } }),
       );
-      expect(result.data.map((r: any) => r.id)).toEqual(['e1', 'e2']);
+      expect(result.data.map((r: Record<string, unknown>) => r.id)).toEqual(['e1', 'e2']);
       expect(result.request.count).toBe(2);
     });
 
     it('scopes a different group independently', async () => {
-      const result = await controller.findAllBy_expense(
-        listParams,
-        'g2',
-        { params: { id: 'g2' } },
+      const result = invalid<{ data: Record<string, unknown>[] }>(
+        await controller.findAllBy_expense(listParams, 'g2', { params: { id: 'g2' } }),
       );
-      expect(result.data.map((r: any) => r.id)).toEqual(['e3']);
+      expect(result.data.map((r: Record<string, unknown>) => r.id)).toEqual(['e3']);
     });
 
     it('fetches one child, scoped to its parent', async () => {
@@ -294,29 +296,29 @@ describe('a custom sub-resource inside a prisma parent', () => {
         null,
       );
       const configs = await loadResourceConfigsFromDir(tempDir, '/api');
-      parent = configs.find((c) => c.name === 'groups');
+      parent = configs.find((c) => c.name === 'groups') as Resource;
       const ControllerClass = createCrudController(parent, '/api');
-      const deleted: any[] = [];
-      const prisma: any = {
+      const deleted: Record<string, unknown>[] = [];
+      const prisma = {
         Group: { findMany: async () => [], count: async () => 0 },
         expense: {
           findFirst: async () => ({ id: 'e1' }),
-          deleteMany: async (args: any) => {
+          deleteMany: async (args: Record<string, unknown>) => {
             deleted.push(args);
             return { count: 1 };
           },
         },
       };
-      const c: any = new ControllerClass(
-        { resolve: () => prisma, entries: () => [] } as any,
-        { getByRoute: async () => undefined } as any,
-      );
+      const c = new ControllerClass(
+        invalid<DataSourceRegistry>({ resolve: () => prisma, entries: () => [] }),
+        invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+      ) as MockController;
 
       await c.deleteChild_expense('e1', 'g1', { params: { id: 'g1' } });
 
       // Without the parent id bound, this where clause carried only the child
       // id and a child of another group could be deleted.
-      expect(deleted[0].where).toMatchObject({ id: 'e1', group_id: 'g1' });
+      expect(deleted[0]['where']).toMatchObject({ id: 'e1', group_id: 'g1' });
     });
   });
 

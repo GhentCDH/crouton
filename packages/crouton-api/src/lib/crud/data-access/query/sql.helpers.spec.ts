@@ -6,6 +6,7 @@ import type {
 
 import { buildFindOneIncludes, mergeCalculatedColumnsForRows } from './sql.helpers';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
+import { invalid } from '../../test-utils';
 
 // ── Minimal type helpers ─────────────────────────────────────────────────
 
@@ -16,15 +17,16 @@ interface CalculatedColumnMock {
   sqlExpression: string;
 }
 
-const calcCol = (overrides: Partial<CalculatedColumnMock>={}): CalculatedColumn => ({
-  id: 'calc',
-  type: 'string',
-  sqlExpression: 'main.status',
-  ...overrides,
-}as unknown) as CalculatedColumn;
+const calcCol = (overrides: Partial<CalculatedColumnMock> = {}): CalculatedColumn =>
+  invalid<CalculatedColumn>({
+    id: 'calc',
+    type: 'string',
+    sqlExpression: 'main.status',
+    ...overrides,
+  });
 
 const sub = (overrides: Partial<SubResourceConfig>): SubResourceConfig =>
-  ({
+  invalid<SubResourceConfig>({
     column: 'col',
     relation: 'rel',
     childRoute: 'child',
@@ -32,7 +34,7 @@ const sub = (overrides: Partial<SubResourceConfig>): SubResourceConfig =>
     foreignKey: 'parentId',
     operations: {},
     ...overrides,
-  }) as SubResourceConfig;
+  });
 
 describe('buildFindOneIncludes', () => {
   it('sub-resources with includeInFindOne only → { rel: true }', () => {
@@ -91,7 +93,8 @@ describe('mergeCalculatedColumnsForRows', () => {
   ];
 
   /** Create a mock prisma that records the last SQL sent to $queryRawUnsafe. */
-  const mockPrisma = (): { client: any; lastSql: () => string | undefined } => {
+  type WithRawQuery = { $queryRawUnsafe(query: string, ...values: unknown[]): Promise<unknown> };
+  const mockPrisma = (): { client: WithRawQuery; lastSql: () => string | undefined } => {
     let lastSql: string | undefined;
     const client = {
       $queryRawUnsafe: vi.fn(async (sql: string, ..._args: unknown[]) => {

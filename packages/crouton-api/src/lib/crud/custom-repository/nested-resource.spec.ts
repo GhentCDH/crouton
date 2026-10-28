@@ -8,11 +8,18 @@ import {
 import { validateCustomRepository } from './custom-repository.validate';
 import { buildLayoutPayload } from '../app-layout';
 import { createCrudController } from '../crud-controller.factory';
+import type { CustomRepositoryContext } from './custom-repository.types';
+import type { DataSourceRegistry } from '../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+type MockController = Record<string, (...args: unknown[]) => Promise<unknown>>;
 
 /**
  * A `kind: "custom"` resource that declares a `parent` is mounted only under
@@ -67,6 +74,7 @@ const listParams = {
   sort: 'label',
   sortDir: 'asc' as const,
   filter: [] as string[],
+  include: [] as string[],
 };
 
 /** Stand-in for the Express request the controller layer passes through. */
@@ -74,8 +82,8 @@ const req = (params: Record<string, string>) => ({ params });
 
 describe('a nested custom resource', () => {
   let tempDir: string;
-  let controller: any;
-  let config: any;
+  let controller: MockController;
+  let config: Resource;
 
   const write = (json: Record<string, unknown>, repository = REPOSITORY_TS) => {
     const dir = join(tempDir, 'expense');
@@ -85,12 +93,12 @@ describe('a nested custom resource', () => {
   };
 
   const boot = async () => {
-    [config] = await loadResourceConfigsFromDir(tempDir, '/api');
+    [config] = await loadResourceConfigsFromDir(tempDir, '/api') as Resource[];
     const ControllerClass = createCrudController(config, '/api');
     controller = new ControllerClass(
-      { resolve: () => undefined, entries: () => [] } as any,
-      { getByRoute: async () => undefined } as any,
-    );
+      invalid<DataSourceRegistry>({ resolve: () => undefined, entries: () => [] }),
+      invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+    ) as MockController;
   };
 
   beforeEach(() => {
@@ -120,7 +128,10 @@ describe('a nested custom resource', () => {
     });
 
     it('reports nested URIs with the parent id as a placeholder', () => {
-      const payload = buildViewsPayload(config, '/api') as any;
+      const payload = invalid<{
+        uri: string;
+        operations: Record<string, { uri: string }>;
+      }>(buildViewsPayload(config, '/api'));
       expect(payload.uri).toBe('/api/group/{groupId}/expense');
       expect(payload.operations.findOne.uri).toBe(
         '/api/group/{groupId}/expense/{id}',
@@ -128,7 +139,7 @@ describe('a nested custom resource', () => {
     });
 
     it('is kept out of the sidebar — it has no standalone route', () => {
-      const layout = buildLayoutPayload([config], {}, 'App', true) as any;
+      const layout = buildLayoutPayload([config], {}, 'App', true) as Record<string, unknown>;
       expect(layout.sidebar).toEqual([]);
     });
   });
@@ -140,32 +151,31 @@ describe('a nested custom resource', () => {
     });
 
     it('lists only the requested parent\'s children', async () => {
-      const result = await controller.findAll(
-        listParams,
-        req({ groupId: 'g1' }),
+      const result = invalid<{ data: Record<string, unknown>[]; request: { count: number } }>(
+        await controller.findAll(listParams, req({ groupId: 'g1' })),
       );
-      expect(result.data.map((r: any) => r.id)).toEqual(['e1', 'e2']);
+      expect(result.data.map((r) => r['id'])).toEqual(['e1', 'e2']);
       expect(result.request.count).toBe(2);
     });
 
     it('scopes a different parent independently', async () => {
-      const result = await controller.findAll(
-        listParams,
-        req({ groupId: 'g2' }),
+      const result = invalid<{ data: Record<string, unknown>[] }>(
+        await controller.findAll(listParams, req({ groupId: 'g2' })),
       );
-      expect(result.data.map((r: any) => r.id)).toEqual(['e3']);
+      expect(result.data.map((r) => r['id'])).toEqual(['e3']);
     });
 
     it('passes the parent through ctx.parent as well', async () => {
-      const result = await controller.findAll(
-        listParams,
-        req({ groupId: 'g1' }),
+      const result = invalid<{ data: unknown[] }>(
+        await controller.findAll(listParams, req({ groupId: 'g1' })),
       );
       // The fixture echoes ctx.parent back on the result envelope.
-      expect((result as any).data.length).toBe(2);
-      const raw = await config.repository.findAllByParent('g1', listParams, {
-        parent: { route: 'group', param: 'groupId', id: 'g1' },
-      });
+      expect(result.data.length).toBe(2);
+      const raw = invalid<{ _seen: unknown }>(
+        await config.repository?.findAllByParent?.('g1', listParams, invalid<CustomRepositoryContext>({
+          parent: { route: 'group', param: 'groupId', id: 'g1' },
+        })),
+      );
       expect(raw._seen).toEqual({
         route: 'group',
         param: 'groupId',
@@ -240,11 +250,11 @@ describe('a nested custom resource', () => {
     });
 
     it('asks for the parent-aware methods by name when they are missing', () => {
-      const nested = {
+      const nested = invalid<Resource>({
         name: 'expense',
         parent: { route: 'group', param: 'groupId' },
         definition: { findAll: true, findOne: true },
-      } as any;
+      });
 
       // The unnested methods do not satisfy a nested resource.
       const problem = validateCustomRepository(nested, {
@@ -265,11 +275,11 @@ describe('a nested custom resource', () => {
 
     it('names the parent-aware methods when repository.ts is absent', () => {
       const problem = validateCustomRepository(
-        {
+        invalid<Resource>({
           name: 'expense',
           parent: { route: 'group', param: 'groupId' },
           definition: { findAll: true },
-        } as any,
+        }),
         undefined,
       );
       expect(problem).toMatch(/findAllByParent/);

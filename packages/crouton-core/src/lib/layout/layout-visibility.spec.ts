@@ -2,32 +2,34 @@ import { describe, expect, it } from 'vitest';
 
 import { resolveColumnVisibility } from './layout-visibility';
 import type { JsonColumn } from '../resource/Column';
+import type { Layout } from './schema/Layout.schema';
+import { invalid } from '../utils/test-utils';
 
 const cols = (ids: string[]): JsonColumn[] =>
   ids.map((id) => ({ id, type: 'string' } as JsonColumn));
 
 describe('resolveColumnVisibility — container-only layout node (#242)', () => {
-  it('layout.view with only container and no items does not hide any columns', () => {
+  it('layout.view with only container and no items does not hide columns', () => {
     const columns = cols(['title', 'body', 'status']);
-    const result = resolveColumnVisibility(columns, {
-      view: { container: { mode: 'modal', size: 'xl' } } as any,
-    });
+    const result = resolveColumnVisibility(columns, invalid<Layout>({
+      view: { container: { mode: 'modal', size: 'xl' } },
+    }));
     expect(result.every((c) => !c.hiddenInView)).toBe(true);
   });
 
-  it('layout.form with only container and no items does not hide any columns', () => {
+  it('layout.form with only container and no items does not hide columns', () => {
     const columns = cols(['title', 'body']);
-    const result = resolveColumnVisibility(columns, {
-      form: { container: { mode: 'modal' } } as any,
-    });
+    const result = resolveColumnVisibility(columns, invalid<Layout>({
+      form: { container: { mode: 'modal' } },
+    }));
     expect(result.every((c) => !c.hiddenInForm)).toBe(true);
   });
 
   it('layout.view with items still hides unlisted columns', () => {
     const columns = cols(['title', 'body', 'status']);
-    const result = resolveColumnVisibility(columns, {
-      view: { items: ['title'] } as any,
-    });
+    const result = resolveColumnVisibility(columns, invalid<Layout>({
+      view: { items: ['title'] },
+    }));
     expect(result.find((c) => c.id === 'title')?.hiddenInView).toBe(false);
     expect(result.find((c) => c.id === 'body')?.hiddenInView).toBe(true);
     expect(result.find((c) => c.id === 'status')?.hiddenInView).toBe(true);

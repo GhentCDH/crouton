@@ -83,9 +83,9 @@ export const expandExtendColumns = (
         ...(hiddenInView !== undefined && { hiddenInView }),
         ...(refCol.fieldInput && { fieldInput: refCol.fieldInput }),
         ...override,
-      } as unknown as JsonColumn;
+      } as JsonColumn;
 
-      result.push(virtualCol as JsonColumn);
+      result.push(virtualCol);
     }
   }
 

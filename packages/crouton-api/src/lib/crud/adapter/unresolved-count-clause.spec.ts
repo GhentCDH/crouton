@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+import type { Row } from '@ghentcdh/crouton-core';
 
-import { createCrudRepository } from '../data-access/repository';
+import { type CrudRepository, createCrudRepository } from '../data-access/repository';
 import { loadResourceConfigsFromDir } from '../loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -69,8 +72,8 @@ const CHILD = {
 
 describe('the _count clause skips a relation column that resolved to nothing', () => {
   let tempDir: string;
-  let queries: any[];
-  let repo: any;
+  let queries: Record<string, unknown>[];
+  let repo: CrudRepository<Row>;
 
   beforeEach(async () => {
     tempDir = mkdtempSync(join(tmpdir(), 'crouton-count-'));
@@ -90,16 +93,16 @@ describe('the _count clause skips a relation column that resolved to nothing', (
     const config = configs.find((c) => c.name === 'groups');
 
     queries = [];
-    const prisma: any = {
+    const prisma = {
       Group: {
-        findMany: async (q: any) => {
+        findMany: async (q: Record<string, unknown>) => {
           queries.push(q);
           return [];
         },
         count: async () => 0,
       },
     };
-    repo = createCrudRepository(prisma, config as any);
+    repo = createCrudRepository(prisma, invalid<Resource>(config));
   });
 
   afterEach(() => {
@@ -113,10 +116,12 @@ describe('the _count clause skips a relation column that resolved to nothing', (
       sort: 'id',
       sortDir: 'asc',
       filter: [],
+      include: [],
     });
 
-    const count = queries[0].select?._count ?? queries[0].include?._count ?? queries[0]._count;
-    expect(Object.keys(count.select)).toEqual(['expenses']);
+    const q = queries[0];
+    const count = (q['select'] as Record<string, unknown> | undefined)?.['_count'] ?? (q['include'] as Record<string, unknown> | undefined)?.['_count'] ?? q['_count'];
+    expect(Object.keys((count as Record<string, unknown>)['select'] as Record<string, unknown>)).toEqual(['expenses']);
   });
 
   it('does not ask Prisma for a field the model has no relation for', async () => {
@@ -126,10 +131,12 @@ describe('the _count clause skips a relation column that resolved to nothing', (
       sort: 'id',
       sortDir: 'asc',
       filter: [],
+      include: [],
     });
 
-    const count = queries[0].select?._count ?? queries[0].include?._count ?? queries[0]._count;
-    expect(count.select).not.toHaveProperty('expense');
+    const q = queries[0];
+    const count = (q['select'] as Record<string, unknown> | undefined)?.['_count'] ?? (q['include'] as Record<string, unknown> | undefined)?.['_count'] ?? q['_count'];
+    expect((count as Record<string, unknown>)['select']).not.toHaveProperty('expense');
   });
 
   it('still reports the broken column on the status page', () => {

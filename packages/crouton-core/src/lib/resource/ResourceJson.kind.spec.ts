@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ResourceJsonSchema } from './ResourceJson.schema';
+import { invalid } from '../utils/test-utils';
 
 const base = {
   name: 'zotero_item',
@@ -157,6 +158,6 @@ describe('resource.json kind', () => {
       ...base,
       source: { model: 'ZoteroItem', idType: 'number' },
     });
-    expect((parsed as any).source?.idType).toBe('number');
+    expect(invalid<{ idType?: string } | undefined>((parsed as Record<string, unknown>)['source'])?.idType).toBe('number');
   });
 });

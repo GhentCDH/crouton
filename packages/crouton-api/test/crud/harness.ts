@@ -8,13 +8,15 @@ import { PrismaDataSourceAdapter } from '../../src/lib/crud/data-access/adapter/
 import { FileSystemResourceConfigLoader } from '../../src/lib/crud/loader/fs-resource-config.loader';
 import { join } from 'node:path';
 
-
 const RESOURCES_DIR = join(import.meta.dirname, 'resources');
 
 export const createTestApp = async () => {
   // Dynamic import: client is generated in global-setup before tests run.
   const { PrismaClient } = await import('../prisma/generated/index.js');
-  const prisma = new (PrismaClient as any)({
+  const PrismaClientCtor = PrismaClient as new (options: {
+    datasourceUrl?: string;
+  }) => unknown;
+  const prisma = new PrismaClientCtor({
     datasourceUrl: process.env['TEST_DATABASE_URL'],
   });
 

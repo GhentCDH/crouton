@@ -3,13 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
-
 import { createStatusController } from './status.controller';
 import { type DataSourceRegistry } from '../data-access/adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { type ResourceConfigRegistry } from '../resource-config.registry';
 import { CROUTON_SECURITY } from '../security';
+import { invalid } from '../test-utils';
 
 describe('createStatusController', () => {
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('createStatusController', () => {
   it('getStatus should return full status shape', async () => {
     const ControllerClass = createStatusController({});
 
-    const mockDataSourceRegistry = {
+    const mockDataSourceRegistry = invalid<DataSourceRegistry>({
       entries: () => [
         {
           name: 'main',
@@ -42,7 +42,7 @@ describe('createStatusController', () => {
           adapter: { healthCheck: () => Promise.reject(new Error('connection refused')) },
         },
       ],
-    } as unknown as DataSourceRegistry;
+    });
 
     const mockConfigs: Resource[] = [
       { name: 'users', route: 'users' } as Resource,
@@ -54,9 +54,9 @@ describe('createStatusController', () => {
       error: 'Invalid JSON',
     });
 
-    const mockConfigRegistry = {
+    const mockConfigRegistry = invalid<ResourceConfigRegistry>({
       getAll: () => Promise.resolve(mockConfigs),
-    } as unknown as ResourceConfigRegistry;
+    });
 
     const controller = new ControllerClass(
       mockDataSourceRegistry,
@@ -93,32 +93,30 @@ describe('createStatusController', () => {
   it('should never carry a security guard or security metadata', () => {
     const ControllerClass = createStatusController({});
     // No class-level UseGuards
-    const guards = Reflect.getMetadata(GUARDS_METADATA, ControllerClass);
-    expect(guards).toBeUndefined();
+    expect(Reflect.getMetadata(GUARDS_METADATA, ControllerClass)).toBeUndefined();
     // No handler-level crouton:security
-    const sec = Reflect.getMetadata(
+    expect(Reflect.getMetadata(
       CROUTON_SECURITY,
       ControllerClass.prototype.getStatus,
-    );
-    expect(sec).toBeUndefined();
+    )).toBeUndefined();
   });
 
   it('getStatus should report all-ok when healthy', async () => {
     const ControllerClass = createStatusController({});
 
     const controller = new ControllerClass(
-      {
+      invalid<DataSourceRegistry>({
         entries: () => [
           {
             name: 'db',
             adapter: { healthCheck: () => Promise.resolve() },
           },
         ],
-      } as unknown as DataSourceRegistry,
-      {
+      }),
+      invalid<ResourceConfigRegistry>({
         getAll: () =>
           Promise.resolve([{ name: 'res', route: 'res' } as Resource]),
-      } as unknown as ResourceConfigRegistry,
+      }),
     );
 
     const status = await controller.getStatus();
