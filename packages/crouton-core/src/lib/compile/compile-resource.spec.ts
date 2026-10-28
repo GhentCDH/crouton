@@ -151,4 +151,14 @@ describe('compileResource — input-only keys are not copied to the compiled res
     const result = compileResource(baseJson);
     expect('operations' in result).toBe(false);
   });
+
+  it('does not expose the openapi block but flattens its tag', () => {
+    const json = invalid<ResourceJson>({
+      ...baseJson,
+      openapi: { tag: 'Articles API' },
+    });
+    const result = compileResource(json);
+    expect('openapi' in result).toBe(false);
+    expect(result.tag).toBe('Articles API');
+  });
 });

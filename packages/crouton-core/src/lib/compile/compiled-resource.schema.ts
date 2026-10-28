@@ -17,6 +17,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   // Input-only: the compiled resource carries the resolved `definition`, not
   // the raw operation toggles.
   operations: true,
+  // Input-only: only `openapi.tag` is read, and it is flattened onto `tag`.
+  openapi: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),

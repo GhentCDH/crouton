@@ -166,13 +166,13 @@ export const compileResource = (
 
   // Input-only: the compiled resource exposes `definition`, not the raw
   // operation toggles. Drop it so it does not leak from the input spread.
-  const { operations: _operations, ...jsonRest } = json;
+  const { operations: _operations, openapi, ...jsonRest } = json;
 
   return {
     ...jsonRest,
     name: json.name,
     route: json.route,
-    tag: json.openapi?.tag ?? json.tag,
+    tag: openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
     modalSize: derivedModalSize,
     ...(src?.model && { model: src.model }),
