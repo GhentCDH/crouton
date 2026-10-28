@@ -394,7 +394,7 @@ export const refineLayout = (
   // Validate operations.findAll.search independently of layout
   const findAll = obj.operations?.findAll;
   if (findAll && typeof findAll === 'object' && !('uri' in findAll)) {
-    for (const sf of (findAll as any).search ?? []) {
+    for (const sf of ((findAll as { search?: string[] }).search ?? [])) {
       if (!allIds.has(sf)) {
         ctx.addIssue({
           code: 'custom',
@@ -437,7 +437,7 @@ export const refineLayout = (
   }
   if (layout.table) {
     const tableNode = findParsedTableNode(
-      layout.table as unknown as Record<string, unknown>,
+      layout.table as Record<string, unknown>,
     );
     if (tableNode) {
       const ids = ((tableNode['items'] as unknown[] | undefined) ?? [])

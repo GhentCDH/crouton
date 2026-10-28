@@ -2,10 +2,7 @@ import type { TranslationBundle } from './Translations.schema';
 
 export type Translator = (path: string, fallback?: string) => string;
 
-const getNestedValue = (
-  obj: Record<string, unknown>,
-  path: string,
-): string | undefined => {
+const getNestedValue = (obj: unknown, path: string): string | undefined => {
   const keys = path.split('.');
   let current: unknown = obj;
   for (const key of keys) {
@@ -27,18 +24,12 @@ export const createTranslator = (
 
   return (path: string, fallback?: string): string => {
     if (langBundle) {
-      const value = getNestedValue(
-        langBundle as unknown as Record<string, unknown>,
-        path,
-      );
+      const value = getNestedValue(langBundle, path);
       if (value !== undefined) return value;
     }
 
     if (defaultBundle) {
-      const value = getNestedValue(
-        defaultBundle as unknown as Record<string, unknown>,
-        path,
-      );
+      const value = getNestedValue(defaultBundle, path);
       if (value !== undefined) return value;
     }
 

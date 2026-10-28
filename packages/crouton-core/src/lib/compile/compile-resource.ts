@@ -61,18 +61,11 @@ export const compileResource = (
   options: CompileOptions = {},
 ): CompiledResource => {
   const { baseUrl, enums = {}, resolvers = {} } = options;
-  const src = (json as any).source as
-    | {
-        model?: string;
-        dbTable?: string;
-        datasource?: string;
-        idType?: 'string' | 'number';
-      }
-    | undefined;
+  const src = json.source;
 
   const rawColumns: JsonColumn[] = resolvers.expandColumns
-    ? resolvers.expandColumns((json.columns as JsonColumn[] | undefined) ?? [])
-    : ((json.columns as JsonColumn[] | undefined) ?? []);
+    ? resolvers.expandColumns(json.columns ?? [])
+    : (json.columns ?? []);
 
   const columns: JsonColumn[] = enrichRelationTypes(
     applyRelationFormatDefault(rawColumns) ?? rawColumns,
@@ -83,7 +76,7 @@ export const compileResource = (
   const subResources: CompiledSubResourceConfig[] = resolvers.buildSubResources
     ? resolvers.buildSubResources(columns, {
         route: json.route,
-        model: src?.model ?? (json as any).model ?? '',
+        model: src?.model ?? json.model ?? '',
       })
     : [];
 
@@ -96,22 +89,22 @@ export const compileResource = (
   )!;
 
   const calculatedColumns: CalculatedColumn[] = [
-    ...((json as any).calculatedColumns ?? []),
+    ...(json.calculatedColumns ?? []),
     ...enrichedColumns
-      .filter((c) => (c as any).computed)
+      .filter((c) => c.computed)
       .map((c): CalculatedColumn => ({
         id: c.id,
         alias: c.id,
         label: c.label ?? c.id,
-        sqlExpression: (c as any).computed.sql as string,
-        type: (c as any).computed.type ?? 'string',
+        sqlExpression: c.computed!.sql,
+        type: c.computed!.type ?? 'string',
         hiddenInTable: c.hiddenInTable,
         hiddenInView: c.hiddenInView,
         ...(c.fieldInput && { fieldInput: c.fieldInput }),
       })),
   ];
 
-  const regularColumns = enrichedColumns.filter((c) => !(c as any).computed);
+  const regularColumns = enrichedColumns.filter((c) => !c.computed);
   const visibilityColumns = resolveColumnVisibility(
     regularColumns,
     json.layout,
@@ -150,7 +143,7 @@ export const compileResource = (
   const lookup = buildLookup(
     enrichedColumns,
     searchPaths,
-    (json as any).lookup,
+    json.lookup,
     resolvedDisplayKeys,
   );
   const findOneOp = json.operations?.findOne;
@@ -168,13 +161,12 @@ export const compileResource = (
     enrichedColumns,
   );
 
-  const formContainer = (json.layout?.form as any)?.container;
-  const viewContainer = (json.layout?.view as any)?.container;
+  const formContainer = json.layout?.form?.container;
+  const viewContainer = json.layout?.view?.container;
   const derivedDisplay = {
     mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as
       'modal' | 'page',
-    customComponent: ((json.layout?.view as any)?.component ?? null) as
-      string | null,
+    customComponent: (json.layout?.view?.component ?? null) as string | null,
   };
   const derivedModalSize = (formContainer?.size ?? 'sm') as
     'xs' | 'sm' | 'lg' | 'xl';
@@ -191,20 +183,18 @@ export const compileResource = (
     ...(src?.dbTable && { table: src.dbTable }),
     ...(src?.datasource && { database: src.datasource }),
     ...(src?.idType && { idType: src.idType }),
-    ...(lookup?.key && lookup.key !== 'id' && { idField: lookup.key }),
+    idField: lookup?.key ?? 'id',
     definition,
     subResources,
-    ...(views && { views }),
+    views: views ?? {},
     ...(searchPaths?.length && { search: searchPaths }),
-    ...(lookup && { lookup }),
+    lookup,
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { include: enrichedInclude }),
     ...(enrichedFindOneInclude?.length && {
       findOneInclude: enrichedFindOneInclude,
     }),
-    ...(buildValueLabelColumns(enrichedColumns).length && {
-      valueLabelColumns: buildValueLabelColumns(enrichedColumns),
-    }),
-    ...pickExtensions(json as Record<string, unknown>),
-  } as unknown as CompiledResource;
+    valueLabelColumns: buildValueLabelColumns(enrichedColumns),
+    ...pickExtensions(json),
+  };
 };
