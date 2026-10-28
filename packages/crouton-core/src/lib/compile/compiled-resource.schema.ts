@@ -18,7 +18,9 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   columns: z.array(JsonColumnBaseSchema).optional(),
   route: z.string(),
   valueLabelColumns: ValueLabelColumnsSchema.default([]),
-  subResources: z.lazy(() => z.array(CompiledSubResourceConfigSchema)).default([]),
+  // The compiler always emits this; `z.lazy` was only needed for a cycle the
+  // sub-resource schema does not introduce.
+  subResources: z.array(CompiledSubResourceConfigSchema),
   search: z.array(z.string()).optional(),
   lookup: LookupSchema.optional(),
   views: ViewsSchema,
