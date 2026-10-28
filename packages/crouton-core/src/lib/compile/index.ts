@@ -3,6 +3,7 @@ export * from './column-enrichment';
 export * from './column-transforms';
 export * from './compile-resource';
 export * from './compiled-resource.schema';
+export * from './compiled-shared.schema';
 export * from './compiled-sub-resource.schema';
 export * from '../schema/definition/crud-config';
 export * from '../schema/definition/definition.schema';
