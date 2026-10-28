@@ -144,6 +144,30 @@ describe('compileResource — source flattening (dbTable/datasource, not the rem
     expect(result.database).toBeUndefined();
     expect(result.model).toBe('Article');
   });
+
+  it('does not copy the raw source block', () => {
+    const json = invalid<ResourceJson>({
+      ...baseJson,
+      source: { model: 'Article', dbTable: 'articles_staging' },
+    });
+    const result = compileResource(json);
+    expect('source' in result).toBe(false);
+  });
+
+  it('falls back to the legacy root aliases when source is absent', () => {
+    const json = invalid<ResourceJson>({
+      ...baseJson,
+      model: 'LegacyArticle',
+      table: 'legacy_articles',
+      database: 'legacydb',
+      idType: 'number',
+    });
+    const result = compileResource(json);
+    expect(result.model).toBe('LegacyArticle');
+    expect(result.table).toBe('legacy_articles');
+    expect(result.database).toBe('legacydb');
+    expect(result.idType).toBe('number');
+  });
 });
 
 describe('compileResource — input-only keys are not copied to the compiled resource', () => {

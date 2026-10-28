@@ -171,8 +171,20 @@ export const compileResource = (
     openapi,
     draft: _draft,
     $schema: _jsonSchema,
+    source: _source,
+    model: rootModel,
+    table: rootTable,
+    database: rootDatabase,
+    idType: rootIdType,
     ...jsonRest
   } = json;
+
+  // `source.*` wins; the legacy root aliases remain a fallback for resources
+  // built programmatically instead of through the migration.
+  const flattenedModel = src?.model ?? rootModel;
+  const flattenedTable = src?.dbTable ?? rootTable;
+  const flattenedDatabase = src?.datasource ?? rootDatabase;
+  const flattenedIdType = src?.idType ?? rootIdType;
 
   return {
     ...jsonRest,
@@ -181,10 +193,10 @@ export const compileResource = (
     tag: openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
     modalSize: derivedModalSize,
-    ...(src?.model && { model: src.model }),
-    ...(src?.dbTable && { table: src.dbTable }),
-    ...(src?.datasource && { database: src.datasource }),
-    ...(src?.idType && { idType: src.idType }),
+    ...(flattenedModel && { model: flattenedModel }),
+    ...(flattenedTable && { table: flattenedTable }),
+    ...(flattenedDatabase && { database: flattenedDatabase }),
+    ...(flattenedIdType && { idType: flattenedIdType }),
     idField: lookup?.key ?? 'id',
     definition,
     subResources,
