@@ -2,18 +2,24 @@ import { z } from 'zod';
 
 import { JsonOperationsSchema } from '../data-source';
 import {
-  CalculatedColumnSchema,
   JsonActionSchema,
-  JsonIncludeEntrySchema,
+  RelationType,
+  ResourceKindSchema,
 } from '../resource';
-import { ViewConfigSchema } from '../view';
-import { ValueLabelColumnSchema } from './value-label-column';
+import {
+  IdTypeSchema,
+  ModalSizeSchema,
+  OptionalCalculatedColumnsSchema,
+  OptionalIncludeListSchema,
+  OptionalValueLabelColumnsSchema,
+  OptionalViewsSchema,
+} from './compiled-shared.schema';
 
 export const CompiledSubResourceConfigSchema = z.object({
   column: z.string(),
   relation: z.string(),
   childRoute: z.string(),
-  childKind: z.enum(['prisma', 'custom']).default('prisma'),
+  childKind: ResourceKindSchema,
   childDir: z.string().optional(),
   childModel: z.string(),
   childTable: z.string().optional(),
@@ -21,18 +27,18 @@ export const CompiledSubResourceConfigSchema = z.object({
   name: z.string().optional(),
   title: z.string().optional(),
   idField: z.string().optional(),
-  idType: z.enum(['string', 'number']).optional(),
-  views: z.record(z.string(), ViewConfigSchema).optional(),
+  idType: IdTypeSchema.optional(),
+  views: OptionalViewsSchema,
   operations: JsonOperationsSchema,
   actions: z.array(JsonActionSchema).optional(),
-  modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
-  include: z.array(JsonIncludeEntrySchema).optional(),
-  calculatedColumns: z.array(CalculatedColumnSchema).optional(),
+  modalSize: ModalSizeSchema.optional(),
+  include: OptionalIncludeListSchema,
+  calculatedColumns: OptionalCalculatedColumnsSchema,
   includeInFindOne: z.boolean().optional(),
   hiddenInTable: z.boolean().optional(),
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
-  valueLabelColumns: z.array(ValueLabelColumnSchema).optional(),
-  relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne']).optional(),
+  valueLabelColumns: OptionalValueLabelColumnsSchema,
+  relationType: RelationType.optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),
   layout: z.record(z.string(), z.unknown()).optional(),
