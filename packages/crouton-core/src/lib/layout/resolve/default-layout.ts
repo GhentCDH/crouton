@@ -1,5 +1,5 @@
 import type { JsonColumn } from '../../resource/Column';
-import { sortByPosition } from '../../view/column.utils';
+import { sortByPosition } from '../../schema/column/column.utils';
 import type { FormLayoutNode } from '../schema/LayoutNode.schema';
 import { type TableNode, TableNodeSchema } from '../schema/TableLayout.schema';
 

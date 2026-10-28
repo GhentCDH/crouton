@@ -1,5 +1,5 @@
 import type { JsonColumn } from '../../resource/Column';
-import type { ViewConfig } from '../../view/view.schema';
+import type { ViewConfig } from '../../schema/view/view.schema';
 
 /**
  * A function that takes a set of columns and produces the JSON Schema object

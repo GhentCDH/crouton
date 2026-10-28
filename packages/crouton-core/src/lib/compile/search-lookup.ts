@@ -1,5 +1,5 @@
 import type { JsonColumn, RelationFieldInputOptions } from '../resource';
-import type { LookupConfig } from './lookup.schema';
+import type { LookupConfig } from '../schema/definition/lookup.schema';
 
 export const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&

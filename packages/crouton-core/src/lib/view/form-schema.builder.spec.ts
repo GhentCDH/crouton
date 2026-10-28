@@ -1,17 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFormControl } from './form-schema.builder';
 import { buildFormUiSchemaFromLayout } from '../layout/layout-ui-schema.builder';
 import type { LayoutNode } from '../layout/schema';
 import { JsonColumnSchema } from '../resource/Column';
-import { type TestControl, asControl, asLayout, invalid } from '../utils/test-utils';
+import { buildFormControl } from '../schema';
+import {
+  type TestControl,
+  asControl,
+  asLayout,
+  invalid,
+} from '../utils/test-utils';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));
 
 const byScope = (uiSchema: unknown, id: string): TestControl | undefined =>
-  asLayout(uiSchema).elements
-    .map((e) => asControl(e))
+  asLayout(uiSchema)
+    .elements.map((e) => asControl(e))
     .find((e) => e?.scope === `#/properties/${id}`);
 
 describe('buildFormUiSchema (golden output)', () => {
@@ -20,7 +25,11 @@ describe('buildFormUiSchema (golden output)', () => {
     { id: 'bio', fieldInput: { type: 'textarea' } },
     {
       id: 'author',
-      fieldInput: { format: 'relation', relationType: 'manyToOne', resource: 'author' },
+      fieldInput: {
+        format: 'relation',
+        relationType: 'manyToOne',
+        resource: 'author',
+      },
     },
     { id: 'status', fieldInput: { type: 'text' } },
     { id: 'reason', fieldInput: { type: 'text' } },
@@ -37,7 +46,9 @@ describe('buildFormUiSchema (golden output)', () => {
     ],
   };
 
-  const uiSchema = asLayout(buildFormUiSchemaFromLayout(invalid<LayoutNode>(layoutNode), cols));
+  const uiSchema = asLayout(
+    buildFormUiSchemaFromLayout(invalid<LayoutNode>(layoutNode), cols),
+  );
 
   it('is a GridLayout with one Control per column', () => {
     expect(uiSchema.type).toBe('GridLayout');
@@ -68,7 +79,10 @@ describe('buildFormUiSchema (golden output)', () => {
   it('emits disabledWhen into options (not rule) so showWhen and disabledWhen can coexist', () => {
     const reason = byScope(uiSchema, 'reason');
     expect(reason?.rule).toBeUndefined();
-    expect(reason?.options?.['disabledWhen']).toEqual({ field: 'locked', eq: true });
+    expect(reason?.options?.['disabledWhen']).toEqual({
+      field: 'locked',
+      eq: true,
+    });
   });
 
   it('does not emit a rule for fields without conditions', () => {
@@ -80,7 +94,13 @@ describe('buildFormUiSchema (golden output)', () => {
     const schema2 = asLayout(
       buildFormUiSchemaFromLayout(
         invalid<LayoutNode>({
-          items: [{ id: 'title', disabled: true, showWhen: { field: 'active', eq: true } }],
+          items: [
+            {
+              id: 'title',
+              disabled: true,
+              showWhen: { field: 'active', eq: true },
+            },
+          ],
         }),
         cols2,
       ),
@@ -95,7 +115,10 @@ describe('buildFormControl option forwarding', () => {
   it('forwards date options (withTime, min, max, locale) into uischema', () => {
     const col = JsonColumnSchema.parse({
       id: 'start',
-      fieldInput: { type: 'date', options: { withTime: true, min: '2020-01-01', locale: 'nl-BE' } },
+      fieldInput: {
+        type: 'date',
+        options: { withTime: true, min: '2020-01-01', locale: 'nl-BE' },
+      },
     });
     const built = asControl(buildFormControl(col).build());
     expect(built?.options?.['format']).toBe('date');
@@ -107,7 +130,14 @@ describe('buildFormControl option forwarding', () => {
   it('forwards autocomplete options including storeValue into uischema', () => {
     const col = JsonColumnSchema.parse({
       id: 'author',
-      fieldInput: { type: 'autocomplete', options: { resource: './author.resource.json', storeValue: true, labelKey: 'name' } },
+      fieldInput: {
+        type: 'autocomplete',
+        options: {
+          resource: './author.resource.json',
+          storeValue: true,
+          labelKey: 'name',
+        },
+      },
     });
     const built = asControl(buildFormControl(col).build());
     expect(built?.options?.['format']).toBe('autocomplete');
@@ -119,17 +149,25 @@ describe('buildFormControl option forwarding', () => {
   it('forwards select options into uischema via generic else branch', () => {
     const col = JsonColumnSchema.parse({
       id: 'status',
-      fieldInput: { type: 'select', options: { options: [{ label: 'Active', value: 'active' }] } },
+      fieldInput: {
+        type: 'select',
+        options: { options: [{ label: 'Active', value: 'active' }] },
+      },
     });
     const built = asControl(buildFormControl(col).build());
     expect(built?.options?.['format']).toBe('select');
-    expect(built?.options?.['options']).toEqual([{ label: 'Active', value: 'active' }]);
+    expect(built?.options?.['options']).toEqual([
+      { label: 'Active', value: 'active' },
+    ]);
   });
 
   it('forwards date-range options into uischema', () => {
     const col = JsonColumnSchema.parse({
       id: 'period',
-      fieldInput: { format: 'date-range', options: { fromLabel: 'Start', toLabel: 'End' } },
+      fieldInput: {
+        format: 'date-range',
+        options: { fromLabel: 'Start', toLabel: 'End' },
+      },
     });
     const built = asControl(buildFormControl(col).build());
     expect(built?.options?.['format']).toBe('date-range');
@@ -149,9 +187,15 @@ describe('buildFormControl option forwarding', () => {
   it('forwards disabledWhen from column fieldInput.options into uischema', () => {
     const col = JsonColumnSchema.parse({
       id: 'status',
-      fieldInput: { type: 'text', options: { disabledWhen: { field: 'id', exists: true } } },
+      fieldInput: {
+        type: 'text',
+        options: { disabledWhen: { field: 'id', exists: true } },
+      },
     });
     const built = asControl(buildFormControl(col).build());
-    expect(built?.options?.['disabledWhen']).toEqual({ field: 'id', exists: true });
+    expect(built?.options?.['disabledWhen']).toEqual({
+      field: 'id',
+      exists: true,
+    });
   });
 });

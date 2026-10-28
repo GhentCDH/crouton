@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
-import { columnToJsonSchemaProperty, columnTypeSchemaSource } from './column-type-schema.source';
-import type { ViewConfig } from './view.schema';
+import {
+  columnToJsonSchemaProperty,
+  columnTypeSchemaSource,
+} from './column-type-schema.source';
 import { buildLayouts } from '../layout';
 import type { Layout } from '../layout/schema';
 import { ResourceJsonSchema } from '../resource/ResourceJson.schema';
+import type { ViewConfig } from '../schema';
 import { type TestControl, invalid } from '../utils/test-utils';
 
-const propertiesOf = (view: ViewConfig | undefined): Record<string, Record<string, unknown>> =>
-  (view?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
+const propertiesOf = (
+  view: ViewConfig | undefined,
+): Record<string, Record<string, unknown>> =>
+  (view?.json_schema?.['properties'] ?? {}) as Record<
+    string,
+    Record<string, unknown>
+  >;
 
 const elementsOf = (view: ViewConfig | undefined): TestControl[] =>
   (view?.ui_schema?.['elements'] ?? []) as TestControl[];
@@ -117,7 +125,11 @@ describe('buildViewsFromColumnTypes', () => {
     },
   };
 
-  const views = buildLayouts(invalid<Layout>(layout), { columns, source: columnTypeSchemaSource, warn: () => undefined });
+  const views = buildLayouts(invalid<Layout>(layout), {
+    columns,
+    source: columnTypeSchemaSource,
+    warn: () => undefined,
+  });
 
   it('builds table, form, filter and view', () => {
     expect(Object.keys(views).sort()).toEqual([
@@ -157,7 +169,11 @@ describe('buildViewsFromColumnTypes', () => {
   it('applies the standard schema transforms to nested objects too', () => {
     const type = propertiesOf(views.table).type;
     expect(type?.['additionalProperties']).toBe(true);
-    expect((type?.['properties'] as Record<string, Record<string, unknown>>).name?.['minLength']).toBe(1);
+    expect(
+      (type?.['properties'] as Record<string, Record<string, unknown>>).name?.[
+        'minLength'
+      ],
+    ).toBe(1);
   });
 
   it('emits no required array — shape is declared, validation is the repository author job', () => {
@@ -201,7 +217,11 @@ describe('buildViewsFromColumnTypes', () => {
   });
 
   it('returns only an empty table view with no columns', () => {
-    const v = buildLayouts(undefined, { columns: [], source: columnTypeSchemaSource, warn: () => undefined });
+    const v = buildLayouts(undefined, {
+      columns: [],
+      source: columnTypeSchemaSource,
+      warn: () => undefined,
+    });
     expect(v.table).toBeDefined();
     expect(v.table.columns).toEqual([]);
     expect(v.form).toBeUndefined();

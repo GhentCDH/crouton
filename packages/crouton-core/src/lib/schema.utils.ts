@@ -1,11 +1,3 @@
-/**
- * Browser-safe JSON Schema utilities shared across crouton-core and crouton-api.
- *
- * Keep this file free of Node-only imports. Zod-specific conversion lives in
- * compile/to-json-schema.ts; mutable view-build transforms live in
- * view/schema-transforms.ts.
- */
-
 import type { JsonSchema } from '@jsonforms/core';
 
 type Field = { scope: string };
@@ -18,9 +10,16 @@ type Field = { scope: string };
 export const isNullableProperty = (property: unknown): boolean => {
   const prop = property as Record<string, unknown> | undefined;
   if (!prop) return false;
-  if (Array.isArray(prop['type']) && (prop['type'] as string[]).includes('null')) return true;
+  if (
+    Array.isArray(prop['type']) &&
+    (prop['type'] as string[]).includes('null')
+  )
+    return true;
   const anyOf = prop['anyOf'];
-  return Array.isArray(anyOf) && anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null');
+  return (
+    Array.isArray(anyOf) &&
+    anyOf.some((s: Record<string, unknown>) => s?.['type'] === 'null')
+  );
 };
 
 /**
@@ -48,7 +47,9 @@ export const dropNullableFromRequired = (schema: JsonSchema): JsonSchema => {
  * error — mapped to "This field is required" — when an optional field's current
  * value is `null`.
  */
-export const makeOptionalPropertiesNullable = (schema: JsonSchema): JsonSchema => {
+export const makeOptionalPropertiesNullable = (
+  schema: JsonSchema,
+): JsonSchema => {
   if (!schema?.properties) return schema;
   const requiredSet = new Set<string>(
     Array.isArray(schema.required) ? (schema.required as string[]) : [],
@@ -69,7 +70,9 @@ export const makeOptionalPropertiesNullable = (schema: JsonSchema): JsonSchema =
   return changed ? ({ ...schema, properties: patched } as JsonSchema) : schema;
 };
 
-export const enforceRequiredStringMinLength = (schema: JsonSchema): JsonSchema => {
+export const enforceRequiredStringMinLength = (
+  schema: JsonSchema,
+): JsonSchema => {
   if (!schema?.properties) return schema;
   const patchedProperties = { ...schema.properties };
   let changed = false;
@@ -81,10 +84,15 @@ export const enforceRequiredStringMinLength = (schema: JsonSchema): JsonSchema =
       changed = true;
     } else if (prop.type === 'object') {
       const patched = enforceRequiredStringMinLength(prop as JsonSchema);
-      if (patched !== prop) { patchedProperties[key] = patched; changed = true; }
+      if (patched !== prop) {
+        patchedProperties[key] = patched;
+        changed = true;
+      }
     }
   }
-  return changed ? ({ ...schema, properties: patchedProperties } as JsonSchema) : schema;
+  return changed
+    ? ({ ...schema, properties: patchedProperties } as JsonSchema)
+    : schema;
 };
 
 /**
@@ -96,7 +104,10 @@ export const enforceRequiredStringMinLength = (schema: JsonSchema): JsonSchema =
  * `"author/properties/name"` and an empty property — leaving such columns with
  * no schema type at all. Each `properties/<key>` segment is now walked.
  */
-export const findProperty = <F extends Field>(column: F, schema: JsonSchema) => {
+export const findProperty = <F extends Field>(
+  column: F,
+  schema: JsonSchema,
+) => {
   if (!column.scope) return { id: null, property: null };
   const id = column.scope.substring('#/properties/'.length);
   const segments = id.split('/properties/');
