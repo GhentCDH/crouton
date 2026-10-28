@@ -8,7 +8,6 @@ import {
 } from '../resource';
 import {
   IdTypeSchema,
-  ModalSizeSchema,
   OptionalCalculatedColumnsSchema,
   OptionalIncludeListSchema,
   OptionalValueLabelColumnsSchema,
@@ -31,7 +30,6 @@ export const CompiledSubResourceConfigSchema = z.object({
   views: OptionalViewsSchema,
   operations: JsonOperationsSchema,
   actions: z.array(JsonActionSchema).optional(),
-  modalSize: ModalSizeSchema.optional(),
   /** Child relations eager-loaded by the child's own read/write queries. */
   childInclude: OptionalIncludeListSchema,
   calculatedColumns: OptionalCalculatedColumnsSchema,

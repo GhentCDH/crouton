@@ -25,24 +25,28 @@ describe('compiled shared schemas', () => {
       expect(shape.relationType.safeParse('hasMany').success).toBe(false);
     });
 
-    it('shares idType and modalSize vocabularies with the resource schema', () => {
+    it('shares the idType vocabulary with the resource schema', () => {
       expect(shape.idType.safeParse('number').success).toBe(true);
-      expect(shape.modalSize.safeParse('xl').success).toBe(true);
-      expect(shape.modalSize.safeParse('xxl').success).toBe(false);
+    });
+
+    it('does not carry the derived modalSize (computed in payload builders)', () => {
+      expect('modalSize' in shape).toBe(false);
     });
   });
 
   describe('resource fields', () => {
     const shape = CompiledResourceSchema.shape;
 
-    it('idType and modalSize accept the shared values', () => {
+    it('idType accepts the shared values', () => {
       expect(shape.idType.safeParse('number').success).toBe(true);
-      expect(shape.modalSize.safeParse('sm').success).toBe(true);
-      expect(shape.modalSize.safeParse('xxl').success).toBe(false);
     });
 
     it('views accepts an empty view map', () => {
       expect(shape.views.safeParse({}).success).toBe(true);
+    });
+
+    it('does not carry the derived modalSize (computed in payload builders)', () => {
+      expect('modalSize' in shape).toBe(false);
     });
   });
 });

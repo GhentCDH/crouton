@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-import {   ResourceJsonShape } from '../resource';
+import { ResourceJsonShape } from '../resource';
 import {
   IdTypeSchema,
-  ModalSizeSchema,
   OptionalCalculatedColumnsSchema,
   OptionalIncludeListSchema,
   OptionalValueLabelColumnsSchema,
@@ -54,7 +53,6 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   views: OptionalViewsSchema,
   definition: DefinitionSchema,
   idField: z.string(),
-  modalSize: ModalSizeSchema.optional(),
   /** Eager-loaded relations for findAll (list) queries. From operations.findAll.include. */
   findAllInclude: OptionalIncludeListSchema,
   /** Eager-loaded relations for findOne (detail) queries. From operations.findOne.include. */

@@ -210,6 +210,21 @@ export const buildResourceJsonPayload = (
   };
 };
 
+/**
+ * Derive the modal size from a layout. The compiled models keep the layout
+ * container, not the derived size, so the payload builders compute it here.
+ */
+const readModalSize = (
+  layout: unknown,
+): 'xs' | 'sm' | 'lg' | 'xl' | undefined => {
+  const size = (
+    layout as { form?: { container?: { size?: unknown } } } | undefined
+  )?.form?.container?.size;
+  return size === 'xs' || size === 'sm' || size === 'lg' || size === 'xl'
+    ? size
+    : undefined;
+};
+
 export const buildViewsPayload = (
   config: CompiledResource,
   baseUrl?: string,
@@ -268,7 +283,7 @@ export const buildViewsPayload = (
     uri: baseUri,
     title: config.title ?? config.tag,
     idField: config.idField,
-    ...(config.modalSize && { modalSize: config.modalSize }),
+    modalSize: readModalSize(config.layout) ?? 'sm',
     operations,
     display: deriveDisplay(config.layout),
     schemas,
@@ -285,6 +300,8 @@ export const buildSubResourceViewsPayload = (
   if (!sub.views) return undefined;
   const { route } = config;
   const childUri = `${baseUrl}/${route}/{parent.id}/${sub.childRoute}`;
+  // Preserve the old conditional: a child without a form container emitted no modalSize.
+  const subModalSize = readModalSize(sub.layout);
 
   return {
     id: `${route}/${sub.childRoute}`,
@@ -293,7 +310,7 @@ export const buildSubResourceViewsPayload = (
     uri: childUri,
     title: sub.title ?? sub.childRoute,
     idField: sub.idField ?? 'id',
-    ...(sub.modalSize && { modalSize: sub.modalSize }),
+    ...(subModalSize && { modalSize: subModalSize }),
     operations: buildSubResourceOperations(
       sub.operations,
       childUri,

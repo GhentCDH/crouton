@@ -175,13 +175,17 @@ describe('buildSubResources — child layout forwarded to views', () => {
     expect(scopes).not.toContain('#/properties/notes');
   });
 
-  it('layout.form.container → modalSize forwarded', () => {
+  it('layout.form.container → layout forwarded for payload-derived modalSize', () => {
     RESOLVED.json['layout'] = {
       form: { container: { mode: 'modal', size: 'xl' }, type: 'grid', items: ['title'] },
     };
     const columns = [col({ id: 'content', hiddenInForm: false })];
     const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
-    expect(result[0].modalSize).toBe('xl');
+    // modalSize is derived in the payload builder from the forwarded layout.
+    const layout = result[0].layout as
+      | { form?: { container?: { size?: string } } }
+      | undefined;
+    expect(layout?.form?.container?.size).toBe('xl');
     expect(result[0]).not.toHaveProperty('display');
   });
 });
