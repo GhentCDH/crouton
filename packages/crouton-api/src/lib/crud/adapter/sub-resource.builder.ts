@@ -236,6 +236,7 @@ export const buildSubResources = (
         idType: childJson?.source?.idType ?? 'string',
         ...(c.hiddenInTable && { hiddenInTable: true }),
         ...(childViews && { views: childViews }),
+        ...(childJson?.layout && { layout: childJson.layout }),
         operations: {
           findAll: childOps.findAll !== false,
           findOne: childOps.findOne !== false,
@@ -249,9 +250,6 @@ export const buildSubResources = (
           const tableActions = tableNode?.['actions'] as JsonAction[] | undefined;
           return tableActions?.length ? { actions: tableActions } : {};
         })(),
-        ...(childJson?.layout?.form?.container && {
-          modalSize: childJson.layout.form.container.size,
-        }),
         ...(mergedIncludes.length && { childInclude: mergedIncludes }),
         ...(childCalculatedColumns.length && {
           calculatedColumns: childCalculatedColumns,
