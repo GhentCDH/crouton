@@ -4,6 +4,7 @@ import {   ResourceJsonShape } from '../resource';
 import {
   IdTypeSchema,
   ModalSizeSchema,
+  OptionalCalculatedColumnsSchema,
   OptionalIncludeListSchema,
   OptionalValueLabelColumnsSchema,
   OptionalViewsSchema,
@@ -34,12 +35,16 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   // Input-only: the compiler derives `findAllInclude`/`findOneInclude` from the
   // operation include config; the raw legacy key is not copied.
   include: true,
+  // Input-only: the compiler merges the input list with columns[].computed.
+  calculatedColumns: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),
   route: z.string(),
   /** Omitted when no column needs a value→label envelope. */
   valueLabelColumns: OptionalValueLabelColumnsSchema,
+  /** Omitted when the resource has no SQL-computed columns. */
+  calculatedColumns: OptionalCalculatedColumnsSchema,
   // The compiler always emits this; `z.lazy` was only needed for a cycle the
   // sub-resource schema does not introduce.
   subResources: z.array(CompiledSubResourceConfigSchema),
