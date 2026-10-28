@@ -46,7 +46,7 @@ export const childRepositoryFn = (
       `Sub-resource "${sub.childRoute}" of "${parentName}" does not implement "${method}" in its repository.ts.`,
     );
   }
-  return fn.bind(repo);
+  return (fn as (...args: unknown[]) => Promise<unknown>).bind(repo);
 };
 
 /** Context handed to a custom child's repository. */

@@ -22,12 +22,10 @@ export class LanguageInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): ReturnType<CallHandler['handle']> {
     const http = context.switchToHttp();
-    const request = http.getRequest();
-    const response = http.getResponse();
+    const request = http.getRequest<{ headers: Record<string, string | string[] | undefined> }>();
+    const response = http.getResponse<{ setHeader(name: string, value: string): void }>();
 
-    const acceptLanguage = request.headers['accept-language'] as
-      | string
-      | undefined;
+    const acceptLanguage = request.headers['accept-language'] as string | undefined;
     const resolved = resolveLanguage(
       acceptLanguage,
       this.registry.languages,

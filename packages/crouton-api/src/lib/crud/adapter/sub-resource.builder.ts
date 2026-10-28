@@ -127,9 +127,11 @@ export const buildSubResources = (
         childJson?.include ??
         [];
       const explicitNames = new Set(
-        explicitIncludes.map((e) => (typeof e === 'string' ? e : e.relation)),
+        // JsonIncludeEntry is `any` due to z.lazy — cast for safe property access
+        explicitIncludes.map((e) => (typeof e === 'string' ? e : (e as { relation: string }).relation)),
       );
       const mergedIncludes: JsonIncludeEntry[] = [
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JsonIncludeEntry is `any` due to z.lazy
         ...explicitIncludes,
         ...autoIncludes.filter((name) => !explicitNames.has(name)),
       ];

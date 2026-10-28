@@ -22,7 +22,12 @@ import { isPrismaKnownError } from '../errors/prisma.errors';
 const includeRelationNames = (
   include: JsonIncludeEntry[] | undefined,
 ): Set<string> =>
-  new Set((include ?? []).map((e) => (typeof e === 'string' ? e : e.relation)));
+  new Set(
+    (include ?? []).map((e) => {
+      if (typeof e === 'string') return e;
+      return (e as { relation: string }).relation;
+    }),
+  );
 
 /** Prisma nested-write keywords that indicate a relation mutation rather than read-only join data. */
 const PRISMA_RELATION_WRITE_KEYS = new Set([

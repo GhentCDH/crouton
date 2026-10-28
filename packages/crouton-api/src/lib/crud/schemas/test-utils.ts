@@ -12,13 +12,13 @@ import { Test } from '@nestjs/testing';
 import supertest from 'supertest';
 import { vi } from 'vitest';
 
-import { clearResourceExtensions } from '@ghentcdh/crouton-core';
+import { type DataSource, clearResourceExtensions } from '@ghentcdh/crouton-core';
 
 import { CroutonApiModule } from '../../crouton-api.module';
+import type { CroutonAppConfig } from '../app-config';
 import type { DataSourceEntry } from '../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../loader';
 import { FileSystemResourceConfigLoader } from '../loader/fs-resource-config.loader';
-import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -38,7 +38,7 @@ const enumsFileFor = (dir: string) => join(dir, 'crouton.enums.json');
  * Build a minimal stub DataSourceEntry whose adapter satisfies `adapterHasCrud`
  * for all resources. Schema endpoints never hit the DB, so vi.fn() suffice.
  */
-export const stubDataSources = (_configs: Resource[]): DataSourceEntry[] => {
+export const stubDataSources = (_configs: unknown[]): DataSourceEntry[] => {
   // A Proxy client so `client.AnyModelName` returns an object with CRUD delegates.
   const client = new Proxy(
     {},
@@ -62,7 +62,8 @@ export const stubDataSources = (_configs: Resource[]): DataSourceEntry[] => {
 
   return [
     {
-      config: { name: 'default', default: true } as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture: minimal DataSource stub, only name/default needed
+      config: { name: 'default', default: true } as any as DataSource,
       adapter: {
         kind: 'prisma' as const,
         client,
@@ -94,7 +95,7 @@ export type BootedCase = {
  */
 export const bootCase = async (
   caseName: string,
-  appConfig: Partial<{ baseUrl: string; prefix: string; schemaEnricher: any }> = {},
+  appConfig: Partial<{ baseUrl: string; prefix: string; schemaEnricher: CroutonAppConfig['schemaEnricher'] }> = {},
 ): Promise<BootedCase> => {
   // Copy fixture to tmp dir (dev-mode migration rewrites resource.json on disk)
   const src = join(FIXTURES_ROOT, caseName);

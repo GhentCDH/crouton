@@ -185,12 +185,14 @@ export function createCrudRepository<T = Row>(
       id?: string | number,
       request?: unknown,
     ) => prepareWrite(data, op, config, resolvedAdapter, id, request);
+    // postWrite returns Promise<any> because afterWrite hook is user-provided
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const postData = (
       result: unknown,
       op: 'create' | 'update' | 'patch' | 'delete',
       id?: string | number,
       request?: unknown,
-    ) => postWrite(result, op, config, resolvedAdapter, id, request);
+    ): Promise<T> => postWrite(result, op, config, resolvedAdapter, id, request) as Promise<T>;
     const toId = (id: string | number): string | number =>
       (config.idType ?? 'string') === 'number' ? +id : String(id);
 
@@ -463,12 +465,14 @@ export function createCrudRepository<T = Row>(
     request?: unknown,
   ) => prepareWrite(data, op, config, adapter, id, request);
 
+  // postWrite returns Promise<any> because afterWrite hook is user-provided
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   const postData = (
     result: unknown,
     op: 'create' | 'update' | 'patch' | 'delete',
     id?: string | number,
     request?: unknown,
-  ) => postWrite(result, op, config, adapter, id, request);
+  ): Promise<T> => postWrite(result, op, config, adapter, id, request) as Promise<T>;
 
   const toId = (id: string | number): string | number =>
     (config.idType ?? 'string') === 'number' ? +id : String(id);

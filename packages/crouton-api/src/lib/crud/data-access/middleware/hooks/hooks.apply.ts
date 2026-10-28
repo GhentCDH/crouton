@@ -143,6 +143,7 @@ export const postWrite = async (
   id?: string | number,
   request?: unknown,
   parent?: ParentHookContext,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- afterWrite hook is user-provided and returns any
 ): Promise<any> => {
   const hook = target.hooks?.afterWrite;
   return hook

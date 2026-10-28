@@ -33,7 +33,7 @@ export const readRawResourceJson = (
   jsonPath: string,
 ): RawResourceJson | undefined => {
   if (!existsSync(jsonPath)) return undefined;
-  return JSON.parse(readFileSync(jsonPath, 'utf-8'));
+  return JSON.parse(readFileSync(jsonPath, 'utf-8')) as RawResourceJson;
 };
 
 /**

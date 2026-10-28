@@ -54,8 +54,8 @@ export const getCroutonVersion = (): string => {
     while (dir !== dirname(dir)) {
       const pkgPath = join(dir, 'package.json');
       if (existsSync(pkgPath)) {
-        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-        if (pkg.name === '@ghentcdh/crouton-api') return pkg.version;
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as Record<string, unknown>;
+        if (pkg['name'] === '@ghentcdh/crouton-api') return pkg['version'] as string;
       }
       dir = dirname(dir);
     }

@@ -169,12 +169,14 @@ export const createCustomRepository = <T = Row>(
     if (parentRef) {
       if (!repo.findOneByParent) unsupported(config, 'findOne');
       const parentId = parentIdFrom(request);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
       row = await repo.findOneByParent!(parentId, toId(id), {
         ...ctx('findOne', undefined, id, request),
         ...parentCtx(request, parentId),
       });
     } else {
       if (!repo.findOne) unsupported(config, 'findOne');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
       row = await repo.findOne!(
         toId(id),
         ctx('findOne', undefined, id, request),
@@ -272,6 +274,7 @@ export const createCustomRepository = <T = Row>(
             );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- postWrite returns Promise<any> because afterWrite hook is user-provided
     return postWrite(
       result,
       op,
@@ -320,17 +323,20 @@ export const createCustomRepository = <T = Row>(
       if (parentRef) {
         if (!repo.deleteByParent) unsupported(config, 'delete');
         const parentId = parentIdFrom(request);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
         result = await repo.deleteByParent!(parentId, coercedId, {
           ...ctx('delete', undefined, coercedId, request),
           ...parentCtx(request, parentId),
         });
       } else {
         if (!repo.delete) unsupported(config, 'delete');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
         result = await repo.delete!(
           coercedId,
           ctx('delete', undefined, coercedId, request),
         );
       }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- postWrite returns Promise<any> because afterWrite hook is user-provided
       return postWrite(
         result,
         'delete',

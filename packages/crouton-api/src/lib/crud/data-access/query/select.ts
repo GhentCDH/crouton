@@ -9,9 +9,9 @@ import { type SchemaInput, type ZodTypeInternal, isZodSchema, unwrap  } from '@g
 const typeOf = (schema: ZodType): string | undefined =>
   (schema as ZodTypeInternal)?._zod?.def?.type;
 
-export const toSelectFields = (schema: SchemaInput): Record<string, any> => {
+export const toSelectFields = (schema: SchemaInput): Record<string, unknown> => {
   if (!isZodSchema(schema)) {
-    return Object.keys(schema.properties).reduce<Record<string, any>>(
+    return Object.keys(schema.properties).reduce<Record<string, unknown>>(
       (acc, key) => {
         acc[key] = true;
         return acc;
@@ -20,7 +20,7 @@ export const toSelectFields = (schema: SchemaInput): Record<string, any> => {
     );
   }
 
-  const result: Record<string, any> = {};
+  const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(schema.shape)) {
     const inner = unwrap(value as ZodType);
     const t = typeOf(inner);
