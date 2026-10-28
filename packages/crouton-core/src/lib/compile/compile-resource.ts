@@ -166,7 +166,13 @@ export const compileResource = (
 
   // Input-only: the compiled resource exposes `definition`, not the raw
   // operation toggles. Drop it so it does not leak from the input spread.
-  const { operations: _operations, openapi, draft: _draft, ...jsonRest } = json;
+  const {
+    operations: _operations,
+    openapi,
+    draft: _draft,
+    $schema: _jsonSchema,
+    ...jsonRest
+  } = json;
 
   return {
     ...jsonRest,
