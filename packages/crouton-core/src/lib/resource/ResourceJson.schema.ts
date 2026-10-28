@@ -18,17 +18,17 @@ import { labelFromId } from '../schema/label.helper';
 // Keys that were removed from the root schema and where they moved to.
 const ROOT_REMOVED_KEYS: Record<string, string> = {
   display:
-    '\'display\' moved to layout.form.container / layout.view.container (run crouton migrate)',
+    "'display' moved to layout.form.container / layout.view.container (run crouton migrate)",
   modalSize:
-    '\'modalSize\' moved to layout.form.container.size (run crouton migrate)',
+    "'modalSize' moved to layout.form.container.size (run crouton migrate)",
   include:
-    '\'include\' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)',
-  model: '\'model\' moved to source.model (run crouton migrate)',
-  table: '\'table\' moved to source.dbTable (run crouton migrate)',
-  database: '\'database\' moved to source.datasource (run crouton migrate)',
-  idType: '\'idType\' moved to source.idType (run crouton migrate)',
+    "'include' moved to operations.findAll.include / operations.findOne.include (run crouton migrate)",
+  model: "'model' moved to source.model (run crouton migrate)",
+  table: "'table' moved to source.dbTable (run crouton migrate)",
+  database: "'database' moved to source.datasource (run crouton migrate)",
+  idType: "'idType' moved to source.idType (run crouton migrate)",
   calculatedColumns:
-    '\'calculatedColumns\' moved to columns[id].computed (run crouton migrate)',
+    "'calculatedColumns' moved to columns[id].computed (run crouton migrate)",
 };
 
 // ── Removed `source` keys ─────────────────────────────────────────────
@@ -36,9 +36,9 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
 // Same treatment as ROOT_REMOVED_KEYS: a file that still writes them fails
 // validation instead of silently dropping the table name / datasource.
 const SOURCE_REMOVED_KEYS: Record<string, string> = {
-  table: '\'source.table\' moved to source.dbTable (run crouton migrate)',
+  table: "'source.table' moved to source.dbTable (run crouton migrate)",
   database:
-    '\'source.database\' moved to source.datasource (run crouton migrate)',
+    "'source.database' moved to source.datasource (run crouton migrate)",
 };
 
 // ── Shared primitives ────────────────────────────────────────────────
@@ -51,26 +51,6 @@ export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Display / sidebar ────────────────────────────────────────────────
-
-/** @deprecated Use layout.form.container / layout.view.container instead. Kept for codemod + sub-resource compat. */
-export const JsonDisplaySchema = z.object({
-  mode: z
-    .enum(['page', 'modal'])
-    .default('modal')
-    .describe(
-      'How a record opens when clicked. "modal" (default) opens a dialog; "page" navigates to a dedicated route.',
-    ),
-  customComponent: z
-    .string()
-    .nullable()
-    .optional()
-    .default(null)
-    .describe(
-      'Import path to a custom Vue component for the record detail view. When set, the default view is replaced.',
-    ),
-});
-
-export type JsonDisplay = z.infer<typeof JsonDisplaySchema>;
 
 /** Normalise `columns` from either array or object-map form. */
 export const normalizeColumns = (
@@ -182,7 +162,7 @@ export const ResourceJsonShape = z.object({
     .string()
     .optional()
     .describe(
-      'Database table name override. Defaults to the Prisma model\'s table name.',
+      "Database table name override. Defaults to the Prisma model's table name.",
     ),
   idType: z
     .enum(['string', 'number'])
@@ -194,7 +174,7 @@ export const ResourceJsonShape = z.object({
     .string()
     .optional()
     .describe(
-      'Name of the datasource this resource uses. Defaults to the project\'s default datasource.',
+      "Name of the datasource this resource uses. Defaults to the project's default datasource.",
     ),
   /**
    * Mount this resource under a parent route instead of at the top level —
@@ -251,7 +231,7 @@ export const ResourceJsonShape = z.object({
       separator: z.string().optional().default(' '),
     })
     .optional()
-    .describe('How this resource is labelled in other resources\' dropdowns.'),
+    .describe("How this resource is labelled in other resources' dropdowns."),
   layout: LayoutSchema.optional().describe(
     'Explicit layout for generated views (form, view, table). When absent, source-order grid is used.',
   ),
@@ -530,19 +510,19 @@ const collectRemovedLayoutKeyErrors = (
   if ('controls' in obj) {
     errors.push({
       path: [...path, 'controls'],
-      message: '\'controls\' was removed — use \'items\'.',
+      message: "'controls' was removed — use 'items'.",
     });
   }
   if ('searchFields' in obj) {
     errors.push({
       path: [...path, 'searchFields'],
-      message: '\'searchFields\' was moved to \'operations.findAll.search\'.',
+      message: "'searchFields' was moved to 'operations.findAll.search'.",
     });
   }
   if ('actions' in obj && path.some((p) => p === 'table')) {
     errors.push({
       path: [...path, 'actions'],
-      message: '\'actions\' was renamed to \'rowActions\'.',
+      message: "'actions' was renamed to 'rowActions'.",
     });
   }
 
@@ -604,7 +584,11 @@ export const buildResourceJsonSchema = () => {
 
       // Collect errors for removed keys inside `source` before Zod strips them
       const sourceObj = obj['source'];
-      if (sourceObj && typeof sourceObj === 'object' && !Array.isArray(sourceObj)) {
+      if (
+        sourceObj &&
+        typeof sourceObj === 'object' &&
+        !Array.isArray(sourceObj)
+      ) {
         _rawSourceErrors = Object.entries(SOURCE_REMOVED_KEYS)
           .filter(([k]) => k in (sourceObj as Record<string, unknown>))
           .map(([k, message]) => ({ path: ['source', k], message }));
@@ -911,7 +895,11 @@ export const buildResourceJsonSchema = () => {
     shape
       .superRefine(refineByKind)
       .superRefine((_, ctx) => {
-        for (const err of [..._rawRootErrors, ..._rawLayoutErrors, ..._rawSourceErrors]) {
+        for (const err of [
+          ..._rawRootErrors,
+          ..._rawLayoutErrors,
+          ..._rawSourceErrors,
+        ]) {
           ctx.addIssue({
             code: 'custom',
             path: err.path,
