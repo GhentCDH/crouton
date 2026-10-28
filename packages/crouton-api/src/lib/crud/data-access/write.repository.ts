@@ -316,7 +316,7 @@ export class WriteRepository<T = unknown> {
         })
       : payload;
 
-    const includeKeys = includeRelationNames(sub.include);
+    const includeKeys = includeRelationNames(sub.childInclude);
     const preparedEntries = prepared as Record<string, unknown>;
     const prismaData = {
       ...Object.fromEntries(
@@ -377,7 +377,7 @@ export class WriteRepository<T = unknown> {
         })
       : normalized;
 
-    const includeKeys = includeRelationNames(sub.include);
+    const includeKeys = includeRelationNames(sub.childInclude);
     const prepared = Object.fromEntries(
       Object.entries(afterHook as Record<string, unknown>).filter(
         ([k, v]) => !includeKeys.has(k) || isPrismaRelationWrite(v),

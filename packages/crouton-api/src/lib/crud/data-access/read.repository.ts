@@ -315,7 +315,7 @@ export class ReadRepository<T = unknown> {
 
   /**
    * Fetch a single record by id.
-   * Sub-resources with `includeInFindOne: true` are eagerly loaded (flat).
+   * Sub-resources with `includeRelationInParentFindOne: true` are eagerly loaded (flat).
    * `config.findAllInclude` entries are loaded with full nesting via `buildIncludeClause`.
    * Resource-level `afterRead` decoration is applied by the factory wrapper.
    * @throws {NotFoundException} When no record exists for the given id.
@@ -488,7 +488,7 @@ export class ReadRepository<T = unknown> {
         [sub.foreignKey]: this.toId(parentId),
       }),
     };
-    const includeClause = buildIncludeClause(sub.include);
+    const includeClause = buildIncludeClause(sub.childInclude);
     const childSort = orderableChildSort(params.sort, childModel, sub);
 
     const [data, count] = await Promise.all([
@@ -591,7 +591,7 @@ export class ReadRepository<T = unknown> {
     if (parentId !== undefined && sub.relationType !== 'manyToMany')
       where[sub.foreignKey] = this.toId(parentId);
 
-    const includeClause = buildIncludeClause(sub.include);
+    const includeClause = buildIncludeClause(sub.childInclude);
     const record = await childModel.findFirst({
       where,
       ...(includeClause && { include: includeClause }),

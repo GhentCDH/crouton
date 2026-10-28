@@ -36,16 +36,16 @@ describe('buildSubResources', () => {
   const parentModel = 'parent';
   const parentDir = '/mock/parent';
 
-  it('visible relation → includeInFindOne: true', () => {
+  it('visible relation → includeRelationInParentFindOne: true', () => {
     const columns = [col({ id: 'author', hiddenInForm: false })];
     const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
-    expect(result[0].includeInFindOne).toBe(true);
+    expect(result[0].includeRelationInParentFindOne).toBe(true);
   });
 
-  it('hidden in both form and view → no includeInFindOne', () => {
+  it('hidden in both form and view → no includeRelationInParentFindOne', () => {
     const columns = [col({ id: 'author', hiddenInForm: true, hiddenInView: true })];
     const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
-    expect(result[0].includeInFindOne).toBeUndefined();
+    expect(result[0].includeRelationInParentFindOne).toBeUndefined();
   });
 
   it('fieldInput.options.sort → findOneOrderBy computed', () => {
@@ -129,7 +129,7 @@ describe('buildSubResources', () => {
   it('no sort → no findOneOrderBy on visible relation', () => {
     const columns = [col({ id: 'tags', hiddenInForm: false })];
     const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
-    expect(result[0].includeInFindOne).toBe(true);
+    expect(result[0].includeRelationInParentFindOne).toBe(true);
     expect(result[0].findOneOrderBy).toBeUndefined();
   });
 });

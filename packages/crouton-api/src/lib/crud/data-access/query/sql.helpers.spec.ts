@@ -37,8 +37,8 @@ const sub = (overrides: Partial<SubResourceConfig>): SubResourceConfig =>
   });
 
 describe('buildFindOneIncludes', () => {
-  it('sub-resources with includeInFindOne only → { rel: true }', () => {
-    const subs = [sub({ relation: 'author', includeInFindOne: true })];
+  it('sub-resources with includeRelationInParentFindOne only → { rel: true }', () => {
+    const subs = [sub({ relation: 'author', includeRelationInParentFindOne: true })];
     expect(buildFindOneIncludes(subs, undefined)).toEqual({ author: true });
   });
 
@@ -46,7 +46,7 @@ describe('buildFindOneIncludes', () => {
     const subs = [
       sub({
         relation: 'items',
-        includeInFindOne: true,
+        includeRelationInParentFindOne: true,
         findOneOrderBy: { title: 'asc' },
       }),
     ];
@@ -56,7 +56,7 @@ describe('buildFindOneIncludes', () => {
   });
 
   it('merge with configInclude → configInclude wins on overlap', () => {
-    const subs = [sub({ relation: 'author', includeInFindOne: true })];
+    const subs = [sub({ relation: 'author', includeRelationInParentFindOne: true })];
     const configInclude = { author: { include: { books: true } } };
     const result = buildFindOneIncludes(subs, configInclude);
     // configInclude spread last → wins
@@ -64,7 +64,7 @@ describe('buildFindOneIncludes', () => {
   });
 
   it('non-overlapping merge', () => {
-    const subs = [sub({ relation: 'tags', includeInFindOne: true })];
+    const subs = [sub({ relation: 'tags', includeRelationInParentFindOne: true })];
     const configInclude = { author: { include: { books: true } } };
     const result = buildFindOneIncludes(subs, configInclude);
     expect(result).toEqual({
@@ -77,8 +77,8 @@ describe('buildFindOneIncludes', () => {
     expect(buildFindOneIncludes([], undefined)).toBeUndefined();
   });
 
-  it('no includeInFindOne subs but has configInclude → configInclude only', () => {
-    const subs = [sub({ relation: 'hidden', includeInFindOne: false })];
+  it('no includeRelationInParentFindOne subs but has configInclude → configInclude only', () => {
+    const subs = [sub({ relation: 'hidden', includeRelationInParentFindOne: false })];
     const configInclude = { author: true };
     expect(buildFindOneIncludes(subs, configInclude)).toEqual({ author: true });
   });
