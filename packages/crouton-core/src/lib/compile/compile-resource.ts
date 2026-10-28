@@ -148,6 +148,7 @@ export const compileResource = (
   );
   // The primary key is a first-class compiled field; `lookup` no longer carries it.
   const idField = enrichedColumns.find((c) => c.idField)?.id ?? 'id';
+  const valueLabelColumns = buildValueLabelColumns(enrichedColumns);
   const findOneOp = json.operations?.findOne;
   const enrichedInclude = enrichIncludeWithSort(
     extractOpInclude(findAll),
@@ -211,7 +212,7 @@ export const compileResource = (
     ...(enrichedFindOneInclude?.length && {
       findOneInclude: enrichedFindOneInclude,
     }),
-    valueLabelColumns: buildValueLabelColumns(enrichedColumns),
+    ...(valueLabelColumns.length && { valueLabelColumns }),
     ...pickExtensions(json),
   };
 };
