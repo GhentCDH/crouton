@@ -8,6 +8,8 @@ import {
   isArrayColumnType,
   isObjectColumnType,
 } from './ColumnType.schema';
+import { invalid } from '../utils/test-utils';
+
 
 describe('ColumnTypeSchema', () => {
   it('accepts every shorthand', () => {
@@ -157,10 +159,10 @@ describe('columnTypeToJsonSchema', () => {
       type: 'object',
       properties: {
         sourceText: {
-          type: {
+          type: invalid<JsonSchemaFragment>({
             type: 'object',
             properties: { id: { type: 'integer' }, label: { type: 'string' } },
-          } as unknown as JsonSchemaFragment,
+          }),
         },
       },
     });

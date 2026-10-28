@@ -184,8 +184,16 @@ describe('loadResourceConfigsFromDir', () => {
     const views = configs[0].views;
     expect(views?.table).toBeDefined();
     expect(views?.form).toBeDefined();
-    expect((views?.table?.json_schema as any).properties.title.type).toBe('string');
-    expect((views?.form?.json_schema as any).properties.count.type).toBe('integer');
+    const tableProps = (views?.table?.json_schema as Record<string, unknown>)['properties'] as Record<
+      string,
+      { type: string }
+    >;
+    const formProps = (views?.form?.json_schema as Record<string, unknown>)['properties'] as Record<
+      string,
+      { type: string }
+    >;
+    expect(tableProps.title.type).toBe('string');
+    expect(formProps.count.type).toBe('integer');
   });
 
   it('records a warning when kind:custom also sets database', async () => {

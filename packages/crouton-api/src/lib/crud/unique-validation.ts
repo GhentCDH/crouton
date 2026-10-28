@@ -18,7 +18,7 @@ import { type Resource } from './resource/ResourceConfig.schema';
 
 /** The resource's columns as a flat array (the compiled config stores them so). */
 const columnsOf = (config: Resource): JsonColumn[] =>
-  (config.columns as unknown as JsonColumn[] | undefined) ?? [];
+  config.columns ?? [];
 
 /** The DB column name backing a resource column (`column` override, else `id`). */
 export const columnDbName = (col: JsonColumn): string => col.column ?? col.id;

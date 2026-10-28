@@ -7,22 +7,25 @@
  *  - Fallback to EN works for missing keys
  */
 import {
+  type TranslationBundle,
   TranslationBundleSchema,
   createTranslator,
 } from '@crouton/i18n';
 import { describe, expect, it } from 'vitest';
 
 
+import { invalid } from '../test-utils';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 
 const _dirname = dirname(fileURLToPath(import.meta.url));
 const bundlePath = resolve(
   _dirname,
   '../../../../../../examples/book-collection/translations/nl.json',
 );
-const nl = JSON.parse(readFileSync(bundlePath, 'utf-8'));
+const nl = invalid<TranslationBundle>(JSON.parse(readFileSync(bundlePath, 'utf-8')));
 
 const en = {
   resources: {

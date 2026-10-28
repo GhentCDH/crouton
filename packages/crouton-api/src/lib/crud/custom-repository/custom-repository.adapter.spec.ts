@@ -7,6 +7,7 @@ import { createCustomRepository } from './custom-repository.adapter';
 import type { CustomRepository } from './custom-repository.types';
 import { fromJson } from '../adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
+import { invalid } from '../test-utils';
 
 const listParams = (over: Record<string, unknown> = {}) => ({
   page: 1,
@@ -39,10 +40,19 @@ const buildConfig = (
 
 const dataSources = { resolve: () => undefined, entries: () => [] };
 
+type FindAllCtx = {
+  op: string;
+  offset: number;
+  prisma: unknown;
+  dataSources: unknown;
+  config: Record<string, unknown>;
+  request?: unknown;
+};
+
 const make = (
   repository: CustomRepository | undefined,
   config: Resource = buildConfig(),
-  prisma: any = undefined,
+  prisma: unknown = undefined,
 ) => createCustomRepository(prisma, config, dataSources, repository);
 
 describe('createCustomRepository', () => {
@@ -66,7 +76,7 @@ describe('createCustomRepository', () => {
 
     it('falls back to the row count when count is missing', async () => {
       const repo = make({
-        findAll: async () => ({ data: [{ id: 'a' }] }) as any,
+        findAll: async () => invalid<{ data: unknown[]; count: number }>({ data: [{ id: 'a' }] }),
       });
       const { count } = await repo.findAllWithCount!(listParams());
       expect(count).toBe(1);
@@ -80,14 +90,13 @@ describe('createCustomRepository', () => {
 
       await repo.findAll(listParams({ page: 3, pageSize: 10 }));
 
-      const [params, ctx] = findAll.mock.calls[0] as any[];
+      const [params, ctx] = invalid<[Record<string, unknown>, FindAllCtx]>(findAll.mock.calls[0]);
       expect(params.page).toBe(3);
       expect(ctx.op).toBe('findAll');
       expect(ctx.offset).toBe(20);
       expect(ctx.prisma).toBe(prisma);
       expect(ctx.dataSources).toBe(dataSources);
-      expect(ctx.config.name).toBe('zotero_item');
-    });
+      expect(ctx.config.name).toBe('zotero_item');    });
 
     it('forwards the HTTP request into ctx', async () => {
       const findAll = vi.fn(async () => ({ data: [], count: 0 }));
@@ -96,7 +105,7 @@ describe('createCustomRepository', () => {
 
       await repo.findAll(listParams(), request);
 
-      const [, ctx] = findAll.mock.calls[0] as any[];
+      const [, ctx] = invalid<[unknown, FindAllCtx]>(findAll.mock.calls[0]);
       expect(ctx.request).toBe(request);
     });
 
@@ -106,7 +115,7 @@ describe('createCustomRepository', () => {
 
       await repo.findAll(listParams());
 
-      const [, ctx] = findAll.mock.calls[0] as any[];
+      const [, ctx] = invalid<[unknown, FindAllCtx]>(findAll.mock.calls[0]);
       expect('request' in ctx).toBe(false);
     });
 
@@ -114,7 +123,7 @@ describe('createCustomRepository', () => {
       const findAll = vi.fn(async () => ({ data: [], count: 7 }));
       const repo = make({ findAll });
       await expect(repo.count(['title:foo'])).resolves.toBe(7);
-      const [params] = findAll.mock.calls[0] as any[];
+      const [params] = invalid<[Record<string, unknown>]>(findAll.mock.calls[0]);
       expect(params.filter).toEqual(['title:foo']);
     });
   });
@@ -136,20 +145,20 @@ describe('createCustomRepository', () => {
     });
 
     it('forwards the request into ctx', async () => {
-      const findOne = vi.fn(async (id: any) => ({ id }));
+      const findOne = vi.fn(async (id: string | number) => ({ id }));
       const request = { user: { id: 'u1' } };
       await make({ findOne }).findOne('abc', request);
-      expect((findOne.mock.calls[0] as any[])[1].request).toBe(request);
+      expect(((findOne.mock.calls[0] as unknown[])[1] as Record<string, unknown>)['request']).toBe(request);
     });
 
     it('coerces the id per idType', async () => {
-      const findOne = vi.fn(async (id) => ({ id }));
+      const findOne = vi.fn(async (id: string | number) => ({ id }));
       const numeric = buildConfig({ source: { idType: 'number' } });
       await make({ findOne }, numeric).findOne('42');
       expect(findOne.mock.calls[0][0]).toBe(42);
 
-      const findOneStr = vi.fn(async (id) => ({ id }));
-      await make({ findOne: findOneStr }).findOne(42 as any);
+      const findOneStr = vi.fn(async (id: string | number) => ({ id }));
+      await make({ findOne: findOneStr }).findOne(42);
       expect(findOneStr.mock.calls[0][0]).toBe('42');
     });
   });
@@ -157,9 +166,9 @@ describe('createCustomRepository', () => {
   describe('writes', () => {
     it('routes create/update/delete to the repository', async () => {
       const repository = {
-        create: vi.fn(async (data) => ({ id: 'new', ...data })),
-        update: vi.fn(async (id, data) => ({ id, ...data })),
-        delete: vi.fn(async (id) => ({ id })),
+        create: vi.fn(async (data: unknown) => ({ id: 'new', ...(data as Record<string, unknown>) })),
+        update: vi.fn(async (id: string | number, data: unknown) => ({ id, ...(data as Record<string, unknown>) })),
+        delete: vi.fn(async (id: string | number) => ({ id })),
       };
       const repo = make(repository);
 
@@ -175,32 +184,32 @@ describe('createCustomRepository', () => {
     });
 
     it('forwards the request into ctx and into the write hooks', async () => {
-      const seen: any[] = [];
+      const seen: unknown[] = [];
       const config = buildConfig(
         {},
         {
-          beforeWrite: (data: any, ctx: any) => {
-            seen.push(ctx.request);
+          beforeWrite: (data: unknown, ctx: unknown) => {
+            seen.push((ctx as Record<string, unknown>)['request']);
             return data;
           },
-          afterWrite: (result: any, ctx: any) => {
-            seen.push(ctx.request);
+          afterWrite: (result: unknown, ctx: unknown) => {
+            seen.push((ctx as Record<string, unknown>)['request']);
             return result;
           },
         },
       );
-      const create = vi.fn(async (data: any) => data);
+      const create = vi.fn(async (data: Record<string, unknown>) => data);
       const request = { user: { id: 'u1' } };
 
       await make({ create }, config).create({ title: 'a' }, request);
 
       // beforeWrite, the repository's own ctx, and afterWrite all see it.
-      expect((create.mock.calls[0] as any[])[1].request).toBe(request);
+      expect(((create.mock.calls[0] as unknown[])[1] as Record<string, unknown>)['request']).toBe(request);
       expect(seen).toEqual([request, request]);
     });
 
     it('falls back to update when patch is not implemented', async () => {
-      const update = vi.fn(async (id: any, data: any, ctx: any) => ({
+      const update = vi.fn(async (id: unknown, data: Record<string, unknown>, ctx: unknown) => ({
         id,
         ...data,
         ctx,
@@ -209,12 +218,12 @@ describe('createCustomRepository', () => {
       await repo.patch('1', { title: 'b' });
       expect(update).toHaveBeenCalledTimes(1);
       // The op reported to the repository is the one that was actually called.
-      expect(update.mock.calls[0]![2].op).toBe('patch');
+      expect(((update.mock.calls[0]![2]) as Record<string, unknown>)['op']).toBe('patch');
     });
 
     it('prefers patch when implemented', async () => {
-      const patch = vi.fn(async (id, data) => ({ id, ...data }));
-      const update = vi.fn(async (id, data) => ({ id, ...data }));
+      const patch = vi.fn(async (id: string | number, data: unknown) => ({ id, ...(data as Record<string, unknown>) }));
+      const update = vi.fn(async (id: string | number, data: unknown) => ({ id, ...(data as Record<string, unknown>) }));
       const repo = make({ patch, update });
       await repo.patch('1', { title: 'b' });
       expect(patch).toHaveBeenCalledTimes(1);
@@ -225,7 +234,7 @@ describe('createCustomRepository', () => {
   describe('hooks', () => {
     it('applies afterRead to every listed row', async () => {
       const config = buildConfig({}, {
-        afterRead: (row: any) => ({ ...row, seen: true }),
+        afterRead: (row: unknown) => ({ ...(row as Record<string, unknown>), seen: true }),
       });
       const repo = make(
         { findAll: async () => ({ data: [{ id: 'a' }, { id: 'b' }], count: 2 }) },
@@ -240,7 +249,7 @@ describe('createCustomRepository', () => {
 
     it('applies afterRead to a single row', async () => {
       const config = buildConfig({}, {
-        afterRead: (row: any) => ({ ...row, seen: true }),
+        afterRead: (row: unknown) => ({ ...(row as Record<string, unknown>), seen: true }),
       });
       const repo = make({ findOne: async (id) => ({ id }) }, config);
       await expect(repo.findOne('a')).resolves.toEqual({
@@ -251,10 +260,10 @@ describe('createCustomRepository', () => {
 
     it('applies beforeWrite and afterWrite around a create', async () => {
       const config = buildConfig({}, {
-        beforeWrite: (data: any) => ({ ...data, slug: 'from-hook' }),
-        afterWrite: (result: any) => ({ ...result, wrote: true }),
+        beforeWrite: (data: unknown) => ({ ...(data as Record<string, unknown>), slug: 'from-hook' }),
+        afterWrite: (result: unknown) => ({ ...(result as Record<string, unknown>), wrote: true }),
       });
-      const create = vi.fn(async (data) => data);
+      const create = vi.fn(async (data: unknown) => data);
       const repo = make({ create }, config);
 
       await expect(repo.create({ title: 'a' })).resolves.toEqual({

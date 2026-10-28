@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
+import type { Row } from '@ghentcdh/crouton-core';
 
-import { createCrudRepository } from '../data-access/repository';
+import { type CrudRepository, createCrudRepository } from '../data-access/repository';
 import { loadResourceConfigsFromDir } from '../loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -42,7 +45,7 @@ const child = (name: string, model: string) => ({
 
 describe('_count skips relations hidden from the table', () => {
   let tempDir: string;
-  let queries: any[];
+  let queries: Record<string, unknown>[];
 
   const boot = async (columns: Record<string, unknown>) => {
     mkdirSync(join(tempDir, 'groups', 'expenses'), { recursive: true });
@@ -72,30 +75,31 @@ describe('_count skips relations hidden from the table', () => {
     const config = configs.find((c) => c.name === 'groups');
 
     queries = [];
-    const prisma: any = {
+    const prisma = {
       Group: {
-        findMany: async (q: any) => {
+        findMany: async (q: Record<string, unknown>) => {
           queries.push(q);
           return [{ id: 'g1', name: 'Trip', _count: { expenses: 3, members: 2 } }];
         },
         count: async () => 1,
       },
     };
-    return createCrudRepository(prisma, config as any);
+    return createCrudRepository(prisma, invalid<Resource>(config));
   };
 
-  const list = (repo: any) =>
+  const list = (repo: CrudRepository<Row>) =>
     repo.findAll({
       page: 1,
       pageSize: 20,
       sort: 'id',
       sortDir: 'asc',
       filter: [],
+      include: [],
     });
 
   const countOf = () => {
     const q = queries[0];
-    return q.select?._count ?? q.include?._count ?? q._count;
+    return (q['select'] as Record<string, unknown> | undefined)?.['_count'] ?? (q['include'] as Record<string, unknown> | undefined)?.['_count'] ?? q['_count'];
   };
 
   beforeEach(() => {
@@ -112,7 +116,7 @@ describe('_count skips relations hidden from the table', () => {
       expenses: relation('./expenses/resource.json', false),
     });
     await list(repo);
-    expect(Object.keys(countOf().select)).toEqual(['expenses']);
+    expect(Object.keys((countOf() as Record<string, unknown>)['select'] as Record<string, unknown>)).toEqual(['expenses']);
   });
 
   it('does not count a hidden one', async () => {
@@ -121,7 +125,7 @@ describe('_count skips relations hidden from the table', () => {
       members: relation('./members/resource.json', false),
     });
     await list(repo);
-    expect(Object.keys(countOf().select)).toEqual(['members']);
+    expect(Object.keys((countOf() as Record<string, unknown>)['select'] as Record<string, unknown>)).toEqual(['members']);
   });
 
   it('leaves _count off the query entirely when every relation is hidden', async () => {
@@ -138,7 +142,7 @@ describe('_count skips relations hidden from the table', () => {
       expenses: relation('./expenses/resource.json', true),
       members: relation('./members/resource.json', false),
     });
-    const rows: any[] = await list(repo);
+    const rows = await list(repo) as Record<string, unknown>[];
     expect(rows[0]).not.toHaveProperty('expenses');
     expect(rows[0].members).toBe(2);
   });
@@ -147,7 +151,7 @@ describe('_count skips relations hidden from the table', () => {
     const repo = await boot({
       members: relation('./members/resource.json', false),
     });
-    const rows: any[] = await list(repo);
+    const rows = await list(repo) as Record<string, unknown>[];
     expect(rows[0]).not.toHaveProperty('_count');
   });
 });

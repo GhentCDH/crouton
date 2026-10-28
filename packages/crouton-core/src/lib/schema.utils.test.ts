@@ -1,10 +1,11 @@
+import type { JsonSchema } from '@jsonforms/core';
 import { describe, expect, it } from 'vitest';
 
 import { enforceRequiredStringMinLength, makeOptionalPropertiesNullable } from './schema.utils';
 
 describe('enforceRequiredStringMinLength', () => {
   it('returns schema unchanged when there are no properties', () => {
-    const schema = { type: 'object' } as any;
+    const schema = { type: 'object' } as JsonSchema;
     expect(enforceRequiredStringMinLength(schema)).toBe(schema);
   });
 
@@ -13,9 +14,9 @@ describe('enforceRequiredStringMinLength', () => {
       type: 'object',
       properties: { name: { type: 'string' } },
       required: ['name'],
-    } as any;
+    } as JsonSchema;
     const result = enforceRequiredStringMinLength(schema);
-    expect(result.properties.name.minLength).toBe(1);
+    expect(result.properties?.name.minLength).toBe(1);
   });
 
   it('adds minLength: 1 to an optional string field (not in required)', () => {
@@ -23,9 +24,9 @@ describe('enforceRequiredStringMinLength', () => {
       type: 'object',
       properties: { desc: { type: 'string' } },
       required: [],
-    } as any;
+    } as JsonSchema;
     const result = enforceRequiredStringMinLength(schema);
-    expect(result.properties.desc.minLength).toBe(1);
+    expect(result.properties?.desc.minLength).toBe(1);
   });
 
   it('adds minLength: 1 to a nullable string field removed from required', () => {
@@ -35,9 +36,9 @@ describe('enforceRequiredStringMinLength', () => {
       type: 'object',
       properties: { email: { type: 'string' } },
       required: [], // removed because it was nullable
-    } as any;
+    } as JsonSchema;
     const result = enforceRequiredStringMinLength(schema);
-    expect(result.properties.email.minLength).toBe(1);
+    expect(result.properties?.email.minLength).toBe(1);
   });
 
   it('does not overwrite an explicit minLength already set', () => {
@@ -45,9 +46,9 @@ describe('enforceRequiredStringMinLength', () => {
       type: 'object',
       properties: { code: { type: 'string', minLength: 3 } },
       required: ['code'],
-    } as any;
+    } as JsonSchema;
     const result = enforceRequiredStringMinLength(schema);
-    expect(result.properties.code.minLength).toBe(3);
+    expect(result.properties?.code.minLength).toBe(3);
   });
 
   it('does not add minLength to non-string fields', () => {
@@ -58,10 +59,10 @@ describe('enforceRequiredStringMinLength', () => {
         active: { type: 'boolean' },
       },
       required: ['count', 'active'],
-    } as any;
+    } as JsonSchema;
     const result = enforceRequiredStringMinLength(schema);
-    expect(result.properties.count.minLength).toBeUndefined();
-    expect(result.properties.active.minLength).toBeUndefined();
+    expect(result.properties?.count.minLength).toBeUndefined();
+    expect(result.properties?.active.minLength).toBeUndefined();
   });
 
   it('returns the same reference when nothing changed', () => {
@@ -69,7 +70,7 @@ describe('enforceRequiredStringMinLength', () => {
       type: 'object',
       properties: { count: { type: 'number' } },
       required: [],
-    } as any;
+    } as JsonSchema;
     expect(enforceRequiredStringMinLength(schema)).toBe(schema);
   });
 
@@ -83,15 +84,15 @@ describe('enforceRequiredStringMinLength', () => {
           required: ['city'],
         },
       },
-    } as any;
+    } as JsonSchema;
     const result = enforceRequiredStringMinLength(schema);
-    expect(result.properties.address.properties.city.minLength).toBe(1);
+    expect(result.properties?.address?.properties?.city.minLength).toBe(1);
   });
 });
 
 describe('makeOptionalPropertiesNullable', () => {
   it('returns schema unchanged when there are no properties', () => {
-    const schema = { type: 'object' } as any;
+    const schema = { type: 'object' } as JsonSchema;
     expect(makeOptionalPropertiesNullable(schema)).toBe(schema);
   });
 
@@ -99,9 +100,9 @@ describe('makeOptionalPropertiesNullable', () => {
     const schema = {
       type: 'object',
       properties: { accentuation: { type: 'object' } },
-    } as any;
+    } as JsonSchema;
     const result = makeOptionalPropertiesNullable(schema);
-    expect(result.properties.accentuation.type).toEqual(['object', 'null']);
+    expect(result.properties?.accentuation.type).toEqual(['object', 'null']);
   });
 
   it('does not change a required property', () => {
@@ -109,16 +110,16 @@ describe('makeOptionalPropertiesNullable', () => {
       type: 'object',
       properties: { name: { type: 'string' } },
       required: ['name'],
-    } as any;
+    } as JsonSchema;
     const result = makeOptionalPropertiesNullable(schema);
-    expect(result.properties.name.type).toBe('string');
+    expect(result.properties?.name.type).toBe('string');
   });
 
   it('does not double-add null when property is already nullable', () => {
     const schema = {
       type: 'object',
       properties: { tag: { type: ['string', 'null'] } },
-    } as any;
+    } as JsonSchema;
     const result = makeOptionalPropertiesNullable(schema);
     expect(result).toBe(schema); // unchanged reference
   });
@@ -133,9 +134,9 @@ describe('makeOptionalPropertiesNullable', () => {
           required: ['city'],
         },
       },
-    } as any;
+    } as JsonSchema;
     // address is optional at top level → gets null added; city inside is required → unchanged
     const result = makeOptionalPropertiesNullable(schema);
-    expect(result.properties.address.type).toEqual(['object', 'null']);
+    expect(result.properties?.address.type).toEqual(['object', 'null']);
   });
 });

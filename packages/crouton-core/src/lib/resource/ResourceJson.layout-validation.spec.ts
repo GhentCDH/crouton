@@ -14,9 +14,6 @@ const base = {
   },
 };
 
-const issuePaths = (result: { error?: { issues: { path: unknown[] }[] } }) =>
-  (result.error?.issues ?? []).map((i) => i.path.join('.'));
-
 const issueMessages = (result: { error?: { issues: { message: string }[] } }) =>
   (result.error?.issues ?? []).map((i) => i.message);
 

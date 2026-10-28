@@ -63,7 +63,7 @@ describe('a relation column that does not resolve to a child config', () => {
 
   const load = async () => {
     const configs = await loadResourceConfigsFromDir(tempDir, '/api');
-    return configs.find((c) => c.name === 'groups') as any;
+    return configs.find((c) => c.name === 'groups') as Record<string, unknown>;
   };
 
   beforeEach(() => {
@@ -90,7 +90,7 @@ describe('a relation column that does not resolve to a child config', () => {
   it('registers no sub-resource rather than inventing a Prisma model', async () => {
     writeParent('./expense/resource.json');
     const parent = await load();
-    expect(parent.subResources ?? []).toHaveLength(0);
+    expect(parent?.subResources ?? []).toHaveLength(0);
   });
 
   it('reports a child that exists but does not parse', async () => {
@@ -102,7 +102,7 @@ describe('a relation column that does not resolve to a child config', () => {
     );
     const parent = await load();
 
-    expect(parent.subResources ?? []).toHaveLength(0);
+    expect(parent?.subResources ?? []).toHaveLength(0);
     const error = resourceLoadErrorsRegistry
       .getAll()
       .find((e) => e.error.includes('could not be read'));
@@ -114,7 +114,7 @@ describe('a relation column that does not resolve to a child config', () => {
     const parent = await load();
 
     expect(resourceLoadErrorsRegistry.getAll()).toEqual([]);
-    expect(parent.subResources ?? []).toHaveLength(0);
+    expect(parent?.subResources ?? []).toHaveLength(0);
   });
 });
 
@@ -164,7 +164,7 @@ describe('a child nested both ways at once', () => {
 
   it('does not register the competing sub-resource route', async () => {
     const configs = await loadResourceConfigsFromDir(tempDir, '/api');
-    const parent: any = configs.find((c) => c.name === 'groups');
-    expect(parent.subResources ?? []).toHaveLength(0);
+    const parent = configs.find((c) => c.name === 'groups');
+    expect(parent?.subResources ?? []).toHaveLength(0);
   });
 });

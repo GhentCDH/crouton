@@ -8,6 +8,7 @@ import { ResourceJsonSchema,
 
 import { fromJson } from './adapter';
 import { parseSchema } from './parse-schema';
+import { invalid } from './test-utils';
 
 const BASE_URL = 'http://localhost:3000';
 const APP_CONFIG = { baseUrl: BASE_URL };
@@ -90,7 +91,7 @@ describe('parseSchema', () => {
       { baseUrl: BASE_URL, schemaEnricher: () => ({ extra: 'injected' }) },
       'schemas',
     );
-    expect((result as any)?.extra).toBe('injected');
+    expect((result as Record<string, unknown>)?.extra).toBe('injected');
   });
 
   it('extensions reflected via registerResourceExtensions', () => {
@@ -116,7 +117,7 @@ describe('parseSchema', () => {
     });
     const resource = fromJson(noViewsJson, undefined, undefined);
     // Manually wipe views to simulate a no-views Resource
-    const result = buildViewsPayload({ ...resource, views: undefined } as any, BASE_URL);
+    const result = buildViewsPayload(invalid<typeof resource>({ ...resource, views: undefined }), BASE_URL);
     expect(result).toBeUndefined();
   });
 

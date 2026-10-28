@@ -7,6 +7,10 @@ import {
   registerResourceExtension,
   registerResourceExtensions,
 } from './extensions';
+import { invalid } from '../utils/test-utils';
+
+const extensionsOf = (data: unknown) =>
+  invalid<Record<string, unknown> | undefined>(data)?.['extensions'];
 
 const base = {
   name: 'item',
@@ -34,7 +38,7 @@ describe('registerResourceExtension', () => {
     const result = schema.safeParse({ ...base, annotation: { color: '#fff' } });
     expect(result.success).toBe(true);
     expect((result.data as Record<string, unknown>)?.['annotation']).toEqual({ color: '#fff' });
-    expect(result.data?.['extensions']).toBeUndefined();
+    expect(extensionsOf(result.data)).toBeUndefined();
   });
 });
 
@@ -42,7 +46,7 @@ describe('buildResourceJsonSchema', () => {
   it('strips an unregistered top-level key silently (backward compat)', () => {
     const result = ResourceJsonSchema.safeParse({ ...base, annotation: { color: '#fff' } });
     expect(result.success).toBe(true);
-    expect(result.data?.extensions).toBeUndefined();
+    expect(extensionsOf(result.data)).toBeUndefined();
   });
 
   it('still surfaces core key typos (typo protection intact)', () => {
@@ -81,6 +85,6 @@ describe('buildResourceJsonSchema', () => {
   it('backward-compat: no extension registered ⇒ no extensions field', () => {
     const result = ResourceJsonSchema.safeParse({ ...base });
     expect(result.success).toBe(true);
-    expect(result.data?.extensions).toBeUndefined();
+    expect(extensionsOf(result.data)).toBeUndefined();
   });
 });

@@ -3,11 +3,18 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
 import { createCrudController } from '../../../crud-controller.factory';
+import type { DataSourceRegistry } from '../../../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../../../loader';
+import type { Resource } from '../../../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../../../resource/resource-load-errors.registry';
+import type { ResourceConfigRegistry } from '../../../resource-config.registry';
+import { invalid } from '../../../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+type MockController = Record<string, (...args: unknown[]) => Promise<unknown>>;
+type CapturedHook = { where: string; op?: string; parent?: { route?: string; param?: string; id?: string } };
 
 /**
  * A hook on a nested resource needs the parent id — an expense's `beforeWrite`
@@ -21,7 +28,7 @@ import { join } from 'node:path';
  * identically.
  */
 
-const CAPTURED: any[] = [];
+const CAPTURED: CapturedHook[] = [];
 
 const HOOKS = `export default {
   beforeWrite: async (data, ctx) => {
@@ -70,16 +77,16 @@ describe('ctx.parent on a nested hook', () => {
     tempDir = mkdtempSync(join(tmpdir(), 'crouton-parent-hook-'));
     resourceLoadErrorsRegistry.clear();
     CAPTURED.length = 0;
-    (globalThis as any).__CAPTURED__ = CAPTURED;
+    (globalThis as Record<string, unknown>)['__CAPTURED__'] = CAPTURED;
   });
 
   afterEach(() => {
     rmSync(tempDir, { recursive: true, force: true });
-    delete (globalThis as any).__CAPTURED__;
+    delete (globalThis as Record<string, unknown>)['__CAPTURED__'];
   });
 
   describe('a custom sub-resource under a prisma parent', () => {
-    let controller: any;
+    let controller: MockController;
 
     beforeEach(async () => {
       const expenseDir = join(tempDir, 'groups', 'expense');
@@ -112,14 +119,12 @@ describe('ctx.parent on a nested hook', () => {
 
       const configs = await loadResourceConfigsFromDir(tempDir, '/api');
       const parent = configs.find((c) => c.name === 'groups');
-      const Cls = createCrudController(parent as any, '/api');
-      const prisma: any = {
-        Group: { findMany: async () => [], count: async () => 0 },
-      };
+      const Cls = createCrudController(invalid<Resource>(parent), '/api');
+      const prisma = { Group: { findMany: async () => [], count: async () => 0 } };
       controller = new Cls(
-        { resolve: () => prisma, entries: () => [] } as any,
-        { getByRoute: async () => undefined } as any,
-      );
+        invalid<DataSourceRegistry>({ resolve: () => prisma, entries: () => [] }),
+        invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+      ) as MockController;
     });
 
     it('gives beforeWrite the parent id on create', async () => {
@@ -131,7 +136,7 @@ describe('ctx.parent on a nested hook', () => {
         },
       );
       const hook = CAPTURED.find((c) => c.where === 'beforeWrite');
-      expect(hook.parent).toEqual({ route: 'groups', param: 'id', id: 'g1' });
+      expect(hook?.parent).toEqual({ route: 'groups', param: 'id', id: 'g1' });
     });
 
     it('gives beforeWrite the parent id on update', async () => {
@@ -144,7 +149,7 @@ describe('ctx.parent on a nested hook', () => {
         },
       );
       const hook = CAPTURED.find((c) => c.where === 'beforeWrite');
-      expect(hook.parent.id).toBe('g1');
+      expect(hook?.parent?.id).toBe('g1');
     });
 
     it('gives afterRead the parent id on a child list', async () => {
@@ -168,7 +173,7 @@ describe('ctx.parent on a nested hook', () => {
   });
 
   describe('a resource that declares its own parent', () => {
-    let controller: any;
+    let controller: MockController;
 
     beforeEach(async () => {
       const dir = join(tempDir, 'expense');
@@ -184,17 +189,17 @@ describe('ctx.parent on a nested hook', () => {
       writeFileSync(join(dir, 'hooks.ts'), HOOKS);
 
       const [config] = await loadResourceConfigsFromDir(tempDir, '/api');
-      const Cls = createCrudController(config as any, '/api');
+      const Cls = createCrudController(invalid<Resource>(config), '/api');
       controller = new Cls(
-        { resolve: () => undefined, entries: () => [] } as any,
-        { getByRoute: async () => undefined } as any,
-      );
+        invalid<DataSourceRegistry>({ resolve: () => undefined, entries: () => [] }),
+        invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+      ) as MockController;
     });
 
     it('names the param the resource chose, not `id`', async () => {
       await controller.create({ label: 'x' }, { params: { groupId: 'g7' } });
       const hook = CAPTURED.find((c) => c.where === 'beforeWrite');
-      expect(hook.parent).toEqual({
+      expect(hook?.parent).toEqual({
         route: 'groups',
         param: 'groupId',
         id: 'g7',
@@ -204,7 +209,7 @@ describe('ctx.parent on a nested hook', () => {
     it('reaches afterRead too', async () => {
       await controller.findOne('e1', { params: { groupId: 'g7' } });
       const hook = CAPTURED.find((c) => c.where === 'afterRead');
-      expect(hook.parent.id).toBe('g7');
+      expect(hook?.parent?.id).toBe('g7');
     });
   });
 
@@ -220,15 +225,15 @@ describe('ctx.parent on a nested hook', () => {
       writeFileSync(join(dir, 'hooks.ts'), HOOKS);
 
       const [config] = await loadResourceConfigsFromDir(tempDir, '/api');
-      const Cls = createCrudController(config as any, '/api');
-      const controller: any = new Cls(
-        { resolve: () => undefined, entries: () => [] } as any,
-        { getByRoute: async () => undefined } as any,
-      );
+      const Cls = createCrudController(invalid<Resource>(config), '/api');
+      const controller = new Cls(
+        invalid<DataSourceRegistry>({ resolve: () => undefined, entries: () => [] }),
+        invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+      ) as MockController;
 
       await controller.create({ label: 'x' }, { params: {} });
       const hook = CAPTURED.find((c) => c.where === 'beforeWrite');
-      expect(hook.parent).toBeUndefined();
+      expect(hook?.parent).toBeUndefined();
     });
   });
 });
@@ -283,29 +288,27 @@ describe('sub-resource hook discovery', () => {
   const marker = (tag: string) =>
     `export default { beforeWrite: async (d, ctx) => { globalThis.__CAPTURED__.push({ where: '${tag}', parent: ctx.parent }); return d; } };`;
 
-  const boot = async () => {
+  const boot = async (): Promise<MockController> => {
     const configs = await loadResourceConfigsFromDir(tempDir, '/api');
     const parent = configs.find((c) => c.name === 'groups');
-    const Cls = createCrudController(parent as any, '/api');
-    const prisma: any = {
-      Group: { findMany: async () => [], count: async () => 0 },
-    };
+    const Cls = createCrudController(invalid<Resource>(parent), '/api');
+    const prisma = { Group: { findMany: async () => [], count: async () => 0 } };
     return new Cls(
-      { resolve: () => prisma, entries: () => [] } as any,
-      { getByRoute: async () => undefined } as any,
-    ) as any;
+      invalid<DataSourceRegistry>({ resolve: () => prisma, entries: () => [] }),
+      invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+    ) as MockController;
   };
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), 'crouton-hook-discovery-'));
     resourceLoadErrorsRegistry.clear();
     CAPTURED.length = 0;
-    (globalThis as any).__CAPTURED__ = CAPTURED;
+    (globalThis as Record<string, unknown>)['__CAPTURED__'] = CAPTURED;
   });
 
   afterEach(() => {
     rmSync(tempDir, { recursive: true, force: true });
-    delete (globalThis as any).__CAPTURED__;
+    delete (globalThis as Record<string, unknown>)['__CAPTURED__'];
   });
 
   it('finds hooks.ts in the child`s own directory', async () => {

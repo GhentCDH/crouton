@@ -3,12 +3,21 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
 import { createCrudController } from '../crud-controller.factory';
+import type { DataSourceRegistry } from '../data-access/adapter';
 import { createCrudRepository } from '../data-access/repository';
 import { loadResourceConfigsFromDir } from '../loader';
+import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+type MockController = Record<
+  string,
+  (...args: unknown[]) => Promise<Record<string, unknown>>
+>;
 
 /**
  * A `kind: "custom"` child declared by a relation column on a prisma parent is a
@@ -57,8 +66,8 @@ const MINIMAL_COLUMN = {
 
 describe('a custom child is a route, not a Prisma relation', () => {
   let tempDir: string;
-  let queries: any[];
-  let parent: any;
+  let queries: Record<string, unknown>[];
+  let parent: Resource;
 
   const boot = async (column: Record<string, unknown>, include?: unknown[]) => {
     mkdirSync(join(tempDir, 'groups', 'expense'), { recursive: true });
@@ -86,23 +95,23 @@ describe('a custom child is a route, not a Prisma relation', () => {
     );
 
     const configs = await loadResourceConfigsFromDir(tempDir, '/api');
-    parent = configs.find((c) => c.name === 'groups');
+    parent = configs.find((c) => c.name === 'groups') as Resource;
 
     queries = [];
-    const prisma: any = {
+    const prisma = {
       Group: {
-        findMany: async (q: any) => {
+        findMany: async (q: Record<string, unknown>) => {
           queries.push(q);
           return [{ id: 'g1', name: 'Trip' }];
         },
-        findUnique: async (q: any) => {
+        findUnique: async (q: Record<string, unknown>) => {
           queries.push(q);
           return { id: 'g1', name: 'Trip' };
         },
         count: async () => 1,
       },
     };
-    return { prisma, repo: createCrudRepository(prisma, parent as any) };
+    return { prisma, repo: createCrudRepository(prisma, parent) };
   };
 
   const listParams = {
@@ -136,10 +145,10 @@ describe('a custom child is a route, not a Prisma relation', () => {
     it('registers the child routes on the parent controller', async () => {
       const { prisma } = await boot(MINIMAL_COLUMN);
       const Cls = createCrudController(parent, '/api');
-      const controller: any = new Cls(
-        { resolve: () => prisma, entries: () => [] } as any,
-        { getByRoute: async () => undefined } as any,
-      );
+      const controller = new Cls(
+        invalid<DataSourceRegistry>({ resolve: () => prisma, entries: () => [] }),
+        invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+      ) as MockController;
       const methods = Object.getOwnPropertyNames(
         Object.getPrototypeOf(controller),
       );
@@ -153,21 +162,22 @@ describe('a custom child is a route, not a Prisma relation', () => {
     it('leaves it out of _count even when visible in the table', async () => {
       const { repo } = await boot(MINIMAL_COLUMN);
       await repo.findAll(listParams);
-      const count = queries[0].select?._count ?? queries[0]._count;
+      const q: Record<string, unknown> = queries[0];
+      const count = (q['select'] as Record<string, unknown> | undefined)?.['_count'] ?? q['_count'];
       expect(count).toBeUndefined();
     });
 
     it('leaves it out of include', async () => {
       const { repo } = await boot(MINIMAL_COLUMN);
       await repo.findAll(listParams);
-      expect(queries[0].include).toBeUndefined();
+      expect(queries[0]['include']).toBeUndefined();
     });
 
     it('drops it from an explicit config include rather than failing the query', async () => {
       const { repo } = await boot(MINIMAL_COLUMN, ['expense']);
       await repo.findAll(listParams);
-      const include = queries[0].include ?? queries[0].select;
-      expect(include?.expense).toBeUndefined();
+      const include = (queries[0]['include'] ?? queries[0]['select']) as Record<string, unknown> | undefined;
+      expect(include?.['expense']).toBeUndefined();
     });
   });
 
@@ -179,9 +189,9 @@ describe('a custom child is a route, not a Prisma relation', () => {
         hiddenInView: false,
       });
       await repo.findOne('g1');
-      const q = queries[0];
-      expect(q.include?.expense).toBeUndefined();
-      expect(q.select?.expense).toBeUndefined();
+      const q: Record<string, unknown> = queries[0];
+      expect((q['include'] as Record<string, unknown> | undefined)?.['expense']).toBeUndefined();
+      expect((q['select'] as Record<string, unknown> | undefined)?.['expense']).toBeUndefined();
     });
   });
 
@@ -189,15 +199,15 @@ describe('a custom child is a route, not a Prisma relation', () => {
     it('lists through findAllByParent', async () => {
       await boot(MINIMAL_COLUMN);
       const Cls = createCrudController(parent, '/api');
-      const controller: any = new Cls(
-        {
+      const controller = new Cls(
+        invalid<DataSourceRegistry>({
           resolve: () => ({
             Group: { findMany: async () => [], count: async () => 0 },
           }),
           entries: () => [],
-        } as any,
-        { getByRoute: async () => undefined } as any,
-      );
+        }),
+        invalid<ResourceConfigRegistry>({ getByRoute: async () => undefined }),
+      ) as MockController;
       const result = await controller.findAllBy_expense(
         listParams,
         undefined,

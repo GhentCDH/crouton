@@ -6,6 +6,9 @@ import {
   buildResourceOperations, resolveDefinition 
 } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../test-utils';
+
+
 
 const BASE = 'http://host/example';
 
@@ -22,7 +25,7 @@ describe('external uri — end-to-end', () => {
 
     const definition = buildResourceDefinitions(undefined, ops, undefined);
     const result = buildResourceOperations(
-      resolveDefinition({ definition } as any),
+      resolveDefinition(invalid<Parameters<typeof resolveDefinition>[0]>({ definition })),
       BASE,
     );
 
@@ -40,7 +43,7 @@ describe('external uri — end-to-end', () => {
     });
     const definition = buildResourceDefinitions(undefined, ops, undefined);
     const result = buildResourceOperations(
-      resolveDefinition({ definition } as any),
+      resolveDefinition(invalid<Parameters<typeof resolveDefinition>[0]>({ definition })),
       BASE,
     );
 

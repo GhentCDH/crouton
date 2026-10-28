@@ -2,8 +2,9 @@ import type { JsonSchema } from '@jsonforms/core';
 import { describe, expect, it } from 'vitest';
 
 import { findProperty } from './schema.utils';
+import { invalid } from './utils/test-utils';
 
-const schema = {
+const schema = invalid<JsonSchema>({
   type: 'object',
   properties: {
     title: { type: 'string', title: 'Title' },
@@ -18,7 +19,7 @@ const schema = {
       },
     },
   },
-} as unknown as JsonSchema;
+});
 
 describe('findProperty', () => {
   it('resolves a top-level scope', () => {

@@ -3,8 +3,13 @@ import { z } from 'zod';
 
 import { columnTypeSchemaSource, fixNestedUiSchemaScopes, nestedColumnSchemaSource } from './column-type-schema.source';
 import { zodSchemaSource } from './view.builder';
+import type { ViewConfig } from './view.schema';
 import { buildLayouts } from '../layout';
 import type { JsonColumn } from '../resource/Column';
+import { invalid } from '../utils/test-utils';
+
+const propsOf = (views: Record<string, ViewConfig>, view = 'form'): Record<string, Record<string, unknown>> =>
+  (views?.[view]?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
 
 /**
  * `required` on a column.
@@ -19,7 +24,7 @@ import type { JsonColumn } from '../resource/Column';
  */
 
 const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
-  ({
+  invalid<JsonColumn>({
     hiddenInForm: false,
     hiddenInTable: false,
     hiddenInView: false,
@@ -27,10 +32,10 @@ const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
     updateable: true,
     idField: false,
     ...overrides,
-  }) as JsonColumn;
+  });
 
-const required = (views: Record<string, any> | undefined, view = 'form') =>
-  views?.[view]?.json_schema?.required;
+const required = (views: Record<string, ViewConfig> | undefined, view = 'form'): string[] | undefined =>
+  views?.[view]?.json_schema?.['required'] as string[] | undefined;
 
 describe('required on a custom resource (no Zod model)', () => {
   const columns = [
@@ -40,7 +45,7 @@ describe('required on a custom resource (no Zod model)', () => {
     col({ id: 'note', type: 'string' }),
   ];
 
-  const bl = (cols: JsonColumn[]) => buildLayouts(undefined, { columns: cols, source: columnTypeSchemaSource });
+  const bl = (cols: JsonColumn[]) => buildLayouts(undefined, { columns: cols, source: columnTypeSchemaSource, warn: () => undefined });
 
   it('marks the flagged columns required', () => {
     expect(required(bl(columns))).toEqual(['label', 'amount']);
@@ -67,7 +72,7 @@ describe('required on a custom resource (no Zod model)', () => {
   });
 
   it('keeps required off the filter view', () => {
-    const views = bl([col({ id: 'label', type: 'string', required: true, filterable: true })]);
+    const views = bl([col({ id: 'label', type: 'string', required: true })]);
     expect(required(views, 'filter')).toBeUndefined();
   });
 
@@ -85,7 +90,7 @@ describe('required overrides the Zod model on a prisma resource', () => {
     note: z.string().optional(),
   });
 
-  const bz = (cols: JsonColumn[]) => buildLayouts(undefined, { columns: cols, source: zodSchemaSource(schema) });
+  const bz = (cols: JsonColumn[]) => buildLayouts(undefined, { columns: cols, source: zodSchemaSource(schema), warn: () => undefined });
 
   it('adds a column the model left optional', () => {
     const views = bz([col({ id: 'id', idField: true }), col({ id: 'label' }), col({ id: 'note', required: true })]);
@@ -105,9 +110,9 @@ describe('required overrides the Zod model on a prisma resource', () => {
 
 describe('required on a sub-resource (schema-less column path)', () => {
   const bn = (cols: JsonColumn[]) => {
-    const raw = buildLayouts(undefined, { columns: cols, source: nestedColumnSchemaSource });
+    const raw = buildLayouts(undefined, { columns: cols, source: nestedColumnSchemaSource, warn: () => undefined });
     return Object.fromEntries(
-      Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as any, cols) }])
+      Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, cols) }])
     );
   };
 
@@ -135,19 +140,19 @@ describe('required on a sub-resource (schema-less column path)', () => {
  * still submitted.
  */
 describe('required on a typeless (autocomplete) column', () => {
-  const autocomplete = (required?: boolean) =>
-    col({
+  const autocomplete = (required?: boolean): JsonColumn =>
+    invalid<JsonColumn>({
       id: 'paid_by',
       label: 'Paid by',
       displayKey: 'name',
       ...(required !== undefined && { required }),
-      fieldInput: {
+      fieldInput: invalid<JsonColumn['fieldInput']>({
         type: 'autocomplete',
         options: { uri: '/users?q={q}', valueKey: 'id', labelKey: 'name' },
-      },
-    } as any);
+      }),
+    });
 
-  const blc = (cols: JsonColumn[]) => buildLayouts(undefined, { columns: cols, source: columnTypeSchemaSource });
+  const blc = (cols: JsonColumn[]) => buildLayouts(undefined, { columns: cols, source: columnTypeSchemaSource, warn: () => undefined });
 
   it('lists it in required', () => {
     const views = blc([col({ id: 'id', type: 'string', idField: true }), autocomplete(true)]);
@@ -156,33 +161,33 @@ describe('required on a typeless (autocomplete) column', () => {
 
   it('constrains the type so the requirement can actually reject a value', () => {
     const views = blc([col({ id: 'id', type: 'string', idField: true }), autocomplete(true)]);
-    const prop = (views['form']?.json_schema as any).properties.paid_by;
-    expect(prop.type).toEqual(['object', 'array', 'string', 'number', 'boolean']);
-    expect(prop.type).not.toContain('null');
+    const prop = propsOf(views).paid_by;
+    expect(prop?.['type']).toEqual(['object', 'array', 'string', 'number', 'boolean']);
+    expect(prop?.['type'] as unknown[]).not.toContain('null');
   });
 
   it('leaves an optional autocomplete typeless', () => {
     const views = blc([col({ id: 'id', type: 'string', idField: true }), autocomplete()]);
-    const prop = (views['form']?.json_schema as any).properties.paid_by;
-    expect(prop.type).toBeUndefined();
+    const prop = propsOf(views).paid_by;
+    expect(prop?.['type']).toBeUndefined();
   });
 
   it('does not touch a column that declares its own type', () => {
     const views = blc([
       col({ id: 'id', type: 'string', idField: true }),
-      col({ id: 'member', required: true, type: { type: 'object', properties: { id: { type: 'string' } } } } as any),
+      col({ id: 'member', required: true, type: invalid<JsonColumn['type']>({ type: 'object', properties: { id: { type: 'string' } } }) }),
     ]);
-    const prop = (views['form']?.json_schema as any).properties.member;
-    expect(prop.type).toBe('object');
+    const prop = propsOf(views).member;
+    expect(prop?.['type']).toBe('object');
   });
 
   it('does not touch an enum-constrained column', () => {
     const views = blc([
       col({ id: 'id', type: 'string', idField: true }),
-      col({ id: 'status', required: true, fieldInput: { options: { values: ['open', 'closed'] } } } as any),
+      col({ id: 'status', required: true, fieldInput: invalid<JsonColumn['fieldInput']>({ options: { values: ['open', 'closed'] } }) }),
     ]);
-    const prop = (views['form']?.json_schema as any).properties.status;
-    expect(prop.enum).toEqual(['open', 'closed']);
-    expect(Array.isArray(prop.type)).toBe(false);
+    const prop = propsOf(views).status;
+    expect(prop?.['enum']).toEqual(['open', 'closed']);
+    expect(Array.isArray(prop?.['type'])).toBe(false);
   });
 });

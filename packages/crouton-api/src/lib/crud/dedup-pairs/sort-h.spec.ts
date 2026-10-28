@@ -17,6 +17,8 @@ import { describe, expect, it } from 'vitest';
 import { buildChildSortClause, buildSort, enrichIncludeWithSort } from '@ghentcdh/crouton-core';
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../test-utils';
+
 describe('H: sort helpers — core (buildSort) vs api (buildChildSortClause)', () => {
   describe('plain field — delegates to buildSort', () => {
     it('asc', () => {
@@ -58,7 +60,7 @@ describe('H: sort helpers — core (buildSort) vs api (buildChildSortClause)', (
   describe('core enrichIncludeWithSort — exercises the private buildChildSortClause', () => {
     it('adds orderBy from column relation.sort when entry matches', () => {
       const columns: JsonColumn[] = [
-        { id: 'author', column: 'author', type: 'string', relation: { sort: 'name', sortDir: 'asc' } } as any,
+        invalid<JsonColumn>({ id: 'author', column: 'author', type: 'string', relation: { sort: 'name', sortDir: 'asc' } }),
       ];
       const result = enrichIncludeWithSort([{ relation: 'author' }], columns);
       expect(result?.[0]).toMatchObject({ relation: 'author', orderBy: { name: 'asc' } });
@@ -66,7 +68,7 @@ describe('H: sort helpers — core (buildSort) vs api (buildChildSortClause)', (
 
     it('nested sort path from column relation.sort', () => {
       const columns: JsonColumn[] = [
-        { id: 'author', column: 'author', type: 'string', relation: { sort: 'origin.country', sortDir: 'desc' } } as any,
+        invalid<JsonColumn>({ id: 'author', column: 'author', type: 'string', relation: { sort: 'origin.country', sortDir: 'desc' } }),
       ];
       const result = enrichIncludeWithSort([{ relation: 'author' }], columns);
       expect(result?.[0]).toMatchObject({
@@ -77,7 +79,7 @@ describe('H: sort helpers — core (buildSort) vs api (buildChildSortClause)', (
 
     it('returns entry unchanged when column has no sort config', () => {
       const columns: JsonColumn[] = [
-        { id: 'author', column: 'author', type: 'string' } as any,
+        invalid<JsonColumn>({ id: 'author', column: 'author', type: 'string' }),
       ];
       const result = enrichIncludeWithSort([{ relation: 'author' }], columns);
       expect(result?.[0]).toEqual({ relation: 'author' });

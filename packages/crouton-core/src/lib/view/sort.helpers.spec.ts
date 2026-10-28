@@ -1,13 +1,16 @@
+import { describe, expect, it } from 'vitest';
+
 import type { LayoutNode } from '../layout/schema';
 import { resolveDefaultSort } from '../layout/sort.helpers';
 import type { JsonColumn } from '../resource/Column';
+import { invalid } from '../utils/test-utils';
 
 const col = (id: string, extra: Partial<JsonColumn> = {}): JsonColumn =>
-  ({ id, ...extra }) as JsonColumn;
+  invalid<JsonColumn>({ id, ...extra });
 
 describe('resolveDefaultSort', () => {
   it('uses named field and direction from inner table node in a wrapper layout', () => {
-    const tableLayout: LayoutNode = {
+    const tableLayout: LayoutNode = invalid<LayoutNode>({
       type: 'grid',
       items: [
         {
@@ -16,7 +19,7 @@ describe('resolveDefaultSort', () => {
           items: [{ id: 'title', sortable: true }],
         },
       ],
-    } as unknown as LayoutNode;
+    });
 
     const result = resolveDefaultSort(
       [col('title'), col('author')],
@@ -28,11 +31,11 @@ describe('resolveDefaultSort', () => {
   });
 
   it('returns desc direction when sortDir is "desc"', () => {
-    const tableLayout: LayoutNode = {
+    const tableLayout: LayoutNode = invalid<LayoutNode>({
       type: 'table',
       defaultSort: { field: 'createdAt', sortDir: 'desc' },
       items: [{ id: 'createdAt', sortable: true }],
-    } as unknown as LayoutNode;
+    });
 
     const result = resolveDefaultSort([col('createdAt')], undefined, tableLayout);
     expect(result).toEqual({ id: 'createdAt', dir: 'desc' });

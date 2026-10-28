@@ -1,8 +1,7 @@
 import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import { applyRequiredColumns, buildView } from './view-helpers';
 import { buildFormUiSchema, buildFormUiSchemaFromLayout } from '../../view';
-import type { FormLayoutNode } from '../schema/LayoutNode.schema';
-import type { LayoutNode } from '../schema/LayoutNode.schema';
+import type { FormLayoutNode, LayoutNode } from '../schema/LayoutNode.schema';
 
 /**
  * Build the form view (create/edit) for a resource.

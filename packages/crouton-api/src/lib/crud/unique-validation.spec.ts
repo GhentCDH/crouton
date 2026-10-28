@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import { CroutonValidationError } from './crouton-validation.error';
+import type { Resource } from './resource/ResourceConfig.schema';
+import { invalid } from './test-utils';
 import {
   findUniqueColumn,
   mapPrismaUniqueError,
   uniqueColumns,
 } from './unique-validation';
 
-const config = {
+const config = invalid<Resource>({
   columns: [
     { id: 'id', idField: true },
     { id: 'email', label: 'Email', unique: true },
@@ -16,7 +18,7 @@ const config = {
     { id: 'code', label: 'Code', unique: { scope: ['tenantId'] } },
     { id: 'name' },
   ],
-} as any;
+});
 
 describe('uniqueColumns / findUniqueColumn', () => {
   it('lists only declared-unique columns', () => {

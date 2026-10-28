@@ -28,8 +28,11 @@ export interface PrismaClientLike {
   [model: string]: unknown;
 }
 
-export const getDelegate = (client: PrismaClientLike, model: string): PrismaDelegateLike | undefined => {
-  const delegate = client[model];
+export const getDelegate = (
+  client: PrismaClientLike | undefined,
+  model: string,
+): PrismaDelegateLike | undefined => {
+  const delegate = client?.[model];
   if (delegate && typeof delegate === 'object') return delegate as PrismaDelegateLike;
   return undefined;
 };

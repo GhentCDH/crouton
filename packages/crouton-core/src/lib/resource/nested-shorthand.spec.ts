@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { columnTypeToJsonSchema } from './ColumnType.schema';
+import { invalid } from '../utils/test-utils';
 
 /**
  * `"date"` and `"date-time"` are crouton spellings, not JSON Schema types. At the
@@ -90,10 +91,12 @@ describe('shorthand expansion inside a fragment', () => {
   });
 
   it('keeps unknown keys, so x-* extensions survive', () => {
-    const result = columnTypeToJsonSchema({
-      type: 'object',
-      properties: { when: { type: 'date', 'x-widget': 'calendar' } },
-    } as any);
+    const result = columnTypeToJsonSchema(
+      invalid<Record<string, unknown>>({
+        type: 'object',
+        properties: { when: { type: 'date', 'x-widget': 'calendar' } },
+      }),
+    );
     expect(result.properties?.['when']?.['x-widget']).toBe('calendar');
   });
 

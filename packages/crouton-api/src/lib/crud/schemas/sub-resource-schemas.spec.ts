@@ -9,6 +9,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { type BootedCase, bootCase } from './test-utils';
+import { bodyOf } from '../test-utils';
+
+type SchemaView = {
+  ui?: { elements?: { options?: { resource?: unknown } }[] };
+};
 
 describe('case 18: prisma child in prisma parent (sub-prisma-in-prisma)', () => {
   let ctx: BootedCase;
@@ -33,25 +38,26 @@ describe('case 18: prisma child in prisma parent (sub-prisma-in-prisma)', () => 
 
   it('child schemas payload has expected shape', async () => {
     const res = await ctx.http.get('/api/groups/chapter/schemas');
-    expect(res.body).toMatchObject({
+    const body = bodyOf(res);
+    expect(body).toMatchObject({
       route: 'chapter',
       idField: 'id',
-      operations: expect.any(Object),
     });
+    expect(typeof body['operations']).toBe('object');
   });
 
   it('parent schemas payload references child schemas endpoint in relation column', async () => {
     const res = await ctx.http.get('/api/groups/schemas');
-    const schemas = res.body?.schemas;
+    const schemas = bodyOf(res)['schemas'] as Record<string, SchemaView> | undefined;
     // The relation column options should carry a `resource` key pointing to child schemas
     const allSchemas = schemas ? Object.values(schemas) : [];
-    const hasChildRef = allSchemas.some((view: any) => {
-      const elements = view?.ui?.elements ?? [];
-      return elements.some((el: any) =>
-        typeof el?.options?.resource === 'string' &&
-        el.options.resource.includes('/schemas'),
-      );
-    });
+    const hasChildRef = allSchemas.some((view) =>
+      (view.ui?.elements ?? []).some(
+        (el) =>
+          typeof el.options?.resource === 'string' &&
+          el.options.resource.includes('/schemas'),
+      ),
+    );
     expect(hasChildRef).toBe(true);
   });
 });
@@ -87,15 +93,15 @@ describe('case 19: custom child in prisma parent (sub-custom-in-prisma)', () => 
 
   it('parent schemas payload references child schemas endpoint in the expense relation column', async () => {
     const res = await ctx.http.get('/api/groups/schemas');
-    const schemas = res.body?.schemas;
+    const schemas = bodyOf(res)['schemas'] as Record<string, SchemaView> | undefined;
     const allSchemas = schemas ? Object.values(schemas) : [];
-    const hasChildRef = allSchemas.some((view: any) => {
-      const elements = view?.ui?.elements ?? [];
-      return elements.some((el: any) =>
-        typeof el?.options?.resource === 'string' &&
-        el.options.resource.includes('/schemas'),
-      );
-    });
+    const hasChildRef = allSchemas.some((view) =>
+      (view.ui?.elements ?? []).some(
+        (el) =>
+          typeof el.options?.resource === 'string' &&
+          el.options.resource.includes('/schemas'),
+      ),
+    );
     expect(hasChildRef).toBe(true);
   });
 });

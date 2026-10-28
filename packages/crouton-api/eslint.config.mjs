@@ -2,9 +2,9 @@ import baseConfig from '../../eslint.config.mjs';
 
 const SPEC_FILES = [
   'src/**/*.spec.ts',
+  'src/**/*.test.ts',
   'src/**/*.spec-e2e.ts',
   'src/**/test-utils.ts',
-  'test/**/*.ts',
 ];
 
 export default [
@@ -29,22 +29,43 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector: 'TSAsExpression > TSAsExpression[typeAnnotation.typeName.name="unknown"]',
-          message: 'Avoid double casts (as unknown as X). Use a single cast with an eslint-disable comment instead.',
+          selector: "TSAsExpression > TSAsExpression[typeAnnotation.type='TSUnknownKeyword']",
+          message: 'Double cast (as unknown as X) is forbidden. Use a typed helper or a type guard instead.',
         },
       ],
     },
   },
   {
-    // Spec and test-helper files: downgrade unsafe-* rules to warn (no type info for test/).
+    // `test/**` is outside the TS project, so only non-type-aware rules apply.
+    files: ['test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "TSAsExpression > TSAsExpression[typeAnnotation.type='TSUnknownKeyword']",
+          message: 'Double cast (as unknown as X) is forbidden. Use a typed helper or a type guard instead.',
+        },
+      ],
+    },
+  },
+  {
+    // Spec and test-helper files use the same strict rules as production code.
     files: SPEC_FILES,
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error',
+      '@typescript-eslint/no-unsafe-argument': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "TSAsExpression > TSAsExpression[typeAnnotation.type='TSUnknownKeyword']",
+          message: 'Double cast (as unknown as X) is forbidden. Use a typed helper or a type guard instead.',
+        },
+      ],
     },
   },
 ];

@@ -12,7 +12,7 @@ describe('migration v1 → v2', () => {
     const result = migrate({
       layout: { table: { controls: ['title', 'author'], actions: [{ id: 'del' }] } },
     });
-    expect((result['layout'] as any)['table']).toEqual({
+    expect((result['layout'] as Record<string, unknown>)['table']).toEqual({
       items: ['title', 'author'],
       rowActions: [{ id: 'del' }],
     });
@@ -32,7 +32,7 @@ describe('migration v1 → v2', () => {
         },
       },
     });
-    const tbl = (result['layout'] as any)['table'];
+    const tbl = (result['layout'] as Record<string, unknown>)['table'];
     expect(tbl).toEqual({
       type: 'grid',
       columns: 12,
@@ -59,7 +59,7 @@ describe('migration v1 → v2', () => {
         },
       },
     });
-    expect((result['layout'] as any)['form']).toEqual({
+    expect((result['layout'] as Record<string, unknown>)['form']).toEqual({
       type: 'grid',
       items: [
         { id: 'title' },
@@ -72,7 +72,7 @@ describe('migration v1 → v2', () => {
     const result = migrate({
       subResources: [{ id: 'loans', actions: [{ id: 'ret' }] }],
     });
-    expect((result['subResources'] as any)[0]).toEqual({ id: 'loans', rowActions: [{ id: 'ret' }] });
+    expect((result['subResources'] as Record<string, unknown>[])[0]).toEqual({ id: 'loans', rowActions: [{ id: 'ret' }] });
   });
 
   it('idempotent: re-running gives no change', () => {

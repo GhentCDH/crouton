@@ -40,5 +40,5 @@ export const fromJson = (
     ...(repository && { repository }),
     ...(actions?.length && { actions }),
     ...(tableActions?.length && { tableActions }),
-  } as unknown as Resource;
+  } as Resource;
 };

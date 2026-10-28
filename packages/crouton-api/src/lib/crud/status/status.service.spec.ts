@@ -15,13 +15,14 @@ import type { DataSourceRegistry } from '../data-access/adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
+import { invalid } from '../test-utils';
 
 const mockRegistry = (
   entries: { name: string; adapter: { healthCheck?: () => Promise<void> } }[],
 ): DataSourceRegistry =>
-  ({
+  invalid<DataSourceRegistry>({
     entries: () => entries,
-  }) as unknown as DataSourceRegistry;
+  });
 
 describe('status.service', () => {
   beforeEach(() => {
@@ -131,9 +132,9 @@ describe('status.service', () => {
 
   describe('getResourceStatus', () => {
     it('should merge valid configs with load errors', () => {
-      const configs = [
+      const configs = invalid<Resource[]>([
         { name: 'people', route: 'people' },
-      ] as Resource[];
+      ]);
 
       resourceLoadErrorsRegistry.record({
         name: 'broken_res',
@@ -182,7 +183,7 @@ describe('status.service', () => {
     });
 
     it('reports a custom resource and the operations its repository implements', () => {
-      const configs = [
+      const configs = invalid<Resource[]>([
         {
           name: 'zotero_item',
           route: 'zotero-items',
@@ -194,7 +195,7 @@ describe('status.service', () => {
             notAnOperation: async () => null,
           },
         },
-      ] as unknown as Resource[];
+      ]);
 
       const [row] = getResourceStatus(configs);
       expect(row.kind).toBe('custom');
@@ -203,9 +204,9 @@ describe('status.service', () => {
     });
 
     it('omits customOperations when no repository loaded', () => {
-      const configs = [
+      const configs = invalid<Resource[]>([
         { name: 'zotero_item', route: 'zotero-items', kind: 'custom' },
-      ] as unknown as Resource[];
+      ]);
 
       const [row] = getResourceStatus(configs);
       expect(row.kind).toBe('custom');
@@ -229,9 +230,9 @@ describe('status.service', () => {
     });
 
     it('defaults kind to prisma for a resource that does not declare one', () => {
-      const configs = [
+      const configs = invalid<Resource[]>([
         { name: 'people', route: 'people' },
-      ] as unknown as Resource[];
+      ]);
       expect(getResourceStatus(configs)[0].kind).toBe('prisma');
     });
 

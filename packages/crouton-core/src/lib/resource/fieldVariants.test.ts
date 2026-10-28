@@ -7,6 +7,7 @@ import {
   resolveTableField,
   resolveViewField,
 } from './fieldVariants';
+import { invalid } from '../utils/test-utils';
 
 /** Minimal column factory — only the fields the resolvers read. */
 const col = (over: Partial<JsonColumn>): JsonColumn =>
@@ -60,7 +61,7 @@ describe('mergeFieldVariant', () => {
 
   it('null in override.options deletes the inherited key', () => {
     const merged = mergeFieldVariant(relationInput, {
-      options: { displayKey: null as unknown as string },
+      options: { displayKey: invalid<string>(null) },
     });
     expect(merged?.options).toEqual({ display: 'autocomplete' });
     expect(
@@ -70,7 +71,7 @@ describe('mergeFieldVariant', () => {
 
   it('null top-level key in override deletes it', () => {
     const merged = mergeFieldVariant(relationInput, {
-      format: null as unknown as string,
+      format: invalid<string>(null),
     });
     expect(merged?.format).toBeUndefined();
     expect(merged?.resource).toBe('../author/resource.json');

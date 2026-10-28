@@ -20,6 +20,7 @@ import type { DataSourceEntry } from '../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../loader';
 import { FileSystemResourceConfigLoader } from '../loader/fs-resource-config.loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { invalid } from '../test-utils';
 import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -62,8 +63,8 @@ export const stubDataSources = (_configs: unknown[]): DataSourceEntry[] => {
 
   return [
     {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture: minimal DataSource stub, only name/default needed
-      config: { name: 'default', default: true } as any as DataSource,
+      // test fixture: minimal DataSource stub, only name/default needed
+      config: invalid<DataSource>({ name: 'default', default: true }),
       adapter: {
         kind: 'prisma' as const,
         client,

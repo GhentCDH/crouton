@@ -91,5 +91,5 @@ export const parseSchema = (
     } as ResourceDefinitionResponse;
   }
 
-  return payload as unknown as ResourceDefinitionResponse;
+  return payload as ResourceDefinitionResponse;
 };

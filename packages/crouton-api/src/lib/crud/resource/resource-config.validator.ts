@@ -1,6 +1,5 @@
 import {
   type CrudOperation,
-  type JsonColumn,
   isOperationEnabled,
   normalizeUnique,
   resolveDefinition,
@@ -65,7 +64,7 @@ export const validateResourceConfig = (
   // ── Uniqueness checks ──────────────────────────────────────────────────
   // A real DB `@unique` constraint can't be seen from the config, so that
   // prerequisite is only documented — but a bad `scope` reference is catchable.
-  const columns = (config.columns as unknown as JsonColumn[] | undefined) ?? [];
+  const columns = config.columns ?? [];
   const columnIds = new Set(columns.map((c) => c.id));
   for (const col of columns) {
     const unique = normalizeUnique(col.unique);
