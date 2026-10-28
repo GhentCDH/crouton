@@ -61,7 +61,6 @@ export const buildLookup = (
   const explicitLabels = lookupConfig?.labels;
   if (explicitLabels?.length) {
     return {
-      key: keyCol?.id ?? 'id',
       ...(explicitLabels.length === 1 && { label: explicitLabels[0] }),
       labels: explicitLabels,
       ...(lookupConfig?.separator && { separator: lookupConfig.separator }),
@@ -88,7 +87,6 @@ export const buildLookup = (
     : (search ?? []);
 
   return {
-    key: keyCol?.id ?? 'id',
     ...(labels.length === 1 && { label: labels[0] }),
     ...(labels.length && { labels }),
     ...(lookupConfig?.separator && { separator: lookupConfig.separator }),
