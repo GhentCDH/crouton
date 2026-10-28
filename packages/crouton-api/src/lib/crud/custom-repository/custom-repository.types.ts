@@ -70,6 +70,7 @@ export interface CustomRepositoryContext<PRISMA = unknown> {
 }
 
 /** Rows plus the total matching count, used to build the list envelope. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- user-facing interface: default `any` allows untyped implementations
 export interface CustomListResult<T = any> {
   data: T[];
   count: number;
@@ -82,6 +83,7 @@ export interface CustomListResult<T = any> {
  * unnested operations rather than supplementing them — the parent id is always
  * available, and a query can never accidentally run across every parent.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- user-facing interface: default `any` allows untyped implementations
 export interface CustomParentRepository<T = any, PRISMA = unknown> {
   /** List the children of one parent. Returns rows *and* the total count. */
   findAllByParent?(
@@ -120,6 +122,7 @@ export interface CustomParentRepository<T = any, PRISMA = unknown> {
   ): Promise<T>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- user-facing interface: default `any` allows untyped implementations
 export interface CustomRepository<T = any, PRISMA = unknown>
   extends CustomParentRepository<T, PRISMA> {
   /**

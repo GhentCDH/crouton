@@ -46,14 +46,14 @@ export const importDefault = async <T>(
       // In Vite dev mode, bust the module cache so edits are picked up without
       // a full server restart. The ?t= trick only works inside Vite's resolver.
       const importPath = IS_DEV ? `${filePath}?t=${Date.now()}` : filePath;
-      const mod = await import(importPath);
-      return (mod.default ?? mod) as T;
+      const mod = await import(importPath) as Record<string, unknown>;
+      return (mod['default'] ?? mod) as T;
     } else if (IS_ESM) {
       // ESM mode (node --import tsx/esm): require() does not handle .ts files.
       // Use import() with a file:// URL so the tsx ESM loader intercepts it.
       // nodemon restarts the whole process on file changes, no cache-busting needed.
-      const mod = await import(pathToFileURL(filePath).href);
-      return (mod.default ?? mod) as T;
+      const mod = await import(pathToFileURL(filePath).href) as Record<string, unknown>;
+      return (mod['default'] ?? mod) as T;
     } else {
       // CJS mode (nodemon + @swc-node/register): require() is patched to handle .ts.
       const mod = _require(filePath) as { default?: T };

@@ -59,8 +59,8 @@ export const loadDataSourcesFromDir = async (
 
     let adapter: DataSourceAdapter;
     try {
-      const mod = await import(indexFile);
-      const exported = mod.default;
+      const mod = await import(indexFile) as Record<string, unknown>;
+      const exported: unknown = mod['default'];
       if (!exported) continue;
 
       if (config.adapter === 'custom') {
@@ -68,7 +68,7 @@ export const loadDataSourcesFromDir = async (
         // that extends PrismaDataSourceAdapter (or any DataSourceAdapter).
         if (typeof exported === 'function') {
           // Class export: `export default class MyAdapter extends PrismaDataSourceAdapter { ... }`
-          const instance = new exported() as DataSourceAdapter;
+          const instance = new (exported as new () => DataSourceAdapter)();
           if (typeof instance.kind !== 'string') {
             resourceLoadErrorsRegistry.record({
               name: dir,
@@ -78,7 +78,7 @@ export const loadDataSourcesFromDir = async (
             continue;
           }
           adapter = instance;
-        } else if (typeof exported === 'object' && typeof exported.kind === 'string') {
+        } else if (typeof exported === 'object' && exported !== null && typeof (exported as Record<string, unknown>)['kind'] === 'string') {
           adapter = exported as DataSourceAdapter;
         } else {
           resourceLoadErrorsRegistry.record({

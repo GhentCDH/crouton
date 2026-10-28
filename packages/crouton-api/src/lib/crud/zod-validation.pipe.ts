@@ -40,6 +40,7 @@ export class ZodValidationPipe implements PipeTransform {
 
     let decimalCtor: (new (v: number | string) => object) | null = null;
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment -- dynamic require for optional Prisma dep; .Decimal is always a constructor here
       decimalCtor = require('@prisma/client/runtime/client').Decimal;
     } catch {
       // @prisma/client not available — Decimal coercion disabled, falls back to today's behaviour

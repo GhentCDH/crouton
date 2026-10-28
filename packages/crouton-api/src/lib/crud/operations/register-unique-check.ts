@@ -89,9 +89,10 @@ export const registerUniqueCheck = (ctx: OperationContext): void => {
       }
     }
 
-    const model = (this.repo as { prisma?: Record<string, any> }).prisma?.[
-      modelName
-    ];
+    const prismaDb = (this.repo as { prisma?: Record<string, unknown> }).prisma;
+    const model = prismaDb?.[modelName] as
+      | { findFirst(args: unknown): Promise<unknown> }
+      | undefined;
     // No queryable model (should not happen past the guard) → treat as free.
     if (!model) return { unique: true };
 

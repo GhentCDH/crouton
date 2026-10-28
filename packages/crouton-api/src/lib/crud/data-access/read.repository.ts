@@ -108,7 +108,7 @@ export class ReadRepository<T = unknown> {
     if (!sort) return undefined;
     if (this.listSelect && !(sort.split('.')[0] in this.listSelect))
       return undefined;
-    return buildSort(sort, sortDir);
+    return buildSort(sort, sortDir) as Record<string, unknown>;
   }
 
   /**
@@ -203,6 +203,7 @@ export class ReadRepository<T = unknown> {
     }
 
     const allStaticAndDynamic = [
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JsonIncludeEntry is `any` due to z.lazy
       ...(this.config.include ?? []),
       ...dynamicPrismaFields,
     ];
@@ -361,6 +362,7 @@ export class ReadRepository<T = unknown> {
     }
 
     const allStaticAndDynamic = [
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JsonIncludeEntry is `any` due to z.lazy
       ...(this.config.findOneInclude ?? this.config.include ?? []),
       ...dynamicPrismaFields,
     ];
@@ -401,7 +403,7 @@ export class ReadRepository<T = unknown> {
       const nested = (enriched as Record<string, unknown>)[sub.relation];
       if (!Array.isArray(nested) || !nested.length) continue;
       const enrichedNested = await mergeCalculatedColumnsForRows(
-        nested,
+        nested as Row[],
         sub.calculatedColumns,
         sub.childTable ?? sub.childModel,
         this.prisma,
