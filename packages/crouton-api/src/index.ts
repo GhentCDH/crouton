@@ -24,3 +24,6 @@ export {
 } from './lib/crud/custom-repository';
 
 export { parseFilterString } from '@ghentcdh/crouton-core';
+
+export type { CroutonRequest, PrismaClientLike, PrismaDelegateLike, PrismaOrderBy, PrismaSelect, PrismaWhere } from './lib/crud/types';
+export { getDelegate } from './lib/crud/types';
