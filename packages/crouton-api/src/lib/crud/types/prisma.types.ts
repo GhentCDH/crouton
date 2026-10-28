@@ -9,7 +9,6 @@ export interface PrismaDelegateLike {
   findMany(args?: unknown): Promise<unknown[]>;
   findFirst(args?: unknown): Promise<unknown | null>;
   findUnique(args?: unknown): Promise<unknown | null>;
-  findFirst(args?: unknown): Promise<unknown | null>;
   count(args?: unknown): Promise<number>;
   create(args?: unknown): Promise<unknown>;
   update(args?: unknown): Promise<unknown>;

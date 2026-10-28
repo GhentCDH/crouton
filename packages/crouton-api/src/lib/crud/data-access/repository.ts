@@ -14,7 +14,7 @@ import {
 } from '../custom-repository';
 import type { DataSourceAdapter } from './adapter';
 import { PrismaDataSourceAdapter } from './adapter';
-import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../types/prisma.types';
+import { type PrismaClientLike, getDelegate } from '../types/prisma.types';
 import {
   applyAfterFindAll,
   applyBeforeFindAll,
