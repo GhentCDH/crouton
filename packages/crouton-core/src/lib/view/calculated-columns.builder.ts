@@ -47,7 +47,7 @@ const injectCalculatedColumnsIntoView = (
   const visible = calculated.filter((c) => isVisibleInMode(c, mode));
   if (!visible.length) return viewConfig;
 
-  const jsonSchema = { ...(viewConfig.json_schema ?? {}) } as Record<string, unknown>;
+  const jsonSchema = { ...(viewConfig.data ?? {}) } as Record<string, unknown>;
   jsonSchema['properties'] = { ...(jsonSchema['properties'] as Record<string, unknown>) };
   const props = jsonSchema['properties'] as Record<string, unknown>;
   for (const c of visible) {
@@ -57,7 +57,7 @@ const injectCalculatedColumnsIntoView = (
     };
   }
 
-  const uiSchema = { ...(viewConfig.ui_schema ?? {}) } as Record<string, unknown>;
+  const uiSchema = { ...(viewConfig.ui ?? {}) } as Record<string, unknown>;
   const existing: Record<string, unknown>[] = [...((uiSchema['elements'] as Record<string, unknown>[] | undefined) ?? [])];
 
   // Merge-sort existing elements (implicit position = index + 0.5) with calculated
@@ -87,8 +87,8 @@ const injectCalculatedColumnsIntoView = (
 
   return {
     ...viewConfig,
-    json_schema: jsonSchema,
-    ui_schema: uiSchema,
+    data: jsonSchema,
+    ui: uiSchema,
     columns,
   };
 };

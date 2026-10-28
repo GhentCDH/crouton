@@ -50,8 +50,8 @@ export const useCroutonFormLogic = (
   const viewType = properties.readonly ? 'view' : 'form';
   const view = ((properties.views as any)?.[viewType] ??
     null) as ViewConfig | null;
-  const uiSchema = view?.ui_schema ?? view?.ui ?? null;
-  const schema = view?.json_schema ?? view?.data ?? null;
+  const uiSchema = view?.ui ?? null;
+  const schema = view?.data ?? null;
   const errors = ref(null);
   const id = `edit_${Math.floor(Math.random() * 1000)}`;
   const valid = ref(!(uiSchema && schema));

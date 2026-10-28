@@ -13,13 +13,13 @@ import { type TestControl, invalid } from '../utils/test-utils';
 const propertiesOf = (
   view: ViewConfig | undefined,
 ): Record<string, Record<string, unknown>> =>
-  (view?.json_schema?.['properties'] ?? {}) as Record<
+  (view?.data?.['properties'] ?? {}) as Record<
     string,
     Record<string, unknown>
   >;
 
 const elementsOf = (view: ViewConfig | undefined): TestControl[] =>
-  (view?.ui_schema?.['elements'] ?? []) as TestControl[];
+  (view?.ui?.['elements'] ?? []) as TestControl[];
 
 /** Parse through the real schema so defaults/labels match production. */
 const columnsOf = (columns: Record<string, unknown>) =>
@@ -177,7 +177,7 @@ describe('buildViewsFromColumnTypes', () => {
   });
 
   it('emits no required array — shape is declared, validation is the repository author job', () => {
-    expect(views.form?.json_schema?.['required']).toBeUndefined();
+    expect(views.form?.data?.['required']).toBeUndefined();
   });
 
   it('renders an object column with a displayKey as a RecordCell', () => {
@@ -213,7 +213,7 @@ describe('buildViewsFromColumnTypes', () => {
   });
 
   it('enables additionalProperties so extra payload keys pass validation', () => {
-    expect(views.form?.json_schema?.['additionalProperties']).toBe(true);
+    expect(views.form?.data?.['additionalProperties']).toBe(true);
   });
 
   it('returns only an empty table view with no columns', () => {

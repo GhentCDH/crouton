@@ -130,7 +130,7 @@
     },
     "views": {
       "table": {
-        "json_schema": {
+        "data": {
           "type": "object",
           "properties": {
             "id": {
@@ -146,7 +146,7 @@
           },
           "additionalProperties": true
         },
-        "ui_schema": {
+        "ui": {
           "type": "HorizontalLayout",
           "elements": [
             {
@@ -184,7 +184,7 @@
         "defaultSort": "name"
       },
       "form": {
-        "json_schema": {
+        "data": {
           "type": "object",
           "properties": {
             "name": {
@@ -200,7 +200,7 @@
           },
           "additionalProperties": true
         },
-        "ui_schema": {
+        "ui": {
           "type": "GridLayout",
           "elements": [
             {
@@ -254,7 +254,7 @@
         ]
       },
       "filter": {
-        "json_schema": {
+        "data": {
           "type": "object",
           "properties": {
             "name": {
@@ -265,7 +265,7 @@
           },
           "additionalProperties": true
         },
-        "ui_schema": {
+        "ui": {
           "type": "GridLayout",
           "elements": [
             {
@@ -295,7 +295,7 @@
         ]
       },
       "view": {
-        "json_schema": {
+        "data": {
           "type": "object",
           "properties": {
             "id": {
@@ -316,7 +316,7 @@
           },
           "additionalProperties": true
         },
-        "ui_schema": {
+        "ui": {
           "type": "GridLayout",
           "elements": [
             {

@@ -17,12 +17,10 @@ export const ViewColumnConfigSchema = z.object({
 export type ViewColumnConfig = z.infer<typeof ViewColumnConfigSchema>;
 
 export const ViewConfigSchema = z.object({
-  // TODO why we have both?
-  json_schema: z.record(z.string(), z.unknown()).optional(),
-  ui_schema: z.record(z.string(), z.unknown()).optional(),
-  // TODO why we have both?
-  ui: z.record(z.string(), z.unknown()).optional(),
+  /** JSON schema for this view. */
   data: z.record(z.string(), z.unknown()).optional(),
+  /** UI schema for this view. */
+  ui: z.record(z.string(), z.unknown()).optional(),
   columns: z.array(ViewColumnConfigSchema),
   defaultSort: z.string().optional(),
   defaultSortDir: z.enum(['asc', 'desc']).optional(),

@@ -192,13 +192,13 @@ describe('orderTableColumnsFromLayout', () => {
 
   it('reorders elements by layout declaration', () => {
     const view: ViewConfig = {
-      json_schema: {},
-      ui_schema: buildTableUiSchema(tableCols),
+      data: {},
+      ui: buildTableUiSchema(tableCols),
       columns: tableCols,
     };
     const node: LayoutNode = { items: ['status', 'name', 'bio'] };
     const ordered = orderTableColumnsFromLayout(view, node);
-    const elements = (ordered.ui_schema?.['elements'] ?? []) as TestControl[];
+    const elements = (ordered.ui?.['elements'] ?? []) as TestControl[];
     expect(elements[0]?.scope).toContain('status');
     expect(elements[1]?.scope).toContain('name');
     expect(elements[2]?.scope).toContain('bio');
@@ -206,13 +206,13 @@ describe('orderTableColumnsFromLayout', () => {
 
   it('shows only referenced columns — layout is the full list', () => {
     const view: ViewConfig = {
-      json_schema: {},
-      ui_schema: buildTableUiSchema(tableCols),
+      data: {},
+      ui: buildTableUiSchema(tableCols),
       columns: tableCols,
     };
     const node: LayoutNode = { items: ['status'] };
     const ordered = orderTableColumnsFromLayout(view, node);
-    const ids = ((ordered.ui_schema?.['elements'] ?? []) as TestControl[]).map(
+    const ids = ((ordered.ui?.['elements'] ?? []) as TestControl[]).map(
       (e) => (e.scope ?? '').replace('#/properties/', ''),
     );
     expect(ids).toEqual(['status']);

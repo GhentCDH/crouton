@@ -1,7 +1,7 @@
 {
   "views": {
     "table": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "title": {
@@ -22,7 +22,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "Table",
         "elements": [
           {
@@ -67,7 +67,7 @@
       "defaultSortDir": "asc"
     },
     "form": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "title": {
@@ -88,7 +88,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "GridLayout",
         "elements": [
           {
@@ -151,7 +151,7 @@
       ]
     },
     "filter": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "priority": {
@@ -167,7 +167,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "GridLayout",
         "elements": [
           {
@@ -212,7 +212,7 @@
       ]
     },
     "view": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "id": {
@@ -238,7 +238,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "GridLayout",
         "elements": [
           {

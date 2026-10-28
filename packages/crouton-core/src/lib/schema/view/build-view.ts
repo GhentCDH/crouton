@@ -4,7 +4,7 @@ import type { JsonColumn } from '../../resource/Column';
 import { jsonSchemaOpts } from '../../view/json-schema.opts';
 
 /**
- * Produces the `json_schema` for one view from the columns that belong in it.
+ * Produces the JSON schema (`data`) for one view from the columns that belong in it.
  *
  * Two implementations exist: `zodSchemaSource` picks a mask off the resource's
  * Zod model schema (prisma resources), and `columnTypeSchemaSource` assembles
@@ -15,7 +15,7 @@ export type ViewJsonSchemaSource = (
   schemaCols: JsonColumn[],
 ) => Record<string, unknown> | undefined;
 
-/** Build a view's json_schema by picking a mask off the resource's Zod schema. */
+/** Build a view's JSON schema (`data`) by picking a mask off the resource's Zod schema. */
 export const zodSchemaSource =
   (schema: ZodObject<ZodRawShape>): ViewJsonSchemaSource =>
   (schemaCols) => {

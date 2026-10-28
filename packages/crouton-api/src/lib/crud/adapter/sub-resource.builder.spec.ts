@@ -192,7 +192,7 @@ describe('buildSubResources — child layout forwarded to views', () => {
 
 const formScopes = (views: Record<string, unknown> | undefined): string[] => {
   const form = (views?.['form'] as Record<string, unknown> | undefined);
-  const uiSchema = (form?.['ui_schema'] as Record<string, unknown> | undefined);
+  const uiSchema = (form?.['ui'] as Record<string, unknown> | undefined);
   const elements = uiSchema?.['elements'] as Record<string, unknown>[] | undefined;
   return elements?.map((e: Record<string, unknown>) => e['scope'] as string) ?? [];
 };

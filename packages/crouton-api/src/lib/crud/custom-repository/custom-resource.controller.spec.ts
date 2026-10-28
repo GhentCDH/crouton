@@ -209,8 +209,8 @@ describe('custom resource served through the generated controller', () => {
     const result = await controller.getSchemas() as SchemaPayload;
     const schemas = result['schemas'] as Record<string, Record<string, unknown>>;
 
-    // The payload renames json_schema/ui_schema to data/ui — same contract the
-    // frontend's FormDefResponseZ validates.
+    // The payload exposes data/ui — same contract the frontend's
+    // FormDefResponseZ validates.
     const tableSchema = schemas['table'] as Record<string, unknown>;
     expect((tableSchema['data'] as Record<string, Record<string, unknown>>)['properties']['metadata']).toMatchObject({
       type: 'object',

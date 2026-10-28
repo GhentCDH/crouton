@@ -37,8 +37,8 @@ export const buildTableLayout = (
     const tableNode = resolveTableNode(node);
     if (tableNode) {
       const { pageSize, pageSizes, density, rowClick, selectable, emptyText } = tableNode;
-      const ui = table.ui_schema as Record<string, unknown>;
-      table.ui_schema = {
+      const ui = table.ui as Record<string, unknown>;
+      table.ui = {
         ...ui,
         options: {
           ...((ui['options'] as object) ?? {}),
@@ -70,7 +70,7 @@ export const buildTableLayout = (
       ctx.resourceName,
     );
     if (filter) {
-      patchFilterProperties(filter.json_schema as Record<string, unknown>, columns?.filter(isFilterable));
+      patchFilterProperties(filter.data as Record<string, unknown>, columns?.filter(isFilterable));
       views.filter = filter;
     }
   }
