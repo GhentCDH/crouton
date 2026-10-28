@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import {  ResourceJsonShape, JsonColumnBaseSchema , JsonIncludeEntrySchema  } from '../resource';
+import { JsonColumnBaseSchema , JsonIncludeEntrySchema,  ResourceJsonShape  } from '../resource';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { ValueLabelColumnSchema } from './value-label-column';

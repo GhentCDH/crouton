@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
+import type { CompiledResource } from './compiled-resource.schema';
 import {
   buildDefinitionPayload,
   buildResourceOperations,
   buildViewsPayload,
   deriveDisplay,
 } from './payload-builders';
+import type { Layout } from '../layout/schema';
+import { invalid } from '../utils/test-utils';
 
 const baseUri = 'http://host/annotation';
 
@@ -49,34 +52,38 @@ describe('deriveDisplay', () => {
 
   it('reads the form container mode and the view custom component', () => {
     expect(
-      deriveDisplay({
-        form: { container: { mode: 'page', size: 'sm' } },
-        view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Page.vue' },
-      } as any),
+      deriveDisplay(
+        invalid<Layout>({
+          form: { container: { mode: 'page', size: 'sm' } },
+          view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Page.vue' },
+        }),
+      ),
     ).toEqual({ mode: 'page', customComponent: 'src/Page.vue' });
   });
 
   it('falls back to the view container mode when the form has none', () => {
     expect(
-      deriveDisplay({
-        view: { container: { mode: 'page', size: 'sm' } },
-      } as any),
+      deriveDisplay(
+        invalid<Layout>({
+          view: { container: { mode: 'page', size: 'sm' } },
+        }),
+      ),
     ).toEqual({ mode: 'page', customComponent: null });
   });
 });
 
 describe('display is derived into the payloads', () => {
-  const config = (layout: unknown) =>
-    ({
+  const config = (layout: Layout | undefined) =>
+    invalid<CompiledResource>({
       name: 'book',
       route: 'book',
       tag: 'Book',
       definition: {},
       layout,
       views: { view: { json_schema: {}, ui_schema: {} } },
-    }) as any;
+    });
 
-  const layout = {
+  const layout: Layout = {
     form: { container: { mode: 'page', size: 'sm' } },
     view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Detail.vue' },
   };

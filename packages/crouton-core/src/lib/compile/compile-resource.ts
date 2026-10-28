@@ -161,9 +161,8 @@ export const compileResource = (
     enrichedColumns,
   );
 
-  const formContainer = (json.layout?.form as any)?.container;
-  const derivedModalSize = (formContainer?.size ?? 'sm') as
-    'xs' | 'sm' | 'lg' | 'xl';
+  const derivedModalSize: 'xs' | 'sm' | 'lg' | 'xl' =
+    json.layout?.form?.container?.size ?? 'sm';
 
   return {
     ...json,
