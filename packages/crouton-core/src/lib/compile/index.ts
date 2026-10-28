@@ -1,4 +1,5 @@
 export * from './action.types';
+export * from './model';
 export * from './column-enrichment';
 export * from './column-transforms';
 export * from './compile-resource';

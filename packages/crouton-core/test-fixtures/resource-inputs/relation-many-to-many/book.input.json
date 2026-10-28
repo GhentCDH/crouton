@@ -1,0 +1,44 @@
+{
+  "resource": {
+    "name": "book",
+    "route": "books",
+    "columns": {
+      "id": {
+        "idField": true,
+        "hiddenInForm": true
+      },
+      "title": {
+        "searchable": true,
+        "sortable": true
+      },
+      "categories": {
+        "label": "Categories",
+        "fieldInput": {
+          "format": "relation",
+          "relationType": "manyToMany",
+          "resource": "./category.resource"
+        },
+        "hiddenInTable": true
+      }
+    },
+    "schemaVersion": 1,
+    "operations": {
+      "findAll": {
+        "include": [
+          "categories"
+        ]
+      },
+      "findOne": {
+        "include": [
+          "categories"
+        ]
+      }
+    },
+    "source": {
+      "model": "Book"
+    }
+  },
+  "refs": {},
+  "enums": {},
+  "baseUrl": "http://localhost:3000"
+}
