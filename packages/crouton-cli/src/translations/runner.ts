@@ -92,9 +92,9 @@ export const planTranslationWrites = async (opts: {
 
     // For non-default languages, seed new keys empty so untranslated keys
     // are visible in diffs and fall back cleanly.
-    let genForLang = generated;
+    let genForLang: TranslationBundle = generated;
     if (lang !== i18n.defaultLanguage) {
-      genForLang = emptyValues(generated);
+      genForLang = emptyValues(generated) as TranslationBundle;
     }
 
     const merged = isNew ? genForLang : mergeTranslationBundle(existing, genForLang);
@@ -113,15 +113,15 @@ export const planTranslationWrites = async (opts: {
 };
 
 /** Replace all leaf string values with empty strings. */
-const emptyValues = (obj: unknown): TranslationBundle => {
-  if (typeof obj === 'string') return '' as unknown as TranslationBundle;
-  if (obj == null || typeof obj !== 'object') return obj as TranslationBundle;
-  if (Array.isArray(obj)) return obj.map(emptyValues) as unknown as TranslationBundle;
+const emptyValues = (obj: unknown): unknown => {
+  if (typeof obj === 'string') return '';
+  if (obj == null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(emptyValues);
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     out[k] = emptyValues(v);
   }
-  return out as unknown as TranslationBundle;
+  return out;
 };
 
 /** Count leaf string keys in a nested object. */

@@ -88,7 +88,7 @@ describe('apply — new resource', () => {
       plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
     );
     expect(res.sidebar).toEqual({ hide: false }); // recommended = yes
-    expect((res as any).source?.model).toBe('language');
+    expect(res.source?.model).toBe('language');
   });
 
   it('does not regenerate schema.ts when one already exists', async () => {

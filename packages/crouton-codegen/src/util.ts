@@ -47,7 +47,7 @@ export const columnEntries = (
 ): [string, Omit<JsonColumnInput, 'id'>][] => {
   if (!columns) return [];
   if (Array.isArray(columns)) {
-    return columns.map(({ id, ...rest }) => [id, rest]);
+    return (columns as JsonColumnInput[]).map(({ id, ...rest }): [string, Omit<JsonColumnInput, 'id'>] => [id, rest]);
   }
   return Object.entries(columns);
 };

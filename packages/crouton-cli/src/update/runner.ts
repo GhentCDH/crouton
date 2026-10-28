@@ -334,15 +334,15 @@ const resolveDraftOption = async (
 };
 
 /** Replace all leaf string values with empty strings (for non-default languages). */
-const emptyLeafValues = (obj: unknown): TranslationBundle => {
-  if (typeof obj === 'string') return '' as unknown as TranslationBundle;
-  if (obj == null || typeof obj !== 'object') return obj as TranslationBundle;
-  if (Array.isArray(obj)) return obj.map(emptyLeafValues) as unknown as TranslationBundle;
+const emptyLeafValues = (obj: unknown): unknown => {
+  if (typeof obj === 'string') return '';
+  if (obj == null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(emptyLeafValues);
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     out[k] = emptyLeafValues(v);
   }
-  return out as unknown as TranslationBundle;
+  return out;
 };
 
 /** Count leaf string keys in a nested object. */
@@ -368,7 +368,7 @@ export const runUpdateResources = async (
     const datasources = await loadDatasources(loaded);
     const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
 
-    if ((ds as any).adapter === 'custom') {
+    if (ds.adapter === 'custom') {
       clack.log.warn(
         `Datasource "${ds.name}" uses a custom adapter — Prisma introspection is not available.`,
       );
@@ -534,8 +534,10 @@ export const runUpdateResources = async (
         }
 
         // For non-default languages, seed new keys empty.
-        const genForLang =
-          lang !== i18n.defaultLanguage ? emptyLeafValues(generated) : generated;
+        const genForLang: TranslationBundle =
+          lang !== i18n.defaultLanguage
+            ? (emptyLeafValues(generated) as TranslationBundle)
+            : generated;
 
         const merged = isNew
           ? genForLang

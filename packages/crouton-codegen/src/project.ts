@@ -112,7 +112,7 @@ export const readAllResourceJsons = async (
   const results: ResourceJson[] = [];
   for (const name of names) {
     try {
-      const raw = JSON.parse(
+      const raw: unknown = JSON.parse(
         await readFile(join(base, name, 'resource.json'), 'utf-8'),
       );
       const parsed = buildResourceJsonSchema().safeParse(raw);

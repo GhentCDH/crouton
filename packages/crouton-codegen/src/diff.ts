@@ -83,7 +83,7 @@ export const diff = ({
   return {
     name: draft.name,
     // Codegen only ever drafts prisma-backed resources, so `model` is set.
-    model: (draft.config as any).source?.model ?? (draft.config as any).model ?? draft.name,
+    model: draft.config.source?.model ?? draft.name,
     isNew,
     decisions,
     draft,

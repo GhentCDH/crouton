@@ -14,17 +14,13 @@ import {
 // ── fixtures ────────────────────────────────────────────────────────
 
 const resource = (
-  overrides: Partial<ResourceJson> & { name: string },
-): ResourceJson =>
-  ({
-    route: overrides.route ?? overrides.name,
-    tag: overrides.tag ?? overrides.name,
-    kind: 'prisma' as const,
-    title: overrides.title,
-    columns: overrides.columns ?? [],
-    sidebar: overrides.sidebar ?? {},
-    ...overrides,
-  }) as unknown as ResourceJson;
+  overrides: { name: string } & Record<string, unknown>,
+): ResourceJson => ({
+  route: overrides.name,
+  tag: overrides.name,
+  kind: 'prisma',
+  ...overrides,
+} as ResourceJson);
 
 const enums: EnumRegistry = {
   Status: [
@@ -43,7 +39,7 @@ describe('buildTranslationBundle', () => {
       columns: [
         { id: 'name', label: 'Name' },
         { id: 'description', label: 'Description' },
-      ] as ResourceJson['columns'],
+      ],
     });
 
     const bundle = buildTranslationBundle([res], {});
@@ -66,7 +62,7 @@ describe('buildTranslationBundle', () => {
     const res = resource({
       name: 'group',
       title: 'Groups',
-      columns: [{ id: 'author_name' }] as ResourceJson['columns'],
+      columns: [{ id: 'author_name' }],
     });
     const bundle = buildTranslationBundle([res], {});
     expect(bundle.resources?.group?.columns?.author_name).toBe(
@@ -96,13 +92,11 @@ describe('buildTranslationBundle', () => {
       title: 'Groups',
       layout: {
         table: {
-          rowActions: [
-            { id: 'publish', label: 'Publish', type: 'procedure' },
-          ],
+          rowActions: [{ id: 'publish', label: 'Publish', type: 'procedure', procedure: 'publish', method: 'POST' }],
           filterFields: [],
           tableActions: [],
         },
-      } as any,
+      } as Record<string, unknown>,
     });
     const bundle = buildTranslationBundle([res], {});
     expect(bundle.resources?.group?.actions?.publish).toBe('Publish');
