@@ -1,3 +1,4 @@
+export * from './lib/utils';
 export * from './lib/filter';
 export * from './lib/request.model';
 export * from './lib/request/include';
@@ -19,6 +20,7 @@ export * from './lib/data-source';
 export * from './lib/resource';
 export * from './lib/config';
 export * from './lib/schema/label.helper';
+export * from './lib/schema/json';
 export * from './lib/schema/ui';
 export * from './lib/schema/zod.utils';
 export * from './lib/view';

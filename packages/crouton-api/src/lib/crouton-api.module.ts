@@ -1,7 +1,7 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
-import { registerResourceExtensions } from '@ghentcdh/crouton-core';
+import { errorMessage, registerResourceExtensions } from '@ghentcdh/crouton-core';
 
 import type { CroutonAppConfig } from './crud/app-config';
 import { createAppLayoutController } from './crud/app-layout';
@@ -96,14 +96,14 @@ export class CroutonApiModule {
       if (c.database || dataSourceRegistry.entries().length > 0) {
         try {
           adapter = dataSourceRegistry.resolveAdapter(c.database);
-        } catch (e: any) {
+        } catch (e: unknown) {
           // A named datasource that doesn't exist is always an error.
           // No datasource at all is ok for kind=custom or custom-adapter resources.
           if (c.database) {
             resourceLoadErrorsRegistry.record({
               name: c.name,
               path: c.route,
-              error: e.message ?? String(e),
+              error: errorMessage(e),
             });
             continue;
           }

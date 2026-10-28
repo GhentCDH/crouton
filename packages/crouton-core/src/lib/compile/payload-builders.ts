@@ -3,6 +3,7 @@ import { allowedIncludes } from '../request/include';
 import type { JsonAction } from '../resource';
 import type { JsonColumn } from '../resource/Column';
 import { pickExtensions } from '../resource/extensions';
+import { readEnv } from '../utils/env';
 import { resolveTableNode } from '../view';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
@@ -52,14 +53,7 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
 
 
 const resolveEnvPlaceholders = (value: string): string =>
-  value.replace(
-    /\{env\.([^}]+)\}/g,
-    (match, varName) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof (globalThis as any).process !== 'undefined'
-        ? (globalThis as any).process?.env?.[varName]
-        : undefined) ?? match,
-  );
+  value.replace(/\{env\.([^}]+)\}/g, (match, varName) => readEnv(varName) ?? match);
 
 const RESOURCE_OPS = [
   'findAll',
