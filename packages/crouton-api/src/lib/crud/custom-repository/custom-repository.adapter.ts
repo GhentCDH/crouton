@@ -4,7 +4,7 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
-import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
+import { type ListRequest, buildValueLabelColumns, offsetOf } from '@ghentcdh/crouton-core';
 
 import {
   type CustomListResult,
@@ -67,6 +67,12 @@ export const createCustomRepository = <T = any>(
     repository ??
     (prisma && typeof prisma === 'object' ? (prisma as CustomRepository) : {});
   const idField = config.idField ?? DEFAULT_ID_FIELD;
+  const hookTarget = {
+    hooks: config.hooks,
+    valueLabelColumns: buildValueLabelColumns(
+      Object.entries(config.columns ?? {}).map(([id, col]) => ({ ...col, id })),
+    ),
+  };
 
   const toId = (id: string | number): string | number =>
     (config.idType ?? DEFAULT_ID_TYPE) === 'number' ? +id : String(id);
@@ -153,7 +159,7 @@ export const createCustomRepository = <T = any>(
     const data = await decorateRows(
       result?.data ?? [],
       'findAll',
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -185,7 +191,7 @@ export const createCustomRepository = <T = any>(
     return decorateRow(
       row,
       'findOne',
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -207,7 +213,7 @@ export const createCustomRepository = <T = any>(
       prepareWrite(
         data,
         op,
-        config,
+        hookTarget,
         adapter,
         coercedId,
         request,

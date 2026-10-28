@@ -19,7 +19,6 @@ import {
 } from './column-enrichment';
 import {
   applyRelationFormatDefault,
-  buildValueLabelColumns,
   resolveColumnFieldVariants,
 } from './column-transforms';
 import type { CompiledResource } from './compiled-resource.schema';
@@ -201,9 +200,6 @@ export const compileResource = (
     ...(enrichedInclude?.length && { include: enrichedInclude }),
     ...(enrichedFindOneInclude?.length && {
       findOneInclude: enrichedFindOneInclude,
-    }),
-    ...(buildValueLabelColumns(enrichedColumns).length && {
-      valueLabelColumns: buildValueLabelColumns(enrichedColumns),
     }),
     ...pickExtensions(json as Record<string, unknown>),
   } as unknown as CompiledResource;

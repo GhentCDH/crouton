@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 
 import {
   type ListRequest,
+  buildValueLabelColumns,
   offsetOf,
   resolveDefinition,
   schemaFor,
@@ -139,6 +140,13 @@ export function createCrudRepository<T = any>(
   const listSelect = listSchema ? toSelectFields(listSchema) : undefined;
   const oneSelect = oneSchema ? toSelectFields(oneSchema) : listSelect;
 
+  const hookTarget = {
+    hooks: config.hooks,
+    valueLabelColumns: buildValueLabelColumns(
+      Object.entries(config.columns ?? {}).map(([id, col]) => ({ ...col, id })),
+    ),
+  };
+
   // If the adapter exposes the CRUD surface, route through it regardless of adapter
   // kind or resource kind. Covers:
   //   - kind:prisma  + adapter:prisma  (PrismaDataSourceAdapter or subclass override)
@@ -166,29 +174,29 @@ export function createCrudRepository<T = any>(
         const decorated = await decorateRows(
           rows,
           'findAll',
-          config,
+          hookTarget,
           adapter,
           request,
         );
-        return applyAfterFindAll(decorated, config, adapter, request);
+        return applyAfterFindAll(decorated, hookTarget, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
     const applyBefore = (params: ListRequest, request?: any) =>
-      applyBeforeFindAll(params, config, resolvedAdapter, request);
+      applyBeforeFindAll(params, hookTarget, resolvedAdapter, request);
     const decorateFindOne = (row: any, request?: any) =>
-      decorateRow(row, 'findOne', config, resolvedAdapter, request);
+      decorateRow(row, 'findOne', hookTarget, resolvedAdapter, request);
     const prepareData = (
       data: unknown,
       op: 'create' | 'update' | 'patch',
       id?: string | number,
       request?: any,
-    ) => prepareWrite(data, op, config, resolvedAdapter, id, request);
+    ) => prepareWrite(data, op, hookTarget, resolvedAdapter, id, request);
     const postData = (
       result: any,
       op: 'create' | 'update' | 'patch' | 'delete',
       id?: string | number,
       request?: any,
-    ) => postWrite(result, op, config, resolvedAdapter, id, request);
+    ) => postWrite(result, op, hookTarget, resolvedAdapter, id, request);
     const toId = (id: string | number): string | number =>
       (config.idType ?? 'string') === 'number' ? +id : String(id);
 
@@ -444,29 +452,29 @@ export function createCrudRepository<T = any>(
     const decorated = await decorateRows(
       rows,
       'findAll',
-      config,
+      hookTarget,
       adapter,
       request,
     );
-    return applyAfterFindAll(decorated, config, adapter, request);
+    return applyAfterFindAll(decorated, hookTarget, adapter, request);
   };
 
   const decorateFindOne = (row: any, request?: any): Promise<any> =>
-    decorateRow(row, 'findOne', config, adapter, request);
+    decorateRow(row, 'findOne', hookTarget, adapter, request);
 
   const prepareData = (
     data: unknown,
     op: 'create' | 'update' | 'patch',
     id?: string | number,
     request?: any,
-  ) => prepareWrite(data, op, config, adapter, id, request);
+  ) => prepareWrite(data, op, hookTarget, adapter, id, request);
 
   const postData = (
     result: any,
     op: 'create' | 'update' | 'patch' | 'delete',
     id?: string | number,
     request?: any,
-  ) => postWrite(result, op, config, adapter, id, request);
+  ) => postWrite(result, op, hookTarget, adapter, id, request);
 
   const toId = (id: string | number): string | number =>
     (config.idType ?? 'string') === 'number' ? +id : String(id);
