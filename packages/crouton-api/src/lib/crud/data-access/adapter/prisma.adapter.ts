@@ -93,7 +93,7 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
     const reader = new ReadRepository(prismaModel, this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     try {
       return await reader.findOne(id, ctx.request);
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e instanceof NotFoundException) return null;
       throw e;
     }
@@ -124,7 +124,7 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
     const reader = new ReadRepository(this.prismaModel(model), this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     try {
       return await reader.findOneChild(sub, childId, parentId, ctx.request);
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e instanceof NotFoundException) return null;
       throw e;
     }
