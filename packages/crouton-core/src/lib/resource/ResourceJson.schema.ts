@@ -52,26 +52,6 @@ const ColumnsSchema = JsonColumnsMapSchema;
 
 // ── Display / sidebar ────────────────────────────────────────────────
 
-/** @deprecated Use layout.form.container / layout.view.container instead. Kept for codemod + sub-resource compat. */
-export const JsonDisplaySchema = z.object({
-  mode: z
-    .enum(['page', 'modal'])
-    .default('modal')
-    .describe(
-      'How a record opens when clicked. "modal" (default) opens a dialog; "page" navigates to a dedicated route.',
-    ),
-  customComponent: z
-    .string()
-    .nullable()
-    .optional()
-    .default(null)
-    .describe(
-      'Import path to a custom Vue component for the record detail view. When set, the default view is replaced.',
-    ),
-});
-
-export type JsonDisplay = z.infer<typeof JsonDisplaySchema>;
-
 /** Normalise `columns` from either array or object-map form. */
 export const normalizeColumns = (
   columns: JsonColumnsMap | undefined,
@@ -604,7 +584,11 @@ export const buildResourceJsonSchema = () => {
 
       // Collect errors for removed keys inside `source` before Zod strips them
       const sourceObj = obj['source'];
-      if (sourceObj && typeof sourceObj === 'object' && !Array.isArray(sourceObj)) {
+      if (
+        sourceObj &&
+        typeof sourceObj === 'object' &&
+        !Array.isArray(sourceObj)
+      ) {
         _rawSourceErrors = Object.entries(SOURCE_REMOVED_KEYS)
           .filter(([k]) => k in (sourceObj as Record<string, unknown>))
           .map(([k, message]) => ({ path: ['source', k], message }));
@@ -911,7 +895,11 @@ export const buildResourceJsonSchema = () => {
     shape
       .superRefine(refineByKind)
       .superRefine((_, ctx) => {
-        for (const err of [..._rawRootErrors, ..._rawLayoutErrors, ..._rawSourceErrors]) {
+        for (const err of [
+          ..._rawRootErrors,
+          ..._rawLayoutErrors,
+          ..._rawSourceErrors,
+        ]) {
           ctx.addIssue({
             code: 'custom',
             path: err.path,

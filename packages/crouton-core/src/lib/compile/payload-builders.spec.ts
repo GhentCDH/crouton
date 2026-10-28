@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildResourceOperations } from './payload-builders';
+import type { CompiledResource } from './compiled-resource.schema';
+import {
+  buildDefinitionPayload,
+  buildResourceOperations,
+  buildViewsPayload,
+  deriveDisplay,
+} from './payload-builders';
+import type { Layout } from '../layout/schema';
+import { invalid } from '../utils/test-utils';
 
 const baseUri = 'http://host/annotation';
 
@@ -31,5 +39,73 @@ describe('buildResourceOperations — external uri', () => {
     const ops = buildResourceOperations(def as Record<string, unknown>, baseUri);
     expect(ops['delete']).toEqual({ uri: 'https://legacy.example.com/annotation/{id}', method: 'delete' });
     delete process.env['ANNOTATION_API'];
+  });
+});
+
+describe('deriveDisplay', () => {
+  it('defaults to a modal without a custom component', () => {
+    expect(deriveDisplay(undefined)).toEqual({
+      mode: 'modal',
+      customComponent: null,
+    });
+  });
+
+  it('reads the form container mode and the view custom component', () => {
+    expect(
+      deriveDisplay(
+        invalid<Layout>({
+          form: { container: { mode: 'page', size: 'sm' } },
+          view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Page.vue' },
+        }),
+      ),
+    ).toEqual({ mode: 'page', customComponent: 'src/Page.vue' });
+  });
+
+  it('falls back to the view container mode when the form has none', () => {
+    expect(
+      deriveDisplay(
+        invalid<Layout>({
+          view: { container: { mode: 'page', size: 'sm' } },
+        }),
+      ),
+    ).toEqual({ mode: 'page', customComponent: null });
+  });
+});
+
+describe('display is derived into the payloads', () => {
+  const config = (layout: Layout | undefined) =>
+    invalid<CompiledResource>({
+      name: 'book',
+      route: 'book',
+      tag: 'Book',
+      definition: {},
+      layout,
+      views: { view: { json_schema: {}, ui_schema: {} } },
+    });
+
+  const layout: Layout = {
+    form: { container: { mode: 'page', size: 'sm' } },
+    view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Detail.vue' },
+  };
+
+  it('buildDefinitionPayload keeps display on the wire', () => {
+    expect(buildDefinitionPayload(config(layout))['display']).toEqual({
+      mode: 'page',
+      customComponent: 'src/Detail.vue',
+    });
+  });
+
+  it('buildViewsPayload keeps display on the wire', () => {
+    expect(buildViewsPayload(config(layout))?.['display']).toEqual({
+      mode: 'page',
+      customComponent: 'src/Detail.vue',
+    });
+  });
+
+  it('buildDefinitionPayload defaults to a modal without a layout', () => {
+    expect(buildDefinitionPayload(config(undefined))['display']).toEqual({
+      mode: 'modal',
+      customComponent: null,
+    });
   });
 });
