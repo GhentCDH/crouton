@@ -1,6 +1,7 @@
 export * from './action.types';
 export * from './gather';
 export * from './model';
+export * from './normalize-resource';
 export * from './column-enrichment';
 export * from './column-transforms';
 export * from './compile-resource';
