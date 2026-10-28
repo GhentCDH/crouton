@@ -11,6 +11,12 @@ import { CustomRepositorySchema } from '../custom-repository';
 import { ResourceHooksSchema } from '../hooks';
 
 export const ResourceSchema = CompiledResourceSchema.extend({
+  /**
+   * Loader-only flag for the `resource.ts` escape hatch: the loader reads it
+   * before validating/registering the resource. The JSON path reads raw
+   * `draft` before compiling, so this is not part of the compiled output.
+   */
+  draft: z.boolean().optional(),
   actions: z.array(ResourceRowActionSchema).default([]),
   /** Global table-level actions (no record id). Shown as toolbar buttons. */
   tableActions: z.array(ResourceTableActionSchema).default([]),
