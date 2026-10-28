@@ -197,9 +197,7 @@ export const buildResourceJsonPayload = (
   }
 
   const form = config.views?.['form'];
-  const schema = form?.json_schema
-    ? { data: form.json_schema, ui: form.ui_schema }
-    : null;
+  const schema = form?.data ? { data: form.data, ui: form.ui } : null;
 
   return {
     id: config.id ?? route,
@@ -249,8 +247,8 @@ export const buildViewsPayload = (
     Object.entries(config.views).map(([key, v]) => [
       key,
       {
-        data: v.json_schema,
-        ui: v.ui_schema,
+        data: v.data,
+        ui: v.ui,
         ...(v.columns?.length && { columns: v.columns }),
       },
     ]),
@@ -320,7 +318,7 @@ export const buildSubResourceViewsPayload = (
       const subSchemas = Object.fromEntries(
         Object.entries(sub.views).map(([key, v]) => [
           key,
-          { data: v.json_schema, ui: v.ui_schema },
+          { data: v.data, ui: v.ui },
         ]),
       );
       const subTable = subSchemas['table'] ?? {};

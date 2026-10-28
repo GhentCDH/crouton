@@ -161,8 +161,8 @@ const onCreate = () => {
   const form = fetchOptions.value!.form as any;
   if (form && modalOpener) {
     modalOpener({
-      schema: form.json_schema,
-      uiSchema: form.ui_schema,
+      schema: form.data,
+      uiSchema: form.ui,
       modalTitle: `Create new ${wrapper.value.label}`,
       http,
       onClose: (result) => {

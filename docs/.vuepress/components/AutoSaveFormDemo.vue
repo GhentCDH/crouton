@@ -13,7 +13,7 @@ const formData = ref({
 
 const views = {
   form: {
-    json_schema: {
+    data: {
       type: 'object',
       properties: {
         label: { type: 'string', title: 'Label', minLength: 1 },
@@ -23,7 +23,7 @@ const views = {
       required: ['label', 'date', 'amount'],
       additionalProperties: true,
     },
-    ui_schema: {
+    ui: {
       type: 'GridLayout',
       elements: [
         {

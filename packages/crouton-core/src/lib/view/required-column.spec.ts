@@ -9,7 +9,7 @@ import { zodSchemaSource } from '../schema/view/build-view';
 import { invalid } from '../utils/test-utils';
 
 const propsOf = (views: Record<string, ViewConfig>, view = 'form'): Record<string, Record<string, unknown>> =>
-  (views?.[view]?.json_schema?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
+  (views?.[view]?.data?.['properties'] ?? {}) as Record<string, Record<string, unknown>>;
 
 /**
  * `required` on a column.
@@ -35,7 +35,7 @@ const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
   });
 
 const required = (views: Record<string, ViewConfig> | undefined, view = 'form'): string[] | undefined =>
-  views?.[view]?.json_schema?.['required'] as string[] | undefined;
+  views?.[view]?.data?.['required'] as string[] | undefined;
 
 describe('required on a custom resource (no Zod model)', () => {
   const columns = [
@@ -112,7 +112,7 @@ describe('required on a sub-resource (schema-less column path)', () => {
   const bn = (cols: JsonColumn[]) => {
     const raw = buildLayouts(undefined, { columns: cols, source: nestedColumnSchemaSource, warn: () => undefined });
     return Object.fromEntries(
-      Object.entries(raw).map(([k, v]) => [k, { ...v, ui_schema: fixNestedUiSchemaScopes(v.ui_schema as Record<string, unknown>, cols) }])
+      Object.entries(raw).map(([k, v]) => [k, { ...v, ui: fixNestedUiSchemaScopes(v.ui as Record<string, unknown>, cols) }])
     );
   };
 

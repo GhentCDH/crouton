@@ -80,7 +80,7 @@ describe('display is derived into the payloads', () => {
       tag: 'Book',
       definition: {},
       layout,
-      views: { view: { json_schema: {}, ui_schema: {} } },
+      views: { view: { data: {}, ui: {} } },
     });
 
   const layout: Layout = {

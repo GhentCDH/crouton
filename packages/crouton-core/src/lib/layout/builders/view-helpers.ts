@@ -102,15 +102,14 @@ export const buildView = (
   }
 
   return {
-    json_schema: jsonSchema,
-     
-    ui_schema: buildUiSchema(visibleCols) as Record<string, unknown>,
+    data: jsonSchema,
+    ui: buildUiSchema(visibleCols) as Record<string, unknown>,
     columns: visibleCols.map((col) => toViewColumn(col, resourceName)),
   };
 };
 
 export const emptyTableView = (): ViewConfig => ({
-  json_schema: { type: 'object', additionalProperties: true, properties: {} },
-  ui_schema: buildTableUiSchema([]),
+  data: { type: 'object', additionalProperties: true, properties: {} },
+  ui: buildTableUiSchema([]),
   columns: [],
 });

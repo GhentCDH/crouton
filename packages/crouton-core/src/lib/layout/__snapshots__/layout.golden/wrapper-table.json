@@ -1,7 +1,7 @@
 {
   "views": {
     "table": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "title": {
@@ -22,7 +22,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "VerticalLayout",
         "elements": [
           {
@@ -76,7 +76,7 @@
       "defaultSortDir": "asc"
     },
     "form": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "title": {
@@ -97,7 +97,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "GridLayout",
         "elements": [
           {
@@ -160,7 +160,7 @@
       ]
     },
     "view": {
-      "json_schema": {
+      "data": {
         "type": "object",
         "properties": {
           "id": {
@@ -186,7 +186,7 @@
         },
         "additionalProperties": true
       },
-      "ui_schema": {
+      "ui": {
         "type": "GridLayout",
         "elements": [
           {

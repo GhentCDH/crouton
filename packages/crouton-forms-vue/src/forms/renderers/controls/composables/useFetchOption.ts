@@ -182,8 +182,8 @@ const useResourceOptions = async (
     enableCreate: !!(resource.operations.create && resource.schema.ui),
     form: resource.operations.create
       ? {
-          ui_schema: resource.schema!.ui,
-          json_schema: resource.schema!.data,
+          ui: resource.schema!.ui,
+          data: resource.schema!.data,
           title: `Create new ${resource.id}`,
           create: async (data: any) => {
             const create = resource.operations.create!;
