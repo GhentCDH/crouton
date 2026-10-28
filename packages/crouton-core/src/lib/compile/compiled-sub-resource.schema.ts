@@ -33,10 +33,15 @@ export const CompiledSubResourceConfigSchema = z.object({
   includeInFindOne: z.boolean().optional(),
   hiddenInTable: z.boolean().optional(),
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
+  // TODO what is this?
   valueLabelColumns: z.array(ValueLabelColumnSchema).optional(),
-  relationType: z.enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne']).optional(),
+  relationType: z
+    .enum(['oneToMany', 'manyToOne', 'manyToMany', 'oneToOne'])
+    .optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),
 });
 
-export type CompiledSubResourceConfig = z.infer<typeof CompiledSubResourceConfigSchema>;
+export type CompiledSubResourceConfig = z.infer<
+  typeof CompiledSubResourceConfigSchema
+>;

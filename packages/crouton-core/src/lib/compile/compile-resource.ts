@@ -24,12 +24,12 @@ import {
 } from './column-transforms';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
-import type { EnumRegistry } from './enum-registry';
-import { injectEnumValues } from './enum-registry';
+import type { EnumRegistry } from './enum/enum-registry';
+import { injectEnumValues } from './enum/enum-registry';
 import { enrichRelationTypes } from './relation-type';
-import { buildResourceDefinitions } from './schema.helpers';
 import { buildLookup, buildSearch } from './search-lookup';
 import { pickExtensions } from '../resource/extensions';
+import { buildResourceDefinitions } from '../schema/definition';
 
 export type CompileResolvers = {
   /** Expand `extends` columns from a sibling resource. Default: identity. */

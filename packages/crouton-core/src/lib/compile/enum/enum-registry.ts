@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { JsonColumn } from '../resource';
+import type { JsonColumn } from '../../resource';
 
 export const EnumEntrySchema = z.object({
   value: z.unknown(),
@@ -20,16 +20,24 @@ export type EnumRegistry = z.infer<typeof EnumRegistrySchema>;
  * `values` is undefined when the enum name was not found in the registry;
  * all other defaults (type, labelKey, valueKey, emitObject) are applied regardless.
  */
-export const applyEnumDefaults = (col: JsonColumn, values?: EnumEntry[]): void => {
+export const applyEnumDefaults = (
+  col: JsonColumn,
+  values?: EnumEntry[],
+): void => {
   col.fieldInput = col.fieldInput ?? {};
   if (!col.fieldInput.type) col.fieldInput.type = 'select';
 
-  const options = (col.fieldInput.options as Record<string, unknown> | undefined) ?? {};
+  const options =
+    (col.fieldInput.options as Record<string, unknown> | undefined) ?? {};
 
   if (!('emitObject' in options)) options.emitObject = true;
   if (!('labelKey' in options)) options.labelKey = 'label';
   if (!('valueKey' in options)) options.valueKey = 'value';
-  if (values !== undefined && !('values' in options) && !('options' in options)) {
+  if (
+    values !== undefined &&
+    !('values' in options) &&
+    !('options' in options)
+  ) {
     options.values = values;
   }
 
@@ -49,7 +57,9 @@ export const injectEnumValues = (
     if (!col.enum) continue;
     const values = enums[col.enum];
     if (!values) {
-      console.warn(`[crouton] enum "${col.enum}" not found in crouton.enums.json`);
+      console.warn(
+        `[crouton] enum "${col.enum}" not found in crouton.enums.json`,
+      );
     }
     applyEnumDefaults(col, values);
   }

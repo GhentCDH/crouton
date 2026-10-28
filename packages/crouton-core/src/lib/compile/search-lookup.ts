@@ -1,5 +1,5 @@
 import type { JsonColumn, RelationFieldInputOptions } from '../resource';
-import type { LookupConfig } from './lookup.schema';
+import { type LookupConfig } from '../schema/definition';
 
 export const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
@@ -26,13 +26,18 @@ export const buildSearch = (
       if (!col) return [id];
       if ((col as any).computed) return [];
       if (col.fieldInput?.format === 'relation') {
-        const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
+        const opts = col.fieldInput.options as
+          RelationFieldInputOptions | undefined;
         if (opts?.displayKey) return [`${id}.${opts.displayKey}`];
       }
-      if (col.relation !== undefined || col.fieldInput?.relationType === 'manyToOne') {
+      if (
+        col.relation !== undefined ||
+        col.fieldInput?.relationType === 'manyToOne'
+      ) {
         const displayKey =
           col.displayKey ??
-          (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
+          (col.fieldInput?.options as RelationFieldInputOptions | undefined)
+            ?.displayKey;
         if (displayKey) return [`${id}.${displayKey}`];
       }
       return [id];
@@ -77,7 +82,8 @@ export const buildLookup = (
           if (resolved) return resolved;
           const displayKey =
             col.displayKey ??
-            (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.displayKey;
+            (col.fieldInput?.options as RelationFieldInputOptions | undefined)
+              ?.displayKey;
           if (displayKey) {
             const relationName = col.id.replace(/Id$/, '');
             return `${relationName}.${displayKey}`;

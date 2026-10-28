@@ -1,8 +1,7 @@
-
 import { afterEach, describe, expect, it } from 'vitest';
 
-import type { EnumRegistry } from './enum-registry';
-import { EnumRegistrySchema } from './enum-registry';
+import type { EnumRegistry } from './enum/enum-registry';
+import { EnumRegistrySchema } from './enum/enum-registry';
 import type { ParseSchemaView } from './parse-schema';
 import { parseSchema } from './parse-schema';
 import { clearResourceExtensions } from '../resource';
@@ -30,7 +29,9 @@ const loadEnums = (caseDir: string): EnumRegistry => {
   return raw ? EnumRegistrySchema.parse(raw) : {};
 };
 
-const loadResources = (caseDir: string): { resource: string; json: unknown }[] => {
+const loadResources = (
+  caseDir: string,
+): { resource: string; json: unknown }[] => {
   return readdirSync(caseDir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => {
@@ -68,7 +69,9 @@ for (const caseName of cases) {
             __dirname,
             `__snapshots__/parse-schema/${caseName}.${resource}.${view}.json`,
           );
-          await expect(JSON.stringify(result, null, 2)).toMatchFileSnapshot(snapshotPath);
+          await expect(JSON.stringify(result, null, 2)).toMatchFileSnapshot(
+            snapshotPath,
+          );
         });
       }
     }

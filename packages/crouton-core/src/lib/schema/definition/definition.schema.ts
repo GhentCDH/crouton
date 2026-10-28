@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
-import { SchemaInputSchema } from '../../compile/schema-input';
 import { SecuritySchema } from '../../data-source/Security.schema';
-
-export type { JsonSchemaInput, SchemaInput } from '../../compile/schema-input';
+import { SchemaInputSchema } from '../json';
 
 const ExternalOperationDefSchema = z.object({
   uri: z.string(),

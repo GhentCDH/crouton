@@ -1,14 +1,9 @@
 import type { CrudDefinition } from './definition.schema';
-import type { SchemaInput } from '../../compile/schema-input';
 import type { JsonResourceOperations } from '../../data-source';
+import { type SchemaInput } from '../json';
 
 export type CrudOperation =
-  | 'findAll'
-  | 'findOne'
-  | 'create'
-  | 'update'
-  | 'patch'
-  | 'delete';
+  'findAll' | 'findOne' | 'create' | 'update' | 'patch' | 'delete';
 
 export const resolveDefinition = (config: {
   definition: CrudDefinition | (() => CrudDefinition);
@@ -49,4 +44,3 @@ export const externalRouteFor = (
   }
   return undefined;
 };
-

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { applyEnumDefaults, injectEnumValues } from './enum-registry';
-import type { JsonColumn } from '../resource';
+import type { JsonColumn } from '../../resource';
 
 const registry = {
   bookStatus: [
@@ -10,7 +10,11 @@ const registry = {
   ],
 };
 
-const enumCol = (): JsonColumn => ({ id: 'status', type: 'string', enum: 'bookStatus' });
+const enumCol = (): JsonColumn => ({
+  id: 'status',
+  type: 'string',
+  enum: 'bookStatus',
+});
 
 describe('applyEnumDefaults', () => {
   it('sets fieldInput.type = select when absent', () => {
@@ -20,13 +24,19 @@ describe('applyEnumDefaults', () => {
   });
 
   it('sets fieldInput.type = select when fieldInput exists without type', () => {
-    const col: JsonColumn = { ...enumCol(), fieldInput: { position: 0 } as any };
+    const col: JsonColumn = {
+      ...enumCol(),
+      fieldInput: { position: 0 } as any,
+    };
     applyEnumDefaults(col);
     expect(col.fieldInput!.type).toBe('select');
   });
 
   it('respects existing fieldInput.type', () => {
-    const col: JsonColumn = { ...enumCol(), fieldInput: { type: 'multiSelect' } as any };
+    const col: JsonColumn = {
+      ...enumCol(),
+      fieldInput: { type: 'multiSelect' } as any,
+    };
     applyEnumDefaults(col);
     expect(col.fieldInput!.type).toBe('multiSelect');
   });
@@ -82,7 +92,9 @@ describe('applyEnumDefaults', () => {
   it('injects values when provided', () => {
     const col = enumCol();
     applyEnumDefaults(col, registry.bookStatus);
-    expect((col.fieldInput!.options as any).values).toEqual(registry.bookStatus);
+    expect((col.fieldInput!.options as any).values).toEqual(
+      registry.bookStatus,
+    );
   });
 
   it('does not set values when not provided (unknown enum)', () => {
@@ -109,7 +121,9 @@ describe('injectEnumValues', () => {
     expect(col.fieldInput!.type).toBe('select');
     expect((col.fieldInput!.options as any).emitObject).toBe(true);
     expect((col.fieldInput!.options as any).labelKey).toBe('label');
-    expect((col.fieldInput!.options as any).values).toEqual(registry.bookStatus);
+    expect((col.fieldInput!.options as any).values).toEqual(
+      registry.bookStatus,
+    );
     expect(col.displayKey).toBe('label');
   });
 
@@ -118,7 +132,9 @@ describe('injectEnumValues', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const col: JsonColumn = { id: 'foo', type: 'string', enum: 'unknownEnum' };
     injectEnumValues([col], registry);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('unknownEnum'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('unknownEnum'),
+    );
     expect(col.fieldInput!.type).toBe('select');
     expect((col.fieldInput!.options as any).values).toBeUndefined();
     warnSpy.mockRestore();

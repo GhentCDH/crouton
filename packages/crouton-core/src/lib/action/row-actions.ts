@@ -1,16 +1,23 @@
-import { type ResourceJson } from '../resource';
-import { isRowProcedureAction, isTableProcedureAction } from './action.types';
+import {
+  type ResourceRowAction,
+  type ResourceTableAction,
+  isRowProcedureAction,
+  isTableProcedureAction,
+} from './action.types';
 
-export const getRowActions = (resource: ResourceJson) => {
-  // should come from resource.layout  the row actions
-
-  return [];
+type WithActions = {
+  actions?: ResourceRowAction[];
+  tableActions?: ResourceTableAction[];
 };
 
-export const getRowProcedureAction = (resource: ResourceJson) => {
-  return getRowActions(resource).filter(isRowProcedureAction);
-};
+export const getRowActions = (resource: WithActions): ResourceRowAction[] =>
+  resource.actions ?? [];
 
-export const getTableProcedureActions = (resource: ResourceJson) => {
-  return getRowActions(resource).filter(isTableProcedureAction);
-};
+export const getTableActions = (resource: WithActions): ResourceTableAction[] =>
+  resource.tableActions ?? [];
+
+export const getRowProcedureActions = (resource: WithActions) =>
+  getRowActions(resource).filter(isRowProcedureAction);
+
+export const getTableProcedureActions = (resource: WithActions) =>
+  getTableActions(resource).filter(isTableProcedureAction);

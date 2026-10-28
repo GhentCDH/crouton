@@ -5,7 +5,7 @@ import {
   registerResourceExtensions,
 } from '../resource';
 import { type CompileResolvers, compileResource } from './compile-resource';
-import type { EnumRegistry } from './enum-registry';
+import type { EnumRegistry } from './enum/enum-registry';
 import {
   buildDefinitionPayload,
   buildResourceJsonPayload,

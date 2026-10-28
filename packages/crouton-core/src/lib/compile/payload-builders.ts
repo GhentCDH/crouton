@@ -12,8 +12,8 @@ import {
   isOperationExternal,
   resolveDefinition,
   schemaFor,
-} from './crud-config';
-import { toJsonSchema } from './to-json-schema';
+} from '../schema/definition';
+import { toJsonSchema } from '../schema/json';
 
 interface TableInjectOptions {
   rowActions: unknown[];

@@ -1,9 +1,9 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import type { CrudDefinition, OperationDef } from './definition.schema';
-import type { SchemaInput } from '../../compile/schema-input';
 import type { JsonResourceOperations } from '../../data-source';
 import type { JsonColumn } from '../../resource';
+import { type SchemaInput } from '../json';
 import { pickByColumns } from '../json/pick-by-columns';
 
 const opWithSchema = (
