@@ -26,6 +26,7 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
       cls,
       methodName,
       async function (this: { repo: CrudRepository }, recordId: string) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- action.procedure typed as Promise<any> in crouton-core schema
         return action.procedure(this.repo.prisma, recordId);
       },
     );
@@ -69,6 +70,7 @@ export const registerTableActionRoutes = (ctx: OperationContext): void => {
   for (const action of procedureActions) {
     const methodName = `tableAction_${action.id}`;
     def(cls, methodName, async function (this: { repo: CrudRepository }) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- action.procedure typed as Promise<any> in crouton-core schema
       return action.procedure(this.repo.prisma);
     });
     const d = desc(cls, methodName);

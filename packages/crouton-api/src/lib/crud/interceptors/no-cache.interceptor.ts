@@ -8,7 +8,7 @@ import {
 @Injectable()
 export class NoCacheInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): ReturnType<CallHandler['handle']> {
-    const response = context.switchToHttp().getResponse();
+    const response = context.switchToHttp().getResponse<{ setHeader(name: string, value: string): void }>();
     response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.setHeader('Pragma', 'no-cache');
     response.setHeader('Expires', '0');

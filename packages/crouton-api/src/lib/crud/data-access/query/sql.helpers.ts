@@ -8,6 +8,9 @@ import type { SubResourceConfig } from '../../resource/SubResource.schema';
 
 type WithRawQuery = { $queryRawUnsafe(query: string, ...values: unknown[]): Promise<unknown> };
 
+// JsonIncludeEntry is typed as `any` by z.lazy — define local typed union for safe access
+type IncludeEntry = string | { relation: string; include?: IncludeEntry[]; orderBy?: Record<string, unknown> };
+
 // ── SQL expression helpers ────────────────────────────────────────────────
 
 /** Wrap a column's SQL expression with the appropriate CAST for its type. */
@@ -153,11 +156,14 @@ export const buildIncludeClause = (
 ): Record<string, unknown> | undefined => {
   if (!include?.length) return undefined;
 
+  // Cast to local typed union since JsonIncludeEntry is `any` due to z.lazy
+  const typed = include as IncludeEntry[];
+
   // Normalise every entry to { relation, nestedIncludes[], orderBy? }
-  const map = new Map<string, JsonIncludeEntry[]>();
+  const map = new Map<string, IncludeEntry[]>();
   const orderByMap = new Map<string, Record<string, unknown>>();
 
-  for (const entry of include) {
+  for (const entry of typed) {
     if (typeof entry === 'string') {
       const dotIdx = entry.indexOf('.');
       if (dotIdx === -1) {
@@ -166,7 +172,7 @@ export const buildIncludeClause = (
       } else {
         // Dotted path: "author.internal_author" → relation "author", nested "internal_author"
         const relation = entry.slice(0, dotIdx);
-        const rest = entry.slice(dotIdx + 1) as JsonIncludeEntry;
+        const rest = entry.slice(dotIdx + 1) as IncludeEntry;
         map.set(relation, [...(map.get(relation) ?? []), rest]);
       }
     } else {
@@ -183,13 +189,13 @@ export const buildIncludeClause = (
     Array.from(map.entries()).map(([relation, nestedIncludes]) => {
       const orderBy = orderByMap.get(relation);
       if (!nestedIncludes.length && !orderBy) return [relation, true];
-      const nested = buildIncludeClause(nestedIncludes);
+      const nested = buildIncludeClause(nestedIncludes as JsonIncludeEntry[]);
       const clause: Record<string, unknown> = {};
       if (nested) clause.include = nested;
       if (orderBy) clause.orderBy = orderBy;
       return [relation, clause];
     }),
-  );
+  ) as Record<string, unknown>;
 };
 
 /**
@@ -209,16 +215,16 @@ export const buildFindOneIncludes = (
   const autoSubs = subResources.filter(
     (s) => s.includeInFindOne && s.childKind !== 'custom',
   );
-  const flatIncludes = autoSubs.length
-    ? Object.fromEntries(
+  const flatIncludes: Record<string, unknown> | undefined = autoSubs.length
+    ? (Object.fromEntries(
         autoSubs.map((s) =>
           s.findOneOrderBy
             ? [s.relation, { orderBy: s.findOneOrderBy }]
             : [s.relation, true],
         ),
-      )
+      ) as Record<string, unknown>)
     : undefined;
 
   if (!flatIncludes && !configInclude) return undefined;
-  return { ...flatIncludes, ...configInclude };
+  return { ...flatIncludes, ...configInclude } as Record<string, unknown>;
 };
