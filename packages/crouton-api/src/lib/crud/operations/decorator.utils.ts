@@ -1,5 +1,7 @@
+type ControllerClass = { prototype: object };
+
 /** Dynamically define a method on a class prototype. */
-export const def = (cls: any, method: string, fn: (...args: any[]) => any): void => {
+export const def = (cls: ControllerClass, method: string, fn: unknown): void => {
   Object.defineProperty(cls.prototype, method, {
     value: fn,
     writable: true,
@@ -8,5 +10,5 @@ export const def = (cls: any, method: string, fn: (...args: any[]) => any): void
 };
 
 /** Get the property descriptor for a method just defined via `def()`. */
-export const desc = (cls: any, method: string): PropertyDescriptor =>
+export const desc = (cls: ControllerClass, method: string): PropertyDescriptor =>
   Object.getOwnPropertyDescriptor(cls.prototype, method)!;

@@ -58,25 +58,25 @@ export interface ReadHookContext<PRISMACLIENT = unknown> {
 
 export const ResourceHooksSchema = z.object({
   beforeWrite: z
-    .custom<(data: any, ctx: WriteHookContext<any>) => Promise<any> | any>()
+    .custom<(data: unknown, ctx: WriteHookContext) => Promise<unknown> | unknown>()
     .optional(),
   afterWrite: z
-    .custom<(result: any, ctx: WriteHookContext<any>) => Promise<any> | any>()
+    .custom<(result: unknown, ctx: WriteHookContext) => Promise<unknown> | unknown>()
     .optional(),
   afterRead: z
-    .custom<(row: any, ctx: ReadHookContext<any>) => Promise<any> | any>()
+    .custom<(row: unknown, ctx: ReadHookContext) => Promise<unknown> | unknown>()
     .optional(),
   beforeFindAll: z
     .custom<
       (
         params: ListRequest,
-        ctx: ReadHookContext<any>,
+        ctx: ReadHookContext,
       ) => Promise<ListRequest> | ListRequest
     >()
     .optional(),
   afterFindAll: z
     .custom<
-      (rows: any[], ctx: ReadHookContext<any>) => Promise<any[]> | any[]
+      (rows: unknown[], ctx: ReadHookContext) => Promise<unknown[]> | unknown[]
     >()
     .optional(),
 });

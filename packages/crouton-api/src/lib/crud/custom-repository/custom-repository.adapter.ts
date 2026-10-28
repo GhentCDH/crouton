@@ -160,7 +160,7 @@ export const createCustomRepository = <T = Row>(
       request,
       parentHookCtx(request),
     );
-    return { data, count: result?.count ?? data.length };
+    return { data: data as T[], count: result?.count ?? data.length };
   };
 
   const findOne = async (id: string | number, request?: unknown): Promise<T> => {

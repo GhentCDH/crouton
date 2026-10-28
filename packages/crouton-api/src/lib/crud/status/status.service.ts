@@ -141,7 +141,7 @@ export const getResourceStatus = (
       ...(c.kind === 'custom' && c.repository
         ? {
             customOperations: CUSTOM_OPS.filter(
-              (op) => typeof (c.repository as any)?.[op] === 'function',
+              (op) => typeof (c.repository as Record<string, unknown>)?.[op] === 'function',
             ),
           }
         : {}),
@@ -152,8 +152,9 @@ export const getResourceStatus = (
           }
         : {}),
       ...(allSubResources.length ? { subResources: allSubResources } : {}),
-      ...((c as any).parent?.route
-        ? { parentRoute: (c as any).parent.route }
+      ...((c as Record<string, unknown>)['parent'] &&
+      typeof ((c as Record<string, unknown>)['parent'] as Record<string, unknown>)['route'] === 'string'
+        ? { parentRoute: ((c as Record<string, unknown>)['parent'] as Record<string, unknown>)['route'] as string }
         : {}),
     };
   });

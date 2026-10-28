@@ -28,7 +28,7 @@ export const findModule = (dir: string, name: string): string | undefined => {
  * The `?t=` cache-busting trick only works in Vite; in plain Node.js it
  * causes `import()` to throw because query strings aren't valid on file paths.
  */
-const IS_VITE = typeof (globalThis as any).__vite_ssr_import__ === 'function';
+const IS_VITE = typeof (globalThis as Record<string, unknown>).__vite_ssr_import__ === 'function';
 
 /**
  * Dynamically import a default export, returning `undefined` on failure.

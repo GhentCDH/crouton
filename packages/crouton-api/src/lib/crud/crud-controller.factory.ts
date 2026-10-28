@@ -6,6 +6,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import type { ZodObject, ZodRawShape } from 'zod';
 
 import {
   type CrudOperation,
@@ -80,7 +81,7 @@ export function createCrudController(
   const patchSchema =
     explicitPatchSchema ??
     (updateSchema && isZodSchema(updateSchema)
-      ? (updateSchema as any).partial()
+      ? (updateSchema as ZodObject<ZodRawShape>).partial()
       : undefined) ??
     updateSchema;
   const bodyDecorator = (
@@ -96,7 +97,7 @@ export function createCrudController(
   const resolveClient = (
     registry: DataSourceRegistry,
     resource: Resource,
-  ): any => {
+  ): unknown => {
     try {
       return registry.resolve(resource.database);
     } catch (e) {

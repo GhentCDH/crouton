@@ -399,7 +399,7 @@ export function createCrudRepository<T = Row>(
   // (requires adapter.client that implements ops, or a repository.ts was already handled above).
   if (resolvedAdapter && resolvedAdapter.kind !== 'prisma') {
     return createCustomRepository<T>(
-      resolvedAdapter.client as any,
+      resolvedAdapter.client,
       config,
       fallbackDataSources,
       undefined,

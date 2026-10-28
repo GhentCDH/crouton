@@ -36,7 +36,7 @@ export const loadActions = async <S extends 'row' | 'table'>(
       );
       continue;
     }
-    const mod = await importDefault<(...args: any[]) => Promise<any>>(file);
+    const mod = await importDefault<(...args: unknown[]) => Promise<unknown>>(file);
     if (!mod) {
       console.warn(`[${tag}] No default export in ${file}`);
       continue;
@@ -46,5 +46,5 @@ export const loadActions = async <S extends 'row' | 'table'>(
       ResourceRowAction | ResourceTableAction);
   }
 
-  return results as any;
+  return results as S extends 'row' ? ResourceRowAction[] : ResourceTableAction[];
 };

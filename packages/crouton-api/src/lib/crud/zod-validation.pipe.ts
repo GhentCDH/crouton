@@ -1,5 +1,5 @@
 import { type PipeTransform } from '@nestjs/common';
-import { type ZodError, type ZodObject, type ZodRawShape, type ZodType } from 'zod';
+import { type ZodError, type ZodObject, type ZodRawShape, type ZodType, type ZodTypeAny } from 'zod';
 
 import { isDecimalField } from '@ghentcdh/crouton-core';
 
@@ -27,16 +27,17 @@ export class ZodValidationPipe implements PipeTransform {
   private readonly coerceUndefinedToNull: boolean;
 
   constructor(
-    private readonly schema: ZodObject<ZodRawShape>,
+    private readonly schema: ZodTypeAny,
     options: ZodValidationPipeOptions = {},
   ) {
+    const objSchema = schema as ZodObject<ZodRawShape>;
     // Always compute nullable keys — needed for "" → null coercion in stripEmptyStrings
-    this.nullableKeys = Object.entries(schema.shape)
+    this.nullableKeys = Object.entries(objSchema.shape)
       .filter(([, field]) => (field as ZodType).safeParse(null).success)
       .map(([key]) => key);
 
     // Resolve Decimal ctor once; skip coercion entirely if @prisma/client is unavailable.
-     
+
     let decimalCtor: (new (v: number | string) => object) | null = null;
     try {
       decimalCtor = require('@prisma/client/runtime/client').Decimal;
@@ -46,14 +47,14 @@ export class ZodValidationPipe implements PipeTransform {
     this.decimalCtor = decimalCtor;
 
     this.decimalKeys = decimalCtor
-      ? Object.entries(schema.shape)
+      ? Object.entries(objSchema.shape)
           .filter(([, field]) => isDecimalField(field as ZodType))
           .map(([key]) => key)
       : [];
     this.coerceUndefinedToNull = options.coerceNullableUndefinedToNull ?? false;
   }
 
-  transform(value: unknown) {
+  transform(value: unknown): Record<string, unknown> {
     const stripped = this.stripEmptyStrings(value);
     const coerced = this.coerceNullable(stripped);
     const input = this.coerceDecimals(coerced);
@@ -61,7 +62,7 @@ export class ZodValidationPipe implements PipeTransform {
     if (!result.success) {
       throw new CroutonValidationError(this.formatErrors(result.error));
     }
-    return result.data;
+    return result.data as Record<string, unknown>;
   }
 
   /**

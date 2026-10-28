@@ -21,7 +21,7 @@ const defaultCreate = (ctx: OperationContext) => {
     route: '',
     methodName,
     name: config.name,
-    createFn: function (this: { repo: CrudRepository }, body: any, req: any) {
+    createFn: function (this: { repo: CrudRepository }, body: unknown, req: unknown) {
       return this.repo.create(body, req);
     },
     decorators: () => {
@@ -43,8 +43,8 @@ const childCreate = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   const createFn = async function (
     this: { repo: CrudRepository },
     id: string,
-    body: any,
-    req: any,
+    body: unknown,
+    req: unknown,
   ) {
     return this.repo.createChild(id, sub, body, req);
   };

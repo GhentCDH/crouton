@@ -1,9 +1,12 @@
 import type {
   CalculatedColumn,
   JsonIncludeEntry,
+  Row,
 } from '@ghentcdh/crouton-core';
 
-import type { SubResourceConfig } from '../../resource/SubResource.schema'; // ── SQL expression helpers ────────────────────────────────────────────────
+import type { SubResourceConfig } from '../../resource/SubResource.schema';
+
+type WithRawQuery = { $queryRawUnsafe(query: string, ...values: unknown[]): Promise<unknown> };
 
 // ── SQL expression helpers ────────────────────────────────────────────────
 
@@ -23,10 +26,10 @@ const defaultValueForType = (col: CalculatedColumn): unknown => {
 
 /** Coercion function for the column's type. */
 const coerceColumnValue = (col: CalculatedColumn) => {
-  if (col.type === 'boolean') return (v: any) => Boolean(v);
+  if (col.type === 'boolean') return (v: unknown) => Boolean(v);
   if (col.type === 'string')
-    return (v: any) => (v === undefined || v === null ? null : String(v));
-  return (v: any) => Number(v ?? 0);
+    return (v: unknown) => (v === undefined || v === null ? null : String(v));
+  return (v: unknown) => Number(v ?? 0);
 };
 
 /**
@@ -83,13 +86,13 @@ const buildCalculatedColumnSql = (
  * @param provider - Database provider for placeholder syntax (`'postgresql'`, `'sqlite'`, etc.).
  */
 export const mergeCalculatedColumnsForRows = async (
-  rows: any[],
+  rows: Row[],
   calcCols: CalculatedColumn[],
   tableName: string,
-  prisma: any,
+  prisma: WithRawQuery,
   idField = 'id',
   provider = 'postgresql',
-): Promise<any[]> => {
+): Promise<Row[]> => {
   if (!calcCols.length || !rows.length) return rows;
 
   const ids = rows.map((r) => r[idField]);
@@ -106,7 +109,7 @@ export const mergeCalculatedColumnsForRows = async (
       const defaultValue = defaultValueForType(col);
       const coerce = coerceColumnValue(col);
       try {
-        const calcRows: any[] = await prisma.$queryRawUnsafe(sql, ...ids);
+        const calcRows = await prisma.$queryRawUnsafe(sql, ...ids) as Row[];
         return {
           id: col.id,
           defaultValue,

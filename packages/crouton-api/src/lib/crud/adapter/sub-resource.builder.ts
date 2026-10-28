@@ -1,5 +1,6 @@
 import {
   type EnumRegistry,
+  type JsonAction,
   type JsonColumn,
   type JsonIncludeEntry,
   type RelationFieldInputOptions,
@@ -122,7 +123,7 @@ export const buildSubResources = (
         )
         .map((col) => getPrismaRelationField(col));
       const explicitIncludes: JsonIncludeEntry[] =
-        (childJson?.operations?.findAll as any)?.include ??
+        (childJson?.operations?.findAll as Record<string, unknown> | undefined)?.['include'] as JsonIncludeEntry[] | undefined ??
         childJson?.include ??
         [];
       const explicitNames = new Set(
@@ -138,20 +139,20 @@ export const buildSubResources = (
       const childCalculatedColumns = [
         ...(childJson?.calculatedColumns ?? []),
         ...(enrichedChildColumns ?? [])
-          .filter((c) => (c as any).computed)
-          .map((c: any) => ({
+          .filter((c) => c.computed)
+          .map((c) => ({
             id: c.id,
             alias: c.id,
             label: c.label ?? c.id,
-            sqlExpression: c.computed.sql as string,
-            type: c.computed.type ?? 'string',
+            sqlExpression: c.computed!.sql as string,
+            type: c.computed!.type ?? 'string',
             hiddenInTable: c.hiddenInTable,
             hiddenInView: c.hiddenInView,
             ...(c.fieldInput && { fieldInput: c.fieldInput }),
           })),
       ];
       const regularChildColumns = (enrichedChildColumns ?? []).filter(
-        (c) => !(c as any).computed,
+        (c) => !c.computed,
       );
       const rawChildViews = childJson
         ? buildLayouts(childJson?.layout, {
@@ -214,11 +215,11 @@ export const buildSubResources = (
           childKind === 'custom'
             ? ''
             : (() => {
-                const m = (childJson as any)?.source?.model;
+                const m = childJson?.source?.model;
                 return m ? m.charAt(0).toLowerCase() + m.slice(1) : c.id;
               })(),
-        ...((childJson as any)?.source?.dbTable
-          ? { childTable: (childJson as any)?.source?.dbTable }
+        ...(childJson?.source?.dbTable
+          ? { childTable: childJson.source.dbTable }
           : {}),
         foreignKey:
           c.relation?.foreignKey ??
@@ -231,7 +232,7 @@ export const buildSubResources = (
           childJson?.tag ??
           childRoute,
         idField: childLookupKey,
-        idType: (childJson as any)?.source?.idType ?? 'string',
+        idType: childJson?.source?.idType ?? 'string',
         ...(c.hiddenInTable && { hiddenInTable: true }),
         ...(childViews && { views: childViews }),
         operations: {
@@ -242,12 +243,14 @@ export const buildSubResources = (
           patch: childOps.patch !== false,
           delete: childOps.delete !== false,
         },
-        ...((childJson?.layout?.table as any)?.actions?.length && {
-          actions: (childJson?.layout?.table as any)?.actions,
-        }),
+        ...(() => {
+          const tableNode = childJson?.layout?.table as Record<string, unknown> | undefined;
+          const tableActions = tableNode?.['actions'] as JsonAction[] | undefined;
+          return tableActions?.length ? { actions: tableActions } : {};
+        })(),
         ...(childJson?.layout?.form?.container && {
           modalSize: childJson.layout.form.container.size,
-          display: { mode: childJson.layout.form.container.mode },
+          display: { mode: childJson.layout.form.container.mode, customComponent: null },
         }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childCalculatedColumns.length && {

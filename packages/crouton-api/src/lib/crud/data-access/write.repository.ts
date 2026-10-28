@@ -67,7 +67,7 @@ const stripNonCreateableChildFields = (
   if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
   const nonCreateable = new Set<string>(
     (sub.views?.form?.columns ?? [])
-      .filter((c) => (c as any).createable === false)
+      .filter((c) => (c as Record<string, unknown>)['createable'] === false)
       .map((c) => c.id),
   );
   if (!nonCreateable.size) return data;
@@ -102,7 +102,7 @@ export class WriteRepository<T = unknown> {
     return (this.config.idType ?? 'string') === 'number' ? +id : String(id);
   }
 
-  private testIfFoundOrThrow(error: any, id: string | number) {
+  private testIfFoundOrThrow(error: unknown, id: string | number) {
     if (isPrismaKnownError(error) && error.code === PRISMA_NOT_FOUND_CODE) {
       throw new NotFoundException(
         `${this.config.name} with id ${id} not found`,
@@ -159,7 +159,7 @@ export class WriteRepository<T = unknown> {
   /**
    * Partial-update a record. Same contract as `update`.
    */
-  async patch(id: number | string, data: unknown, _request?: any): Promise<T> {
+  async patch(id: number | string, data: unknown, _request?: unknown): Promise<T> {
     return this.update(id, data, _request);
   }
 
@@ -275,10 +275,10 @@ export class WriteRepository<T = unknown> {
 
     if (sub.relationType === 'manyToMany') {
       const idField = sub.idField ?? 'id';
-      const raw = data as any;
-      const rawValue = raw?.value ?? raw;
+      const raw = data as Record<string, unknown>;
+      const rawValue = raw?.['value'] ?? raw;
       const childId =
-        rawValue && typeof rawValue === 'object' ? rawValue[idField] : rawValue;
+        rawValue && typeof rawValue === 'object' ? (rawValue as Record<string, unknown>)[idField] : rawValue;
       if (childId == null)
         throw new Error('Missing child id for manyToMany connect');
       const coercedId =

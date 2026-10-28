@@ -2,6 +2,7 @@ import { Get, Param, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import {
+  type ListRequest,
   isOperationEnabled,
   isOperationExternal, toJsonSchema } from '@ghentcdh/crouton-core';
 
@@ -12,7 +13,7 @@ import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 
-const _findAll = async (repo: CrudRepository, params: any, request?: any) => {
+const _findAll = async (repo: CrudRepository, params: ListRequest, request?: unknown) => {
   // Repositories that cannot count separately (custom repositories backed by a
   // remote API) implement `findAllWithCount` and return both in one round trip.
   const { data, count } = repo.findAllWithCount
@@ -39,8 +40,8 @@ const findAllByParent = async (
   repo: CrudRepository,
   id: string,
   childRoute: string,
-  params: any,
-  request?: any,
+  params: ListRequest,
+  request?: unknown,
 ) => {
   const { data, count } = await repo.findAllByParent(
     id,
@@ -70,8 +71,8 @@ const defaultFindAll = (ctx: OperationContext) => {
   const { config } = ctx;
   const findAll = async function (
     this: { repo: CrudRepository },
-    params: any,
-    req: any,
+    params: ListRequest,
+    req: unknown,
   ) {
     return _findAll(this.repo, params, req);
   };
@@ -96,9 +97,9 @@ const childFindAll = (sub: SubResourceConfig) => (ctx: OperationContext) => {
 
   const findAll = async function (
     this: { repo: CrudRepository },
-    params: any,
+    params: ListRequest,
     id: string,
-    req: any,
+    req: unknown,
   ) {
     return findAllByParent(this.repo, id, sub.childRoute, params, req);
   };
@@ -136,7 +137,7 @@ export const registerFindAll = (
   def(cls, methodName, properties.findAll);
   const d = desc(cls, methodName);
   Get(route)(cls.prototype, methodName, d);
-  Query(new ZodValidationPipe(RequestDtoNoOffset.schema as any))(
+  Query(new ZodValidationPipe(RequestDtoNoOffset.schema))(
     cls.prototype,
     methodName,
     0,
