@@ -128,7 +128,7 @@ export class WriteRepository<T = any> {
    */
   async create(data: unknown, _request?: any): Promise<T> {
     try {
-      return this.prismaModel.create({ data });
+      return await this.prismaModel.create({ data });
     } catch (e: unknown) {
       throw mapPrismaUniqueError(e, this.config) ?? e;
     }
@@ -141,7 +141,7 @@ export class WriteRepository<T = any> {
   async update(id: number | string, data: unknown, _request?: any): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      return this.prismaModel.update({
+      return await this.prismaModel.update({
         where: { [idField]: this.toId(id) },
         data,
       });
