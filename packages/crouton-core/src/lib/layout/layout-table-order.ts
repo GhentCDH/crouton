@@ -2,9 +2,9 @@ import type { z } from 'zod';
 
 import { flattenLayoutItems } from './layout-ui-schema.builder';
 import type { LayoutNode } from './schema';
-import { isComponentControl, isComponentItem } from './schema';
+import { isComponentControl, isComponentItem, isFieldControlItem } from './schema';
 import type { TableLayoutRootSchema, TableNode } from './schema/TableLayout.schema';
-import type { ViewConfig } from '../schema/view/view.schema';
+import type { ViewColumnConfig, ViewConfig } from '../schema/view/view.schema';
 
 const LAYOUT_TYPE_MAP: Record<string, string> = {
   grid: 'GridLayout',
@@ -64,20 +64,20 @@ export const orderTableColumnsFromLayout = (
   const controls = flattenLayoutItems(tableNode);
   if (!controls.length) return view;
 
-  const elements: any[] = (view.ui_schema as any)?.elements ?? [];
-  const columns: any[] = view.columns ?? [];
+  const elements: Record<string, unknown>[] = (view.ui_schema?.['elements'] as Record<string, unknown>[] | undefined) ?? [];
+  const columns: ViewColumnConfig[] = view.columns ?? [];
 
   const elementById = new Map(
     elements.map((el) => {
-      const id = (el.scope as string | undefined)?.replace('#/properties/', '');
+      const id = (el['scope'] as string | undefined)?.replace('#/properties/', '');
       return [id, el];
     }),
   );
-  const columnById = new Map(columns.map((c: any) => [c.id, c]));
+  const columnById = new Map(columns.map((c) => [c.id, c]));
   const knownIds = new Set([...elementById.keys()].filter(Boolean) as string[]);
 
-  const reorderedElements: any[] = [];
-  const reorderedColumns: any[] = [];
+  const reorderedElements: Record<string, unknown>[] = [];
+  const reorderedColumns: ViewColumnConfig[] = [];
   const seen = new Set<string>();
 
   for (const ctrl of controls) {
@@ -89,8 +89,6 @@ export const orderTableColumnsFromLayout = (
       reorderedColumns.push({
         id: `__component__${ctrl.component}`,
         label: ctrl.label ?? '',
-        type: 'ComponentCell',
-        scope: `#/properties/__component__${ctrl.component}`,
       });
       continue;
     }
@@ -104,35 +102,35 @@ export const orderTableColumnsFromLayout = (
     seen.add(id);
     const el = elementById.get(id);
     if (el) {
-      const ctrlObj = typeof ctrl === 'string' ? null : (ctrl as any);
+      const ctrlObj: Record<string, unknown> | null = isFieldControlItem(ctrl) ? ctrl : null;
       const overrides: Record<string, unknown> = {};
       // Apply sortable/defaultSort from layout control
-      if (ctrlObj?.sortable === false) {
+      if (ctrlObj?.['sortable'] === false) {
         overrides['sortable'] = false;
-      } else if (ctrlObj?.sortable === true && el.options?.sortId == null) {
+      } else if (ctrlObj?.['sortable'] === true && (el['options'] as Record<string, unknown> | undefined)?.['sortId'] == null) {
         // sortable: true but no sortId derived — use column id
         overrides['sortId'] = id;
       }
       // Forward column presentation options
-      if (ctrlObj?.width !== undefined) overrides['width'] = ctrlObj.width;
-      if (ctrlObj?.minWidth !== undefined) overrides['minWidth'] = ctrlObj.minWidth;
-      if (ctrlObj?.maxWidth !== undefined) overrides['maxWidth'] = ctrlObj.maxWidth;
-      if (ctrlObj?.align !== undefined) overrides['align'] = ctrlObj.align;
-      if (ctrlObj?.truncate !== undefined) overrides['truncate'] = ctrlObj.truncate;
-      if (ctrlObj?.pin !== undefined) overrides['pin'] = ctrlObj.pin;
-      if (ctrlObj?.visible !== undefined) overrides['visible'] = ctrlObj.visible;
-      if (ctrlObj?.headerTooltip !== undefined) overrides['headerTooltip'] = ctrlObj.headerTooltip;
+      if (ctrlObj?.['width'] !== undefined) overrides['width'] = ctrlObj['width'];
+      if (ctrlObj?.['minWidth'] !== undefined) overrides['minWidth'] = ctrlObj['minWidth'];
+      if (ctrlObj?.['maxWidth'] !== undefined) overrides['maxWidth'] = ctrlObj['maxWidth'];
+      if (ctrlObj?.['align'] !== undefined) overrides['align'] = ctrlObj['align'];
+      if (ctrlObj?.['truncate'] !== undefined) overrides['truncate'] = ctrlObj['truncate'];
+      if (ctrlObj?.['pin'] !== undefined) overrides['pin'] = ctrlObj['pin'];
+      if (ctrlObj?.['visible'] !== undefined) overrides['visible'] = ctrlObj['visible'];
+      if (ctrlObj?.['headerTooltip'] !== undefined) overrides['headerTooltip'] = ctrlObj['headerTooltip'];
       // Apply type/options overrides (replaces fieldTable)
-      const typeOverride = ctrlObj?.type;
-      const optOverride = ctrlObj?.options;
+      const typeOverride = ctrlObj?.['type'];
+      const optOverride = ctrlObj?.['options'];
       reorderedElements.push(
         typeOverride || optOverride || Object.keys(overrides).length
           ? {
               ...el,
-              ...(typeOverride && { type: typeOverride }),
+              ...(typeOverride ? { type: typeOverride } : {}),
               options: {
-                ...(el.options ?? {}),
-                ...(optOverride ?? {}),
+                ...((el['options'] as Record<string, unknown>) ?? {}),
+                ...((optOverride as Record<string, unknown>) ?? {}),
                 ...overrides,
               },
             }
@@ -143,8 +141,8 @@ export const orderTableColumnsFromLayout = (
     if (col) reorderedColumns.push(col);
   }
 
-  const innerTableUi = {
-    ...(view.ui_schema as any),
+  const innerTableUi: Record<string, unknown> = {
+    ...(view.ui_schema as Record<string, unknown>),
     elements: reorderedElements,
   };
 
@@ -158,10 +156,10 @@ export const orderTableColumnsFromLayout = (
 
   // Wrapper layout: produce outer UI node containing component elements + inner Table element
   const outerType = mapLayoutType(node.type);
-  const outerElements: any[] = [
-    ...((node as any).items ?? [])
+  const outerElements: Record<string, unknown>[] = [
+    ...(node.items ?? [])
       .filter(isComponentItem)
-      .map((ctrl: any) => ({
+      .map((ctrl) => ({
         component: ctrl.component,
         label: ctrl.label,
         ...(ctrl.colspan != null && { colspan: ctrl.colspan }),

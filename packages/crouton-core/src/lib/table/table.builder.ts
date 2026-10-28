@@ -20,7 +20,7 @@ export type TextCellType = {
   scope: string;
   options?: KeyValueOption;
 };
-export class TextCellBuilder<TYPE> extends Builder<TextCellType> {
+export class TextCellBuilder<TYPE = Record<string, unknown>> extends Builder<TextCellType> {
   private options: KeyValueOption | TextCellOption | undefined;
 
   protected constructor(
@@ -30,8 +30,12 @@ export class TextCellBuilder<TYPE> extends Builder<TextCellType> {
     super(type);
   }
 
-  static properties<TYPE>(property: keyof TYPE): TextCellBuilder<TYPE> {
+  static properties<TYPE>(property: (keyof TYPE & string) | (string & {})): TextCellBuilder<TYPE> {
     return new TextCellBuilder<TYPE>(`#/properties/${property as string}`);
+  }
+
+  static propertiesStr(property: string): TextCellBuilder<Record<string, unknown>> {
+    return new TextCellBuilder<Record<string, unknown>>(`#/properties/${property}`);
   }
 
   key(key: string): TextCellBuilder<TYPE> {
@@ -63,8 +67,11 @@ export class BooleanCellBuilder extends TextCellBuilder<boolean> {
   protected constructor(scope: string) {
     super(scope, 'BooleanCell');
   }
-  static override properties<TYPE>(property: keyof TYPE): BooleanCellBuilder {
+  static override properties<TYPE>(property: (keyof TYPE & string) | (string & {})): BooleanCellBuilder {
     return new BooleanCellBuilder(`#/properties/${property as string}`);
+  }
+  static override propertiesStr(property: string): BooleanCellBuilder {
+    return new BooleanCellBuilder(`#/properties/${property}`);
   }
 }
 
@@ -78,7 +85,7 @@ export class TableBuilder<TYPE = Record<string, unknown>> extends ContainerBuild
   CroutonLayoutOptions
 > {
   private constructor() {
-    super('Table' as any);
+    super('Table');
   }
 
   static init<TYPE = Record<string, unknown>>(): TableBuilder<TYPE> {
@@ -86,7 +93,7 @@ export class TableBuilder<TYPE = Record<string, unknown>> extends ContainerBuild
   }
 
   protected resolveShortcut(name: string): Buildable {
-    return TextCellBuilder.properties<TYPE>(name as keyof TYPE);
+    return TextCellBuilder.propertiesStr(name);
   }
 
   override build(): Layout {

@@ -1,5 +1,5 @@
 import type { JsonSchema, Layout } from '@jsonforms/core';
-import type { ZodObject } from 'zod';
+import type { ZodObject, ZodRawShape } from 'zod';
 import { toJSONSchema } from 'zod';
 
 export enum ModalSize {
@@ -44,31 +44,31 @@ const simplifyNullableAnyOf = (property: Record<string, unknown>): boolean => {
   return false;
 };
 
-const transformToJsonSchema = (schema: ZodObject<any>): JsonSchema => {
-  const jsonSchema = toJSONSchema(schema, { unrepresentable: 'any', target: 'draft-07' });
-  jsonSchema.additionalProperties = true;
-  const properties = (jsonSchema as any).properties;
+const transformToJsonSchema = (schema: ZodObject<ZodRawShape>): JsonSchema => {
+  const jsonSchema = toJSONSchema(schema, { unrepresentable: 'any', target: 'draft-07' }) as Record<string, unknown>;
+  jsonSchema['additionalProperties'] = true;
+  const properties = jsonSchema['properties'] as Record<string, Record<string, unknown>> | undefined;
   if (properties) {
     const nullableKeys = new Set<string>();
     for (const key of Object.keys(properties)) {
       if (simplifyNullableAnyOf(properties[key])) nullableKeys.add(key);
     }
     // Nullable fields are treated as optional, so drop them from `required`.
-    const required = (jsonSchema as any).required;
+    const required = jsonSchema['required'];
     if (Array.isArray(required)) {
-      (jsonSchema as any).required = required.filter((key: string) => !nullableKeys.has(key));
+      jsonSchema['required'] = (required as string[]).filter((key) => !nullableKeys.has(key));
     }
   }
-  return jsonSchema as any;
+  return jsonSchema as JsonSchema;
 };
 
 export const createSchema = (props: {
-  uiSchema: any;
+  uiSchema: Layout;
   tableSchema?: JsonSchema;
   filterSchema?: JsonSchema;
-  schema: ZodObject<any>;
-  dtoSchema: ZodObject<any>;
-  responseSchema?: ZodObject<any>;
+  schema: ZodObject<ZodRawShape>;
+  dtoSchema: ZodObject<ZodRawShape>;
+  responseSchema?: ZodObject<ZodRawShape>;
   uri: string;
   searchUri?: string;
   modalSize?: ModalSizeType;

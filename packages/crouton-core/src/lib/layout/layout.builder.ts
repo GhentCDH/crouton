@@ -60,7 +60,7 @@ export class LayoutBuilder<TYPE = Record<string, unknown>> extends ContainerBuil
   }
 
   protected resolveShortcut(name: string, options?: ControlShortcut): Buildable {
-    const control = ControlBuilder.properties<TYPE>(name as keyof TYPE);
+    const control = ControlBuilder.propertiesStr(name);
     if (options) {
       const { type, ...rest } = options;
       if (type) control.control(type, rest);

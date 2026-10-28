@@ -261,8 +261,7 @@
                   "value": "archived",
                   "label": "Archived"
                 }
-              ],
-              "colspan": 12
+              ]
             }
           },
           "enumName": "bookStatus"
@@ -397,8 +396,7 @@
                   "value": "archived",
                   "label": "Archived"
                 }
-              ],
-              "colspan": 12
+              ]
             }
           },
           "enumName": "bookStatus"

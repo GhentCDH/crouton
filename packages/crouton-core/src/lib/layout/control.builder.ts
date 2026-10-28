@@ -41,7 +41,7 @@ export interface TextAreaOptions extends ControlOption {
 }
 export interface MarkdownOptions extends ControlOption {
   format: 'markdown';
-  minHeight: string;
+  minHeight?: string;
 }
 
 export interface DetailOptions extends ControlOption {
@@ -50,8 +50,8 @@ export interface DetailOptions extends ControlOption {
 }
 export interface SelectOptions extends ControlOption {
   format: 'select' | 'multiselect';
-  options: Array<any>;
-  values?: Array<any>;
+  options: Array<unknown>;
+  values?: Array<unknown>;
   resource?: string;
   labelKey?: string;
   valueKey?: string;
@@ -64,8 +64,8 @@ export interface SelectOptions extends ControlOption {
  */
 export interface ToggleOptions extends ControlOption {
   format: 'toggle';
-  options?: Array<any>;
-  values?: Array<any>;
+  options?: Array<unknown>;
+  values?: Array<unknown>;
   labelKey?: string;
   valueKey?: string;
   /** Store `option[valueKey]` instead of the whole option object. */
@@ -114,8 +114,8 @@ export interface ControlOption {
   format?: string;
   readonly?: boolean;
   label?: string;
-  styles?: Partial<any>;
-  elements?: any;
+  styles?: Record<string, unknown>;
+  elements?: unknown;
   elementLabelProp?: string;
   customLabel?: string;
   actions?: ArrayAction[];
@@ -125,7 +125,7 @@ export interface ControlOption {
   layout?: 'row' | 'column';
   labelKey?: string;
   valueKey?: string;
-  options?: Array<any>;
+  options?: Array<unknown>;
   dataField?: string;
   uri?: string;
   skipAuth?: boolean;
@@ -149,7 +149,8 @@ export interface ControlOption {
   locale?: string;
   /** date: first day of the week, 0 = Sunday, 1 = Monday. */
   firstDayOfWeek?: number;
-  customRender?: any;
+  customRender?: unknown;
+  type?: string;
   colspan?: number;
   rowspan?: number;
   /** Async uniqueness validation descriptor, from a column's `unique` flag. */
@@ -166,11 +167,11 @@ export type ControlTypes = {
   options?: TextAreaOptions | AutocompleteOptions | DetailOptions;
 };
 
-export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
+export class ControlBuilder<TYPE = Record<string, unknown>, KEY = keyof TYPE> extends ElementBuilder<
   UISchemaElement,
   ControlOption
 > {
-  private _detail?: LayoutBuilder<any>;
+  private _detail?: LayoutBuilder;
 
   private constructor(
     private readonly scope: string,
@@ -187,8 +188,12 @@ export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
     );
   }
 
-  static properties<TYPE>(property: keyof TYPE): ControlBuilder<TYPE> {
+  static properties<TYPE>(property: (keyof TYPE & string) | (string & {})): ControlBuilder<TYPE> {
     return new ControlBuilder<TYPE>(`#/properties/${property as string}`);
+  }
+
+  static propertiesStr(property: string): ControlBuilder<Record<string, unknown>> {
+    return new ControlBuilder<Record<string, unknown>>(`#/properties/${property}`);
   }
 
   static asCustom<TYPE>(
@@ -202,7 +207,7 @@ export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
     builder.opt({
       format: ControlType.custom,
       type,
-    } as unknown as Partial<ControlOption>);
+    } as Partial<ControlOption>);
 
     return builder;
   }
@@ -255,7 +260,7 @@ export class ControlBuilder<TYPE, KEY = keyof TYPE> extends ElementBuilder<
     });
   }
 
-  markdown(options?: Omit<MarkdownOptions, 'format'>): ControlBuilder<TYPE> {
+  markdown(options?: Partial<Omit<MarkdownOptions, 'format'>>): ControlBuilder<TYPE> {
     return this.opt({
       format: ControlType.markdown,
       ...(options ?? {}),
