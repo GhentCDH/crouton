@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest';
 
 import { RESOURCE_SCHEMA_URL, ResourceJsonSchema, withResourceHeader  } from '@ghentcdh/crouton-core';
 
-import { buildCustomResourceFiles } from './custom-resource-scaffold';
+import { type CustomResourceScaffoldInput, buildCustomResourceFiles } from './custom-resource-scaffold';
 
-const build = (over: Record<string, unknown> = {}) =>
+const build = (over: Partial<CustomResourceScaffoldInput> = {}) =>
   buildCustomResourceFiles({
     name: 'zotero_item',
     resourcesDir: 'apps/backend/src/app/resources',
     ...over,
-  } as any);
+  });
 
-const jsonOf = (files: { path: string; contents: string }[]) =>
-  JSON.parse(files.find((f) => f.path.endsWith('resource.json'))!.contents);
+const jsonOf = (files: { path: string; contents: string }[]): Record<string, unknown> =>
+  JSON.parse(files.find((f) => f.path.endsWith('resource.json'))!.contents) as Record<string, unknown>;
 
 describe('buildCustomResourceFiles', () => {
   it('emits resource.json and repository.ts under the resource dir', () => {
@@ -82,20 +82,22 @@ describe('buildCustomResourceFiles', () => {
 
   it('gives every column a type', () => {
     const { columns } = jsonOf(build().files);
-    for (const [id, column] of Object.entries<any>(columns)) {
-      expect(column.type, id).toBeDefined();
+    for (const [id, column] of Object.entries<Record<string, unknown>>(columns as Record<string, Record<string, unknown>>)) {
+      expect(column['type'], id).toBeDefined();
     }
   });
 
   it('switches the id column type with idType', () => {
     const stringId = jsonOf(build().files);
-    expect(stringId.columns.id.type).toBe('string');
-    expect(stringId.idType).toBeUndefined();
-    expect(stringId.source?.idType).toBeUndefined();
+    const stringCols = stringId['columns'] as Record<string, Record<string, unknown>>;
+    expect(stringCols['id']['type']).toBe('string');
+    expect(stringId['idType']).toBeUndefined();
+    expect((stringId['source'] as Record<string, unknown> | undefined)?.['idType']).toBeUndefined();
 
     const numberId = jsonOf(build({ idType: 'number' }).files);
-    expect(numberId.columns.id.type).toBe('integer');
-    expect(numberId.source?.idType).toBe('number');
+    const numberCols = numberId['columns'] as Record<string, Record<string, unknown>>;
+    expect(numberCols['id']['type']).toBe('integer');
+    expect((numberId['source'] as Record<string, unknown> | undefined)?.['idType']).toBe('number');
   });
 
   it('stubs a typed repository with every operation', () => {
@@ -126,7 +128,7 @@ describe('withResourceHeader and kind', () => {
       tag: 'X',
       kind: 'custom',
       operations: {},
-    } as any);
+    } as Record<string, unknown>);
     expect(Object.keys(out).slice(0, 3)).toEqual([
       '$schema',
       'schemaVersion',
@@ -142,7 +144,7 @@ describe('withResourceHeader and kind', () => {
       model: 'X',
       tag: 'X',
       operations: {},
-    } as any);
+    } as Record<string, unknown>);
     expect('kind' in out).toBe(false);
   });
 });

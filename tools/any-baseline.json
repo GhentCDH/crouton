@@ -29,23 +29,23 @@
   },
   "crouton-api": {
     "prod": {
-      "explicit_any": 4,
-      "as_any": 0,
-      "as_unknown_as": 0,
+      "explicit_any": 292,
+      "as_any": 40,
+      "as_unknown_as": 7,
       "disable_no_reason": 0
     },
     "spec": {
-      "explicit_any": 0,
-      "as_any": 0,
-      "as_unknown_as": 0,
+      "explicit_any": 155,
+      "as_any": 83,
+      "as_unknown_as": 16,
       "disable_no_reason": 0
     }
   },
   "crouton-cli": {
     "prod": {
-      "explicit_any": 4,
-      "as_any": 1,
-      "as_unknown_as": 6,
+      "explicit_any": 3,
+      "as_any": 0,
+      "as_unknown_as": 0,
       "disable_no_reason": 0
     },
     "spec": {
@@ -57,21 +57,7 @@
   },
   "crouton-codegen": {
     "prod": {
-      "explicit_any": 20,
-      "as_any": 12,
-      "as_unknown_as": 11,
-      "disable_no_reason": 0
-    },
-    "spec": {
-      "explicit_any": 31,
-      "as_any": 29,
-      "as_unknown_as": 1,
-      "disable_no_reason": 0
-    }
-  },
-  "crouton-core": {
-    "prod": {
-      "explicit_any": 10,
+      "explicit_any": 8,
       "as_any": 0,
       "as_unknown_as": 0,
       "disable_no_reason": 0
@@ -80,6 +66,20 @@
       "explicit_any": 0,
       "as_any": 0,
       "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-core": {
+    "prod": {
+      "explicit_any": 160,
+      "as_any": 64,
+      "as_unknown_as": 5,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 163,
+      "as_any": 150,
+      "as_unknown_as": 16,
       "disable_no_reason": 0
     }
   },

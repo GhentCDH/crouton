@@ -1,19 +1,14 @@
-import type { ResourceJson } from '@ghentcdh/crouton-core';
-
-type MigrationResult = { changed: boolean; json: ResourceJson };
+type RawResourceJson = Record<string, unknown>;
+type MigrationResult = { changed: boolean; json: RawResourceJson };
 
 const SOURCE_KEYS = ['model', 'table', 'database', 'idType'] as const;
 
-/**
- * Moves root-level model/table/database/idType to the `source` object.
- */
-export const migrateSource = (json: ResourceJson): MigrationResult => {
-  const raw = json as any;
-  const keysPresent = SOURCE_KEYS.filter((k) => raw[k] !== undefined);
+export const migrateSource = (json: RawResourceJson): MigrationResult => {
+  const keysPresent = SOURCE_KEYS.filter((k) => json[k] !== undefined);
   if (!keysPresent.length) return { changed: false, json };
 
   const extracted: Record<string, unknown> = {};
-  const rest: Record<string, unknown> = { ...raw };
+  const rest: Record<string, unknown> = { ...json };
   for (const k of keysPresent) {
     extracted[k] = rest[k];
     delete rest[k];
@@ -24,9 +19,9 @@ export const migrateSource = (json: ResourceJson): MigrationResult => {
     json: {
       ...rest,
       source: {
-        ...(rest.source as object | undefined),
+        ...(rest['source'] as Record<string, unknown> | undefined),
         ...extracted,
       },
-    } as unknown as ResourceJson,
+    },
   };
 };

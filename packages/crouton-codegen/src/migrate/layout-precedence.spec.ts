@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { migrateLayoutPrecedence } from './layout-precedence';
 
+type LayoutNode = { items?: LayoutItem[] };
+type LayoutItem = string | { type?: string; title?: string; items?: LayoutItem[]; component?: string };
+type TestLayout = { form?: LayoutNode; table?: LayoutNode };
+const layout = (r: { resource: Record<string, unknown> }) => r.resource['layout'] as TestLayout;
+
 const base = {
   name: 'item',
   route: 'items',
@@ -32,7 +37,7 @@ describe('migrateLayoutPrecedence', () => {
       const r = { ...base, layout: { form: { items: ['title'] } } };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const items = (resource['layout'] as any).form.items;
+      const items = layout({ resource }).form!.items;
       // id is hiddenInForm so not appended; status and notes are visible → appended
       expect(items).toContain('title');
       expect(items).toContain('status');
@@ -48,7 +53,7 @@ describe('migrateLayoutPrecedence', () => {
       };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const items = (resource['layout'] as any).form.items;
+      const items = layout({ resource }).form!.items;
       expect(items).not.toContain('id');
       expect(report.removed.form).toContain('id');
     });
@@ -67,7 +72,7 @@ describe('migrateLayoutPrecedence', () => {
       };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const collapse = (resource['layout'] as any).form.items[1];
+      const collapse = layout({ resource }).form!.items![1] as { items?: LayoutItem[] };
       expect(collapse.items).not.toContain('id');
       expect(collapse.items).toContain('status');
       expect(report.removed.form).toContain('id');
@@ -79,7 +84,7 @@ describe('migrateLayoutPrecedence', () => {
       const r = { ...base, layout: { table: { items: ['title'] } } };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const items = (resource['layout'] as any).table.items;
+      const items = layout({ resource }).table!.items;
       expect(items).toContain('title');
       expect(items).toContain('id');
       expect(items).toContain('status');
@@ -94,7 +99,7 @@ describe('migrateLayoutPrecedence', () => {
       };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const items = (resource['layout'] as any).table.items;
+      const items = layout({ resource }).table!.items;
       expect(items).not.toContain('notes');
       expect(report.removed.table).toContain('notes');
     });
@@ -114,7 +119,7 @@ describe('migrateLayoutPrecedence', () => {
       };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const tableNode = (resource['layout'] as any).table.items[1];
+      const tableNode = layout({ resource }).table!.items![1] as { items?: LayoutItem[] };
       expect(tableNode.items).toContain('title');
       expect(tableNode.items).toContain('id');
       expect(tableNode.items).toContain('status');
@@ -137,7 +142,7 @@ describe('migrateLayoutPrecedence', () => {
       };
       const { resource, report } = migrateLayoutPrecedence(r);
 
-      const tableNode = (resource['layout'] as any).table.items[1];
+      const tableNode = layout({ resource }).table!.items![1] as { items?: LayoutItem[] };
       expect(tableNode.items).not.toContain('notes');
       expect(report.removed.table).toContain('notes');
     });

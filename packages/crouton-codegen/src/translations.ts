@@ -8,7 +8,7 @@
 
 import type { TranslationBundle } from '@crouton/i18n';
 
-import type { ResourceJson } from '@ghentcdh/crouton-core';
+import type { ResourceJson, TableNode } from '@ghentcdh/crouton-core';
 import { labelFromId, resolveTableNode  } from '@ghentcdh/crouton-core';
 
 import type { EnumRegistry } from './enum-registry';
@@ -98,7 +98,7 @@ export const buildTranslationBundle = (
     }
 
     // rowActions + tableActions (now in layout.table node)
-    const tableLayout = resolveTableNode(res.layout?.table as any) ?? (res.layout?.table as any);
+    const tableLayout = (resolveTableNode(res.layout?.table) ?? res.layout?.table) as TableNode | undefined;
     const allActions = [
       ...(tableLayout?.rowActions ?? []),
       ...(tableLayout?.tableActions ?? []),
@@ -150,30 +150,23 @@ export const mergeTranslationBundle = (
   existing: TranslationBundle,
   generated: TranslationBundle,
 ): TranslationBundle => {
-  const existingFlat = collectKeys(
-    existing as unknown as Record<string, unknown>,
-  );
-  const generatedFlat = collectKeys(
-    generated as unknown as Record<string, unknown>,
-  );
+  const existingFlat = collectKeys(existing as Record<string, unknown>);
+  const generatedFlat = collectKeys(generated as Record<string, unknown>);
 
   // Start from existing (preserves order + hand edits)
   const merged: Record<string, unknown> = JSON.parse(
     JSON.stringify(existing),
-  );
+  ) as Record<string, unknown>;
 
   // Append new keys from generated
   for (const path of generatedFlat) {
     if (!existingFlat.includes(path)) {
-      const value = getPath(
-        generated as unknown as Record<string, unknown>,
-        path,
-      );
+      const value = getPath(generated as Record<string, unknown>, path);
       setPath(merged, path, value ?? '');
     }
   }
 
-  return merged as unknown as TranslationBundle;
+  return merged as TranslationBundle;
 };
 
 // ── stale keys ──────────────────────────────────────────────────────
@@ -186,12 +179,8 @@ export const findStaleKeys = (
   existing: TranslationBundle,
   generated: TranslationBundle,
 ): string[] => {
-  const existingKeys = collectKeys(
-    existing as unknown as Record<string, unknown>,
-  );
-  const generatedKeys = new Set(
-    collectKeys(generated as unknown as Record<string, unknown>),
-  );
+  const existingKeys = collectKeys(existing as Record<string, unknown>);
+  const generatedKeys = new Set(collectKeys(generated as Record<string, unknown>));
   return existingKeys.filter((k) => !generatedKeys.has(k));
 };
 

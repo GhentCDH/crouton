@@ -6,13 +6,13 @@ import { CURRENT_RESOURCE_VERSION,
   withResourceHeader } from '@ghentcdh/crouton-core';
 
 
-const base = {
+const base: Record<string, unknown> = {
   name: 'author',
   route: 'author',
   model: 'Author',
   tag: 'author',
   operations: {},
-} as any;
+};
 
 describe('withResourceHeader', () => {
   it('leads with $schema then schemaVersion (current)', () => {
@@ -29,7 +29,7 @@ describe('withResourceHeader', () => {
       ...base,
       $schema: 'https://old/v0/resource.schema.json',
       schemaVersion: 0,
-    } as any);
+    } as Record<string, unknown>);
     expect(out.$schema).toBe(RESOURCE_SCHEMA_URL);
     expect(out.schemaVersion).toBe(CURRENT_RESOURCE_VERSION);
   });
@@ -40,7 +40,7 @@ describe('withResourceHeader', () => {
   });
 
   it('preserves an existing draft when opts.draft is omitted (update path)', () => {
-    expect(withResourceHeader({ ...base, draft: true } as any).draft).toBe(true);
+    expect(withResourceHeader({ ...base, draft: true } as Record<string, unknown>).draft).toBe(true);
     expect('draft' in withResourceHeader(base)).toBe(false); // none present → no key
   });
 });

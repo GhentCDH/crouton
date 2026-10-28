@@ -1,18 +1,8 @@
-import type { ResourceJson } from '@ghentcdh/crouton-core';
+type RawResourceJson = Record<string, unknown>;
+type MigrationResult = { changed: boolean; json: RawResourceJson };
 
-type MigrationResult = { changed: boolean; json: ResourceJson };
-
-/**
- * Moves the root-level `tag` field to `openapi.tag`.
- * Skips if `openapi` already exists (assume it was set intentionally).
- */
-export const migrateOpenApiTag = (json: ResourceJson): MigrationResult => {
-  const raw = json as any;
-  if (!raw.tag || raw.openapi) return { changed: false, json };
-
-  const { tag, ...rest } = raw;
-  return {
-    changed: true,
-    json: { ...rest, openapi: { tag } } as unknown as ResourceJson,
-  };
+export const migrateOpenApiTag = (json: RawResourceJson): MigrationResult => {
+  if (!json['tag'] || json['openapi']) return { changed: false, json };
+  const { tag, ...rest } = json;
+  return { changed: true, json: { ...rest, openapi: { tag } } };
 };

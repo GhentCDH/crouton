@@ -62,8 +62,8 @@ const run = (
     const child = spawn(cmd, args, { cwd, shell: process.platform === 'win32', env: process.env });
     let stdout = '';
     let stderr = '';
-    child.stdout?.on('data', (d) => (stdout += d.toString()));
-    child.stderr?.on('data', (d) => (stderr += d.toString()));
+    child.stdout?.on('data', (d: Buffer | string) => (stdout += d.toString()));
+    child.stderr?.on('data', (d: Buffer | string) => (stderr += d.toString()));
     child.on('error', (err) => resolve({ code: 1, stdout, stderr: stderr + String(err) }));
     child.on('close', (code) => resolve({ code: code ?? 0, stdout, stderr }));
   });
@@ -275,9 +275,9 @@ export const normalizeSchema = async (
 
   if (!existsSync(configPath)) return { renamed: 0 };
 
-  const config: NormalizeConfig = JSON.parse(
+  const config = JSON.parse(
     await readFile(configPath, 'utf-8'),
-  );
+  ) as NormalizeConfig;
   let schema = await readFile(schemaPath, 'utf-8');
   let renamed = 0;
 

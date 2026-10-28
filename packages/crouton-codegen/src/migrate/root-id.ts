@@ -1,15 +1,8 @@
-import type { ResourceJson } from '@ghentcdh/crouton-core';
+type RawResourceJson = Record<string, unknown>;
+type MigrationResult = { changed: boolean; json: RawResourceJson };
 
-type MigrationResult = { changed: boolean; json: ResourceJson };
-
-/**
- * Removes root `id` when it equals `name` (the default value).
- * When `id !== name` the field is left untouched — it has a meaningful override.
- */
-export const migrateRootId = (json: ResourceJson): MigrationResult => {
-  const raw = json as any;
-  if (!('id' in raw) || raw.id !== raw.name) return { changed: false, json };
-
-  const { id: _removed, ...rest } = raw;
-  return { changed: true, json: rest as unknown as ResourceJson };
+export const migrateRootId = (json: RawResourceJson): MigrationResult => {
+  if (!('id' in json) || json['id'] !== json['name']) return { changed: false, json };
+  const { id: _removed, ...rest } = json;
+  return { changed: true, json: rest };
 };
