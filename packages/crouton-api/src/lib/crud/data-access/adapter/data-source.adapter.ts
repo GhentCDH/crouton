@@ -1,24 +1,16 @@
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
-/**
- * Context passed to every adapter CRUD method.
- *
- * Typed loosely (config/configRegistry as `any`) to avoid circular imports:
- * DataSourceAdapter is imported transitively by many modules including the
- * hooks layer which is also referenced from the resource schema.
- */
+import type { Resource } from '../../resource/ResourceConfig.schema';
+import type { ResourceConfigRegistry } from '../../resource-config.registry';
+
 export interface AdapterCrudContext {
-  /** Fully resolved resource config (Resource type). */
-  config: any;
+  config: Resource;
   op: string;
-  request?: any;
+  request?: unknown;
   offset: number;
-  /** Prisma `select` clause for list queries (derived from findAll schema). */
-  listSelect?: Record<string, any>;
-  /** Prisma `select` clause for detail queries (derived from findOne schema). */
-  oneSelect?: Record<string, any>;
-  /** ResourceConfigRegistry for value-label resolution. */
-  configRegistry?: any;
+  listSelect?: Record<string, unknown>;
+  oneSelect?: Record<string, unknown>;
+  configRegistry?: ResourceConfigRegistry;
   /** Free-text search term forwarded from `?q=` for OR search in `ReadRepository`. */
   q?: string;
 }

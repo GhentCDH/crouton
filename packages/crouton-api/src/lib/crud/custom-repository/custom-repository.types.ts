@@ -27,7 +27,7 @@ export type CustomOp =
   | 'patch'
   | 'delete';
 
-export interface CustomRepositoryContext<PRISMA = any> {
+export interface CustomRepositoryContext<PRISMA = unknown> {
   /**
    * Resolved datasource client for this resource — the one named by the
    * resource's `database`, or the project default.
@@ -38,8 +38,8 @@ export interface CustomRepositoryContext<PRISMA = any> {
   prisma: PRISMA;
   /** Escape hatch for a resource that reads from more than one database. */
   dataSources: {
-    resolve(name?: string): any;
-    entries(): { name: string; client: any }[];
+    resolve(name?: string): unknown;
+    entries(): { name: string; client: unknown }[];
   };
   /** The fully resolved resource config, including columns and views. */
   config: Resource;
@@ -55,8 +55,9 @@ export interface CustomRepositoryContext<PRISMA = any> {
   /**
    * The incoming HTTP request, when the controller layer supplies one.
    * Same value hooks receive as `ctx.request` — use it for auth/tenant context.
+   * Cast to `CroutonRequest` (from `@ghentcdh/crouton-api`) for typed access.
    */
-  request?: any;
+  request?: unknown;
   /**
    * Set when the resource declares a `parent`, i.e. it is mounted at
    * `<route>/:<param>/…`. The id is read from the path on every request, so it
@@ -81,7 +82,7 @@ export interface CustomListResult<T = any> {
  * unnested operations rather than supplementing them — the parent id is always
  * available, and a query can never accidentally run across every parent.
  */
-export interface CustomParentRepository<T = any, PRISMA = any> {
+export interface CustomParentRepository<T = any, PRISMA = unknown> {
   /** List the children of one parent. Returns rows *and* the total count. */
   findAllByParent?(
     parentId: string | number,
@@ -96,20 +97,20 @@ export interface CustomParentRepository<T = any, PRISMA = any> {
   ): Promise<T | null | undefined>;
   createByParent?(
     parentId: string | number,
-    data: any,
+    data: unknown,
     ctx: CustomRepositoryContext<PRISMA>,
   ): Promise<T>;
   updateByParent?(
     parentId: string | number,
     id: string | number,
-    data: any,
+    data: unknown,
     ctx: CustomRepositoryContext<PRISMA>,
   ): Promise<T>;
   /** Falls back to `updateByParent` when not implemented. */
   patchByParent?(
     parentId: string | number,
     id: string | number,
-    data: any,
+    data: unknown,
     ctx: CustomRepositoryContext<PRISMA>,
   ): Promise<T>;
   deleteByParent?(
@@ -119,7 +120,7 @@ export interface CustomParentRepository<T = any, PRISMA = any> {
   ): Promise<T>;
 }
 
-export interface CustomRepository<T = any, PRISMA = any>
+export interface CustomRepository<T = any, PRISMA = unknown>
   extends CustomParentRepository<T, PRISMA> {
   /**
    * List rows. Must return the total `count` as well — the framework builds the
@@ -137,10 +138,10 @@ export interface CustomRepository<T = any, PRISMA = any>
     id: string | number,
     ctx: CustomRepositoryContext<PRISMA>,
   ): Promise<T | null | undefined>;
-  create?(data: any, ctx: CustomRepositoryContext<PRISMA>): Promise<T>;
+  create?(data: unknown, ctx: CustomRepositoryContext<PRISMA>): Promise<T>;
   update?(
     id: string | number,
-    data: any,
+    data: unknown,
     ctx: CustomRepositoryContext<PRISMA>,
   ): Promise<T>;
   /**
@@ -149,7 +150,7 @@ export interface CustomRepository<T = any, PRISMA = any>
    */
   patch?(
     id: string | number,
-    data: any,
+    data: unknown,
     ctx: CustomRepositoryContext<PRISMA>,
   ): Promise<T>;
   delete?(

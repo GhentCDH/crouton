@@ -38,7 +38,7 @@ export interface WriteHookContext<PRISMACLIENT = unknown> {
   prisma: PRISMACLIENT;
   op: WriteOp;
   id?: string | number;
-  request?: any;
+  request?: unknown;
   parent?: ParentHookContext;
 }
 
@@ -52,7 +52,7 @@ export interface ReadHookContext<PRISMACLIENT = unknown> {
    */
   prisma: PRISMACLIENT;
   op: ReadOp;
-  request?: any;
+  request?: unknown;
   parent?: ParentHookContext;
 }
 
@@ -86,25 +86,10 @@ export const ResourceHooksSchema = z.object({
  * `z.infer<typeof ResourceHooksSchema>` erases it (Zod wraps every custom()
  * in `ZodType<T>`, discarding the generic), making `ctx.prisma` always `any`.
  */
-export interface ResourceHooks<PRISMACLIENT = any> {
-  beforeWrite?: (
-    data: any,
-    ctx: WriteHookContext<PRISMACLIENT>,
-  ) => Promise<any> | any;
-  afterWrite?: (
-    result: any,
-    ctx: WriteHookContext<PRISMACLIENT>,
-  ) => Promise<any> | any;
-  afterRead?: (
-    row: any,
-    ctx: ReadHookContext<PRISMACLIENT>,
-  ) => Promise<any> | any;
-  beforeFindAll?: (
-    params: ListRequest,
-    ctx: ReadHookContext<PRISMACLIENT>,
-  ) => Promise<ListRequest> | ListRequest;
-  afterFindAll?: (
-    rows: any[],
-    ctx: ReadHookContext<PRISMACLIENT>,
-  ) => Promise<any[]> | any[];
+export interface ResourceHooks<PRISMACLIENT = unknown> {
+  beforeWrite?: (data: unknown, ctx: WriteHookContext<PRISMACLIENT>) => Promise<unknown> | unknown;
+  afterWrite?: (result: unknown, ctx: WriteHookContext<PRISMACLIENT>) => Promise<unknown> | unknown;
+  afterRead?: (row: unknown, ctx: ReadHookContext<PRISMACLIENT>) => Promise<unknown> | unknown;
+  beforeFindAll?: (params: ListRequest, ctx: ReadHookContext<PRISMACLIENT>) => Promise<ListRequest> | ListRequest;
+  afterFindAll?: (rows: unknown[], ctx: ReadHookContext<PRISMACLIENT>) => Promise<unknown[]> | unknown[];
 }
