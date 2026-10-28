@@ -23,6 +23,14 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   draft: true,
   // Input-only: editor autocomplete pointer, ignored at runtime.
   $schema: true,
+  // Input-only: the compiled resource carries the flattened fields below.
+  source: true,
+  // Legacy root aliases: the compiler normalizes them (with `source`) into the
+  // flattened fields below and never copies the raw keys.
+  model: true,
+  table: true,
+  database: true,
+  idType: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),
