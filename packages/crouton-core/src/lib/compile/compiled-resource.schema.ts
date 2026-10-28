@@ -13,7 +13,11 @@ import { JsonColumnBaseSchema } from '../resource/Column';
 import { DefinitionSchema } from '../schema/definition/definition.schema';
 import { LookupSchema } from '../schema/definition/lookup.schema';
 
-export const CompiledResourceSchema = ResourceJsonShape.extend({
+export const CompiledResourceSchema = ResourceJsonShape.omit({
+  // Input-only: the compiled resource carries the resolved `definition`, not
+  // the raw operation toggles.
+  operations: true,
+}).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),
   route: z.string(),

@@ -164,8 +164,12 @@ export const compileResource = (
   const derivedModalSize: 'xs' | 'sm' | 'lg' | 'xl' =
     json.layout?.form?.container?.size ?? 'sm';
 
+  // Input-only: the compiled resource exposes `definition`, not the raw
+  // operation toggles. Drop it so it does not leak from the input spread.
+  const { operations: _operations, ...jsonRest } = json;
+
   return {
-    ...json,
+    ...jsonRest,
     name: json.name,
     route: json.route,
     tag: json.openapi?.tag ?? json.tag,

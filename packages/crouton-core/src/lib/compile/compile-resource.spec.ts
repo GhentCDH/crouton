@@ -145,3 +145,10 @@ describe('compileResource — source flattening (dbTable/datasource, not the rem
     expect(result.model).toBe('Article');
   });
 });
+
+describe('compileResource — input-only keys are not copied to the compiled resource', () => {
+  it('does not expose the raw operation toggles', () => {
+    const result = compileResource(baseJson);
+    expect('operations' in result).toBe(false);
+  });
+});
