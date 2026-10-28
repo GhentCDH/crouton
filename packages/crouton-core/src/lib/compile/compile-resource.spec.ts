@@ -207,3 +207,15 @@ describe('compileResource — input-only keys are not copied to the compiled res
     expect('$schema' in result).toBe(false);
   });
 });
+
+describe('compileResource — findAllInclude naming', () => {
+  it('emits operations.findAll.include as findAllInclude, not include', () => {
+    const json = invalid<ResourceJson>({
+      ...baseJson,
+      operations: { ...baseJson.operations, findAll: { include: ['author'] } },
+    });
+    const result = compileResource(json) as { findAllInclude?: unknown[] };
+    expect('include' in result).toBe(false);
+    expect(result.findAllInclude).toHaveLength(1);
+  });
+});
