@@ -203,7 +203,7 @@ export class ReadRepository<T = unknown> {
     }
 
     const allStaticAndDynamic = [
-      ...(this.config.include ?? []),
+      ...(this.config.findAllInclude ?? []),
       ...dynamicPrismaFields,
     ];
     const configInclude = buildIncludeClause(
@@ -216,7 +216,7 @@ export class ReadRepository<T = unknown> {
     // counted set — that would silently turn a `_count` into a full child fetch
     // the moment a column is hidden.
     // Custom children join this set too: they cannot be Prisma-included at all,
-    // so an entry naming one in `config.include` has to be dropped rather than
+    // so an entry naming one in `config.findAllInclude` has to be dropped rather than
     // passed through to fail the query.
     const countableRelations = new Set([
       ...oneToManySubResources.map((s) => s.relation),
@@ -316,7 +316,7 @@ export class ReadRepository<T = unknown> {
   /**
    * Fetch a single record by id.
    * Sub-resources with `includeInFindOne: true` are eagerly loaded (flat).
-   * `config.include` entries are loaded with full nesting via `buildIncludeClause`.
+   * `config.findAllInclude` entries are loaded with full nesting via `buildIncludeClause`.
    * Resource-level `afterRead` decoration is applied by the factory wrapper.
    * @throws {NotFoundException} When no record exists for the given id.
    */
@@ -361,7 +361,7 @@ export class ReadRepository<T = unknown> {
     }
 
     const allStaticAndDynamic = [
-      ...(this.config.findOneInclude ?? this.config.include ?? []),
+      ...(this.config.findOneInclude ?? this.config.findAllInclude ?? []),
       ...dynamicPrismaFields,
     ];
     const mergedInclude = buildFindOneIncludes(

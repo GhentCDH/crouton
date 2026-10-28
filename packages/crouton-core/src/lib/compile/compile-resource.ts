@@ -176,6 +176,7 @@ export const compileResource = (
     table: rootTable,
     database: rootDatabase,
     idType: rootIdType,
+    include: _inputInclude,
     ...jsonRest
   } = json;
 
@@ -204,7 +205,7 @@ export const compileResource = (
     ...(searchPaths?.length && { search: searchPaths }),
     lookup,
     ...(calculatedColumns.length && { calculatedColumns }),
-    ...(enrichedInclude?.length && { include: enrichedInclude }),
+    ...(enrichedInclude?.length && { findAllInclude: enrichedInclude }),
     ...(enrichedFindOneInclude?.length && {
       findOneInclude: enrichedFindOneInclude,
     }),

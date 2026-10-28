@@ -31,6 +31,9 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   table: true,
   database: true,
   idType: true,
+  // Input-only: the compiler derives `findAllInclude`/`findOneInclude` from the
+  // operation include config; the raw legacy key is not copied.
+  include: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),
@@ -46,7 +49,7 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   idField: z.string(),
   modalSize: ModalSizeSchema.optional(),
   /** Eager-loaded relations for findAll (list) queries. From operations.findAll.include. */
-  include: OptionalIncludeListSchema,
+  findAllInclude: OptionalIncludeListSchema,
   /** Eager-loaded relations for findOne (detail) queries. From operations.findOne.include. */
   findOneInclude: OptionalIncludeListSchema,
   /** Prisma model name (flattened from source.model). */
