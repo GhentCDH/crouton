@@ -1,0 +1,156 @@
+{
+  "add-crouton": {
+    "prod": {
+      "explicit_any": 2,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "create-crouton": {
+    "prod": {
+      "explicit_any": 1,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-api": {
+    "prod": {
+      "explicit_any": 302,
+      "as_any": 40,
+      "as_unknown_as": 7,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 155,
+      "as_any": 83,
+      "as_unknown_as": 16,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-cli": {
+    "prod": {
+      "explicit_any": 4,
+      "as_any": 1,
+      "as_unknown_as": 6,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-codegen": {
+    "prod": {
+      "explicit_any": 20,
+      "as_any": 12,
+      "as_unknown_as": 11,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 31,
+      "as_any": 29,
+      "as_unknown_as": 1,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-core": {
+    "prod": {
+      "explicit_any": 181,
+      "as_any": 83,
+      "as_unknown_as": 12,
+      "disable_no_reason": 1
+    },
+    "spec": {
+      "explicit_any": 163,
+      "as_any": 150,
+      "as_unknown_as": 16,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-forms-vue": {
+    "prod": {
+      "explicit_any": 250,
+      "as_any": 71,
+      "as_unknown_as": 1,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 13,
+      "as_any": 6,
+      "as_unknown_as": 3,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-mcp": {
+    "prod": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-prisma": {
+    "prod": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-ui-vue": {
+    "prod": {
+      "explicit_any": 38,
+      "as_any": 8,
+      "as_unknown_as": 2,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  },
+  "crouton-vue": {
+    "prod": {
+      "explicit_any": 196,
+      "as_any": 30,
+      "as_unknown_as": 10,
+      "disable_no_reason": 0
+    },
+    "spec": {
+      "explicit_any": 0,
+      "as_any": 0,
+      "as_unknown_as": 0,
+      "disable_no_reason": 0
+    }
+  }
+}
