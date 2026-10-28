@@ -1,6 +1,5 @@
 import {
   type EnumRegistry,
-  type JsonAction,
   type JsonColumn,
   type JsonIncludeEntry,
   type RelationFieldInputOptions,
@@ -245,11 +244,6 @@ export const buildSubResources = (
           patch: childOps.patch !== false,
           delete: childOps.delete !== false,
         },
-        ...(() => {
-          const tableNode = childJson?.layout?.table as Record<string, unknown> | undefined;
-          const tableActions = tableNode?.['actions'] as JsonAction[] | undefined;
-          return tableActions?.length ? { actions: tableActions } : {};
-        })(),
         ...(mergedIncludes.length && { childInclude: mergedIncludes }),
         ...(childCalculatedColumns.length && {
           calculatedColumns: childCalculatedColumns,
