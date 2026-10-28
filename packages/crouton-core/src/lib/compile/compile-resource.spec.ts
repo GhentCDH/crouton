@@ -161,4 +161,10 @@ describe('compileResource — input-only keys are not copied to the compiled res
     expect('openapi' in result).toBe(false);
     expect(result.tag).toBe('Articles API');
   });
+
+  it('does not expose the draft flag', () => {
+    const json = invalid<ResourceJson>({ ...baseJson, draft: true });
+    const result = compileResource(json);
+    expect('draft' in result).toBe(false);
+  });
 });
