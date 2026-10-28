@@ -1,6 +1,6 @@
 import type { CrudDefinition } from './definition.schema';
-import type { SchemaInput } from '../../compile/schema-input';
 import type { JsonResourceOperations } from '../../data-source';
+import type { SchemaInput } from '../json/schema-input';
 
 export type CrudOperation =
   | 'findAll'

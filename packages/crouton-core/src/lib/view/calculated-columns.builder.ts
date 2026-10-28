@@ -1,5 +1,5 @@
-import type { ViewColumnConfig, ViewConfig } from './view.schema';
 import type { CalculatedColumn } from '../resource/CalculatedColumn.schema';
+import type { ViewColumnConfig, ViewConfig } from '../schema/view/view.schema';
 
 
 // ── Calculated column injection ───────────────────────────────────────────

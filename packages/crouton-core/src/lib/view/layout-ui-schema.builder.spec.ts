@@ -1,10 +1,6 @@
 import type { UISchemaElement } from '@jsonforms/core';
 import { describe, expect, it, vi } from 'vitest';
 
-
-import { buildFormUiSchema } from './form-schema.builder';
-import { buildTableUiSchema } from './table-schema.builder';
-import type { ViewConfig } from './view.schema';
 import { orderTableColumnsFromLayout } from '../layout/layout-table-order';
 import {
   buildFormUiSchemaFromLayout,
@@ -12,7 +8,17 @@ import {
 } from '../layout/layout-ui-schema.builder';
 import type { LayoutNode } from '../layout/schema';
 import { JsonColumnSchema } from '../resource/Column';
-import { type TestControl, asControl, asLayout, invalid } from '../utils/test-utils';
+import {
+  type ViewConfig,
+  buildFormUiSchema,
+  buildTableUiSchema,
+} from '../schema';
+import {
+  type TestControl,
+  asControl,
+  asLayout,
+  invalid,
+} from '../utils/test-utils';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));
@@ -24,8 +30,8 @@ const cols = parse([
 ]);
 
 const byScope = (ui: UISchemaElement, id: string): TestControl | undefined =>
-  asLayout(ui).elements
-    .map((e) => asControl(e))
+  asLayout(ui)
+    .elements.map((e) => asControl(e))
     .find((e) => e?.scope === `#/properties/${id}`);
 
 // ── Backward-compat snapshot ───────────────────────────────────────────────
@@ -106,7 +112,10 @@ describe('buildFormUiSchemaFromLayout – nested sections', () => {
   it('wraps items in a nested container', () => {
     const node: LayoutNode = {
       type: 'grid',
-      items: ['name', { type: 'collapse', title: 'More', items: ['bio', 'status'] }],
+      items: [
+        'name',
+        { type: 'collapse', title: 'More', items: ['bio', 'status'] },
+      ],
     };
     const ui = asLayout(buildFormUiSchemaFromLayout(node, cols));
     expect(ui.elements).toHaveLength(2); // name + collapse node
@@ -154,7 +163,9 @@ describe('buildFormUiSchemaFromLayout – unknown id', () => {
     const ui = asLayout(buildFormUiSchemaFromLayout(node, cols, warn));
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('"ghost"'));
     expect(
-      ui.elements.map((e) => asControl(e)).find((e) => e?.scope?.includes('ghost')),
+      ui.elements
+        .map((e) => asControl(e))
+        .find((e) => e?.scope?.includes('ghost')),
     ).toBeUndefined();
   });
 });
@@ -201,8 +212,8 @@ describe('orderTableColumnsFromLayout', () => {
     };
     const node: LayoutNode = { items: ['status'] };
     const ordered = orderTableColumnsFromLayout(view, node);
-    const ids = ((ordered.ui_schema?.['elements'] ?? []) as TestControl[]).map((e) =>
-      (e.scope ?? '').replace('#/properties/', ''),
+    const ids = ((ordered.ui_schema?.['elements'] ?? []) as TestControl[]).map(
+      (e) => (e.scope ?? '').replace('#/properties/', ''),
     );
     expect(ids).toEqual(['status']);
   });
