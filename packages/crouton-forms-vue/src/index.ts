@@ -43,16 +43,17 @@ export type {
   UniqueScope,
 } from './composables/useUniqueValidator';
 export { useAutoSave } from './composables/useAutoSave';
-export { UI_TRANSLATOR_KEY, useUiTranslator } from './composables/useUiTranslator';
+export {
+  UI_TRANSLATOR_KEY,
+  useUiTranslator,
+} from './composables/useUiTranslator';
 export type { UiTranslator } from './composables/useUiTranslator';
 export {
   FORM_MODAL_OPENER_KEY,
   useModalOpener,
 } from './composables/useModalOpener';
 export type { ModalOpenerOptions } from './composables/useModalOpener';
-export {
-  useCroutonFormLogic,
-} from './composables/useCroutonFormLogic';
+export { useCroutonFormLogic } from './composables/useCroutonFormLogic';
 export type {
   CroutonFormLogicEmitsType,
   CroutonFormLogicProps,
@@ -167,7 +168,6 @@ export type {
   JsonActionCondition,
   JsonColumn,
   JsonColumnsMap,
-  JsonDisplay,
   JsonIncludeEntry,
   JsonProcedureAction,
   RelationFieldInputOptions,

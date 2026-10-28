@@ -1,9 +1,9 @@
 import { buildSubResourceOperations } from '../data-source';
-import type { LayoutNode } from '../layout/schema/LayoutNode.schema';
-import { allowedIncludes } from '../request/include';
+import type { Layout, LayoutNode  } from '../layout/schema';
+import { allowedIncludes } from '../request';
 import type { JsonAction } from '../resource';
-import { pickExtensions } from '../resource/extensions';
-import { readEnv } from '../utils/env';
+import { pickExtensions } from '../resource';
+import { readEnv } from '../utils';
 import { resolveTableNode } from '../view';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
@@ -15,6 +15,16 @@ import {
   schemaFor,
 } from '../schema/definition/crud-config';
 import { toJsonSchema } from '../schema/json';
+
+/**
+ * Derive the wire `display` from the layout. `display` is not stored on the
+ * compiled resource — it is fully derivable, so the payload builders compute it
+ * here to keep `/definition` and `/schemas` output unchanged.
+ */
+export const deriveDisplay = (layout: Layout | undefined) => ({
+  mode: layout?.form?.container?.mode ?? layout?.view?.container?.mode ?? 'modal',
+  customComponent: layout?.view?.component ?? null,
+});
 
 interface TableInjectOptions {
   rowActions: unknown[];
@@ -160,7 +170,7 @@ export const buildDefinitionPayload = (
     route,
     tag,
     operations,
-    display: config.display,
+    display: deriveDisplay(config.layout),
     schemas: {
       ...(listSchema && { findAll: toJsonSchema(listSchema) }),
       ...(oneSchema && { findOne: toJsonSchema(oneSchema) }),
@@ -260,7 +270,7 @@ export const buildViewsPayload = (
     idField: config.lookup?.key ?? 'id',
     ...(config.modalSize && { modalSize: config.modalSize }),
     operations,
-    display: config.display,
+    display: deriveDisplay(config.layout),
     schemas,
     allowedIncludes: allowedIncludes(config.columns ?? []),
     ...pickExtensions(config),
@@ -284,7 +294,6 @@ export const buildSubResourceViewsPayload = (
     title: sub.title ?? sub.childRoute,
     idField: sub.idField ?? 'id',
     ...(sub.modalSize && { modalSize: sub.modalSize }),
-    ...(sub.display && { display: sub.display }),
     operations: buildSubResourceOperations(
       sub.operations,
       childUri,

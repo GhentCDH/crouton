@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-import { JsonDisplaySchema, ResourceJsonShape } from '../resource';
-import { JsonColumnBaseSchema } from '../resource/Column';
-import { JsonIncludeEntrySchema } from '../resource/include.schema';
+import { JsonColumnBaseSchema , JsonIncludeEntrySchema,  ResourceJsonShape  } from '../resource';
 import { ViewConfigSchema } from '../view';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { ValueLabelColumnSchema } from './value-label-column';
@@ -20,8 +18,6 @@ export const CompiledResourceSchema = ResourceJsonShape.extend({
   views: z.record(z.string(), ViewConfigSchema),
   definition: DefinitionSchema,
   idField: z.string(),
-  // Derived from layout.form.container / layout.view.container at compile time (Block 2)
-  display: JsonDisplaySchema.optional(),
   modalSize: z.enum(['xs', 'sm', 'lg', 'xl']).optional(),
   /** Eager-loaded relations for findAll (list) queries. From operations.findAll.include. */
   include: z.array(JsonIncludeEntrySchema).optional(),

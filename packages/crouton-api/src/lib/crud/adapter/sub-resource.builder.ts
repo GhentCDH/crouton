@@ -251,7 +251,6 @@ export const buildSubResources = (
         })(),
         ...(childJson?.layout?.form?.container && {
           modalSize: childJson.layout.form.container.size,
-          display: { mode: childJson.layout.form.container.mode, customComponent: null },
         }),
         ...(mergedIncludes.length && { include: mergedIncludes }),
         ...(childCalculatedColumns.length && {
