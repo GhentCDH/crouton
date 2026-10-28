@@ -182,7 +182,10 @@ describe('buildSubResources — child layout forwarded to views', () => {
     const columns = [col({ id: 'content', hiddenInForm: false })];
     const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
     expect(result[0].modalSize).toBe('xl');
-    expect(result[0].display).toEqual({ mode: 'modal' });
+    // `customComponent` is part of the compiled display shape; it is always
+    // present (null when the child has no custom view component), matching
+    // `compile-resource.ts`.
+    expect(result[0].display).toEqual({ mode: 'modal', customComponent: null });
   });
 });
 

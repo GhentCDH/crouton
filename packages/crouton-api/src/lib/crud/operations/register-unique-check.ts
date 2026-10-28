@@ -105,7 +105,7 @@ export const registerUniqueCheck = (ctx: OperationContext): void => {
   def(cls, methodName, handler);
   const d = desc(cls, methodName);
   Get('unique')(cls.prototype, methodName, d);
-  Query(new ZodValidationPipe(UniqueQuerySchema as any))(
+  Query(new ZodValidationPipe(UniqueQuerySchema))(
     cls.prototype,
     methodName,
     0,

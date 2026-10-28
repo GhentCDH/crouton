@@ -28,8 +28,8 @@ const defaultPatch = (ctx: OperationContext) => {
     patchFn: function (
       this: { repo: CrudRepository },
       id: string,
-      body: any,
-      req: any,
+      body: unknown,
+      req: unknown,
     ) {
       return this.repo.patch(id, body, req);
     },
@@ -50,8 +50,8 @@ const childPatch = (sub: SubResourceConfig) => (ctx: OperationContext) => {
     this: { repo: CrudRepository },
     _id: string,
     childId: string,
-    body: any,
-    req: any,
+    body: unknown,
+    req: unknown,
   ) {
     return this.repo.updateChild(sub, childId, body, req);
   };

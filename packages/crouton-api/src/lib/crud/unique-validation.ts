@@ -138,17 +138,18 @@ const dmmfUniqueInfo = (
   modelName: string,
 ): { singleColumns: Set<string>; compositeFieldSets: Set<string>[] } | null => {
   try {
-    const dmmf = (client as any)?._baseDmmf;
+    const dmmf = (client as Record<string, unknown>)?._baseDmmf as Record<string, unknown> | undefined;
     if (!dmmf) return null;
-    const model = dmmf.modelMap?.[modelName];
+    const model = (dmmf.modelMap as Record<string, unknown> | undefined)?.[modelName] as Record<string, unknown> | undefined;
     if (!model) return null;
 
     const singleColumns = new Set<string>();
-    for (const field of (model.fields ?? []) as any[]) {
+    type DmmfField = { isUnique?: boolean; isId?: boolean; dbName?: string; name: string };
+    for (const field of (model.fields ?? []) as DmmfField[]) {
       if (field.isUnique || field.isId) singleColumns.add(field.dbName ?? field.name);
     }
 
-    const compositeFieldSets: Set<string>[] = (model.uniqueFields ?? [] as string[][])
+    const compositeFieldSets: Set<string>[] = ((model.uniqueFields as string[][] | undefined) ?? [])
       .filter((f: string[]) => f.length > 1)
       .map((f: string[]) => new Set(f));
 

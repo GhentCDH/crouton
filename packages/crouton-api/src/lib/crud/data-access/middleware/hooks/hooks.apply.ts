@@ -64,7 +64,7 @@ export const decorateRows = async (
   adapter: DataSourceAdapter,
   request?: unknown,
   parent?: ParentHookContext,
-): Promise<any[]> => {
+): Promise<unknown[]> => {
   const hook = target.hooks?.afterRead;
   const ctx = hookCtxRead(adapter, op, request, parent);
   const hooked = hook

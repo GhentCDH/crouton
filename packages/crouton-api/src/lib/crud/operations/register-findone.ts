@@ -25,7 +25,7 @@ const defaultFindOne = (ctx: OperationContext) => {
     route: ':id',
     methodName,
     name: config.name,
-    findOneFn: function (this: { repo: CrudRepository }, id: string, req: any) {
+    findOneFn: function (this: { repo: CrudRepository }, id: string, req: unknown) {
       return this.repo.findOne(id, req);
     },
     decorators: () => {
@@ -44,7 +44,7 @@ const childFindOne = (sub: SubResourceConfig) => (ctx: OperationContext) => {
     this: { repo: CrudRepository },
     parentId: string,
     childId: string,
-    req: any,
+    req: unknown,
   ) {
     return this.repo.findOneChild(sub, childId, parentId, req);
   };
