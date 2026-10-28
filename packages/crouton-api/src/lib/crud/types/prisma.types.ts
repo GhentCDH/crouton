@@ -7,11 +7,13 @@ import type { JsonObject } from '@ghentcdh/crouton-core';
  */
 export interface PrismaDelegateLike {
   findMany(args?: unknown): Promise<unknown[]>;
+  findFirst(args?: unknown): Promise<unknown | null>;
   findUnique(args?: unknown): Promise<unknown | null>;
   count(args?: unknown): Promise<number>;
   create(args?: unknown): Promise<unknown>;
   update(args?: unknown): Promise<unknown>;
   delete(args?: unknown): Promise<unknown>;
+  deleteMany(args?: unknown): Promise<{ count: number }>;
 }
 
 /**
@@ -20,6 +22,7 @@ export interface PrismaDelegateLike {
  */
 export interface PrismaClientLike {
   $transaction(fn: (tx: PrismaClientLike) => Promise<unknown>): Promise<unknown>;
+  $queryRaw(query: TemplateStringsArray, ...values: unknown[]): Promise<unknown>;
   $queryRawUnsafe(query: string, ...values: unknown[]): Promise<unknown>;
   _activeProvider?: string;
   [model: string]: unknown;

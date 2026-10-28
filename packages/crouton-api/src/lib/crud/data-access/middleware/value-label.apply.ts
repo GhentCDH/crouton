@@ -1,5 +1,5 @@
 import { fromValueLabel, toValueLabel } from '@ghentcdh/crouton-core';
-import type { ValueLabelColumn } from '@ghentcdh/crouton-core';
+import type { Row, ValueLabelColumn } from '@ghentcdh/crouton-core';
 
 /**
  * Value-label envelope transforms, shared by every repository implementation.
@@ -11,11 +11,11 @@ import type { ValueLabelColumn } from '@ghentcdh/crouton-core';
 
 /** Wrap configured columns of a row as `{ value, label }`. Returns a shallow copy. */
 export const applyValueLabelColumns = (
-  row: any,
+  row: Row,
   cols: ValueLabelColumn[] | undefined,
-): any => {
+): Row => {
   if (!row || !cols?.length) return row;
-  const out = { ...row };
+  const out: Row = { ...row };
   for (const { field, values } of cols) {
     if (field in out) out[field] = toValueLabel(out[field], values);
   }

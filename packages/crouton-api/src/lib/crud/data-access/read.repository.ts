@@ -11,6 +11,7 @@ import {
   resolveIncludeToRelationField,
 } from '@ghentcdh/crouton-core';
 
+
 import type { DataSourceAdapter } from './adapter';
 import {
   childCtx,
@@ -19,6 +20,8 @@ import {
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../types/prisma.types';
+import type { CroutonRequest } from '../types/request.types';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath } from './query/filter';
 import { orderableChildSort } from './query/sort';
@@ -40,17 +43,17 @@ import {
  * @param listSelect - Prisma `select` clause for list queries, derived from the `findAll` schema. `undefined` = select all.
  * @param oneSelect - Prisma `select` clause for detail queries. Falls back to `listSelect` when absent.
  */
-export class ReadRepository<T = any> {
-  private get prisma(): any {
-    return this.adapter.client;
+export class ReadRepository<T = unknown> {
+  private get prisma(): PrismaClientLike {
+    return this.adapter.client as PrismaClientLike;
   }
 
   constructor(
-    private readonly prismaModel: any,
+    private readonly prismaModel: PrismaDelegateLike,
     private readonly adapter: DataSourceAdapter,
     private readonly config: Resource,
-    private readonly listSelect: Record<string, any> | undefined,
-    private readonly oneSelect: Record<string, any> | undefined,
+    private readonly listSelect: Record<string, unknown> | undefined,
+    private readonly oneSelect: Record<string, unknown> | undefined,
     _configRegistry?: ResourceConfigRegistry,
   ) {}
 
@@ -131,17 +134,17 @@ export class ReadRepository<T = any> {
    * Resource-level `afterRead` and valueLabel decoration are NOT applied here — the
    * factory wrapper handles them so both Prisma and custom adapters use the same path.
    */
-  async findAll(params: ListRequest, request?: any): Promise<T[]> {
+  async findAll(params: ListRequest, request?: unknown): Promise<T[]> {
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
     const filterWhere = this.buildWhere(params.filter);
-    const searchWhere = this.buildSearchOrWhere((params as any).q);
+    const searchWhere = this.buildSearchOrWhere(params.q);
     const where =
       filterWhere && searchWhere
         ? { AND: [filterWhere, searchWhere] }
         : (filterWhere ?? searchWhere);
-    const query: Record<string, any> = {
+    const query: Record<string, unknown> = {
       where,
       take: params.pageSize,
       skip: offsetOf(params),
@@ -261,13 +264,13 @@ export class ReadRepository<T = any> {
     const rows = await this.prismaModel.findMany(query);
 
     const mapped = countableSubResources.length
-      ? rows.map((row: any) => {
+      ? (rows as Record<string, unknown>[]).map((row) => {
           const { _count, ...rest } = row;
           if (!_count) return rest;
           const counts = Object.fromEntries(
             countableSubResources.map((s) => [
               s.column,
-              _count[s.relation] ?? 0,
+              (_count as Record<string, unknown>)[s.relation] ?? 0,
             ]),
           );
           return { ...rest, ...counts };
@@ -316,15 +319,15 @@ export class ReadRepository<T = any> {
    * Resource-level `afterRead` decoration is applied by the factory wrapper.
    * @throws {NotFoundException} When no record exists for the given id.
    */
-  async findOne(id: number | string, request?: any): Promise<T> {
+  async findOne(id: number | string, request?: unknown): Promise<T> {
     const projection = this.projection('findOne');
     const idField = this.config.idField ?? 'id';
-    const query: Record<string, any> = {
+    const query: Record<string, unknown> = {
       where: { [idField]: this.toId(id) },
       ...projection,
     };
 
-    const rawInclude = (request as any)?.query?.include;
+    const rawInclude = (request as CroutonRequest | undefined)?.query?.['include'];
     const requestedIncludes: string[] = rawInclude
       ? (Array.isArray(rawInclude) ? rawInclude : [rawInclude]).flatMap(
           (s: string) =>
@@ -391,10 +394,10 @@ export class ReadRepository<T = any> {
 
     // Enrich nested sub-resource arrays with their own calculated columns.
     // e.g. text.text_metadata items need metadata's calculatedColumns applied.
-    let enriched: any = withCalc ?? record;
+    let enriched: unknown = withCalc ?? record;
     for (const sub of this.config.subResources ?? []) {
       if (!sub.calculatedColumns?.length) continue;
-      const nested = enriched[sub.relation];
+      const nested = (enriched as Record<string, unknown>)[sub.relation];
       if (!Array.isArray(nested) || !nested.length) continue;
       const enrichedNested = await mergeCalculatedColumnsForRows(
         nested,
@@ -404,11 +407,11 @@ export class ReadRepository<T = any> {
         sub.idField ?? 'id',
         this.adapter.provider,
       );
-      enriched = { ...enriched, [sub.relation]: enrichedNested };
+      enriched = { ...(enriched as Record<string, unknown>), [sub.relation]: enrichedNested };
     }
 
     // Resource-level afterRead decoration is applied by the factory wrapper.
-    return enriched;
+    return enriched as T;
   }
 
   /**
@@ -429,7 +432,7 @@ export class ReadRepository<T = any> {
     parentId: string | number,
     childRoute: string,
     params: ListRequest,
-    request?: any,
+    request?: unknown,
   ): Promise<{ data: T[]; count: number }> {
     const sub = (this.config.subResources ?? []).find(
       (s) => s.childRoute === childRoute,
@@ -453,10 +456,11 @@ export class ReadRepository<T = any> {
           request,
         }),
       );
-      const rows = result?.data ?? [];
+      const typedResult = result as { data?: unknown[]; count?: number } | undefined;
+      const rows: unknown[] = typedResult?.data ?? [];
       const decorated = sub.hooks?.afterRead
         ? await Promise.all(
-            rows.map((row: any) =>
+            rows.map((row) =>
               sub.hooks!.afterRead!(row, {
                 dataSource: this.adapter,
                 prisma: this.prisma,
@@ -467,13 +471,13 @@ export class ReadRepository<T = any> {
             ),
           )
         : rows;
-      const labeled = decorated.map((r: any) =>
-        applyValueLabelColumns(r, sub.valueLabelColumns),
+      const labeled = (decorated as unknown[]).map((r) =>
+        applyValueLabelColumns(r as Record<string, unknown>, sub.valueLabelColumns),
       );
-      return { data: labeled, count: result?.count ?? labeled.length };
+      return { data: labeled as T[], count: typedResult?.count ?? labeled.length };
     }
 
-    const childModel = this.prisma[sub.childModel];
+    const childModel = getDelegate(this.prisma, sub.childModel);
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 
@@ -512,7 +516,7 @@ export class ReadRepository<T = any> {
 
     const decorated = sub.hooks?.afterRead
       ? await Promise.all(
-          withCalc.map((row: any) =>
+          (withCalc as unknown[]).map((row) =>
             sub.hooks!.afterRead!(row, {
               dataSource: this.adapter,
               prisma: this.prisma,
@@ -524,10 +528,10 @@ export class ReadRepository<T = any> {
         )
       : withCalc;
 
-    const labeled = decorated.map((r: any) =>
-      applyValueLabelColumns(r, sub.valueLabelColumns),
+    const labeled = (decorated as unknown[]).map((r) =>
+      applyValueLabelColumns(r as Record<string, unknown>, sub.valueLabelColumns),
     );
-    return { data: labeled, count };
+    return { data: labeled as T[], count };
   }
 
   /**
@@ -538,8 +542,8 @@ export class ReadRepository<T = any> {
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
-    request?: any,
-  ): Promise<any> {
+    request?: unknown,
+  ): Promise<unknown> {
     if (sub.childKind === 'custom') {
       if (parentId === undefined) {
         throw new BadRequestException(
@@ -575,7 +579,7 @@ export class ReadRepository<T = any> {
         : row;
     }
 
-    const childModel = this.prisma[sub.childModel];
+    const childModel = getDelegate(this.prisma, sub.childModel);
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 

@@ -2,7 +2,7 @@ import { NotImplementedException } from '@nestjs/common';
 
 import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
 
-import { type CustomOp, PARENT_METHOD } from './custom-repository.types';
+import { type CustomOp, type CustomRepositoryContext, PARENT_METHOD } from './custom-repository.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
@@ -26,8 +26,8 @@ export const childRepositoryFn = (
   sub: SubResourceConfig,
   op: CustomOp,
   parentName: string,
-): ((...args: any[]) => Promise<any>) => {
-  const repo = sub.repository as Record<string, any> | undefined;
+): ((...args: unknown[]) => Promise<unknown>) => {
+  const repo = sub.repository as Record<string, unknown> | undefined;
   const method = PARENT_METHOD[op];
 
   if (!repo) {
@@ -60,13 +60,13 @@ export const childCtx = ({
   request,
 }: {
   parentConfig: Resource;
-  prisma: any;
+  prisma: unknown;
   op: CustomOp;
   parentId: string | number;
   params?: ListRequest;
   id?: string | number;
-  request?: any;
-}): any => ({
+  request?: unknown;
+}): CustomRepositoryContext => ({
   prisma,
   dataSources: { resolve: () => prisma, entries: () => [] },
   config: parentConfig,
@@ -86,9 +86,9 @@ export const childCtx = ({
  * `:id`, so it is read back off the request the handler already receives.
  */
 export const parentIdFromRequest = (
-  request: any,
+  request: unknown,
   fallback?: string | number,
 ): string | number | undefined => {
-  const raw = request?.params?.id;
-  return raw === undefined || raw === null || raw === '' ? fallback : raw;
+  const raw = (request as { params?: { id?: unknown } } | undefined)?.params?.id;
+  return raw === undefined || raw === null || raw === '' ? fallback : (raw as string | number);
 };

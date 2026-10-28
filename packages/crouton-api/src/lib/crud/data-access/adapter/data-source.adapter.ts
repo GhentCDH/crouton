@@ -1,6 +1,7 @@
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
 import type { Resource } from '../../resource/ResourceConfig.schema';
+import type { SubResourceConfig } from '../../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../../resource-config.registry';
 
 export interface AdapterCrudContext {
@@ -61,19 +62,19 @@ export interface DataSourceAdapter {
   // instead of constructing ReadRepository/WriteRepository directly, so a
   // subclass can override individual methods without re-implementing the rest.
 
-  findAll?(model: string, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: any[]; count: number }>;
+  findAll?(model: string, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: unknown[]; count: number }>;
   count?(model: string, filter: string[], ctx: AdapterCrudContext): Promise<number>;
-  findOne?(model: string, id: string | number, ctx: AdapterCrudContext): Promise<any | null>;
-  create?(model: string, data: unknown, ctx: AdapterCrudContext): Promise<any>;
-  update?(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<any>;
-  patch?(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<any>;
-  delete?(model: string, id: string | number, ctx: AdapterCrudContext): Promise<any>;
+  findOne?(model: string, id: string | number, ctx: AdapterCrudContext): Promise<unknown | null>;
+  create?(model: string, data: unknown, ctx: AdapterCrudContext): Promise<unknown>;
+  update?(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<unknown>;
+  patch?(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<unknown>;
+  delete?(model: string, id: string | number, ctx: AdapterCrudContext): Promise<unknown>;
 
   // Sub-resource operations — optional even on a full adapter (custom adapters
   // that cannot derive sub-resource relations simply omit these).
-  findAllByParent?(model: string, parentId: string | number, sub: any, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: any[]; count: number }>;
-  findOneChild?(model: string, sub: any, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<any | null>;
-  createChild?(model: string, parentId: string | number, sub: any, data: unknown, ctx: AdapterCrudContext): Promise<any>;
-  updateChild?(model: string, sub: any, childId: string | number, data: unknown, ctx: AdapterCrudContext): Promise<any>;
-  deleteChild?(model: string, sub: any, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<any>;
+  findAllByParent?(model: string, parentId: string | number, sub: SubResourceConfig, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: unknown[]; count: number }>;
+  findOneChild?(model: string, sub: SubResourceConfig, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<unknown | null>;
+  createChild?(model: string, parentId: string | number, sub: SubResourceConfig, data: unknown, ctx: AdapterCrudContext): Promise<unknown>;
+  updateChild?(model: string, sub: SubResourceConfig, childId: string | number, data: unknown, ctx: AdapterCrudContext): Promise<unknown>;
+  deleteChild?(model: string, sub: SubResourceConfig, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<unknown>;
 }
