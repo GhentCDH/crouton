@@ -167,4 +167,13 @@ describe('compileResource — input-only keys are not copied to the compiled res
     const result = compileResource(json);
     expect('draft' in result).toBe(false);
   });
+
+  it('does not expose the $schema pointer', () => {
+    const json = invalid<ResourceJson>({
+      ...baseJson,
+      $schema: './resources.schema.json',
+    });
+    const result = compileResource(json);
+    expect('$schema' in result).toBe(false);
+  });
 });
