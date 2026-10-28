@@ -1,35 +1,21 @@
-import type { ResourceJson } from '@ghentcdh/crouton-core';
+type RawResourceJson = Record<string, unknown>;
+type MigrationResult = { changed: boolean; json: RawResourceJson };
 
-type MigrationResult = { changed: boolean; json: ResourceJson };
+export const migrateRootInclude = (json: RawResourceJson): MigrationResult => {
+  const include = json['include'];
+  if (!Array.isArray(include) || !include.length) return { changed: false, json };
 
-/**
- * Moves root-level `include` to `operations.findAll.include` (and findOne.include).
- * Both get the same list since the old field was not per-operation.
- */
-export const migrateRootInclude = (json: ResourceJson): MigrationResult => {
-  const raw = json as any;
-  if (!raw.include?.length) return { changed: false, json };
-
-  const include = raw.include;
-  const { include: _removed, ...rest } = raw;
-
-  const ops = rest.operations ?? {};
-  const findAll = typeof ops.findAll === 'object' && ops.findAll !== null
-    ? { ...ops.findAll, include }
+  const { include: _removed, ...rest } = json;
+  const ops = (rest['operations'] as Record<string, unknown> | undefined) ?? {};
+  const findAll = typeof ops['findAll'] === 'object' && ops['findAll'] !== null
+    ? { ...(ops['findAll'] as Record<string, unknown>), include }
     : { include };
-  const findOne = typeof ops.findOne === 'object' && ops.findOne !== null
-    ? { ...ops.findOne, include }
+  const findOne = typeof ops['findOne'] === 'object' && ops['findOne'] !== null
+    ? { ...(ops['findOne'] as Record<string, unknown>), include }
     : { include };
 
   return {
     changed: true,
-    json: {
-      ...rest,
-      operations: {
-        ...ops,
-        findAll,
-        findOne,
-      },
-    } as unknown as ResourceJson,
+    json: { ...rest, operations: { ...ops, findAll, findOne } },
   };
 };

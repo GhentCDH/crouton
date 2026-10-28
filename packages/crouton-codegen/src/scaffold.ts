@@ -115,7 +115,7 @@ export const scaffoldConfigFromProject = async (
       if (!e.isDirectory()) continue;
       const existing = join(root, dataSourcesDir, e.name, 'data-source.json');
       const prev: Partial<DataSource> = (await fileExists(existing))
-        ? JSON.parse(await readFile(existing, 'utf-8'))
+        ? JSON.parse(await readFile(existing, 'utf-8')) as Partial<DataSource>
         : {};
       const name = prev.name ?? e.name;
       datasources.push(

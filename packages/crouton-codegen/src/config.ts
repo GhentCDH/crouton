@@ -97,12 +97,12 @@ export const loadDatasources = async (
     if (!e.isDirectory()) continue;
     const jsonPath = join(base, e.name, 'data-source.json');
     if (!(await fileExists(jsonPath))) continue;
-    const ds_json = JSON.parse(await readFile(jsonPath, 'utf-8'));
-    const name = ds_json.name ?? e.name;
-    if (!ds_json.prismaSchema || !ds_json.generatedTypesImport) {
+    const ds_json = JSON.parse(await readFile(jsonPath, 'utf-8')) as Record<string, unknown>;
+    const name = (ds_json['name'] as string | undefined) ?? e.name;
+    if (!ds_json['prismaSchema'] || !ds_json['generatedTypesImport']) {
       const missing = [
-        !ds_json.prismaSchema && '"prismaSchema"',
-        !ds_json.generatedTypesImport && '"generatedTypesImport"',
+        !ds_json['prismaSchema'] && '"prismaSchema"',
+        !ds_json['generatedTypesImport'] && '"generatedTypesImport"',
       ]
         .filter(Boolean)
         .join(' and ');
@@ -116,7 +116,7 @@ export const loadDatasources = async (
       DataSourceSchema.parse({
         ...ds_json,
         name,
-        prismaConfig: ds_json.prismaConfig ?? defaultPrismaConfig(name),
+        prismaConfig: ds_json['prismaConfig'] ?? defaultPrismaConfig(name),
       }),
     );
   }

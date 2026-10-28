@@ -30,10 +30,10 @@ const col = (d: ReturnType<typeof classify>, id: string) =>
 describe('classify', () => {
   it('derives identity + operations + database + sidebar', () => {
     const d = classify(model, { database: 'docsdb' });
-    expect((d.config as any).source?.model).toBe('text');
-    expect((d.config as any).openapi?.tag).toBe('Text');
-    expect((d.config as any).source?.idType).toBe('string');
-    expect((d.config as any).source?.datasource).toBe('docsdb');
+    expect(d.config.source?.model).toBe('text');
+    expect(d.config.openapi?.tag).toBe('Text');
+    expect(d.config.source?.idType).toBe('string');
+    expect(d.config.source?.datasource).toBe('docsdb');
     expect(d.config.sidebar).toEqual({ hide: false });
     expect(d.config.operations?.findAll).toBe(true);
   });
@@ -87,7 +87,7 @@ describe('classify', () => {
       },
     });
     // no redundant `type: 'relation'` — every reader keys off `fieldInput.format`
-    expect((col(d, 'author') as any).fieldInput).not.toHaveProperty('type');
+    expect(col(d, 'author').fieldInput).not.toHaveProperty('type');
     // Source (oneToMany) does not resolve → hidden everywhere + recorded as unwired
     expect(col(d, 'sources')).toEqual({ hiddenInTable: true, hiddenInForm: true, hiddenInView: true });
     expect(d.unwiredRelations).toEqual([{ field: 'sources', targetModel: 'Source' }]);
@@ -110,42 +110,42 @@ describe('classify', () => {
       },
     });
     // shown in the form + view — not hidden
-    expect((col(d, 'sources') as any).hiddenInForm).toBeUndefined();
-    expect((col(d, 'sources') as any).hiddenInView).toBeUndefined();
+    expect(col(d, 'sources').hiddenInForm).toBeUndefined();
+    expect(col(d, 'sources').hiddenInView).toBeUndefined();
     // no longer unwired — it resolved
     expect(d.unwiredRelations).toEqual([]);
     // the forward side is unaffected — still visible
     expect(col(d, 'author')).toMatchObject({ hiddenInTable: true });
-    expect((col(d, 'author') as any).hiddenInForm).toBeUndefined();
+    expect(col(d, 'author').hiddenInForm).toBeUndefined();
   });
 
   it('renders enums as a shared-enum reference with no inline options by default', () => {
     const d = classify(model);
-    const kind = col(d, 'kind') as any;
+    const kind = col(d, 'kind');
     // sharedEnums=true: only enum ref + position; defaults applied at runtime by applyEnumDefaults
     expect(kind.enum).toBe('TextKind');
     expect(kind.fieldInput).toMatchObject({ position: 1, defaultValue: 'a' });
-    expect(kind.fieldInput.type).toBeUndefined();
-    expect(kind.fieldInput.options).toBeUndefined();
+    expect(kind.fieldInput?.type).toBeUndefined();
+    expect(kind.fieldInput?.options).toBeUndefined();
     expect(kind.displayKey).toBeUndefined();
   });
 
   it('inlines values (no enum ref) when sharedEnums is off', () => {
     const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false } });
-    const kind = col(d, 'kind') as any;
+    const kind = col(d, 'kind');
     expect(kind.enum).toBeUndefined();
-    expect(kind.fieldInput.options.values).toEqual([
+    expect((kind.fieldInput?.options as Record<string, unknown> | undefined)?.['values']).toEqual([
       { label: 'a', value: 'a' },
       { label: 'b', value: 'b' },
     ]);
-    expect(kind.fieldInput.options.emitObject).toBe(true);
+    expect((kind.fieldInput?.options as Record<string, unknown> | undefined)?.['emitObject']).toBe(true);
   });
 
   it('omits the value/label envelope when enumValueLabel is off (inline path)', () => {
     const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false, enumValueLabel: false } });
-    const kind = col(d, 'kind') as any;
+    const kind = col(d, 'kind');
     expect(kind.displayKey).toBeUndefined();
-    expect((kind.fieldInput?.options ?? {}).emitObject).toBeUndefined();
+    expect((kind.fieldInput?.options as Record<string, unknown> | undefined)?.['emitObject']).toBeUndefined();
   });
 
   it('gives plain scalars a typed control', () => {
@@ -170,16 +170,16 @@ describe('classify', () => {
 
   it('uses multiSelect for isList enum (sharedEnums on)', () => {
     const d = classify(model);
-    const tags = col(d, 'tags') as any;
+    const tags = col(d, 'tags');
     expect(tags.enum).toBe('Tag');
-    expect(tags.fieldInput.type).toBe('multiSelect');
+    expect(tags.fieldInput?.type).toBe('multiSelect');
   });
 
   it('uses multiSelect for isList enum (sharedEnums off)', () => {
     const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false } });
-    const tags = col(d, 'tags') as any;
-    expect(tags.fieldInput.type).toBe('multiSelect');
-    expect(tags.fieldInput.options.values).toEqual([
+    const tags = col(d, 'tags');
+    expect(tags.fieldInput?.type).toBe('multiSelect');
+    expect((tags.fieldInput?.options as Record<string, unknown> | undefined)?.['values']).toEqual([
       { label: 'x', value: 'x' },
       { label: 'y', value: 'y' },
     ]);
@@ -187,7 +187,7 @@ describe('classify', () => {
 
   it('uses select (not multiSelect) for non-list enum', () => {
     const d = classify(model, { ruleset: { ...defaultRuleset(), sharedEnums: false } });
-    const kind = col(d, 'kind') as any;
-    expect(kind.fieldInput.type).toBe('select');
+    const kind = col(d, 'kind');
+    expect(kind.fieldInput?.type).toBe('select');
   });
 });

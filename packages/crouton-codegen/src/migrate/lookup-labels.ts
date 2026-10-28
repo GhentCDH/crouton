@@ -1,37 +1,32 @@
-import type { ResourceJson } from '@ghentcdh/crouton-core';
+type RawResourceJson = Record<string, unknown>;
+type MigrationResult = { changed: boolean; json: RawResourceJson };
 
-type MigrationResult = { changed: boolean; json: ResourceJson };
-
-/**
- * Moves per-column `showInLookup: true` to the resource-level `lookup.labels` array.
- * Removes `showInLookup` from all columns after migration.
- */
-export const migrateLookupLabels = (json: ResourceJson): MigrationResult => {
-  const columns = json.columns as Array<Record<string, unknown>> | undefined;
+export const migrateLookupLabels = (json: RawResourceJson): MigrationResult => {
+  const rawCols = json['columns'];
+  const columns = Array.isArray(rawCols)
+    ? (rawCols as Array<Record<string, unknown>>)
+    : undefined;
   if (!columns?.length) return { changed: false, json };
 
   const hasLegacy = columns.some((c) => c['showInLookup'] === true);
   if (!hasLegacy) {
-    // Still strip showInLookup: false entries to clean up noise
-    const stripped = columns.map(({ showInLookup: _, ...rest }) => rest as Record<string, unknown>);
+    const stripped = columns.map(({ showInLookup: _, ...rest }) => rest);
     const changed = columns.some((c) => 'showInLookup' in c);
-    return { changed, json: { ...json, columns: stripped as any } };
+    return { changed, json: { ...json, columns: stripped } };
   }
 
   const labels = columns
     .filter((c) => c['showInLookup'] === true)
     .map((c) => c['id'] as string);
 
-  const cleanedColumns = columns.map(({ showInLookup: _, ...rest }) => rest as Record<string, unknown>);
+  const cleanedColumns = columns.map(({ showInLookup: _, ...rest }) => rest);
 
-  const result: ResourceJson = {
-    ...json,
-    lookup: {
-      ...(json as any).lookup,
-      labels,
+  return {
+    changed: true,
+    json: {
+      ...json,
+      lookup: { ...(json['lookup'] as Record<string, unknown> | undefined), labels },
+      columns: cleanedColumns,
     },
-    columns: cleanedColumns as any,
   };
-
-  return { changed: true, json: result };
 };
