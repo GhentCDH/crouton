@@ -164,9 +164,6 @@ export const compileResource = (
     enrichedColumns,
   );
 
-  const derivedModalSize: 'xs' | 'sm' | 'lg' | 'xl' =
-    json.layout?.form?.container?.size ?? 'sm';
-
   // Input-only: the compiled resource exposes `definition`, not the raw
   // operation toggles. Drop it so it does not leak from the input spread.
   const {
@@ -197,7 +194,6 @@ export const compileResource = (
     route: json.route,
     tag: openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
-    modalSize: derivedModalSize,
     ...(flattenedModel && { model: flattenedModel }),
     ...(flattenedTable && { table: flattenedTable }),
     ...(flattenedDatabase && { database: flattenedDatabase }),
