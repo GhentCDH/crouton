@@ -161,13 +161,7 @@ export const compileResource = (
     enrichedColumns,
   );
 
-  const formContainer = json.layout?.form?.container;
-  const viewContainer = json.layout?.view?.container;
-  const derivedDisplay = {
-    mode: (formContainer?.mode ?? viewContainer?.mode ?? 'modal') as
-      'modal' | 'page',
-    customComponent: (json.layout?.view?.component ?? null) as string | null,
-  };
+  const formContainer = (json.layout?.form as any)?.container;
   const derivedModalSize = (formContainer?.size ?? 'sm') as
     'xs' | 'sm' | 'lg' | 'xl';
 
@@ -177,7 +171,6 @@ export const compileResource = (
     route: json.route,
     tag: json.openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
-    display: derivedDisplay,
     modalSize: derivedModalSize,
     ...(src?.model && { model: src.model }),
     ...(src?.dbTable && { table: src.dbTable }),

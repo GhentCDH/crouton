@@ -175,17 +175,14 @@ describe('buildSubResources — child layout forwarded to views', () => {
     expect(scopes).not.toContain('#/properties/notes');
   });
 
-  it('layout.form.container → modalSize and display forwarded', () => {
+  it('layout.form.container → modalSize forwarded', () => {
     RESOLVED.json['layout'] = {
       form: { container: { mode: 'modal', size: 'xl' }, type: 'grid', items: ['title'] },
     };
     const columns = [col({ id: 'content', hiddenInForm: false })];
     const result = buildSubResources(columns, parentRoute, parentModel, parentDir);
     expect(result[0].modalSize).toBe('xl');
-    // `customComponent` is part of the compiled display shape; it is always
-    // present (null when the child has no custom view component), matching
-    // `compile-resource.ts`.
-    expect(result[0].display).toEqual({ mode: 'modal', customComponent: null });
+    expect(result[0]).not.toHaveProperty('display');
   });
 });
 
