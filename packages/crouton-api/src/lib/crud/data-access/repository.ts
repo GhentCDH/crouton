@@ -417,7 +417,7 @@ export function createCrudRepository<T = Row>(
         'name its Prisma model, or point to a datasource with adapter: "custom".',
     );
   }
-  const legacyModel = prisma[config.model];
+  const legacyModel = getDelegate(prisma as PrismaClientLike, config.model);
   if (!legacyModel) {
     throw new Error(
       `Model "${config.model}" not found on the provided PrismaClient. ` +

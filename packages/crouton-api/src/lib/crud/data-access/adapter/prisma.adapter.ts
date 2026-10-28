@@ -36,8 +36,10 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
   readonly client: PrismaClientLike;
   readonly provider: string;
 
-  constructor(prismaClient: unknown) {
-    this.client = prismaClient as PrismaClientLike;
+  constructor(prismaClient?: unknown) {
+    this.client = (prismaClient ?? {}) as PrismaClientLike;
+    // _activeProvider is a PrismaClient internal, but it's the only reliable
+    // way to know the dialect at runtime without duplicating schema parsing.
     this.provider = this.client._activeProvider ?? 'postgresql';
   }
 
@@ -47,7 +49,7 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
 
   async healthCheck(): Promise<void> {
     await Promise.race([
-      this.client.$queryRawUnsafe('SELECT 1'),
+      this.client.$queryRaw`SELECT 1`,
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Database health check timed out')), DB_CHECK_TIMEOUT_MS),
       ),
