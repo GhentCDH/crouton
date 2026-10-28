@@ -3,9 +3,9 @@ import type { z } from 'zod';
 import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import { buildView, emptyTableView } from './view-helpers';
 import type { JsonColumn } from '../../resource/Column';
-import { buildFormUiSchema, orderTableColumnsFromLayout, patchFilterProperties, resolveDefaultSort, resolveTableNode } from '../../view';
 import { columnForContext } from '../../schema/column/column.utils';
 import { buildTableUiSchema } from '../../schema/column/table-cell';
+import { buildFormUiSchema, orderTableColumnsFromLayout, patchFilterProperties, resolveDefaultSort, resolveTableNode } from '../../view';
 import type { LayoutNode } from '../schema';
 import type { TableLayoutRootSchema } from '../schema/TableLayout.schema';
 
