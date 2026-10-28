@@ -20,13 +20,12 @@ export const sanitizeValueLabelSort = (
  */
 export const orderableChildSort = (
   sort: string | undefined,
-  childModel: any,
+  childModel: unknown,
   _sub: SubResourceConfig,
 ): string | undefined => {
   if (!sort) return undefined;
-  const scalarFields = new Set(
-    Object.keys((childModel?.fields ?? {}) as Record<string, unknown>),
-  );
+  const fields = (childModel as { fields?: Record<string, unknown> } | null)?.fields ?? {};
+  const scalarFields = new Set(Object.keys(fields));
   if (scalarFields.size === 0) return sort;
   if (sort.includes('.')) return sort;
   return scalarFields.has(sort) ? sort : undefined;

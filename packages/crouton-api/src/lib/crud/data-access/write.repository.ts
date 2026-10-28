@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+
 import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from '../constants';
@@ -11,6 +12,8 @@ import {
 } from '../custom-repository/child-delegate';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
+import type { PrismaClientLike, PrismaDelegateLike } from '../types/prisma.types';
+import { getDelegate } from '../types/prisma.types';
 import { mapPrismaUniqueError } from '../unique-validation';
 import { normalizeValueLabels } from './middleware/value-label.apply';
 import { isPrismaKnownError } from '../errors/prisma.errors';
@@ -84,13 +87,13 @@ const stripNonCreateableChildFields = (
  *
  * Prisma `P2025` (record not found) errors are mapped to `NotFoundException`.
  */
-export class WriteRepository<T = any> {
-  private get prisma(): any {
-    return this.adapter.client;
+export class WriteRepository<T = unknown> {
+  private get prisma(): PrismaClientLike {
+    return this.adapter.client as PrismaClientLike;
   }
 
   constructor(
-    private readonly prismaModel: any,
+    private readonly prismaModel: PrismaDelegateLike,
     private readonly adapter: DataSourceAdapter,
     private readonly config: Resource,
   ) {}
@@ -126,9 +129,9 @@ export class WriteRepository<T = any> {
    * Create a record. The data has already been stripped of sub-resource keys,
    * normalized, and run through `beforeWrite` by the factory wrapper.
    */
-  async create(data: unknown, _request?: any): Promise<T> {
+  async create(data: unknown, _request?: unknown): Promise<T> {
     try {
-      return await this.prismaModel.create({ data });
+      return (await this.prismaModel.create({ data })) as T;
     } catch (e: unknown) {
       throw mapPrismaUniqueError(e, this.config) ?? e;
     }
@@ -138,13 +141,13 @@ export class WriteRepository<T = any> {
    * Update a record. The data has already been stripped, normalized, and hooked
    * by the factory wrapper.
    */
-  async update(id: number | string, data: unknown, _request?: any): Promise<T> {
+  async update(id: number | string, data: unknown, _request?: unknown): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      return await this.prismaModel.update({
+      return (await this.prismaModel.update({
         where: { [idField]: this.toId(id) },
         data,
-      });
+      })) as T;
     } catch (e: unknown) {
       this.testIfFoundOrThrow(e, id);
       const uniqueError = mapPrismaUniqueError(e, this.config);
@@ -160,12 +163,12 @@ export class WriteRepository<T = any> {
     return this.update(id, data, _request);
   }
 
-  async delete(id: number | string, _request?: any): Promise<T> {
+  async delete(id: number | string, _request?: unknown): Promise<T> {
     const idField = this.config.idField ?? 'id';
     try {
-      return await this.prismaModel.delete({
+      return (await this.prismaModel.delete({
         where: { [idField]: this.toId(id) },
-      });
+      })) as T;
     } catch (e: unknown) {
       this.testIfFoundOrThrow(e, id);
       const uniqueError = mapPrismaUniqueError(e, this.config);
@@ -189,8 +192,8 @@ export class WriteRepository<T = any> {
     parentId: string | number | undefined,
     childId: string | number | undefined,
     data: unknown,
-    request?: any,
-  ): Promise<any> {
+    request?: unknown,
+  ): Promise<unknown> {
     if (parentId === undefined) {
       throw new BadRequestException(
         `Sub-resource "${sub.childRoute}" of "${this.config.name}" requires a parent id.`,
@@ -257,8 +260,8 @@ export class WriteRepository<T = any> {
     parentId: string | number,
     sub: SubResourceConfig,
     data: unknown,
-    request?: any,
-  ): Promise<any> {
+    request?: unknown,
+  ): Promise<unknown> {
     if (sub.childKind === 'custom') {
       return this.delegateChildWrite(
         sub,
@@ -288,7 +291,7 @@ export class WriteRepository<T = any> {
       });
     }
 
-    const childModel = this.prisma[sub.childModel];
+    const childModel = getDelegate(this.prisma, sub.childModel);
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 
@@ -338,8 +341,8 @@ export class WriteRepository<T = any> {
     sub: SubResourceConfig,
     childId: string | number,
     data: unknown,
-    request?: any,
-  ): Promise<any> {
+    request?: unknown,
+  ): Promise<unknown> {
     if (sub.childKind === 'custom') {
       return this.delegateChildWrite(
         sub,
@@ -351,7 +354,7 @@ export class WriteRepository<T = any> {
       );
     }
 
-    const childModel = this.prisma[sub.childModel];
+    const childModel = getDelegate(this.prisma, sub.childModel);
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 
@@ -407,8 +410,8 @@ export class WriteRepository<T = any> {
     sub: SubResourceConfig,
     childId: string | number,
     parentId?: string | number,
-    request?: any,
-  ): Promise<any> {
+    request?: unknown,
+  ): Promise<unknown> {
     if (sub.childKind === 'custom') {
       return this.delegateChildWrite(
         sub,
@@ -432,7 +435,7 @@ export class WriteRepository<T = any> {
       });
     }
 
-    const childModel = this.prisma[sub.childModel];
+    const childModel = getDelegate(this.prisma, sub.childModel);
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 

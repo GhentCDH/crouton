@@ -3,6 +3,8 @@ import { NotFoundException } from '@nestjs/common';
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
 import type { AdapterCrudContext, DataSourceAdapter } from './data-source.adapter';
+import type { SubResourceConfig } from '../../resource/SubResource.schema';
+import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../../types/prisma.types';
 import { ReadRepository } from '../read.repository';
 import { WriteRepository } from '../write.repository';
 
@@ -31,24 +33,23 @@ const DB_CHECK_TIMEOUT_MS = 3_000;
  */
 export class PrismaDataSourceAdapter implements DataSourceAdapter {
   readonly kind = 'prisma' as const;
-  readonly client: unknown;
+  readonly client: PrismaClientLike;
   readonly provider: string;
 
-  constructor(prismaClient: unknown) {
-    this.client = prismaClient;
+  constructor(prismaClient?: unknown) {
+    this.client = (prismaClient ?? {}) as PrismaClientLike;
     // _activeProvider is a PrismaClient internal, but it's the only reliable
     // way to know the dialect at runtime without duplicating schema parsing.
-    this.provider = ((prismaClient as any)?._activeProvider as string | undefined) ?? 'postgresql';
+    this.provider = this.client._activeProvider ?? 'postgresql';
   }
 
   supports(model: string): boolean {
-    return typeof (this.client as any)?.[model] !== 'undefined';
+    return getDelegate(this.client, model) !== undefined;
   }
 
   async healthCheck(): Promise<void> {
-    const c = this.client as any;
     await Promise.race([
-      c.$queryRaw`SELECT 1`,
+      this.client.$queryRaw`SELECT 1`,
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Database health check timed out')), DB_CHECK_TIMEOUT_MS),
       ),
@@ -56,8 +57,8 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
   }
 
   async disconnect(): Promise<void> {
-    const c = this.client as any;
-    if (typeof c?.$disconnect === 'function') {
+    const c = this.client as PrismaClientLike & { $disconnect?: () => Promise<void> };
+    if (typeof c.$disconnect === 'function') {
       await c.$disconnect();
     }
   }
@@ -66,19 +67,19 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
   // Each method resolves the Prisma delegate, constructs the appropriate
   // repository, and delegates. Subclasses may override any of these.
 
-  private prismaModel(model: string): any {
-    const delegate = (this.client as any)?.[model];
+  private prismaModel(model: string): PrismaDelegateLike {
+    const delegate = getDelegate(this.client, model);
     if (!delegate)
       throw new Error(`Model "${model}" not found on the provided PrismaClient.`);
     return delegate;
   }
 
-  async findAll(model: string, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: any[]; count: number }> {
+  async findAll(model: string, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: unknown[]; count: number }> {
     const prismaModel = this.prismaModel(model);
     const reader = new ReadRepository(prismaModel, this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     const [data, count] = await Promise.all([
       reader.findAll(params, ctx.request),
-      reader.count(params.filter ?? [], (params as any).q),
+      reader.count(params.filter ?? [], params.q),
     ]);
     return { data, count };
   }
@@ -88,7 +89,7 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
     return reader.count(filter, ctx.q);
   }
 
-  async findOne(model: string, id: string | number, ctx: AdapterCrudContext): Promise<any | null> {
+  async findOne(model: string, id: string | number, ctx: AdapterCrudContext): Promise<unknown | null> {
     const prismaModel = this.prismaModel(model);
     const reader = new ReadRepository(prismaModel, this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     try {
@@ -99,28 +100,28 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
     }
   }
 
-  async create(model: string, data: unknown, ctx: AdapterCrudContext): Promise<any> {
+  async create(model: string, data: unknown, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).create(data, ctx.request);
   }
 
-  async update(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<any> {
+  async update(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).update(id, data, ctx.request);
   }
 
-  async patch(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<any> {
+  async patch(model: string, id: string | number, data: unknown, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).patch(id, data, ctx.request);
   }
 
-  async delete(model: string, id: string | number, ctx: AdapterCrudContext): Promise<any> {
+  async delete(model: string, id: string | number, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).delete(id, ctx.request);
   }
 
-  async findAllByParent(model: string, parentId: string | number, sub: any, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: any[]; count: number }> {
+  async findAllByParent(model: string, parentId: string | number, sub: SubResourceConfig, params: ListRequest, ctx: AdapterCrudContext): Promise<{ data: unknown[]; count: number }> {
     const reader = new ReadRepository(this.prismaModel(model), this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     return reader.findAllByParent(parentId, sub.childRoute, params, ctx.request);
   }
 
-  async findOneChild(model: string, sub: any, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<any | null> {
+  async findOneChild(model: string, sub: SubResourceConfig, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<unknown | null> {
     const reader = new ReadRepository(this.prismaModel(model), this, ctx.config, ctx.listSelect, ctx.oneSelect, ctx.configRegistry);
     try {
       return await reader.findOneChild(sub, childId, parentId, ctx.request);
@@ -130,15 +131,15 @@ export class PrismaDataSourceAdapter implements DataSourceAdapter {
     }
   }
 
-  async createChild(model: string, parentId: string | number, sub: any, data: unknown, ctx: AdapterCrudContext): Promise<any> {
+  async createChild(model: string, parentId: string | number, sub: SubResourceConfig, data: unknown, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).createChild(parentId, sub, data, ctx.request);
   }
 
-  async updateChild(model: string, sub: any, childId: string | number, data: unknown, ctx: AdapterCrudContext): Promise<any> {
+  async updateChild(model: string, sub: SubResourceConfig, childId: string | number, data: unknown, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).updateChild(sub, childId, data, ctx.request);
   }
 
-  async deleteChild(model: string, sub: any, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<any> {
+  async deleteChild(model: string, sub: SubResourceConfig, childId: string | number, parentId: string | number | undefined, ctx: AdapterCrudContext): Promise<unknown> {
     return new WriteRepository(this.prismaModel(model), this, ctx.config).deleteChild(sub, childId, parentId, ctx.request);
   }
 }
