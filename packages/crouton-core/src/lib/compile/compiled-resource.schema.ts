@@ -5,8 +5,8 @@ import {
   IdTypeSchema,
   ModalSizeSchema,
   OptionalIncludeListSchema,
+  OptionalValueLabelColumnsSchema,
   OptionalViewsSchema,
-  ValueLabelColumnsSchema,
 } from './compiled-shared.schema';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
 import { JsonColumnBaseSchema } from '../resource/Column';
@@ -38,7 +38,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnBaseSchema).optional(),
   route: z.string(),
-  valueLabelColumns: ValueLabelColumnsSchema.default([]),
+  /** Omitted when no column needs a value→label envelope. */
+  valueLabelColumns: OptionalValueLabelColumnsSchema,
   // The compiler always emits this; `z.lazy` was only needed for a cycle the
   // sub-resource schema does not introduce.
   subResources: z.array(CompiledSubResourceConfigSchema),
