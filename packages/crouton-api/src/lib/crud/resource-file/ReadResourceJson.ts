@@ -4,7 +4,7 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname } from 'node:path';
 
 export type ResolveResource = { json: ResourceJson; dir: string };
 
@@ -42,12 +42,3 @@ export const readResourceJson = (jsonPath: string): ReadResourceJsonResult | und
   };
 };
 
-export const readResourceJsonFromPath = (resourcePath: string) => {
-  if (resourcePath.endsWith('.json')) {
-    return readResourceJson(resourcePath);
-  }
-
-  const jsonPath = resolve(dirname(resourcePath), 'resource.json');
-
-  return readResourceJson(jsonPath);
-};

@@ -10,7 +10,7 @@ export * from './CalculatedColumn.schema';
 export * from './field-input';
 export * from './FieldInput.schema';
 export * from './Column';
-export * from './fieldVariants';
+export { resolveTableField, resolveViewField } from './fieldVariants';
 export * from './ResourceKind';
 export * from './ParentRef.schema';
 export * from './ColumnType.schema';

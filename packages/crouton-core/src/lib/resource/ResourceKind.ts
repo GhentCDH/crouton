@@ -21,7 +21,3 @@ export const ResourceKindSchema = z
   );
 
 export type ResourceKind = z.infer<typeof ResourceKindSchema>;
-
-/** `true` when the resource's data access is supplied by a user `repository.ts`. */
-export const isCustomKind = (kind: ResourceKind | undefined): boolean =>
-  kind === 'custom';

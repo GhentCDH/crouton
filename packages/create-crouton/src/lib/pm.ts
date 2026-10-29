@@ -40,19 +40,4 @@ export const installDeps = (pm: PackageManager, cwd: string): Promise<void> =>
 export const pmExec = (pm: PackageManager, bin: string): string =>
   ({ pnpm: `pnpm exec ${bin}`, yarn: `yarn ${bin}`, bun: `bunx ${bin}`, npm: `npx ${bin}` })[pm];
 
-/**
- * Return the prefix needed to run a package.json script:
- * `pnpm` / `npm run` / `yarn` / `bun run`.
- */
-export const pmRunPrefix = (pm: PackageManager): string => {
-  switch (pm) {
-    case 'pnpm':
-      return 'pnpm';
-    case 'yarn':
-      return 'yarn';
-    case 'npm':
-      return 'npm run';
-    case 'bun':
-      return 'bun run';
-  }
-};
+

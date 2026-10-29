@@ -13,18 +13,45 @@ export * from './draft';
 export * from './decision';
 export * from './write-plan';
 export * from './naming';
-export * from './introspect';
-export * from './classify';
+export type {
+  Dmmf,
+  DmmfDatamodel,
+  DmmfEnum,
+  DmmfField,
+  DmmfLoader,
+  DmmfModel,
+  IntrospectOptions,
+} from './introspect';
+export { introspect, loadDmmf } from './introspect';
+export type { ClassifyContext } from './classify';
+export { classify } from './classify';
 export * from './diff';
 export * from './resolve';
 export * from './serialize';
 export * from './apply';
 export * from './commit';
-export * from './config';
+export type { LoadedConfig } from './config';
+export {
+  defaultPrismaConfig,
+  findConfigPath,
+  loadConfig,
+  loadDatasources,
+  makeSchemaExportName,
+  resolveDatasource,
+  resolveFromRoot,
+  validateDatasources,
+} from './config';
 export * from './scaffold';
 export * from './datasource-scaffold';
 export * from './custom-resource-scaffold';
-export * from './project';
+export type { ExistingResource } from './project';
+export {
+  listAllResourceNames,
+  listResourceNames,
+  makeRelationResolver,
+  readAllResourceJsons,
+  readExistingResource,
+} from './project';
 export * from './plan';
 export * from './enum-registry';
 export * from './translations';
