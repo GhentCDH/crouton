@@ -1,4 +1,5 @@
 import { buildSubResourceOperations } from '../data-source';
+import { resolveLayoutVisibility } from '../layout';
 import type { Layout, LayoutNode  } from '../layout/schema';
 import { allowedIncludes } from '../request';
 import type { JsonAction } from '../resource';
@@ -285,7 +286,10 @@ export const buildViewsPayload = (
     operations,
     display: deriveDisplay(config.layout),
     schemas,
-    allowedIncludes: allowedIncludes(config.columns ?? []),
+    allowedIncludes: allowedIncludes(
+      config.columns ?? [],
+      resolveLayoutVisibility(config.layout, config.columns ?? []).table,
+    ),
     ...pickExtensions(config),
   };
 };

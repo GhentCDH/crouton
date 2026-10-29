@@ -338,6 +338,9 @@ When `findOne.include` is absent, crouton falls back to `findAll.include`.
 When a relation column has a `sort` option (see [Relations](relations.md#sorting-related-records)), the loader
 automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
 
+`?include=` is limited to relation columns the **table layout** renders (via `layout.table.items`); without a
+table layout it falls back to the `hiddenInTable` column flag. A relation the table never shows cannot be included.
+
 ::: warning Deprecated: root `include`
 The top-level `include` field is removed. Move it to `operations.findAll.include` /
 `operations.findOne.include`.

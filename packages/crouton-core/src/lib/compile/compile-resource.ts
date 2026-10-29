@@ -4,7 +4,7 @@ import {
   extractFindAllSearch,
   extractOpInclude,
 } from '../data-source/Operations.schema';
-import { buildLayouts } from '../layout';
+import { buildLayouts, resolveLayoutVisibility } from '../layout';
 import type { CalculatedColumn, JsonColumn, ResourceJson } from '../resource';
 import {
   columnTypeSchemaSource,
@@ -74,12 +74,25 @@ export const compileResource = (
   );
   injectEnumValues(columns, enums);
 
-  const subResources: CompiledSubResourceConfig[] = resolvers.buildSubResources
-    ? resolvers.buildSubResources(columns, {
-        route: json.route,
-        model: src?.model ?? json.model ?? '',
-      })
-    : [];
+  // Effective visibility per context: explicit `layout.<ctx>.items`, else the ids
+  // synthesized from the column flags. Sub-resources follow the table layout, so a
+  // relation column omitted there is neither counted nor embedded.
+  const visibility = resolveLayoutVisibility(
+    json.layout,
+    columns.filter((c) => !c.computed),
+  );
+
+  const subResources: CompiledSubResourceConfig[] = (
+    resolvers.buildSubResources
+      ? resolvers.buildSubResources(columns, {
+          route: json.route,
+          model: src?.model ?? json.model ?? '',
+        })
+      : []
+  ).map((sub) => ({
+    ...sub,
+    hiddenInTable: !visibility.table?.has(sub.column),
+  }));
 
   const actionEnriched =
     enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;
