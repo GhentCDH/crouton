@@ -22,7 +22,7 @@ export type {
   DmmfModel,
   IntrospectOptions,
 } from './introspect';
-export { introspect, loadDmmf } from './introspect';
+export { introspect } from './introspect';
 export type { ClassifyContext } from './classify';
 export { classify } from './classify';
 export * from './diff';
@@ -39,14 +39,12 @@ export {
   makeSchemaExportName,
   resolveDatasource,
   resolveFromRoot,
-  validateDatasources,
 } from './config';
 export * from './scaffold';
 export * from './datasource-scaffold';
 export * from './custom-resource-scaffold';
 export type { ExistingResource } from './project';
 export {
-  listAllResourceNames,
   listResourceNames,
   makeRelationResolver,
   readAllResourceJsons,
@@ -56,7 +54,21 @@ export * from './plan';
 export * from './enum-registry';
 export * from './translations';
 export { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
-export * from './prisma-shell';
+export type {
+  PrismaRunResult,
+  PullAndGenerateInput,
+  PullAndGenerateResult,
+} from './prisma-shell';
+export {
+  backupSchema,
+  fixEsmBarrels,
+  fixZodImports,
+  isGitDirty,
+  loadDotenv,
+  normalizeSchema,
+  prismaGenerate,
+  pullAndGenerate,
+} from './prisma-shell';
 export * from './validate';
 export * from './agent-block/upsert-agent-block';
 export * from './agent-files/render';

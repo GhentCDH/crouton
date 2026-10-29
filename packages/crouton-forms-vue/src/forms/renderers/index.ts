@@ -6,11 +6,8 @@ import {
   readonlyLayoutRenderers,
 } from './layout/LayoutRenderers';
 
-export * from './array/ArrayRenderers';
 export * from './controls';
 export * from './controls/composables/useControlBinding';
-export * from './controls/readonly';
-export * from './layout/LayoutRenderers';
 
 export const customRenderers = [
   layoutRenderers,

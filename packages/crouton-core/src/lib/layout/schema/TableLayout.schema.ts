@@ -87,7 +87,7 @@ export const TableItemSchema = z.union([
 /** @deprecated Use `TableItemSchema` */
 export const LayoutTableControlSchema = TableItemSchema;
 
-export const FilterFields = z.string();
+const FilterFields = z.string();
 
 // ── TableNodeSchema ────────────────────────────────────────────────────
 

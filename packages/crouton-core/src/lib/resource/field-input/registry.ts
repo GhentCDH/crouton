@@ -20,7 +20,7 @@ export interface FieldInputTypeDef {
 }
 
 /** Single source of truth for built-in control type → options schema mapping. */
-export const fieldInputDefs = {
+const fieldInputDefs = {
   string:       { options: StringOptionsSchema,        schemaFile: 'string' },
   number:       { options: NumberOptionsSchema,        schemaFile: 'number' },
   Integer:      { options: NumberOptionsSchema,        schemaFile: 'number' },
@@ -61,9 +61,3 @@ export type FieldInputTyped = {
 }[ControlTypeKey];
 
 /** Register a custom control type's options schema. Call from app setup. */
-export const registerFieldInputType = <K extends keyof CustomControlOptionsMap>(
-  type: K,
-  def: FieldInputTypeDef,
-): void => {
-  fieldInputRegistry.set(type as string, def);
-};

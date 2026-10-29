@@ -31,7 +31,7 @@ const SHARED_CELL_OPTION_KEYS = [
 ] as const;
 
 /** Pick the shared (form <-> table) option keys from a column's `fieldInput.options`. */
-export const pickSharedCellOptions = (
+const pickSharedCellOptions = (
   col: JsonColumn,
 ): Record<string, unknown> => {
   const options = (col.fieldInput?.options ?? {}) as Record<string, unknown>;

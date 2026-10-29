@@ -8,7 +8,6 @@ import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 import type { RequestData } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { useApi } from '../composables/useApi';
-import { useCrouton } from '../composables/useCrouton';
 
 const apiErrorMessage = (error: any): string | null => {
   const msg = error?.response?.data?.message;
@@ -187,15 +186,6 @@ export const resourceApi = (
     delete: deleteData,
     checkUnique,
   };
-};
-
-export const useResourceApi = async (
-  formDefId: string,
-  defaultUriParams: Record<string, string> = {},
-) => {
-  const formDef = await useCrouton().getFormDefById(formDefId);
-
-  return resourceApi(formDef, defaultUriParams);
 };
 
 export type ResourceApiInstance = ReturnType<typeof resourceApi>;

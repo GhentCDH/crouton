@@ -157,8 +157,6 @@ export const flattenLayoutItems = (node: LayoutNode): LayoutControl[] => {
 };
 
 /** @deprecated Use `flattenLayoutItems` */
-export const flattenLayoutControls = flattenLayoutItems;
-
 /**
  * Flatten the layout node tree depth-first into an ordered list of column ids only.
  * Used by the table ordering step when component controls are not needed.

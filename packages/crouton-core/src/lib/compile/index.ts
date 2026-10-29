@@ -28,8 +28,8 @@ export {
   resolveActions,
   resolveTableActions,
 } from './payload-builders';
-export * from './relation-type';
+export { deriveRelationTypeFromColumns, enrichRelationTypes } from './relation-type';
 export * from '../schema/definition/schema.helpers';
 export * from '../schema/json/schema-input';
-export * from './search-lookup';
+export { buildLookup, buildSearch } from './search-lookup';
 export * from './value-label-column';

@@ -29,5 +29,4 @@ export const ViewConfigSchema = z.object({
 export type ViewConfig = z.infer<typeof ViewConfigSchema>;
 
 const viewDefList = ['table', 'view', 'form'] as const;
-export const ViewDefEnum = z.enum(viewDefList);
 export type ViewDef = (typeof viewDefList)[number];
