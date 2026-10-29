@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-  CompiledResourceSchema,
-  ResourceRowActionSchema,
-  ResourceTableActionSchema,
-} from '@ghentcdh/crouton-core';
+import { CompiledResourceSchema } from '@ghentcdh/crouton-core';
 
 import { SubResourceConfigSchema } from './SubResource.schema';
 import { CustomRepositorySchema } from '../custom-repository';
@@ -17,9 +13,6 @@ export const ResourceSchema = CompiledResourceSchema.extend({
    * `draft` before compiling, so this is not part of the compiled output.
    */
   draft: z.boolean().optional(),
-  actions: z.array(ResourceRowActionSchema).default([]),
-  /** Global table-level actions (no record id). Shown as toolbar buttons. */
-  tableActions: z.array(ResourceTableActionSchema).default([]),
   subResources: z.lazy(() => z.array(SubResourceConfigSchema)).default([]),
   /** Lifecycle hooks for this sub-resource (beforeWrite, afterRead). */
   hooks: ResourceHooksSchema.optional(),
