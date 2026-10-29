@@ -21,7 +21,7 @@ Both forms support the same options:
 | `idField`                                         | Marks the id column                                                                                                                                                                                                                                                                                                                        |
 | `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](custom-resource.md#column-types)                                  |
 | `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                                  |
-| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context when **no layout is defined for that context**. When `layout.<ctx>` exists it is the full list — only listed columns are rendered, and these flags are ignored. On a `oneToMany` relation column, `hiddenInTable` also drops it from the `_count` subquery `findAll` issues — that count only ever fed a table cell |
+| `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context, used **only when that context has no `layout.<ctx>.items`** — they are the fallback that builds the layout. As soon as `layout.<ctx>` lists field items, those items are the full list: only listed columns render and these flags are ignored. On a `oneToMany` relation column, `hiddenInTable` (when acting as the table fallback) also drops it from the `_count` subquery `findAll` issues |
 | `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                                              |
 | `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable                |
 | `displayKey`                                      | Nested field to display (e.g. `author.name`)                                                                                                                                                                                                                                                                                               |
@@ -275,7 +275,9 @@ Read-only columns derived from a raw SQL subquery at query time. Add a `computed
 | `type` | `string` | Cast type for the result: `"number"` (default), `"string"`, or `"boolean"`. |
 
 All standard column fields (`label`, `hiddenInTable`, `hiddenInView`, `position`, `fieldInput`, …) are valid alongside
-`computed`.
+`computed`. When a context declares a layout, list the computed column's id in `layout.table.items` /
+`layout.view.items` to place it there (it is hidden otherwise); with no layout it follows `hiddenInTable` /
+`hiddenInView` as before.
 
 ::: warning
 Computed columns are not available on `kind: "custom"` resources — they run raw SQL against a real table.
@@ -335,6 +337,9 @@ When `findOne.include` is absent, crouton falls back to `findAll.include`.
 
 When a relation column has a `sort` option (see [Relations](relations.md#sorting-related-records)), the loader
 automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
+
+`?include=` is limited to relation columns the **table layout** renders (via `layout.table.items`); without a
+table layout it falls back to the `hiddenInTable` column flag. A relation the table never shows cannot be included.
 
 ::: warning Deprecated: root `include`
 The top-level `include` field is removed. Move it to `operations.findAll.include` /
