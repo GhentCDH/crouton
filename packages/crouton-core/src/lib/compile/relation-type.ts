@@ -3,14 +3,14 @@ import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } 
 import type { JsonColumn, RelationType } from '../resource';
 import { getRelationType } from '../resource/Column';
 
-export const unwrapZodType = (type: unknown): unknown => {
+const unwrapZodType = (type: unknown): unknown => {
   if (type instanceof ZodOptional || type instanceof ZodNullable) {
     return unwrapZodType(type.unwrap());
   }
   return type;
 };
 
-export const deriveRelationType = (
+const deriveRelationType = (
   schema: ZodObject<ZodRawShape> | undefined,
   columnId: string,
 ): RelationType | undefined => {

@@ -58,11 +58,6 @@ export const extractFindAllSearch = (findAll: JsonResourceOperations['findAll'])
   return (findAll as { search?: string[] }).search;
 };
 
-export const extractFindAllFilter = (findAll: JsonResourceOperations['findAll']): string[] | undefined => {
-  if (typeof findAll !== 'object' || findAll === null) return undefined;
-  return (findAll as { filter?: string[] }).filter;
-};
-
 export const extractOpInclude = (op: unknown): z.infer<typeof JsonIncludeEntrySchema>[] | undefined => {
   if (typeof op !== 'object' || op === null) return undefined;
   const include = (op as Record<string, unknown>)['include'];

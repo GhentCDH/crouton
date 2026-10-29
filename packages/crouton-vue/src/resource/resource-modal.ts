@@ -18,7 +18,7 @@ export type OpenFormPayload<TData = any, TResult = any> = {
   onError?: (error: unknown) => void;
 };
 
-export const useFormDefRepository = (formDef: ResourceDefinition) => {
+const useFormDefRepository = (formDef: ResourceDefinition) => {
   const repository = createRepository({ uri: formDef.route }, useApi(), {
     notification: {
       show: true,

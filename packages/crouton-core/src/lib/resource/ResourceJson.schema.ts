@@ -53,7 +53,7 @@ const ColumnsSchema = JsonColumnsMapSchema;
 // ── Display / sidebar ────────────────────────────────────────────────
 
 /** Normalise `columns` from either array or object-map form. */
-export const normalizeColumns = (
+const normalizeColumns = (
   columns: JsonColumnsMap | undefined,
 ): JsonColumn[] | undefined => {
   if (!columns) return undefined;
@@ -363,7 +363,7 @@ const findParsedTableNode = (
 };
 
 /** P3, P4, P5: validate layout field ids against known columns. */
-export const refineLayout = (
+const refineLayout = (
   obj: z.infer<typeof ResourceJsonShape>,
   ctx: z.RefinementCtx,
 ): void => {

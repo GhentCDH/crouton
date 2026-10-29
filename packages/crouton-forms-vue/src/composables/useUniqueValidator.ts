@@ -52,7 +52,7 @@ interface FieldState {
  * in-flight debounce; and any thrown error resolves `true` (fail-open — the
  * server still enforces uniqueness on write).
  */
-export const createUniqueChecker = (
+const createUniqueChecker = (
   checkFn: UniqueCheckFn,
   debounceMs: number = DEFAULT_DEBOUNCE,
 ) => {

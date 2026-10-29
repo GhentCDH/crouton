@@ -152,7 +152,4 @@ export const isDateRangeControl = and(
   optionIsIgnoreCase('format', 'date-range'),
 );
 
-export const isCustomControlRender = (render: string) =>
-  and(uiTypeIs('Control'), optionIsIgnoreCase('customRender', render));
-
 export const isComponentElement = uiTypeIs('ComponentElement');

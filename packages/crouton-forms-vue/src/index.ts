@@ -27,12 +27,10 @@ export {
   useCustomControlBinding,
 } from './forms/renderers/controls/composables/useControlBinding';
 export * from './forms/renderers/controls/composables/useReadonlyBinding';
-export { useDisplayValue } from './forms/renderers/controls/readonly/useDisplayValue';
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
 export {
   collectUniqueFields,
-  createUniqueChecker,
   provideUniqueCheck,
   useUniqueCheckFn,
   withUniqueChecks,
@@ -67,7 +65,6 @@ export type {
 export {
   CROUTON_EDITABLE_RENDERERS,
   CROUTON_READONLY_RENDERERS,
-  provideRenderers,
   useDefaultRenderers,
 } from './composables/useRendererProvider';
 
@@ -88,7 +85,6 @@ export type { ViewModalResult } from './view/modal/ViewModal.properties';
 export * from './forms/renderers';
 export {
   isComponentElement,
-  isCustomControlRender,
   isDateControl,
   optionIsIgnoreCase,
 } from './testers/tester';

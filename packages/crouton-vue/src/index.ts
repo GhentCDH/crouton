@@ -8,7 +8,6 @@ export {
   type ResourceApiInstance,
   croutonApiCall,
   resourceApi,
-  useResourceApi,
 } from './resource/resource.api';
 export { configureApi, useApi } from './composables/useApi';
 

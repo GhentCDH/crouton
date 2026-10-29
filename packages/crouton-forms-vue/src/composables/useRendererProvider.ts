@@ -1,5 +1,5 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
-import { type InjectionKey, inject, provide } from 'vue';
+import { type InjectionKey, inject } from 'vue';
 
 export const CROUTON_EDITABLE_RENDERERS: InjectionKey<
   JsonFormsRendererRegistryEntry[]
@@ -8,18 +8,6 @@ export const CROUTON_EDITABLE_RENDERERS: InjectionKey<
 export const CROUTON_READONLY_RENDERERS: InjectionKey<
   JsonFormsRendererRegistryEntry[]
 > = Symbol('crouton-readonly-renderers');
-
-/**
- * App-level provider — call inside `app.use(CroutonPlugin(...))` to make
- * default renderer sets available to all form components via inject.
- */
-export const provideRenderers = (
-  editable: JsonFormsRendererRegistryEntry[],
-  readonly: JsonFormsRendererRegistryEntry[],
-) => {
-  provide(CROUTON_EDITABLE_RENDERERS, editable);
-  provide(CROUTON_READONLY_RENDERERS, readonly);
-};
 
 /**
  * Resolves the effective renderer list for a form component.

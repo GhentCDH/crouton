@@ -124,7 +124,7 @@ export const loadDatasources = async (
   return datasources;
 };
 
-export const validateDatasources = (datasources: DataSource[]): void => {
+const validateDatasources = (datasources: DataSource[]): void => {
   if (datasources.length === 0) {
     throw new Error(
       'No datasources found (no data-source.json under the data-sources dir).',

@@ -156,7 +156,7 @@ const getComponent = (
   });
 };
 
-export const useCustomReadonlyControlBinding = <
+const useCustomReadonlyControlBinding = <
   CONTROL_OPTION extends ControlOption = ControlOption,
 >({
   useProps,

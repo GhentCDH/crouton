@@ -88,14 +88,14 @@ export interface PrismaRunResult {
 }
 
 /** Introspect the live database into the schema file. */
-export const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
+const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const [bin, prefix] = resolveBin('prisma', cwd);
   const { code, stdout, stderr } = await run(bin, [...prefix, 'db', 'pull', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
 /** `prisma-case-format` — PascalCase models + camelCase fields with @@map/@map annotations. */
-export const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise<PrismaRunResult> => {
+const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise<PrismaRunResult> => {
   // Resolve bin from crouton's own node_modules to avoid ad-hoc npx download failures
   let binPath: string | undefined;
   try {

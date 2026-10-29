@@ -83,9 +83,6 @@ export type LayoutControl = z.infer<typeof LayoutControlSchema>;
 
 // ── Item kind guards ────────────────────────────────────────────────────
 
-export const isFieldIdItem = (item: unknown): item is string =>
-  typeof item === 'string';
-
 export const isFieldControlItem = (
   item: unknown,
 ): item is z.infer<typeof _LayoutFieldControlSchema> =>

@@ -46,7 +46,7 @@ export const resolveTableNode = (
 };
 
 /** True when `layout.table` is a wrapper layout (outer type ≠ "table") with a "table" sub-node. */
-export const isTableWrapperLayout = (node: LayoutNode): boolean =>
+const isTableWrapperLayout = (node: LayoutNode): boolean =>
   node.type !== 'table' && !!node.items?.some((i) => typeof i !== 'string' && !('id' in i) && !('component' in i) && (i as LayoutNode).type === 'table');
 
 /**

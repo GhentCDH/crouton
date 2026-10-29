@@ -84,7 +84,7 @@ export const listResourceNames = async (
  * Names of all resource directories (including custom resources).
  * Used for translation generation where every resource is translatable.
  */
-export const listAllResourceNames = async (
+const listAllResourceNames = async (
   loaded: LoadedConfig,
 ): Promise<string[]> => {
   const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);

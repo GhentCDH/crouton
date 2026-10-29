@@ -26,9 +26,6 @@ export type SidebarNode = SidebarLeaf | SidebarGroup;
 export const isSidebarGroup = (node: SidebarNode): node is SidebarGroup =>
   node.kind === 'group';
 
-export const isSidebarLeaf = (node: SidebarNode): node is SidebarLeaf =>
-  node.kind === 'item';
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export const firstLeafId = (nodes: SidebarNode[]): string | undefined => {

@@ -9,7 +9,6 @@ export {
   isRelation,
 } from '../schema/column/predicates';
 export {
-  colPosition,
   columnForContext,
   sortByPosition,
   toViewColumn,
@@ -17,15 +16,11 @@ export {
 export type { FieldContext } from '../schema/column/column.utils';
 export { deriveSortId, resolveDefaultSort } from '../layout/sort.helpers';
 export { applySchemaTransforms } from './schema-transforms';
-export {
-  buildTableUiSchema,
-  pickSharedCellOptions,
-} from '../schema/column/table-cell';
+export { buildTableUiSchema } from '../schema/column/table-cell';
 export {
   buildConditionSchema,
   buildFormControl,
   buildFormUiSchema,
-  buildRule,
 } from '../schema/column/form-control';
 export {
   injectCalculatedColumns,
@@ -36,8 +31,8 @@ export {
   patchFilterProperties,
   zodSchemaSource,
 } from '../schema/view/build-view';
-export { buildFormUiSchemaFromLayout, flattenLayoutControls } from '../layout/layout-ui-schema.builder';
-export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resolveTableNode } from '../layout/layout-table-order';
+export { buildFormUiSchemaFromLayout } from '../layout/layout-ui-schema.builder';
+export { findTableNode, orderTableColumnsFromLayout, resolveTableNode } from '../layout/layout-table-order';
 export {
   columnTypeSchemaSource,
   fixNestedUiSchemaScopes,

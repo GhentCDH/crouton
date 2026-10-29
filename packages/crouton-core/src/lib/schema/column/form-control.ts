@@ -22,10 +22,6 @@ export const buildConditionSchema = (
 };
 
 /** @deprecated Use layout controls' showWhen/hideWhen/disabledWhen instead. */
-export const buildRule = (
-  _col: JsonColumn,
-): Record<string, unknown> | undefined => undefined;
-
 // ── Form control builders ─────────────────────────────────────────────────
 
 const buildDetailLayout = (detail: DetailConfig) => {

@@ -36,13 +36,6 @@ export interface ResourceDiff {
   hasSchemaFile: boolean;
 }
 
-export interface Resolution {
-  decisionId: string;
-  choice: string;
-  /** Optional free-form value for future decisions (e.g. a renamed route). */
-  value?: string;
-}
-
 export interface ResolvedDiff {
   diff: ResourceDiff;
   resolutions: Map<string, string>;
