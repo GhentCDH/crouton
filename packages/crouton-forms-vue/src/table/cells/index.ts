@@ -15,11 +15,6 @@ export const cellTypeIs =
   (element) =>
     element.type === type ? rank : -1;
 
-export const cellFormatIs =
-  (format: string, rank: number): CellRendererEntry['tester'] =>
-  (element) =>
-    element.options?.format === format ? rank : -1;
-
 export const findCellRenderer = (
   registry: CellRendererEntry[],
   element: TextCellType,

@@ -207,7 +207,7 @@ interface PrismaInternals {
  * `@prisma/internals` to be installed in the crouton workspace. Kept out of the
  * pure path so tests can inject a fake.
  */
-export const loadDmmf: DmmfLoader = async (schemaPath: string) => {
+const loadDmmf: DmmfLoader = async (schemaPath: string) => {
   const specifier = '@prisma/internals';
   let internals: PrismaInternals;
   try {
