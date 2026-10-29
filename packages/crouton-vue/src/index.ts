@@ -8,6 +8,7 @@ export {
   type ResourceApiInstance,
   croutonApiCall,
   resourceApi,
+  useResourceApi,
 } from './resource/resource.api';
 export { configureApi, useApi } from './composables/useApi';
 
@@ -42,6 +43,7 @@ export {
   DatePicker,
   TableComponent,
   useControlBinding,
+  useFormEvents,
 } from '@ghentcdh/crouton-forms-vue';
 export * from './forms';
 export { parseSchema } from '@ghentcdh/crouton-core';
