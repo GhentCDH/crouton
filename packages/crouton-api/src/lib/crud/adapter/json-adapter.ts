@@ -1,9 +1,7 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import { compileResource } from '@ghentcdh/crouton-core';
-import type { EnumRegistry, ResourceJson,
-  ResourceRowAction,
-  ResourceTableAction  } from '@ghentcdh/crouton-core';
+import type { EnumRegistry, ResourceJson } from '@ghentcdh/crouton-core';
 
 
 import type { CustomRepository } from '../custom-repository';
@@ -19,10 +17,6 @@ export const fromJson = (
   dirPath?: string,
   /** Base URL for generating full URIs in column options (e.g. `http://localhost:3000`). */
   baseUrl?: string,
-  /** Resolved action procedures loaded from the `actions/` directory. */
-  actions?: ResourceRowAction[],
-  /** Resolved table-level action procedures loaded from the `actions/` directory. */
-  tableActions?: ResourceTableAction[],
   /** Project enum registry — injected into columns that reference an enum by name. */
   enums: EnumRegistry = {},
   /** Data access for a `kind: "custom"` resource, loaded from `repository.ts`. */
@@ -38,7 +32,5 @@ export const fromJson = (
     ...compiled,
     ...(hooks && { hooks }),
     ...(repository && { repository }),
-    ...(actions?.length && { actions }),
-    ...(tableActions?.length && { tableActions }),
   } as Resource;
 };

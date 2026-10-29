@@ -35,21 +35,35 @@ export const LayoutTableFieldControlSchema = z
         width: z
           .union([z.enum(['xs', 'sm', 'md', 'lg', 'xl']), z.string()])
           .optional()
-          .describe('Column width: named size (xs–xl, same scale as form) or a CSS value like "12rem".'),
-        minWidth: z.string().default('8rem').describe('Minimum column width as a CSS value.'),
-        maxWidth: z.string().default('24rem').describe('Maximum column width as a CSS value.'),
+          .describe(
+            'Column width: named size (xs–xl, same scale as form) or a CSS value like "12rem".',
+          ),
+        minWidth: z
+          .string()
+          .default('8rem')
+          .describe('Minimum column width as a CSS value.'),
+        maxWidth: z
+          .string()
+          .default('24rem')
+          .describe('Maximum column width as a CSS value.'),
         align: z
           .enum(['left', 'center', 'right'])
           .optional()
-          .describe('Horizontal text alignment. Defaults to right for number columns, left otherwise.'),
+          .describe(
+            'Horizontal text alignment. Defaults to right for number columns, left otherwise.',
+          ),
         truncate: z
           .union([z.boolean(), z.number().int().positive()])
           .default(true)
-          .describe('Truncate long text with ellipsis. true = 1-line clamp; number = line count.'),
+          .describe(
+            'Truncate long text with ellipsis. true = 1-line clamp; number = line count.',
+          ),
         pin: z
           .enum(['left', 'right'])
           .optional()
-          .describe('Stick this column to the left or right edge of the table.'),
+          .describe(
+            'Stick this column to the left or right edge of the table.',
+          ),
         visible: z
           .boolean()
           .default(true)
@@ -105,7 +119,9 @@ export const TableNodeSchema = z.object({
         .describe('Sort direction. Default: asc.'),
     })
     .optional()
-    .describe('Default sort applied on initial table load. Omit to use the first sortable column.'),
+    .describe(
+      'Default sort applied on initial table load. Omit to use the first sortable column.',
+    ),
   items: z
     .array(TableItemSchema)
     .optional()
@@ -165,7 +181,9 @@ export type TableWrapperNode = {
   colspan?: number;
   rowspan?: number;
   label?: string;
-  items: (z.infer<typeof LayoutComponentItemSchema> | TableWrapperNode | TableNode)[];
+  items: (
+    z.infer<typeof LayoutComponentItemSchema> | TableWrapperNode | TableNode
+  )[];
 };
 
 /** Wrapper node that contains a nested table somewhere in its `items`. */
@@ -181,7 +199,11 @@ export const TableWrapperNodeSchema: z.ZodType<TableWrapperNode> = z.lazy(() =>
     rowspan: z.number().int().min(1).max(6).optional(),
     label: z.string().optional(),
     items: z.array(
-      z.union([LayoutComponentItemSchema, TableWrapperNodeSchema, TableNodeSchema]),
+      z.union([
+        LayoutComponentItemSchema,
+        TableWrapperNodeSchema,
+        TableNodeSchema,
+      ]),
     ),
   }),
 );
@@ -193,7 +215,8 @@ const countTableNodes = (items: unknown[]): number =>
     if (typeof item !== 'object' || item === null) return n;
     const obj = item as Record<string, unknown>;
     if (obj['type'] === 'table') return n + 1;
-    if (Array.isArray(obj['items'])) return n + countTableNodes(obj['items'] as unknown[]);
+    if (Array.isArray(obj['items']))
+      return n + countTableNodes(obj['items'] as unknown[]);
     return n;
   }, 0);
 
@@ -205,7 +228,8 @@ const hasFieldIdInWrapper = (items: unknown[]): boolean =>
     if (obj['type'] === 'table') return false; // field ids inside the table node are fine
     if (obj['component'] != null) return false;
     // Check nested wrapper items
-    if (Array.isArray(obj['items'])) return hasFieldIdInWrapper(obj['items'] as unknown[]);
+    if (Array.isArray(obj['items']))
+      return hasFieldIdInWrapper(obj['items'] as unknown[]);
     return false;
   });
 
@@ -213,7 +237,13 @@ const hasFieldIdInWrapper = (items: unknown[]): boolean =>
  * The root value of `layout.table`.
  * Either a plain TableNode (flat table) or a wrapper node containing exactly one TableNode.
  */
-const WRAPPER_TYPES = new Set<string>(['grid', 'vertical', 'horizontal', 'collapse', 'group']);
+const WRAPPER_TYPES = new Set<string>([
+  'grid',
+  'vertical',
+  'horizontal',
+  'collapse',
+  'group',
+]);
 
 export const TableLayoutRootSchema = z
   .union([TableNodeSchema, TableWrapperNodeSchema])
@@ -247,11 +277,3 @@ export const TableLayoutRootSchema = z
       });
     }
   });
-
-// ── Legacy alias ────────────────────────────────────────────────────────
-
-/**
- * @deprecated Use `TableNodeSchema`. Kept for backward compat with existing preprocess shims.
- * This still accepts `controls` and `actions` — those are handled by the preprocess in ResourceJson.schema.ts.
- */
-export const LayoutTableSchema = TableNodeSchema;

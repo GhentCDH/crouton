@@ -61,8 +61,6 @@ parseSchema(
 | `schema` | `ZodObject<ZodRawShape>` | Optional. Zod schema for the Prisma model. Provide it for `kind: "prisma"` to get per-operation field narrowing and typed validation schemas. Omit for `kind: "custom"` (views are derived from column `fieldInput` types instead). |
 | `enums` | `EnumRegistry` | Enum values to inject into columns that reference a named enum. |
 | `hooks` | `ResourceHooks` | Lifecycle hooks (ignored by the schema payload, accepted for signature parity). |
-| `actions` | `ResourceRowAction[]` | Resolved row-level action procedures. |
-| `tableActions` | `ResourceTableAction[]` | Resolved table-level action procedures. |
 
 You can also pass a bare raw `resource.json` object directly as `input` (without wrapping in `{ json: ... }`).
 
@@ -95,7 +93,10 @@ Lower-level function used internally by `parseSchema`. Takes a validated `Resour
 ```ts
 import { compileResource } from '@ghentcdh/crouton-core';
 
-const resource = compileResource(json, zodSchema, baseUrl, actions, tableActions, enums);
+const resource = compileResource(json, zodSchema, {
+  baseUrl,
+  enums,
+});
 ```
 
 Use `parseSchema` unless you need the intermediate `CompiledResource` object.

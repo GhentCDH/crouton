@@ -138,21 +138,17 @@ export const loadResourceConfigsFromDir = async (
       // recorded by loadCustomRepository. Skip further validation to avoid a double error.
       const repositoryImportFailed = resourceLoadErrorsRegistry.getAll().length > errorsBeforeRepo;
 
+      // Resolve the action procedures in place on the layout table node —
+      // getRowActions/getTableActions read them from there at runtime.
       const tableNode = resolveTableNode(json.layout?.table);
-      const actions = await loadActions(tableNode?.rowActions ?? [], basePath, 'row');
-      const tableActions = await loadActions(
-        tableNode?.tableActions ?? [],
-        basePath,
-        'table',
-      );
+      await loadActions(tableNode?.rowActions ?? [], basePath, 'row');
+      await loadActions(tableNode?.tableActions ?? [], basePath, 'table');
       const config = fromJson(
         json,
         schema,
         hooks,
         basePath,
         baseUrl,
-        actions,
-        tableActions,
         enums,
         repository,
       );
