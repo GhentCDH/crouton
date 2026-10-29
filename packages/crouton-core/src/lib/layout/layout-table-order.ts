@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 
 import { flattenLayoutItems } from './layout-ui-schema.builder';
+import { resolveItemControl } from './resolve/item-control';
 import type { LayoutNode } from './schema';
 import { isComponentControl, isComponentItem, isFieldControlItem } from './schema';
 import type { TableLayoutRootSchema, TableNode } from './schema/TableLayout.schema';
@@ -120,9 +121,11 @@ export const orderTableColumnsFromLayout = (
       if (ctrlObj?.['pin'] !== undefined) overrides['pin'] = ctrlObj['pin'];
       if (ctrlObj?.['visible'] !== undefined) overrides['visible'] = ctrlObj['visible'];
       if (ctrlObj?.['headerTooltip'] !== undefined) overrides['headerTooltip'] = ctrlObj['headerTooltip'];
-      // Apply type/options overrides (replaces fieldTable)
-      const typeOverride = ctrlObj?.['type'];
-      const optOverride = ctrlObj?.['options'];
+      // Apply type/options overrides (replaces fieldTable). A bare string item or
+      // an object without type/options keeps the column's own fieldInput control.
+      const control = resolveItemControl(ctrl);
+      const typeOverride = control.hasControl ? control.type : undefined;
+      const optOverride = control.hasControl ? control.options : undefined;
       reorderedElements.push(
         typeOverride || optOverride || Object.keys(overrides).length
           ? {
