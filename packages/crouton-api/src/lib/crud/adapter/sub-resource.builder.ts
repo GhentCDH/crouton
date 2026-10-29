@@ -112,13 +112,14 @@ export const buildSubResources = (
         childDir,
         baseUrl,
       );
+      const enrichedColumns = enrichedChildColumns ?? [];
       // Auto-derive includes for manyToOne child relations (mirrors main resource logic in read.repository)
-      const autoIncludes: string[] = (enrichedChildColumns ?? [])
+      const autoIncludes: string[] = enrichedColumns
         .filter(
           (col) =>
             isRelationColumn(col) &&
             (getRelationType(col) ??
-              deriveRelationTypeFromColumns(col, enrichedChildColumns!)) ===
+              deriveRelationTypeFromColumns(col, enrichedColumns)) ===
               'manyToOne',
         )
         .map((col) => getPrismaRelationField(col));
@@ -271,7 +272,7 @@ export const buildSubResources = (
         relationType: (getRelationType(c) ??
           deriveRelationTypeFromColumns(
             c,
-            columns!,
+            columns,
           )) as SubResourceConfig['relationType'],
         ...(() => {
           const displayKey =

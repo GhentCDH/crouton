@@ -1,6 +1,7 @@
 export * from '../action/action.types';
 export * from './column-enrichment';
 export * from './column-transforms';
+export * from './calculated-columns';
 export * from './compile-resource';
 export * from './compiled-resource.schema';
 export * from './compiled-shared.schema';
