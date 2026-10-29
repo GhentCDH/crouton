@@ -6,6 +6,13 @@ import type { ViewColumnConfig, ViewConfig } from '../schema/view/view.schema';
 
 type InjectionMode = 'table' | 'view';
 
+/**
+ * When the rendering context has an explicit layout, calculated columns are
+ * placed by their position in the layout's field-id order. Without one they
+ * keep the flag-driven (`hiddenIn*`) + `position` fallback.
+ */
+export type CalculatedPlacement = { order: string[] };
+
 const isVisibleInMode = (c: CalculatedColumn, mode: InjectionMode): boolean =>
   mode === 'table' ? !c.hiddenInTable : !c.hiddenInView;
 
@@ -41,11 +48,21 @@ const injectCalculatedColumnsIntoView = (
   viewConfig: ViewConfig,
   calculated: CalculatedColumn[],
   mode: InjectionMode,
+  placement?: CalculatedPlacement,
 ): ViewConfig => {
   if (!calculated.length) return viewConfig;
 
-  const visible = calculated.filter((c) => isVisibleInMode(c, mode));
+  const indexOf = placement
+    ? new Map(placement.order.map((id, i) => [id, i]))
+    : undefined;
+
+  const visible = indexOf
+    ? calculated.filter((c) => indexOf.has(c.id))
+    : calculated.filter((c) => isVisibleInMode(c, mode));
   if (!visible.length) return viewConfig;
+
+  const positionOf = (c: CalculatedColumn): number =>
+    indexOf ? indexOf.get(c.id)! : (calcPosition(c) ?? Infinity);
 
   const jsonSchema = { ...(viewConfig.data ?? {}) } as Record<string, unknown>;
   jsonSchema['properties'] = { ...(jsonSchema['properties'] as Record<string, unknown>) };
@@ -60,14 +77,21 @@ const injectCalculatedColumnsIntoView = (
   const uiSchema = { ...(viewConfig.ui ?? {}) } as Record<string, unknown>;
   const existing: Record<string, unknown>[] = [...((uiSchema['elements'] as Record<string, unknown>[] | undefined) ?? [])];
 
-  // Merge-sort existing elements (implicit position = index + 0.5) with calculated
-  // elements (explicit position). Using i + 0.5 means `position: N` slots a calculated
-  // column before the regular column currently at index N.
+  const elementId = (el: Record<string, unknown>): string | undefined =>
+    (el['scope'] as string | undefined)?.replace('#/properties/', '');
+
+  // Merge-sort existing elements with calculated elements. Existing elements not
+  // referenced by the layout order fall back to their slot (`index + 0.5`), which
+  // means `position: N` slots a calculated column before the element at index N.
   const tagged: Array<{ el: Record<string, unknown>; pos: number }> = [
-    ...existing.map((el, i) => ({ el, pos: i + 0.5 })),
+    ...existing.map((el, i) => {
+      const id = indexOf ? elementId(el) : undefined;
+      const pos = id !== undefined && indexOf!.has(id) ? indexOf!.get(id)! : i + 0.5;
+      return { el, pos };
+    }),
     ...visible.map((c) => ({
       el: buildCalculatedElement(c, mode),
-      pos: calcPosition(c) ?? Infinity,
+      pos: positionOf(c),
     })),
   ];
   tagged.sort((a, b) => a.pos - b.pos);
@@ -76,7 +100,7 @@ const injectCalculatedColumnsIntoView = (
   // Insert new ViewColumnConfig entries at the same relative position.
   const columns = [...viewConfig.columns];
   for (const c of visible) {
-    const pos = calcPosition(c);
+    const pos = indexOf ? indexOf.get(c.id)! : calcPosition(c);
     const entry: ViewColumnConfig = { id: c.id, label: c.label };
     if (pos !== undefined) {
       columns.splice(pos, 0, entry);
@@ -97,12 +121,15 @@ const injectCalculatedColumnsIntoView = (
 export const injectCalculatedColumns = (
   tableView: ViewConfig,
   calculated: CalculatedColumn[],
+  placement?: CalculatedPlacement,
 ): ViewConfig =>
-  injectCalculatedColumnsIntoView(tableView, calculated, 'table');
+  injectCalculatedColumnsIntoView(tableView, calculated, 'table', placement);
 
 /** Inject calculated columns into a form/view ViewConfig (Control elements). */
 export const injectCalculatedColumnsToView = (
   viewConfig: ViewConfig,
   calculated: CalculatedColumn[],
+  placement?: CalculatedPlacement,
 ): ViewConfig =>
-  injectCalculatedColumnsIntoView(viewConfig, calculated, 'view');
+  injectCalculatedColumnsIntoView(viewConfig, calculated, 'view', placement);
+

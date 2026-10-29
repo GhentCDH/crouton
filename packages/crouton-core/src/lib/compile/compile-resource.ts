@@ -8,9 +8,11 @@ import { buildLayouts } from '../layout';
 import type { CalculatedColumn, JsonColumn, ResourceJson } from '../resource';
 import {
   columnTypeSchemaSource,
+  hasExplicitLayout,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
-  resolveColumnVisibility,
+  nodeFieldIdOrder,
+  resolveLayoutContext,
   zodSchemaSource,
 } from '../view';
 import {
@@ -104,12 +106,8 @@ export const compileResource = (
   ];
 
   const regularColumns = enrichedColumns.filter((c) => !c.computed);
-  const visibilityColumns = resolveColumnVisibility(
-    regularColumns,
-    json.layout,
-  );
   const layoutCtx = {
-    columns: visibilityColumns,
+    columns: regularColumns,
     source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
     warn: console.warn,
     resourceName: json.name ?? json.route,
@@ -117,14 +115,27 @@ export const compileResource = (
   const rawViews = buildLayouts(json.layout, layoutCtx);
   let views = Object.keys(rawViews).length ? rawViews : undefined;
   if (views && calculatedColumns.length) {
+    const placement = (kind: 'table' | 'view') =>
+      hasExplicitLayout(json.layout, kind)
+        ? {
+            order: nodeFieldIdOrder(
+              resolveLayoutContext(json.layout, regularColumns, kind),
+              kind,
+            ),
+          }
+        : undefined;
     views = {
       ...views,
-      table: injectCalculatedColumns(views.table, calculatedColumns),
+      table: injectCalculatedColumns(views.table, calculatedColumns, placement('table')),
     };
     if (views.view) {
       views = {
         ...views,
-        view: injectCalculatedColumnsToView(views.view, calculatedColumns),
+        view: injectCalculatedColumnsToView(
+          views.view,
+          calculatedColumns,
+          placement('view'),
+        ),
       };
     }
   }

@@ -122,6 +122,26 @@ describe('buildViews — hiddenInForm is absolute even when updateable', () => {
   });
 });
 
+describe('buildViews — explicit layout is the single source of visibility', () => {
+  const columns = parse([
+    { id: 'id', idField: true, hiddenInForm: true },
+    { id: 'title' },
+    { id: 'summary' },
+  ]);
+
+  const views = buildLayouts(
+    invalid<Layout>({ form: { items: ['id', 'summary'] } }),
+    { columns, source: columnTypeSchemaSource, warn: () => undefined },
+  );
+
+  it('renders only the listed columns, ignoring hiddenInForm', () => {
+    const props = propsOf(views.form);
+    expect(props.id).toBeDefined(); // hiddenInForm:true but listed → shown
+    expect(props.summary).toBeDefined();
+    expect(props.title).toBeUndefined(); // visible everywhere else but not listed
+  });
+});
+
 describe('buildViewsFromColumns — fieldInput.defaultValue (sub-resource path)', () => {
   const columns = parse([
     {
