@@ -6,6 +6,7 @@ import type { JsonColumn } from '../../resource/Column';
 import { columnForContext } from '../../schema/column/column.utils';
 import { buildTableUiSchema } from '../../schema/column/table-cell';
 import { buildFormUiSchema, orderTableColumnsFromLayout, patchFilterProperties, resolveDefaultSort, resolveTableNode } from '../../view';
+import { collectNodeFieldIds } from '../resolve/context-layout';
 import type { LayoutNode } from '../schema';
 import type { TableLayoutRootSchema } from '../schema/TableLayout.schema';
 
@@ -23,7 +24,9 @@ export const buildTableLayout = (
   const views: Record<string, ViewConfig> = {};
 
   const tableCols = columns?.map((c) => columnForContext(c, 'table'));
-  let table = buildView(source, tableCols, (c) => !c.hiddenInTable, buildTableUiSchema, true, undefined, ctx.resourceName);
+  const fieldIds =
+    ctx.fieldIds?.table ?? collectNodeFieldIds(node as LayoutNode | undefined, 'table');
+  let table = buildView(source, tableCols, (c) => fieldIds.has(c.id), buildTableUiSchema, true, undefined, ctx.resourceName);
   if (table) {
     const defaultSortResult = resolveDefaultSort(
       (table.columns ?? []) as JsonColumn[],

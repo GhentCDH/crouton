@@ -47,5 +47,14 @@ export {
 export { ViewColumnConfigSchema, ViewConfigSchema } from '../schema/view/view.schema';
 export type { ViewColumnConfig, ViewConfig, ViewDef } from '../schema/view/view.schema';
 export { isDecimalField, jsonSchemaOpts } from './json-schema.opts';
-export { collectLayoutFieldIds, resolveColumnVisibility } from '../layout/layout-visibility';
-export { buildLayouts, defaultLayoutFor } from '../layout';
+export {
+  collectNodeFieldIds,
+  hasExplicitLayout,
+  nodeFieldIdOrder,
+  resolveLayoutContext,
+} from '../layout/resolve/context-layout';
+export {
+  buildLayouts,
+  defaultLayoutFor,
+  resolveLayoutVisibility,
+} from '../layout';
