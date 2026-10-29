@@ -1,7 +1,10 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 
-import type { JsonIncludeEntry } from '@ghentcdh/crouton-core';
+import {
+  type JsonIncludeEntry,
+  resolveValueLabelColumns,
+} from '@ghentcdh/crouton-core';
 
 import { DEFAULT_ID_FIELD, PRISMA_NOT_FOUND_CODE } from '../constants';
 import type { DataSourceAdapter } from './adapter';
@@ -226,7 +229,10 @@ export class WriteRepository<T = unknown> {
     if (op !== 'delete') {
       const stripped =
         op === 'create' ? stripNonCreateableChildFields(sub, data) : data;
-      const normalized = normalizeValueLabels(stripped, sub.valueLabelColumns);
+      const normalized = normalizeValueLabels(
+        stripped,
+        resolveValueLabelColumns(sub.columns),
+      );
       payload = sub.hooks?.beforeWrite
         ? await sub.hooks.beforeWrite(normalized, {
             dataSource: this.adapter,
@@ -303,7 +309,7 @@ export class WriteRepository<T = unknown> {
     const stripped = stripNonCreateableChildFields(sub, data);
     const normalized = normalizeValueLabels(
       stripped,
-      sub.valueLabelColumns,
+      resolveValueLabelColumns(sub.columns),
     ) as object;
     const payload = { ...normalized, [sub.foreignKey]: this.toId(parentId) };
     const prepared = sub.hooks?.beforeWrite
@@ -365,7 +371,10 @@ export class WriteRepository<T = unknown> {
 
     const id =
       (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
-    const normalized = normalizeValueLabels(data, sub.valueLabelColumns);
+    const normalized = normalizeValueLabels(
+      data,
+      resolveValueLabelColumns(sub.columns),
+    );
     const afterHook = sub.hooks?.beforeWrite
       ? await sub.hooks.beforeWrite(normalized, {
           dataSource: this.adapter,

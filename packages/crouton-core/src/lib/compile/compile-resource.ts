@@ -19,7 +19,6 @@ import {
 } from './column-enrichment';
 import {
   applyRelationFormatDefault,
-  buildValueLabelColumns,
   resolveColumnFieldVariants,
 } from './column-transforms';
 import type { CompiledResource } from './compiled-resource.schema';
@@ -148,7 +147,6 @@ export const compileResource = (
   );
   // The primary key is a first-class compiled field; `lookup` no longer carries it.
   const idField = enrichedColumns.find((c) => c.idField)?.id ?? 'id';
-  const valueLabelColumns = buildValueLabelColumns(enrichedColumns);
   const findOneOp = json.operations?.findOne;
   const enrichedInclude = enrichIncludeWithSort(
     extractOpInclude(findAll),
@@ -201,6 +199,11 @@ export const compileResource = (
     idField,
     definition,
     subResources,
+    // Overwrite the raw input `columns` (from `jsonRest`) with the enriched
+    // array: enum injection (`options.values`) and relation formatting only
+    // survive compilation when the resolver built a new array. Runtime
+    // consumers (crouton-api) derive value-label decoration from these columns.
+    columns: enrichedColumns,
     ...(views && { views }),
     ...(searchPaths?.length && { search: searchPaths }),
     lookup,
@@ -209,7 +212,6 @@ export const compileResource = (
     ...(enrichedFindOneInclude?.length && {
       findOneInclude: enrichedFindOneInclude,
     }),
-    ...(valueLabelColumns.length && { valueLabelColumns }),
     ...pickExtensions(json),
   };
 };

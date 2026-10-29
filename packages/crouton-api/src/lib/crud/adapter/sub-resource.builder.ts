@@ -10,7 +10,6 @@ import {
   applyRelationFormatDefault,
   buildChildSortClause,
   buildLayouts,
-  buildValueLabelColumns,
   deriveRelationTypeFromColumns,
   fixNestedUiSchemaScopes,
   getPrismaRelationField,
@@ -264,8 +263,8 @@ export const buildSubResources = (
             return {};
           })(),
         }),
-        ...(buildValueLabelColumns(childColumns).length && {
-          valueLabelColumns: buildValueLabelColumns(childColumns),
+        ...((childColumns?.length || regularChildColumns.length) && {
+          columns: enrichedChildColumns,
         }),
         relationType: (getRelationType(c) ??
           deriveRelationTypeFromColumns(

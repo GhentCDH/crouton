@@ -17,6 +17,12 @@
 - The `/schemas` and `/definition` wire payloads already used `data`/`ui` and are unchanged.
 - **Migration:** replace `json_schema` → `data` and `ui_schema` → `ui` wherever you build a `views`/`ViewConfig` object by hand (custom layout builders, hand-written `views` props).
 
+### 💥 Breaking: compiled `valueLabelColumns` removed
+
+- `CompiledResource` and `CompiledSubResourceConfig` no longer store a pre-projected `valueLabelColumns` list. The compiled configs now carry the real (enriched) `columns` array instead — `compileResource` explicitly emits the enriched columns, and sub-resource configs gain a `columns` field.
+- The `{value, label}` envelope behaviour is unchanged: the API repositories derive the list at request time via the new **`resolveValueLabelColumns(config.columns)`** helper (exported from `@ghentcdh/crouton-core`, memoized per column array).
+- **Migration:** if you read `valueLabelColumns` off a compiled resource, call `resolveValueLabelColumns(config.columns)` instead.
+
 ---
 
 ## 0.0.1-alpha.1 (2026-06-23)

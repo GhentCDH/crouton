@@ -25,6 +25,32 @@ export const resolveColumnFieldVariants = (
   cols: JsonColumn[] | undefined,
 ): JsonColumn[] | undefined => cols;
 
+/**
+ * Resolve the value→label envelope columns for a set of (enriched) columns.
+ *
+ * Memoized per column array (WeakMap) so runtime callers (`crouton-api`
+ * repositories) can derive the list from `config.columns` / `sub.columns` on
+ * every request without rescanning `fieldInput.options` each time.
+ *
+ * Replaces the compiled `valueLabelColumns` projection: the compiled configs no
+ * longer store the derived list; callers resolve it from the columns they carry.
+ */
+const valueLabelCache = new WeakMap<
+  object,
+  ValueLabelColumn[] | undefined
+>();
+
+export const resolveValueLabelColumns = (
+  columns: JsonColumn[] | undefined,
+): ValueLabelColumn[] | undefined => {
+  if (!columns?.length) return undefined;
+  if (valueLabelCache.has(columns)) return valueLabelCache.get(columns);
+  const derived = buildValueLabelColumns(columns);
+  const result = derived.length ? derived : undefined;
+  valueLabelCache.set(columns, result);
+  return result;
+};
+
 export const buildValueLabelColumns = (
   columns: JsonColumn[] | undefined,
 ): ValueLabelColumn[] =>
