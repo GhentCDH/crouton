@@ -1,4 +1,5 @@
-import type { ListRequest, Row, ValueLabelColumn  } from '@ghentcdh/crouton-core';
+import { resolveValueLabelColumns } from '@ghentcdh/crouton-core';
+import type { JsonColumn, ListRequest, Row } from '@ghentcdh/crouton-core';
 
 import type {
   ParentHookContext,
@@ -24,8 +25,17 @@ import {
 
 export type HookTarget = {
   hooks?: ResourceHooks;
-  valueLabelColumns?: ValueLabelColumn[];
+  /**
+   * Enriched column definitions of the resource. Value-label envelope columns
+   * are derived from these lazily (and memoized) — the compiled configs no
+   * longer store a pre-projected `valueLabelColumns` list.
+   */
+  columns?: JsonColumn[];
 };
+
+/** Value→label columns derived (and memoized) from the target's columns. */
+export const valueLabelColumnsOf = (target: HookTarget) =>
+  resolveValueLabelColumns(target.columns);
 
 const hookCtxRead = (adapter: DataSourceAdapter, op: ReadOp, request?: unknown, parent?: ParentHookContext) => ({
   dataSource: adapter,
@@ -70,7 +80,7 @@ export const decorateRows = async (
   const hooked = hook
     ? await Promise.all(rows.map((row) => hook(row, ctx)))
     : rows;
-  const cols = target.valueLabelColumns;
+  const cols = valueLabelColumnsOf(target);
   return cols?.length
     ? hooked.map((r) => applyValueLabelColumns(r as Row, cols))
     : hooked;
@@ -99,7 +109,7 @@ export const prepareWrite = async (
   request?: unknown,
   parent?: ParentHookContext,
 ): Promise<unknown> => {
-  const normalized = normalizeValueLabels(data, target.valueLabelColumns);
+  const normalized = normalizeValueLabels(data, valueLabelColumnsOf(target));
   const hook = target.hooks?.beforeWrite;
   return hook
     ? hook(normalized, hookCtxWrite(adapter, op, id, request, parent))
