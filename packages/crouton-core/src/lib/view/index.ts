@@ -50,5 +50,6 @@ export {
 export {
   buildLayouts,
   defaultLayoutFor,
+  resolveCalculatedPlacement,
   resolveLayoutVisibility,
 } from '../layout';

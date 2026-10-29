@@ -19,6 +19,8 @@ import {
   injectCalculatedColumnsToView,
   isRelationColumn,
   nestedColumnSchemaSource,
+  resolveCalculatedPlacement,
+  toCalculatedColumns,
 } from '@ghentcdh/crouton-core';
 
 import { enrichNestedRelationColumns } from './column-enrichment';
@@ -137,18 +139,7 @@ export const buildSubResources = (
         childColumns?.find((col) => col.idField)?.id ?? 'id';
       const childCalculatedColumns = [
         ...(childJson?.calculatedColumns ?? []),
-        ...(enrichedChildColumns ?? [])
-          .filter((c) => c.computed)
-          .map((c) => ({
-            id: c.id,
-            alias: c.id,
-            label: c.label ?? c.id,
-            sqlExpression: c.computed!.sql as string,
-            type: c.computed!.type ?? 'string',
-            hiddenInTable: c.hiddenInTable,
-            hiddenInView: c.hiddenInView,
-            ...(c.fieldInput && { fieldInput: c.fieldInput }),
-          })),
+        ...toCalculatedColumns(enrichedChildColumns),
       ];
       const regularChildColumns = (enrichedChildColumns ?? []).filter(
         (c) => !c.computed,
@@ -183,6 +174,12 @@ export const buildSubResources = (
           table: injectCalculatedColumns(
             childViews.table,
             childCalculatedColumns,
+            resolveCalculatedPlacement(
+              childJson?.layout,
+              regularChildColumns,
+              childCalculatedColumns,
+              'table',
+            ),
           ),
         };
         if (childViews.view) {
@@ -191,6 +188,12 @@ export const buildSubResources = (
             view: injectCalculatedColumnsToView(
               childViews.view,
               childCalculatedColumns,
+              resolveCalculatedPlacement(
+                childJson?.layout,
+                regularChildColumns,
+                childCalculatedColumns,
+                'view',
+              ),
             ),
           };
         }
