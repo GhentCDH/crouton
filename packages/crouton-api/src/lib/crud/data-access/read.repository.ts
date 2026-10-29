@@ -10,6 +10,7 @@ import {
   offsetOf,
   parseFilterString,
   resolveIncludeToRelationField,
+  resolveLayoutVisibility,
   resolveValueLabelColumns,
 } from '@ghentcdh/crouton-core';
 
@@ -190,7 +191,10 @@ export class ReadRepository<T = unknown> {
         );
       }
       const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
-      const allowed = allowedIncludes(columns);
+      const allowed = allowedIncludes(
+        columns,
+        resolveLayoutVisibility(this.config.layout, columns).table,
+      );
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
         throw new BadRequestException({
@@ -348,7 +352,10 @@ export class ReadRepository<T = unknown> {
         );
       }
       const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
-      const allowed = allowedIncludes(columns);
+      const allowed = allowedIncludes(
+        columns,
+        resolveLayoutVisibility(this.config.layout, columns).table,
+      );
       const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
       if (unknown.length) {
         throw new BadRequestException({

@@ -208,6 +208,51 @@ describe('compileResource — input-only keys are not copied to the compiled res
   });
 });
 
+describe('compileResource — sub-resource visibility follows the table layout', () => {
+  const json = invalid<ResourceJson>({
+    ...baseJson,
+    columns: [
+      ...(baseJson.columns ?? []),
+      { id: 'chapters', type: 'array', relation: { type: 'oneToMany', resource: './chapter/resource.json' } },
+    ],
+    layout: { table: { items: ['title'] } },
+  });
+
+  const buildSub = (column: string) => ({
+    column,
+    relation: column,
+    childRoute: column,
+    childKind: 'prisma' as const,
+    childModel: column,
+    foreignKey: 'articleId',
+    idField: 'id',
+    idType: 'string' as const,
+    operations: {},
+  });
+
+  const compile = (layout: ResourceJson['layout']) =>
+    compileResource(
+      invalid<ResourceJson>({ ...json, layout }),
+      undefined,
+      { resolvers: { buildSubResources: (cols) => cols.filter((c) => c.relation).map((c) => buildSub(c.id)) } },
+    );
+
+  it('marks a relation column omitted from layout.table as hidden', () => {
+    const result = compile({ table: { items: ['title'] } });
+    expect(result.subResources.find((s) => s.column === 'chapters')?.hiddenInTable).toBe(true);
+  });
+
+  it('marks a relation column listed in layout.table as visible', () => {
+    const result = compile({ table: { items: ['title', 'chapters'] } });
+    expect(result.subResources.find((s) => s.column === 'chapters')?.hiddenInTable).toBe(false);
+  });
+
+  it('falls back to the column flag when there is no layout', () => {
+    const result = compile(undefined);
+    expect(result.subResources.find((s) => s.column === 'chapters')?.hiddenInTable).toBe(false);
+  });
+});
+
 describe('compileResource — findAllInclude naming', () => {
   it('emits operations.findAll.include as findAllInclude, not include', () => {
     const json = invalid<ResourceJson>({

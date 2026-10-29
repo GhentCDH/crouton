@@ -1,4 +1,5 @@
 import type { CompileResolvers, EnumRegistry, JsonColumn  } from '@ghentcdh/crouton-core';
+import { resolveLayoutVisibility } from '@ghentcdh/crouton-core';
 
 import { enrichResourceRefColumns } from './column-enrichment';
 import { expandExtendColumns } from './column-transforms';
@@ -30,7 +31,13 @@ const resolveLookupDisplayKeys = (
     if (!col.fieldInput?.resource) continue;
     const child = resolveChildResource(col.fieldInput.resource, dirPath);
     const childColumns = child ? expandExtendColumns(child.json.columns ?? [], dirPath) : undefined;
-    const displayCol = childColumns?.find((c) => !c.idField && !c.hiddenInTable);
+    const tableIds = resolveLayoutVisibility(
+      child?.json.layout,
+      childColumns ?? [],
+    ).table;
+    const displayCol = childColumns?.find(
+      (c) => !c.idField && tableIds?.has(c.id),
+    );
     if (displayCol) result[col.id] = `${col.id.replace(/Id$/, '')}.${displayCol.id}`;
   }
   return result;

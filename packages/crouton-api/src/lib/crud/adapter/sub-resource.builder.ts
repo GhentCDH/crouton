@@ -232,7 +232,6 @@ export const buildSubResources = (
           childRoute,
         idField: childLookupKey,
         idType: childJson?.source?.idType ?? 'string',
-        ...(c.hiddenInTable && { hiddenInTable: true }),
         ...(childViews && { views: childViews }),
         ...(childJson?.layout && { layout: childJson.layout }),
         operations: {
