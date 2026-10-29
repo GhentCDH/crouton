@@ -1,10 +1,5 @@
 export * from './lib/crouton-api.module';
 export type { CroutonAppConfig } from './lib/crud/app-config';
-export {
-  type ParseAppConfig,
-  type ParseSchemaInput,
-  parseSchema,
-} from './lib/crud/parse-schema';
 export * from './lib/crud/loader/index';
 export * from './lib/crud/loader/resource-config.loader';
 export * from './lib/crud/loader/fs-resource-config.loader';
@@ -25,5 +20,12 @@ export {
 
 export { parseFilterString } from '@ghentcdh/crouton-core';
 
-export type { CroutonRequest, PrismaClientLike, PrismaDelegateLike, PrismaOrderBy, PrismaSelect, PrismaWhere } from './lib/crud/types';
+export type {
+  CroutonRequest,
+  PrismaClientLike,
+  PrismaDelegateLike,
+  PrismaOrderBy,
+  PrismaSelect,
+  PrismaWhere,
+} from './lib/crud/types';
 export { getDelegate } from './lib/crud/types';

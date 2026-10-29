@@ -2,8 +2,8 @@ import { Param, Post, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import {
-  isRowProcedureAction,
-  isTableProcedureAction,
+  getRowProcedureActions,
+  getTableProcedureActions,
 } from '@ghentcdh/crouton-core';
 
 import { CROUTON_SECURITY } from '../security';
@@ -18,7 +18,7 @@ import type { CrudRepository } from '../data-access/repository';
 export const registerActionRoutes = (ctx: OperationContext): void => {
   const { cls, config } = ctx;
   const { name } = config;
-  const procedureActions = (config.actions ?? []).filter(isRowProcedureAction);
+  const procedureActions = getRowProcedureActions(config);
 
   for (const action of procedureActions) {
     const methodName = `procedure_${action.id}`;
@@ -62,9 +62,7 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
 export const registerTableActionRoutes = (ctx: OperationContext): void => {
   const { cls, config } = ctx;
   const { name } = config;
-  const procedureActions = (config.tableActions ?? []).filter(
-    isTableProcedureAction,
-  );
+  const procedureActions = getTableProcedureActions(config);
 
   for (const action of procedureActions) {
     const methodName = `tableAction_${action.id}`;

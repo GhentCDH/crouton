@@ -18,3 +18,4 @@ export * from './lib/view';
 export * from './lib/resource-header';
 export * from './lib/schema/response';
 export * from './lib/status/status.types';
+export * from './lib/action';

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { CalculatedColumnSchema } from '../resource';
-import { JsonIncludeEntrySchema } from '../resource/include.schema';
+import { CalculatedColumnSchema, JsonIncludeEntrySchema } from '../resource';
 import { ViewConfigSchema } from '../view';
 
 /**
@@ -18,16 +17,14 @@ import { ViewConfigSchema } from '../view';
 /** Primary-key value type, used for id coercion in the repositories. */
 export const IdTypeSchema = z.enum(['string', 'number']);
 
-/** Container size used when a resource is rendered in a modal. */
-export const ModalSizeSchema = z.enum(['xs', 'sm', 'lg', 'xl']);
-
 /** Pre-built table/form/view configs keyed by view name. */
 export const ViewsSchema = z.record(z.string(), ViewConfigSchema);
 export const OptionalViewsSchema = ViewsSchema.optional();
 
 /** Columns whose value is computed by a raw SQL subquery at query time. */
 export const CalculatedColumnsSchema = z.array(CalculatedColumnSchema);
-export const OptionalCalculatedColumnsSchema = CalculatedColumnsSchema.optional();
+export const OptionalCalculatedColumnsSchema =
+  CalculatedColumnsSchema.optional();
 
 /** Eager-loaded relations. */
 export const IncludeListSchema = z.array(JsonIncludeEntrySchema);

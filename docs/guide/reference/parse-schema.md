@@ -34,8 +34,6 @@ parseSchema(
 | `schema`       | `ZodObject<ZodRawShape>`   | Optional. Zod schema for the Prisma model. Provide for `kind: "prisma"`. Omit for `kind: "custom"`. |
 | `enums`        | `EnumRegistry`             | Enum values to inject into columns that reference a named enum.                                |
 | `hooks`        | `ResourceHooks`            | Lifecycle hooks (ignored by the schema payload, accepted for signature parity).                |
-| `actions`      | `ResourceRowAction[]`      | Resolved row-level action procedures.                                                          |
-| `tableActions` | `ResourceTableAction[]`    | Resolved table-level action procedures.                                                        |
 
 You can also pass a bare raw `resource.json` object directly as `input` (without wrapping in `{ json: ... }`).
 
