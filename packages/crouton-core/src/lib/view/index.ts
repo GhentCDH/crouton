@@ -36,10 +36,9 @@ export {
   patchFilterProperties,
   zodSchemaSource,
 } from '../schema/view/build-view';
-export { buildFormUiSchemaFromLayout, flattenLayoutControlIds, flattenLayoutControls } from '../layout/layout-ui-schema.builder';
+export { buildFormUiSchemaFromLayout, flattenLayoutControls } from '../layout/layout-ui-schema.builder';
 export { findTableNode, isTableWrapperLayout, orderTableColumnsFromLayout, resolveTableNode } from '../layout/layout-table-order';
 export {
-  columnToJsonSchemaProperty,
   columnTypeSchemaSource,
   fixNestedUiSchemaScopes,
   nestedColumnSchemaSource,

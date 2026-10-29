@@ -19,5 +19,4 @@ export {
   decorateRows,
   postWrite,
   prepareWrite,
-  valueLabelColumnsOf,
 } from './hooks.apply';
