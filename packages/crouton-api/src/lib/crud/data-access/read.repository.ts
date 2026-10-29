@@ -10,6 +10,7 @@ import {
   offsetOf,
   parseFilterString,
   resolveIncludeToRelationField,
+  resolveValueLabelColumns,
 } from '@ghentcdh/crouton-core';
 
 
@@ -473,7 +474,7 @@ export class ReadRepository<T = unknown> {
           )
         : rows;
       const labeled = (decorated as unknown[]).map((r) =>
-        applyValueLabelColumns(r as Record<string, unknown>, sub.valueLabelColumns),
+        applyValueLabelColumns(r as Record<string, unknown>, resolveValueLabelColumns(sub.columns)),
       );
       return { data: labeled as T[], count: typedResult?.count ?? labeled.length };
     }
@@ -530,7 +531,7 @@ export class ReadRepository<T = unknown> {
       : withCalc;
 
     const labeled = (decorated as unknown[]).map((r) =>
-      applyValueLabelColumns(r as Record<string, unknown>, sub.valueLabelColumns),
+      applyValueLabelColumns(r as Record<string, unknown>, resolveValueLabelColumns(sub.columns)),
     );
     return { data: labeled as T[], count };
   }

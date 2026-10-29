@@ -10,9 +10,9 @@ import {
   IdTypeSchema,
   OptionalCalculatedColumnsSchema,
   OptionalIncludeListSchema,
-  OptionalValueLabelColumnsSchema,
   OptionalViewsSchema,
 } from './compiled-shared.schema';
+import { JsonColumnBaseSchema } from '../resource/Column';
 
 export const CompiledSubResourceConfigSchema = z.object({
   column: z.string(),
@@ -36,7 +36,8 @@ export const CompiledSubResourceConfigSchema = z.object({
   includeRelationInParentFindOne: z.boolean().optional(),
   hiddenInTable: z.boolean().optional(),
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
-  valueLabelColumns: OptionalValueLabelColumnsSchema,
+  /** Child column definitions (enriched). Runtime consumers derive value-label decoration from these. */
+  columns: z.array(JsonColumnBaseSchema).optional(),
   relationType: RelationType.optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),
