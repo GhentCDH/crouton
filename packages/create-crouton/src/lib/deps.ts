@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 
 export interface DepSet {
   deps: string[];
@@ -8,11 +8,6 @@ export interface DepSet {
 export const BACKEND_DEPS: DepSet = {
   deps: ['@ghentcdh/crouton-api', '@ghentcdh/crouton-core', '@prisma/adapter-pg', '@prisma/client', 'dotenv'],
   devDeps: ['@ghentcdh/crouton-cli', 'prisma', 'prisma-case-format', '@ghentcdh/crouton-prisma'],
-};
-
-export const FRONTEND_DEPS: DepSet = {
-  deps: ['@ghentcdh/crouton-vue', 'vue'],
-  devDeps: ['vite', '@vitejs/plugin-vue'],
 };
 
 /**
@@ -38,19 +33,4 @@ export const computeMissing = async (
   };
 };
 
-/**
- * Merge deps/devDeps into an existing package.json on disk.
- */
-export const addDepsToPackageJson = async (
-  pkgJsonPath: string,
-  deps: Record<string, string>,
-  devDeps: Record<string, string>,
-): Promise<void> => {
-  const pkg = JSON.parse(await readFile(pkgJsonPath, 'utf-8'));
-  pkg.dependencies = sortKeys({ ...(pkg.dependencies ?? {}), ...deps });
-  pkg.devDependencies = sortKeys({ ...(pkg.devDependencies ?? {}), ...devDeps });
-  await writeFile(pkgJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
-};
 
-const sortKeys = (obj: Record<string, string>): Record<string, string> =>
-  Object.fromEntries(Object.entries(obj).sort(([a], [b]) => a.localeCompare(b)));

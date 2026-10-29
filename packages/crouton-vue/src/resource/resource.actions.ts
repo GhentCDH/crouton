@@ -371,7 +371,7 @@ export const tableActions = (
   });
 };
 
-export interface ResourceModals {
+interface ResourceModals {
   form: Ref<{
     component: Component;
     config: any;
