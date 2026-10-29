@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
 import type { HookTarget } from './hooks';
-import { decorateRows, prepareWrite, valueLabelColumnsOf } from './hooks';
+import { decorateRows, prepareWrite } from './hooks';
+import { valueLabelColumnsOf } from './hooks/hooks.apply';
 import { applyValueLabelColumns } from './value-label.apply';
 
 const adapter = { kind: 'prisma', client: {} } as never;

@@ -1,3 +1,3 @@
-export * from './guards';
+export { isRecord } from './guards';
 export * from './errors';
 export * from './env';

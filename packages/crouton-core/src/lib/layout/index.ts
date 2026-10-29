@@ -21,7 +21,6 @@ export type {
   ViewJsonSchemaSource,
 } from './builders/layout-builder.types';
 export {
-  type KindBuilderFn,
   registerLayoutBuilder,
   unregisterLayoutBuilder,
 } from './builders/registry';
@@ -50,43 +49,6 @@ const withVisibility = (
   ctx.fieldIds
     ? ctx
     : { ...ctx, fieldIds: resolveLayoutVisibility(layout, ctx.columns ?? []) };
-
-/**
- * Build a single named view kind from the layout.
- * Built-in kinds: 'table', 'form', 'view', 'filter'. Custom kinds via registerLayoutBuilder.
- */
-export const buildLayout = (
-  kind: 'table' | 'form' | 'view' | 'filter' | string,
-  layout: Layout | undefined,
-  ctx: LayoutBuildContext,
-): Record<string, ViewConfig> => {
-  const resolved = withVisibility(layout, ctx);
-  if (kind === 'table' || kind === 'filter') {
-    const all = buildTableLayout(layout?.table as TableLayoutRoot | undefined, resolved);
-    return kind === 'filter'
-      ? all.filter
-        ? { filter: all.filter }
-        : {}
-      : all.table
-        ? { table: all.table }
-        : {};
-  }
-  if (kind === 'form') {
-    const form = buildFormLayout(
-      layout?.form as FormLayoutNode | undefined,
-      resolved,
-    );
-    return form ? { form } : {};
-  }
-  if (kind === 'view') {
-    const view = buildViewLayout(
-      layout?.view as FormLayoutNode | undefined,
-      resolved,
-    );
-    return view ? { view } : {};
-  }
-  return buildCustomLayouts(layout, resolved);
-};
 
 /**
  * Build all views (table, form, filter, view + custom kinds) from a layout declaration and context.

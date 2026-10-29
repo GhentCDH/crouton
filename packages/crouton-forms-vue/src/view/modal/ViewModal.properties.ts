@@ -1,4 +1,4 @@
-import type { ExtractPublicPropTypes, PropType } from 'vue';
+import type { PropType } from 'vue';
 
 import type { SizeType } from '@ghentcdh/crouton-core';
 
@@ -45,8 +45,6 @@ export const ViewModalProperties = {
     default: null,
   },
 };
-
-export type ViewModalProp = ExtractPublicPropTypes<typeof ViewModalProperties>;
 
 export const ViewModalEmits = [
   /** Emitted when the modal is closed. */

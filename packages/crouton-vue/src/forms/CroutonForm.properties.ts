@@ -1,4 +1,4 @@
-import type { ExtractPublicPropTypes, PropType } from 'vue';
+import type { PropType } from 'vue';
 
 import { type ViewConfig } from '@ghentcdh/crouton-core';
 import {
@@ -115,10 +115,6 @@ export const CroutonFormProperties = {
     default: undefined,
   },
 };
-
-export type CroutonFormProps = ExtractPublicPropTypes<
-  typeof CroutonFormProperties
->;
 
 /** Result payload returned when the modal is submitted. */
 export type CroutonFormData<DATA = any> = {

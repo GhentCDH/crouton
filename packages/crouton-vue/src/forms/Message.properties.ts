@@ -1,4 +1,4 @@
-import type { ExtractPublicPropTypes, PropType } from 'vue';
+import type { PropType } from 'vue';
 
 export const MessageStatus = {
   idle: 'idle',
@@ -14,8 +14,6 @@ export const MessageProps = {
   status: { type: String as PropType<MessageStatusType>, required: false },
   message: { type: String, required: false },
 };
-
-export type MessagePropsType = ExtractPublicPropTypes<typeof MessageProps>;
 
 export const MessageStatusLabel: Record<MessageStatusType, string> = {
   idle: '',

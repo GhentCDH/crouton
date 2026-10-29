@@ -1,19 +1,4 @@
-import type { ValueLabelColumn } from '@ghentcdh/crouton-core';
-
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
-
-/**
- * Drop a trailing `.label` from a sort path when it targets a value-label column.
- */
-export const sanitizeValueLabelSort = (
-  sort: string | undefined,
-  cols: ValueLabelColumn[] | undefined,
-): string | undefined => {
-  if (!sort || !cols?.length || !sort.endsWith('.label')) return sort;
-  const base = sort.slice(0, -'.label'.length);
-  const leaf = base.split('.').pop();
-  return cols.some((c) => c.field === base || c.field === leaf) ? base : sort;
-};
 
 /**
  * Sanitize a sub-resource `orderBy` field so Prisma never rejects it.
