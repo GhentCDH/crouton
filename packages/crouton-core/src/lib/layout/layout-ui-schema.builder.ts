@@ -5,6 +5,7 @@ import { isComponentControl, isComponentItem, isNodeItem } from './schema';
 import type { ControlOption } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import { LayoutType } from '../layout/layout.options';
+import { resolveItemControl } from '../layout/resolve/item-control';
 import type { JsonColumn } from '../resource/Column';
 import { buildConditionSchema, buildFormControl } from '../schema/column/form-control';
 
@@ -53,11 +54,14 @@ const applyControlOverrides = (
   if (ctrl.width !== undefined) base.width(ctrl.width);
   if (ctrl.label !== undefined) base.label(ctrl.label);
   if (ctrl.hideLabel) base.hideLabel();
-  if (ctrl.type !== undefined) {
-    base.control(ctrl.type, ctrl.options as Partial<ControlOption>);
-  } else if (ctrl.options !== undefined) {
-    // ponytail: shallow merge — styles deep-merge not needed yet
-    base.opt(ctrl.options as Partial<ControlOption>);
+  const control = resolveItemControl(ctrl);
+  if (control.hasControl) {
+    if (control.type !== undefined) {
+      base.control(control.type, control.options as Partial<ControlOption>);
+    } else {
+      // ponytail: shallow merge — styles deep-merge not needed yet
+      base.opt(control.options as Partial<ControlOption>);
+    }
   }
   // disabled/disabledWhen go into options so the rule slot stays free for show/hide
   if (ctrl.disabled !== undefined) base.opt({ disabled: ctrl.disabled });

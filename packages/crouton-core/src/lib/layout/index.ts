@@ -19,8 +19,8 @@ export {
   unregisterLayoutBuilder,
 } from './builders/registry';
 export { defaultLayoutFor } from './resolve/default-layout';
-export { resolveFieldControl } from './resolve/resolve-field';
-export type { ResolvedFieldControl } from './resolve/resolve-field';
+export { resolveItemControl } from './resolve/item-control';
+export type { ItemControl } from './resolve/item-control';
 export { validateLayout } from './resolve/validate';
 export type { LayoutValidationResult } from './resolve/validate';
 
