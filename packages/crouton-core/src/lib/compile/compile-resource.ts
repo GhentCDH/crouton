@@ -5,16 +5,15 @@ import {
   extractOpInclude,
 } from '../data-source/Operations.schema';
 import { buildLayouts, resolveLayoutVisibility } from '../layout';
+import { resolveCalculatedPlacement } from '../layout/resolve/calculated-placement';
 import type { CalculatedColumn, JsonColumn, ResourceJson } from '../resource';
 import {
   columnTypeSchemaSource,
-  hasExplicitLayout,
   injectCalculatedColumns,
   injectCalculatedColumnsToView,
-  nodeFieldIdOrder,
-  resolveLayoutContext,
   zodSchemaSource,
 } from '../view';
+import { toCalculatedColumns } from './calculated-columns';
 import {
   enrichActionColumns,
   enrichIncludeWithSort,
@@ -104,18 +103,7 @@ export const compileResource = (
 
   const calculatedColumns: CalculatedColumn[] = [
     ...(json.calculatedColumns ?? []),
-    ...enrichedColumns
-      .filter((c) => c.computed)
-      .map((c): CalculatedColumn => ({
-        id: c.id,
-        alias: c.id,
-        label: c.label ?? c.id,
-        sqlExpression: c.computed!.sql,
-        type: c.computed!.type ?? 'string',
-        hiddenInTable: c.hiddenInTable,
-        hiddenInView: c.hiddenInView,
-        ...(c.fieldInput && { fieldInput: c.fieldInput }),
-      })),
+    ...toCalculatedColumns(enrichedColumns),
   ];
 
   const regularColumns = enrichedColumns.filter((c) => !c.computed);
@@ -128,18 +116,13 @@ export const compileResource = (
   const rawViews = buildLayouts(json.layout, layoutCtx);
   let views = Object.keys(rawViews).length ? rawViews : undefined;
   if (views && calculatedColumns.length) {
-    const placement = (kind: 'table' | 'view') =>
-      hasExplicitLayout(json.layout, kind)
-        ? {
-            order: nodeFieldIdOrder(
-              resolveLayoutContext(json.layout, regularColumns, kind),
-              kind,
-            ),
-          }
-        : undefined;
     views = {
       ...views,
-      table: injectCalculatedColumns(views.table, calculatedColumns, placement('table')),
+      table: injectCalculatedColumns(
+        views.table,
+        calculatedColumns,
+        resolveCalculatedPlacement(json.layout, enrichedColumns, calculatedColumns, 'table'),
+      ),
     };
     if (views.view) {
       views = {
@@ -147,7 +130,7 @@ export const compileResource = (
         view: injectCalculatedColumnsToView(
           views.view,
           calculatedColumns,
-          placement('view'),
+          resolveCalculatedPlacement(json.layout, enrichedColumns, calculatedColumns, 'view'),
         ),
       };
     }

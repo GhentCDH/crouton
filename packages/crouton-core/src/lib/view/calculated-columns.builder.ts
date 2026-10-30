@@ -1,20 +1,11 @@
+import type { CalculatedPlacement } from '../layout/resolve/calculated-placement';
 import type { CalculatedColumn } from '../resource/CalculatedColumn.schema';
-import type { ViewColumnConfig, ViewConfig } from '../schema/view/view.schema';
+import type { ViewConfig } from '../schema/view/view.schema';
 
 
 // ── Calculated column injection ───────────────────────────────────────────
 
 type InjectionMode = 'table' | 'view';
-
-/**
- * When the rendering context has an explicit layout, calculated columns are
- * placed by their position in the layout's field-id order. Without one they
- * keep the flag-driven (`hiddenIn*`) + `position` fallback.
- */
-export type CalculatedPlacement = { order: string[] };
-
-const isVisibleInMode = (c: CalculatedColumn, mode: InjectionMode): boolean =>
-  mode === 'table' ? !c.hiddenInTable : !c.hiddenInView;
 
 const buildCalculatedElement = (c: CalculatedColumn, mode: InjectionMode) =>
   mode === 'table'
@@ -37,32 +28,24 @@ const buildCalculatedElement = (c: CalculatedColumn, mode: InjectionMode) =>
       };
 
 /**
- * Effective insertion position for a calculated column.
- * `fieldInput.position` takes precedence over top-level `position`.
- * `undefined` means append to the end.
+ * Inject calculated columns into a view.
+ *
+ * `placement.order` is the context's resolved field-id order (see
+ * `resolveCalculatedPlacement`): a calculated column appears exactly when its id
+ * is in the order, positioned by its index there. Visibility flags are never read
+ * here — the layout layer already resolved them.
  */
-const calcPosition = (c: CalculatedColumn): number | undefined =>
-  c.fieldInput?.position ?? c.position;
-
 const injectCalculatedColumnsIntoView = (
   viewConfig: ViewConfig,
   calculated: CalculatedColumn[],
   mode: InjectionMode,
-  placement?: CalculatedPlacement,
+  placement: CalculatedPlacement,
 ): ViewConfig => {
   if (!calculated.length) return viewConfig;
 
-  const indexOf = placement
-    ? new Map(placement.order.map((id, i) => [id, i]))
-    : undefined;
-
-  const visible = indexOf
-    ? calculated.filter((c) => indexOf.has(c.id))
-    : calculated.filter((c) => isVisibleInMode(c, mode));
+  const indexOf = new Map(placement.order.map((id, i) => [id, i]));
+  const visible = calculated.filter((c) => indexOf.has(c.id));
   if (!visible.length) return viewConfig;
-
-  const positionOf = (c: CalculatedColumn): number =>
-    indexOf ? indexOf.get(c.id)! : (calcPosition(c) ?? Infinity);
 
   const jsonSchema = { ...(viewConfig.data ?? {}) } as Record<string, unknown>;
   jsonSchema['properties'] = { ...(jsonSchema['properties'] as Record<string, unknown>) };
@@ -80,18 +63,16 @@ const injectCalculatedColumnsIntoView = (
   const elementId = (el: Record<string, unknown>): string | undefined =>
     (el['scope'] as string | undefined)?.replace('#/properties/', '');
 
-  // Merge-sort existing elements with calculated elements. Existing elements not
-  // referenced by the layout order fall back to their slot (`index + 0.5`), which
-  // means `position: N` slots a calculated column before the element at index N.
+  // Order every element by its index in the resolved order; elements the order
+  // does not name (e.g. component cells) keep their slot.
   const tagged: Array<{ el: Record<string, unknown>; pos: number }> = [
     ...existing.map((el, i) => {
-      const id = indexOf ? elementId(el) : undefined;
-      const pos = id !== undefined && indexOf!.has(id) ? indexOf!.get(id)! : i + 0.5;
-      return { el, pos };
+      const id = elementId(el);
+      return { el, pos: id !== undefined && indexOf.has(id) ? indexOf.get(id)! : i + 0.5 };
     }),
     ...visible.map((c) => ({
       el: buildCalculatedElement(c, mode),
-      pos: positionOf(c),
+      pos: indexOf.get(c.id)!,
     })),
   ];
   tagged.sort((a, b) => a.pos - b.pos);
@@ -100,13 +81,7 @@ const injectCalculatedColumnsIntoView = (
   // Insert new ViewColumnConfig entries at the same relative position.
   const columns = [...viewConfig.columns];
   for (const c of visible) {
-    const pos = indexOf ? indexOf.get(c.id)! : calcPosition(c);
-    const entry: ViewColumnConfig = { id: c.id, label: c.label };
-    if (pos !== undefined) {
-      columns.splice(pos, 0, entry);
-    } else {
-      columns.push(entry);
-    }
+    columns.splice(indexOf.get(c.id)!, 0, { id: c.id, label: c.label });
   }
 
   return {
@@ -121,7 +96,7 @@ const injectCalculatedColumnsIntoView = (
 export const injectCalculatedColumns = (
   tableView: ViewConfig,
   calculated: CalculatedColumn[],
-  placement?: CalculatedPlacement,
+  placement: CalculatedPlacement,
 ): ViewConfig =>
   injectCalculatedColumnsIntoView(tableView, calculated, 'table', placement);
 
@@ -129,7 +104,6 @@ export const injectCalculatedColumns = (
 export const injectCalculatedColumnsToView = (
   viewConfig: ViewConfig,
   calculated: CalculatedColumn[],
-  placement?: CalculatedPlacement,
+  placement: CalculatedPlacement,
 ): ViewConfig =>
   injectCalculatedColumnsIntoView(viewConfig, calculated, 'view', placement);
-
