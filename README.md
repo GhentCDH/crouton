@@ -29,56 +29,73 @@ Configure resources once. Use them over and over. No boilerplate, just filling.
 
 ## Packages
 
-| Package                        | Description                                                                                           | Status            |
-|--------------------------------|-------------------------------------------------------------------------------------------------------|-------------------|
-| `@ghentcdh/crouton-api`        | NestJS library — generates controllers, repositories, and `/schemas` endpoints from a `resource.json` | 🚧 in development |
-| `@ghentcdh/crouton-vue`        | Vue 3 component library — renders data tables, forms, filters, and views driven by the schemas        | 🚧 in development |
-| `@ghentcdh/crouton-forms-vue`  | Standalone `<CroutonForm>` component — embed a crouton form anywhere without the full admin UI        | 🚧 in development |
-| `@ghentcdh/crouton-editor-vue` | Dev-mode resource editor UI — visual builder and `ResourceJsonEditor` component                       | 🚧 in development |
-| `@ghentcdh/crouton-core`       | Shared browser-safe foundation — schema builders, filter models, request/response types               | 🚧 in development |
-| `@ghentcdh/crouton-codegen`    | Shared Node-only codegen tooling — Prisma introspection, scaffolding, shell wrappers                  | 🚧 in development |
-| `@ghentcdh/crouton-prisma`     | Prisma data-source adapter and Prisma-specific utilities                                              | 🚧 in development |
-| `@ghentcdh/crouton-cli`        | `crouton` CLI — `create-datasource`, `update resources`, and dev server commands                      | 🚧 in development |
-| `@ghentcdh/create-crouton`     | `npm create @ghentcdh/crouton` scaffolder — bootstraps a new project                                 | 🚧 in development |
-| `@ghentcdh/add-crouton`        | `npx @ghentcdh/add-crouton` — adds crouton to an existing project                                    | 🚧 in development |
+| Package                        | Description                                                                                               | Status            |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- | ----------------- |
+| `@ghentcdh/crouton-api`        | NestJS library — generates controllers, repositories, and `/schemas` endpoints from a `resource.json`     | 🚧 in development |
+| `@ghentcdh/crouton-vue`        | Vue 3 component library — renders data tables, forms, filters, and views driven by the schemas            | 🚧 in development |
+| `@ghentcdh/crouton-forms-vue`  | Standalone `<CroutonForm>` component — embed a crouton form anywhere without the full admin UI            | 🚧 in development |
+| `@ghentcdh/crouton-ui-vue`     | Vue 3 UI primitives — shell, buttons, tables, modals, drawers, toasts, form controls                      | 🚧 in development |
+| `@ghentcdh/crouton-editor-vue` | Dev-mode resource editor UI — visual builder and `ResourceJsonEditor` component                           | 🚧 in development |
+| `@ghentcdh/crouton-core`       | Shared browser-safe foundation — schema builders, filter models, request/response types                   | 🚧 in development |
+| `@ghentcdh/crouton-codegen`    | Shared Node-only codegen tooling — Prisma introspection, scaffolding, shell wrappers                      | 🚧 in development |
+| `@ghentcdh/crouton-prisma`     | Prisma data-source adapter and Prisma-specific utilities                                                  | 🚧 in development |
+| `@ghentcdh/crouton-cli`        | `crouton` CLI — `init`, `create-datasource`, `create-resource`, `update resources`, `migrate`, `validate` | 🚧 in development |
+| `@ghentcdh/create-crouton`     | `npm create @ghentcdh/crouton` scaffolder — bootstraps a new project                                      | 🚧 in development |
+| `@ghentcdh/add-crouton`        | `npx @ghentcdh/add-crouton` — adds crouton to an existing project                                         | 🚧 in development |
+| `@ghentcdh/crouton-mcp`        | MCP server — lets LLM agents query resources, validate configs, and search the docs                       | 🚧 in development |
 
 ## How it works
 
-1. **Define** your resource in a `resource.json` file — columns, operations, filters, relations
+1. **Define** your resource in a `resource.json` file — columns, operations, layout, relations
 2. **Register** it with crouton-api — fully typed NestJS routes appear automatically
 3. **Connect** the Vue components — tables, forms, and filters render from the schema with no extra config
 
 ```json
 {
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
+  "schemaVersion": 1,
   "name": "author",
   "route": "authors",
-  "model": "author",
-  "operations": {
-    "findAll": true,
-    "findOne": true,
-    "create": true,
-    "update": true
+  "source": {
+    "model": "Author"
   },
   "columns": {
     "id": {
-      "hiddenInForm": true,
-      "idField": true
+      "idField": true,
+      "hiddenInForm": true
     },
-    "name": {
-      "searchable": true,
-      "filterable": true
-    },
+    "name": {},
     "bio": {
       "fieldInput": {
         "type": "textarea"
       }
     }
+  },
+  "operations": {
+    "findAll": {
+      "search": ["name"]
+    },
+    "findOne": true,
+    "create": true,
+    "update": true,
+    "delete": false
+  },
+  "layout": {
+    "table": {
+      "filterFields": ["name"]
+    }
   }
 }
 ```
 
-That's it. You get a paginated list endpoint, a detail endpoint, create/update with Zod validation, a `/schemas`response
-the Vue components consume, and a full admin UI — all from that one file.
+That's it. You get a searchable, paginated list endpoint, a detail endpoint, create/update with Zod validation, a
+`/schemas` response the Vue components consume, and a full admin UI with a filterable table — all from that one file.
+
+The quickest way to start is the scaffolder — see [Getting started](https://ghentcdh.github.io/crouton/guide/1.getting-started/):
+
+```sh
+npm create @ghentcdh/crouton my-app
+```
 
 ## Installation
 
@@ -99,11 +116,15 @@ This is an [Nx](https://nx.dev) monorepo with pnpm workspaces.
 pnpm install
 
 # Build all packages
-npx nx run-many -t build
+pnpm nx run-many -t build
 
-# Typecheck
-npx nx run-many -t typecheck
+# Test, lint, typecheck
+pnpm nx run-many -t test
+pnpm nx run-many -t lint
+pnpm nx run-many -t typecheck
 ```
+
+A full example app lives in [`examples/book-collection`](./examples/book-collection).
 
 ### Packages
 
@@ -112,6 +133,7 @@ packages/
   crouton-api/        — NestJS CRUD framework (@ghentcdh/crouton-api)
   crouton-vue/        — Vue 3 admin UI components (@ghentcdh/crouton-vue)
   crouton-forms-vue/  — standalone CroutonForm component (@ghentcdh/crouton-forms-vue)
+  crouton-ui-vue/     — Vue 3 UI primitives (@ghentcdh/crouton-ui-vue)
   crouton-editor-vue/ — dev-mode visual resource editor (@ghentcdh/crouton-editor-vue)
   crouton-core/       — shared browser-safe types & builders (@ghentcdh/crouton-core)
   crouton-codegen/    — shared Node-only codegen/Prisma tooling (@ghentcdh/crouton-codegen)
@@ -119,12 +141,14 @@ packages/
   crouton-cli/        — crouton CLI (@ghentcdh/crouton-cli)
   create-crouton/     — npm create scaffolder (@ghentcdh/create-crouton)
   add-crouton/        — npx add-crouton for existing projects (@ghentcdh/add-crouton)
+  crouton-mcp/        — MCP server for LLM agents (@ghentcdh/crouton-mcp)
 ```
 
 ### Documentation
 
-The docs site is built with [VuePress](https://vuepress.vuejs.org/). Each package documents itself in
-`packages/<name>/docs/`; the site is assembled from those files.
+The docs site is built with [VuePress](https://vuepress.vuejs.org/). Guides live in `docs/guide/`; the JSON Schema and
+the field-input reference under `docs/guide/2.resources/field-inputs/_generated/` are generated by
+`pnpm nx run crouton-core:build`.
 
 ```sh
 # Serve the docs locally
@@ -134,11 +158,10 @@ pnpm docs:serve
 pnpm docs:build
 ```
 
----
+## Contributing
 
-
-
----
+Contributions are welcome — please read [CONTRIBUTING.md](./CONTRIBUTING.md) and our
+[Code of Conduct](./CODE_OF_CONDUCT.md). Found a security issue? See [SECURITY.md](./SECURITY.md).
 
 ## License
 
