@@ -15,6 +15,7 @@ export const CollapseProperties = {
   opened: { type: Boolean, default: true },
   heightFull: { type: Boolean, default: false },
   scrollable: { type: Boolean, default: false },
+  noPadding: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   actions: {
     type: Array as PropType<Array<CollapseAction>>,

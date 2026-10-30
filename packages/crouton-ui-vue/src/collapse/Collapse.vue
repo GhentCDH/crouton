@@ -15,7 +15,7 @@
       tabindex="-1"
       :aria-label="'Toggle ' + title"
       @change="isOpen = ($event.target as HTMLInputElement).checked"
-    >
+    />
     <div class="collapse-title text-gray-500 text-xs font-medium">
       <div class="flex items-center justify-between">
         <span>{{ title }}</span>
@@ -44,21 +44,16 @@
       :class="[
         scrollable ? '!flex !flex-col min-h-0' : '',
         slots.list ? 'p-0' : '',
+        noPadding ? 'p-0' : '',
       ]"
     >
       <div :class="scrollable ? 'flex-1 min-h-0 overflow-y-auto' : ''">
         <slot />
       </div>
-      <ul
-        v-if="slots.list"
-        class="list bg-base-100"
-      >
+      <ul v-if="slots.list" class="list bg-base-100">
         <slot name="list" />
       </ul>
-      <div
-        v-if="slots.footer"
-        class="shrink-0 pt-2"
-      >
+      <div v-if="slots.footer" class="shrink-0 pt-2">
         <slot name="footer" />
       </div>
     </div>

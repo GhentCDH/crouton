@@ -17,7 +17,11 @@
       />
     </div>
 
-    <div v-if="hasCreate && enableCreate" data-testid="relation-inline-add" class="flex flex-gap-2 items-center">
+    <div
+      v-if="hasCreate && enableCreate"
+      data-testid="relation-inline-add"
+      class="flex flex-gap-2 items-center"
+    >
       <Autocomplete
         v-if="fetchOptions"
         :model-value="newValue ?? undefined"
@@ -90,6 +94,7 @@ const attrs = useAttrs() as RelationHandlers;
 // onView is handled in operations; attrs.onView presence drives the v-bind spread
 const hasCreate = computed(() => 'onCreate' in attrs);
 const hasEdit = computed(() => 'onEdit' in attrs);
+const hasView = computed(() => 'onView' in attrs);
 const hasDelete = computed(() => 'onDelete' in attrs);
 
 const fetchOptions = computedAsync(() => {
@@ -105,12 +110,19 @@ const fetchOptions = computedAsync(() => {
 });
 
 const operations = computed(() => {
-  const ops: Record<string, (value: any) => void> = {
-    onView: (value) => {
-      const id = formDef.value?.idField;
-      if (id) detailResource.value?.view(value[id]);
-    },
-  };
+  const ops: Record<string, (value: any) => void> = {};
+
+  if (hasView.value) {
+  } else {
+    ops['onView'] = (value) => {
+      if (hasView.value) {
+        attrs.onView!(value);
+      } else {
+        const id = formDef.value?.idField;
+        if (id) detailResource.value?.view(value[id]);
+      }
+    };
+  }
 
   if (hasDelete.value) {
     ops['onDelete'] = (value) => {
