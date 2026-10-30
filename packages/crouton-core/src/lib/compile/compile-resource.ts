@@ -109,7 +109,12 @@ export const compileResource = (
   const regularColumns = enrichedColumns.filter((c) => !c.computed);
   const layoutCtx = {
     columns: regularColumns,
-    source: schema ? zodSchemaSource(schema) : columnTypeSchemaSource,
+    // Fall back to column-derived properties when the Zod mask comes back empty:
+    // a resource whose visible columns are all autocomplete/relation fields is absent
+    // from the Prisma schema shape, and would otherwise collapse to an empty table/view.
+    source: schema
+      ? (cols: JsonColumn[]) => zodSchemaSource(schema)(cols) ?? columnTypeSchemaSource(cols)
+      : columnTypeSchemaSource,
     warn: console.warn,
     resourceName: json.name ?? json.route,
   };
