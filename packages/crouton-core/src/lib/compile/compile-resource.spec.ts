@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 
 import { compileResource } from './compile-resource';
 import type { ResourceJson } from '../resource';
@@ -262,5 +263,38 @@ describe('compileResource — findAllInclude naming', () => {
     const result = compileResource(json) as { findAllInclude?: unknown[] };
     expect('include' in result).toBe(false);
     expect(result.findAllInclude).toHaveLength(1);
+  });
+});
+
+describe('compileResource — relation-only columns keep a non-empty table (#235)', () => {
+  it('falls back to column types when the Zod mask has no scalar ids', () => {
+    const json = invalid<ResourceJson>({
+      name: 'textAuthor',
+      route: 'text-authors',
+      model: 'TextAuthor',
+      tag: 'TextAuthors',
+      kind: 'prisma',
+      operations: { findAll: true, findOne: true },
+      columns: [
+        { id: 'id', type: 'string', idField: true, hiddenInTable: true },
+        {
+          id: 'author',
+          fieldInput: {
+            type: 'autocomplete',
+            resource: './author.resource',
+            relationType: 'manyToOne',
+            displayKey: 'originName',
+          },
+        },
+      ],
+    });
+    // The Prisma shape only knows the scalar FK fields; the virtual `author`
+    // autocomplete column is absent from it, so the zod mask comes back empty.
+    const schema = z.object({ textId: z.string(), authorId: z.string() });
+    const result = compileResource(json, schema);
+    const table = result.views?.table;
+    expect(table?.columns?.map((c) => c.id)).toEqual(['author']);
+    const elements = (table?.ui as { elements?: unknown[] }).elements ?? [];
+    expect(elements.length).toBeGreaterThan(0);
   });
 });
