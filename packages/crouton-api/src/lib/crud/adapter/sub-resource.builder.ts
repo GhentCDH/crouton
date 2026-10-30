@@ -177,7 +177,7 @@ export const buildSubResources = (
             childCalculatedColumns,
             resolveCalculatedPlacement(
               childJson?.layout,
-              regularChildColumns,
+              cols,
               childCalculatedColumns,
               'table',
             ),
@@ -191,7 +191,7 @@ export const buildSubResources = (
               childCalculatedColumns,
               resolveCalculatedPlacement(
                 childJson?.layout,
-                regularChildColumns,
+                cols,
                 childCalculatedColumns,
                 'view',
               ),

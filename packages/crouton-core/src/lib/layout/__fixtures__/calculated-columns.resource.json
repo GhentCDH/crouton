@@ -8,13 +8,11 @@
   "columns": [
     { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
     { "id": "title", "type": "string" },
-    { "id": "authorId", "type": "string" }
-  ],
-  "calculatedColumns": [
+    { "id": "authorId", "type": "string" },
     {
       "id": "commentCount",
       "label": "Comments",
-      "type": "integer",
+      "computed": { "sql": "SELECT COUNT(id) FROM comment", "type": "number" },
       "hiddenInView": true
     }
   ],

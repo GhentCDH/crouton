@@ -121,7 +121,7 @@ export const compileResource = (
       table: injectCalculatedColumns(
         views.table,
         calculatedColumns,
-        resolveCalculatedPlacement(json.layout, regularColumns, calculatedColumns, 'table'),
+        resolveCalculatedPlacement(json.layout, enrichedColumns, calculatedColumns, 'table'),
       ),
     };
     if (views.view) {
@@ -130,7 +130,7 @@ export const compileResource = (
         view: injectCalculatedColumnsToView(
           views.view,
           calculatedColumns,
-          resolveCalculatedPlacement(json.layout, regularColumns, calculatedColumns, 'view'),
+          resolveCalculatedPlacement(json.layout, enrichedColumns, calculatedColumns, 'view'),
         ),
       };
     }
