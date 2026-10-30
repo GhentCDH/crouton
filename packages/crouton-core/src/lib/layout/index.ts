@@ -25,6 +25,10 @@ export {
   unregisterLayoutBuilder,
 } from './builders/registry';
 export { defaultLayoutFor } from './resolve/default-layout';
+export {
+  type CalculatedPlacement,
+  resolveCalculatedPlacement,
+} from './resolve/calculated-placement';
 export { resolveItemControl } from './resolve/item-control';
 export type { ItemControl } from './resolve/item-control';
 export { validateLayout } from './resolve/validate';

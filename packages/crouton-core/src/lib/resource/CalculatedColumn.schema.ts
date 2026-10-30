@@ -26,8 +26,6 @@ export const CalculatedColumnSchema = z
     sqlExpression: z.string().describe('Raw SQL subquery computing the column value. Use "main" as the alias for the parent table row, e.g. "SELECT COUNT(*) FROM child WHERE child.parent_id = main.id".'),
     type: z.enum(['number', 'boolean', 'string']).optional().describe('Cast type for the computed value. "number" (default) or "boolean" applies a SQL CAST; "string" skips it.'),
     position: z.number().optional().describe('Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).'),
-    hiddenInTable: z.boolean().optional().describe('When true, this column is hidden in the table view.'),
-    hiddenInView: z.boolean().optional().describe('When true, this column is hidden in the detail view.'),
     fieldInput: FieldInputSchema.optional().describe('Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.'),
   })
   .transform(normalizeLabel);

@@ -1539,16 +1539,6 @@
             "type": "number",
             "markdownDescription": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
-          "hiddenInTable": {
-            "description": "When true, this column is hidden in the table view.",
-            "type": "boolean",
-            "markdownDescription": "When true, this column is hidden in the table view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "hiddenInView": {
-            "description": "When true, this column is hidden in the detail view.",
-            "type": "boolean",
-            "markdownDescription": "When true, this column is hidden in the detail view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
           "fieldInput": {
             "description": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.",
             "type": "object",
