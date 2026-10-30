@@ -2,6 +2,7 @@ import { NotFoundException, NotImplementedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
+import type { ListRequest } from '@ghentcdh/crouton-core';
 
 import { createCustomRepository } from './custom-repository.adapter';
 import type { CustomRepository } from './custom-repository.types';
@@ -275,6 +276,97 @@ describe('createCustomRepository', () => {
         title: 'a',
         slug: 'from-hook',
       });
+    });
+
+    it('runs beforeFindAll and afterFindAll on the list path', async () => {
+      const findAll = vi.fn(async (_params: Record<string, unknown>) => ({
+        data: [{ id: 'a' }],
+        count: 1,
+      }));
+      const config = buildConfig({}, {
+        beforeFindAll: (params) => ({ ...params, page: 9 }),
+        afterFindAll: (rows) =>
+          rows.map((row) => ({ ...(row as Record<string, unknown>), seen: true })),
+      });
+      const repo = make({ findAll }, config);
+
+      const { data } = await repo.findAllWithCount!(listParams());
+
+      expect((findAll.mock.calls[0][0] as { page: number }).page).toBe(9);
+      expect(data).toEqual([{ id: 'a', seen: true }]);
+    });
+
+    it('does not run the list hooks for count()', async () => {
+      const beforeFindAll = vi.fn((params: ListRequest) => params);
+      const config = buildConfig({}, { beforeFindAll });
+      const repo = make({ findAll: async () => ({ data: [], count: 7 }) }, config);
+
+      await expect(repo.count!(['title:foo'])).resolves.toBe(7);
+      expect(beforeFindAll).not.toHaveBeenCalled();
+    });
+
+    it('passes the record id to afterRead on findOne', async () => {
+      const seen: unknown[] = [];
+      const config = buildConfig({}, {
+        afterRead: (row: unknown, ctx: unknown) => {
+          seen.push((ctx as { id?: unknown }).id);
+          return row;
+        },
+      });
+      const repo = make({ findOne: async (id) => ({ id }) }, config);
+
+      await repo.findOne('abc');
+
+      expect(seen).toEqual(['abc']);
+    });
+  });
+
+  describe('dataSource resolution', () => {
+    it('prefers the resolved datasource adapter for the hook context', async () => {
+      const resolved = { kind: 'custom', client: { driver: 'custom' } };
+      const ds = {
+        resolve: () => undefined,
+        entries: () => [],
+        resolveAdapter: () => resolved,
+      };
+      let seen: unknown;
+      const config = buildConfig({}, {
+        afterRead: (row: unknown, ctx: unknown) => {
+          seen = (ctx as { dataSource?: unknown }).dataSource;
+          return row;
+        },
+      });
+      const repo = createCustomRepository(
+        undefined,
+        config,
+        ds,
+        { findAll: async () => ({ data: [{ id: 'a' }], count: 1 }) },
+      );
+
+      await repo.findAllWithCount!(listParams());
+
+      expect(seen).toBe(resolved);
+    });
+
+    it('falls back to a Prisma adapter when the registry resolves none', async () => {
+      const prisma = { $queryRaw: () => undefined };
+      let seen: { client?: unknown } | undefined;
+      const config = buildConfig({}, {
+        afterRead: (row: unknown, ctx: unknown) => {
+          seen = (ctx as { dataSource?: { client?: unknown } }).dataSource;
+          return row;
+        },
+      });
+      const repo = createCustomRepository(
+        prisma,
+        config,
+        dataSources,
+        { findAll: async () => ({ data: [{ id: 'a' }], count: 1 }) },
+      );
+
+      await repo.findAllWithCount!(listParams());
+
+      expect(seen?.client).toBe(prisma);
     });
   });
 

@@ -18,7 +18,7 @@ import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { DataSourceAdapter } from '../data-access/adapter';
 import { PrismaDataSourceAdapter } from '../data-access/adapter';
 import type { CrudRepository } from '../data-access/repository';
-import { decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
+import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import type { CroutonRequest } from '../types/request.types';
@@ -61,7 +61,10 @@ export const createCustomRepository = <T = Row>(
   configRegistry?: ResourceConfigRegistry,
 ): CrudRepository<T> => {
   // Wrap the raw prisma client in an adapter so hook contexts receive `dataSource`.
-  const adapter = new PrismaDataSourceAdapter(prisma);
+  // Prefer the resource's resolved datasource adapter: a non-Prisma (custom)
+  // datasource must not be handed a fake Prisma adapter around `undefined`.
+  const adapter =
+    dataSources.resolveAdapter?.(config.database) ?? new PrismaDataSourceAdapter(prisma);
 
   // Fall back to the adapter client when it implements CustomRepository directly
   // (no repository.ts required).
@@ -131,7 +134,8 @@ export const createCustomRepository = <T = Row>(
     ...(request !== undefined && { request }),
   });
 
-  const findAllWithCount = async (
+  /** Query the repository and run the per-row `afterRead` decoration (no list hooks). */
+  const runFindAll = async (
     params: ListRequest,
     request?: unknown,
   ): Promise<CustomListResult<T>> => {
@@ -161,6 +165,30 @@ export const createCustomRepository = <T = Row>(
       parentHookCtx(request),
     );
     return { data: data as T[], count: result?.count ?? data.length };
+  };
+
+  const findAllWithCount = async (
+    params: ListRequest,
+    request?: unknown,
+  ): Promise<CustomListResult<T>> => {
+    // beforeFindAll/afterFindAll fire on the list path, mirroring the Prisma
+    // repository — previously they were silently skipped on custom resources.
+    const effectiveParams = await applyBeforeFindAll(
+      params,
+      config,
+      adapter,
+      request,
+      parentHookCtx(request),
+    );
+    const result = await runFindAll(effectiveParams, request);
+    const data = await applyAfterFindAll(
+      result.data,
+      config,
+      adapter,
+      request,
+      parentHookCtx(request),
+    );
+    return { data: data as T[], count: result.count };
   };
 
   const findOne = async (id: string | number, request?: unknown): Promise<T> => {
@@ -193,6 +221,7 @@ export const createCustomRepository = <T = Row>(
       adapter,
       request,
       parentHookCtx(request),
+      toId(id),
     ) as Promise<T>;
   };
 
@@ -303,7 +332,7 @@ export const createCustomRepository = <T = Row>(
       (await findAllWithCount(params, request)).data,
     count: async (filter) =>
       (
-        await findAllWithCount({
+        await runFindAll({
           page: 1,
           pageSize: 1,
           sort: idField,

@@ -37,10 +37,17 @@ export type HookTarget = {
 export const valueLabelColumnsOf = (target: HookTarget) =>
   resolveValueLabelColumns(target.columns);
 
-const hookCtxRead = (adapter: DataSourceAdapter, op: ReadOp, request?: unknown, parent?: ParentHookContext) => ({
+const hookCtxRead = (
+  adapter: DataSourceAdapter,
+  op: ReadOp,
+  request?: unknown,
+  parent?: ParentHookContext,
+  id?: string | number,
+) => ({
   dataSource: adapter,
   prisma: adapter.client,
   op,
+  ...(id !== undefined && { id }),
   request,
   ...(parent && { parent }),
 });
@@ -94,9 +101,10 @@ export const decorateRow = async (
   adapter: DataSourceAdapter,
   request?: unknown,
   parent?: ParentHookContext,
+  id?: string | number,
 ): Promise<unknown> => {
   const hook = target.hooks?.afterRead;
-  return hook ? hook(row, hookCtxRead(adapter, op, request, parent)) : row;
+  return hook ? hook(row, hookCtxRead(adapter, op, request, parent, id)) : row;
 };
 
 /** Unwrap value-label envelopes, then run `beforeWrite`. */

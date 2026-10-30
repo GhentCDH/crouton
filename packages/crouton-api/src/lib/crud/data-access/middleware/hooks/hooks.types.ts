@@ -52,6 +52,8 @@ export interface ReadHookContext<PRISMACLIENT = unknown> {
    */
   prisma: PRISMACLIENT;
   op: ReadOp;
+  /** The record id for `findOne` reads. Absent on `findAll`. */
+  id?: string | number;
   request?: unknown;
   parent?: ParentHookContext;
 }

@@ -177,8 +177,8 @@ export function createCrudRepository<T = Row>(
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
     const applyBefore = (params: ListRequest, request?: unknown) =>
       applyBeforeFindAll(params, config, resolvedAdapter, request);
-    const decorateFindOne = (row: unknown, request?: unknown) =>
-      decorateRow(row, 'findOne', config, resolvedAdapter, request);
+    const decorateFindOne = (row: unknown, request?: unknown, id?: string | number) =>
+      decorateRow(row, 'findOne', config, resolvedAdapter, request, undefined, id);
     const prepareData = (
       data: unknown,
       op: 'create' | 'update' | 'patch',
@@ -305,7 +305,7 @@ export function createCrudRepository<T = Row>(
         );
         if (row === null || row === undefined)
           throw new NotFoundException(`${config.name} with id ${id} not found`);
-        return decorateFindOne(row, request);
+        return decorateFindOne(row, request, toId(id));
       },
       findAllByParent: adapterFindAllByParent,
       findOneChild: adapterFindOneChild,
@@ -454,8 +454,8 @@ export function createCrudRepository<T = Row>(
     return applyAfterFindAll(decorated, config, adapter, request);
   };
 
-  const decorateFindOne = (row: unknown, request?: unknown): Promise<unknown> =>
-    decorateRow(row, 'findOne', config, adapter, request);
+  const decorateFindOne = (row: unknown, request?: unknown, id?: string | number): Promise<unknown> =>
+    decorateRow(row, 'findOne', config, adapter, request, undefined, id);
 
   const prepareData = (
     data: unknown,
@@ -491,7 +491,7 @@ export function createCrudRepository<T = Row>(
     },
     count: reader.count.bind(reader),
     findOne: async (id, request) =>
-      decorateFindOne(await reader.findOne(id, request), request),
+      decorateFindOne(await reader.findOne(id, request), request, toId(id)),
     findAllByParent: reader.findAllByParent.bind(reader),
     findOneChild: reader.findOneChild.bind(reader),
     create: async (data, request) => {
