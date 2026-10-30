@@ -113,6 +113,7 @@ const openViewModal =
       modalSize: formDef.modalSize ?? 'lg',
       data: formData,
       modalTitle: formDef.title ?? '',
+      http: useApi(),
       renderers: undefined,
       onEdit:
         op.update || op.patch

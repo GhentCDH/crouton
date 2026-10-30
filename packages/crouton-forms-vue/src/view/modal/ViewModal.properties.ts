@@ -1,6 +1,7 @@
 import type { PropType } from 'vue';
 
 import type { SizeType } from '@ghentcdh/crouton-core';
+import type { HttpClient } from '../../http-client';
 
 export const ViewModalProperties = {
   /** Title displayed in the modal header. */
@@ -42,6 +43,11 @@ export const ViewModalProperties = {
   /** Custom renderer registry passed to the inner JsonForm. */
   renderers: {
     type: Array as PropType<any[]>,
+    default: null,
+  },
+  /** HTTP client forwarded to FormComponent so custom renderers can make API calls. */
+  http: {
+    type: [Object, Function] as PropType<HttpClient>,
     default: null,
   },
 };

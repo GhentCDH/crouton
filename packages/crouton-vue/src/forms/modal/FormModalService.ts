@@ -76,8 +76,10 @@ export class JsonFormModalService {
     onDelete,
     renderers,
     onView,
+    http,
   }: {
     data?: DATA;
+    http?: HttpClient;
     schema: any;
     uiSchema: any;
     modalSize?: SizeType;
@@ -107,6 +109,7 @@ export class JsonFormModalService {
         onDelete,
         renderers,
         onView,
+        http,
       },
     });
   }
