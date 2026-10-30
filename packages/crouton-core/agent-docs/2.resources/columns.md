@@ -285,7 +285,9 @@ Compute the value in `findAll` instead.
 :::
 
 ::: warning Deprecated: `calculatedColumns`
-The top-level `calculatedColumns` array is removed.
+The top-level `calculatedColumns` array is removed — computed columns live on
+`columns[id].computed`. Legacy top-level entries no longer accept `hiddenInTable` /
+`hiddenInView`; without an explicit layout such a column is always rendered.
 :::
 
 ## Includes
