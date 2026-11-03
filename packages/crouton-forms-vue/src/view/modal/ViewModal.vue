@@ -24,6 +24,7 @@
           :readonly="true"
           :ui-schema="uiSchema"
           :renderers="renderers"
+          :http="properties.http"
           @events="handleEvent"
         />
       </div>

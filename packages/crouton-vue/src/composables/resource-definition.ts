@@ -85,6 +85,13 @@ export class ResourceDefinitionCache {
           },
         };
         return localizeDefinition(resourceDefinition);
+      })
+      .catch((err) => {
+        if (err?.response?.status === 404) {
+          this.cache.delete(uri);
+          return null as unknown as ResourceDefinition;
+        }
+        throw err;
       });
 
     this.cache.set(uri, promise);

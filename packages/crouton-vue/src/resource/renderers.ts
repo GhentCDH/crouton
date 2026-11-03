@@ -53,6 +53,10 @@ export const customControlRenderers = [
 
 export const relationReadonlyRenderers = [
   {
+    tester: rankWith(17, hasCustomComponent),
+    renderer: markRaw(CustomFormatRenderer),
+  },
+  {
     tester: rankWith(16, isRelationControl),
     renderer: markRaw(RelationReadonlyRenderer),
   },
