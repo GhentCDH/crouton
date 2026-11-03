@@ -7,7 +7,7 @@ import {
   registerResourceExtension,
   registerResourceExtensions,
 } from './extensions';
-import { invalid } from '../utils/test-utils';
+import { invalid } from '../../testing/index';
 
 const extensionsOf = (data: unknown) =>
   invalid<Record<string, unknown> | undefined>(data)?.['extensions'];

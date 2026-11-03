@@ -9,7 +9,7 @@ import {
   getTableActions,
   getTableProcedureActions,
 } from './row-actions';
-import { invalid } from '../utils/test-utils';
+import { invalid } from '../../testing/index';
 
 const baseJson = invalid<ResourceJson>({
   name: 'order',

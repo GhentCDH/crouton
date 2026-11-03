@@ -6,10 +6,10 @@ import {
   fixNestedUiSchemaScopes,
   nestedColumnSchemaSource,
 } from './column-type-schema.source';
+import { invalid } from '../../testing/index';
 import { buildLayouts } from '../layout';
 import { JsonColumnSchema, type Layout } from '../resource';
 import { type ViewConfig, zodSchemaSource } from '../schema';
-import { invalid } from '../utils/test-utils';
 
 const propsOf = (
   view: ViewConfig | undefined,

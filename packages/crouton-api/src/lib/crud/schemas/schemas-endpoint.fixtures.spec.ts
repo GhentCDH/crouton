@@ -11,7 +11,7 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { type BootedCase, FIXTURES_ROOT, bootCase } from './test-utils';
+import { type BootedCase, FIXTURES_ROOT, bootCase } from '../../../testing/index';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 

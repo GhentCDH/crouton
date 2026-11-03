@@ -9,7 +9,7 @@ import {
   runResourceMigrations,
 } from './index';
 
-import { invalid } from '../../utils/test-utils';
+import { invalid } from '../../../testing/index';
 import { CURRENT_RESOURCE_VERSION } from '../version';
 
 const step = (

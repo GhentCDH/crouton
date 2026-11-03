@@ -1,6 +1,12 @@
 import type { UISchemaElement } from '@jsonforms/core';
 import { describe, expect, it, vi } from 'vitest';
 
+import {
+  type TestControl,
+  asControl,
+  asLayout,
+  invalid,
+} from '../../testing/index';
 import { orderTableColumnsFromLayout } from '../layout/layout-table-order';
 import {
   buildFormUiSchemaFromLayout,
@@ -13,12 +19,6 @@ import {
   buildFormUiSchema,
   buildTableUiSchema,
 } from '../schema';
-import {
-  type TestControl,
-  asControl,
-  asLayout,
-  invalid,
-} from '../utils/test-utils';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));

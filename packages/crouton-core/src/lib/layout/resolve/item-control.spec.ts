@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { resolveItemControl } from './item-control';
-import { invalid } from '../../utils/test-utils';
+import { invalid } from '../../../testing/index';
 import type { LayoutControl } from '../schema/LayoutItem.schema';
 
 const field = (item: Record<string, unknown>) =>

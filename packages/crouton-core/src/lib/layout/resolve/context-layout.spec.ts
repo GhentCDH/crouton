@@ -6,8 +6,8 @@ import {
   nodeFieldIdOrder,
   resolveLayoutContext,
 } from './context-layout';
+import { invalid } from '../../../testing/index';
 import { JsonColumnSchema } from '../../resource';
-import { invalid } from '../../utils/test-utils';
 import type { Layout } from '../schema/Layout.schema';
 
 const col = (id: string, extra: Record<string, unknown> = {}) =>

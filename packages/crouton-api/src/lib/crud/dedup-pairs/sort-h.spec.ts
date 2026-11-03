@@ -17,7 +17,7 @@ import { describe, expect, it } from 'vitest';
 import { buildChildSortClause, buildSort, enrichIncludeWithSort } from '@ghentcdh/crouton-core';
 import type { JsonColumn } from '@ghentcdh/crouton-core';
 
-import { invalid } from '../test-utils';
+import { invalid } from '../../../testing/index';
 
 describe('H: sort helpers — core (buildSort) vs api (buildChildSortClause)', () => {
   describe('plain field — delegates to buildSort', () => {
