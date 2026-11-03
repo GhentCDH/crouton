@@ -14,7 +14,7 @@ export const getLabel = (item: any, props: OptionsProperties) => {
   return typeof item === 'object' ? item[props.labelKey] : item;
 };
 
-export const getValue = (item: any, props: OptionsProperties) => {
+const getValue = (item: any, props: OptionsProperties) => {
   if (!item) return undefined;
   return typeof item === 'object' ? item[props.valueKey] : item;
 };

@@ -42,6 +42,7 @@ const resolvedOptionCache = new Map<string, any>();
 const inflightOptionRequests = new Map<string, Promise<any>>();
 
 /** Drop every cached option lookup. Call after mutating the underlying resource. */
+/** @internal test seam — clears the memoized option cache between specs. */
 export const clearResolvedOptionCache = () => {
   resolvedOptionCache.clear();
   inflightOptionRequests.clear();

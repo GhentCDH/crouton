@@ -18,21 +18,9 @@ import type { TableLayoutRootSchema } from './schema/TableLayout.schema';
 export type {
   LayoutBuildContext,
   LayoutVisibility,
-  ViewJsonSchemaSource,
 } from './builders/layout-builder.types';
-export {
-  registerLayoutBuilder,
-  unregisterLayoutBuilder,
-} from './builders/registry';
 export { defaultLayoutFor } from './resolve/default-layout';
-export {
-  type CalculatedPlacement,
-  resolveCalculatedPlacement,
-} from './resolve/calculated-placement';
-export { resolveItemControl } from './resolve/item-control';
-export type { ItemControl } from './resolve/item-control';
-export { validateLayout } from './resolve/validate';
-export type { LayoutValidationResult } from './resolve/validate';
+export { resolveCalculatedPlacement } from './resolve/calculated-placement';
 
 type TableLayoutRoot = z.infer<typeof TableLayoutRootSchema>;
 

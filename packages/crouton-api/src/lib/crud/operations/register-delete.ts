@@ -31,7 +31,8 @@ const defaultDelete = (ctx: OperationContext) => {
   };
 };
 
-export const deleteChild =
+/** Sub-resource delete endpoint wiring (internal — see {@link registerDelete}). */
+const deleteChild =
   (sub: SubResourceConfig) => (ctx: OperationContext) => {
     if (!isOperationEnabled(sub.operations, 'delete')) return null;
     const { cls } = ctx;

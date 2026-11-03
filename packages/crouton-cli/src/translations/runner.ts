@@ -54,7 +54,7 @@ const readEnumRegistry = async (path: string): Promise<EnumRegistry> => {
   }
 };
 
-export interface TranslationWritePlan {
+interface TranslationWritePlan {
   lang: string;
   path: string;
   content: string;
@@ -67,7 +67,7 @@ export interface TranslationWritePlan {
  * Compute translation write plans for the configured languages.
  * Pure planning — no I/O beyond reading existing files.
  */
-export const planTranslationWrites = async (opts: {
+const planTranslationWrites = async (opts: {
   root: string;
   i18n: I18nConfig;
   enumsFile: string;

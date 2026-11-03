@@ -12,8 +12,7 @@ const StringOrArray = () =>
       return [val];
     });
 
-export const SortDirEnum = z.enum(['asc', 'desc']);
-export type SortDir = z.infer<typeof SortDirEnum>;
+const SortDirEnum = z.enum(['asc', 'desc']);
 
 export const RequestSchema = z.object({
   page: PositiveRequestNumber().optional().default(1),
