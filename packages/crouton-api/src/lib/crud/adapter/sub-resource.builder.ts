@@ -125,7 +125,6 @@ export const buildSubResources = (
         .map((col) => getPrismaRelationField(col));
       const explicitIncludes: JsonIncludeEntry[] =
         (childJson?.operations?.findAll as Record<string, unknown> | undefined)?.['include'] as JsonIncludeEntry[] | undefined ??
-        childJson?.include ??
         [];
       const explicitNames = new Set(
         // JsonIncludeEntry is `any` due to z.lazy — cast for safe property access

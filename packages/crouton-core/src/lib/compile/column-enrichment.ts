@@ -52,7 +52,9 @@ export const enrichIncludeWithSort = (
 ): JsonIncludeEntry[] | undefined => {
   if (!include?.length) return include;
   return include.map((entry) => {
-    const relationName = typeof entry === 'string' ? entry : entry.relation;
+    // For dot-path strings ("a.b"), only the top-level segment ("a") maps to a column.
+    const rawName = typeof entry === 'string' ? entry : entry.relation;
+    const relationName = rawName.includes('.') ? rawName.slice(0, rawName.indexOf('.')) : rawName;
     const col = columns.find((c) => {
       if ((c.column ?? c.id) !== relationName) return false;
       if (c.relation?.sort) return true;
@@ -63,8 +65,10 @@ export const enrichIncludeWithSort = (
     const sort = col.relation?.sort ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sort;
     const sortDir = col.relation?.sortDir ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sortDir;
     const orderBy = buildChildSortClause(sort!, sortDir ?? 'asc');
-    return typeof entry === 'string'
-      ? { relation: entry, orderBy }
-      : { ...entry, orderBy };
+    if (typeof entry !== 'string') return { ...entry, orderBy };
+    if (rawName === relationName) return { relation: entry, orderBy };
+    // Dot-path string with sort on top relation: split into object form so the nested path
+    // and the orderBy are both preserved when buildIncludeClause processes the entry.
+    return { relation: relationName, include: [rawName.slice(relationName.length + 1)], orderBy };
   });
 };
