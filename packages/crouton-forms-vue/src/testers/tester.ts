@@ -92,13 +92,6 @@ export const isArrayRenderer = and(
   // optionIsIgnoreCase('format', ControlType.array),
 );
 
-export const isCustomControl = (customType: string) => {
-  return and(
-    optionIsIgnoreCase('format', ControlType.custom),
-    optionIsIgnoreCase('type', customType),
-  );
-};
-
 export const isMultiselectControl = and(
   uiTypeIs('Control'),
   optionIsIgnoreCase('format', ControlType.mutliSelect),

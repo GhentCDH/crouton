@@ -13,7 +13,7 @@ import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { CROUTON_SECURITY } from '../security';
 
-export const defaultSchemas = (ctx: OperationContext) => {
+const defaultSchemas = (ctx: OperationContext) => {
   const { config, baseUrl, schemaEnricher } = ctx;
   const { route, name } = config;
   const viewsPayload = buildViewsPayload(config, baseUrl);
@@ -39,7 +39,7 @@ export const defaultSchemas = (ctx: OperationContext) => {
   };
 };
 
-export const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
+const childSchemas = (sub: SubResourceConfig) => (ctx: OperationContext) => {
   if (!sub.views) return null;
   const { config, baseUrl } = ctx;
   const { route } = config;

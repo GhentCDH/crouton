@@ -1,4 +1,4 @@
-export interface ResourceLoadError {
+interface ResourceLoadError {
   name: string;
   path: string;
   error: string;

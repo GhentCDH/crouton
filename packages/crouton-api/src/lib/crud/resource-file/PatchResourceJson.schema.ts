@@ -18,8 +18,6 @@ const FieldVariantPatchSchema = z
   })
   .partial();
 
-export type FieldVariantPatch = z.infer<typeof FieldVariantPatchSchema>;
-
 /**
  * Request body for `PATCH <route>/resource.json` — the visual resource
  * builder's edit endpoint (dev-mode only, see `dev-mode.ts`).
@@ -28,7 +26,7 @@ export type FieldVariantPatch = z.infer<typeof FieldVariantPatchSchema>;
  * visibility (`hiddenInTable/Form/View`), and the fieldInput patch.
  * Adding/removing columns is still out of scope — see `FIELD_VARIANTS_EDITOR_PLAN.md`.
  */
-export const PatchColumnSchema = z
+const PatchColumnSchema = z
   .object({
     label: z.string().optional(),
     column: z.string().optional(),

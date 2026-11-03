@@ -17,7 +17,3 @@ export const resolveSchema = (root: JsonSchema, scope: string): JsonSchema => {
 };
 
 // Derive a label from the scope tail: "properties/name" → "Name"
-export const labelFromScope = (scope: string): string => {
-  const tail = scope.split('/').pop() ?? '';
-  return tail.charAt(0).toUpperCase() + tail.slice(1);
-};

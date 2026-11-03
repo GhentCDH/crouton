@@ -1,4 +1,4 @@
-import type { ExtractPublicPropTypes, PropType } from 'vue';
+import type { PropType } from 'vue';
 
 import type { HttpClient } from '../http-client';
 import type { ErrorMode } from './errorMode';
@@ -47,10 +47,6 @@ export const JsonFormComponentProperties = {
     default: false,
   },
 };
-
-export type JsonFormComponentProp = ExtractPublicPropTypes<
-  typeof JsonFormComponentProperties
->;
 
 export const JsonFormComponentEmits = [
   /** Emitted when form data changes. */

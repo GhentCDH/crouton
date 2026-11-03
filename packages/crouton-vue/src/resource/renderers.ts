@@ -18,7 +18,7 @@ import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 
 export const isCustomFormat = (format: string) =>
   and(optionIsIgnoreCase('format', format));
-export const isRelationControl = isCustomFormat('relation');
+const isRelationControl = isCustomFormat('relation');
 
 /** Matches any control that has `options.customComponent` set. */
 const hasCustomComponent = (uischema: { options?: Record<string, unknown> }) =>
@@ -28,7 +28,7 @@ const hasCustomComponent = (uischema: { options?: Record<string, unknown> }) =>
  * These are merged ON TOP of the base renderers inside FormComponent —
  * no need to include customRenderes or relationReadonlyRenderers here.
  */
-export const relationRenderers = [
+const relationRenderers = [
   {
     tester: rankWith(16, isRelationControl),
     renderer: markRaw(RelationControlRenderer),

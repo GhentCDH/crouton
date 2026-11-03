@@ -4,7 +4,7 @@ import { isNullableProperty } from '../schema.utils';
  * Recursively set `additionalProperties: true` on every object in a JSON Schema.
  * Required so Prisma-returned rows (which may contain extra fields) pass validation.
  */
-export const allowAdditionalProperties = (schema: Record<string, unknown>): void => {
+const allowAdditionalProperties = (schema: Record<string, unknown>): void => {
   if (schema['type'] === 'object') {
     schema['additionalProperties'] = true;
     const props = schema['properties'] as Record<string, Record<string, unknown>> | undefined;
@@ -23,7 +23,7 @@ export const allowAdditionalProperties = (schema: Record<string, unknown>): void
  * Recursively drop nullable fields from `required`. A nullable field accepts
  * `null`, so it should be treated as optional rather than required.
  */
-export const dropNullableFromRequired = (schema: Record<string, unknown>): void => {
+const dropNullableFromRequired = (schema: Record<string, unknown>): void => {
   if (schema['type'] !== 'object') return;
 
   const props = schema['properties'] as Record<string, Record<string, unknown>> | undefined;
@@ -40,7 +40,7 @@ export const dropNullableFromRequired = (schema: Record<string, unknown>): void 
 };
 
 /** Add `minLength: 1` to all string properties so empty strings are rejected. */
-export const enforceRequiredMinLength = (schema: Record<string, unknown>): void => {
+const enforceRequiredMinLength = (schema: Record<string, unknown>): void => {
   if (schema['type'] !== 'object') return;
 
   const props = schema['properties'] as Record<string, Record<string, unknown>> | undefined;

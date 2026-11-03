@@ -17,7 +17,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 /** Absolute path to a resource directory. */
-export const resourceDir = (loaded: LoadedConfig, name: string): string =>
+const resourceDir = (loaded: LoadedConfig, name: string): string =>
   join(resolveFromRoot(loaded.root, loaded.config.resourcesDir), name);
 
 export interface ExistingResource {
