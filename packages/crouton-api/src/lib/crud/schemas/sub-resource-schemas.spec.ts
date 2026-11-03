@@ -8,8 +8,8 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { type BootedCase, bootCase } from './test-utils';
-import { bodyOf } from '../test-utils';
+import { type BootedCase, bootCase } from '../../../testing/index';
+import { bodyOf } from '../../../testing/index';
 
 type SchemaView = {
   ui?: { elements?: { options?: { resource?: unknown } }[] };

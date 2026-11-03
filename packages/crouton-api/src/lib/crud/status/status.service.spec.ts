@@ -11,11 +11,11 @@ import {
   getResourceStatus,
   getVersion,
 } from './status.service';
+import { invalid } from '../../../testing/index';
 import type { DataSourceRegistry } from '../data-access/adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
-import { invalid } from '../test-utils';
 
 const mockRegistry = (
   entries: { name: string; adapter: { healthCheck?: () => Promise<void> } }[],

@@ -17,6 +17,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./testing": {
+      "@ghentcdh/crouton": "./src/testing/index.ts",
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "require": "./dist/testing/index.cjs"
     }
   },
   "main": "./dist/index.cjs",
@@ -32,6 +38,7 @@
   },
   "devDependencies": {
     "@crouton/i18n": "workspace:*",
+    "@crouton/status": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "@nestjs/platform-express": ">=10.0.0",

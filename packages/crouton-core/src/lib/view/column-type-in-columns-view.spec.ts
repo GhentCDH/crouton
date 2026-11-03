@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { fixNestedUiSchemaScopes, nestedColumnSchemaSource } from './column-type-schema.source';
+import { invalid } from '../../testing/index';
 import { buildLayouts } from '../layout';
 import type { JsonColumn } from '../resource/Column';
-import { invalid } from '../utils/test-utils';
 
 /**
  * `buildViewsFromColumns` is the no-Zod path used for sub-resources. It predates

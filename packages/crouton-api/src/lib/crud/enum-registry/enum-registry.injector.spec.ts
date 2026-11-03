@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { type EnumRegistry, type JsonColumn } from '@ghentcdh/crouton-core';
 import { injectEnumValues } from '@ghentcdh/crouton-core';
 
-import { invalid } from '../test-utils';
+import { invalid } from '../../../testing/index';
 
 
 const registry: EnumRegistry = {

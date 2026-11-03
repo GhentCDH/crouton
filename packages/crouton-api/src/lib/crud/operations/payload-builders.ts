@@ -14,7 +14,7 @@ import { type Resource } from '../resource/ResourceConfig.schema';
  * at this level. `hasOverride: false` means saving with no changes here should
  * leave it that way rather than pinning a copy into `fieldInput`.
  */
-export type EditableFieldVariant = {
+type EditableFieldVariant = {
   resolved: FieldInput | undefined;
   hasOverride: boolean;
 };

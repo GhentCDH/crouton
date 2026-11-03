@@ -5,7 +5,7 @@ import type { CrudDefinition as ResourceDefinition, SecurityConfig  } from '@ghe
 import { securityFor, securityForSub } from './crud.config';
 import type { Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
-import { invalid } from './test-utils';
+import { invalid } from '../../testing/index';
 
 const resource = (security?: SecurityConfig) =>
   invalid<Resource>({ security });

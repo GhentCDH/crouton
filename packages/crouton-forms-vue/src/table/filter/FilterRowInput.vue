@@ -62,7 +62,7 @@ import {
 } from '@ghentcdh/crouton-ui-vue';
 import { useUiTranslator } from '../../composables/useUiTranslator';
 
-export type EnumValue = { value: unknown; label: string };
+type EnumValue = { value: unknown; label: string };
 
 export type FieldOption = {
   label: string;

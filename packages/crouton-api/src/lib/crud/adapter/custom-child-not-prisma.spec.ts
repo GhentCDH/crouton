@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../../../testing/index';
 import { createCrudController } from '../crud-controller.factory';
 import type { DataSourceRegistry } from '../data-access/adapter';
 import { createCrudRepository } from '../data-access/repository';
@@ -9,7 +10,6 @@ import { loadResourceConfigsFromDir } from '../loader';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
-import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

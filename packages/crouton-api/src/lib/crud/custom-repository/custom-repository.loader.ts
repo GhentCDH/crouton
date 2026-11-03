@@ -2,7 +2,8 @@ import type { CustomRepository } from './custom-repository.types';
 import { findModule, importDefault } from '../loader/module.loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 
-export const REPOSITORY_MODULE = 'repository';
+/** Filename a `kind: "custom"` resource must provide (without extension). */
+const REPOSITORY_MODULE = 'repository';
 
 /**
  * Load a custom resource's `repository.ts`.

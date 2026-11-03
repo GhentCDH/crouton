@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/testing/index.ts'],
   outDir: './dist',
   format: ['esm', 'cjs'],
   dts: true,
@@ -13,6 +13,8 @@ export default defineConfig({
   external: [
     '@nestjs/common',
     '@nestjs/core',
+    '@nestjs/microservices',
+    '@nestjs/testing',
     '@nestjs/swagger',
     'nestjs-zod',
     '@prisma/client',

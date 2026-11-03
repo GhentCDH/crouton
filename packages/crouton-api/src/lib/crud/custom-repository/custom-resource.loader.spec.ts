@@ -3,10 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
 import { validateCustomRepository } from './custom-repository.validate';
+import { invalid } from '../../../testing/index';
 import { loadResourceConfigsFromDir } from '../loader';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

@@ -24,7 +24,7 @@ const columnsOf = (config: Resource): JsonColumn[] =>
 export const columnDbName = (col: JsonColumn): string => col.column ?? col.id;
 
 /** Find a column by its field id. */
-export const columnById = (
+const columnById = (
   config: Resource,
   id: string,
 ): JsonColumn | undefined => columnsOf(config).find((c) => c.id === id);

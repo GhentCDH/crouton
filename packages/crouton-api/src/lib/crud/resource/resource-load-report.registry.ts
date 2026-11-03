@@ -6,7 +6,7 @@
  * at the start of every `loadResourceConfigsFromDir`.
  */
 
-export interface MigratedResourceNotice {
+interface MigratedResourceNotice {
   state: 'migrated';
   name: string;
   path: string;
@@ -14,13 +14,14 @@ export interface MigratedResourceNotice {
   to: number;
 }
 
-export interface DraftResourceNotice {
+interface DraftResourceNotice {
   state: 'draft';
   name: string;
   path: string;
   version?: number;
 }
 
+/** @internal — exported so loader specs can assert the report shape. */
 export interface WarningResourceNotice {
   state: 'warning';
   name: string;
@@ -28,7 +29,7 @@ export interface WarningResourceNotice {
   warning: string;
 }
 
-export type ResourceLoadNotice = MigratedResourceNotice | DraftResourceNotice | WarningResourceNotice;
+type ResourceLoadNotice = MigratedResourceNotice | DraftResourceNotice | WarningResourceNotice;
 
 class ResourceLoadReportRegistry {
   private notices: ResourceLoadNotice[] = [];

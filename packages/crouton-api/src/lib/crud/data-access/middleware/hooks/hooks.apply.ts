@@ -33,7 +33,7 @@ export type HookTarget = {
   columns?: JsonColumn[];
 };
 
-/** Value→label columns derived (and memoized) from the target's columns. */
+/** @internal — used only in {@link hooks.apply} middleware and its unit spec. */
 export const valueLabelColumnsOf = (target: HookTarget) =>
   resolveValueLabelColumns(target.columns);
 

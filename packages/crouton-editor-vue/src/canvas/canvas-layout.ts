@@ -32,26 +32,21 @@ export type CanvasField = {
  * For `form` we read `col.form`; for `view`/`table` we read `col[ctx].resolved`.
  * Checks `col.relation` (Block 6 schema) first, falls back to legacy fieldInput tells.
  */
-export const isRelationColumn = (col: EditableColumn, ctx: Tab = 'form'): boolean => {
-  if ((col as Record<string, unknown>)['relation']) return true;
-  const f = ctx === 'form' ? col.form : col[ctx]?.resolved;
-  return !!(f?.format === 'relation');
-};
 
 /** Reads the live-edited type for a column in the given context out of its draft. */
-export const draftType = (
+const draftType = (
   drafts: Record<Tab, VariantDraft> | undefined,
   ctx: Tab = 'form',
 ): string | undefined => drafts?.[ctx].type;
 
 /** Reads the live-edited colspan for a column in the given context, defaulting to 12. */
-export const draftColspan = (
+const draftColspan = (
   drafts: Record<Tab, VariantDraft> | undefined,
   ctx: Tab = 'form',
 ): number => drafts?.[ctx].colspan ?? 12;
 
 /** Reads the live-edited position, falling back to `fallbackIndex`. */
-export const draftPosition = (
+const draftPosition = (
   drafts: Record<Tab, VariantDraft> | undefined,
   fallbackIndex: number,
   ctx: Tab = 'form',

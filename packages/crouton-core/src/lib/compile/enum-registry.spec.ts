@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { applyEnumDefaults, injectEnumValues } from './enum-registry';
+import { invalid } from '../../testing/index';
 import type { JsonColumn } from '../resource';
-import { invalid } from '../utils/test-utils';
 
 const registry = {
   bookStatus: [
