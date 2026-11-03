@@ -6,15 +6,15 @@
  *  - Validation error codes are present
  *  - Fallback to EN works for missing keys
  */
+import { createTranslator } from '@crouton/i18n';
 import {
   type TranslationBundle,
   TranslationBundleSchema,
-  createTranslator,
-} from '@crouton/i18n';
+} from '@crouton/i18n/testing';
 import { describe, expect, it } from 'vitest';
 
 
-import { invalid } from '../test-utils';
+import { invalid } from '../../../testing/index';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

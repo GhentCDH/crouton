@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResourceJson } from '@ghentcdh/crouton-core';
 import { buildResourceJsonSchema, compileResource } from '@ghentcdh/crouton-core';
 
-import { invalid } from '../test-utils';
+import { invalid } from '../../../testing/index';
 
 import { fromJson } from './index';
 

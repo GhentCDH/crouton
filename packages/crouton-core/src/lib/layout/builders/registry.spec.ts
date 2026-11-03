@@ -6,8 +6,8 @@ import {
   registerLayoutBuilder,
   unregisterLayoutBuilder,
 } from './registry';
+import { invalid } from '../../../testing/index';
 import type { JsonColumn } from '../../resource/Column';
-import { invalid } from '../../utils/test-utils';
 
 const ctx: LayoutBuildContext = {
   columns: [] as JsonColumn[],

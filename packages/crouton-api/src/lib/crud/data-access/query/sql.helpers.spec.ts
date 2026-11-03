@@ -5,8 +5,8 @@ import type {
 } from '@ghentcdh/crouton-core';
 
 import { buildFindOneIncludes, mergeCalculatedColumnsForRows } from './sql.helpers';
+import { invalid } from '../../../../testing/index';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
-import { invalid } from '../../test-utils';
 
 // ── Minimal type helpers ─────────────────────────────────────────────────
 

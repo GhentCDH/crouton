@@ -4,11 +4,11 @@ import {
   columnToJsonSchemaProperty,
   columnTypeSchemaSource,
 } from './column-type-schema.source';
+import { type TestControl, invalid } from '../../testing/index';
 import { buildLayouts } from '../layout';
 import type { Layout } from '../layout/schema';
 import { ResourceJsonSchema } from '../resource/ResourceJson.schema';
 import type { ViewConfig } from '../schema';
-import { type TestControl, invalid } from '../utils/test-utils';
 
 const propertiesOf = (
   view: ViewConfig | undefined,

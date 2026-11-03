@@ -9,9 +9,9 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { type BootedCase, bootCase } from './test-utils';
+import { type BootedCase, bootCase } from '../../../testing/index';
+import { bodyOf } from '../../../testing/index';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { bodyOf } from '../test-utils';
 
 describe('prefix configuration', () => {
   let ctx: BootedCase;

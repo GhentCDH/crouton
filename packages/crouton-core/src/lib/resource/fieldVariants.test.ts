@@ -7,7 +7,7 @@ import {
   resolveTableField,
   resolveViewField,
 } from './fieldVariants';
-import { invalid } from '../utils/test-utils';
+import { invalid } from '../../testing/index';
 
 /** Minimal column factory — only the fields the resolvers read. */
 const col = (over: Partial<JsonColumn>): JsonColumn =>

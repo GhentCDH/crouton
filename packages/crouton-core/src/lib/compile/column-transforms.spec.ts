@@ -5,8 +5,8 @@ import {
   resolveValueLabelColumns,
 } from './column-transforms';
 import { compileResource } from './compile-resource';
+import { invalid } from '../../testing/index';
 import type { ResourceJson } from '../resource';
-import { invalid } from '../utils/test-utils';
 
 const values = [
   { value: 'red', label: 'Red' },

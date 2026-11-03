@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
+import { type TestControl, asControl, asLayout } from '../../testing/index';
 import { JsonColumnSchema } from '../resource/Column';
 import { buildFormUiSchema } from '../schema/column/form-control';
-import { type TestControl, asControl, asLayout } from '../utils/test-utils';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));

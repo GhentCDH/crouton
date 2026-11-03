@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { CroutonValidationError } from './crouton-validation.error';
 import type { Resource } from './resource/ResourceConfig.schema';
-import { invalid } from './test-utils';
 import {
   findUniqueColumn,
   mapPrismaUniqueError,
   uniqueColumns,
 } from './unique-validation';
+import { invalid } from '../../testing/index';
 
 const config = invalid<Resource>({
   columns: [

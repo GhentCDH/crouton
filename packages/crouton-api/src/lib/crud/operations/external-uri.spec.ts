@@ -6,7 +6,7 @@ import {
   buildResourceOperations, resolveDefinition 
 } from '@ghentcdh/crouton-core';
 
-import { invalid } from '../test-utils';
+import { invalid } from '../../../testing/index';
 
 
 

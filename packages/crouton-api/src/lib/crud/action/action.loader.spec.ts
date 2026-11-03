@@ -15,9 +15,9 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { loadActions } from './action.loader';
+import { invalid } from '../../../testing/index';
 import { loadResourceConfigsFromDir } from '../loader';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { invalid } from '../test-utils';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

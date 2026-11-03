@@ -1,3 +1,4 @@
+
 /**
  * Shared test utilities for API schema endpoint tests.
  *
@@ -14,20 +15,20 @@ import { vi } from 'vitest';
 
 import { type DataSource, clearResourceExtensions } from '@ghentcdh/crouton-core';
 
-import { CroutonApiModule } from '../../crouton-api.module';
-import type { CroutonAppConfig } from '../app-config';
-import type { DataSourceEntry } from '../data-access/adapter';
-import { loadResourceConfigsFromDir } from '../loader';
-import { FileSystemResourceConfigLoader } from '../loader/fs-resource-config.loader';
-import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { invalid } from '../test-utils';
+import { invalid } from './utils';
+import { CroutonApiModule } from '../lib/crouton-api.module';
+import type { CroutonAppConfig } from '../lib/crud/app-config';
+import type { DataSourceEntry } from '../lib/crud/data-access/adapter';
+import { loadResourceConfigsFromDir } from '../lib/crud/loader';
+import { FileSystemResourceConfigLoader } from '../lib/crud/loader/fs-resource-config.loader';
+import { resourceLoadErrorsRegistry } from '../lib/crud/resource/resource-load-errors.registry';
 import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 export const FIXTURES_ROOT = resolve(
   __dirname,
-  '../../../../../crouton-core/test-fixtures/resources',
+  '../../../crouton-core/test-fixtures/resources',
 );
 
 export const BASE_URL = 'http://localhost:3000';
