@@ -12,6 +12,7 @@
 | `freeText` | boolean | No |  | Allow the user to type a value not in the options list |  |
 | `enableCreate` | boolean | No |  | Show a "create" action when no matching option is found |  |
 | `storeValue` | boolean | No |  | Store option[valueKey] instead of the whole option object |  |
+| `exclude` | object | No |  | Exclude already-selected values from the lookup results |  |
 | `options` | any[] | Yes |  | Inline array of option items | `[{"label":"Active","value":"active"}]` |
 | `values` | any[] | No |  | Alias for options (deprecated — prefer options) |  |
 
@@ -23,6 +24,7 @@
 | `freeText` | boolean | No |  | Allow the user to type a value not in the options list |  |
 | `enableCreate` | boolean | No |  | Show a "create" action when no matching option is found |  |
 | `storeValue` | boolean | No |  | Store option[valueKey] instead of the whole option object |  |
+| `exclude` | object | No |  | Exclude already-selected values from the lookup results |  |
 | `uri` | string | Yes |  | Remote endpoint URL that returns option items | `"/api/authors"` |
 | `dataField` | string | No |  | Field in the API response containing the data array | `"data"`, `"results"` |
 | `skipAuth` | boolean | No |  | Send the request without authentication headers |  |
@@ -35,6 +37,7 @@
 | `freeText` | boolean | No |  | Allow the user to type a value not in the options list |  |
 | `enableCreate` | boolean | No |  | Show a "create" action when no matching option is found |  |
 | `storeValue` | boolean | No |  | Store option[valueKey] instead of the whole option object |  |
+| `exclude` | object | No |  | Exclude already-selected values from the lookup results |  |
 | `resource` | string | Yes |  | Relative path to a resource.json used to populate the options | `"./author.resource.json"` |
 | `skipAuth` | boolean | No |  | Send the request without authentication headers |  |
 | `dataField` | string | No |  | Field in the API response containing the data array | `"data"`, `"results"` |

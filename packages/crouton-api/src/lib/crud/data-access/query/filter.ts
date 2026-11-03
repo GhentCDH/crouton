@@ -1,6 +1,7 @@
 import {
   type OperatorType,
   parseFilterString,
+  parseListValue,
 } from '@ghentcdh/crouton-core';
 
 export const buildNestedPath = (
@@ -47,6 +48,14 @@ const operatorToCondition = (value: string, operator: OperatorType): unknown => 
     case 'lt': return { lt: numVal };
     case 'isnull': return null;
     case 'isnotnull': return { not: null };
+    case 'in': {
+      const list = parseListValue(value);
+      return list.length ? { in: list } : undefined;
+    }
+    case 'not_in': {
+      const list = parseListValue(value);
+      return list.length ? { notIn: list } : undefined;
+    }
     default: return undefined;
   }
 };
@@ -63,11 +72,12 @@ export const buildFilterWhere = (
   const conditions = filter
     .map(parseFilterString)
     .filter((f): f is NonNullable<typeof f> => f !== null)
-    .map(({ field, value, operator }) =>
-      isJsonPath(field)
-        ? buildJsonPathCondition(field, value, operator)
-        : buildNestedPath(field.split('.'), operatorToCondition(value, operator)),
-    )
+    .map(({ field, value, operator }) => {
+      if (isJsonPath(field)) return buildJsonPathCondition(field, value, operator);
+      const condition = operatorToCondition(value, operator);
+      if (condition === undefined) return null;
+      return buildNestedPath(field.split('.'), condition);
+    })
     .filter((c): c is Record<string, unknown> => c !== null);
 
   return conditions.length ? { AND: conditions } : undefined;
