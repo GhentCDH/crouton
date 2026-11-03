@@ -71,6 +71,7 @@
   ],
   "dependencies": {
     "@ghentcdh/create-crouton": "link:packages/create-crouton",
-    "@heroicons/vue": "^2.2.0"
+    "@heroicons/vue": "^2.2.0",
+    "jose": "^6.2.15"
   }
 }

@@ -21,7 +21,11 @@
     "paths": {
       "@crouton/status": ["./libs/status/src/index.ts"],
       "@crouton/i18n": ["./libs/i18n/src/index.ts"],
-      "@crouton/i18n/testing": ["./libs/i18n/src/testing/index.ts"]
+      "@crouton/i18n/testing": ["./libs/i18n/src/testing/index.ts"],
+      "@crouton/auth": ["./libs/auth/src/index.ts"],
+      "@crouton/auth/server": ["./libs/auth/src/server.ts"],
+      "@crouton/auth-nest": ["./libs/auth-nest/src/index.ts"],
+      "@crouton/auth-vue": ["./libs/auth-vue/src/index.ts"]
     }
   }
 }
