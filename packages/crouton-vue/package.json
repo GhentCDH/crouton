@@ -1,15 +1,6 @@
 {
   "name": "@ghentcdh/crouton-vue",
   "version": "0.0.1-alpha.88",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/GhentCDH/crouton",
-    "directory": "packages/crouton-vue"
-  },
-  "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
-  },
   "type": "module",
   "exports": {
     ".": {
@@ -51,6 +42,7 @@
     "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@heroicons/vue": "^2.2.0",
     "daisyui": "^5.7.47",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "vue": "^3.5.43"
   }
 }
