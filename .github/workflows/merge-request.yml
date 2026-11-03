@@ -98,3 +98,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - run: npx nx run-many -t typecheck --parallel --max-parallel=6
+
+  knip:
+    runs-on: ubuntu-latest
+    needs: install-deps
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/use-cache
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # Report-only for now: knip prints issues but always exits 0.
+      # Switch to `pnpm knip:strict` (--include files,exports,dependencies)
+      # once the current findings are triaged.
+      - run: pnpm knip

@@ -1,0 +1,63 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignoreWorkspaces": ["examples/**"],
+  "ignoreBinaries": ["production"],
+  "ignoreFiles": [
+    "**/test-fixtures/**",
+    "packages/crouton-api/test/prisma/**"
+  ],
+  "ignoreDependencies": [
+    "jest",
+    "@nx/jest",
+    "@prisma/internals",
+    "prisma-case-format",
+    "@ghentcdh/create-crouton",
+    "@ghentcdh/crouton-cli",
+    "@heroicons/vue",
+    "@eslint/js",
+    "@ghentcdh/ui",
+    "@jsonforms/core",
+    "@nx/vue",
+    "@playwright/test",
+    "@vuepress/bundler-vite",
+    "axios",
+    "mermaid",
+    "playwright",
+    "tailwindcss",
+    "daisyui",
+    "tsup",
+    "vuepress",
+    "vuepress-theme-hope",
+    "zod"
+  ],
+  "workspaces": {
+    ".": {
+      "entry": ["jest.config.ts", "jest.preset.js", "tools/check-duplicate-exports.mjs"],
+      "project": ["*.{ts,tsx,js,mjs}"]
+    },
+    "packages/add-crouton": {},
+    "packages/create-crouton": {},
+    "packages/crouton-api": {},
+    "packages/crouton-cli": {},
+    "packages/crouton-codegen": {},
+    "packages/crouton-core": {
+      "entry": ["scripts/*.mjs"]
+    },
+    "packages/crouton-editor-vue": {
+      "project": ["src/**/*.{ts,vue}"]
+    },
+    "packages/crouton-forms-vue": {
+      "project": ["src/**/*.{ts,vue}"]
+    },
+    "packages/crouton-mcp": {},
+    "packages/crouton-prisma": {},
+    "packages/crouton-ui-vue": {
+      "project": ["src/**/*.{ts,vue}"]
+    },
+    "packages/crouton-vue": {
+      "project": ["src/**/*.{ts,vue}"]
+    },
+    "libs/i18n": {},
+    "libs/status": {}
+  }
+}
