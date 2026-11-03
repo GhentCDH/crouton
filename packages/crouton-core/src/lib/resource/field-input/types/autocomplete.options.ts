@@ -3,6 +3,20 @@ import { z } from 'zod';
 import { BaseOptionsSchema } from '../base.options';
 import { opt } from '../option-meta';
 
+const ExcludeOptionsSchema = z.object({
+  values: opt(z.union([z.string(), z.array(z.unknown())]).optional(), {
+    description: 'Values to exclude. A {form.path} placeholder or a literal array.',
+    examples: ['{form.coAuthors}', ['1', '2']],
+  }),
+  key: opt(z.string().optional(), {
+    description: 'Filter field for server-side exclusion. Defaults to valueKey.',
+    examples: ['id'],
+  }),
+  selected: opt(z.boolean().optional(), {
+    description: 'Also exclude the control\'s own current value(s). Default false.',
+  }),
+}).meta({ title: 'Exclude options', description: 'Filter out values already selected elsewhere' });
+
 const AutocompleteBaseSchema = BaseOptionsSchema.extend({
   labelKey: opt(z.string().optional(), {
     description: 'Object key used as the display label in the dropdown',
@@ -20,6 +34,9 @@ const AutocompleteBaseSchema = BaseOptionsSchema.extend({
   }),
   storeValue: opt(z.boolean().optional(), {
     description: 'Store option[valueKey] instead of the whole option object',
+  }),
+  exclude: opt(ExcludeOptionsSchema.optional(), {
+    description: 'Exclude already-selected values from the lookup results',
   }),
 }).meta({
   title: 'Common autocomplete options',

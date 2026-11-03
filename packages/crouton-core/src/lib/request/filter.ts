@@ -9,6 +9,8 @@ export const Operator = [
   'lt',
   'isnull',
   'isnotnull',
+  'in',
+  'not_in',
 ] as const;
 
 export type OperatorType = (typeof Operator)[number];
@@ -23,6 +25,8 @@ export const OperatorLabel: Record<OperatorType, string> = {
   lt: '<',
   isnull: 'is empty',
   isnotnull: 'is not empty',
+  in: 'in',
+  not_in: 'not in',
 };
 
 export const OperatorOptions = Operator.map((k) => ({
@@ -107,6 +111,14 @@ export const buildFilter = (filters: string[]) => {
     const { key, value, operator } = getFilterValues(f);
     if (!key) return;
     const op = operator || 'contains';
+    if (op === 'in' || op === 'not_in') {
+      const list = parseListValue(value);
+      if (!list.length) return;
+      const prismaOp = op === 'in' ? 'in' : 'notIn';
+      const build = buildFilterKey(key.split('.'), { [prismaOp]: list });
+      filter[build.key] = build.filterObj;
+      return;
+    }
     const filterObj: Record<string, string> = { [operator || 'contains']: value.toLowerCase() };
     if (op === 'contains') filterObj['mode'] = 'insensitive';
     const build = buildFilterKey(key.split('.'), filterObj);
@@ -129,3 +141,13 @@ export const filterToString = (filter: Filter): string =>
   `${filter.key}:${filter.value}:${filter.operator}`;
 
 export const stringToFilter = (s: string): Filter => getFilterValues(s);
+
+/** Parse a JSON-array filter value. Returns [] on invalid JSON or non-array. */
+export const parseListValue = (value: string): unknown[] => {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
