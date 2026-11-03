@@ -87,19 +87,76 @@ const unwrapRecord = (body: any, labelKey?: string) => {
   return body;
 };
 
+type ExcludeOption = { values?: string | unknown[]; key?: string; selected?: boolean };
+
+const resolveFormPath = (path: string, formValues: any): unknown =>
+  path.split('.').reduce((o: any, k: string) => o?.[k], formValues);
+
+const resolveExclude = (
+  exclude: ExcludeOption | undefined,
+  formValues: any,
+  runtimeExclude: unknown[] | undefined,
+  valueKey: string,
+  ownValue?: unknown,
+): { list: unknown[]; key: string } => {
+  const key = exclude?.key ?? valueKey;
+  const collected: unknown[] = [];
+
+  const toScalar = (item: unknown): unknown =>
+    typeof item === 'object' && item !== null ? (item as any)[valueKey] : item;
+
+  if (exclude?.values !== undefined) {
+    let resolved: unknown = exclude.values;
+    if (typeof exclude.values === 'string' && exclude.values.startsWith('{form.')) {
+      resolved = resolveFormPath(exclude.values.slice(6, -1), formValues);
+    }
+    const arr = Array.isArray(resolved) ? resolved : (resolved != null ? [resolved] : []);
+    for (const item of arr) {
+      const v = toScalar(item);
+      if (v != null) collected.push(v);
+    }
+  }
+
+  if (runtimeExclude) {
+    for (const item of runtimeExclude) {
+      const v = toScalar(item);
+      if (v != null) collected.push(v);
+    }
+  }
+
+  if (exclude?.selected && ownValue != null) {
+    const own = Array.isArray(ownValue) ? ownValue : [ownValue];
+    for (const item of own) {
+      const v = toScalar(item);
+      if (v != null) collected.push(v);
+    }
+  }
+
+  const seen = new Set<unknown>();
+  return {
+    list: collected.filter(v => { if (seen.has(v)) return false; seen.add(v); return true; }),
+    key,
+  };
+};
+
 /**
  * Creates a fetch function for remote URI-based autocomplete.
  * Supports `{form.fieldName}` placeholders in the URI resolved from sibling form values.
  * Use `{q}` in the URI for the search term; falls back to appending it.
+ * Use `{exclude}` in the URI to receive the JSON-encoded exclude list.
  */
 const useRemoteOption = (
   options: AutocompleteRemoteOptions,
   http: HttpClient,
   formValues: any,
+  excludeList: unknown[] = [],
 ) => {
   return {
     fetchOptions: (searchTerm: string, signal: AbortSignal) => {
-      const uri = resolvePlaceholders(options.uri, formValues, searchTerm);
+      let uri = resolvePlaceholders(options.uri, formValues, searchTerm);
+      if (excludeList.length > 0 && uri.includes('{exclude}')) {
+        uri = uri.replace('{exclude}', encodeURIComponent(JSON.stringify(excludeList)));
+      }
       return http.get(uri, { signal }).then((data: any) => {
         const body = data.data;
         // Flat array response → use directly.
@@ -127,6 +184,8 @@ const useResourceOptions = async (
   options: AutocompleteResourceOptions,
   http: HttpClient,
   formValues: any,
+  excludeList: unknown[] = [],
+  excludeKey = 'id',
 ) => {
   const resource = await getResourceSchema(options.resource, http);
   const lookup = resource.operations.lookup! ?? resource.operations.findAll;
@@ -159,7 +218,11 @@ const useResourceOptions = async (
 
   return {
     fetchOptions: (searchTerm: string, signal: AbortSignal) => {
-      const uri = resolvePlaceholders(lookup.uri, formValues, searchTerm);
+      let uri = resolvePlaceholders(lookup.uri, formValues, searchTerm);
+      if (excludeList.length > 0 && excludeList.length <= 200) {
+        const param = `${excludeKey}:${JSON.stringify(excludeList)}:not_in`;
+        uri += `${uri.includes('?') ? '&' : '?'}filter=${encodeURIComponent(param)}`;
+      }
       const method = lookup.method;
 
       return (http as any)
@@ -209,20 +272,44 @@ export const useFetchOptions = async (
   options: AutocompleteAllOptions,
   http: HttpClient,
   formValues: any = {},
+  runtimeExclude?: unknown[],
+  ownValue?: unknown,
 ) => {
+  const valueKey = (options.valueKey as string) ?? 'id';
+  const excludeOpt = (options as any).exclude as ExcludeOption | undefined;
+  const { list: excludeList, key: excludeKey } = resolveExclude(
+    excludeOpt,
+    formValues,
+    runtimeExclude,
+    valueKey,
+    ownValue,
+  );
+
   let config: Record<string, any> = {};
   if ('uri' in options && options.uri)
-    config = useRemoteOption(
-      options as AutocompleteRemoteOptions,
-      http,
-      formValues,
-    );
+    config = useRemoteOption(options as AutocompleteRemoteOptions, http, formValues, excludeList);
   if ('resource' in options && options.resource)
     config = await useResourceOptions(
       options as AutocompleteResourceOptions,
       http,
       formValues,
+      excludeList,
+      excludeKey,
     );
+
+  // Client-side fallback: always filter out excluded values after fetch
+  const rawFetch = config.fetchOptions as ((searchTerm: string, signal: AbortSignal) => Promise<any>) | null;
+  if (rawFetch && excludeList.length > 0) {
+    const excludeSet = new Set(excludeList.map(String));
+    config.fetchOptions = (searchTerm: string, signal: AbortSignal) =>
+      rawFetch(searchTerm, signal).then((items: unknown) => {
+        if (!Array.isArray(items)) return items;
+        return items.filter(item => {
+          const v = typeof item === 'object' && item !== null ? (item as any)[valueKey] : item;
+          return !excludeSet.has(String(v));
+        });
+      });
+  }
 
   return {
     fetchOptions: null as

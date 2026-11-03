@@ -1,6 +1,7 @@
 import {
   type OperatorType,
   parseFilterString,
+  parseListValue,
 } from '@ghentcdh/crouton-core';
 
 export const buildNestedPath = (
@@ -47,6 +48,14 @@ const operatorToCondition = (value: string, operator: OperatorType): unknown => 
     case 'lt': return { lt: numVal };
     case 'isnull': return null;
     case 'isnotnull': return { not: null };
+    case 'in': {
+      const list = parseListValue(value);
+      return list.length ? { in: list } : undefined;
+    }
+    case 'not_in': {
+      const list = parseListValue(value);
+      return list.length ? { notIn: list } : undefined;
+    }
     default: return undefined;
   }
 };

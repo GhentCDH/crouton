@@ -106,6 +106,7 @@ const fetchOptions = computedAsync(() => {
     },
     http,
     {},
+    props.values,
   );
 });
 
