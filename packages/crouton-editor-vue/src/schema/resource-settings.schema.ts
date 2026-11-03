@@ -3,11 +3,10 @@ import { toJSONSchema } from 'zod';
 import { ResourceJsonShape } from '@ghentcdh/crouton-core'; // ── Settings-only subset of ResourceJsonShape ──────────────────────────
 
 // ── Settings-only subset of ResourceJsonShape ──────────────────────────
-// Omit columns / include — those are edited elsewhere.
+// Omit columns — those are edited elsewhere.
 const ResourceSettingsShape = ResourceJsonShape.omit({
   columns: true,
   calculatedColumns: true,
-  include: true,
 });
 
 // ── JSON Schema ────────────────────────────────────────────────────────
