@@ -7,7 +7,6 @@ export {
   CustomRepositorySchema,
 } from './custom-repository.types';
 export {
-  REPOSITORY_MODULE,
   loadCustomRepository,
   loadSubResourceRepositories,
 } from './custom-repository.loader';

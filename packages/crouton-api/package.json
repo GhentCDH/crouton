@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@crouton/i18n": "workspace:*",
+    "@crouton/status": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "@nestjs/platform-express": ">=10.0.0",

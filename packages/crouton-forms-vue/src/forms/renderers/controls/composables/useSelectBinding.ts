@@ -37,6 +37,7 @@ const useSelectInput =
     });
   };
 
+/** @internal test seam — drift tests assert against these key lists. */
 export const SELECT_OPTION_KEYS = [
   'options',
   'values',
@@ -49,6 +50,7 @@ export const SELECT_OPTION_KEYS = [
   'storeValue',
 ] as const;
 
+/** @internal test seam — drift tests assert against these key lists. */
 export const AUTOCOMPLETE_OPTION_KEYS = [
   'options',
   'labelKey',

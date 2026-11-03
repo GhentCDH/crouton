@@ -5,7 +5,7 @@ import { parseSchema, uiFromJsonSchema } from '@ghentcdh/crouton-core';
 import type { HttpClient } from '../../../http-client';
 
 /** Supported HTTP methods for resource operations. */
-export const MethodSchema = z.enum([
+const MethodSchema = z.enum([
   'get',
   'post',
   'delete',
@@ -17,14 +17,14 @@ export const MethodSchema = z.enum([
   'PUT',
   'PATCH',
 ]);
-export type Method = z.infer<typeof MethodSchema>;
-export const OperationSchema = z.object({
+type Method = z.infer<typeof MethodSchema>;
+const OperationSchema = z.object({
   uri: z.string(),
   method: MethodSchema,
 });
-export type Operation = z.infer<typeof OperationSchema>;
-export const OperationsSchema = z.string().or(OperationSchema);
-export const BooleanOperationSchema = z
+type Operation = z.infer<typeof OperationSchema>;
+const OperationsSchema = z.string().or(OperationSchema);
+const BooleanOperationSchema = z
   .boolean()
   .or(OperationSchema)
   .optional()
@@ -68,7 +68,7 @@ const schemaDef = z.object({
  *   its value (`true` inherits the base uri, a string overrides the uri,
  *   an object is used as-is, `false`/`undefined` maps to `null`).
  */
-export const ResourceSchema = z
+const ResourceSchema = z
   .object({
     id: z.string(),
     uri: z.string(),
@@ -133,6 +133,7 @@ const resourceSchemaCache = new Map<
 >();
 
 /** Drop every cached resource descriptor. Call when a resource definition changes. */
+/** @internal test seam — clears the resource-schema cache between specs. */
 export const clearResourceSchemaCache = () => {
   resourceSchemaCache.clear();
 };

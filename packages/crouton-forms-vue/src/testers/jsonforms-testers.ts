@@ -24,6 +24,7 @@ export type RankedTester = (
 ) => number;
 
 /** Returned by a ranked tester when it does not apply. */
+/** @internal rank used by testers to signal "not applicable". */
 export const NOT_APPLICABLE = -1;
 
 /** Wrap a boolean tester so it returns `rank` when it matches, `-1` otherwise. */
