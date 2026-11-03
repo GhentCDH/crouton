@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
 import type { LayoutNode } from '../layout/schema';
 import { resolveDefaultSort } from '../layout/sort.helpers';
 import type { JsonColumn } from '../resource/Column';
-import { invalid } from '../utils/test-utils';
 
 const col = (id: string, extra: Partial<JsonColumn> = {}): JsonColumn =>
   invalid<JsonColumn>({ id, ...extra });

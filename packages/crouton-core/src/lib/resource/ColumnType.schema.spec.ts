@@ -8,7 +8,7 @@ import {
   isArrayColumnType,
   isObjectColumnType,
 } from './ColumnType.schema';
-import { invalid } from '../utils/test-utils';
+import { invalid } from '../../testing/index';
 
 
 describe('ColumnTypeSchema', () => {

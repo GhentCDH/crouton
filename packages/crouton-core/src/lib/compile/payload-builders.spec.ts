@@ -7,8 +7,8 @@ import {
   buildViewsPayload,
   deriveDisplay,
 } from './payload-builders';
+import { invalid } from '../../testing/index';
 import type { Layout } from '../layout/schema';
-import { invalid } from '../utils/test-utils';
 
 const baseUri = 'http://host/annotation';
 

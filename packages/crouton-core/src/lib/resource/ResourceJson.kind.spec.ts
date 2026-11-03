@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ResourceJsonSchema } from './ResourceJson.schema';
-import { invalid } from '../utils/test-utils';
+import { invalid } from '../../testing/index';
 
 const base = {
   name: 'zotero_item',

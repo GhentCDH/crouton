@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFormUiSchemaFromLayout } from '../layout/layout-ui-schema.builder';
-import type { LayoutNode } from '../layout/schema';
-import { JsonColumnSchema } from '../resource/Column';
-import { buildFormControl } from '../schema';
 import {
   type TestControl,
   asControl,
   asLayout,
   invalid,
-} from '../utils/test-utils';
+} from '../../testing/index';
+import { buildFormUiSchemaFromLayout } from '../layout/layout-ui-schema.builder';
+import type { LayoutNode } from '../layout/schema';
+import { JsonColumnSchema } from '../resource/Column';
+import { buildFormControl } from '../schema';
 
 const parse = (arr: Record<string, unknown>[]) =>
   arr.map((c) => JsonColumnSchema.parse(c));

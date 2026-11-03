@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { resolveCalculatedPlacement } from './calculated-placement';
+import { invalid } from '../../../testing/index';
 import { JsonColumnSchema } from '../../resource';
 import type { CalculatedColumn } from '../../resource/CalculatedColumn.schema';
-import { invalid } from '../../utils/test-utils';
 import type { Layout } from '../schema/Layout.schema';
 
 const col = (id: string, extra: Record<string, unknown> = {}) =>

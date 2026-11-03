@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createTestApp } from './harness';
 import { seed } from './seed';
-import { bodyOf } from '../../src/lib/crud/test-utils';
+import { bodyOf } from '../../src/testing';
 
 let app: Awaited<ReturnType<typeof createTestApp>>;
 
