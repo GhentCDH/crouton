@@ -113,14 +113,11 @@ const operations = computed(() => {
   const ops: Record<string, (value: any) => void> = {};
 
   if (hasView.value) {
+    ops['onView'] = (value) => attrs.onView!(value);
   } else {
     ops['onView'] = (value) => {
-      if (hasView.value) {
-        attrs.onView!(value);
-      } else {
-        const id = formDef.value?.idField;
-        if (id) detailResource.value?.view(value[id]);
-      }
+      const id = formDef.value?.idField;
+      if (id) detailResource.value?.view(value[id]);
     };
   }
 
