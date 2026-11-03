@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["type:util", "tech:typescript"],
   "targets": {
+    "test": {
+      "command": "vitest run",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
