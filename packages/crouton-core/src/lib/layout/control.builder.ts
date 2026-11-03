@@ -351,6 +351,10 @@ export class ControlBuilder<TYPE = Record<string, unknown>, KEY = keyof TYPE> ex
     return this.opt({ hideLabel: true });
   }
 
+  showLabel() {
+    return this.opt({ hideLabel: false });
+  }
+
   override build(): ControlTypes {
     const detail = this._detail ? this._detail.build() : undefined;
     const options = {

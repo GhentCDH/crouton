@@ -31,7 +31,7 @@ const buildDetailLayout = (detail: DetailConfig) => {
       : LayoutBuilder.horizontal();
 
   inner.addControls(
-    ...detail.controls.map((dc) => {
+    ...detail.items.map((dc) => {
       const ctrl = ControlBuilder.propertiesStr(dc.property);
       if (dc.type === 'markdown') {
         ctrl.markdown(dc.options as Partial<Omit<MarkdownOptions, 'format'>>);
