@@ -41,6 +41,8 @@ export const CompiledSubResourceConfigSchema = z.object({
   relationType: RelationType.optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),
+  /** Dot-paths that child ?q= matches against. Derived from operations.findAll.search on the child resource. */
+  search: z.array(z.string()).optional(),
   layout: z.record(z.string(), z.unknown()).optional(),
   rowActions: z.array(JsonActionSchema).optional(),
   tableActions: z.array(JsonActionSchema).optional(),

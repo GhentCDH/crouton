@@ -10,7 +10,9 @@ import {
   applyRelationFormatDefault,
   buildChildSortClause,
   buildLayouts,
+  buildSearch,
   deriveRelationTypeFromColumns,
+  extractFindAllSearch,
   fixNestedUiSchemaScopes,
   getPrismaRelationField,
   getRelationResource,
@@ -200,6 +202,11 @@ export const buildSubResources = (
       }
       const childOps = childJson?.operations ?? {};
       const childKind = childJson?.kind === 'custom' ? 'custom' : 'prisma';
+      const childSearch = buildSearch(
+        enrichedChildColumns,
+        extractFindAllSearch(childOps.findAll),
+        childOps.findAll !== false,
+      );
 
       return {
         column: c.id,
@@ -245,6 +252,7 @@ export const buildSubResources = (
           patch: childOps.patch !== false,
           delete: childOps.delete !== false,
         },
+        ...(childSearch?.length && { search: childSearch }),
         ...(mergedIncludes.length && { childInclude: mergedIncludes }),
         ...(childCalculatedColumns.length && {
           calculatedColumns: childCalculatedColumns,
