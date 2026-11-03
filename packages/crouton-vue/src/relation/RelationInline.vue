@@ -17,7 +17,11 @@
       />
     </div>
 
-    <div v-if="hasCreate && enableCreate" data-testid="relation-inline-add" class="flex flex-gap-2 items-center">
+    <div
+      v-if="hasCreate && enableCreate"
+      data-testid="relation-inline-add"
+      class="flex flex-gap-2 items-center"
+    >
       <Autocomplete
         v-if="fetchOptions"
         :model-value="newValue ?? undefined"

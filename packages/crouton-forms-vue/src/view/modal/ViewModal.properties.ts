@@ -1,6 +1,7 @@
 import type { PropType } from 'vue';
 
 import type { SizeType } from '@ghentcdh/crouton-core';
+
 import type { HttpClient } from '../../http-client';
 
 export const ViewModalProperties = {
