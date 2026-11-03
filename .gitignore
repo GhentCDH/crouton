@@ -50,6 +50,8 @@ Thumbs.db
 
 # pnpm temp files
 _tmp_*
+# tsup build junk from crashed/failed bundle steps
+tsup.config.bundled_*.mjs
 # Plan files live in plans/ — ignore loose plan files at root only
 /*_PLAN.md
 /github-issue-autosave.md

@@ -2,10 +2,13 @@ import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { describe, expect, it } from 'vitest';
 
 import {
+  isArrayRenderer,
   isBooleanControl,
   isDateControl,
+  isDateRangeControl,
   isIntegerFormat,
   isNumberFormat,
+  isObjectControl,
   isStringFormat,
   isToggleControl,
 } from '../tester';
@@ -18,6 +21,11 @@ const control = (
 
 const schema = (extra: Record<string, any> = {}): JsonSchema =>
   ({ type: 'string', ...extra }) as JsonSchema;
+
+const objectSchema = {
+  type: 'object',
+  properties: { id: { type: 'string' }, name: { type: 'string' } },
+} as JsonSchema;
 
 describe('isDateControl', () => {
   it.each`
@@ -98,5 +106,89 @@ describe('isToggleControl', () => {
     ${'non-control element'}     | ${{ type: 'VerticalLayout' }}     | ${schema()}   | ${false}
   `('$description → $result', ({ uischema, schema: s, result }) => {
     expect(isToggleControl(uischema, s)).toBe(result);
+  });
+});
+
+describe('isObjectControl', () => {
+  it('matches the object format emitted for an object column', () => {
+    expect(isObjectControl(control({ format: 'object' }), objectSchema)).toBe(
+      true,
+    );
+  });
+
+  it('matches an object schema with properties and no declared format', () => {
+    expect(isObjectControl(control({}), objectSchema)).toBe(true);
+    expect(isObjectControl(control(), objectSchema)).toBe(true);
+  });
+
+  it('does not match a scalar schema', () => {
+    expect(
+      isObjectControl(control(), { type: 'string' } as JsonSchema),
+    ).toBe(false);
+  });
+
+  it('does not match an object schema with no properties', () => {
+    expect(
+      isObjectControl(control(), { type: 'object' } as JsonSchema),
+    ).toBe(false);
+  });
+
+  it('does not hijack a control that names another format', () => {
+    // date-range is an object schema too — its own tester must win.
+    const dateRange = control({ format: 'date-range' });
+    expect(isObjectControl(dateRange, objectSchema)).toBe(false);
+    expect(isDateRangeControl(dateRange, objectSchema)).toBe(true);
+
+    expect(isObjectControl(control({ format: 'relation' }), objectSchema)).toBe(
+      false,
+    );
+    expect(isObjectControl(control({ format: 'select' }), objectSchema)).toBe(
+      false,
+    );
+  });
+
+  it('does not match a non-Control element', () => {
+    expect(
+      isObjectControl(
+        { type: 'GridLayout', options: { format: 'object' } } as any,
+        objectSchema,
+      ),
+    ).toBe(false);
+  });
+});
+
+describe('isDateRangeControl', () => {
+  it('matches the date-range format option regardless of case', () => {
+    expect(isDateRangeControl(control({ format: 'date-range' }), schema())).toBe(
+      true,
+    );
+    expect(isDateRangeControl(control({ format: 'Date-Range' }), schema())).toBe(
+      true,
+    );
+  });
+
+  it('does not match other formats', () => {
+    expect(isDateRangeControl(control({ format: 'date' }), schema())).toBe(
+      false,
+    );
+    expect(isDateRangeControl(control(), schema())).toBe(false);
+    expect(
+      isDateRangeControl({ type: 'VerticalLayout' } as UISchemaElement, schema()),
+    ).toBe(false);
+  });
+});
+
+describe('isArrayRenderer', () => {
+  it('matches array schemas', () => {
+    expect(
+      isArrayRenderer(control({ format: 'array' }), {
+        type: 'array',
+        items: { type: 'string' },
+      } as JsonSchema),
+    ).toBe(true);
+  });
+
+  it('does not match scalar schemas', () => {
+    expect(isArrayRenderer(control({ format: 'array' }), schema())).toBe(false);
   });
 });
