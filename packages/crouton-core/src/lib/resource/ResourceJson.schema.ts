@@ -7,7 +7,6 @@ import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { getResourceExtensions } from './extensions';
-import { JsonIncludeEntrySchema } from './include.schema';
 import { BASELINE_RESOURCE_VERSION } from './version';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SecuritySchema } from '../data-source/Security.schema';
@@ -202,12 +201,6 @@ export const ResourceJsonShape = z.object({
     .default([])
     .describe(
       'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
-    ),
-  include: z
-    .array(JsonIncludeEntrySchema)
-    .default([])
-    .describe(
-      'Prisma relations to include when querying this resource. Plain string: "author" → include: { author: true }. Object: { relation: "textAuthor", include: ["author"] } for nested includes.',
     ),
   source: z
     .object({

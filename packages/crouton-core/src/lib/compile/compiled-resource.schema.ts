@@ -30,9 +30,6 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   table: true,
   database: true,
   idType: true,
-  // Input-only: the compiler derives `findAllInclude`/`findOneInclude` from the
-  // operation include config; the raw legacy key is not copied.
-  include: true,
   // Input-only: the compiler merges the input list with columns[].computed.
   calculatedColumns: true,
 }).extend({
