@@ -186,7 +186,6 @@ export const compileResource = (
     table: rootTable,
     database: rootDatabase,
     idType: rootIdType,
-    include: _inputInclude,
     calculatedColumns: _inputCalculated,
     ...jsonRest
   } = json;

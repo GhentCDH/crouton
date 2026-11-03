@@ -1832,15 +1832,6 @@
       },
       "markdownDescription": "Columns computed from raw SQL expressions. Not supported on \"custom\" resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
     },
-    "include": {
-      "default": [],
-      "description": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/__schema0"
-      },
-      "markdownDescription": "Prisma relations to include when querying this resource. Plain string: \"author\" → include: { author: true }. Object: { relation: \"textAuthor\", include: [\"author\"] } for nested includes.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-    },
     "source": {
       "description": "Where the data comes from (replaces root model/table/database/idType).",
       "type": "object",

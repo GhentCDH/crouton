@@ -223,6 +223,19 @@ Top-level `include` split by operation:
 same value). If `operations` already exists, merge in. When only `findAll.include` is set, `findOne` uses it as
 fallback — so setting both is safe and explicit.
 
+**Optional simplification — dot-path strings:** Once migrated to `operations.*.include`, nested object entries with no
+`orderBy` or extra options can be collapsed to dot-path strings:
+
+```json
+// Verbose object form
+"include": [{ "relation": "chapters", "include": ["sections"] }]
+
+// Equivalent dot-path shorthand
+"include": ["chapters.sections"]
+```
+
+Entries for the same top-level relation deep-merge, so `["a.b", "a.c"]` and the object form can be mixed freely.
+
 ---
 
 ## `model` / `table` / `database` / `idType` → `source.*` (breaking)

@@ -5,10 +5,16 @@ import { z } from 'zod';
 /**
  * A single entry in an `include` list.
  * - Plain string: `"author"` → `{ author: true }`
- * - Object with nested includes: `{ relation: "text_author", include: ["author"] }`
- *   → `{ text_author: { include: { author: true } } }`
+ * - Dot-path string: `"author.books"` → `{ author: { include: { books: true } } }`.
+ *   Multiple entries for the same top-level relation are deep-merged.
+ * - Object with nested includes: `{ relation: "sections", include: ["author"] }`
+ *   → `{ sections: { include: { author: true } } }`
  * - Object with orderBy: `{ relation: "sections", orderBy: { title: "asc" } }`
  *   → `{ sections: { orderBy: { title: "asc" } } }`
+ *
+ * The object form and dot-path strings for the same relation are merged:
+ * `["a.b", { "relation": "a", "orderBy": { "position": "asc" } }]`
+ * → `{ a: { include: { b: true }, orderBy: { position: "asc" } } }`
  */
 export type JsonIncludeEntry =
   | string
