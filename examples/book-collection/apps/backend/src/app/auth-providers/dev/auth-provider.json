@@ -1,0 +1,9 @@
+{
+  "$schema": "../../../../../../../../../../node_modules/@ghentcdh/crouton-auth/auth-provider.schema.json",
+  "name": "dev",
+  "provider": "dev",
+  "default": true,
+  "guards": {
+    "admin": ["admin"]
+  }
+}

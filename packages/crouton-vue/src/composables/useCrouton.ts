@@ -1,3 +1,4 @@
+import { handleCallback, setupAuth, useAuth } from '@crouton/auth-vue';
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
@@ -278,5 +279,19 @@ export const CroutonPlugin = (
       });
     }
     _crouton = createCrouton(api, options);
+    setupAuth('', api).then((result) => {
+      if (result.enabled && options.router) {
+        options.router.addRoute({
+          path: result.callbackPath,
+          component: {
+            async setup() {
+              await handleCallback();
+              await options.router!.push('/');
+              return () => null;
+            },
+          },
+        });
+      }
+    });
   },
 });

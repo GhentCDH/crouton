@@ -1,10 +1,10 @@
 export { AuthProviderSchema } from '@crouton/auth';
 export type { AuthProviderConfig, RoleGuard } from '@crouton/auth';
 export type {
-  CroutonUser,
-  AuthRequest,
-  AuthProviderAdapter,
-  PublicAuthConfig,
   AuthEndpointResponse,
+  AuthProviderAdapter,
+  AuthRequest,
+  CroutonUser,
+  PublicAuthConfig,
 } from '@crouton/auth';
-export { defineAuthProvider, evaluateGuard, buildPublicAuthConfig } from '@crouton/auth';
+export { buildPublicAuthConfig, defineAuthProvider, evaluateGuard } from '@crouton/auth';

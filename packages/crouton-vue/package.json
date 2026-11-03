@@ -43,6 +43,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@crouton/auth-vue": "workspace:*",
     "@crouton/i18n": "workspace:*",
     "@crouton/status": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
