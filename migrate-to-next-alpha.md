@@ -673,6 +673,52 @@ Only apply if `operations.findAll.search` is not already set.
 
 ---
 
+## `fieldInput.detail.controls` → `fieldInput.detail.items` (breaking)
+
+**When to apply:** any column has `fieldInput.detail.controls`.
+
+The `controls` key inside a `detail` config is renamed to `items` for consistency with layout node items.
+
+```json
+// BEFORE
+{
+  "columns": {
+    "loans": {
+      "fieldInput": {
+        "detail": {
+          "layout": "row",
+          "controls": [
+            { "property": "amount" },
+            { "property": "currency" }
+          ]
+        }
+      }
+    }
+  }
+}
+
+// AFTER
+{
+  "columns": {
+    "loans": {
+      "fieldInput": {
+        "detail": {
+          "layout": "row",
+          "items": [
+            { "property": "amount" },
+            { "property": "currency" }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+**Rule:** Rename `fieldInput.detail.controls` → `fieldInput.detail.items` on every column. Using the old key fails validation with a hint.
+
+---
+
 ## Deprecated column fields: `fieldView`, `columnType` (removed)
 
 **When to apply:** any column has a `fieldView` or `columnType` key.
@@ -985,6 +1031,9 @@ grep -rn '"id"' --include="resource.json" .
 # Layout v1 migration (controls → items, actions → rowActions)
 grep -rn '"controls"' --include="resource.json" .
 grep -rn '"actions"' --include="resource.json" .
+
+# fieldInput.detail.controls renamed to items
+grep -rn '"detail"' --include="resource.json" . | grep '"controls"'
 
 # searchFields/filterFields moved to operations.findAll
 grep -rn '"searchFields"' --include="resource.json" .

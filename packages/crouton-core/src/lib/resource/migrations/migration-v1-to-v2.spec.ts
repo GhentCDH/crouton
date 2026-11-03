@@ -75,20 +75,6 @@ describe('migration v1 → v2', () => {
     expect((result['subResources'] as Record<string, unknown>[])[0]).toEqual({ id: 'loans', rowActions: [{ id: 'ret' }] });
   });
 
-  it('columns: fieldInput.detail.controls → detail.items', () => {
-    const result = migrate({
-      columns: [
-        { id: 'loans', fieldInput: { detail: { layout: 'row', controls: [{ property: 'amount' }] } } },
-        { id: 'title', fieldInput: { type: 'text' } },
-      ],
-    });
-    const cols = result['columns'] as Record<string, unknown>[];
-    const fi = cols[0]['fieldInput'] as Record<string, unknown>;
-    expect((fi['detail'] as Record<string, unknown>)['items']).toEqual([{ property: 'amount' }]);
-    expect((fi['detail'] as Record<string, unknown>)['controls']).toBeUndefined();
-    expect((cols[1]['fieldInput'] as Record<string, unknown>)['type']).toBe('text');
-  });
-
   it('idempotent: re-running gives no change', () => {
     const once = migrate({
       layout: {

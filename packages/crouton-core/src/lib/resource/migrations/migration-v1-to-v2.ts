@@ -98,22 +98,6 @@ const transformTableLayout = (raw: unknown): unknown => {
   return { ...cleanedWrapper, items: transformedItems };
 };
 
-/** Migrate `fieldInput.detail.controls` → `fieldInput.detail.items` on each column. */
-const migrateDetailControls = (columns: unknown): unknown => {
-  if (!Array.isArray(columns)) return columns;
-  return (columns as unknown[]).map((col) => {
-    if (typeof col !== 'object' || col === null) return col;
-    const c = col as RawNode;
-    const fi = c['fieldInput'] as RawNode | undefined;
-    if (!fi || typeof fi !== 'object') return c;
-    const detail = fi['detail'] as RawNode | undefined;
-    if (!detail || typeof detail !== 'object' || !Array.isArray(detail['controls'])) return c;
-    const { controls, items, ...restDetail } = detail as RawNode & { controls: unknown[]; items?: unknown[] };
-    const mergedItems = [...controls, ...(items ?? [])];
-    return { ...c, fieldInput: { ...fi, detail: { ...restDetail, items: mergedItems } } };
-  });
-};
-
 /** Transform sub-resource actions → rowActions */
 const transformSubResources = (subResources: unknown): unknown => {
   if (!Array.isArray(subResources)) return subResources;
@@ -142,10 +126,6 @@ const migrate = (raw: RawResourceJson): RawResourceJson => {
 
   if (raw['subResources']) {
     result['subResources'] = transformSubResources(raw['subResources']);
-  }
-
-  if (raw['columns']) {
-    result['columns'] = migrateDetailControls(raw['columns']);
   }
 
   return result;
