@@ -135,6 +135,74 @@ const countLeafKeys = (obj: unknown): number => {
   return count;
 };
 
+/**
+ * Load the config, plan the translation writes and make sure the output
+ * directory exists. Returns `null` (after the appropriate outro) when there is
+ * nothing to do. Shared by `init` and `update`.
+ */
+const loadTranslationPlans = async (
+  opts: TranslationsOptions,
+  cwd: string,
+): Promise<TranslationWritePlan[] | null> => {
+  const config = await loadConfig(cwd);
+  const i18n = config.config.i18n;
+  if (!i18n) {
+    clack.outro(
+      pc.yellow('No "i18n" block in crouton.json — nothing to do.'),
+    );
+    return null;
+  }
+
+  const langs = opts.lang
+    ? opts.lang.split(',').map((s) => s.trim())
+    : undefined;
+
+  const plans = await planTranslationWrites({
+    root: config.root,
+    i18n,
+    enumsFile: config.config.enumsFile ?? 'crouton.enums.json',
+    languages: langs,
+  });
+
+  if (plans.length === 0) {
+    clack.outro(pc.yellow('No languages configured.'));
+    return null;
+  }
+
+  // Ensure translations directory exists
+  const translationsDir = resolveFromRoot(config.root, i18n.translationsDir);
+  await mkdir(translationsDir, { recursive: true });
+
+  return plans;
+};
+
+/** Handle dry-run / confirmation and write the planned bundles. */
+const writeTranslationPlans = async (
+  plans: TranslationWritePlan[],
+  opts: TranslationsOptions,
+): Promise<void> => {
+  if (opts.dryRun) {
+    clack.outro(pc.yellow('Dry run — no files written.'));
+    return;
+  }
+
+  if (!opts.yes) {
+    const go = await clack.confirm({
+      message: `Write ${plans.length} translation file(s)?`,
+      initialValue: true,
+    });
+    if (clack.isCancel(go) || !go) {
+      clack.cancel('Cancelled.');
+      return;
+    }
+  }
+
+  for (const plan of plans) {
+    await writeFile(plan.path, plan.content, 'utf-8');
+  }
+  clack.outro(pc.green(`Done — ${plans.length} file(s) written.`));
+};
+
 export const runTranslationsInit = async (
   opts: TranslationsOptions,
 ): Promise<void> => {
@@ -142,37 +210,8 @@ export const runTranslationsInit = async (
   clack.intro(pc.bold('crouton translations init'));
 
   try {
-    const config = await loadConfig(cwd);
-    const i18n = config.config.i18n;
-    if (!i18n) {
-      clack.outro(
-        pc.yellow('No "i18n" block in crouton.json — nothing to do.'),
-      );
-      return;
-    }
-
-    const langs = opts.lang
-      ? opts.lang.split(',').map((s) => s.trim())
-      : undefined;
-
-    const plans = await planTranslationWrites({
-      root: config.root,
-      i18n,
-      enumsFile: config.config.enumsFile ?? 'crouton.enums.json',
-      languages: langs,
-    });
-
-    if (plans.length === 0) {
-      clack.outro(pc.yellow('No languages configured.'));
-      return;
-    }
-
-    // Ensure translations directory exists
-    const translationsDir = resolveFromRoot(
-      config.root,
-      i18n.translationsDir,
-    );
-    await mkdir(translationsDir, { recursive: true });
+    const plans = await loadTranslationPlans(opts, cwd);
+    if (!plans) return;
 
     // Preview
     for (const plan of plans) {
@@ -181,26 +220,7 @@ export const runTranslationsInit = async (
       clack.log.info(`${status} ${plan.lang}.json${info}`);
     }
 
-    if (opts.dryRun) {
-      clack.outro(pc.yellow('Dry run — no files written.'));
-      return;
-    }
-
-    if (!opts.yes) {
-      const go = await clack.confirm({
-        message: `Write ${plans.length} translation file(s)?`,
-        initialValue: true,
-      });
-      if (clack.isCancel(go) || !go) {
-        clack.cancel('Cancelled.');
-        return;
-      }
-    }
-
-    for (const plan of plans) {
-      await writeFile(plan.path, plan.content, 'utf-8');
-    }
-    clack.outro(pc.green(`Done — ${plans.length} file(s) written.`));
+    await writeTranslationPlans(plans, opts);
   } catch (err) {
     if (err instanceof Error) {
       clack.log.error(err.message);
@@ -216,37 +236,8 @@ export const runTranslationsUpdate = async (
   clack.intro(pc.bold('crouton translations update'));
 
   try {
-    const config = await loadConfig(cwd);
-    const i18n = config.config.i18n;
-    if (!i18n) {
-      clack.outro(
-        pc.yellow('No "i18n" block in crouton.json — nothing to do.'),
-      );
-      return;
-    }
-
-    const langs = opts.lang
-      ? opts.lang.split(',').map((s) => s.trim())
-      : undefined;
-
-    const plans = await planTranslationWrites({
-      root: config.root,
-      i18n,
-      enumsFile: config.config.enumsFile ?? 'crouton.enums.json',
-      languages: langs,
-    });
-
-    if (plans.length === 0) {
-      clack.outro(pc.yellow('No languages configured.'));
-      return;
-    }
-
-    // Ensure translations directory exists
-    const translationsDir = resolveFromRoot(
-      config.root,
-      i18n.translationsDir,
-    );
-    await mkdir(translationsDir, { recursive: true });
+    const plans = await loadTranslationPlans(opts, cwd);
+    if (!plans) return;
 
     // Preview
     const previewLines: string[] = [];
@@ -279,26 +270,7 @@ export const runTranslationsUpdate = async (
 
     clack.log.message(previewLines.join('\n'));
 
-    if (opts.dryRun) {
-      clack.outro(pc.yellow('Dry run — no files written.'));
-      return;
-    }
-
-    if (!opts.yes) {
-      const go = await clack.confirm({
-        message: `Write ${plans.length} translation file(s)?`,
-        initialValue: true,
-      });
-      if (clack.isCancel(go) || !go) {
-        clack.cancel('Cancelled.');
-        return;
-      }
-    }
-
-    for (const plan of plans) {
-      await writeFile(plan.path, plan.content, 'utf-8');
-    }
-    clack.outro(pc.green(`Done — ${plans.length} file(s) written.`));
+    await writeTranslationPlans(plans, opts);
   } catch (err) {
     if (err instanceof Error) {
       clack.log.error(err.message);

@@ -41,7 +41,7 @@ export const loadDotenv = (dir: string): void => {
  * to `npx <name>`. Prevents version mismatches where npx downloads a newer
  * major version that has different command names.
  */
-const resolveBin = (name: string, cwd: string): [string, string[]] => {
+export const resolveBin = (name: string, cwd: string): [string, string[]] => {
   let d = cwd;
   for (let i = 0; i < 6; i++) {
     const bin = join(d, 'node_modules', '.bin', name);
@@ -53,7 +53,7 @@ const resolveBin = (name: string, cwd: string): [string, string[]] => {
   return ['npx', [name]];
 };
 
-const run = (
+export const runProcess = (
   cmd: string,
   args: string[],
   cwd: string,
@@ -70,7 +70,7 @@ const run = (
 
 /** True when the given path has uncommitted changes (or git is unavailable → treated as clean). */
 export const isGitDirty = async (cwd: string, path: string): Promise<boolean> => {
-  const { code, stdout } = await run('git', ['status', '--porcelain', '--', path], cwd);
+  const { code, stdout } = await runProcess('git', ['status', '--porcelain', '--', path], cwd);
   if (code !== 0) return false; // not a git repo / git missing — don't block
   return stdout.trim().length > 0;
 };
@@ -90,7 +90,7 @@ export interface PrismaRunResult {
 /** Introspect the live database into the schema file. */
 const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const [bin, prefix] = resolveBin('prisma', cwd);
-  const { code, stdout, stderr } = await run(bin, [...prefix, 'db', 'pull', '--config', prismaConfig], cwd);
+  const { code, stdout, stderr } = await runProcess(bin, [...prefix, 'db', 'pull', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
@@ -106,14 +106,14 @@ const prismaCaseFormat = async (cwd: string, schemaPath: string): Promise<Prisma
   const [cmd, args] = binPath
     ? [process.execPath, [binPath, '--file', schemaPath]]
     : ['npx', ['prisma-case-format', '--file', schemaPath]];
-  const { code, stdout, stderr } = await run(cmd, args, cwd);
+  const { code, stdout, stderr } = await runProcess(cmd, args, cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
 /** `prisma generate` for a datasource's config (triggers the `crouton-prisma` generator). */
 export const prismaGenerate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const [bin, prefix] = resolveBin('prisma', cwd);
-  const { code, stdout, stderr } = await run(bin, [...prefix, 'generate', '--config', prismaConfig], cwd);
+  const { code, stdout, stderr } = await runProcess(bin, [...prefix, 'generate', '--config', prismaConfig], cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 

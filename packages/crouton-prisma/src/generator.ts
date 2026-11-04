@@ -1,33 +1,19 @@
 import { generatorHandler } from '@prisma/generator-helper';
 
-import { fixEsmBarrels, fixZodImports, normalizeSchema } from '@ghentcdh/crouton-codegen';
+import {
+  fixEsmBarrels,
+  fixZodImports,
+  normalizeSchema,
+  resolveBin,
+  runProcess,
+} from '@ghentcdh/crouton-codegen';
 
-import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 
-
-const run = (cmd: string, args: string[], cwd: string): Promise<{ code: number; out: string }> =>
-  new Promise((res) => {
-    const child = spawn(cmd, args, { cwd, shell: process.platform === 'win32' });
-    let out = '';
-    child.stdout?.on('data', (d) => (out += d));
-    child.stderr?.on('data', (d) => (out += d));
-    child.on('error', (e) => res({ code: 1, out: String(e) }));
-    child.on('close', (code) => res({ code: code ?? 0, out }));
-  });
-
-const resolveBin = (name: string, cwd: string): [string, string[]] => {
-  let d = cwd;
-  for (let i = 0; i < 6; i++) {
-    const bin = join(d, 'node_modules', '.bin', name);
-    if (existsSync(bin)) return [bin, []];
-    const parent = dirname(d);
-    if (parent === d) break;
-    d = parent;
-  }
-  return ['npx', [name]];
+const run = async (cmd: string, args: string[], cwd: string) => {
+  const { code, stdout, stderr } = await runProcess(cmd, args, cwd);
+  return { code, out: stdout + stderr };
 };
 
 /** Strip all generator blocks from a schema SDL string. */
