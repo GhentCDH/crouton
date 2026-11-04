@@ -14,7 +14,7 @@ export class CroutonAuthMiddlewareGuard implements CanActivate {
     // registers it with Passport's global registry under its name.
     for (const provider of providers) {
       const { bearer } = createStrategiesForProvider(provider);
-      new bearer(); // eslint-disable-line no-new
+      new bearer();  
     }
 
     const strategyNames = providers.map((p) => `${p.strategyName}${BEARER_STRATEGY_SUFFIX}`);

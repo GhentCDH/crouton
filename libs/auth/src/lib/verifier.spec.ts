@@ -18,7 +18,7 @@ vi.mock('jose', async (importOriginal) => {
   const actual = await importOriginal<JoseModule>();
   return {
     ...actual,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     createRemoteJWKSet:
       (_: URL) =>
       (
