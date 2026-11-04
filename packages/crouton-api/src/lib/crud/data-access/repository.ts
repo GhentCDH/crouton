@@ -154,12 +154,15 @@ export function createCrudRepository<T = Row>(
       listSelect,
       oneSelect,
       configRegistry,
+      ...(config.search?.length && { search: config.search }),
+      ...(config.filterAllowlist?.length && { filterAllowlist: config.filterAllowlist }),
     };
-    const ctx = (request?: unknown, op = 'findAll', id?: string | number) => ({
+    const ctx = (request?: unknown, op = 'findAll', id?: string | number, q?: string) => ({
       ...baseCtx,
       op,
       request,
       ...(id !== undefined && { id }),
+      ...(q !== undefined && { q }),
     });
 
     const mkDecorateFindAll =
@@ -282,7 +285,7 @@ export function createCrudRepository<T = Row>(
         const { data, count } = await resolvedAdapter.findAll!(
           adapterModelKey,
           effectiveParams,
-          { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) },
+          { ...ctx(request, 'findAll', undefined, effectiveParams.q), offset: offsetOf(effectiveParams) },
         );
         return { data: await decorateFindAll(data, request), count };
       },
@@ -291,7 +294,7 @@ export function createCrudRepository<T = Row>(
         const { data } = await resolvedAdapter.findAll!(
           adapterModelKey,
           effectiveParams,
-          { ...ctx(request, 'findAll'), offset: offsetOf(effectiveParams) },
+          { ...ctx(request, 'findAll', undefined, effectiveParams.q), offset: offsetOf(effectiveParams) },
         );
         return decorateFindAll(data, request);
       },

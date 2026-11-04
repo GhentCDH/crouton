@@ -67,6 +67,12 @@ export interface CustomRepositoryContext<PRISMA = unknown> {
    * this is here for the cases where you want it inside a shared helper.
    */
   parent?: { route: string; param: string; id: string | number };
+  /** Free-text search string from `?q=`. Use with `search` paths to implement custom search. */
+  q?: string;
+  /** Resolved dot-paths that `?q=` should match against (from `operations.findAll.search`). */
+  search?: string[];
+  /** Field allowlist for `?filter=`; absent means any column is accepted. */
+  filterAllowlist?: string[];
 }
 
 /** Rows plus the total matching count, used to build the list envelope. */
