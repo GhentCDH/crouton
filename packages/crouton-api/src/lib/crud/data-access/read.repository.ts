@@ -312,7 +312,7 @@ export class ReadRepository<T = unknown> {
     q: string | undefined,
   ): Record<string, unknown> | undefined {
     if (!q || !search?.length) return undefined;
-    return { OR: search.map((path) => buildNestedPath(path.split('.'), { contains: q })) };
+    return { OR: search.map((path) => buildNestedPath(path.split('.'), { contains: q, mode: 'insensitive' })) };
   }
 
   private buildSearchOrWhere(q: string | undefined): Record<string, unknown> | undefined {
