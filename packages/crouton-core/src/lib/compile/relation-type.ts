@@ -1,7 +1,7 @@
 import { ZodArray, ZodNullable, type ZodObject, ZodOptional, type ZodRawShape } from 'zod';
 
 import type { JsonColumn, RelationType } from '../resource';
-import { getRelationType } from '../resource/Column';
+import { getRelationType, isRelationColumn } from '../resource/Column';
 
 const unwrapZodType = (type: unknown): unknown => {
   if (type instanceof ZodOptional || type instanceof ZodNullable) {
@@ -37,9 +37,8 @@ export const enrichRelationTypes = (
   if (!schema) return columns;
   return columns.map((col) => {
     const isRelationField =
-      col.relation !== undefined ||
-      col.fieldInput?.type === 'autocomplete' ||
-      col.fieldInput?.format === 'relation';
+      isRelationColumn(col) ||
+      col.fieldInput?.type === 'autocomplete';
     if (!isRelationField) return col;
     if (getRelationType(col)) return col; // explicit wins
     const derived =

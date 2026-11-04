@@ -1,11 +1,11 @@
 import type { JsonColumn, RelationFieldInputOptions } from '../resource';
+import { isRelationColumn } from '../resource/Column';
 import type { LookupConfig } from '../schema/definition/lookup.schema';
 
 const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
   !c.computed &&
-  c.relation === undefined &&
-  c.fieldInput?.format !== 'relation' &&
+  !isRelationColumn(c) &&
   !c.fieldInput?.relationType &&
   c.fieldInput?.type !== 'date';
 
@@ -25,7 +25,7 @@ export const buildSearch = (
       const col = columns.find((c) => c.id === id);
       if (!col) return [id];
       if (col.computed) return [];
-      if (col.fieldInput?.format === 'relation') {
+      if (isRelationColumn(col) && col.fieldInput?.format === 'relation') {
         const opts = col.fieldInput.options as RelationFieldInputOptions | undefined;
         if (opts?.displayKey) return [`${id}.${opts.displayKey}`];
       }
@@ -60,9 +60,11 @@ export const buildLookup = (
 
   const explicitLabels = lookupConfig?.labels;
   if (explicitLabels?.length) {
+    // Resolve manyToOne relation column ids to their display paths (e.g. "authorId" → "author.name")
+    const resolved = explicitLabels.map((id) => resolvedDisplayKeys[id] ?? id);
     return {
-      ...(explicitLabels.length === 1 && { label: explicitLabels[0] }),
-      labels: explicitLabels,
+      ...(resolved.length === 1 && { label: resolved[0] }),
+      labels: resolved,
       ...(lookupConfig?.separator && { separator: lookupConfig.separator }),
     };
   }
@@ -71,7 +73,8 @@ export const buildLookup = (
 
   const labels: string[] = legacyLookupCols.length
     ? legacyLookupCols.map((col) => {
-        if (col.fieldInput?.relationType === 'manyToOne') {
+        const relationType = col.relation?.type ?? col.fieldInput?.relationType;
+        if (relationType === 'manyToOne') {
           const resolved = resolvedDisplayKeys[col.id];
           if (resolved) return resolved;
           const displayKey =

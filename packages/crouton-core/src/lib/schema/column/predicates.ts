@@ -1,4 +1,5 @@
 import type { JsonColumn } from '../../resource/Column';
+import { isRelationColumn } from '../../resource/Column';
 import {
   isArrayColumnType,
   isObjectColumnType,
@@ -11,8 +12,7 @@ export const isBoolean = (col: JsonColumn): boolean =>
   col.fieldInput?.type === 'boolean' || col.type === 'boolean';
 
 /** Returns `true` when the column is a sub-resource relation (renders an inline sub-table). */
-export const isRelation = (col: JsonColumn): boolean =>
-  col.relation !== undefined || col.fieldInput?.format === 'relation';
+export const isRelation = isRelationColumn;
 
 /** Returns `true` when the column is an autocomplete FK reference (renders as a `RecordCell`). */
 export const isAutocomplete = (col: JsonColumn): boolean =>
