@@ -109,7 +109,11 @@ const fetchOptions = computedAsync(() => {
       if (typeof item !== 'object' || item === null) return item;
       if (item['id'] != null) return item['id'];
       for (const val of Object.values(item)) {
-        if (typeof val === 'object' && val !== null && (val as any)['id'] != null)
+        if (
+          typeof val === 'object' &&
+          val !== null &&
+          (val as any)['id'] != null
+        )
           return (val as any)['id'];
       }
       return undefined;
