@@ -9,31 +9,28 @@ export type VerifierOptions = {
   rolesClaim: string;
   providerName: string;
   config: AuthProviderConfig;
+  userinfoUrl: string;
 };
 
 export const createOidcVerifier = (opts: VerifierOptions) => {
-  // ponytail: lazy singleton JWKS, no cache invalidation — add expiry if JWKS rotation is needed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let jwks: any = null;
-
-  const getJwks = async () => {
-    if (!jwks) {
-      const { createRemoteJWKSet } = await import('jose');
-      const issuer = opts.issuer.replace(/\/$/, '');
-      jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-    }
-    return jwks;
-  };
-
   return async (token: string): Promise<CroutonUser | null> => {
+    if (!opts.userinfoUrl) return null;
     try {
-      const { jwtVerify } = await import('jose');
-      const jwksFunc = await getJwks();
-      const { payload } = await jwtVerify(token, jwksFunc, {
-        issuer: opts.issuer,
-        ...(opts.audience ? { audience: opts.audience } : {}),
+      // Validate token by calling the userinfo endpoint — provider does the
+      // signature/expiry check for us, no local JWKS needed.
+      const res = await fetch(opts.userinfoUrl, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      return mapClaims(payload as Record<string, unknown>, opts.config, opts.rolesClaim, opts.providerName);
+      if (!res.ok) return null;
+      const userinfo = await res.json() as Record<string, unknown>;
+
+      // Decode JWT payload (no sig verification — userinfo call proved validity).
+      // JWT payload carries claims like realm_access.roles that userinfo omits.
+      const jwtPayload = JSON.parse(
+        Buffer.from(token.split('.')[1], 'base64url').toString(),
+      ) as Record<string, unknown>;
+
+      return mapClaims({ ...jwtPayload, ...userinfo }, opts.config, opts.rolesClaim, opts.providerName);
     } catch {
       return null;
     }
