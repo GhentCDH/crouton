@@ -82,7 +82,7 @@ export const setupAuth = async (
     useRefreshTokens: true,
   });
 
-  let storedUser = await loadOidcUser();
+  const storedUser = await loadOidcUser();
 
   if (isCallbackPage) {
     // On the callback page the code hasn't been exchanged yet — don't flush.
