@@ -78,6 +78,7 @@ export {
   FormModalEmits,
   FormModalProperties,
 } from './forms/modal/FormModal.properties';
+export { SharedFormProperties } from './forms/sharedForm.properties';
 export { default as ViewModal } from './view/modal/ViewModal.vue';
 export type { ViewModalResult } from './view/modal/ViewModal.properties';
 
