@@ -302,7 +302,13 @@ export const CroutonPlugin = (
       // Callback page: handle the OIDC code exchange here (not in a route
       // component) so it runs even while the loading screen hides <router-view>.
       _authReady = authSetup.then(async ({ flushQueue }) => {
-        await handleCallback();
+        try {
+          await handleCallback();
+        } catch {
+          // State may be gone (e.g. Vite HMR reload on the callback URL consumed
+          // it in a previous run). Fall through — flushQueue with no token so
+          // the main page can redirect to login via the response interceptor.
+        }
         flushQueue();
         if (options.router) await options.router.push('/');
       });
