@@ -5,11 +5,11 @@ import { z } from 'zod';
 
 import {
   type ValidationIssue,
+  discoverResourceEntries,
   findConfigPath,
   introspect,
   loadConfig,
   loadDatasources,
-  resolveFromRoot,
   validateResourceFile,
 } from '@ghentcdh/crouton-codegen';
 
@@ -22,24 +22,7 @@ const server = new McpServer({
   version: '0.0.1',
 });
 
-const discoverResourceFiles = async (cwd: string): Promise<{ name: string; path: string }[]> => {
-  const configPath = await findConfigPath(cwd);
-  if (!configPath) return [];
-  const loaded = await loadConfig(cwd);
-  const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
-  let entries: { isDirectory(): boolean; name: string }[];
-  try {
-    entries = await readdir(base, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  const result: { name: string; path: string }[] = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    result.push({ name: e.name, path: join(base, e.name, 'resource.json') });
-  }
-  return result;
-};
+const discoverResourceFiles = (cwd: string) => discoverResourceEntries(cwd);
 
 const findPrismaSchema = async (cwd: string): Promise<string | undefined> => {
   const configPath = await findConfigPath(cwd);

@@ -1,30 +1,13 @@
 import type { Command } from 'commander';
 
-import { type ValidationIssue, findConfigPath, loadConfig, resolveFromRoot, validateResourceFile } from '@ghentcdh/crouton-codegen';
+import { type ValidationIssue, discoverResourceEntries, validateResourceFile } from '@ghentcdh/crouton-codegen';
 
-import { readdir } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-
+import { resolve } from 'node:path';
 
 
-const discoverResourceFiles = async (cwd: string): Promise<string[]> => {
-  const configPath = await findConfigPath(cwd);
-  if (!configPath) return [];
-  const loaded = await loadConfig(cwd);
-  const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
-  let entries: { isDirectory(): boolean; name: string }[];
-  try {
-    entries = await readdir(base, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  const files: string[] = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    files.push(join(base, e.name, 'resource.json'));
-  }
-  return files;
-};
+
+const discoverResourceFiles = async (cwd: string): Promise<string[]> =>
+  (await discoverResourceEntries(cwd)).map((entry) => entry.path);
 
 export const registerValidateCommand = (program: Command) => {
   program

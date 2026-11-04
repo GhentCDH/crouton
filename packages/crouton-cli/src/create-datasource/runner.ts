@@ -14,12 +14,11 @@ import {
   buildDatasourceFiles,
   loadConfig,
   loadDatasources,
-  resolveFromRoot,
 } from '@ghentcdh/crouton-codegen';
 
+import { assertNotCancel, writeScaffoldFiles } from '../scaffold/scaffold-files';
 import { CancelledError } from '../update/resolver';
-import { access, mkdir, writeFile } from 'node:fs/promises';
-import { dirname, resolve as pathResolve } from 'node:path';
+import { resolve as pathResolve } from 'node:path';
 
 export interface CreateDatasourceOptions {
   cwd?: string;
@@ -36,20 +35,6 @@ export interface CreateDatasourceOptions {
   dryRun?: boolean;
   yes?: boolean;
 }
-
-const assertNotCancel = <T>(value: T | symbol): T => {
-  if (clack.isCancel(value)) throw new CancelledError();
-  return value as T;
-};
-
-const fileExists = async (p: string): Promise<boolean> => {
-  try {
-    await access(p);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 /** Convert a datasource name to a default env var, e.g. `analyticsdb` → `ANALYTICSDB_DATABASE_URL`. */
 const defaultUrlEnv = (name: string): string =>
@@ -188,45 +173,15 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
       clientOutput: opts.clientOutput,
     });
 
-    // Preview + collision check.
-    const collisions: string[] = [];
-    for (const f of files) {
-      if (await fileExists(resolveFromRoot(loaded.root, f.path))) collisions.push(f.path);
-    }
-    clack.log.message(
-      [
-        pc.bold(`Datasource ${pc.cyan(resolved.name)}${resolved.default ? pc.dim(' (default)') : ''}`),
-        ...files.map((f) => `${collisions.includes(f.path) ? pc.yellow('! ') : pc.green('+ ')}${f.path}`),
-      ].join('\n'),
-    );
-    if (collisions.length) {
-      clack.log.warn(`Existing files will NOT be overwritten: ${collisions.join(', ')}`);
-    }
-
-    if (opts.dryRun) {
-      clack.outro(pc.yellow('Dry run — no files written.'));
-      return;
-    }
-
-    const go = opts.yes
-      ? true
-      : (assertNotCancel(
-          await clack.confirm({ message: `Write ${files.length - collisions.length} file(s)?`, initialValue: true }),
-        ) as boolean);
-    if (!go) throw new CancelledError();
-
-    let written = 0;
-    for (const f of files) {
-      const abs = resolveFromRoot(loaded.root, f.path);
-      if (await fileExists(abs)) continue; // never clobber
-      await mkdir(dirname(abs), { recursive: true });
-      await writeFile(abs, f.contents, 'utf-8');
-      written += 1;
-    }
-
-    clack.log.success(`Wrote ${written} file(s).`);
-    clack.log.message([pc.bold('Next steps:'), ...notes.map((n) => `  • ${n}`)].join('\n'));
-    clack.outro(pc.green('Datasource scaffolded.'));
+    await writeScaffoldFiles({
+      root: loaded.root,
+      title: `Datasource ${pc.cyan(resolved.name)}${resolved.default ? pc.dim(' (default)') : ''}`,
+      files,
+      notes,
+      dryRun: opts.dryRun,
+      yes: opts.yes,
+      doneLabel: 'Datasource',
+    });
   } catch (err) {
     if (err instanceof CancelledError) {
       clack.cancel('Cancelled.');
