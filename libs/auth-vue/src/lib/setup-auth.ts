@@ -1,7 +1,7 @@
 import type { AuthEndpointResponse } from '@crouton/auth';
 import type { AxiosInstance } from 'axios';
 
-import { handleCallback, loadOidcUser, setupOidcManager, useAuth } from './use-auth';
+import { handleCallback, loadOidcUser, setupOidcManager, tryRenewOidcUser, useAuth } from './use-auth';
 
 export type AuthSetupResult = {
   enabled: boolean;
@@ -79,25 +79,31 @@ export const setupAuth = async (
     redirect_uri: `${window.location.origin}${callbackPath}`,
     scope: 'openid profile email',
     automaticSilentRenew: true,
+    useRefreshTokens: true,
   });
 
-  await loadOidcUser();
+  let storedUser = await loadOidcUser();
 
   if (isCallbackPage) {
     // On the callback page the code hasn't been exchanged yet — don't flush.
-    // The caller (callback route component) must call flushQueue() after
-    // handleCallback() so queued requests fire with the token.
+    // The caller (plugin install code) calls flushQueue() after handleCallback().
     return { enabled: true, callbackPath, flushQueue };
   }
 
+  // If the stored user's token is expired, attempt silent renewal before
+  // deciding to redirect to login. This handles the page-reload case where
+  // the access token expired but the SSO session in Keycloak is still active.
+  if (storedUser?.expired) {
+    await tryRenewOidcUser();
+  }
+
   if (!getToken()) {
-    // No stored session → redirect to login. The queue is never flushed;
-    // the full page redirect abandons it naturally.
+    // No valid session → redirect to login.
     await login?.();
     return { enabled: true, callbackPath, flushQueue };
   }
 
-  // Authenticated: release queued requests (token interceptor adds Bearer).
+  // Valid token (fresh or just renewed): release queued requests.
   flushQueue();
   return { enabled: true, callbackPath, flushQueue };
 };
