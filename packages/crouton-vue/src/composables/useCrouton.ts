@@ -168,7 +168,9 @@ const createCrouton = (
       await fetchLayout(_config);
     });
 
-    return fetchLayout(_config).then(() => fetchBundle());
+    // Wait for auth interceptors to be registered before fetching layout,
+    // so any 401 from subsequent requests triggers login instead of failing silently.
+    return _authReady.then(() => fetchLayout(_config)).then(() => fetchBundle());
   };
 
   return {
@@ -244,6 +246,7 @@ export type UseCrouton = {
 };
 
 let _crouton: UseCrouton | null = null;
+let _authReady: Promise<unknown> = Promise.resolve();
 
 export const useCrouton = (): UseCrouton => {
   if (!_crouton) {
@@ -279,7 +282,7 @@ export const CroutonPlugin = (
       });
     }
     _crouton = createCrouton(api, options);
-    setupAuth('', api).then((result) => {
+    _authReady = setupAuth('', api).then((result) => {
       if (result.enabled && options.router) {
         options.router.addRoute({
           path: result.callbackPath,
