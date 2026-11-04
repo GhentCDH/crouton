@@ -2,6 +2,7 @@
   "title": "Book Collection",
   "resourcesDir": "apps/backend/src/app/resources",
   "dataSourcesDir": "apps/backend/src/app/data-sources",
+  "authProvidersDir": "apps/backend/src/app/auth-providers",
   "i18n": {
     "defaultLanguage": "en",
     "languages": ["en", "nl", "wv"],

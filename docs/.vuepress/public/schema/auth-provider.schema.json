@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "URL of the JSON Schema for editor autocomplete and validation. Ignored at runtime.",
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable provider name, returned by GET /_app/auth."
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "keycloak",
+        "auth0",
+        "google",
+        "microsoft",
+        "oidc",
+        "dev",
+        "custom"
+      ],
+      "description": "Built-in provider preset, or \"custom\" for an index.ts adapter."
+    },
+    "default": {
+      "description": "Marks this provider as the default when several are configured.",
+      "type": "boolean"
+    },
+    "env": {
+      "description": "Overrides the default env var names, keyed by preset field, e.g. { \"url\": \"MY_KEYCLOAK_URL\" }.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "roles": {
+      "description": "Role extraction settings.",
+      "type": "object",
+      "properties": {
+        "claim": {
+          "description": "Dot-path to the roles claim (overrides the provider preset default).",
+          "type": "string"
+        },
+        "byEmail": {
+          "description": "Maps a role name to the list of emails that receive it (used by the google provider).",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "allowedDomains": {
+          "description": "Reserved for restricting sign-in to these email domains (not currently enforced).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "guards": {
+      "description": "Named guards usable from a resource.json \"security.guard\" entry.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "anyOf": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "allOf": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "anyOf"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "allOf": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "anyOf": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "allOf"
+            ]
+          }
+        ],
+        "description": "A guard definition: an array of role names (anyOf shorthand), or an object combining anyOf/allOf role lists."
+      }
+    },
+    "defaultSecurity": {
+      "description": "Module-level default security applied when neither an operation nor a resource declares any.",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "public": {
+              "type": "boolean",
+              "const": true
+            }
+          },
+          "required": [
+            "public"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "guard": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "guard"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "provider"
+  ],
+  "$id": "https://ghentcdh.github.io/crouton/schema/auth-provider.schema.json",
+  "title": "Crouton auth-provider.json",
+  "description": "Generated from AuthProviderSchema (@ghentcdh/crouton-auth). Do not edit by hand.",
+  "examples": [
+    {
+      "$schema": "https://ghentcdh.github.io/crouton/schema/auth-provider.schema.json",
+      "name": "keycloak",
+      "provider": "keycloak",
+      "default": true,
+      "guards": {
+        "admin": [
+          "admin"
+        ],
+        "editor": {
+          "anyOf": [
+            "editor",
+            "admin"
+          ]
+        },
+        "publisher": {
+          "allOf": [
+            "editor",
+            "reviewer"
+          ]
+        }
+      },
+      "defaultSecurity": {
+        "guard": "authenticated"
+      }
+    }
+  ]
+}
