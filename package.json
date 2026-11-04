@@ -67,7 +67,10 @@
     "zod": "^4.6.5"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "libs/*",
+    "examples/book-collection/apps/*",
+    "examples/book-collection/apps/generated/default/types"
   ],
   "dependencies": {
     "@ghentcdh/create-crouton": "link:packages/create-crouton",
