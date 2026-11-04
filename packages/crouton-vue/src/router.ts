@@ -1,3 +1,5 @@
+import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+
 export const CROUTON_PREFIX = 'crouton';
 export const CROUTON_FORM = `${CROUTON_PREFIX}/form`;
 export const CROUTON_DEV_RESOURCES = `${CROUTON_PREFIX}/dev-resources`;
@@ -9,7 +11,7 @@ const statusRoute = {
   component: () => import('./status/StatusView.vue'),
 };
 
-export const CroutonRouter = [
+export const CroutonRouter: RouteRecordRaw[] = [
   {
     path: '',
     component: () => import('./admin/AdminView.vue'),
@@ -30,7 +32,7 @@ export const CroutonRouter = [
         // Lazy import avoids a load-order cycle (useCrouton → sidebar → CROUTON_FORM → here).
         // If the sidebar is empty (layout not yet fetched), we let the navigation through
         // so the initial page load is not blocked.
-        beforeEnter: async (to) => {
+        beforeEnter: async (to: RouteLocationNormalized) => {
           const { useCrouton } = await import('./composables/useCrouton');
           const { isSidebarGroup, firstLeafId } = await import('./composables/sidebar');
           const nodes = useCrouton().sidebar;
