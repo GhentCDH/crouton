@@ -79,20 +79,10 @@ export const buildSubResources = (
       const childJson = resolution.value.json;
       const childDir = resolution.value.dir;
 
-      // `parent` mounts the child's own controller under the parent route. Also
-      // declaring it as a sub-resource registers a second, competing handler for
-      // the same path off the parent's controller — one of the two silently wins.
-      if (childJson.parent) {
-        resourceLoadErrorsRegistry.record({
-          name: parentRoute,
-          path: resourcePath,
-          error:
-            `Relation column "${c.id}" declares "${childJson.name}" as a sub-resource, but that resource also declares "parent": { "route": "${childJson.parent.route}" }. ` +
-            'The two ways of nesting are mutually exclusive — remove the "parent" block to embed it in this resource, or remove this relation column to keep its own nested controller. Sub-resource routes for it were not registered.',
-          child: { column: c.id, file: resourcePath },
-        });
-        return [];
-      }
+      // The child declares a `parent` block — it owns its routes. Keep the
+      // descriptor (noRoutes: true) so the relation-loader can embed the data,
+      // but do NOT register sub-resource routes off the parent's controller.
+      const noRoutes = !!childJson.parent;
 
       const childRoute =
         childJson.route ??
@@ -288,6 +278,7 @@ export const buildSubResources = (
               ?.displayKey;
           return displayKey ? { displayKey } : {};
         })(),
+        ...(noRoutes && { noRoutes: true }),
       } satisfies SubResourceConfig;
     });
 };
