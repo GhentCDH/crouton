@@ -88,31 +88,43 @@ export const FieldInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Render format hint for the frontend. Use "relation" for sub-resource relations (requires "resource"). The display format; determines which field input is used. Use "fieldInput.type" to override.',
+      'Render format hint for the frontend. The display format; determines which field input is used. Use "fieldInput.type" to override. Note: "relation" format is deprecated — use columns.<id>.relation instead.',
     ),
+  /**
+   * @deprecated Move to `columns.<id>.relation.resource` (run `crouton migrate`).
+   */
   resource: z
     .string()
     .optional()
     .describe(
-      'Relative path to the child resource definition (e.g. "./author.resource"). Required when format is "relation". Resolved at load time to inject sub-resource URIs into options.',
+      'Relative path to the child resource definition (e.g. "./author.resource"). Required when format is "relation". Resolved at load time to inject sub-resource URIs into options. Deprecated: use columns.<id>.relation.resource instead.',
     ),
+  /**
+   * @deprecated Move to `columns.<id>.relation.type` (run `crouton migrate`).
+   */
   relationType: RelationType.optional().describe(
-    'Cardinality of the relation. ' +
+    'Cardinality of the relation. Deprecated: use columns.<id>.relation.type instead.' +
       '"manyToOne" or "oneToOne" — single FK reference rendered as autocomplete or relation control. ' +
       '"oneToMany" or "manyToMany" — collection rendered as a sub-resource table or multi-select. ' +
       'Auto-derived from the Zod model or a sibling FK column when omitted.',
   ),
+  /**
+   * @deprecated Move to `columns.<id>.relation.foreignKey` (run `crouton migrate`).
+   */
   foreignKey: z
     .string()
     .optional()
     .describe(
-      'FK field on the child model pointing back to the parent (e.g. "workId"). Defaults to "${parentModel}Id".',
+      'FK field on the child model pointing back to the parent (e.g. "workId"). Defaults to "${parentModel}Id". Deprecated: use columns.<id>.relation.foreignKey instead.',
     ),
+  /**
+   * @deprecated Move to `columns.<id>.relation.prismaField` (run `crouton migrate`).
+   */
   relation: z
     .string()
     .optional()
     .describe(
-      'Override the Prisma relation field name when it differs from the column id.',
+      'Override the Prisma relation field name when it differs from the column id. Deprecated: use columns.<id>.relation.prismaField instead.',
     ),
   /**
    * TODO remove it

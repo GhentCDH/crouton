@@ -5,7 +5,7 @@ import { ControlBuilder } from '../../layout/control.builder';
 import type { MarkdownOptions } from '../../layout/control.builder';
 import { LayoutBuilder } from '../../layout/layout.builder';
 import type { WhenCondition } from '../../layout/schema/LayoutControl.schema';
-import { type JsonColumn, normalizeUnique } from '../../resource/Column';
+import { type JsonColumn, isRelationColumn, normalizeUnique } from '../../resource/Column';
 import { columnTypeName, columnTypeToJsonSchema } from '../../resource/ColumnType.schema';
 import type { DetailConfig } from '../../resource/FieldInput.schema';
 
@@ -67,7 +67,7 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<Record<string,
   const control = ControlBuilder.propertiesStr(col.id);
   const fieldInput = col.fieldInput;
 
-  if (col.relation !== undefined || fieldInput?.format === 'relation') {
+  if (isRelationColumn(col)) {
     const options: Record<string, unknown> = { ...(fieldInput?.options as object | undefined) };
     if (!options['colspan']) options['colspan'] = 12;
     const relationType = col.relation?.type ?? fieldInput?.relationType;
