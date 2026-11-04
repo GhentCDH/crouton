@@ -7,17 +7,28 @@
     data-form-type="other"
   >
     <Dispatch :uischema="uiSchema" :schema="schema" />
+    <slot name="debug" :errors="errors" :current-values="currentValues" />
   </form>
 </template>
 
 <script setup lang="ts">
 import { useForm } from 'vee-validate';
-import { nextTick, onMounted, provide, ref, toRaw, toRef, watch } from 'vue';
-import { fromJSONSchema } from 'zod';
+import {
+  computed,
+  nextTick,
+  onMounted,
+  provide,
+  ref,
+  toRaw,
+  toRef,
+  watch,
+} from 'vue';
+import { fromJSONSchema, z } from 'zod';
 
 import {
   dropNullableFromRequired,
   enforceRequiredStringMinLength,
+  makeOptionalPropertiesNullable,
 } from '@ghentcdh/crouton-core';
 import { myStyles } from '@ghentcdh/crouton-ui-vue';
 
@@ -48,16 +59,41 @@ registerZodErrorMap();
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
-const patched = enforceRequiredStringMinLength(
-  dropNullableFromRequired(properties.schema),
-);
+const cloneSchema = (schema: any) => {
+  try {
+    return JSON.parse(JSON.stringify(schema));
+  } catch {
+    return schema;
+  }
+};
+
+const patched = (() => {
+  // API resources need optional properties made nullable; the standalone form
+  // keeps the schema exactly as supplied.
+  const source = properties.optionalPropertiesNullable
+    ? cloneSchema(toRaw(properties.schema))
+    : properties.schema;
+  const withoutNullables = dropNullableFromRequired(source);
+  const normalized = properties.optionalPropertiesNullable
+    ? makeOptionalPropertiesNullable(withoutNullables)
+    : withoutNullables;
+  return enforceRequiredStringMinLength(normalized);
+})();
 // Async "is this value already taken?" validation for columns declared unique.
 // Layered onto the generated schema so it runs through vee-validate's standard
 // validation path (field-level rules are unreliable under a form schema).
 const uniqueFields = collectUniqueFields(properties.uiSchema);
 const uniqueCheck = useUniqueCheckFn();
+const baseValidationSchema = (() => {
+  try {
+    return fromJSONSchema(patched as any);
+  } catch (e) {
+    console.warn('[crouton] fromJSONSchema failed, falling back to z.any()', e);
+    return z.any();
+  }
+})();
 const validationSchema = withUniqueChecks(
-  fromJSONSchema(patched as any),
+  baseValidationSchema,
   uniqueFields,
   uniqueCheck,
   (properties.formData as Record<string, unknown> | undefined) ?? undefined,
@@ -67,6 +103,9 @@ const { values, errors, meta, setValues, validate, setFieldTouched } = useForm({
   validationSchema,
   initialValues: properties.formData as Record<string, unknown>,
 });
+
+/** Plain-object snapshot of the current values, exposed to the debug slot. */
+const currentValues = computed(() => toRaw(values));
 
 // Merge base renderers with any extras passed via prop.
 // Extras come last so higher-ranked testers override the defaults.
@@ -179,5 +218,5 @@ const markSubmitted = () => {
 /** Returns a plain-object snapshot of the current vee-validate values. */
 const getCurrentValues = (): Data => toRaw(values) as Data;
 
-defineExpose({ markSubmitted, getCurrentValues });
+defineExpose({ markSubmitted, getCurrentValues, validate });
 </script>
