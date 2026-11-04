@@ -6,7 +6,7 @@ export type ProviderPreset = {
 
 export const PRESETS: Record<string, ProviderPreset> = {
   keycloak: {
-    issuer: (env) => `${env['url']}/realms/${env['realm']}`,
+    issuer: (env) => `${env['url'].replace(/\/$/, '')}/realms/${env['realm']}`,
     rolesClaim: 'realm_access.roles',
   },
   auth0: {
