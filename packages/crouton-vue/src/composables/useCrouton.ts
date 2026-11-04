@@ -185,6 +185,7 @@ const createCrouton = (
     showErrors: computed(() => config.value.showErrors),
     debugValue: computed(() => config.value.debugValue),
     isDev: computed(() => config.value.isDev),
+    isAuthReady: computed(() => !_authPending.value),
     /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
     get renderers() {
       return config.value.renderers;
@@ -232,6 +233,8 @@ export type UseCrouton = {
   showErrors: ComputedRef<boolean>;
   debugValue: ComputedRef<boolean>;
   isDev: ComputedRef<boolean>;
+  /** True once auth setup has completed and requests are being sent with tokens. */
+  isAuthReady: ComputedRef<boolean>;
   readonly renderers: JsonFormsRendererRegistryEntry[];
   readonly customComponents: CustomComponentEntry[];
   readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
@@ -247,6 +250,7 @@ export type UseCrouton = {
 
 let _crouton: UseCrouton | null = null;
 let _authReady: Promise<unknown> = Promise.resolve();
+const _authPending = ref(true);
 
 export const useCrouton = (): UseCrouton => {
   if (!_crouton) {
@@ -321,5 +325,6 @@ export const CroutonPlugin = (
     } else {
       _authReady = authSetup;
     }
+    _authReady.then(() => { _authPending.value = false; });
   },
 });
