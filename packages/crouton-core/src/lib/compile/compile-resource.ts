@@ -41,7 +41,7 @@ export type CompileResolvers = {
     columns: JsonColumn[],
     ctx: { route: string; model: string },
   ) => CompiledSubResourceConfig[];
-  /** Pre-resolve lookup display keys for manyToOne showInLookup columns. Default: `{}`. */
+  /** Pre-resolve display paths for manyToOne relation columns (used by lookup.labels and legacy showInLookup). Default: `{}`. */
   resolveLookupDisplayKeys?: (columns: JsonColumn[]) => Record<string, string>;
 };
 
