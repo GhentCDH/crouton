@@ -1,7 +1,7 @@
 import { type LoadedProvider, loadAuthProviders } from '@crouton/auth/server';
 import { AuthController, CroutonAuthMiddlewareGuard, buildGuardClasses } from '@crouton/auth-nest';
 import { type DynamicModule, Module } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, Reflector } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { errorMessage, registerResourceExtensions } from '@ghentcdh/crouton-core';
 
@@ -250,9 +250,8 @@ export class CroutonApiModule {
         // without guards the dispatching guard is never applied (see factory).
         ...(securityEnabled
           ? [
-              Reflector,
               { provide: SecurityGuardRegistry, useValue: guardRegistry },
-              CroutonSecurityGuard,
+              { provide: APP_GUARD, useClass: CroutonSecurityGuard },
               ...guardRegistry.classes(),
             ]
           : []),
