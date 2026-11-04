@@ -1,13 +1,14 @@
 import { evaluateGuard } from '@crouton/auth';
 import type { CroutonUser, LoadedProvider, RoleGuard } from '@crouton/auth';
-import { type CanActivate, type ExecutionContext, Injectable, type Type } from '@nestjs/common';
+import { type CanActivate, type ExecutionContext, Injectable, type Type, UnauthorizedException } from '@nestjs/common';
 
 export const createAuthenticatedGuard = (): Type<CanActivate> => {
   @Injectable()
   class AuthenticatedGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
       const req = context.switchToHttp().getRequest<{ user?: CroutonUser }>();
-      return !!req.user;
+      if (!req.user) throw new UnauthorizedException();
+      return true;
     }
   }
   Object.defineProperty(AuthenticatedGuard, 'name', { value: 'AuthenticatedGuard' });
