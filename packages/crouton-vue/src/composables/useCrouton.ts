@@ -288,43 +288,29 @@ export const CroutonPlugin = (
     _crouton = createCrouton(api, options);
     const authSetup = setupAuth('', api);
 
+    // Always register the callback route so the router doesn't 404.
+    // The actual callback logic runs in the plugin install code (see below)
+    // so it is not blocked by the loading screen hiding <router-view>.
     if (options.router) {
-      if (window.location.pathname === '/auth/callback') {
-        // On callback page: delay _authReady until token is exchanged so that
-        // fetchLayout runs with the Bearer token, not before it's available.
-        let resolveCallback!: () => void;
-        _authReady = new Promise<void>((resolve) => { resolveCallback = resolve; });
-        options.router.addRoute({
-          path: '/auth/callback',
-          component: {
-            async setup() {
-              const { flushQueue } = await authSetup;
-              await handleCallback();
-              flushQueue(); // Release queued requests now that token is set.
-              resolveCallback();
-              await options.router!.push('/');
-              return () => null;
-            },
-          },
-        });
-      } else {
-        _authReady = authSetup;
-        options.router.addRoute({
-          path: '/auth/callback',
-          component: {
-            async setup() {
-              const { flushQueue } = await authSetup;
-              await handleCallback();
-              flushQueue();
-              await options.router!.push('/');
-              return () => null;
-            },
-          },
-        });
-      }
+      options.router.addRoute({
+        path: '/auth/callback',
+        component: { template: '<div />' },
+      });
+    }
+
+    if (window.location.pathname === '/auth/callback') {
+      // Callback page: handle the OIDC code exchange here (not in a route
+      // component) so it runs even while the loading screen hides <router-view>.
+      _authReady = authSetup.then(async ({ flushQueue }) => {
+        await handleCallback();
+        flushQueue();
+        if (options.router) await options.router.push('/');
+      });
     } else {
+      // Non-callback pages: authSetup handles flushQueue internally.
       _authReady = authSetup;
     }
+
     _authReady.then(() => { _authPending.value = false; });
   },
 });
