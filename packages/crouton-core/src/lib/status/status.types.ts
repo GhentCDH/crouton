@@ -1,5 +1,3 @@
-// TODO should move to crouton-core
-
 export interface DatabaseStatus {
   name: string;
   connected: boolean;

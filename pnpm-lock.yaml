@@ -464,6 +464,9 @@ importers:
 
   libs/status:
     dependencies:
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../../packages/crouton-core
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
