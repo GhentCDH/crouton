@@ -64,9 +64,17 @@ export const registerUniqueCheck = (ctx: OperationContext): void => {
       ]);
     }
 
+    const prismaDb = (this.repo as { prisma?: Record<string, unknown> }).prisma;
+    const provider = (prismaDb as { _activeProvider?: string })?._activeProvider ?? 'postgresql';
+    const model = prismaDb?.[modelName] as
+      | { findFirst(args: unknown): Promise<unknown> }
+      | undefined;
+    // No queryable model (should not happen past the guard) → treat as free.
+    if (!model) return { unique: true };
+
     const dbName = columnDbName(entry.column);
     const where: Record<string, unknown> = {
-      [dbName]: entry.unique.caseInsensitive
+      [dbName]: entry.unique.caseInsensitive && provider !== 'sqlite'
         ? { equals: value, mode: 'insensitive' }
         : value,
     };
@@ -88,13 +96,6 @@ export const registerUniqueCheck = (ctx: OperationContext): void => {
         where[dbNameForId(config, scopeId)] = parsed[scopeId] ?? null;
       }
     }
-
-    const prismaDb = (this.repo as { prisma?: Record<string, unknown> }).prisma;
-    const model = prismaDb?.[modelName] as
-      | { findFirst(args: unknown): Promise<unknown> }
-      | undefined;
-    // No queryable model (should not happen past the guard) → treat as free.
-    if (!model) return { unique: true };
 
     const row = await model.findFirst({
       where,
