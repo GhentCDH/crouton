@@ -1,34 +1,16 @@
 import { z } from 'zod';
 
-import { parseSchema, uiFromJsonSchema } from '@ghentcdh/crouton-core';
+import type { Method, Operation } from '@ghentcdh/crouton-core';
+import {
+  BooleanOperationSchema,
+  OperationSchema,
+  parseSchema,
+  uiFromJsonSchema,
+} from '@ghentcdh/crouton-core';
 
 import type { HttpClient } from '../../../http-client';
 
-/** Supported HTTP methods for resource operations. */
-const MethodSchema = z.enum([
-  'get',
-  'post',
-  'delete',
-  'put',
-  'patch',
-  'GET',
-  'POST',
-  'DELETE',
-  'PUT',
-  'PATCH',
-]);
-type Method = z.infer<typeof MethodSchema>;
-const OperationSchema = z.object({
-  uri: z.string(),
-  method: MethodSchema,
-});
-type Operation = z.infer<typeof OperationSchema>;
 const OperationsSchema = z.string().or(OperationSchema);
-const BooleanOperationSchema = z
-  .boolean()
-  .or(OperationSchema)
-  .optional()
-  .default(false);
 
 const Operations = z.object({
   findAll: BooleanOperationSchema,
