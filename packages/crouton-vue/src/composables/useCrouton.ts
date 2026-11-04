@@ -283,23 +283,41 @@ export const CroutonPlugin = (
     }
     _crouton = createCrouton(api, options);
     const authSetup = setupAuth('', api);
-    _authReady = authSetup;
 
-    // Register callback route synchronously so it exists on fresh page load
-    // (keycloak redirects back before setupAuth resolves). The component awaits
-    // authSetup so manager is initialized before handleCallback() runs.
     if (options.router) {
-      options.router.addRoute({
-        path: '/auth/callback',
-        component: {
-          async setup() {
-            await authSetup;
-            await handleCallback();
-            await options.router!.push('/');
-            return () => null;
+      if (window.location.pathname === '/auth/callback') {
+        // On callback page: delay _authReady until token is exchanged so that
+        // fetchLayout runs with the Bearer token, not before it's available.
+        let resolveCallback!: () => void;
+        _authReady = new Promise<void>((resolve) => { resolveCallback = resolve; });
+        options.router.addRoute({
+          path: '/auth/callback',
+          component: {
+            async setup() {
+              await authSetup;
+              await handleCallback();
+              resolveCallback();
+              await options.router!.push('/');
+              return () => null;
+            },
           },
-        },
-      });
+        });
+      } else {
+        _authReady = authSetup;
+        options.router.addRoute({
+          path: '/auth/callback',
+          component: {
+            async setup() {
+              await authSetup;
+              await handleCallback();
+              await options.router!.push('/');
+              return () => null;
+            },
+          },
+        });
+      }
+    } else {
+      _authReady = authSetup;
     }
   },
 });
