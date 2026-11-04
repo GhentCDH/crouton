@@ -20,7 +20,7 @@ export const setupAuth = async (
   axios.interceptors.response.use(
     (r) => r,
     async (err) => {
-      if (err?.response?.status === 401) {
+      if (err?.response?.status === 401 && !window.location.pathname.startsWith('/auth/')) {
         const { login } = useAuth();
         await login?.();
       }
