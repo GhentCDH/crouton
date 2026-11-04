@@ -1,4 +1,4 @@
-import type { PropType } from 'vue';
+import type { ExtractPublicPropTypes, PropType } from 'vue';
 
 import type { HttpClient } from '../http-client';
 import type { ErrorMode } from './errorMode';
@@ -46,7 +46,19 @@ export const JsonFormComponentProperties = {
     type: Boolean,
     default: false,
   },
+  /**
+   * Make optional object properties nullable before generating the validation
+   * schema. Used by API-backed resources, whose optional fields may be `null`.
+   */
+  optionalPropertiesNullable: {
+    type: Boolean,
+    default: false,
+  },
 };
+
+export type JsonFormComponentProp = ExtractPublicPropTypes<
+  typeof JsonFormComponentProperties
+>;
 
 export const JsonFormComponentEmits = [
   /** Emitted when form data changes. */
