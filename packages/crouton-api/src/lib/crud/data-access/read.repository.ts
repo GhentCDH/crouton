@@ -188,10 +188,6 @@ export class ReadRepository<T = unknown> {
     };
   }
 
-  private resolveRequestedIncludes(requestedIncludes: string[]): string[] {
-    return this.splitRequestedIncludes(requestedIncludes).prismaFields;
-  }
-
   /**
    * Fetch a paginated, sorted, and filtered list of records.
    * Sub-resource counts are merged onto each row; calculated columns are resolved via raw SQL.
