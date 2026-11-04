@@ -31,7 +31,7 @@ export const createOidcVerifier = (opts: VerifierOptions) => {
       const jwksFunc = await getJwks();
       const { payload } = await jwtVerify(token, jwksFunc, {
         issuer: opts.issuer,
-        audience: opts.audience ?? opts.clientId,
+        ...(opts.audience ? { audience: opts.audience } : {}),
       });
       return mapClaims(payload as Record<string, unknown>, opts.config, opts.rolesClaim, opts.providerName);
     } catch {
