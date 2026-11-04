@@ -33,6 +33,7 @@ export type LoadedProvider = {
   strategyName: string;
   isDefault: boolean;
   issuer?: string;
+  clientId?: string;
   /** Set only for `custom` providers. */
   adapter?: AuthProviderAdapter;
 };

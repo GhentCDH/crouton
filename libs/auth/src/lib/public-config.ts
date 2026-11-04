@@ -4,6 +4,7 @@ const providerClientConfig = (p: LoadedProvider): PublicAuthConfig =>
   p.adapter?.clientConfig?.() ?? {
     provider: p.config.provider,
     issuer: p.issuer,
+    clientId: p.clientId,
   };
 
 export const buildPublicAuthConfig = (

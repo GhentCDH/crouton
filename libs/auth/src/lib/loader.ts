@@ -25,6 +25,7 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
     const envMap = { ...getDefaultEnv(config.provider), ...(config.env ?? {}) };
 
     let issuer: string | undefined;
+    let clientId: string | undefined;
     let adapter: AuthProviderAdapter | undefined;
 
     if (config.provider === 'custom') {
@@ -40,9 +41,10 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
       const preset = PRESETS[config.provider];
       if (!preset) throw new Error(`Unknown provider: ${config.provider}`);
       issuer = preset.issuer(env);
+      clientId = env['clientId'];
     }
 
-    providers.push({ config, strategyName: name, isDefault: config.default ?? false, issuer, adapter });
+    providers.push({ config, strategyName: name, isDefault: config.default ?? false, issuer, clientId, adapter });
   }
 
   if (providers.length > 0 && !providers.some((p) => p.isDefault)) {
