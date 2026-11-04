@@ -78,10 +78,11 @@ export class ReadRepository<T = unknown> {
     if (!filter?.length) return undefined;
     const allowlist = this.config.filterAllowlist;
     if (allowlist?.length) {
+      const idField = this.config.idField;
       const forbidden = filter
         .map(parseFilterString)
         .filter(Boolean)
-        .filter((p) => !allowlist.includes(p!.field));
+        .filter((p) => p!.field !== idField && !allowlist.includes(p!.field));
       if (forbidden.length) {
         throw new BadRequestException(
           `Filter field not allowed: ${forbidden.map((p) => p!.field).join(', ')}`,
