@@ -1,5 +1,4 @@
-import type { Component } from 'vue';
-import type { PropType } from 'vue';
+import type { Component, PropType  } from 'vue';
 
 import type { UseResource } from './useResources';
 

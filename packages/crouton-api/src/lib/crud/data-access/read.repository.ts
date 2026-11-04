@@ -25,6 +25,7 @@ import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../types/prisma.types';
 import type { CroutonRequest } from '../types/request.types';
+import { loadRelationsIntoRow, loadRelationsIntoRows } from './middleware/relation-loader';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath } from './query/filter';
 import { orderableChildSort } from './query/sort';
@@ -145,13 +146,16 @@ export class ReadRepository<T = unknown> {
   }
 
   /**
-   * Validate `?include=` ids against the table's allowed relation includes and
-   * map them to Prisma relation fields. Shared by `findAll` and `findOne`.
+   * Validate `?include=` ids and split into Prisma-native fields and custom-child column ids.
+   * Prisma fields go into the `include` clause; custom column ids go to the relation loader.
    */
-  private resolveRequestedIncludes(requestedIncludes: string[]): string[] {
-    if (!requestedIncludes.length) return [];
+  private splitRequestedIncludes(requestedColumnIds: string[]): {
+    prismaFields: string[];
+    customColumnIds: string[];
+  } {
+    if (!requestedColumnIds.length) return { prismaFields: [], customColumnIds: [] };
 
-    const nested = requestedIncludes.filter((v) => v.includes('.'));
+    const nested = requestedColumnIds.filter((v) => v.includes('.'));
     if (nested.length) {
       throw new BadRequestException(
         `Nested includes are not supported: ${nested.join(', ')}`,
@@ -162,16 +166,26 @@ export class ReadRepository<T = unknown> {
       columns,
       resolveLayoutVisibility(this.config.layout, columns).table,
     );
-    const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
+    const unknown = requestedColumnIds.filter((v) => !allowed.includes(v));
     if (unknown.length) {
       throw new BadRequestException({
         message: `Unknown or forbidden include: ${unknown.join(', ')}`,
         allowed,
       });
     }
-    return requestedIncludes.map((id) =>
-      resolveIncludeToRelationField(id, columns),
+
+    const customSubColumns = new Set(
+      (this.config.subResources ?? [])
+        .filter((s) => s.childKind === 'custom')
+        .map((s) => s.column),
     );
+
+    return {
+      prismaFields: requestedColumnIds
+        .filter((id) => !customSubColumns.has(id))
+        .map((id) => resolveIncludeToRelationField(id, columns)),
+      customColumnIds: requestedColumnIds.filter((id) => customSubColumns.has(id)),
+    };
   }
 
   /**
@@ -224,7 +238,7 @@ export class ReadRepository<T = unknown> {
       ? Object.fromEntries(manyToOneIncludes.map((r) => [r, true]))
       : undefined;
 
-    const dynamicPrismaFields = this.resolveRequestedIncludes(
+    const { prismaFields: dynamicPrismaFields, customColumnIds } = this.splitRequestedIncludes(
       params.include ?? [],
     );
 
@@ -312,8 +326,17 @@ export class ReadRepository<T = unknown> {
       this.config.idField ?? 'id',
       this.adapter.provider,
     );
+
+    // Load custom-child relations for explicit ?include= requests.
+    const customRequestedSubs = (this.config.subResources ?? []).filter(
+      (s) => s.childKind === 'custom' && customColumnIds.includes(s.column),
+    );
+    const withRelations = customRequestedSubs.length
+      ? await loadRelationsIntoRows(withCalc as Row[], customRequestedSubs, this.config.idField ?? 'id', this.prisma)
+      : withCalc;
+
     // Resource-level afterRead + valueLabel decoration is applied by the factory wrapper.
-    return withCalc as T[];
+    return withRelations as T[];
   }
 
   private static searchWhere(
@@ -367,7 +390,7 @@ export class ReadRepository<T = unknown> {
               .filter(Boolean),
         )
       : [];
-    const dynamicPrismaFields = this.resolveRequestedIncludes(
+    const { prismaFields: dynamicPrismaFields, customColumnIds } = this.splitRequestedIncludes(
       requestedIncludes,
     );
 
@@ -420,6 +443,21 @@ export class ReadRepository<T = unknown> {
         this.adapter.provider,
       );
       enriched = { ...(enriched as Record<string, unknown>), [sub.relation]: enrichedNested };
+    }
+
+    // Load custom-child relations that Prisma native include cannot reach.
+    const customSubs = (this.config.subResources ?? []).filter(
+      (s) =>
+        s.childKind === 'custom' &&
+        (s.includeRelationInParentFindOne || customColumnIds.includes(s.column)),
+    );
+    if (customSubs.length) {
+      enriched = await loadRelationsIntoRow(
+        enriched as Row,
+        customSubs,
+        this.config.idField ?? 'id',
+        this.prisma,
+      );
     }
 
     // Resource-level afterRead decoration is applied by the factory wrapper.

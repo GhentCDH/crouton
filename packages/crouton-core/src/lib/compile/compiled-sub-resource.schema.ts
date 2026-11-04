@@ -46,6 +46,12 @@ export const CompiledSubResourceConfigSchema = z.object({
   layout: z.record(z.string(), z.unknown()).optional(),
   rowActions: z.array(JsonActionSchema).optional(),
   tableActions: z.array(JsonActionSchema).optional(),
+  /**
+   * When true the child mounts its own routes (via `parent` block) — the
+   * parent's controller must NOT register duplicate routes for it, but the
+   * descriptor is kept so the relation-loader can embed the child's data.
+   */
+  noRoutes: z.boolean().optional(),
 });
 
 export type CompiledSubResourceConfig = z.infer<typeof CompiledSubResourceConfigSchema>;
