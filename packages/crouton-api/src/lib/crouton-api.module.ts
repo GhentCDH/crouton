@@ -9,6 +9,7 @@ import type { CroutonAppConfig } from './crud/app-config';
 import { createAppLayoutController } from './crud/app-layout';
 import { type LoadedConfig, loadConfig } from './crud/config/read';
 import { CroutonValidationExceptionFilter } from './crud/crouton-validation.filter';
+import { HttpExceptionDuckFilter } from './crud/http-exception.filter';
 import { createCrudController } from './crud/crud-controller.factory';
 import { validateCustomRepository } from './crud/custom-repository';
 import type {
@@ -232,6 +233,7 @@ export class CroutonApiModule {
       exports: [ResourceConfigRegistry],
       providers: [
         { provide: APP_INTERCEPTOR, useClass: NoCacheInterceptor },
+        { provide: APP_FILTER, useClass: HttpExceptionDuckFilter },
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },
