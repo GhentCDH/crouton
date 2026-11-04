@@ -14,6 +14,7 @@ export { configureApi, useApi } from './composables/useApi';
 
 export * from './router';
 export * from './composables/useCrouton';
+export { useAuth } from '@crouton/auth-vue';
 export { useLanguage } from './i18n/useLanguage';
 export { default as LanguageSelect } from './i18n/LanguageSelect.vue';
 export * from './resource/resource-modal';

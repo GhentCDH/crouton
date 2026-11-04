@@ -1,3 +1,4 @@
+import { handleCallback, setupAuth, useAuth } from '@crouton/auth-vue';
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
@@ -13,7 +14,6 @@ import { UI_TRANSLATOR_KEY } from '@ghentcdh/crouton-ui-vue';
 
 import { CROUTON_STATUS } from '../router';
 import { ResourceDefinitionCache } from './resource-definition';
-import { firstLeafId, isSidebarGroup } from './sidebar';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
@@ -220,15 +220,6 @@ const createCrouton = (
      * open ResourceTable's cached config.
      */
     refreshLayout: () => fetchLayout(),
-    /** True when formId is accessible via the sidebar (visible, not hidden/draft). */
-    isInSidebar: (formId: string): boolean =>
-      sidebar.value.some((n) =>
-        isSidebarGroup(n) ? n.children.some((c) => c.id === formId) : n.id === formId,
-      ),
-    /** First reachable formId from the sidebar, or undefined when sidebar is empty. */
-    get firstSidebarId(): string | undefined {
-      return firstLeafId(sidebar.value);
-    },
   };
 };
 export type UseCrouton = {
@@ -250,8 +241,6 @@ export type UseCrouton = {
   invalidateFormDef: (formId: string) => void;
   invalidateAllFormDefs: () => void;
   refreshLayout: () => Promise<void>;
-  isInSidebar: (formId: string) => boolean;
-  readonly firstSidebarId: string | undefined;
 };
 
 let _crouton: UseCrouton | null = null;
@@ -290,5 +279,19 @@ export const CroutonPlugin = (
       });
     }
     _crouton = createCrouton(api, options);
+    setupAuth('', api).then((result) => {
+      if (result.enabled && options.router) {
+        options.router.addRoute({
+          path: result.callbackPath,
+          component: {
+            async setup() {
+              await handleCallback();
+              await options.router!.push('/');
+              return () => null;
+            },
+          },
+        });
+      }
+    });
   },
 });

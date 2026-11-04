@@ -38,6 +38,8 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@crouton/auth": "workspace:*",
+    "@crouton/auth-nest": "workspace:*",
     "@crouton/i18n": "workspace:*",
     "@crouton/status": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
