@@ -4,6 +4,15 @@ export { useFormLogic } from './composables/useFormLogic';
 
 // Types
 export { default as FormComponent } from './forms/FormComponent.vue';
+export {
+  JsonFormComponentEmits,
+  JsonFormComponentProperties,
+} from './forms/FormComponent.properties';
+export type {
+  Data,
+  JsonFormComponentProp,
+  SubmitFormEvent,
+} from './forms/FormComponent.properties';
 
 export { default as ReadonlyLabel } from './forms/renderers/controls/readonly/ReadonlyLabel.vue';
 export { default as ControlLabel } from './forms/renderers/controls/ControlLabel.vue';
