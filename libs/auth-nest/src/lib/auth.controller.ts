@@ -6,8 +6,8 @@ export class AuthController {
   constructor(@Inject('CROUTON_AUTH_PROVIDERS') private readonly providers: LoadedProvider[]) {}
 
   @Get('auth')
-  getAuthConfig(): AuthEndpointResponse {
-    return buildPublicAuthConfig(this.providers);
+  getAuthConfig(@Req() req: { user?: CroutonUser }): AuthEndpointResponse {
+    return buildPublicAuthConfig(this.providers, !!req.user);
   }
 
   @Get('me')

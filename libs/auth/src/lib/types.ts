@@ -34,6 +34,7 @@ export type LoadedProvider = {
 };
 
 export type AuthEndpointResponse = {
+  isAuthenticated: boolean;
   providers: Array<PublicAuthConfig & { name: string; default: boolean }>;
 };
 
