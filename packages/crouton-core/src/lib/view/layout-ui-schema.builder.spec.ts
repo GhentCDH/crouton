@@ -84,12 +84,24 @@ describe('buildFormUiSchemaFromLayout – control overrides', () => {
     expect(byScope(ui, 'name')?.options?.['label']).toBe('Full name');
   });
 
-  it('applies hideLabel override', () => {
+  it('applies hideLabel: true override', () => {
     const node = invalid<LayoutNode>({
       items: [{ id: 'name', hideLabel: true }, 'bio', 'status'],
     });
     const ui = buildFormUiSchemaFromLayout(node, cols);
     expect(byScope(ui, 'name')?.options?.['hideLabel']).toBe(true);
+  });
+
+  it('applies hideLabel: false override — shows label even when column has hideLabel: true', () => {
+    const hideLabelCols = parse([
+      { id: 'name', hideLabel: true, fieldInput: { type: 'text' } },
+      { id: 'bio', fieldInput: { type: 'text' } },
+    ]);
+    const node = invalid<LayoutNode>({
+      items: [{ id: 'name', hideLabel: false }, 'bio'],
+    });
+    const ui = buildFormUiSchemaFromLayout(node, hideLabelCols);
+    expect(byScope(ui, 'name')?.options?.['hideLabel']).toBe(false);
   });
 
   it('preserves format when only options are overridden (no type)', () => {
@@ -216,5 +228,17 @@ describe('orderTableColumnsFromLayout', () => {
       (e) => (e.scope ?? '').replace('#/properties/', ''),
     );
     expect(ids).toEqual(['status']);
+  });
+
+  it('applies label override to table columns', () => {
+    const view: ViewConfig = {
+      data: {},
+      ui: buildTableUiSchema(tableCols),
+      columns: tableCols,
+    };
+    const node = invalid<LayoutNode>({ items: [{ id: 'name', label: 'Author name' }, 'bio', 'status'] });
+    const ordered = orderTableColumnsFromLayout(view, node);
+    expect(ordered.columns?.[0].label).toBe('Author name');
+    expect(ordered.columns?.[1].label).toBeUndefined(); // bio has no explicit label
   });
 });

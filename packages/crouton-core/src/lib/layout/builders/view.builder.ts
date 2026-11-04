@@ -33,7 +33,7 @@ export const buildViewLayout = (
     viewCols,
     (c) => fieldIds.has(c.id),
     uiBuilder,
-    true,
+    node == null, // sort by position only when no explicit layout (layout order wins)
     undefined,
     ctx.resourceName,
   );

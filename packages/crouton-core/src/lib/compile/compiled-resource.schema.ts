@@ -42,6 +42,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   // sub-resource schema does not introduce.
   subResources: z.array(CompiledSubResourceConfigSchema),
   search: z.array(z.string()).optional(),
+  /** Column ids the server accepts in the ?filter= query param. Absent = all columns allowed. */
+  filterAllowlist: z.array(z.string()).optional(),
   lookup: LookupSchema.optional(),
   /** Omitted when the resource has no layout-derived views. */
   views: OptionalViewsSchema,

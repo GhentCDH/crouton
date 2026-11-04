@@ -26,7 +26,7 @@ export const buildTableLayout = (
   const tableCols = columns?.map((c) => columnForContext(c, 'table'));
   const fieldIds =
     ctx.fieldIds?.table ?? collectNodeFieldIds(node as LayoutNode | undefined, 'table');
-  let table = buildView(source, tableCols, (c) => fieldIds.has(c.id), buildTableUiSchema, true, undefined, ctx.resourceName);
+  let table = buildView(source, tableCols, (c) => fieldIds.has(c.id), buildTableUiSchema, node == null, undefined, ctx.resourceName);
   if (table) {
     const defaultSortResult = resolveDefaultSort(
       (table.columns ?? []) as JsonColumn[],

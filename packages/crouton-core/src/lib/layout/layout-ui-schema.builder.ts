@@ -53,7 +53,8 @@ const applyControlOverrides = (
   if (ctrl.rowspan !== undefined) base.rowspan(ctrl.rowspan);
   if (ctrl.width !== undefined) base.width(ctrl.width);
   if (ctrl.label !== undefined) base.label(ctrl.label);
-  if (ctrl.hideLabel) base.hideLabel();
+  if (ctrl.hideLabel === true) base.hideLabel();
+  else if (ctrl.hideLabel === false) base.showLabel();
   const control = resolveItemControl(ctrl);
   if (control.hasControl) {
     if (control.type !== undefined) {

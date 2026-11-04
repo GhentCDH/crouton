@@ -51,11 +51,15 @@ export const DetailConfigSchema = z.object({
     .describe(
       'Property key used as the heading for each array item in "collapse" mode.',
     ),
-  controls: z
+  items: z
     .array(DetailControlSchema)
     .describe(
       'Controls to render for each array item. Each control maps to a property of the item object.',
     ),
+  /** @deprecated Renamed to `items`. Use `items` and run `crouton migrate layout`. */
+  controls: z
+    .never({ error: '`fieldInput.detail.controls` was renamed to `fieldInput.detail.items`. Run `crouton migrate layout` to update.' })
+    .optional(),
 });
 
 export type DetailConfig = z.infer<typeof DetailConfigSchema>;
