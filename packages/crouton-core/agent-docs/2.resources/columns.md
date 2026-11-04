@@ -292,7 +292,43 @@ The top-level `calculatedColumns` array is removed — computed columns live on
 
 ## Includes
 
-Eagerly load relations with the list/detail queries. Declare them per operation so `findAll` and `findOne` can differ:
+Eagerly load relations with the list/detail queries. Declare them per operation so `findAll` and `findOne` can differ.
+
+### Dot-path strings (recommended for simple nesting)
+
+Use `"a.b"` shorthand instead of the verbose object form when you don't need `orderBy`:
+
+```json
+{
+  "operations": {
+    "findAll": {
+      "include": [
+        "author",
+        "chapters.sections"
+      ]
+    }
+  }
+}
+```
+
+Multiple dot-path entries for the same top-level relation are **deep-merged**:
+
+```json
+"include": ["a.b", "a.c"]
+// → { a: { include: { b: true, c: true } } }
+```
+
+Mix dot paths and object form freely — they merge on the same relation:
+
+```json
+"include": [
+  "chapters.sections",
+  { "relation": "chapters", "orderBy": { "position": "asc" } }
+]
+// → chapters included with sections nested + orderBy applied
+```
+
+### Object form (when you need options)
 
 ```json
 {
@@ -302,26 +338,8 @@ Eagerly load relations with the list/detail queries. Declare them per operation 
         "author",
         {
           "relation": "chapters",
-          "orderBy": {
-            "position": "asc"
-          },
-          "include": [
-            "sections"
-          ]
-        }
-      ]
-    },
-    "findOne": {
-      "include": [
-        "author",
-        {
-          "relation": "chapters",
-          "orderBy": {
-            "position": "asc"
-          },
-          "include": [
-            "sections"
-          ]
+          "orderBy": { "position": "asc" },
+          "include": ["sections"]
         }
       ]
     }
@@ -331,11 +349,11 @@ Eagerly load relations with the list/detail queries. Declare them per operation 
 
 When `findOne.include` is absent, crouton falls back to `findAll.include`.
 
-| Field      | Type     | Description                                                      |
-|------------|----------|------------------------------------------------------------------|
-| `relation` | `string` | Prisma relation field name                                       |
+| Field      | Type     | Description                                                       |
+|------------|----------|-------------------------------------------------------------------|
+| `relation` | `string` | Prisma relation field name                                        |
 | `orderBy`  | `object` | Optional sort: `{ field: 'asc' \| 'desc' }` for included records |
-| `include`  | `array`  | Nested includes                                                  |
+| `include`  | `array`  | Nested includes (string, dot-path, or object)                     |
 
 When a relation column has a `sort` option (see [Relations](relations.md#sorting-related-records)), the loader
 automatically injects the corresponding `orderBy` into the include clause — no manual configuration needed.
