@@ -69,9 +69,51 @@ export const loadRelationsIntoRow = async (
   return { ...row, ...Object.fromEntries(patches) };
 };
 
+const batchLoadRelation = async (
+  rows: Row[],
+  sub: SubResourceConfig,
+  parentIdField: string,
+  prisma: unknown,
+): Promise<Row[]> => {
+  if (sub.childKind !== 'custom') {
+    const delegate = getDelegate(prisma as PrismaClientLike, sub.childModel);
+    if (!delegate) return rows;
+
+    if (sub.relationType === 'manyToOne') {
+      const fks = [...new Set(rows.map((r) => r[sub.foreignKey]).filter((v) => v != null))];
+      if (!fks.length) return rows.map((r) => ({ ...r, [sub.column]: null }));
+      const idField = sub.idField ?? 'id';
+      const children = (await delegate.findMany({ where: { [idField]: { in: fks } } })) as Row[];
+      const byId = new Map(children.map((c) => [String(c[idField]), c]));
+      return rows.map((r) => ({
+        ...r,
+        [sub.column]: r[sub.foreignKey] != null ? (byId.get(String(r[sub.foreignKey])) ?? null) : null,
+      }));
+    }
+
+    const parentIds = [...new Set(rows.map((r) => r[parentIdField]).filter((v) => v != null))];
+    if (!parentIds.length) return rows.map((r) => ({ ...r, [sub.column]: [] }));
+    const children = (await delegate.findMany({ where: { [sub.foreignKey]: { in: parentIds } } })) as Row[];
+    const byParent = new Map<string, Row[]>();
+    for (const child of children) {
+      const pid = String(child[sub.foreignKey]);
+      if (!byParent.has(pid)) byParent.set(pid, []);
+      byParent.get(pid)!.push(child);
+    }
+    return rows.map((r) => ({
+      ...r,
+      [sub.column]: byParent.get(String(r[parentIdField])) ?? [],
+    }));
+  }
+
+  // ponytail: custom child N+1 per row; batch by adding findAllBy(field, values) to CustomRepository when throughput matters
+  if (!sub.repository) return rows.map((r) => ({ ...r, [sub.column]: sub.relationType === 'manyToOne' ? null : [] }));
+  return Promise.all(rows.map((row) => loadRelationsIntoRow(row, [sub], parentIdField, prisma)));
+};
+
 /**
  * Embed sub-resource relations into multiple rows after the main fetch.
- * ponytail: N+1 per row; batch with findAllBy(field, values) when throughput matters
+ * Prisma children are batched (one query per relation); custom children are N+1.
  */
 export const loadRelationsIntoRows = async (
   rows: Row[],
@@ -80,6 +122,10 @@ export const loadRelationsIntoRows = async (
   prisma: unknown,
 ): Promise<Row[]> => {
   if (!subsToLoad.length || !rows.length) return rows;
-  // ponytail: N+1 per row; batch with findAllBy(field, values) when throughput matters
-  return Promise.all(rows.map((row) => loadRelationsIntoRow(row, subsToLoad, parentIdField, prisma)));
+
+  let result = rows;
+  for (const sub of subsToLoad) {
+    result = await batchLoadRelation(result, sub, parentIdField, prisma);
+  }
+  return result;
 };
