@@ -8,7 +8,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const rootDir = new URL('..', import.meta.url).pathname;
-const packagesDir = join(rootDir, 'packages');
+const projectRoots = [join(rootDir, 'packages'), join(rootDir, 'libs')];
 const FAIL_MODE = process.argv.includes('--fail');
 const SHOW_ALL = process.argv.includes('--all');
 
@@ -58,7 +58,13 @@ const BRIDGES = new Set([
   'ParseAppConfig|crouton-api,crouton-core',
   'ParseSchemaInput|crouton-api,crouton-core',
   'ParseSchemaView|crouton-api,crouton-core',
-  'parseSchema|crouton-api,crouton-core,crouton-vue',
+  'parseSchema|crouton-core,crouton-vue',
+  // Frontend re-exports: one definition in core, re-exported by the vue packages.
+  'labelFromId|crouton-core,crouton-forms-vue',
+  'SortDirEnum|crouton-core,crouton-forms-vue',
+  'useFormEvents|crouton-forms-vue,crouton-vue',
+  // api testing barrel re-exports the shared test cast helper from core.
+  'invalid|crouton-api,crouton-core',
 ]);
 
 // §2.1 Real copies: same logic written twice. Goal = zero.
@@ -67,7 +73,6 @@ const COPIES = new Set([]);
 
 // Codegen bridges (out of scope for this plan)
 const CODEGEN_BRIDGES = new Set([
-  'labelFromId|crouton-codegen,crouton-core,crouton-forms-vue',
   'loadConfig|crouton-api,crouton-codegen',
   'LoadedConfig|crouton-api,crouton-codegen',
   'RESOURCE_SCHEMA_URL|crouton-codegen,crouton-core',
@@ -168,7 +173,6 @@ const DEFERRED = new Set([
   'ResponseSchema|crouton-core,crouton-forms-vue',
   'Size|crouton-core,crouton-forms-vue,crouton-ui-vue',
   'SortDir|crouton-core,crouton-vue',
-  'SortDirEnum|crouton-core,crouton-forms-vue,crouton-vue',
   'StringOrArray|crouton-core,crouton-forms-vue',
   'stringToFilter|crouton-core,crouton-forms-vue',
   'SubmitFormEvent|crouton-forms-vue,crouton-vue',
@@ -217,14 +221,19 @@ const collectExports = async (pkgName, srcDir) => {
   return exports;
 };
 
-const pkgDirs = (await readdir(packagesDir, { withFileTypes: true }))
-  .filter((e) => e.isDirectory())
-  .map((e) => e.name);
+// Scan both packages/ and libs/ — libs were previously invisible to this
+// check, which is how the duplicated `status.types.ts` slipped through.
+const projects = [];
+for (const dir of projectRoots) {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  for (const e of entries) {
+    if (e.isDirectory()) projects.push({ pkg: e.name, srcDir: join(dir, e.name, 'src') });
+  }
+}
 
 // name -> [{pkg, files}]
 const allExports = new Map();
-for (const pkg of pkgDirs) {
-  const srcDir = join(packagesDir, pkg, 'src');
+for (const { pkg, srcDir } of projects) {
   const map = await collectExports(pkg, srcDir);
   for (const [name, files] of map) {
     if (!allExports.has(name)) allExports.set(name, []);
@@ -277,7 +286,7 @@ if (SHOW_ALL && allowed.length) {
   }
 }
 
-console.log(`\nTotal: ${duplicates.length} duplicated names (${copies.length} copies, ${violations.length} untracked violations, ${allowed.length} allowlisted) across ${pkgDirs.length} packages.\n`);
+console.log(`\nTotal: ${duplicates.length} duplicated names (${copies.length} copies, ${violations.length} untracked violations, ${allowed.length} allowlisted) across ${projects.length} packages.\n`);
 
 if (FAIL_MODE && (violations.length > 0 || copies.length > 0)) {
   process.exit(1);
