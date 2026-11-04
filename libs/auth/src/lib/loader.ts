@@ -61,6 +61,7 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
       issuer = preset.issuer(env);
       const rolesClaim = config.roles?.claim ?? preset.rolesClaim;
       const audience = preset.audience?.(env);
+      const userinfoUrl = preset.userinfoUrl(env);
       const verify = createOidcVerifier({
         issuer,
         clientId: env['clientId'] ?? '',
@@ -68,6 +69,7 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
         rolesClaim,
         providerName: name,
         config,
+        userinfoUrl,
       });
       const captured = { issuer, clientId: env['clientId'], provider: config.provider };
       adapter = {
