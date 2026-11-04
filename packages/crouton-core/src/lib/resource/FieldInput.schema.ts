@@ -180,14 +180,7 @@ export const parseFieldInputOptions = (fi: FieldInput): FieldInput => {
   return result.success ? { ...fi, options: result.data } : fi;
 };
 
-/**
- * A per-context override of a column's field config. Structurally identical to
- * {@link FieldInputSchema} — every key is optional — so a variant can override
- * just what it needs (typically a single `options` key) and inherit the rest
- * from the level below it via {@link mergeFieldVariant}.
- */
-export const FieldVariantSchema = FieldInputSchema;
-export type FieldVariant = z.infer<typeof FieldVariantSchema>;
+export type FieldVariant = z.infer<typeof FieldInputSchema>;
 
 /** Drop keys whose value is explicitly `null` (used to "delete" an inherited key). */
 const stripNull = (obj: Record<string, unknown>): Record<string, unknown> => {

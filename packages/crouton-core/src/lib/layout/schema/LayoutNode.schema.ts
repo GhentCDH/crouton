@@ -94,7 +94,3 @@ export type LayoutNode = {
   tableActions?: unknown[];
 };
 
-/** @deprecated Use `FormLayoutNodeSchema`. Kept as an alias. */
-export const _LayoutNodeSchema = FormLayoutNodeSchema;
-
-export const LayoutNodeSchema = FormLayoutNodeSchema;
