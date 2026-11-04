@@ -13,15 +13,11 @@ import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 
-const _findAll = async (repo: CrudRepository, params: ListRequest, request?: unknown) => {
-  // Repositories that cannot count separately (custom repositories backed by a
-  // remote API) implement `findAllWithCount` and return both in one round trip.
-  const { data, count } = repo.findAllWithCount
-    ? await repo.findAllWithCount(params, request)
-    : await Promise.all([
-        repo.findAll(params, request),
-        repo.count(params.filter ?? [], params.q),
-      ]).then(([data, count]) => ({ data, count }));
+const buildListResult = (
+  data: unknown[],
+  count: number,
+  params: ListRequest,
+) => {
   const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
   return {
     data,
@@ -36,6 +32,18 @@ const _findAll = async (repo: CrudRepository, params: ListRequest, request?: unk
     },
   };
 };
+
+const _findAll = async (repo: CrudRepository, params: ListRequest, request?: unknown) => {
+  // Repositories that cannot count separately (custom repositories backed by a
+  // remote API) implement `findAllWithCount` and return both in one round trip.
+  const { data, count } = repo.findAllWithCount
+    ? await repo.findAllWithCount(params, request)
+    : await Promise.all([
+        repo.findAll(params, request),
+        repo.count(params.filter ?? [], params.q),
+      ]).then(([data, count]) => ({ data, count }));
+  return buildListResult(data, count, params);
+};
 const findAllByParent = async (
   repo: CrudRepository,
   id: string,
@@ -49,19 +57,7 @@ const findAllByParent = async (
     params,
     request,
   );
-  const totalPages = Math.max(1, Math.ceil(count / params.pageSize));
-  return {
-    data,
-    request: {
-      count,
-      page: params.page,
-      pageSize: params.pageSize,
-      totalPages,
-      sort: params.sort,
-      sortDir: params.sortDir,
-      filter: params.filter,
-    },
-  };
+  return buildListResult(data, count, params);
 };
 
 const defaultFindAll = (ctx: OperationContext) => {

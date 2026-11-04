@@ -1,17 +1,15 @@
-import { Body, Param, Patch, Req } from '@nestjs/common';
-import {
-  ApiNotFoundResponse,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { Param, Patch, Req } from '@nestjs/common';
 
 import {
   isOperationEnabled,
   isOperationExternal,
 } from '@ghentcdh/crouton-core';
 
-import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
+import {
+  childWriteProperties,
+  registerWriteOperation,
+} from './register-write-operation';
 import type { CrudRepository } from '../data-access/repository';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 
@@ -25,7 +23,7 @@ const defaultPatch = (ctx: OperationContext) => {
     route: ':id',
     methodName,
     name: config.name,
-    patchFn: function (
+    handler: function (
       this: { repo: CrudRepository },
       id: string,
       body: unknown,
@@ -41,64 +39,28 @@ const defaultPatch = (ctx: OperationContext) => {
   };
 };
 
-const childPatch = (sub: SubResourceConfig) => (ctx: OperationContext) => {
-  if (!isOperationEnabled(sub.operations, 'patch')) return null;
-  const { cls } = ctx;
-  const methodName = `patchChild_${sub.childRoute}`;
-
-  const patchFn = async function (
-    this: { repo: CrudRepository },
-    _id: string,
-    childId: string,
-    body: unknown,
-    req: unknown,
-  ) {
-    return this.repo.updateChild(sub, childId, body, req);
-  };
-
-  const decorators = () => {
-    Param('id')(cls.prototype, methodName, 0);
-    Param('childId')(cls.prototype, methodName, 1);
-    Body()(cls.prototype, methodName, 2);
-    Req()(cls.prototype, methodName, 3);
-  };
-
-  return {
-    route: `:id/${sub.childRoute}/:childId`,
-    methodName,
-    name: sub.childRoute,
-    patchFn,
-    decorators,
-  };
-};
-
 /** Register `PATCH /:id`. No-ops when `patch` is disabled. */
 export const registerPatch = (
   ctx: OperationContext,
   sub?: SubResourceConfig,
 ): void => {
-  const operationFn = sub ? childPatch(sub) : defaultPatch;
-  const properties = operationFn(ctx);
+  const properties = sub
+    ? childWriteProperties(ctx, sub, 'patch')
+    : defaultPatch(ctx);
   if (!properties) return;
 
-  const { methodName, route, name } = properties;
-  const { cls } = ctx;
-
-  def(cls, methodName, properties.patchFn);
-  const d = desc(cls, methodName);
-  Patch(route)(cls.prototype, methodName, d);
-  ApiOperation({ summary: `Update a ${name}` })(cls.prototype, methodName, d);
-  ApiResponse({ status: 200, description: `${name} updated` })(
-    cls.prototype,
-    methodName,
-    d,
+  registerWriteOperation(
+    ctx,
+    {
+      verb: Patch,
+      operation: 'patch',
+      methodName: properties.methodName,
+      route: properties.route,
+      handler: properties.handler,
+      decorators: properties.decorators,
+      summary: `Update a ${properties.name}`,
+      description: `${properties.name} updated`,
+    },
+    sub,
   );
-  ApiNotFoundResponse({ description: 'Not found' })(
-    cls.prototype,
-    methodName,
-    d,
-  );
-
-  properties.decorators();
-  ctx.secure(methodName, 'patch', sub);
 };
