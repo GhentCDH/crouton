@@ -1,4 +1,4 @@
-import { handleCallback, setupAuth, useAuth } from '@crouton/auth-vue';
+import { handleCallback, setupAuth } from '@crouton/auth-vue';
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';

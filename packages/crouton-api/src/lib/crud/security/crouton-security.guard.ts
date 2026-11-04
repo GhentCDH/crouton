@@ -3,7 +3,6 @@ import {
   type ExecutionContext,
   Injectable,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 
 import type { SecurityConfig } from '@ghentcdh/crouton-core';
 
@@ -13,16 +12,13 @@ export const CROUTON_SECURITY = 'crouton:security';
 
 @Injectable()
 export class CroutonSecurityGuard implements CanActivate {
-  constructor(
-    private readonly reflector: Reflector,
-    private readonly registry: SecurityGuardRegistry,
-  ) {}
+  constructor(private readonly registry: SecurityGuardRegistry) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const sec = this.reflector.get<SecurityConfig | undefined>(
+    const sec = Reflect.getMetadata(
       CROUTON_SECURITY,
       context.getHandler(),
-    );
+    ) as SecurityConfig | undefined;
 
     // No metadata or explicitly public → allow.
     if (!sec || 'public' in sec) return true;

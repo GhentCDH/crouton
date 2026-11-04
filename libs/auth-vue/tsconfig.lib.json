@@ -1,13 +1,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
+    "outDir": "../../dist/libs/auth-vue",
+    "tsBuildInfoFile": "../../dist/libs/auth-vue/tsconfig.lib.tsbuildinfo",
     "rootDir": "./src",
-    "declaration": true
+    "declaration": true,
+    "lib": ["ES2020", "DOM"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts"
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"],
+  "references": [
+    {
+      "path": "../auth/tsconfig.lib.json"
+    }
   ]
 }
