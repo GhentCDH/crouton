@@ -13,6 +13,7 @@ import { UI_TRANSLATOR_KEY } from '@ghentcdh/crouton-ui-vue';
 
 import { CROUTON_STATUS } from '../router';
 import { ResourceDefinitionCache } from './resource-definition';
+import { firstLeafId, isSidebarGroup } from './sidebar';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 import {
@@ -219,6 +220,15 @@ const createCrouton = (
      * open ResourceTable's cached config.
      */
     refreshLayout: () => fetchLayout(),
+    /** True when formId is accessible via the sidebar (visible, not hidden/draft). */
+    isInSidebar: (formId: string): boolean =>
+      sidebar.value.some((n) =>
+        isSidebarGroup(n) ? n.children.some((c) => c.id === formId) : n.id === formId,
+      ),
+    /** First reachable formId from the sidebar, or undefined when sidebar is empty. */
+    get firstSidebarId(): string | undefined {
+      return firstLeafId(sidebar.value);
+    },
   };
 };
 export type UseCrouton = {
@@ -240,6 +250,8 @@ export type UseCrouton = {
   invalidateFormDef: (formId: string) => void;
   invalidateAllFormDefs: () => void;
   refreshLayout: () => Promise<void>;
+  isInSidebar: (formId: string) => boolean;
+  readonly firstSidebarId: string | undefined;
 };
 
 let _crouton: UseCrouton | null = null;

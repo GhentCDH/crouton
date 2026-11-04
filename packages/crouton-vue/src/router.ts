@@ -28,21 +28,15 @@ export const CroutonRouter: RouteRecordRaw[] = [
         path: 'crouton/:formId',
         name: CROUTON_FORM,
         component: () => import('./resource/ResourceView.vue'),
-        // Guard: reject formIds not listed in the sidebar (hidden/draft resources).
         // Lazy import avoids a load-order cycle (useCrouton → sidebar → CROUTON_FORM → here).
-        // If the sidebar is empty (layout not yet fetched), we let the navigation through
-        // so the initial page load is not blocked.
+        // Empty sidebar means layout not yet fetched — let through so initial load is not blocked.
         beforeEnter: async (to: RouteLocationNormalized) => {
           const { useCrouton } = await import('./composables/useCrouton');
-          const { isSidebarGroup, firstLeafId } = await import('./composables/sidebar');
-          const nodes = useCrouton().sidebar;
-          if (!nodes.length) return true;
+          const app = useCrouton();
+          if (!app.sidebar.length) return true;
           const formId = to.params['formId'] as string;
-          const inSidebar = nodes.some((n) =>
-            isSidebarGroup(n) ? n.children.some((c) => c.id === formId) : n.id === formId,
-          );
-          if (inSidebar) return true;
-          const first = firstLeafId(nodes);
+          if (app.isInSidebar(formId)) return true;
+          const first = app.firstSidebarId;
           return first ? { name: CROUTON_FORM, params: { formId: first } } : false;
         },
       },
