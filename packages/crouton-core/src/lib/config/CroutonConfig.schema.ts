@@ -41,6 +41,7 @@ export const CroutonConfigSchema = z.object({
   sidebarGroups: z.record(z.string(), SidebarGroupSchema).default({}).describe('Sidebar group definitions, keyed by group slug (e.g. "metadata"). Resources reference a group via sidebar.group in their resource.json.'),
   autoSave: z.boolean().default(true).describe('Whether form fields are saved automatically as the user edits them. Default true.'),
   i18n: I18nConfigSchema.optional().describe('Optional i18n / translation configuration. Omit if the app is single-language.'),
+  authProvidersDir: z.string().optional().describe('Path to auth-provider modules, relative to the config file directory. Defaults to "src/app/auth-providers".'),
   agentFiles: z.object({
     targets: z.array(z.enum(['claude', 'cursor'])).optional().describe('Which agent file sets to manage. Defaults to those already present in the project, or both on first run.'),
   }).optional().describe('Agent file sync configuration for `crouton migrate`. Stored after the first run.'),

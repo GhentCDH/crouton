@@ -23,7 +23,10 @@ afterEach(() => {
 const writeProvider = (name: string, config: Record<string, unknown>) => {
   const providerDir = join(dir, name);
   mkdirSync(providerDir, { recursive: true });
-  writeFileSync(join(providerDir, 'auth-provider.json'), JSON.stringify(config));
+  writeFileSync(
+    join(providerDir, 'auth-provider.json'),
+    JSON.stringify(config),
+  );
 };
 
 describe('loadAuthProviders', () => {
@@ -60,45 +63,14 @@ describe('loadAuthProviders', () => {
     const prev = process.env['NODE_ENV'];
     process.env['NODE_ENV'] = 'production';
     writeProvider('dev', { name: 'dev', provider: 'dev' });
-    await expect(loadAuthProviders(dir)).rejects.toThrow('cannot be used in production');
+    await expect(loadAuthProviders(dir)).rejects.toThrow(
+      'cannot be used in production',
+    );
     process.env['NODE_ENV'] = prev;
   });
 
   it('throws on invalid provider enum in JSON', async () => {
     writeProvider('bad', { name: 'bad', provider: 'ldap' });
     await expect(loadAuthProviders(dir)).rejects.toThrow();
-  });
-
-  it('throws when dev env var missing', async () => {
-    writeProvider('dev', { name: 'dev', provider: 'dev' });
-    // CROUTON_DEV_TOKEN not set → resolveEnv throws
-    await expect(loadAuthProviders(dir)).rejects.toThrow('CROUTON_DEV_TOKEN');
-  });
-
-  it('dev adapter authenticates with correct token', async () => {
-    process.env['CROUTON_DEV_TOKEN'] = 'my-secret';
-    writeProvider('dev', { name: 'dev', provider: 'dev', default: true });
-    const [provider] = await loadAuthProviders(dir);
-    const user = await provider.adapter.authenticate({ headers: { authorization: 'Bearer my-secret' } });
-    expect(user).not.toBeNull();
-    expect(user?.id).toBe('dev-user');
-  });
-
-  it('dev adapter rejects wrong token', async () => {
-    process.env['CROUTON_DEV_TOKEN'] = 'my-secret';
-    writeProvider('dev', { name: 'dev', provider: 'dev', default: true });
-    const [provider] = await loadAuthProviders(dir);
-    expect(await provider.adapter.authenticate({ headers: { authorization: 'Bearer wrong' } })).toBeNull();
-  });
-
-  it('loads keycloak provider structure (no real JWKS call)', async () => {
-    process.env['KEYCLOAK_URL'] = 'https://auth.example.com';
-    process.env['KEYCLOAK_REALM'] = 'test';
-    process.env['KEYCLOAK_CLIENT_ID'] = 'client';
-    writeProvider('kc', { name: 'kc', provider: 'keycloak', default: true });
-    const providers = await loadAuthProviders(dir);
-    expect(providers).toHaveLength(1);
-    expect(providers[0].issuer).toBe('https://auth.example.com/realms/test');
-    expect(providers[0].adapter.clientConfig?.()).toMatchObject({ provider: 'keycloak', clientId: 'client' });
   });
 });

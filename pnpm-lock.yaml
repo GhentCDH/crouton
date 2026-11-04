@@ -485,9 +485,6 @@ importers:
       passport-http-bearer:
         specifier: ^1.0.1
         version: 1.0.1
-      passport-microsoft:
-        specifier: ^2.1.0
-        version: 2.1.0
       passport-openidconnect:
         specifier: ^0.1.2
         version: 0.1.2
@@ -504,9 +501,15 @@ importers:
       '@types/passport-http-bearer':
         specifier: ^1.0.42
         version: 1.0.42
+      '@types/passport-microsoft':
+        specifier: ^2.1.1
+        version: 2.1.1
       '@types/passport-openidconnect':
         specifier: ^0.1.3
         version: 0.1.3
+      passport-microsoft:
+        specifier: ^2.1.0
+        version: 2.1.0
 
   libs/auth-vue:
     dependencies:
@@ -4629,6 +4632,9 @@ packages:
 
   '@types/passport-http-bearer@1.0.42':
     resolution: {integrity: sha512-cGezyf9hy3Cth+zWS779FR9XYhIX/DExsVZURqcSeUU/nhj0Aw8PUhvCyfS35ScwOSd5AFiFhtfWmqHa/2aYZg==}
+
+  '@types/passport-microsoft@2.1.1':
+    resolution: {integrity: sha512-mtxO0nUt8PSAQd1MPD4JZXacYRx9MXYCTFjKyBEarmCJYyJlKHMwBRYltBEi/zpvC6xYX0LgK1AFXp+hQI+DEw==}
 
   '@types/passport-oauth2@1.8.0':
     resolution: {integrity: sha512-6//z+4orIOy/g3zx17HyQ71GSRK4bs7Sb+zFasRoc2xzlv7ZCJ+vkDBYFci8U6HY+or6Zy7ajf4mz4rK7nsWJQ==}
@@ -13796,6 +13802,10 @@ snapshots:
       '@types/express': 5.0.6
       '@types/koa': 3.0.3
       '@types/passport': 1.0.17
+
+  '@types/passport-microsoft@2.1.1':
+    dependencies:
+      '@types/passport-oauth2': 1.8.0
 
   '@types/passport-oauth2@1.8.0':
     dependencies:

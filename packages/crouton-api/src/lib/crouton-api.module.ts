@@ -265,7 +265,7 @@ export class CroutonApiModule {
               },
               {
                 provide: APP_INTERCEPTOR,
-                useFactory: () => new LanguageInterceptor(translationRegistry!),
+                useValue: new LanguageInterceptor(translationRegistry),
               },
             ]
           : []),
