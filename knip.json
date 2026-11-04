@@ -37,7 +37,9 @@
     },
     "packages/add-crouton": {},
     "packages/create-crouton": {},
-    "packages/crouton-api": {},
+    "packages/crouton-api": {
+      "ignore": ["test/crud/harness.ts"]
+    },
     "packages/crouton-cli": {},
     "packages/crouton-codegen": {},
     "packages/crouton-core": {
