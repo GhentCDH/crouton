@@ -27,9 +27,12 @@ const resolveLookupDisplayKeys = (
   const result: Record<string, string> = {};
   if (!dirPath) return result;
   for (const col of columns) {
-    if (!col.showInLookup || col.fieldInput?.relationType !== 'manyToOne') continue;
-    if (!col.fieldInput?.resource) continue;
-    const child = resolveChildResource(col.fieldInput.resource, dirPath);
+    // Resolve display keys for all manyToOne relation columns so both
+    // lookup.labels (new) and showInLookup (legacy) paths can use them.
+    const relationType = col.relation?.type ?? col.fieldInput?.relationType;
+    const resourcePath = col.relation?.resource ?? col.fieldInput?.resource;
+    if (relationType !== 'manyToOne' || !resourcePath) continue;
+    const child = resolveChildResource(resourcePath, dirPath);
     const childColumns = child ? expandExtendColumns(child.json.columns ?? [], dirPath) : undefined;
     const tableIds = resolveLayoutVisibility(
       child?.json.layout,

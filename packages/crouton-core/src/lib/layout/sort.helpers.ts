@@ -27,7 +27,6 @@ export const deriveSortId = (col: JsonColumn): string | null => {
   // key the column is not sortable (`null`) rather than crashing at query time.
   const isRelation =
     col.relation !== undefined ||
-    fi?.format === 'relation' ||
     !!fi?.relationType ||
     fi?.type === 'autocomplete' ||
     typeof opts.resource === 'string';

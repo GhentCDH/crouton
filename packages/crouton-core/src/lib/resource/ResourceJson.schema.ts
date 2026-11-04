@@ -272,6 +272,7 @@ export const refineByKind = (
       // A relation or autocomplete column's shape comes from the referenced
       // resource, not from this column.
       if (
+        col.relation !== undefined ||
         col.fieldInput?.format === 'relation' ||
         col.fieldInput?.type === 'autocomplete'
       ) {
