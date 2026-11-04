@@ -1,0 +1,94 @@
+<template>
+  <template v-if="hideToolbar">
+    <legend
+      v-if="!hideTitle"
+      class="w-full block flex flex-row space-between"
+      :class="['fieldset-legend']"
+    >
+      <div class="flex-grow">
+        {{ label ?? config.title }}
+      </div>
+      <div>
+        <Btn
+          v-if="isDev"
+          :icon="IconEnum.Edit"
+          color="secondary"
+          :outline="true"
+          @click="emit('editSchema')"
+        >
+          <span class="whitespace-nowrap">{{
+            t('table.editFields', 'Edit fields')
+          }}</span>
+        </Btn>
+        <Btn
+          v-if="config.operations.create"
+          data-testid="btn-create"
+          :icon="IconEnum.Plus"
+          @click="resource.create"
+        >
+          <span class="whitespace-nowrap">{{
+            t('table.addRecord', 'Add record')
+          }}</span>
+        </Btn>
+      </div>
+    </legend>
+  </template>
+  <TableToolbar
+    v-else
+    :filter-schema="resource.filterSchema"
+    :filters="resource.filter"
+    :search="resource.search"
+    :actions="resource.tableActions"
+    @update-search="resource.onUpdateSearch"
+    @update-filters="resource.onUpdateFilters"
+    @action="resource.backendAction"
+  >
+    <template #left>
+      <span class="text-xl font-bold mr-4">{{ config.title }}</span>
+    </template>
+    <template #right>
+      <Btn
+        v-if="isDev"
+        :icon="IconEnum.Edit"
+        color="secondary"
+        :outline="true"
+        @click="emit('editSchema')"
+      >
+        <span class="whitespace-nowrap">{{
+          t('table.editFields', 'Edit fields')
+        }}</span>
+      </Btn>
+      <Btn
+        v-if="config.operations.create"
+        data-testid="btn-create"
+        :icon="IconEnum.Plus"
+        @click="resource.create"
+      >
+        <span class="whitespace-nowrap">{{
+          t('table.addRecord', 'Add record')
+        }}</span>
+      </Btn>
+    </template>
+  </TableToolbar>
+  <h2 v-if="tableHeading" class="text-xl font-bold mb-2">
+    {{ tableHeading }}
+  </h2>
+  <component
+    :is="tableComponent"
+    v-bind="resource as any"
+    :id="`form_table_${id}`"
+    @refresh="emit('refresh')"
+  />
+</template>
+
+<script setup lang="ts">
+import { TableToolbar } from '@ghentcdh/crouton-forms-vue';
+import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
+
+import { useLanguage } from '../i18n/useLanguage';
+import { ResourceTableContentProperties } from './ResourceTableContent.properties';
+
+defineProps(ResourceTableContentProperties);
+const emit = defineEmits(['editSchema', 'refresh']);
+const { t } = useLanguage();
+</script>
