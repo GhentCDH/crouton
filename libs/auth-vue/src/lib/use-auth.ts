@@ -54,3 +54,15 @@ export const handleCallback = async () => {
   oidcUser.value = u;
   return u;
 };
+
+export const tryRenewOidcUser = async () => {
+  if (!manager) return null;
+  try {
+    const u = await manager.signinSilent();
+    if (u) oidcUser.value = u;
+    return u;
+  } catch {
+    oidcUser.value = null;
+    return null;
+  }
+};
