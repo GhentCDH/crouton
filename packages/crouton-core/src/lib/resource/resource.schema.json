@@ -1391,7 +1391,7 @@
                     "type": "string",
                     "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
-                  "controls": {
+                  "items": {
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -1432,11 +1432,14 @@
                     },
                     "description": "Controls to render for each array item. Each control maps to a property of the item object.",
                     "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+                  },
+                  "controls": {
+                    "not": {}
                   }
                 },
                 "required": [
                   "layout",
-                  "controls"
+                  "items"
                 ],
                 "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
@@ -1771,7 +1774,7 @@
                     "type": "string",
                     "markdownDescription": "Property key used as the heading for each array item in \"collapse\" mode.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
                   },
-                  "controls": {
+                  "items": {
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -1812,11 +1815,14 @@
                     },
                     "description": "Controls to render for each array item. Each control maps to a property of the item object.",
                     "markdownDescription": "Controls to render for each array item. Each control maps to a property of the item object.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+                  },
+                  "controls": {
+                    "not": {}
                   }
                 },
                 "required": [
                   "layout",
-                  "controls"
+                  "items"
                 ],
                 "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
@@ -2687,8 +2693,7 @@
                         "type": "string"
                       },
                       "hideLabel": {
-                        "description": "Hide the label above the input.",
-                        "default": false,
+                        "description": "Hide the label above the input. When explicitly set to false, overrides a column-level hideLabel: true.",
                         "type": "boolean"
                       },
                       "type": {

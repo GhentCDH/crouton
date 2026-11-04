@@ -101,9 +101,9 @@ export const orderTableColumnsFromLayout = (
       continue;
     }
     seen.add(id);
+    const ctrlObj: Record<string, unknown> | null = isFieldControlItem(ctrl) ? ctrl : null;
     const el = elementById.get(id);
     if (el) {
-      const ctrlObj: Record<string, unknown> | null = isFieldControlItem(ctrl) ? ctrl : null;
       const overrides: Record<string, unknown> = {};
       // Apply sortable/defaultSort from layout control
       if (ctrlObj?.['sortable'] === false) {
@@ -141,7 +141,9 @@ export const orderTableColumnsFromLayout = (
       );
     }
     const col = columnById.get(id);
-    if (col) reorderedColumns.push(col);
+    if (col) reorderedColumns.push(
+      ctrlObj?.['label'] !== undefined ? { ...col, label: ctrlObj['label'] as string } : col,
+    );
   }
 
   const innerTableUi: Record<string, unknown> = {

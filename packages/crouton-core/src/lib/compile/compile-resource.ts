@@ -1,6 +1,7 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 import {
+  extractFindAllFilter,
   extractFindAllSearch,
   extractOpInclude,
 } from '../data-source/Operations.schema';
@@ -148,6 +149,7 @@ export const compileResource = (
     extractFindAllSearch(findAll),
     findAllEnabled,
   );
+  const filterAllowlist = extractFindAllFilter(findAll);
   const resolvedDisplayKeys = resolvers.resolveLookupDisplayKeys
     ? resolvers.resolveLookupDisplayKeys(enrichedColumns)
     : {};
@@ -217,6 +219,7 @@ export const compileResource = (
     columns: enrichedColumns,
     ...(views && { views }),
     ...(searchPaths?.length && { search: searchPaths }),
+    ...(filterAllowlist?.length && { filterAllowlist }),
     lookup,
     ...(calculatedColumns.length && { calculatedColumns }),
     ...(enrichedInclude?.length && { findAllInclude: enrichedInclude }),

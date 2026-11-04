@@ -36,7 +36,7 @@ export const _LayoutFieldControlSchema = z.object({
   rowspan: z.number().int().min(1).max(6).default(1).describe('Number of grid rows this control spans (1–6). Defaults to 1.'),
   width: z.string().default('full').describe('Tailwind width class applied to the input wrapper (e.g. "w-48", "full"). Defaults to full width.'),
   label: z.string().optional().describe('Override the column label shown above the input.'),
-  hideLabel: z.boolean().default(false).optional().describe('Hide the label above the input.'),
+  hideLabel: z.boolean().optional().describe('Hide the label above the input. When explicitly set to false, overrides a column-level hideLabel: true.'),
   type: z.string().optional().describe('Override the field input type (e.g. "text", "select").'),
   options: z.record(z.string(), z.unknown()).optional().describe('Field input options passed to the renderer.'),
   showWhen: WhenConditionSchema.optional().describe(

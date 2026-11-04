@@ -76,6 +76,18 @@ export class ReadRepository<T = unknown> {
 
   private buildWhere(filter: string[] | undefined) {
     if (!filter?.length) return undefined;
+    const allowlist = this.config.filterAllowlist;
+    if (allowlist?.length) {
+      const forbidden = filter
+        .map(parseFilterString)
+        .filter(Boolean)
+        .filter((p) => !allowlist.includes(p!.field));
+      if (forbidden.length) {
+        throw new BadRequestException(
+          `Filter field not allowed: ${forbidden.map((p) => p!.field).join(', ')}`,
+        );
+      }
+    }
     const manyToOneSubs = (this.config.subResources ?? []).filter(
       (s) => s.relationType === 'manyToOne' && s.displayKey,
     );
@@ -295,16 +307,16 @@ export class ReadRepository<T = unknown> {
     return withCalc as T[];
   }
 
-  private buildSearchOrWhere(
+  private static searchWhere(
+    search: string[] | undefined,
     q: string | undefined,
   ): Record<string, unknown> | undefined {
-    const search = this.config.search;
     if (!q || !search?.length) return undefined;
-    return {
-      OR: search.map((path) =>
-        buildNestedPath(path.split('.'), { contains: q }),
-      ),
-    };
+    return { OR: search.map((path) => buildNestedPath(path.split('.'), { contains: q })) };
+  }
+
+  private buildSearchOrWhere(q: string | undefined): Record<string, unknown> | undefined {
+    return ReadRepository.searchWhere(this.config.search, q);
   }
 
   /** Count records matching the given filter strings and optional free-text search. */
@@ -490,12 +502,13 @@ export class ReadRepository<T = unknown> {
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 
-    const where = {
-      ...this.buildWhere(params.filter),
-      ...(sub.relationType !== 'manyToMany' && {
-        [sub.foreignKey]: this.toId(parentId),
-      }),
-    };
+    const childFilterWhere = this.buildWhere(params.filter);
+    const childSearchWhere = ReadRepository.searchWhere(sub.search, params.q);
+    const childScopedWhere = sub.relationType !== 'manyToMany'
+      ? { [sub.foreignKey]: this.toId(parentId) }
+      : undefined;
+    const andClauses = [childFilterWhere, childSearchWhere, childScopedWhere].filter(Boolean);
+    const where = andClauses.length > 1 ? { AND: andClauses } : (andClauses[0] ?? undefined);
     const includeClause = buildIncludeClause(sub.childInclude);
     const childSort = orderableChildSort(params.sort, childModel, sub);
 
