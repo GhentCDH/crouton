@@ -21,6 +21,7 @@ import { ref, watch } from 'vue';
 import type { AutocompleteAllOptions } from '@ghentcdh/crouton-core';
 import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 
+import { useAutocompleteDisplayValue } from '../../../composables/useAutocompleteDisplayValue';
 import { useFormEvents } from '../../../composables/useFormEvents';
 import { useHttpClient } from '../../../composables/useHttpClient';
 import { useModalOpener } from '../../../composables/useModalOpener';
@@ -59,60 +60,12 @@ watch(
   { immediate: true, deep: true },
 );
 
-/**
- * What the Autocomplete renders. The underlying component labels an object via
- * `labelKey` but prints a primitive verbatim, so a field storing only a scalar
- * (`storeValue: true`) would show a raw id when an existing record is edited.
- * We resolve that scalar back to its record here; the stored form value stays
- * untouched.
- */
-const displayValue = ref<unknown>(value.value);
-
-const hydrateDisplayValue = async (val: unknown) => {
-  const config = fetchOptions.value;
-
-  // Nothing to resolve: empty, or the full object is already stored.
-  if (
-    val === null ||
-    val === undefined ||
-    val === '' ||
-    typeof val === 'object'
-  ) {
-    displayValue.value = val;
-    return;
-  }
-
-  const labelKey = config?.labelKey as string | undefined;
-  const valueKey = config?.valueKey as string | undefined;
-  if (!config?.fetchByValue || !labelKey || labelKey === valueKey) {
-    displayValue.value = val;
-    return;
-  }
-
-  const cached = config.peekByValue?.(val);
-  if (cached !== undefined) {
-    displayValue.value = cached ?? val;
-    return;
-  }
-
-  // Keep what is on screen while resolving, unless it shows something else.
-  const current = displayValue.value as Record<string, unknown> | null;
-  const showsSameValue =
-    !!current &&
-    typeof current === 'object' &&
-    !!valueKey &&
-    current[valueKey] === val;
-  if (!showsSameValue) displayValue.value = val;
-
-  const record = await config.fetchByValue(val);
-  // The value changed while the request was in flight – drop the stale result.
-  if (value.value !== val) return;
-  displayValue.value = record ?? val;
-};
-
-watch([value, fetchOptions], ([val]) => hydrateDisplayValue(val), {
-  immediate: true,
-});
+const { displayValue } = useAutocompleteDisplayValue(
+  value,
+  fetchOptions,
+  () => fetchOptions.value?.labelKey as string | undefined,
+  () => fetchOptions.value?.valueKey as string | undefined,
+);
 
 const onChange = (val: any) => {
   setValue(val);

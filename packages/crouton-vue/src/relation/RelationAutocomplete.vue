@@ -16,12 +16,16 @@
   />
 </template>
 <script setup lang="ts">
-import { useFetchOptions, useHttpClient } from '@ghentcdh/crouton-forms-vue';
-import { JsonFormModalService } from '../forms';
+import {
+  useAutocompleteDisplayValue,
+  useFetchOptions,
+  useHttpClient,
+} from '@ghentcdh/crouton-forms-vue';
 import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { computedAsync } from '../utils/computedAsync';
 import { RelationAutocompleteProperties } from './RelationAutocomplete.properties';
+import { useRelationCreate } from './useRelationCreate';
 
 const props = defineProps(RelationAutocompleteProperties);
 const emit = defineEmits<{
@@ -56,47 +60,12 @@ const fetchOptions = computedAsync(() => {
  * verbatim, so a stored scalar would render as a raw id when editing. Resolve
  * it back to its record for display only; the emitted value stays scalar.
  */
-const displayValue = ref<any>(props.value);
-
-const hydrateDisplayValue = async (val: unknown) => {
-  const config = fetchOptions.value;
-
-  if (
-    val === null ||
-    val === undefined ||
-    val === '' ||
-    typeof val === 'object'
-  ) {
-    displayValue.value = val;
-    return;
-  }
-
-  const labelKey = labelKeyName.value;
-  const valueKey = valueKeyName.value;
-  if (!config?.fetchByValue || !labelKey || labelKey === valueKey) {
-    displayValue.value = val;
-    return;
-  }
-
-  const cached = config.peekByValue?.(val);
-  if (cached !== undefined) {
-    displayValue.value = cached ?? val;
-    return;
-  }
-
-  const current = displayValue.value as Record<string, unknown> | null;
-  const showsSameValue =
-    !!current && typeof current === 'object' && current[valueKey] === val;
-  if (!showsSameValue) displayValue.value = val;
-
-  const record = await config.fetchByValue(val);
-  if (props.value !== val) return;
-  displayValue.value = record ?? val;
-};
-
-watch([() => props.value, fetchOptions], ([val]) => hydrateDisplayValue(val), {
-  immediate: true,
-});
+const { displayValue } = useAutocompleteDisplayValue(
+  () => props.value,
+  fetchOptions,
+  () => labelKeyName.value,
+  () => valueKeyName.value,
+);
 
 const extractValue = (selected: unknown): unknown => {
   if (!selected || typeof selected !== 'object') return selected;
@@ -127,25 +96,15 @@ const onClear = () => {
   emit('change', null);
 };
 
-const onCreate = () => {
-  if (fetchOptions.value?.enableCreate === false) return;
-  const form = fetchOptions.value!.form as any;
-  if (form) {
-    JsonFormModalService.openModal({
-      schema: form.data,
-      uiSchema: form.ui,
-      modalTitle: `Create new ${props.label}`,
-      http,
-      onClose: (result) => {
-        if (!result || !result.valid) return;
-        form.create(result.data).then((res: any) => {
-          const value = extractValue(res);
-          fetchOptions.value?.rememberValue?.(value, res);
-          displayValue.value = res;
-          emit('change', value);
-        });
-      },
-    });
-  }
-};
+const { onCreate } = useRelationCreate({
+  fetchOptions,
+  http,
+  label: () => props.label,
+  onCreated: (res) => {
+    const value = extractValue(res);
+    fetchOptions.value?.rememberValue?.(value, res);
+    displayValue.value = res;
+    emit('change', value);
+  },
+});
 </script>
