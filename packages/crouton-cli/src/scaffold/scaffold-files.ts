@@ -19,7 +19,7 @@ export const assertNotCancel = <T>(value: T | symbol): T => {
   return value as T;
 };
 
-export const fileExists = async (p: string): Promise<boolean> => {
+const fileExists = async (p: string): Promise<boolean> => {
   try {
     await access(p);
     return true;
@@ -28,7 +28,7 @@ export const fileExists = async (p: string): Promise<boolean> => {
   }
 };
 
-export interface ScaffoldFile {
+interface ScaffoldFile {
   path: string;
   contents: string;
 }
