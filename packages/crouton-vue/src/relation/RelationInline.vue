@@ -99,6 +99,27 @@ const hasDelete = computed(() => 'onDelete' in attrs);
 
 const fetchOptions = computedAsync(() => {
   const resource = props.options.autocompleteResource ?? props.options.resource;
+  // Extract the linked resource's id from each value. The filter appended to
+  // the autocomplete URI always uses 'id' as the key (useResourceOptions default).
+  // Simple values (e.g. language { id, name }) expose id directly. Junction-table
+  // records (e.g. textAuthor { textId, authorId, author: { id } }) don't have a
+  // top-level id, so fall back to the first nested object that carries 'id'.
+  const runtimeExclude = props.values
+    .map((item: any) => {
+      if (typeof item !== 'object' || item === null) return item;
+      if (item['id'] != null) return item['id'];
+      for (const val of Object.values(item)) {
+        if (
+          typeof val === 'object' &&
+          val !== null &&
+          (val as any)['id'] != null
+        )
+          return (val as any)['id'];
+      }
+      return undefined;
+    })
+    .filter((v): v is unknown => v != null);
+
   return useFetchOptions(
     {
       format: 'autocomplete' as const,
@@ -106,7 +127,7 @@ const fetchOptions = computedAsync(() => {
     },
     http,
     {},
-    props.values,
+    runtimeExclude,
   );
 });
 
