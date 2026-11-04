@@ -2,19 +2,17 @@
 import type { Component } from 'vue';
 import { computed, PropType, ref, shallowRef, toRaw, watch } from 'vue';
 
-import { TableComponent, TableToolbar } from '@ghentcdh/crouton-forms-vue';
-import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
+import { TableComponent } from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
-import { Request } from '../utils/request';
-import { useLanguage } from '../i18n/useLanguage';
+import { type Request } from '../utils/request';
 import ResourceSchemaEditor from './ResourceSchemaEditor.vue';
+import ResourceTableContent from './ResourceTableContent.vue';
 import TableWrapperLayout from './TableWrapperLayout.vue';
 import { useResources } from './useResources';
 
 const crouton = useCrouton();
-const { t } = useLanguage();
 
 const props = defineProps({
   label: { type: String, required: false },
@@ -139,169 +137,34 @@ const showSchemaEditor = ref(false);
       :ui="tableUi"
       :resource="resource"
     >
-      <template v-if="hideToolbar">
-        <legend
-          v-if="!hideTitle"
-          class="w-full block flex flex-row space-between"
-          :class="['fieldset-legend']"
-        >
-          <div class="flex-grow">
-            {{ label ?? config.title }}
-          </div>
-          <div>
-            <Btn
-              v-if="crouton.isDev.value"
-              :icon="IconEnum.Edit"
-              color="secondary"
-              :outline="true"
-              @click="showSchemaEditor = true"
-            >
-              <span class="whitespace-nowrap">{{
-                t('table.editFields', 'Edit fields')
-              }}</span>
-            </Btn>
-            <Btn
-              v-if="config.operations.create"
-              data-testid="btn-create"
-              :icon="IconEnum.Plus"
-              @click="resource.create"
-            >
-              <span class="whitespace-nowrap">{{
-                t('table.addRecord', 'Add record')
-              }}</span>
-            </Btn>
-          </div>
-        </legend>
-      </template>
-      <TableToolbar
-        v-else
-        :filter-schema="resource.filterSchema"
-        :filters="resource.filter"
-        :search="resource.search"
-        :actions="resource.tableActions"
-        @update-search="resource.onUpdateSearch"
-        @update-filters="resource.onUpdateFilters"
-        @action="resource.backendAction"
-      >
-        <template #left>
-          <span class="text-xl font-bold mr-4">{{ config.title }}</span>
-        </template>
-        <template #right>
-          <Btn
-            v-if="crouton.isDev.value"
-            :icon="IconEnum.Edit"
-            color="secondary"
-            :outline="true"
-            @click="showSchemaEditor = true"
-          >
-            <span class="whitespace-nowrap">{{
-              t('table.editFields', 'Edit fields')
-            }}</span>
-          </Btn>
-          <Btn
-            v-if="config.operations.create"
-            data-testid="btn-create"
-            :icon="IconEnum.Plus"
-            @click="resource.create"
-          >
-            <span class="whitespace-nowrap">{{
-              t('table.addRecord', 'Add record')
-            }}</span>
-          </Btn>
-        </template>
-      </TableToolbar>
-      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">
-        {{ tableHeading }}
-      </h2>
-      <component
-        :is="props.tableComponent"
-        v-bind="resource as any"
-        :id="`form_table_${id}`"
+      <ResourceTableContent
+        :resource="resource"
+        :config="config"
+        :label="label"
+        :table-heading="tableHeading"
+        :table-component="props.tableComponent"
+        :hide-toolbar="hideToolbar"
+        :hide-title="hideTitle"
+        :is-dev="crouton.isDev.value"
+        :id="id"
+        @edit-schema="showSchemaEditor = true"
         @refresh="reload"
       />
     </TableWrapperLayout>
-    <template v-else>
-      <template v-if="hideToolbar">
-        <legend
-          v-if="!hideTitle"
-          class="w-full block flex flex-row space-between"
-          :class="['fieldset-legend']"
-        >
-          <div class="flex-grow">
-            {{ label ?? config.title }}
-          </div>
-          <div>
-            <Btn
-              v-if="crouton.isDev.value"
-              :icon="IconEnum.Edit"
-              color="secondary"
-              :outline="true"
-              @click="showSchemaEditor = true"
-            >
-              <span class="whitespace-nowrap">{{
-                t('table.addRecord', 'Edit fields')
-              }}</span>
-            </Btn>
-            <Btn
-              v-if="config.operations.create"
-              data-testid="btn-create"
-              :icon="IconEnum.Plus"
-              @click="resource.create"
-            >
-              <span class="whitespace-nowrap">{{
-                t('table.addRecord', 'Add record')
-              }}</span>
-            </Btn>
-          </div>
-        </legend>
-      </template>
-      <TableToolbar
-        v-else
-        :filter-schema="resource.filterSchema"
-        :filters="resource.filter"
-        :search="resource.search"
-        :actions="resource.tableActions"
-        @update-search="resource.onUpdateSearch"
-        @update-filters="resource.onUpdateFilters"
-        @action="resource.backendAction"
-      >
-        <template #left>
-          <span class="text-xl font-bold mr-4">{{ config.title }}</span>
-        </template>
-        <template #right>
-          <Btn
-            v-if="crouton.isDev.value"
-            :icon="IconEnum.Edit"
-            color="secondary"
-            :outline="true"
-            @click="showSchemaEditor = true"
-          >
-            <span class="whitespace-nowrap">{{
-              t('table.addRecord', 'Edit fields')
-            }}</span>
-          </Btn>
-          <Btn
-            v-if="config.operations.create"
-            data-testid="btn-create"
-            :icon="IconEnum.Plus"
-            @click="resource.create"
-          >
-            <span class="whitespace-nowrap">{{
-              t('table.addRecord', 'Add record')
-            }}</span>
-          </Btn>
-        </template>
-      </TableToolbar>
-      <h2 v-if="tableHeading" class="text-xl font-bold mb-2">
-        {{ tableHeading }}
-      </h2>
-      <component
-        :is="props.tableComponent"
-        v-bind="resource as any"
-        :id="`form_table_${id}`"
-        @refresh="reload"
-      />
-    </template>
+    <ResourceTableContent
+      v-else
+      :resource="resource"
+      :config="config"
+      :label="label"
+      :table-heading="tableHeading"
+      :table-component="props.tableComponent"
+      :hide-toolbar="hideToolbar"
+      :hide-title="hideTitle"
+      :is-dev="crouton.isDev.value"
+      :id="id"
+      @edit-schema="showSchemaEditor = true"
+      @refresh="reload"
+    />
 
     <ResourceSchemaEditor
       v-if="showSchemaEditor"

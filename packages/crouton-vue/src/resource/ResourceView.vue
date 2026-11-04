@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import { computed, shallowRef, watch } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
 import type { Request } from '../utils/request';
 import ResourceTable from './ResourceTable.vue';
-import { UseResource } from './useResources';
+import { useResourceQuerySync } from './useResourceQuerySync';
 
 const route = useRoute();
 const router = useRouter();
 const formId = computed(() => route.params['formId'] as string);
 
-const handleEvent = ({ event, data }: { event: string; data: any }) => {
-  let querydata: Record<string, string | undefined> = { id: data?.id, event };
-  if (event === 'close') {
-    querydata = { id: undefined, event: undefined };
-  }
-  router.push({ query: { ...route.query, ...querydata } });
-};
+const { handleEvent, initialLoad } = useResourceQuerySync({
+  shouldApply: (resource) => formId.value === resource.id,
+});
 
 const onRequest = (requestData: Request) => {
   router.push({
@@ -25,63 +22,6 @@ const onRequest = (requestData: Request) => {
     },
   });
 };
-
-const resourceRef = shallowRef<UseResource | null>(null);
-
-const applyQueryEvent = (resource: UseResource) => {
-  const id = route.query['id'] as string | undefined;
-  const event = route.query['event'] as string | undefined;
-  if (formId.value !== resource.id) {
-    return;
-  }
-  if (!event) {
-    resource.closeForm(null);
-    return;
-  }
-
-  if (event === 'create') {
-    resource.create();
-    return;
-  }
-  if (!id) return;
-
-  switch (event) {
-    case 'view':
-      resource.view(id);
-      break;
-    case 'update':
-      resource.edit(id);
-      break;
-    case 'delete':
-      resource.delete(id);
-      break;
-  }
-};
-
-const initialLoad = (resource: UseResource) => {
-  resourceRef.value = resource;
-  applyQueryEvent(resource);
-};
-
-watch(
-  () => ({
-    id: route.query['id'],
-    event: route.query['event'],
-  }),
-  (newValues) => {
-    if (resourceRef.value) applyQueryEvent(resourceRef.value);
-  },
-  { immediate: true, once: true },
-);
-
-watch(
-  () => route.query['event'],
-  (newEvent, oldEvent) => {
-    if (newEvent !== oldEvent && !newEvent) {
-      resourceRef.value?.closeForm(null);
-    }
-  },
-);
 </script>
 
 <template>
