@@ -1,3 +1,4 @@
+import { handleCallback, setupAuth } from '@crouton/auth-vue';
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
@@ -33,7 +34,11 @@ import { type CustomComponentEntry } from '../utils/custom-component';
 
 export { isSidebarGroup, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';
-export type { ResourceDefinition, ResourceViewSchema, ResourceViewSchemas } from '@ghentcdh/crouton-core';
+export type {
+  ResourceDefinition,
+  ResourceViewSchema,
+  ResourceViewSchemas,
+} from '@ghentcdh/crouton-core';
 
 export const AppConfig = {
   VERSION: 'unknown',
@@ -125,7 +130,8 @@ const createCrouton = (
         if (res.data.i18n) {
           configureLanguage({
             languages: res.data.i18n.languages,
-            defaultLanguage: res.data.i18n.defaultLanguage ?? i18nCfg?.defaultLanguage,
+            defaultLanguage:
+              res.data.i18n.defaultLanguage ?? i18nCfg?.defaultLanguage,
             displayNames: res.data.i18n.displayNames,
             allowed: i18nCfg?.languages,
             initial: i18nCfg?.initial,
@@ -168,7 +174,11 @@ const createCrouton = (
       await fetchLayout(_config);
     });
 
-    return fetchLayout(_config).then(() => fetchBundle());
+    // Wait for auth interceptors to be registered before fetching layout,
+    // so any 401 from subsequent requests triggers login instead of failing silently.
+    return _authReady
+      .then(() => fetchLayout(_config))
+      .then(() => fetchBundle());
   };
 
   return {
@@ -183,6 +193,7 @@ const createCrouton = (
     showErrors: computed(() => config.value.showErrors),
     debugValue: computed(() => config.value.debugValue),
     isDev: computed(() => config.value.isDev),
+    isAuthReady: computed(() => !_authPending.value),
     /** Consumer-supplied control renderers, merged on top of built-ins in form/edit modals. */
     get renderers() {
       return config.value.renderers;
@@ -223,7 +234,9 @@ const createCrouton = (
     /** True when formId is accessible via the sidebar (visible, not hidden/draft). */
     isInSidebar: (formId: string): boolean =>
       sidebar.value.some((n) =>
-        isSidebarGroup(n) ? n.children.some((c) => c.id === formId) : n.id === formId,
+        isSidebarGroup(n)
+          ? n.children.some((c) => c.id === formId)
+          : n.id === formId,
       ),
     /** First reachable formId from the sidebar, or undefined when sidebar is empty. */
     get firstSidebarId(): string | undefined {
@@ -239,6 +252,8 @@ export type UseCrouton = {
   showErrors: ComputedRef<boolean>;
   debugValue: ComputedRef<boolean>;
   isDev: ComputedRef<boolean>;
+  /** True once auth setup has completed and requests are being sent with tokens. */
+  isAuthReady: ComputedRef<boolean>;
   readonly renderers: JsonFormsRendererRegistryEntry[];
   readonly customComponents: CustomComponentEntry[];
   readonly readonlyRenderers: JsonFormsRendererRegistryEntry[];
@@ -255,6 +270,8 @@ export type UseCrouton = {
 };
 
 let _crouton: UseCrouton | null = null;
+let _authReady: Promise<unknown> = Promise.resolve();
+const _authPending = ref(true);
 
 export const useCrouton = (): UseCrouton => {
   if (!_crouton) {
@@ -290,5 +307,44 @@ export const CroutonPlugin = (
       });
     }
     _crouton = createCrouton(api, options);
+
+    if (typeof window !== 'undefined') {
+      const authSetup = setupAuth('', api);
+
+      // Always register the callback route so the router doesn't 404.
+      // The actual callback logic runs in the plugin install code (see below)
+      // so it is not blocked by the loading screen hiding <router-view>.
+      if (options.router) {
+        options.router.addRoute({
+          path: '/auth/callback',
+          component: { template: '<div />' },
+        });
+      }
+
+      if (window.location.pathname === '/auth/callback') {
+        // Callback page: handle the OIDC code exchange here (not in a route
+        // component) so it runs even while the loading screen hides <router-view>.
+        _authReady = authSetup.then(async ({ flushQueue }) => {
+          try {
+            await handleCallback();
+          } catch {
+            // State may be gone (e.g. Vite HMR reload on the callback URL consumed
+            // it in a previous run). Fall through — flushQueue with no token so
+            // the main page can redirect to login via the response interceptor.
+          }
+          flushQueue();
+          if (options.router) await options.router.push('/');
+        });
+      } else {
+        // Non-callback pages: authSetup handles flushQueue internally.
+        _authReady = authSetup;
+      }
+
+      _authReady.then(() => {
+        _authPending.value = false;
+      });
+    } else {
+      _authPending.value = false;
+    }
   },
 });

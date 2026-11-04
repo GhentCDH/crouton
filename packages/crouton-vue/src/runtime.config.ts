@@ -3,18 +3,13 @@ export interface RuntimeConfig {
   BUILD_SHA: string;
   API_URL: string;
   env: 'DEV' | 'TST' | 'QAS' | 'PRD';
-  authToken: string;
 }
 
 let cachedConfig: RuntimeConfig | null = null;
 
 export const loadRuntimeConfig = async <
   RUNTIME_CONFIG extends RuntimeConfig,
->(
-  config: {
-    authToken?: string;
-  } = {},
-): Promise<RUNTIME_CONFIG> => {
+>(): Promise<RUNTIME_CONFIG> => {
   if (cachedConfig) {
     return cachedConfig as RUNTIME_CONFIG;
   }
@@ -27,7 +22,6 @@ export const loadRuntimeConfig = async <
       throw new Error(`Failed to load config: ${response.status}`);
     }
     cachedConfig = await response.json();
-    cachedConfig!.authToken = config.authToken || 'GHENTCDH_DEFAULT_TOKEN';
     return cachedConfig as RUNTIME_CONFIG;
   } catch (error) {
     console.error('Failed to load runtime config:', error);

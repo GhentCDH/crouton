@@ -1,5 +1,7 @@
+import { type LoadedProvider, loadAuthProviders } from '@crouton/auth/server';
+import { AuthController, CroutonAuthMiddlewareGuard, buildGuardClasses } from '@crouton/auth-nest';
 import { type DynamicModule, Module } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { errorMessage, registerResourceExtensions } from '@ghentcdh/crouton-core';
 
@@ -20,6 +22,7 @@ import {
 import { DevResourcesController } from './crud/dev/dev-resources.controller';
 import { IS_DEV } from './crud/dev-mode';
 import { loadEnumRegistry } from './crud/enum-registry';
+import { HttpExceptionDuckFilter } from './crud/http-exception.filter';
 import { LanguageInterceptor, TranslationRegistry } from './crud/i18n';
 import { NoCacheInterceptor } from './crud/interceptors/no-cache.interceptor';
 import { loadResourceConfigsFromDir } from './crud/loader';
@@ -68,13 +71,23 @@ export class CroutonApiModule {
     loader: ResourceConfigLoader,
     appConfig: CroutonAppConfig,
     config: LoadedConfig,
+    authProviders: LoadedProvider[] = [],
   ): DynamicModule {
     const { baseUrl, prefix, security } = appConfig;
     const dataSourceRegistry = new DataSourceRegistry(dataSources);
 
+    // Build auth-derived guard classes and merge with app-configured guards.
+    const authGuardClasses = authProviders.length > 0 ? buildGuardClasses(authProviders) : {};
+    const mergedGuards = { ...authGuardClasses, ...(security?.guards ?? {}) };
+
     // Security guard registry: maps guard names to their NestJS guard classes.
-    const guardRegistry = new SecurityGuardRegistry(security?.guards ?? {});
-    const moduleDefaultSecurity = security?.default;
+    const guardRegistry = new SecurityGuardRegistry(mergedGuards);
+    const hasAuth = authProviders.length > 0;
+    const securityEnabled = !!security || hasAuth;
+
+    // defaultSecurity: explicit app config wins; then default provider's defaultSecurity.
+    const defaultProviderSecurity = authProviders.find((p) => p.isDefault)?.config.defaultSecurity;
+    const moduleDefaultSecurity = security?.default ?? defaultProviderSecurity;
 
     // Load enum registry
     const startDir =
@@ -193,7 +206,7 @@ export class CroutonApiModule {
           c,
           baseUrl,
           moduleDefaultSecurity,
-          !!security,
+          securityEnabled,
           prefix,
           appConfig.schemaEnricher,
         ),
@@ -211,6 +224,7 @@ export class CroutonApiModule {
       // visual resource builder is enabled — see dev-resources.controller.ts.
       ...(IS_DEV ? [DevResourcesController] : []),
       createStatusController(enumRegistry, translationRegistry, prefix),
+      ...(hasAuth ? [AuthController] : []),
     ];
 
     return {
@@ -219,15 +233,27 @@ export class CroutonApiModule {
       exports: [ResourceConfigRegistry],
       providers: [
         { provide: APP_INTERCEPTOR, useClass: NoCacheInterceptor },
+        { provide: APP_FILTER, useClass: HttpExceptionDuckFilter },
         { provide: APP_FILTER, useClass: CroutonValidationExceptionFilter },
         { provide: DataSourceRegistry, useValue: dataSourceRegistry },
         { provide: ResourceConfigRegistry, useValue: configRegistry },
+        // Auth providers token used by AuthController.
+        ...(hasAuth
+          ? [
+              { provide: 'CROUTON_AUTH_PROVIDERS', useValue: authProviders },
+              {
+                provide: CroutonAuthMiddlewareGuard,
+                useValue: new CroutonAuthMiddlewareGuard(authProviders),
+              },
+              { provide: APP_GUARD, useExisting: CroutonAuthMiddlewareGuard },
+            ]
+          : []),
         // Security providers only registered when security is configured;
         // without guards the dispatching guard is never applied (see factory).
-        ...(security
+        ...(securityEnabled
           ? [
               { provide: SecurityGuardRegistry, useValue: guardRegistry },
-              CroutonSecurityGuard,
+              { provide: APP_GUARD, useClass: CroutonSecurityGuard },
               ...guardRegistry.classes(),
             ]
           : []),
@@ -239,7 +265,7 @@ export class CroutonApiModule {
               },
               {
                 provide: APP_INTERCEPTOR,
-                useFactory: () => new LanguageInterceptor(translationRegistry!),
+                useValue: new LanguageInterceptor(translationRegistry),
               },
             ]
           : []),
@@ -266,6 +292,10 @@ export class CroutonApiModule {
       config.enumsFile,
     );
     const dataSources = await loadDataSourcesFromDir(dataSourcesPath);
+    const authProvidersDir = config.authProvidersDir
+      ? join(config.configDir, config.authProvidersDir)
+      : join(config.configDir, 'src/app/auth-providers');
+    const authProviders = await loadAuthProviders(authProvidersDir);
 
     return CroutonApiModule.forResources(
       configs,
@@ -273,6 +303,7 @@ export class CroutonApiModule {
       loader,
       appConfig,
       config,
+      authProviders,
     );
   }
 
@@ -283,12 +314,17 @@ export class CroutonApiModule {
     appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
     const config = await loadConfig();
+    const authProvidersDir = config.authProvidersDir
+      ? join(config.configDir, config.authProvidersDir)
+      : join(config.configDir, 'src/app/auth-providers');
+    const authProviders = await loadAuthProviders(authProvidersDir);
     return CroutonApiModule.forResources(
       configs,
       dataSources,
       loader,
       appConfig,
       config,
+      authProviders,
     );
   }
 }
