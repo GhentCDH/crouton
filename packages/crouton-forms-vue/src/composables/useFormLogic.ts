@@ -1,9 +1,8 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { ComponentPublicInstance } from 'vue';
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-import { useAutoSave } from './useAutoSave';
-import type { FormEventPayload } from './useFormEvents';
+import { useFormAutoSave } from './useFormAutoSave';
 import { useDefaultRenderers } from './useRendererProvider';
 import { useUiTranslator } from './useUiTranslator';
 import type { FormModalProp } from '../forms/modal/FormModal.properties';
@@ -36,21 +35,18 @@ export const useFormLogic = (
     properties.renderers as JsonFormsRendererRegistryEntry[] | null,
     properties.readonly ?? false,
   );
+
   // ─── Auto-save ──────────────────────────────────────────────────────────────
 
-  const autoSaver =
-    properties.autoSave && properties.onAutoSave
-      ? useAutoSave({
-          onSave: properties.onAutoSave,
-          isValid: () => valid.value,
-          initialData: properties.data ?? undefined,
-        })
-      : null;
-
-  const userHasEdited = ref(false);
-  let isRefreshing = false;
-
-  const autoSaveStatus = computed(() => autoSaver?.status.value ?? 'idle');
+  const {
+    autoSaver,
+    autoSaveStatus,
+    userHasEdited,
+    liveValues,
+    triggerAutoSave,
+    onRetry,
+    onFormEvents,
+  } = useFormAutoSave(properties, emits, valid, formData, formRef);
 
   const autoSaveStatusLabel = computed(() => {
     switch (autoSaveStatus.value) {
@@ -86,53 +82,14 @@ export const useFormLogic = (
     valid.value = isValid;
   };
 
-  const liveValues = () =>
-    (formRef.value as any)?.getCurrentValues?.() ?? formData.value;
-
   const onChange = (data: any) => {
-    if (autoSaver && !isRefreshing) {
-      userHasEdited.value = true;
-      autoSaver.trigger(data, valid.value);
-    }
+    triggerAutoSave(data, valid.value);
   };
 
   const onSubmit = () => {
     (formRef.value as any)?.markSubmitted?.();
     if (!valid.value) return;
     emits('closeModal', { data: liveValues(), valid: valid.value });
-  };
-
-  const onRetry = () => {
-    if (autoSaver) {
-      autoSaver.saveNow(liveValues());
-    }
-  };
-
-  const onFormEvents = (payload: FormEventPayload) => {
-    if (payload.event === 'update-relation' && properties.onRefreshData) {
-      autoSaver?.cancel();
-      userHasEdited.value = false;
-      isRefreshing = true;
-      properties
-        .onRefreshData()
-        .then((fresh) => {
-          if (fresh) {
-            autoSaver?.resetBaseline(fresh);
-            nextTick(() => {
-              formData.value = fresh;
-            });
-          }
-        })
-        .finally(() => {
-          nextTick(() => {
-            nextTick(() => {
-              isRefreshing = false;
-              userHasEdited.value = false;
-            });
-          });
-        });
-    }
-    emits('events', payload);
   };
 
   const onErrors = (errors: any) => {

@@ -1,10 +1,10 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { ComponentPublicInstance } from 'vue';
-import { computed, nextTick, ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 
 import type { ViewConfig } from '@ghentcdh/crouton-core';
 
-import { useAutoSave } from './useAutoSave';
+import { useFormAutoSave } from './useFormAutoSave';
 import type { FormEventPayload } from './useFormEvents';
 import { useDefaultRenderers } from './useRendererProvider';
 
@@ -75,20 +75,17 @@ export const useCroutonFormLogic = (
     properties.readonly ?? false,
   );
 
-  const autoSaver =
-    properties.autoSave && properties.onAutoSave
-      ? useAutoSave({
-          onSave: properties.onAutoSave,
-          isValid: () => valid.value,
-          initialData: properties.data ?? undefined,
-        })
-      : null;
+  const {
+    autoSaver,
+    autoSaveStatus,
+    userHasEdited,
+    liveValues,
+    triggerAutoSave,
+    onRetry,
+    onFormEvents,
+  } = useFormAutoSave(properties, emits, valid, formData, formRef);
 
   const currentValues = ref(properties.data ?? {});
-  const userHasEdited = ref(false);
-  let isRefreshing = false;
-
-  const autoSaveStatus = computed(() => autoSaver?.status.value ?? 'idle');
 
   const onCancel = () => {
     formData.value = {};
@@ -100,15 +97,9 @@ export const useCroutonFormLogic = (
     valid.value = isValid;
   };
 
-  const liveValues = () =>
-    (formRef.value as any)?.getCurrentValues?.() ?? formData.value;
-
   const onChange = (data: any) => {
     currentValues.value = data;
-    if (autoSaver && !isRefreshing) {
-      userHasEdited.value = true;
-      autoSaver.trigger(data, valid.value);
-    }
+    triggerAutoSave(data, valid.value);
   };
 
   const onSubmit = () => {
@@ -145,39 +136,6 @@ export const useCroutonFormLogic = (
       emits('save', data);
       emits('closeModal', { data, valid: true });
     }
-  };
-
-  const onRetry = () => {
-    if (autoSaver) {
-      autoSaver.saveNow(liveValues());
-    }
-  };
-
-  const onFormEvents = (payload: FormEventPayload) => {
-    if (payload.event === 'update-relation' && properties.onRefreshData) {
-      autoSaver?.cancel();
-      userHasEdited.value = false;
-      isRefreshing = true;
-      properties
-        .onRefreshData()
-        .then((fresh) => {
-          if (fresh) {
-            autoSaver?.resetBaseline(fresh);
-            nextTick(() => {
-              formData.value = fresh;
-            });
-          }
-        })
-        .finally(() => {
-          nextTick(() => {
-            nextTick(() => {
-              isRefreshing = false;
-              userHasEdited.value = false;
-            });
-          });
-        });
-    }
-    emits('events', payload);
   };
 
   const onErrors = (_errors: any) => {

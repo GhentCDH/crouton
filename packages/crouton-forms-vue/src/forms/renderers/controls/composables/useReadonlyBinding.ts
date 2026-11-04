@@ -1,11 +1,14 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { type FieldContext, useField, useFormContext } from 'vee-validate';
+import { type FieldContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
 import { type ControlOption, ControlType } from '@ghentcdh/crouton-core';
 
-import { type useCustomProps } from './useControlBinding';
-import { type UseInputOptions, useInputProps } from './useInput';
+import {
+  type useCustomProps,
+  useResolvedControl,
+} from './useControlBinding';
+import { type UseInputOptions } from './useInput';
 import {
   isDateControl,
   isDateRangeControl,
@@ -13,7 +16,6 @@ import {
   isMarkdownControl,
   isNumberFormat,
 } from '../../../../testers/tester';
-import { scopeToPath } from '../../../scope';
 import { resolveWithTime } from '../date/useDateModel';
 import BooleanValue from '../readonly/displayValue/BooleanValue.vue';
 import DateRangeValue from '../readonly/displayValue/DateRangeValue.vue';
@@ -167,27 +169,15 @@ const useCustomReadonlyControlBinding = <
   setDefaultValue?: (field: FieldContext) => void;
 } = {}) => {
   return (uischema: ControlElement, schema: JsonSchema, options = {}) => {
-    const { values: formValues } = useFormContext();
-    const pathPrefix = inject<string>('pathPrefix', '');
-    const scopePath = scopeToPath(uischema.scope);
-    const path = pathPrefix ? `${pathPrefix}.${scopePath}` : scopePath;
-    let field: FieldContext<unknown>;
-    try {
-      field = useField<unknown>(() => path);
-    } catch (e) {
-      console.warn(
-        `[useReadonlyBinding] useField("${path}") failed – data/schema mismatch. Field renders with undefined value.`,
-        e,
-      );
-      field = useField<unknown>(`__broken__${path.replace(/[.[\]]/g, '_')}`);
-    }
-    const wrapper = useInputProps(uischema, schema, field, options);
-    const customWrapper = useProps?.(uischema, schema, field, options) ?? {
-      value: {},
-    };
+    const { formValues, field, path, wrapper } = useResolvedControl(
+      uischema,
+      schema,
+      options,
+      { useProps, setDefaultValue, warningLabel: 'useReadonlyBinding' },
+    );
 
     return {
-      wrapper: computed(() => ({ ...wrapper.value, ...customWrapper.value })),
+      wrapper,
       appliedOptions: computed(
         () => uischema.options ?? ({} as CONTROL_OPTION),
       ),

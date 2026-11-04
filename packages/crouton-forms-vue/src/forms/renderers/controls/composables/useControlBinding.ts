@@ -16,12 +16,12 @@ import { scopeToPath } from '../../../scope';
  * `setInPath` throws. This wrapper catches the error and returns a fallback
  * field so the component still mounts and the form stays visible.
  */
-const safeUseField = (path: string): FieldContext<unknown> => {
+const safeUseField = (path: string, label: string): FieldContext<unknown> => {
   try {
     return useField<unknown>(() => path);
   } catch (e) {
     console.warn(
-      `[useControlBinding] useField("${path}") failed – data/schema mismatch (parent path is a primitive). Field renders with undefined value.`,
+      `[${label}] useField("${path}") failed – data/schema mismatch (parent path is a primitive). Field renders with undefined value.`,
       e,
     );
     // Register under a non-colliding flat key so the component can mount.
@@ -38,6 +38,50 @@ export type useCustomProps = (
   options: any,
 ) => Ref<any>;
 
+interface ResolvedControlOptions {
+  useProps?: useCustomProps;
+  setDefaultValue?: (field: FieldContext) => void;
+  /** Name used in the data/schema-mismatch warning, e.g. `useReadonlyBinding`. */
+  warningLabel?: string;
+}
+
+/**
+ * Resolve the vee-validate field, input props and custom props for a control.
+ * Shared by the editable (`useControlBinding`) and readonly
+ * (`useReadonlyControlBinding`) paths so the path/custom-prop plumbing exists
+ * exactly once.
+ */
+export const useResolvedControl = (
+  uischema: ControlElement,
+  schema: JsonSchema,
+  options: UseInputOptions = {},
+  {
+    useProps,
+    setDefaultValue,
+    warningLabel = 'useControlBinding',
+  }: ResolvedControlOptions = {},
+) => {
+  const { values: formValues } = useFormContext();
+  const pathPrefix = inject<string>('pathPrefix', '');
+  const scopePath = scopeToPath(uischema.scope);
+  const path = pathPrefix ? `${pathPrefix}.${scopePath}` : scopePath;
+
+  const field = safeUseField(path, warningLabel);
+  setDefaultValue?.(field);
+  const wrapper = useInputProps(uischema, schema, field, options);
+  const customWrapper = useProps?.(uischema, schema, field, options) ?? {
+    value: {},
+  };
+
+  return {
+    formValues,
+    field,
+    path,
+    wrapper: computed(() => ({ ...wrapper.value, ...customWrapper.value })),
+    appliedOptions: computed(() => uischema.options ?? {}),
+  };
+};
+
 export const useCustomControlBinding = <
   CONTROL_OPTION extends ControlOption = ControlOption,
 >({
@@ -49,17 +93,12 @@ export const useCustomControlBinding = <
   setDefaultValue?: (field: FieldContext) => void;
 } = {}) => {
   return (uischema: ControlElement, schema: JsonSchema, options = {}) => {
-    const { values: formValues } = useFormContext();
-    const pathPrefix = inject<string>('pathPrefix', '');
-    const scopePath = scopeToPath(uischema.scope);
-    const path = pathPrefix ? `${pathPrefix}.${scopePath}` : scopePath;
-
-    const field = safeUseField(path);
-    setDefaultValue?.(field);
-    const wrapper = useInputProps(uischema, schema, field, options);
-    const customWrapper = useProps?.(uischema, schema, field, options) ?? {
-      value: {},
-    };
+    const { formValues, field, wrapper } = useResolvedControl(
+      uischema,
+      schema,
+      options,
+      { useProps, setDefaultValue },
+    );
 
     const onBlur = () => field.handleBlur(new Event('blur'));
     const onChange = () => field.handleChange(field.value.value);
@@ -68,7 +107,7 @@ export const useCustomControlBinding = <
       formValues,
       uischema,
       schema,
-      wrapper: computed(() => ({ ...wrapper.value, ...customWrapper.value })),
+      wrapper,
       value: field.value,
       field,
       onBlur,
