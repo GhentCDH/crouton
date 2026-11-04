@@ -66,13 +66,6 @@ export const LayoutComponentItemSchema = z.object({
   label: z.string().optional().describe('Optional label rendered above the component slot.'),
 });
 
-// ── Legacy aliases (kept for backward compat with existing consumers) ────
-
-/** @deprecated Use `LayoutFieldItemSchema` */
-export const LayoutFieldControlSchema = LayoutFieldItemSchema;
-
-/** @deprecated Use `LayoutComponentItemSchema` */
-export const LayoutComponentSchema = LayoutComponentItemSchema;
 
 export const LayoutControlSchema = z.union([
   LayoutFieldItemSchema,

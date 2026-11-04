@@ -84,8 +84,6 @@ export const TableItemSchema = z.union([
   LayoutComponentItemSchema,
 ]);
 
-/** @deprecated Use `TableItemSchema` */
-export const LayoutTableControlSchema = TableItemSchema;
 
 const FilterFields = z.string();
 
