@@ -1,15 +1,7 @@
 {
   "name": "@ghentcdh/crouton-mcp",
   "version": "0.0.1",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/GhentCDH/crouton",
-    "directory": "packages/crouton-mcp"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
   "description": "MCP server for crouton — lets LLM agents query resources, validate configs, and search docs",
   "type": "module",
   "engines": {
