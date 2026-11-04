@@ -144,6 +144,36 @@ export class ReadRepository<T = unknown> {
   }
 
   /**
+   * Validate `?include=` ids against the table's allowed relation includes and
+   * map them to Prisma relation fields. Shared by `findAll` and `findOne`.
+   */
+  private resolveRequestedIncludes(requestedIncludes: string[]): string[] {
+    if (!requestedIncludes.length) return [];
+
+    const nested = requestedIncludes.filter((v) => v.includes('.'));
+    if (nested.length) {
+      throw new BadRequestException(
+        `Nested includes are not supported: ${nested.join(', ')}`,
+      );
+    }
+    const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
+    const allowed = allowedIncludes(
+      columns,
+      resolveLayoutVisibility(this.config.layout, columns).table,
+    );
+    const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
+    if (unknown.length) {
+      throw new BadRequestException({
+        message: `Unknown or forbidden include: ${unknown.join(', ')}`,
+        allowed,
+      });
+    }
+    return requestedIncludes.map((id) =>
+      resolveIncludeToRelationField(id, columns),
+    );
+  }
+
+  /**
    * Fetch a paginated, sorted, and filtered list of records.
    * Sub-resource counts are merged onto each row; calculated columns are resolved via raw SQL.
    * Resource-level `afterRead` and valueLabel decoration are NOT applied here — the
@@ -193,31 +223,9 @@ export class ReadRepository<T = unknown> {
       ? Object.fromEntries(manyToOneIncludes.map((r) => [r, true]))
       : undefined;
 
-    const requestedIncludes: string[] = params.include ?? [];
-    let dynamicPrismaFields: string[] = [];
-    if (requestedIncludes.length) {
-      const nested = requestedIncludes.filter((v) => v.includes('.'));
-      if (nested.length) {
-        throw new BadRequestException(
-          `Nested includes are not supported: ${nested.join(', ')}`,
-        );
-      }
-      const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
-      const allowed = allowedIncludes(
-        columns,
-        resolveLayoutVisibility(this.config.layout, columns).table,
-      );
-      const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
-      if (unknown.length) {
-        throw new BadRequestException({
-          message: `Unknown or forbidden include: ${unknown.join(', ')}`,
-          allowed,
-        });
-      }
-      dynamicPrismaFields = requestedIncludes.map((id) =>
-        resolveIncludeToRelationField(id, columns),
-      );
-    }
+    const dynamicPrismaFields = this.resolveRequestedIncludes(
+      params.include ?? [],
+    );
 
     const allStaticAndDynamic = [
       ...(this.config.findAllInclude ?? []),
@@ -355,30 +363,9 @@ export class ReadRepository<T = unknown> {
               .filter(Boolean),
         )
       : [];
-    let dynamicPrismaFields: string[] = [];
-    if (requestedIncludes.length) {
-      const nested = requestedIncludes.filter((v) => v.includes('.'));
-      if (nested.length) {
-        throw new BadRequestException(
-          `Nested includes are not supported: ${nested.join(', ')}`,
-        );
-      }
-      const columns = (this.config.columns as JsonColumn[] | undefined) ?? [];
-      const allowed = allowedIncludes(
-        columns,
-        resolveLayoutVisibility(this.config.layout, columns).table,
-      );
-      const unknown = requestedIncludes.filter((v) => !allowed.includes(v));
-      if (unknown.length) {
-        throw new BadRequestException({
-          message: `Unknown or forbidden include: ${unknown.join(', ')}`,
-          allowed,
-        });
-      }
-      dynamicPrismaFields = requestedIncludes.map((colId) =>
-        resolveIncludeToRelationField(colId, columns),
-      );
-    }
+    const dynamicPrismaFields = this.resolveRequestedIncludes(
+      requestedIncludes,
+    );
 
     const allStaticAndDynamic = [
       ...(this.config.findOneInclude ?? this.config.findAllInclude ?? []),
