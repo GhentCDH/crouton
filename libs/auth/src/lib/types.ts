@@ -21,6 +21,7 @@ export type PublicAuthConfig = {
   extra?: Record<string, unknown>;
 };
 
+/** Only used for the `custom` provider type. */
 export type AuthProviderAdapter = {
   authenticate: (req: AuthRequest) => Promise<CroutonUser | null>;
   clientConfig?: () => PublicAuthConfig;
@@ -28,9 +29,12 @@ export type AuthProviderAdapter = {
 
 export type LoadedProvider = {
   config: AuthProviderConfig;
-  adapter: AuthProviderAdapter;
+  /** Passport strategy name registered for this provider (= the provider directory name). */
+  strategyName: string;
   isDefault: boolean;
   issuer?: string;
+  /** Set only for `custom` providers. */
+  adapter?: AuthProviderAdapter;
 };
 
 export type AuthEndpointResponse = {

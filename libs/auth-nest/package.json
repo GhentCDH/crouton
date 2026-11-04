@@ -6,10 +6,22 @@
   "types": "./src/index.ts",
   "dependencies": {
     "@crouton/auth": "workspace:*",
+    "@nestjs/passport": "^12.0.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-http-bearer": "^1.0.1",
+    "passport-microsoft": "^2.1.0",
+    "passport-openidconnect": "^0.1.2",
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0 || ^11.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0"
+  },
+  "devDependencies": {
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17",
+    "@types/passport-http-bearer": "^1.0.42",
+    "@types/passport-openidconnect": "^0.1.3"
   }
 }

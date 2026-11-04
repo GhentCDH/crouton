@@ -18,7 +18,17 @@ const DEFAULT_ENV: Record<string, Record<string, string>> = {
   keycloak: { url: 'KEYCLOAK_URL', realm: 'KEYCLOAK_REALM', clientId: 'KEYCLOAK_CLIENT_ID' },
   auth0: { domain: 'AUTH0_DOMAIN', clientId: 'AUTH0_CLIENT_ID', audience: 'AUTH0_AUDIENCE' },
   google: { clientId: 'GOOGLE_CLIENT_ID' },
+  microsoft: { clientId: 'MICROSOFT_CLIENT_ID' },
   dev: { token: 'CROUTON_DEV_TOKEN' },
+};
+
+/** Env vars required only for OAuth2 login flow (not Bearer validation). */
+export const OAUTH2_ENV: Record<string, Record<string, string>> = {
+  oidc: { clientSecret: 'OIDC_CLIENT_SECRET', callbackUrl: 'OIDC_CALLBACK_URL' },
+  keycloak: { clientSecret: 'KEYCLOAK_CLIENT_SECRET', callbackUrl: 'KEYCLOAK_CALLBACK_URL' },
+  auth0: { clientSecret: 'AUTH0_CLIENT_SECRET', callbackUrl: 'AUTH0_CALLBACK_URL' },
+  google: { clientSecret: 'GOOGLE_CLIENT_SECRET', callbackUrl: 'GOOGLE_CALLBACK_URL' },
+  microsoft: { clientSecret: 'MICROSOFT_CLIENT_SECRET', callbackUrl: 'MICROSOFT_CALLBACK_URL' },
 };
 
 export const getDefaultEnv = (provider: string): Record<string, string> =>

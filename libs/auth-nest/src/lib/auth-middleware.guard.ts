@@ -1,21 +1,29 @@
 import type { CroutonUser, LoadedProvider } from '@crouton/auth';
 import { type CanActivate, type ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+import { BEARER_STRATEGY_SUFFIX } from './strategies/bearer.strategy';
 
 @Injectable()
 export class CroutonAuthMiddlewareGuard implements CanActivate {
-  constructor(private readonly providers: LoadedProvider[]) {}
+  private readonly bearerGuard: CanActivate;
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<{ headers: Record<string, string | string[] | undefined>; user?: CroutonUser }>();
-    req.user = await this.authenticate(req);
-    return true;
+  constructor(providers: LoadedProvider[]) {
+    const strategyNames = providers.map((p) => `${p.strategyName}${BEARER_STRATEGY_SUFFIX}`);
+    this.bearerGuard = new (AuthGuard(strategyNames))();
   }
 
-  private async authenticate(req: { headers: Record<string, string | string[] | undefined> }): Promise<CroutonUser | undefined> {
-    for (const provider of this.providers) {
-      const user = await provider.adapter.authenticate(req);
-      if (user) return user;
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    try {
+      await (this.bearerGuard.canActivate(context) as Promise<boolean>);
+    } catch {
+      // No valid Bearer token — leave req.user undefined (not authenticated).
+      // Route-level guards handle the actual authorization check.
+      const req = context
+        .switchToHttp()
+        .getRequest<{ user?: CroutonUser }>();
+      req.user = undefined;
     }
-    return undefined;
+    return true;
   }
 }

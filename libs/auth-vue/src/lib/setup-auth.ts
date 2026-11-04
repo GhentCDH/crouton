@@ -79,7 +79,6 @@ export const setupAuth = async (
     redirect_uri: `${window.location.origin}${callbackPath}`,
     scope: 'openid profile email',
     automaticSilentRenew: true,
-    useRefreshTokens: true,
   });
 
   const storedUser = await loadOidcUser();
