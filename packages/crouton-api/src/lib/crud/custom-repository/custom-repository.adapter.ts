@@ -132,6 +132,9 @@ export const createCustomRepository = <T = Row>(
     offset: params ? offsetOf(params) : 0,
     ...(id !== undefined && { id }),
     ...(request !== undefined && { request }),
+    ...(params?.q !== undefined && { q: params.q }),
+    ...(config.search?.length && { search: config.search }),
+    ...(config.filterAllowlist?.length && { filterAllowlist: config.filterAllowlist }),
   });
 
   /** Query the repository and run the per-row `afterRead` decoration (no list hooks). */

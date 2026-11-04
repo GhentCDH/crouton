@@ -14,6 +14,10 @@ export interface AdapterCrudContext {
   configRegistry?: ResourceConfigRegistry;
   /** Free-text search term forwarded from `?q=` for OR search in `ReadRepository`. */
   q?: string;
+  /** Resolved dot-paths that `?q=` matches against (from `operations.findAll.search`). */
+  search?: string[];
+  /** Field allowlist for `?filter=`; absent means any column is accepted. */
+  filterAllowlist?: string[];
 }
 
 /**
