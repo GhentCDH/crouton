@@ -1,0 +1,19 @@
+{
+  "name": "auth-nest",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/auth-nest/src",
+  "projectType": "library",
+  "tags": ["type:backend", "tech:nest"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/auth-nest",
+        "main": "libs/auth-nest/src/index.ts",
+        "tsConfig": "libs/auth-nest/tsconfig.lib.json",
+        "assets": ["libs/auth-nest/*.md"]
+      }
+    }
+  }
+}

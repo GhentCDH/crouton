@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/libs/auth",
+    "tsBuildInfoFile": "../../dist/libs/auth/tsconfig.lib.tsbuildinfo",
+    "rootDir": "./",
+    "declaration": true,
+    "composite": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ]
+}
