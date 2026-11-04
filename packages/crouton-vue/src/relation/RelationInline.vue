@@ -54,13 +54,13 @@ import {
   useFetchOptions,
   useHttpClient,
 } from '@ghentcdh/crouton-forms-vue';
-import { JsonFormModalService } from '../forms';
 import { Autocomplete, Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import { computed, ref, useAttrs } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
 import { computedAsync } from '../utils/computedAsync';
 import { useResources } from '../resource';
 import { RelationInlineProperties } from './RelationInline.properties';
+import { useRelationCreate } from './useRelationCreate';
 
 const newValue = ref<string | null>(null);
 
@@ -143,25 +143,14 @@ const create = () => {
   newValue.value = null;
 };
 
-const onCreate = () => {
-  if (fetchOptions.value?.enableCreate === false) return;
-  const form = fetchOptions.value!.form as any;
-  if (form) {
-    JsonFormModalService.openModal({
-      schema: form.data,
-      uiSchema: form.ui,
-      modalTitle: `Create new ${props.label}`,
-      http,
-      onClose: (result) => {
-        if (!result || !result.valid) return;
-        form.create(result.data).then((res: any) => {
-          newValue.value = res;
-        });
-      },
-    });
-    return;
-  }
-};
+const { onCreate } = useRelationCreate({
+  fetchOptions,
+  http,
+  label: () => props.label,
+  onCreated: (res) => {
+    newValue.value = res;
+  },
+});
 
 const onChange = (value: string | null) => {
   newValue.value = value;

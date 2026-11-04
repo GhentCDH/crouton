@@ -38,6 +38,7 @@ export {
 export * from './forms/renderers/controls/composables/useReadonlyBinding';
 export * from './composables/useFormEvents';
 export { provideHttpClient, useHttpClient } from './composables/useHttpClient';
+export { useAutocompleteDisplayValue } from './composables/useAutocompleteDisplayValue';
 export {
   collectUniqueFields,
   provideUniqueCheck,
