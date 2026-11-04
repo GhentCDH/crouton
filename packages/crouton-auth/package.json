@@ -21,7 +21,8 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
-    }
+    },
+    "./auth-provider.schema.json": "./dist/auth-provider.schema.json"
   },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",

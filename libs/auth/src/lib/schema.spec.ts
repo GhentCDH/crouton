@@ -46,7 +46,7 @@ describe('AuthProviderSchema', () => {
   });
 
   it('accepts all provider values', () => {
-    for (const provider of ['keycloak', 'auth0', 'google', 'oidc', 'dev', 'custom'] as const) {
+    for (const provider of ['keycloak', 'auth0', 'google', 'microsoft', 'oidc', 'dev', 'custom'] as const) {
       expect(() => AuthProviderSchema.parse({ name: 'x', provider })).not.toThrow();
     }
   });

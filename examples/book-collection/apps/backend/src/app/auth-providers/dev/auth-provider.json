@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../../../../../../../../node_modules/@ghentcdh/crouton-auth/auth-provider.schema.json",
+  "$schema": "https://ghentcdh.github.io/crouton/schema/auth-provider.schema.json",
   "name": "dev",
   "provider": "dev",
   "default": true,
