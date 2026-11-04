@@ -45,6 +45,7 @@ export * from './datasource-scaffold';
 export * from './custom-resource-scaffold';
 export type { ExistingResource } from './project';
 export {
+  discoverResourceEntries,
   listResourceNames,
   makeRelationResolver,
   readAllResourceJsons,
@@ -68,6 +69,8 @@ export {
   normalizeSchema,
   prismaGenerate,
   pullAndGenerate,
+  resolveBin,
+  runProcess,
 } from './prisma-shell';
 export * from './validate';
 export * from './agent-block/upsert-agent-block';

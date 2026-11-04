@@ -10,15 +10,41 @@ import {
   buildResourceJsonSchema,
 } from '@ghentcdh/crouton-core';
 
-import { type LoadedConfig, resolveFromRoot } from './config';
+import { type LoadedConfig, findConfigPath, loadConfig, resolveFromRoot } from './config';
 import { clientAccessor } from './naming';
 import { fileExists } from './util';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
+/** Absolute path to the resource directory root. */
+const resourceBase = (loaded: LoadedConfig): string =>
+  resolveFromRoot(loaded.root, loaded.config.resourcesDir);
+
 /** Absolute path to a resource directory. */
 const resourceDir = (loaded: LoadedConfig, name: string): string =>
-  join(resolveFromRoot(loaded.root, loaded.config.resourcesDir), name);
+  join(resourceBase(loaded), name);
+
+/**
+ * Discover `resources/<name>/resource.json` files from the project's
+ * crouton config. Returns an empty list when there is no config or directory.
+ */
+export const discoverResourceEntries = async (
+  cwd: string,
+): Promise<{ name: string; path: string }[]> => {
+  const configPath = await findConfigPath(cwd);
+  if (!configPath) return [];
+  const loaded = await loadConfig(cwd);
+  const base = resourceBase(loaded);
+  let entries: { isDirectory(): boolean; name: string }[];
+  try {
+    entries = await readdir(base, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  return entries
+    .filter((e) => e.isDirectory())
+    .map((e) => ({ name: e.name, path: join(base, e.name, 'resource.json') }));
+};
 
 export interface ExistingResource {
   config: ResourceJsonInput | null;
@@ -56,6 +82,20 @@ export const isCustomResourceFile = async (
   }
 };
 
+/** Resource directories that contain a `resource.json` (custom included). */
+const listResourceDirs = async (loaded: LoadedConfig): Promise<string[]> => {
+  const base = resourceBase(loaded);
+  if (!(await fileExists(base))) return [];
+  const entries = await readdir(base, { withFileTypes: true });
+  const names: string[] = [];
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    if (!(await fileExists(join(base, e.name, 'resource.json')))) continue;
+    names.push(e.name);
+  }
+  return names;
+};
+
 /**
  * Names of resource directories that contain a `resource.json`.
  *
@@ -66,36 +106,11 @@ export const isCustomResourceFile = async (
 export const listResourceNames = async (
   loaded: LoadedConfig,
 ): Promise<string[]> => {
-  const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
-  if (!(await fileExists(base))) return [];
-  const entries = await readdir(base, { withFileTypes: true });
+  const base = resourceBase(loaded);
   const names: string[] = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    const jsonPath = join(base, e.name, 'resource.json');
-    if (!(await fileExists(jsonPath))) continue;
-    if (await isCustomResourceFile(jsonPath)) continue;
-    names.push(e.name);
-  }
-  return names;
-};
-
-/**
- * Names of all resource directories (including custom resources).
- * Used for translation generation where every resource is translatable.
- */
-const listAllResourceNames = async (
-  loaded: LoadedConfig,
-): Promise<string[]> => {
-  const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
-  if (!(await fileExists(base))) return [];
-  const entries = await readdir(base, { withFileTypes: true });
-  const names: string[] = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    const jsonPath = join(base, e.name, 'resource.json');
-    if (!(await fileExists(jsonPath))) continue;
-    names.push(e.name);
+  for (const name of await listResourceDirs(loaded)) {
+    if (await isCustomResourceFile(join(base, name, 'resource.json'))) continue;
+    names.push(name);
   }
   return names;
 };
@@ -107,7 +122,7 @@ const listAllResourceNames = async (
 export const readAllResourceJsons = async (
   loaded: LoadedConfig,
 ): Promise<ResourceJson[]> => {
-  const names = await listAllResourceNames(loaded);
+  const names = await listResourceDirs(loaded);
   const base = resolveFromRoot(loaded.root, loaded.config.resourcesDir);
   const results: ResourceJson[] = [];
   for (const name of names) {
