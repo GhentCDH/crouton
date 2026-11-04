@@ -78,10 +78,11 @@ export class ReadRepository<T = unknown> {
     if (!filter?.length) return undefined;
     const allowlist = this.config.filterAllowlist;
     if (allowlist?.length) {
+      const idField = this.config.idField;
       const forbidden = filter
         .map(parseFilterString)
         .filter(Boolean)
-        .filter((p) => !allowlist.includes(p!.field));
+        .filter((p) => p!.field !== idField && !allowlist.includes(p!.field));
       if (forbidden.length) {
         throw new BadRequestException(
           `Filter field not allowed: ${forbidden.map((p) => p!.field).join(', ')}`,
@@ -318,13 +319,16 @@ export class ReadRepository<T = unknown> {
   private static searchWhere(
     search: string[] | undefined,
     q: string | undefined,
+    provider?: string,
   ): Record<string, unknown> | undefined {
     if (!q || !search?.length) return undefined;
-    return { OR: search.map((path) => buildNestedPath(path.split('.'), { contains: q })) };
+    const filter: Record<string, unknown> = { contains: q };
+    if (provider !== 'sqlite') filter.mode = 'insensitive';
+    return { OR: search.map((path) => buildNestedPath(path.split('.'), filter)) };
   }
 
   private buildSearchOrWhere(q: string | undefined): Record<string, unknown> | undefined {
-    return ReadRepository.searchWhere(this.config.search, q);
+    return ReadRepository.searchWhere(this.config.search, q, this.adapter.provider);
   }
 
   /** Count records matching the given filter strings and optional free-text search. */
