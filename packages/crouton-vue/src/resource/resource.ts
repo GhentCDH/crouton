@@ -30,7 +30,15 @@ export class Resource extends PaginatedRequestService {
     onRequest: (request: Request) => void,
     initialLoad: boolean,
   ) {
-    super({ ...tableDefaults(formDef), ...initialRequestParams }, onRequest);
+    const tableIncludes = formDef.allowedIncludes ?? [];
+    super(
+      {
+        include: tableIncludes,
+        ...tableDefaults(formDef),
+        ...initialRequestParams,
+      },
+      onRequest,
+    );
 
     if (initialLoad) this.reload();
   }
