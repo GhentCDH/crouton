@@ -86,6 +86,7 @@ export * from './forms/renderers';
 export {
   isComponentElement,
   isDateControl,
+  isRelationControl,
   optionIsIgnoreCase,
 } from './testers/tester';
 // Layout: colspan → Tailwind class maps, reused by the visual form canvas
