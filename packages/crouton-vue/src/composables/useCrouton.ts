@@ -282,19 +282,24 @@ export const CroutonPlugin = (
       });
     }
     _crouton = createCrouton(api, options);
-    _authReady = setupAuth('', api).then((result) => {
-      if (result.enabled && options.router) {
-        options.router.addRoute({
-          path: result.callbackPath,
-          component: {
-            async setup() {
-              await handleCallback();
-              await options.router!.push('/');
-              return () => null;
-            },
+    const authSetup = setupAuth('', api);
+    _authReady = authSetup;
+
+    // Register callback route synchronously so it exists on fresh page load
+    // (keycloak redirects back before setupAuth resolves). The component awaits
+    // authSetup so manager is initialized before handleCallback() runs.
+    if (options.router) {
+      options.router.addRoute({
+        path: '/auth/callback',
+        component: {
+          async setup() {
+            await authSetup;
+            await handleCallback();
+            await options.router!.push('/');
+            return () => null;
           },
-        });
-      }
-    });
+        },
+      });
+    }
   },
 });
