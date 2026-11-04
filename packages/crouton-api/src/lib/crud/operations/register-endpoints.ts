@@ -49,7 +49,7 @@ export const registerEndpoints = (ctx: OperationContext): void => {
 /** Register all routes for all sub-resources (schemas endpoint + CRUD). */
 const registerSubResourceRoutes = (ctx: OperationContext): void => {
   for (const sub of ctx.config.subResources ?? []) {
-    registerEndpoint(ctx, sub);
+    if (!sub.noRoutes) registerEndpoint(ctx, sub);
   }
 };
 

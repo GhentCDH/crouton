@@ -6,7 +6,6 @@ import {
 
 import { type ListRequest, type Row, offsetOf } from '@ghentcdh/crouton-core';
 
-
 import {
   type CustomListResult,
   type CustomOp,
@@ -17,6 +16,7 @@ import {
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
 import type { DataSourceAdapter } from '../data-access/adapter';
 import { PrismaDataSourceAdapter } from '../data-access/adapter';
+import { loadRelationsIntoRow } from '../data-access/middleware/relation-loader';
 import type { CrudRepository } from '../data-access/repository';
 import { applyAfterFindAll, applyBeforeFindAll, decorateRow, decorateRows, postWrite, prepareWrite } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
@@ -214,8 +214,18 @@ export const createCustomRepository = <T = Row>(
     if (row === null || row === undefined) {
       throw new NotFoundException(`${config.name} with id ${id} not found`);
     }
+
+    // Embed sub-resource relations (custom and Prisma children) that the custom
+    // parent's repo.findOne cannot load natively.
+    const subsToEmbed = (config.subResources ?? []).filter(
+      (s) => s.includeRelationInParentFindOne,
+    );
+    const loaded: T | Row = subsToEmbed.length
+      ? await loadRelationsIntoRow(row as Row, subsToEmbed, config.idField ?? 'id', prisma)
+      : row;
+
     return decorateRow(
-      row,
+      loaded,
       'findOne',
       config,
       adapter,

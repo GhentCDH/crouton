@@ -153,18 +153,17 @@ describe('a child nested both ways at once', () => {
     rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('says the two forms of nesting are mutually exclusive', async () => {
+  it('records no load error — the child is embedded via noRoutes', async () => {
     await loadResourceConfigsFromDir(tempDir, '/api');
-    const error = resourceLoadErrorsRegistry
-      .getAll()
-      .find((e) => e.error.includes('mutually exclusive'));
-    expect(error?.error).toContain('"parent"');
-    expect(error?.error).toContain('Relation column "expense"');
+    expect(resourceLoadErrorsRegistry.getAll()).toEqual([]);
   });
 
-  it('does not register the competing sub-resource route', async () => {
+  it('builds a descriptor with noRoutes: true so routes are skipped but data can be embedded', async () => {
     const configs = await loadResourceConfigsFromDir(tempDir, '/api');
     const parent = configs.find((c) => c.name === 'groups');
-    expect(parent?.subResources ?? []).toHaveLength(0);
+    const sub = parent?.subResources?.[0];
+    expect(sub).toBeDefined();
+    expect(sub?.noRoutes).toBe(true);
+    expect(sub?.column).toBe('expense');
   });
 });
