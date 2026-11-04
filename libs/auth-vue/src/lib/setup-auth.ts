@@ -12,6 +12,22 @@ export const setupAuth = async (
   apiBase: string,
   axios: AxiosInstance,
 ): Promise<AuthSetupResult> => {
+  // Register response interceptor immediately — before any await — so it
+  // catches 401s from concurrent requests that fire while auth is being set up.
+  // useAuth() is called lazily inside the handler so manager is resolved at
+  // call time (after setupOidcManager runs synchronously post _app/auth).
+  // ponytail: redirect on 401, no refresh-token retry — add token refresh if needed
+  axios.interceptors.response.use(
+    (r) => r,
+    async (err) => {
+      if (err?.response?.status === 401) {
+        const { login } = useAuth();
+        await login?.();
+      }
+      return Promise.reject(err);
+    },
+  );
+
   let data: AuthEndpointResponse;
   try {
     const res = await axios.get<AuthEndpointResponse>(`${apiBase}/_app/auth`);
@@ -29,6 +45,7 @@ export const setupAuth = async (
 
   const callbackPath = '/auth/callback';
 
+  // Synchronous — manager is set before any subsequent microtasks run.
   setupOidcManager({
     authority: defaultProvider.issuer,
     client_id: defaultProvider.clientId,
@@ -39,22 +56,13 @@ export const setupAuth = async (
 
   await loadOidcUser();
 
-  const { getToken, login } = useAuth();
+  const { getToken } = useAuth();
 
   axios.interceptors.request.use((config) => {
     const token = getToken();
     if (token) config.headers['Authorization'] = `Bearer ${token}`;
     return config;
   });
-
-  // ponytail: redirect on 401, no refresh-token retry — add token refresh if needed
-  axios.interceptors.response.use(
-    (r) => r,
-    async (err) => {
-      if (err?.response?.status === 401) await login?.();
-      return Promise.reject(err);
-    },
-  );
 
   return { enabled: true, callbackPath };
 };
