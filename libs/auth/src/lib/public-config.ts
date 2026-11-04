@@ -1,6 +1,10 @@
 import type { AuthEndpointResponse, LoadedProvider } from './types';
 
-export const buildPublicAuthConfig = (providers: LoadedProvider[]): AuthEndpointResponse => ({
+export const buildPublicAuthConfig = (
+  providers: LoadedProvider[],
+  isAuthenticated = false,
+): AuthEndpointResponse => ({
+  isAuthenticated,
   providers: providers.map((p) => ({
     name: p.config.name,
     default: p.isDefault,

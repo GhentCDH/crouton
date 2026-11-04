@@ -6,25 +6,29 @@ import { handleCallback, loadOidcUser, setupOidcManager, useAuth } from './use-a
 export type AuthSetupResult = {
   enabled: boolean;
   callbackPath: string;
+  /** Release the request queue. On the callback page the caller must invoke
+   * this after handleCallback() so queued requests fire with the token set. */
+  flushQueue: () => void;
 };
 
 export const setupAuth = async (
   apiBase: string,
   axios: AxiosInstance,
 ): Promise<AuthSetupResult> => {
-  // Token interceptor registered first (LIFO: runs last, after queue releases).
-  // Reads oidcUser lazily so it always picks up the token set by loadOidcUser().
-  const { getToken } = useAuth();
+  const isCallbackPage = window.location.pathname.startsWith('/auth/');
+
+  // Token interceptor registered FIRST (LIFO: runs last, after queue releases).
+  // Reads oidcUser lazily so it always picks up the token set by loadOidcUser()
+  // or handleCallback().
+  const { getToken, login } = useAuth();
   axios.interceptors.request.use((config) => {
     const token = getToken();
     if (token) config.headers['Authorization'] = `Bearer ${token}`;
     return config;
   });
 
-  // Queue interceptor registered second (LIFO: runs first, blocks until auth
-  // setup completes). Route components that fire API calls on mount get held
-  // here until loadOidcUser() has run and the token is available.
-  // Excludes /_app/auth so the probe request is never self-blocked.
+  // Queue interceptor registered SECOND (LIFO: runs first, blocks until auth
+  // setup completes). Exempts /_app/auth so the probe request is never self-blocked.
   let authReady = false;
   const pending: Array<() => void> = [];
   const flushQueue = () => { authReady = true; pending.splice(0).forEach((r) => r()); };
@@ -35,13 +39,12 @@ export const setupAuth = async (
     return config;
   });
 
-  // Response interceptor: redirect to login on 401, but not while processing
-  // the OIDC callback (would create a redirect loop).
+  // Fallback: 401 during an active session (e.g. token expired mid-use) → re-login.
+  // Not the primary auth gate — that is the explicit check below after loadOidcUser().
   axios.interceptors.response.use(
     (r) => r,
     async (err) => {
       if (err?.response?.status === 401 && !window.location.pathname.startsWith('/auth/')) {
-        const { login } = useAuth();
         await login?.();
       }
       return Promise.reject(err);
@@ -54,15 +57,18 @@ export const setupAuth = async (
     data = res.data;
   } catch {
     flushQueue();
-    return { enabled: false, callbackPath: '' };
+    return { enabled: false, callbackPath: '', flushQueue };
   }
 
-  if (!data?.providers?.length) { flushQueue(); return { enabled: false, callbackPath: '' }; }
+  if (!data?.providers?.length) {
+    flushQueue();
+    return { enabled: false, callbackPath: '', flushQueue };
+  }
 
   const defaultProvider = data.providers.find((p) => p.default) ?? data.providers[0];
   if (!defaultProvider?.issuer || !defaultProvider?.clientId) {
     flushQueue();
-    return { enabled: false, callbackPath: '' };
+    return { enabled: false, callbackPath: '', flushQueue };
   }
 
   const callbackPath = '/auth/callback';
@@ -77,10 +83,23 @@ export const setupAuth = async (
 
   await loadOidcUser();
 
-  // Auth setup done: release queued requests (token interceptor runs after queue).
-  flushQueue();
+  if (isCallbackPage) {
+    // On the callback page the code hasn't been exchanged yet — don't flush.
+    // The caller (callback route component) must call flushQueue() after
+    // handleCallback() so queued requests fire with the token.
+    return { enabled: true, callbackPath, flushQueue };
+  }
 
-  return { enabled: true, callbackPath };
+  if (!getToken()) {
+    // No stored session → redirect to login. The queue is never flushed;
+    // the full page redirect abandons it naturally.
+    await login?.();
+    return { enabled: true, callbackPath, flushQueue };
+  }
+
+  // Authenticated: release queued requests (token interceptor adds Bearer).
+  flushQueue();
+  return { enabled: true, callbackPath, flushQueue };
 };
 
 export { handleCallback };

@@ -294,8 +294,9 @@ export const CroutonPlugin = (
           path: '/auth/callback',
           component: {
             async setup() {
-              await authSetup;
+              const { flushQueue } = await authSetup;
               await handleCallback();
+              flushQueue(); // Release queued requests now that token is set.
               resolveCallback();
               await options.router!.push('/');
               return () => null;
@@ -308,8 +309,9 @@ export const CroutonPlugin = (
           path: '/auth/callback',
           component: {
             async setup() {
-              await authSetup;
+              const { flushQueue } = await authSetup;
               await handleCallback();
+              flushQueue();
               await options.router!.push('/');
               return () => null;
             },
