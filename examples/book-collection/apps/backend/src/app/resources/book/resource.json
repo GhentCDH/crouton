@@ -34,6 +34,27 @@
       },
       "hiddenInTable": true
     },
+    "featured": {
+      "fieldInput": {
+        "type": "boolean"
+      },
+      "hiddenInTable": true
+    },
+    "availability": {
+      "fieldInput": {
+        "type": "select",
+        "options": {
+          "clearable": false,
+          "storeValue": true,
+          "values": [
+            { "value": "available", "label": "Available" },
+            { "value": "checked-out", "label": "Checked out" },
+            { "value": "reserved", "label": "Reserved" }
+          ]
+        }
+      },
+      "hiddenInTable": true
+    },
     "rating": {
       "fieldInput": {
         "type": "custom",
@@ -127,6 +148,14 @@
           "id": "summary",
           "colspan": 12,
           "rowspan": 2
+        },
+        {
+          "id": "featured",
+          "colspan": 4
+        },
+        {
+          "id": "availability",
+          "colspan": 8
         },
         {
           "id": "rating",

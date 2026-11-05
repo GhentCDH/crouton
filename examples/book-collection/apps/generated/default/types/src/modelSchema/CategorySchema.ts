@@ -10,6 +10,7 @@ export const CategorySchema = z.object({
   id: z.string().cuid(),
   name: z.string(),
   slug: z.string(),
+  tags: z.string(),
 })
 
 export type Category = z.infer<typeof CategorySchema>
