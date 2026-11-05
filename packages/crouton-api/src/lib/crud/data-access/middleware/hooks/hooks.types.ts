@@ -2,60 +2,32 @@ import { z } from 'zod';
 
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
+import type { CrudContext, ParentContext } from '../../../context';
 import type { DataSourceAdapter } from '../../adapter';
 
-export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'delete']);
-export type WriteOp = z.infer<typeof WriteOpSchema>;
+export type { CrudOp, ReadOp, WriteOp } from '../../../context';
 
-export const ReadOpSchema = z.enum(['findAll', 'findOne']);
-export type ReadOp = z.infer<typeof ReadOpSchema>;
+export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'delete'] as const);
+export const ReadOpSchema = z.enum(['findAll', 'findOne'] as const);
 
 /**
  * The parent a nested read or write is scoped to.
- *
- * Present whenever the resource is reached under a parent — as a sub-resource
- * declared by a relation column on the parent (`param` is the parent's own `id`),
- * or as a resource that declares `parent` and mounts its own controller beneath
- * it (`param` is the name it chose, e.g. `groupId`). Absent on a top-level write.
- *
- * Deliberately the same shape as `CustomRepositoryContext.parent`, so a hook and a
- * `repository.ts` read the parent identically.
+ * Alias of `ParentContext` from the shared context module — kept for backward compatibility.
  */
-export interface ParentHookContext {
-  route: string;
-  param: string;
-  id: string | number;
-}
+export type ParentHookContext = ParentContext;
 
-export interface WriteHookContext<PRISMACLIENT = unknown> {
+/** Hook context for write operations (`create`, `update`, `patch`, `delete`). */
+export interface WriteHookContext<PRISMACLIENT = unknown> extends CrudContext<PRISMACLIENT, 'create' | 'update' | 'patch' | 'delete'> {
   /** The datasource adapter for this resource. Use `dataSource.client` to reach the raw backend. */
   dataSource: DataSourceAdapter;
-  /**
-   * Raw Prisma client — backward-compatible alias for `dataSource.client`.
-   * `undefined` on a non-Prisma datasource.
-   * @deprecated prefer `dataSource.client`
-   */
-  prisma: PRISMACLIENT;
-  op: WriteOp;
-  id?: string | number;
-  request?: unknown;
-  parent?: ParentHookContext;
 }
 
-export interface ReadHookContext<PRISMACLIENT = unknown> {
+/** Hook context for read operations (`findAll`, `findOne`). */
+export interface ReadHookContext<PRISMACLIENT = unknown> extends CrudContext<PRISMACLIENT, 'findAll' | 'findOne'> {
   /** The datasource adapter for this resource. Use `dataSource.client` to reach the raw backend. */
   dataSource: DataSourceAdapter;
-  /**
-   * Raw Prisma client — backward-compatible alias for `dataSource.client`.
-   * `undefined` on a non-Prisma datasource.
-   * @deprecated prefer `dataSource.client`
-   */
-  prisma: PRISMACLIENT;
-  op: ReadOp;
   /** The record id for `findOne` reads. Absent on `findAll`. */
   id?: string | number;
-  request?: unknown;
-  parent?: ParentHookContext;
 }
 
 export const ResourceHooksSchema = z.object({

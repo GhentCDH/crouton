@@ -14,7 +14,7 @@ import {
   PARENT_METHOD,
 } from './custom-repository.types';
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
-import type { DataSourceAdapter } from '../data-access/adapter';
+import type { DataSourceResolver } from '../context';
 import { PrismaDataSourceAdapter } from '../data-access/adapter';
 import { loadRelationsIntoRow } from '../data-access/middleware/relation-loader';
 import type { CrudRepository } from '../data-access/repository';
@@ -23,13 +23,7 @@ import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import type { CroutonRequest } from '../types/request.types';
 
-/** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
-export type DataSourceResolver = {
-  resolve(name?: string): unknown;
-  entries(): { name: string; client: unknown }[];
-  /** Resolve the full adapter for a datasource (optional — not all callers supply it). */
-  resolveAdapter?(name?: string): DataSourceAdapter;
-};
+export type { DataSourceResolver } from '../context';
 
 const unsupported = (config: Resource, op: CustomOp): never => {
   const method = config.parent ? PARENT_METHOD[op] : op;
