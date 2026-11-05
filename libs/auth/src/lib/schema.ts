@@ -55,13 +55,6 @@ export const AuthProviderSchema = z.object({
     ])
     .optional()
     .describe('Module-level default security applied when neither an operation nor a resource declares any.'),
-  scopes: z
-    .array(z.string())
-    .min(1)
-    .optional()
-    .describe(
-      'OAuth2 scopes requested by the frontend (default: openid, profile, email). Add offline_access to enable refresh tokens.',
-    ),
 });
 
 export type AuthProviderConfig = z.infer<typeof AuthProviderSchema>;

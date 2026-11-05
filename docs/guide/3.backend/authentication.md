@@ -102,45 +102,6 @@ const { user, isAuthenticated, login, logout, hasRole, getToken } = useAuth();
 
 `:provider` is the provider's directory name (its Passport strategy name), e.g. `keycloak`. The OAuth2 endpoints require the `<PROVIDER>_CLIENT_SECRET` / `<PROVIDER>_CALLBACK_URL` env vars.
 
-## Token lifetime & refresh
-
-**Access-token lifetime** is set entirely by the identity provider — Crouton does not configure it. Crouton's backend validates tokens by calling the IdP `userinfo` endpoint; an expired token returns unauthenticated.
-
-The frontend (oidc-client-ts) renews the access token roughly 60 seconds before expiry via `automaticSilentRenew`. By default, renewal uses a hidden iframe (`signinSilent` with `prompt=none`) against the IdP SSO session. This breaks in modern browsers under third-party-cookie restrictions and cannot extend a session once the SSO session ends.
-
-**Tokens are stored in `sessionStorage`** and cleared when the tab closes.
-
-### Enabling refresh tokens
-
-Add `offline_access` to `scopes` in `auth-provider.json` and enable offline access on the IdP client:
-
-```jsonc
-// auth-providers/keycloak/auth-provider.json
-{
-  "name": "keycloak",
-  "provider": "keycloak",
-  "scopes": ["openid", "profile", "email", "offline_access"]
-}
-```
-
-When a refresh token is present, oidc-client-ts uses `grant_type=refresh_token` for silent renewal instead of the SSO iframe. On signout, the refresh token is revoked automatically.
-
-**Provider support:**
-
-| Provider | Notes |
-|---|---|
-| Keycloak | Enable "Offline Access" on the client; `offline_access` in scope ⇒ refresh token |
-| Auth0 | Grant/config must allow `offline_access` |
-| Microsoft | `offline_access` works with the OIDC endpoint |
-| Google | Standard `offline_access` does not apply; uses `access_type=offline` + `prompt=consent` semantics — not supported |
-| Generic `oidc` | Issuer-dependent |
-
-::: warning XSS exposure
-Refresh tokens are stored in `sessionStorage` alongside access tokens. The session-storage model is unchanged; httpOnly-cookie / BFF storage is out of scope but mitigates this risk.
-:::
-
-The `dev` token never expires and is not affected by these settings.
-
 ## Custom provider
 
 ```ts

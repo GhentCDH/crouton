@@ -168,14 +168,6 @@
           ]
         }
       ]
-    },
-    "scopes": {
-      "description": "OAuth2 scopes requested by the frontend (default: openid, profile, email). Add offline_access to enable refresh tokens.",
-      "minItems": 1,
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
     }
   },
   "required": [

@@ -5,7 +5,6 @@ const providerClientConfig = (p: LoadedProvider): PublicAuthConfig =>
     provider: p.config.provider,
     issuer: p.issuer,
     clientId: p.clientId,
-    ...(p.config.scopes ? { scopes: p.config.scopes } : {}),
   };
 
 export const buildPublicAuthConfig = (
