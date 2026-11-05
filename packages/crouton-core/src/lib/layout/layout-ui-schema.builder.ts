@@ -64,9 +64,10 @@ const applyControlOverrides = (
       base.opt(control.options as Partial<ControlOption>);
     }
   }
-  // disabled/disabledWhen go into options so the rule slot stays free for show/hide
+  // disabled/disabledWhen/readonly go into options so the rule slot stays free for show/hide
   if (ctrl.disabled !== undefined) base.opt({ disabled: ctrl.disabled });
   if (ctrl.disabledWhen) base.opt({ disabledWhen: ctrl.disabledWhen });
+  if (ctrl.readonly !== undefined) base.opt({ readonly: ctrl.readonly });
   if (ctrl.showWhen) {
     base.showWhen(
       `#/properties/${ctrl.showWhen.field}`,
