@@ -16,6 +16,7 @@ export default defineConfig({
     '@nestjs/microservices',
     '@nestjs/testing',
     '@nestjs/swagger',
+    '@nestjs/passport',
     'nestjs-zod',
     '@prisma/client',
     // Only ever imported lazily by crouton-codegen's introspect() (bundled
@@ -25,6 +26,13 @@ export default defineConfig({
     // `prisma` dev dependency) rather than being bundled here.
     '@prisma/internals',
     'zod',
+    // passport and strategies are CJS and use dynamic require() for Node
+    // built-ins; bundling them into ESM breaks at runtime.
+    'passport',
+    'passport-google-oauth20',
+    'passport-http-bearer',
+    'passport-openidconnect',
+    'passport-microsoft',
   ],
   esbuildOptions(options) {
     options.conditions = ['@ghentcdh/crouton'];
