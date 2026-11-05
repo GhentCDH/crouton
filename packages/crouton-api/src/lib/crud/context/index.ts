@@ -6,3 +6,4 @@ export type {
   ReadOp,
   WriteOp,
 } from './context.types';
+export { toRepositoryContext } from './context.helpers';
