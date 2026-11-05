@@ -9,7 +9,7 @@ const RoleGuardSchema = z.union([
 export const AuthProviderSchema = z.object({
   $schema: z.string().optional(),
   name: z.string(),
-  provider: z.enum(['keycloak', 'auth0', 'google', 'oidc', 'dev', 'custom']),
+  provider: z.enum(['keycloak', 'auth0', 'google', 'microsoft', 'oidc', 'dev', 'custom']),
   default: z.boolean().optional(),
   env: z.record(z.string(), z.string()).optional(),
   roles: z

@@ -79,3 +79,4 @@ e2e.db
 /Claude outputs/
 
 vitest.config.*.timestamp*
+tsconfig.tsbuildinfo

@@ -1,5 +1,7 @@
 export * from './lib/crouton-api.module';
 export type { CroutonAppConfig } from './lib/crud/app-config';
+export { getCroutonUser } from './lib/crud/auth';
+export type { CroutonUser } from './lib/crud/auth';
 export * from './lib/crud/loader/index';
 export * from './lib/crud/loader/resource-config.loader';
 export * from './lib/crud/loader/fs-resource-config.loader';

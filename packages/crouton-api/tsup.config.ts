@@ -9,7 +9,10 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   shims: true,
-  noExternal: ['@ghentcdh/crouton-core', '@ghentcdh/crouton-codegen'],
+  noExternal: [
+    '@ghentcdh/crouton-core',
+    '@ghentcdh/crouton-codegen',
+  ],
   external: [
     '@nestjs/common',
     '@nestjs/core',
@@ -18,6 +21,12 @@ export default defineConfig({
     '@nestjs/swagger',
     'nestjs-zod',
     '@prisma/client',
+    '@nestjs/passport',
+    'passport',
+    'passport-google-oauth20',
+    'passport-http-bearer',
+    'passport-microsoft',
+    'passport-openidconnect',
     // Only ever imported lazily by crouton-codegen's introspect() (bundled
     // in via noExternal above), and only exercised when the dev-only
     // resource-sync endpoints are actually called. Kept external so it
