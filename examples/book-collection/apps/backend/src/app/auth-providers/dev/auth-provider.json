@@ -1,0 +1,9 @@
+{
+  "$schema": "https://ghentcdh.github.io/crouton/schema/auth-provider.schema.json",
+  "name": "dev",
+  "provider": "dev",
+  "default": true,
+  "guards": {
+    "admin": ["admin"]
+  }
+}
