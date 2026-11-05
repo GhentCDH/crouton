@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
+import type { CrudContext, DataSourceResolver } from '../context';
 import type { Resource } from '../resource/ResourceConfig.schema';
 
 /**
@@ -27,46 +28,30 @@ export type CustomOp =
   | 'patch'
   | 'delete';
 
-export interface CustomRepositoryContext<PRISMA = unknown> {
-  /**
-   * Resolved datasource client for this resource — the one named by the
-   * resource's `database`, or the project default.
-   *
-   * `undefined` when the project has no datasources at all, which is a valid
-   * setup for a backend whose resources are all custom.
-   */
-  prisma: PRISMA;
-  /** Escape hatch for a resource that reads from more than one database. */
-  dataSources: {
-    resolve(name?: string): unknown;
-    entries(): { name: string; client: unknown }[];
-  };
+/**
+ * Context passed to every method of a custom `repository.ts`.
+ *
+ * Extends the shared `CrudContext` base, narrowing `config` and `dataSources` to
+ * required and adding `offset` for offset-paginated backends.
+ */
+export interface CustomRepositoryContext<PRISMA = unknown> extends CrudContext<PRISMA> {
   /** The fully resolved resource config, including columns and views. */
   config: Resource;
   /** Which operation is executing. */
   op: CustomOp;
+  /** All datasource adapters registered for this project. */
+  dataSources: DataSourceResolver;
   /**
    * Zero-based row offset derived from `page`/`pageSize`, for backends that
    * paginate by offset rather than page number.
    */
   offset: number;
-  /** Record id, on the operations that address one. */
-  id?: string | number;
   /**
    * The incoming HTTP request, when the controller layer supplies one.
    * Same value hooks receive as `ctx.request` — use it for auth/tenant context.
    * Cast to `CroutonRequest` (from `@ghentcdh/crouton-api`) for typed access.
    */
   request?: unknown;
-  /**
-   * Set when the resource declares a `parent`, i.e. it is mounted at
-   * `<route>/:<param>/…`. The id is read from the path on every request, so it
-   * is always present for a nested resource.
-   *
-   * The parent-aware operations receive the same id as their first argument;
-   * this is here for the cases where you want it inside a shared helper.
-   */
-  parent?: { route: string; param: string; id: string | number };
   /** Free-text search string from `?q=`. Use with `search` paths to implement custom search. */
   q?: string;
   /** Resolved dot-paths that `?q=` should match against (from `operations.findAll.search`). */
