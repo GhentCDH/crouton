@@ -105,9 +105,12 @@ export const orderTableColumnsFromLayout = (
     const el = elementById.get(id);
     if (el) {
       const overrides: Record<string, unknown> = {};
-      // Apply sortable/defaultSort from layout control
+      // Apply sortable/sortId from layout control
       if (ctrlObj?.['sortable'] === false) {
         overrides['sortable'] = false;
+      } else if (ctrlObj?.['sortId'] !== undefined) {
+        // item-level sortId wins over column-level; also enables sorting
+        overrides['sortId'] = ctrlObj['sortId'];
       } else if (ctrlObj?.['sortable'] === true && (el['options'] as Record<string, unknown> | undefined)?.['sortId'] == null) {
         // sortable: true but no sortId derived — use column id
         overrides['sortId'] = id;
