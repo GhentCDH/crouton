@@ -47,6 +47,14 @@
       <span class="text-xl font-bold mr-4">{{ config.title }}</span>
     </template>
     <template #right>
+      <Transition name="crud-status">
+        <span
+          v-if="resource.lastAction"
+          class="text-success text-sm flex items-center gap-1 mr-2"
+        >
+          ✓ {{ resource.lastAction }}
+        </span>
+      </Transition>
       <Btn
         v-if="isDev"
         :icon="IconEnum.Edit"
@@ -92,3 +100,14 @@ defineProps(ResourceTableContentProperties);
 const emit = defineEmits(['editSchema', 'refresh']);
 const { t } = useLanguage();
 </script>
+
+<style scoped>
+.crud-status-enter-active,
+.crud-status-leave-active {
+  transition: opacity 0.6s ease;
+}
+.crud-status-enter-from,
+.crud-status-leave-to {
+  opacity: 0;
+}
+</style>
