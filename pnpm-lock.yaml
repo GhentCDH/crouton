@@ -447,6 +447,28 @@ importers:
 
   examples/book-collection/apps/generated/default/types: {}
 
+  libs/crouton-codegen:
+    dependencies:
+      '@prisma/internals':
+        specifier: ^7.10.0
+        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
+    devDependencies:
+      '@crouton/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
+      vitest:
+        specifier: ^5.0.3
+        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.7
+
   libs/crouton-core:
     dependencies:
       '@jsonforms/core':
@@ -507,7 +529,7 @@ importers:
         version: link:../crouton-cli
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
-        version: link:../crouton-codegen
+        version: link:../../libs/crouton-codegen
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -532,7 +554,7 @@ importers:
         version: link:../crouton-cli
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
-        version: link:../crouton-codegen
+        version: link:../../libs/crouton-codegen
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -575,7 +597,7 @@ importers:
         version: link:../../libs/status
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
-        version: link:../crouton-codegen
+        version: link:../../libs/crouton-codegen
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../../libs/crouton-core
@@ -627,7 +649,7 @@ importers:
         version: link:../../libs/i18n
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
-        version: link:../crouton-codegen
+        version: link:../../libs/crouton-codegen
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../../libs/crouton-core
@@ -640,28 +662,6 @@ importers:
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-
-  packages/crouton-codegen:
-    dependencies:
-      '@prisma/internals':
-        specifier: ^7.10.0
-        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
-    devDependencies:
-      '@crouton/i18n':
-        specifier: workspace:*
-        version: link:../../libs/i18n
-      '@ghentcdh/crouton-core':
-        specifier: workspace:*
-        version: link:../../libs/crouton-core
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-      vitest:
-        specifier: ^5.0.3
-        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
-      zod:
-        specifier: ^4.0.0
-        version: 4.6.7
 
   packages/crouton-editor-vue:
     dependencies:
@@ -720,7 +720,7 @@ importers:
     dependencies:
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
-        version: link:../crouton-codegen
+        version: link:../../libs/crouton-codegen
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.32.2(supports-color@7.2.0)(zod@4.6.7)
@@ -746,7 +746,7 @@ importers:
     devDependencies:
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
-        version: link:../crouton-codegen
+        version: link:../../libs/crouton-codegen
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.1)

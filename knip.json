@@ -41,7 +41,7 @@
       "ignore": ["test/crud/harness.ts"]
     },
     "packages/crouton-cli": {},
-    "packages/crouton-codegen": {},
+    "libs/crouton-codegen": {},
     "libs/crouton-core": {
       "entry": ["scripts/*.mjs"]
     },
