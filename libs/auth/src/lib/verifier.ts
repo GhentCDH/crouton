@@ -30,7 +30,7 @@ export const createOidcVerifier = (opts: VerifierOptions) => {
         Buffer.from(token.split('.')[1], 'base64url').toString(),
       ) as Record<string, unknown>;
 
-      return mapClaims({ ...jwtPayload, ...userinfo }, opts.config, opts.rolesClaim, opts.providerName);
+      return mapClaims({ ...jwtPayload, ...userinfo }, opts.config, opts.rolesClaim, opts.providerName, opts.clientId);
     } catch {
       return null;
     }

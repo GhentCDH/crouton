@@ -61,6 +61,47 @@ describe('mapClaims', () => {
     expect(user.roles).toContain('admin');
   });
 
+  it('keycloak: maps resource_access.<clientId>.roles', () => {
+    const user = mapClaims(
+      {
+        sub: 'u1',
+        realm_access: { roles: ['admin'] },
+        resource_access: { 'my-client': { roles: ['editor'] } },
+      },
+      kcConfig,
+      'realm_access.roles',
+      'kc',
+      'my-client',
+    );
+    expect(user.roles).toEqual(['admin', 'editor']);
+  });
+
+  it('keycloak: resource_access roles deduplicated', () => {
+    const user = mapClaims(
+      {
+        sub: 'u1',
+        realm_access: { roles: ['admin'] },
+        resource_access: { 'my-client': { roles: ['admin', 'editor'] } },
+      },
+      kcConfig,
+      'realm_access.roles',
+      'kc',
+      'my-client',
+    );
+    expect(user.roles).toEqual(['admin', 'editor']);
+  });
+
+  it('keycloak: missing resource_access → only realm roles', () => {
+    const user = mapClaims(
+      { sub: 'u1', realm_access: { roles: ['admin'] } },
+      kcConfig,
+      'realm_access.roles',
+      'kc',
+      'my-client',
+    );
+    expect(user.roles).toEqual(['admin']);
+  });
+
   it('google: email not in byEmail → no roles', () => {
     const config: AuthProviderConfig = {
       ...googleConfig,

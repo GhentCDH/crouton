@@ -12,12 +12,21 @@ export const mapClaims = (
   config: AuthProviderConfig,
   rolesClaim: string,
   providerName: string,
+  clientId?: string,
 ): CroutonUser => {
   let roles: string[] = [];
 
   if (rolesClaim) {
     const raw = getNestedClaim(claims, rolesClaim);
     if (Array.isArray(raw)) roles = raw.filter((r): r is string => typeof r === 'string');
+  }
+
+  if (config.provider === 'keycloak' && clientId) {
+    const resourceAccess = claims['resource_access'] as Record<string, unknown> | undefined;
+    const clientRoles = (resourceAccess?.[clientId] as Record<string, unknown> | undefined)?.['roles'];
+    if (Array.isArray(clientRoles)) {
+      roles.push(...clientRoles.filter((r): r is string => typeof r === 'string' && !roles.includes(r)));
+    }
   }
 
   if (config.provider === 'google' && config.roles?.byEmail) {
