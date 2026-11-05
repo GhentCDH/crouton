@@ -56,7 +56,7 @@ export default defineUserConfig({
           ),
           '@ghentcdh/crouton-editor-vue': fileURLToPath(
             new URL(
-              '../../packages/crouton-editor-vue/src/index.ts',
+              '../../libs/crouton-editor-vue/src/index.ts',
               import.meta.url,
             ),
           ),
