@@ -25,6 +25,7 @@ test.describe('crud', () => {
     await form.fillField('Bio', 'A biography for the test author.');
 
     await form.save();
+    await list.waitForCreatedStatus();
 
     await list.waitForRows();
     await list.search('Test Author Created');
@@ -64,6 +65,7 @@ test.describe('crud', () => {
     await form.waitForModal();
     await form.fillField('Name', 'Author To Delete');
     await form.save();
+    await list.waitForCreatedStatus();
 
     await list.search('Author To Delete');
     await list.waitForRows();

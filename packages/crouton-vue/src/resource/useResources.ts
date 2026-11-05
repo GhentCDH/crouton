@@ -2,7 +2,7 @@
 /// <reference path="../lodash-es-shim.d.ts" />
 import { enumKey } from '@crouton/i18n';
 import { cloneDeep } from 'lodash-es';
-import { type Component, type Ref, computed, reactive, shallowRef } from 'vue';
+import { type Component, type Ref, computed, reactive, ref, shallowRef } from 'vue';
 
 import type { Action, ResourceDefinition, ViewColumnConfig } from '@ghentcdh/crouton-core';
 
@@ -85,6 +85,7 @@ export interface UseResource {
   } | null;
   api: ResourceApiInstance;
   reload: () => void;
+  lastAction: string | null;
 }
 
 export const useResourcesByUri = (
@@ -160,12 +161,25 @@ export const useResources = (
     _formDef.operations.create = null;
   }
 
+  const lastAction = ref<string | null>(null);
+  let _lastActionTimer: ReturnType<typeof setTimeout> | undefined;
+  const setLastAction = (type: 'created' | 'updated' | 'deleted') => {
+    clearTimeout(_lastActionTimer);
+    const title = _formDef.title ?? 'Record';
+    lastAction.value =
+      type === 'created' ? `${title} created`
+      : type === 'updated' ? `${title} updated`
+      : 'Record deleted';
+    _lastActionTimer = setTimeout(() => { lastAction.value = null; }, 3000);
+  };
+
   const resourceModal = resourceModals(
     api,
     resource,
     _formDef,
     handleEvent,
     inline,
+    setLastAction,
   );
 
   return reactive({
@@ -210,5 +224,6 @@ export const useResources = (
     form: resourceModal.form,
     reload: () => resource.reload(),
     api,
+    lastAction,
   }) as unknown as UseResource;
 };

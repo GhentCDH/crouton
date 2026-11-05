@@ -25,6 +25,7 @@ test.describe('users crud', () => {
     await form.fillField('Name', 'Test User');
     await form.fillField('Email', 'testuser@example.com');
     await form.save();
+    await list.waitForCreatedStatus();
 
     await list.waitForRows();
     await list.search('Test User');
@@ -65,6 +66,7 @@ test.describe('users crud', () => {
     await form.fillField('Name', 'User To Delete');
     await form.fillField('Email', 'delete-me@example.com');
     await form.save();
+    await list.waitForCreatedStatus();
 
     await list.search('User To Delete');
     await list.waitForRows();

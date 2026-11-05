@@ -140,7 +140,6 @@ export const resourceApi = (
       [idField]: recordId,
     })
       .then((response: any) => {
-        NotificationService.success('Data deleted');
         return response.data;
       })
       .catch((error: any) => {
