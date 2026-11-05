@@ -79,14 +79,14 @@ export const confirmDelete = (
   });
 };
 
-const openDeleteModal =
-  (api: ResourceApiInstance, resource: Resource, handleEvent: HandleEvent) =>
+const openDeleteModal = (api: ResourceApiInstance, resource: Resource, handleEvent: HandleEvent, onSuccess?: () => void) =>
   (data: any) => {
     confirmDelete(
       () => {
         api.delete(data).then((response: any) => {
           if (response) resource.reload();
           handleEvent('close', { delete: true, data });
+          onSuccess?.();
         });
       },
       { onCancelled: () => handleEvent('close', {}) },
@@ -153,10 +153,11 @@ const openEditModal =
     resource: Resource,
     formDef: ResourceDefinition,
     handleEvent: HandleEvent,
+    onSuccess?: (type: 'created' | 'updated') => void,
   ) =>
   (formData?: any) => {
     JsonFormModalService.openModal(
-      createEditForm(api, resource, formDef, handleEvent)(formData) as any,
+      createEditForm(api, resource, formDef, handleEvent, onSuccess)(formData) as any,
     );
   };
 
@@ -166,6 +167,7 @@ const createEditForm =
     resource: Resource,
     formDef: ResourceDefinition,
     handleEvent: HandleEvent,
+    onSuccess?: (type: 'created' | 'updated') => void,
   ) =>
   (formData?: any) => {
     const form = formDef.schemas.form;
@@ -229,6 +231,7 @@ const createEditForm =
               ? api.save(recordId, data)
               : api.create(data));
             if (!response) throw new Error('Save failed');
+            onSuccess?.(isUpdate ? 'updated' : 'created');
             handleEvent('close', response);
             resource.reload();
           } else {
@@ -392,6 +395,7 @@ export const resourceModals = (
   formDef: ResourceDefinition,
   handleEvent: HandleEvent,
   inline: boolean,
+  onSuccess?: (type: 'created' | 'updated' | 'deleted') => void,
 ): ResourceModals => {
   const openWithData = (id: unknown, fn: (data: any) => void) => {
     const _id =
@@ -429,7 +433,7 @@ export const resourceModals = (
     (formData?: any) => {
       const mode = formDef.display.mode;
       if (!inline && mode !== 'page') {
-        openEditModal(api, resource, formDef, handleEvent)(formData);
+        openEditModal(api, resource, formDef, handleEvent, onSuccess)(formData);
         return;
       }
       const isPageMode = mode === 'page';
@@ -445,6 +449,7 @@ export const resourceModals = (
         resource,
         formDef,
         handleEvent,
+        onSuccess,
       )(formData);
 
       // CroutonForm uses `title` instead of `modalTitle`
@@ -483,6 +488,6 @@ export const resourceModals = (
         ? openWithData(id, openForm(api, resource, formDef, handleEvent))
         : openWithData(id, openViewModal(api, resource, formDef, handleEvent)),
     delete: (id: unknown) =>
-      openWithData(id, openDeleteModal(api, resource, handleEvent)),
+      openWithData(id, openDeleteModal(api, resource, handleEvent, () => onSuccess?.('deleted'))),
   };
 };
