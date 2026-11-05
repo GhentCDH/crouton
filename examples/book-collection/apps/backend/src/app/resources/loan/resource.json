@@ -17,6 +17,25 @@
     "returnedAt": {
       "required": false
     },
+    "requestedPickupAt": {
+      "required": false,
+      "fieldInput": {
+        "type": "dateTime"
+      },
+      "hiddenInTable": true
+    },
+    "rentalPeriod": {
+      "required": false,
+      "label": "Rental period",
+      "hiddenInTable": true,
+      "fieldInput": {
+        "type": "date-range",
+        "options": {
+          "fromLabel": "From",
+          "toLabel": "To"
+        }
+      }
+    },
     "userId": {
       "hiddenInTable": true,
       "hiddenInView": true,
