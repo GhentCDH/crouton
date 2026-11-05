@@ -52,7 +52,7 @@ version, the expected version, and the error. See [Resource load health](../3.ba
 
 ## Authoring a migration
 
-Migrations live in `../../../packages/crouton-core/src/lib/resource/migrations`. Each step is a small, **pure** function
+Migrations live in `../../../libs/crouton-core/src/lib/resource/migrations`. Each step is a small, **pure** function
 that transforms the raw JSON object (before any Zod normalisation) and returns a new object:
 
 ```ts

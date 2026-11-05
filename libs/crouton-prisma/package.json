@@ -1,0 +1,39 @@
+{
+  "name": "@ghentcdh/crouton-prisma",
+  "version": "0.0.1-alpha.88",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhentCDH/crouton",
+    "directory": "libs/crouton-prisma"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "bin": {
+    "crouton-prisma": "dist/generator.cjs"
+  },
+  "exports": {
+    ".": "./dist/generator.cjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@prisma/generator-helper": "^7.10.0"
+  },
+  "peerDependencies": {
+    "prisma": ">=7.0.0",
+    "zod-prisma-types": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@ghentcdh/crouton-codegen": "workspace:*",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

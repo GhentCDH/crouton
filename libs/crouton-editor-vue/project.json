@@ -1,0 +1,15 @@
+{
+  "name": "crouton-editor-vue",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/crouton-editor-vue/src",
+  "tags": ["scope:crouton", "type:ui", "tech:vue", "platform:vue"],
+  "targets": {
+    "typecheck": {
+      "command": "vue-tsc --noEmit -p tsconfig.lib.json",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

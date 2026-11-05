@@ -66,7 +66,7 @@ pnpm nx run crouton-core:build
 
 and commit the result. CI fails if these are out of date:
 
-- `packages/crouton-core/src/lib/resource/resource.schema*.json`
+- `libs/crouton-core/src/lib/resource/resource.schema*.json`
 - `docs/.vuepress/public/schema/`
 - `docs/guide/2.resources/field-inputs/_generated/`
 

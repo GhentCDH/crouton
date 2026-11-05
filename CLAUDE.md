@@ -40,29 +40,29 @@ Or for all packages: `pnpm nx run-many --target=lint`. Lint errors in CI are not
 
 ## Adding an option to an existing field input
 
-1. Open `packages/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` and add the field using `opt()` from `../option-meta`.
-2. If the option needs custom handling in codegen, open `packages/crouton-codegen/src/lib/view/form-schema.builder.ts` in `buildFormControl` and update the relevant branch.
+1. Open `libs/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` and add the field using `opt()` from `../option-meta`.
+2. If the option needs custom handling in codegen, open `libs/crouton-codegen/src/lib/view/form-schema.builder.ts` in `buildFormControl` and update the relevant branch.
 3. Run `pnpm nx run crouton-core:build` — this regenerates JSON schemas and the `_generated/` docs.
 4. Verify no drift: `git diff docs/guide/2.resources/field-inputs/_generated/`.
 
 ## Adding a new field input type (all 10 steps)
 
-1. **Create options schema** — `packages/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` (extend `BaseOptionsSchema` from `../base.options`, use `opt` from `../option-meta`).
-2. **Register in registry** — `packages/crouton-core/src/lib/resource/field-input/registry.ts`: add import and add entry `['<type>', { options: <Type>OptionsSchema, schemaFile: '<type>' }]`.
-3. **Add to ControlType** — `packages/crouton-core/src/lib/schema/ui/control-type.ts`: add `<type>: '<type>'` to the `ControlType` const.
-4. **Create Vue renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/<Type>ControlRenderer.vue`.
-5. **Add tester** — `packages/crouton-forms-vue/src/testers/tester.ts`: export `const is<Type>Control = and(uiTypeIs('Control'), optionIsIgnoreCase('format', ControlType.<type>))`.
-6. **Register renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/index.ts`: import tester + component, add entry to `controlRenderers`.
-7. **Add to CANVAS_SUPPORTED_TYPES** — `packages/crouton-editor-vue/src/canvas/type-swaps.ts`: add `'<type>'` to the `CANVAS_SUPPORTED_TYPES` Set.
-8. **Add Prisma mapping** (if applicable) — `packages/crouton-codegen/src/naming.ts`: add a `case '<PrismaType>':` in `fieldInputType`.
-9. **Add form-schema branch** (if options need forwarding) — `packages/crouton-core/src/lib/schema/column/form-control.ts`: add an `else if` branch in `buildFormControl` before the generic `else`.
+1. **Create options schema** — `libs/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` (extend `BaseOptionsSchema` from `../base.options`, use `opt` from `../option-meta`).
+2. **Register in registry** — `libs/crouton-core/src/lib/resource/field-input/registry.ts`: add import and add entry `['<type>', { options: <Type>OptionsSchema, schemaFile: '<type>' }]`.
+3. **Add to ControlType** — `libs/crouton-core/src/lib/schema/ui/control-type.ts`: add `<type>: '<type>'` to the `ControlType` const.
+4. **Create Vue renderer** — `libs/crouton-forms-vue/src/forms/renderers/controls/<Type>ControlRenderer.vue`.
+5. **Add tester** — `libs/crouton-forms-vue/src/testers/tester.ts`: export `const is<Type>Control = and(uiTypeIs('Control'), optionIsIgnoreCase('format', ControlType.<type>))`.
+6. **Register renderer** — `libs/crouton-forms-vue/src/forms/renderers/controls/index.ts`: import tester + component, add entry to `controlRenderers`.
+7. **Add to CANVAS_SUPPORTED_TYPES** — `libs/crouton-editor-vue/src/canvas/type-swaps.ts`: add `'<type>'` to the `CANVAS_SUPPORTED_TYPES` Set.
+8. **Add Prisma mapping** (if applicable) — `libs/crouton-codegen/src/naming.ts`: add a `case '<PrismaType>':` in `fieldInputType`.
+9. **Add form-schema branch** (if options need forwarding) — `libs/crouton-core/src/lib/schema/column/form-control.ts`: add an `else if` branch in `buildFormControl` before the generic `else`.
 10. **Create docs stub** — `docs/guide/2.resources/field-inputs/<type>.md` with `<!-- @include: ./_generated/<type>.md -->`, then add a row to `docs/guide/2.resources/field-inputs/index.md`.
 
 After all steps: `pnpm nx run crouton-core:build` + `pnpm nx run crouton-core:test`.
 
 ## Adding a new UI component to crouton-ui-vue
 
-After creating the component and exporting it from `packages/crouton-ui-vue/src/index.ts`:
+After creating the component and exporting it from `libs/crouton-ui-vue/src/index.ts`:
 
 1. **Add to gallery component** — open `docs/.vuepress/components/ComponentGallery.vue`, import the component, and add a `<section>` demonstrating it with representative props.
 2. **Register in docs client** — open `docs/.vuepress/client.ts` and add:
@@ -77,37 +77,37 @@ After creating the component and exporting it from `packages/crouton-ui-vue/src/
 
 > **Table-specific options** (`sortable`, `searchable`, `filterable`, `rowActions`, `tableActions`, `showWhen`, `hideWhen`, `disabledWhen`, `fieldTable`) belong on the **table node** (`type: "table"`) inside `layout.table`, not on columns, the resource root, or a wrapper node. See `migrate-to-next-alpha.md`.
 
-1. Find the resource JSON schema — `packages/crouton-core/src/lib/resource/` (look for the relevant `*.schema.ts` or Column-level schema).
-2. Add the field to the Zod schema, then run `pnpm nx run crouton-core:build` to regenerate `packages/crouton-core/src/lib/resource/resource.schema*.json` and `docs/.vuepress/public/schema/crouton.schema.json`.
-3. If the API needs to read/forward the option, update `packages/crouton-api/src/lib/crud/adapter/` loader(s).
-4. Update or add a test in `packages/crouton-core/src/lib/view/form-schema.builder.spec.ts` (re-exports from `schema/column/form-control.ts`; edit the spec in `view/` or the canonical file in `schema/column/`) or the relevant codegen spec.
-5. Verify no drift: `git diff packages/crouton-core/src/lib/resource/resource.schema*.json docs/.vuepress/public/schema/`.
+1. Find the resource JSON schema — `libs/crouton-core/src/lib/resource/` (look for the relevant `*.schema.ts` or Column-level schema).
+2. Add the field to the Zod schema, then run `pnpm nx run crouton-core:build` to regenerate `libs/crouton-core/src/lib/resource/resource.schema*.json` and `docs/.vuepress/public/schema/crouton.schema.json`.
+3. If the API needs to read/forward the option, update `libs/crouton-api/src/lib/crud/adapter/` loader(s).
+4. Update or add a test in `libs/crouton-core/src/lib/view/form-schema.builder.spec.ts` (re-exports from `schema/column/form-control.ts`; edit the spec in `view/` or the canonical file in `schema/column/`) or the relevant codegen spec.
+5. Verify no drift: `git diff libs/crouton-core/src/lib/resource/resource.schema*.json docs/.vuepress/public/schema/`.
 
 ## Adding a new HTTP operation
 
-1. Add the handler in `packages/crouton-api/src/lib/crud/operation/handlers/<name>.handler.ts` — call `registerOperation(...)` from `../operation-handler.ts`.
-2. Add the operation key to `packages/crouton-api/src/lib/crud/operation/route-order.ts` to control NestJS route priority.
-3. Wire it in `packages/crouton-api/src/lib/crud/operation/index.ts` (`registerOperations`).
-4. If the operation needs a `resource.json` entry, add it to the operation schema in `packages/crouton-core/src/lib/operation/`.
+1. Add the handler in `libs/crouton-api/src/lib/crud/operation/handlers/<name>.handler.ts` — call `registerOperation(...)` from `../operation-handler.ts`.
+2. Add the operation key to `libs/crouton-api/src/lib/crud/operation/route-order.ts` to control NestJS route priority.
+3. Wire it in `libs/crouton-api/src/lib/crud/operation/index.ts` (`registerOperations`).
+4. If the operation needs a `resource.json` entry, add it to the operation schema in `libs/crouton-core/src/lib/operation/`.
 
 ## Adding a compile step
 
-1. Add the step function in `packages/crouton-core/src/lib/compile/steps/<name>.ts`.
-2. Import and call it at the right point in `packages/crouton-core/src/lib/compile/pipeline.ts`.
-3. Add a snapshot/unit test adjacent to the step or in `packages/crouton-core/src/lib/compile/__snapshots__/`.
+1. Add the step function in `libs/crouton-core/src/lib/compile/steps/<name>.ts`.
+2. Import and call it at the right point in `libs/crouton-core/src/lib/compile/pipeline.ts`.
+3. Add a snapshot/unit test adjacent to the step or in `libs/crouton-core/src/lib/compile/__snapshots__/`.
 
 ## Adding a data-source middleware
 
 Middlewares run after data is fetched (value-label decoration, translations, hooks).
 
-1. Add the middleware in `packages/crouton-api/src/lib/crud/data-access/middleware/<name>.ts`.
+1. Add the middleware in `libs/crouton-api/src/lib/crud/data-access/middleware/<name>.ts`.
 2. Register it in the `read.repository.ts` or `write.repository.ts` pipeline inside `data-access/`.
 
 ## Adding a layout kind
 
-1. Add the Zod schema in `packages/crouton-core/src/lib/layout/schema/<kind>.schema.ts`.
-2. Register the kind in `packages/crouton-core/src/lib/layout/registry.ts`.
-3. Add resolve/build logic in `packages/crouton-core/src/lib/layout/resolve/` and `layout/build/`.
+1. Add the Zod schema in `libs/crouton-core/src/lib/layout/schema/<kind>.schema.ts`.
+2. Register the kind in `libs/crouton-core/src/lib/layout/registry.ts`.
+3. Add resolve/build logic in `libs/crouton-core/src/lib/layout/resolve/` and `layout/build/`.
 4. Run `pnpm nx run crouton-core:build` to regenerate JSON schemas.
 
 ## Where does code go?

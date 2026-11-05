@@ -330,7 +330,7 @@ importers:
         version: link:../generated/default/types
       '@ghentcdh/crouton-api':
         specifier: workspace:*
-        version: link:../../../../packages/crouton-api
+        version: link:../../../../libs/crouton-api
       '@libsql/client':
         specifier: ^0.18.0
         version: 0.18.0
@@ -370,7 +370,7 @@ importers:
     devDependencies:
       '@ghentcdh/crouton-prisma':
         specifier: workspace:*
-        version: link:../../../../packages/crouton-prisma
+        version: link:../../../../libs/crouton-prisma
       '@swc/core':
         specifier: 1.16.13
         version: 1.16.13(@swc/helpers@0.5.23)
@@ -397,7 +397,7 @@ importers:
     dependencies:
       '@ghentcdh/crouton-vue':
         specifier: workspace:*
-        version: link:../../../../packages/crouton-vue
+        version: link:../../../../libs/crouton-vue
       '@ghentcdh/ui':
         specifier: ^3.0.6
         version: 3.1.1(@playwright/test@1.64.1)(@tiptap/pm@3.27.1)(@tiptap/starter-kit@3.27.1)(@tiptap/vue-3@3.27.1(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1)(vue@3.5.43(typescript@5.9.3)))(tiptap-markdown@0.9.0(@tiptap/core@3.32.0(@tiptap/pm@3.27.1)))(vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))
@@ -447,84 +447,7 @@ importers:
 
   examples/book-collection/apps/generated/default/types: {}
 
-  libs/i18n:
-    dependencies:
-      '@nx/vite':
-        specifier: 23.2.1
-        version: 23.2.1(1d4539d1f74dc89626fc41938328bd01)
-      tslib:
-        specifier: ^2.3.0
-        version: 2.8.1
-      vitest:
-        specifier: ~4.1.0
-        version: 4.1.12(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.7
-
-  libs/status:
-    dependencies:
-      '@ghentcdh/crouton-core':
-        specifier: workspace:*
-        version: link:../../packages/crouton-core
-      tslib:
-        specifier: ^2.3.0
-        version: 2.8.1
-
-  packages/add-crouton:
-    dependencies:
-      '@prisma/internals':
-        specifier: ^7.10.0
-        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
-    devDependencies:
-      '@clack/prompts':
-        specifier: ^1.8.1
-        version: 1.8.1
-      '@ghentcdh/create-crouton':
-        specifier: link:../create-crouton
-        version: link:../create-crouton
-      '@ghentcdh/crouton-cli':
-        specifier: workspace:*
-        version: link:../crouton-cli
-      '@ghentcdh/crouton-codegen':
-        specifier: workspace:*
-        version: link:../crouton-codegen
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
-      picocolors:
-        specifier: ^1.1.0
-        version: 1.1.1
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-
-  packages/create-crouton:
-    dependencies:
-      '@prisma/internals':
-        specifier: ^7.10.0
-        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
-    devDependencies:
-      '@clack/prompts':
-        specifier: ^1.8.1
-        version: 1.8.1
-      '@ghentcdh/crouton-cli':
-        specifier: workspace:*
-        version: link:../crouton-cli
-      '@ghentcdh/crouton-codegen':
-        specifier: workspace:*
-        version: link:../crouton-codegen
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
-      picocolors:
-        specifier: ^1.1.0
-        version: 1.1.1
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-
-  packages/crouton-api:
+  libs/crouton-api:
     dependencies:
       '@nestjs/common':
         specifier: '>=10.0.0'
@@ -550,10 +473,10 @@ importers:
     devDependencies:
       '@crouton/i18n':
         specifier: workspace:*
-        version: link:../../libs/i18n
+        version: link:../i18n
       '@crouton/status':
         specifier: workspace:*
-        version: link:../../libs/status
+        version: link:../status
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
         version: link:../crouton-codegen
@@ -591,7 +514,7 @@ importers:
         specifier: ^5.0.3
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
 
-  packages/crouton-cli:
+  libs/crouton-cli:
     dependencies:
       '@prisma/internals':
         specifier: ^7.10.0
@@ -605,7 +528,7 @@ importers:
         version: 1.8.1
       '@crouton/i18n':
         specifier: workspace:*
-        version: link:../../libs/i18n
+        version: link:../i18n
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
         version: link:../crouton-codegen
@@ -622,7 +545,7 @@ importers:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
 
-  packages/crouton-codegen:
+  libs/crouton-codegen:
     dependencies:
       '@prisma/internals':
         specifier: ^7.10.0
@@ -630,7 +553,7 @@ importers:
     devDependencies:
       '@crouton/i18n':
         specifier: workspace:*
-        version: link:../../libs/i18n
+        version: link:../i18n
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../crouton-core
@@ -639,12 +562,12 @@ importers:
         version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
       vitest:
         specifier: ^5.0.3
-        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
       zod:
         specifier: ^4.0.0
         version: 4.6.7
 
-  packages/crouton-core:
+  libs/crouton-core:
     dependencies:
       '@jsonforms/core':
         specifier: ^3.0.0
@@ -655,15 +578,15 @@ importers:
     devDependencies:
       '@crouton/i18n':
         specifier: workspace:*
-        version: link:../../libs/i18n
+        version: link:../i18n
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
       vitest:
         specifier: ^5.0.3
-        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
 
-  packages/crouton-editor-vue:
+  libs/crouton-editor-vue:
     dependencies:
       vuedraggable:
         specifier: ^4.1.0
@@ -685,7 +608,7 @@ importers:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
 
-  packages/crouton-forms-vue:
+  libs/crouton-forms-vue:
     dependencies:
       '@jsonforms/core':
         specifier: '>=3.0.0'
@@ -695,7 +618,7 @@ importers:
         version: 5.0.0-beta.1(vue@3.5.43(typescript@6.0.3))
       vue-router:
         specifier: ^5.0.0
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
       zod:
         specifier: ^4.0.0
         version: 4.6.7
@@ -711,12 +634,12 @@ importers:
         version: 2.2.0(vue@3.5.43(typescript@6.0.3))
       vitest:
         specifier: ^5.0.3
-        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
 
-  packages/crouton-mcp:
+  libs/crouton-mcp:
     dependencies:
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
@@ -732,7 +655,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/crouton-prisma:
+  libs/crouton-prisma:
     dependencies:
       '@prisma/generator-helper':
         specifier: ^7.10.0
@@ -754,7 +677,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/crouton-ui-vue:
+  libs/crouton-ui-vue:
     devDependencies:
       '@playwright/test':
         specifier: '>=1.50.0'
@@ -788,9 +711,9 @@ importers:
         version: 3.5.39(typescript@6.0.3)
       vue-router:
         specifier: 5.1.0
-        version: 5.1.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.39(typescript@6.0.3))
+        version: 5.1.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.39(typescript@6.0.3))
 
-  packages/crouton-vue:
+  libs/crouton-vue:
     dependencies:
       '@jsonforms/core':
         specifier: '>=3.0.0'
@@ -813,10 +736,10 @@ importers:
     devDependencies:
       '@crouton/i18n':
         specifier: workspace:*
-        version: link:../../libs/i18n
+        version: link:../i18n
       '@crouton/status':
         specifier: workspace:*
-        version: link:../../libs/status
+        version: link:../status
       '@ghentcdh/crouton-core':
         specifier: workspace:*
         version: link:../crouton-core
@@ -841,6 +764,83 @@ importers:
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
+
+  libs/i18n:
+    dependencies:
+      '@nx/vite':
+        specifier: 23.2.1
+        version: 23.2.1(1d4539d1f74dc89626fc41938328bd01)
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+      vitest:
+        specifier: ~4.1.0
+        version: 4.1.12(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.7
+
+  libs/status:
+    dependencies:
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
+  packages/add-crouton:
+    dependencies:
+      '@prisma/internals':
+        specifier: ^7.10.0
+        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
+    devDependencies:
+      '@clack/prompts':
+        specifier: ^1.8.1
+        version: 1.8.1
+      '@ghentcdh/create-crouton':
+        specifier: link:../create-crouton
+        version: link:../create-crouton
+      '@ghentcdh/crouton-cli':
+        specifier: workspace:*
+        version: link:../../libs/crouton-cli
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../../libs/crouton-codegen
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
+      picocolors:
+        specifier: ^1.1.0
+        version: 1.1.1
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
+
+  packages/create-crouton:
+    dependencies:
+      '@prisma/internals':
+        specifier: ^7.10.0
+        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
+    devDependencies:
+      '@clack/prompts':
+        specifier: ^1.8.1
+        version: 1.8.1
+      '@ghentcdh/crouton-cli':
+        specifier: workspace:*
+        version: link:../../libs/crouton-cli
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../../libs/crouton-codegen
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
+      picocolors:
+        specifier: ^1.1.0
+        version: 1.1.1
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
 
 packages:
 
@@ -13768,15 +13768,6 @@ snapshots:
     optionalDependencies:
       vite: 8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
 
-  '@vitest/mocker@5.0.5(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))':
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.5
-      estree-walker: 3.0.3
-      magic-string: 1.4.5
-    optionalDependencies:
-      vite: 8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
-
   '@vitest/mocker@5.0.5(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -19432,28 +19423,6 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vitest@5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.5(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
-      chai: 6.3.0
-      es-module-lexer: 2.3.2
-      expect-type: 1.4.0
-      magic-string: 1.4.5
-      obug: 3.0.0
-      picomatch: 4.0.7
-      std-env: 4.3.0
-      tinybench: 6.2.2
-      tinyexec: 1.3.1
-      tinyglobby: 0.2.17
-      vite: 8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
-      why-is-node-running: 3.2.1
-    optionalDependencies:
-      '@types/node': 26.6.5
-      '@vitest/coverage-v8': 4.1.12(vitest@4.1.12)
-    transitivePeerDependencies:
-      - msw
-
   vitest@5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
@@ -19506,7 +19475,7 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.43(typescript@6.0.3)
 
-  vue-router@5.1.0(@vue/compiler-sfc@3.5.44)(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.39(typescript@6.0.3)):
+  vue-router@5.1.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.39(typescript@6.0.3)):
     dependencies:
       '@babel/generator': 8.0.6
       '@vue-macros/common': 3.1.4(vue@3.5.39(typescript@6.0.3))
@@ -19522,13 +19491,13 @@ snapshots:
       picomatch: 4.0.7
       scule: 1.3.0
       tinyglobby: 0.2.17
-      unplugin: 3.5.0(esbuild@0.27.7)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+      unplugin: 3.5.0(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
       unplugin-utils: 0.3.2
       vue: 3.5.39(typescript@6.0.3)
       yaml: 2.9.1
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.44
-      vite: 8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
+      vite: 8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@farmfe/core'
       - '@rsbuild/core'

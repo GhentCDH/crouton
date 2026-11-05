@@ -35,34 +35,34 @@ export default defineUserConfig({
         alias: {
           '@ghentcdh/crouton-vue/styles.css': fileURLToPath(
             new URL(
-              '../../packages/crouton-vue/src/styles.scss',
+              '../../libs/crouton-vue/src/styles.scss',
               import.meta.url,
             ),
           ),
           '@ghentcdh/crouton-vue': fileURLToPath(
-            new URL('../../packages/crouton-vue/src/index.ts', import.meta.url),
+            new URL('../../libs/crouton-vue/src/index.ts', import.meta.url),
           ),
           '@ghentcdh/crouton-forms-vue': fileURLToPath(
             new URL(
-              '../../packages/crouton-forms-vue/src/index.ts',
+              '../../libs/crouton-forms-vue/src/index.ts',
               import.meta.url,
             ),
           ),
           '@ghentcdh/crouton-ui-vue': fileURLToPath(
             new URL(
-              '../../packages/crouton-ui-vue/src/index.ts',
+              '../../libs/crouton-ui-vue/src/index.ts',
               import.meta.url,
             ),
           ),
           '@ghentcdh/crouton-editor-vue': fileURLToPath(
             new URL(
-              '../../packages/crouton-editor-vue/src/index.ts',
+              '../../libs/crouton-editor-vue/src/index.ts',
               import.meta.url,
             ),
           ),
           '@ghentcdh/crouton-core': fileURLToPath(
             new URL(
-              '../../packages/crouton-core/src/index.ts',
+              '../../libs/crouton-core/src/index.ts',
               import.meta.url,
             ),
           ),

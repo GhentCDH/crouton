@@ -4,7 +4,7 @@
   "ignoreBinaries": ["production"],
   "ignoreFiles": [
     "**/test-fixtures/**",
-    "packages/crouton-api/test/prisma/**"
+    "libs/crouton-api/test/prisma/**"
   ],
   "ignoreDependencies": [
     "jest",
@@ -37,26 +37,26 @@
     },
     "packages/add-crouton": {},
     "packages/create-crouton": {},
-    "packages/crouton-api": {
+    "libs/crouton-api": {
       "ignore": ["test/crud/harness.ts"]
     },
-    "packages/crouton-cli": {},
-    "packages/crouton-codegen": {},
-    "packages/crouton-core": {
+    "libs/crouton-cli": {},
+    "libs/crouton-codegen": {},
+    "libs/crouton-core": {
       "entry": ["scripts/*.mjs"]
     },
-    "packages/crouton-editor-vue": {
+    "libs/crouton-editor-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
-    "packages/crouton-forms-vue": {
+    "libs/crouton-forms-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
-    "packages/crouton-mcp": {},
-    "packages/crouton-prisma": {},
-    "packages/crouton-ui-vue": {
+    "libs/crouton-mcp": {},
+    "libs/crouton-prisma": {},
+    "libs/crouton-ui-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
-    "packages/crouton-vue": {
+    "libs/crouton-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
     "libs/i18n": {},
