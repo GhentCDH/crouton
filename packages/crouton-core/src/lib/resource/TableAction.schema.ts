@@ -27,6 +27,9 @@ export const JsonProcedureActionSchema = ActionSchema.extend({
   procedure: z.string().describe('Filename (without extension) inside the resource\'s actions/ directory that exports the procedure handler (e.g. "syncZotero").'),
   method: z.string().optional().default('post').describe('HTTP method for the frontend request. Defaults to "post".'),
   data: z.record(z.string(), z.unknown()).optional().describe('Static query or body params passed to the procedure endpoint.'),
+  pendingMessage: z.string().optional().describe('Message shown in the toolbar while the action is processing.'),
+  successMessage: z.string().optional().describe('Message shown in the toolbar on success. Falls back to the server response message.'),
+  errorMessage: z.string().optional().describe('Message shown in the toolbar on failure. Falls back to the server response message.'),
 });
 
 export const JsonLinkActionSchema = ActionSchema.extend({

@@ -19,7 +19,7 @@ import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import { useResources } from './useResources';
+import { type ActionStatus, useResources } from './useResources';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { useLanguage } from '../i18n/useLanguage';
@@ -247,6 +247,7 @@ export const backendAction = (
   formDef: ResourceDefinition,
   defaultUriParams: Record<string, string>,
   action: Action,
+  setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ) => {
   const fetch = useApi();
 
@@ -261,20 +262,24 @@ export const backendAction = (
       return;
     }
 
+    const { t } = useLanguage();
+    const procedureAction = action as Extract<Action, { type: 'procedure' }>;
     const uri = replaceUriParams(action.uri, formData);
+
+    setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
 
     const _fetch = (fetch as any)[action.method];
     return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
       .then(({ data }: { data: any }) => {
         if (data.success) {
-          NotificationService.success(data.message);
+          setStatus?.({ text: procedureAction.successMessage ?? data.message ?? t('notifications.actionSuccess', 'Done'), type: 'success' });
           resource.reload();
         } else {
-          NotificationService.error(data.message);
+          setStatus?.({ text: procedureAction.errorMessage ?? data.message ?? t('notifications.actionFailed', 'Action failed'), type: 'error' });
         }
       })
       .catch(() => {
-        NotificationService.error('Something went wrong, please try again');
+        setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });
       });
   };
 };
@@ -338,6 +343,7 @@ export const actions = (
 export const tableActions = (
   resource: Resource,
   formDef: ResourceDefinition | null | undefined,
+  setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ): TableAction[] => {
   const _tableActions: TableActionDef[] =
     getTableNode(formDef?.schemas.table.ui)?.options?.tableActions ?? [];
@@ -352,17 +358,22 @@ export const tableActions = (
         window.open(action.href, '_blank');
         return;
       }
+      const { t } = useLanguage();
+      const procedureAction = action as any;
+      setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
       return (fetch as any)[action.method](action.uri, action.data ?? {})
         .then(({ data }: { data: any }) => {
           if (data?.success !== false) {
-            NotificationService.success(data?.message ?? 'Done');
+            const msg = procedureAction.successMessage ?? data?.message ?? t('notifications.actionSuccess', 'Done');
+            setStatus?.({ text: msg, type: 'success' });
             resource.reload();
           } else {
-            NotificationService.error(data?.message ?? 'Action failed');
+            const msg = procedureAction.errorMessage ?? data?.message ?? t('notifications.actionFailed', 'Action failed');
+            setStatus?.({ text: msg, type: 'error' });
           }
         })
         .catch(() => {
-          NotificationService.error('Something went wrong, please try again');
+          setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });
         });
     };
 

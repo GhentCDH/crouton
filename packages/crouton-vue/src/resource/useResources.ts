@@ -41,6 +41,8 @@ const resolveTableUiSchema = (ui: unknown): any => {
   return u.elements?.find((e: any) => e.type === 'Table') ?? u;
 };
 
+export type ActionStatus = { text: string; type: 'success' | 'error' | 'pending' };
+
 export interface UseResourcesProperties {
   initialRequestParams?: Partial<Request>;
   onRequest?: (request: Request) => void;
@@ -85,7 +87,7 @@ export interface UseResource {
   } | null;
   api: ResourceApiInstance;
   reload: () => void;
-  lastAction: string | null;
+  lastAction: ActionStatus | null;
 }
 
 export const useResourcesByUri = (
@@ -161,16 +163,28 @@ export const useResources = (
     _formDef.operations.create = null;
   }
 
-  const lastAction = ref<string | null>(null);
+  const lastAction = ref<ActionStatus | null>(null);
   let _lastActionTimer: ReturnType<typeof setTimeout> | undefined;
-  const setLastAction = (type: 'created' | 'updated' | 'deleted') => {
+
+  const setStatus = (status: ActionStatus | null, autoClear = true) => {
     clearTimeout(_lastActionTimer);
+    lastAction.value = status;
+    if (status && autoClear) {
+      _lastActionTimer = setTimeout(
+        () => { lastAction.value = null; },
+        status.type === 'error' ? 5000 : 3000,
+      );
+    }
+  };
+
+  const setCrudStatus = (type: 'created' | 'updated' | 'deleted') => {
+    const { t } = useLanguage();
     const title = _formDef.title ?? 'Record';
-    lastAction.value =
-      type === 'created' ? `${title} created`
-      : type === 'updated' ? `${title} updated`
-      : 'Record deleted';
-    _lastActionTimer = setTimeout(() => { lastAction.value = null; }, 3000);
+    const text =
+      type === 'created' ? `${title} ${t('notifications.created', 'created')}`
+      : type === 'updated' ? `${title} ${t('notifications.updated', 'updated')}`
+      : t('notifications.deleted', 'Record deleted');
+    setStatus({ text, type: 'success' });
   };
 
   const resourceModal = resourceModals(
@@ -179,7 +193,7 @@ export const useResources = (
     _formDef,
     handleEvent,
     inline,
-    setLastAction,
+    setCrudStatus,
   );
 
   return reactive({
@@ -214,8 +228,8 @@ export const useResources = (
       resourceModal,
     ),
     backendAction: (action: Action) =>
-      backendAction(resource, formDef, defaultUriParams, action),
-    tableActions: tableActions(resource, _formDef),
+      backendAction(resource, formDef, defaultUriParams, action, setStatus),
+    tableActions: tableActions(resource, _formDef, setStatus),
     create: resourceModal.create,
     edit: resourceModal.edit,
     view: resourceModal.view,
