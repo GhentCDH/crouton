@@ -56,7 +56,7 @@
     "libs/crouton-ui-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
-    "packages/crouton-vue": {
+    "libs/crouton-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
     "libs/i18n": {},

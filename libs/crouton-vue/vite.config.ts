@@ -13,7 +13,7 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
   },
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/crouton-vue',
+  cacheDir: '../../node_modules/.vite/libs/crouton-vue',
   plugins: [
     vue(),
     tailwindcss(),

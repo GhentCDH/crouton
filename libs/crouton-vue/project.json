@@ -2,7 +2,7 @@
   "name": "crouton-vue",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/crouton-vue/src",
+  "sourceRoot": "libs/crouton-vue/src",
   "tags": ["scope:crouton", "type:ui", "tech:vue", "platform:vue"],
   "targets": {
     "typecheck": {
