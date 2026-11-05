@@ -26,6 +26,7 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
 
     let issuer: string | undefined;
     let clientId: string | undefined;
+    let rolesClaim: string | undefined;
     let adapter: AuthProviderAdapter | undefined;
 
     if (config.provider === 'custom') {
@@ -42,9 +43,10 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
       if (!preset) throw new Error(`Unknown provider: ${config.provider}`);
       issuer = preset.issuer(env);
       clientId = env['clientId'];
+      rolesClaim = config.roles?.claim ?? preset.rolesClaim;
     }
 
-    providers.push({ config, strategyName: name, isDefault: config.default ?? false, issuer, clientId, adapter });
+    providers.push({ config, strategyName: name, isDefault: config.default ?? false, issuer, clientId, rolesClaim, adapter });
   }
 
   if (providers.length > 0 && !providers.some((p) => p.isDefault)) {

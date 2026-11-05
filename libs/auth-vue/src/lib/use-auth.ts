@@ -4,8 +4,16 @@ import { type Ref, computed, ref } from 'vue';
 
 let manager: UserManager | null = null;
 const oidcUser: Ref<User | null> = ref(null);
+let configuredRolesClaim = 'roles';
 
-export const setupOidcManager = (settings: UserManagerSettings) => {
+const getNestedClaim = (profile: Record<string, unknown>, path: string): unknown =>
+  path.split('.').reduce<unknown>((obj, key) => {
+    if (obj && typeof obj === 'object') return (obj as Record<string, unknown>)[key];
+    return undefined;
+  }, profile);
+
+export const setupOidcManager = (settings: UserManagerSettings, rolesClaim?: string) => {
+  if (rolesClaim) configuredRolesClaim = rolesClaim;
   manager = new UserManager(settings);
   manager.events.addUserLoaded((u) => {
     oidcUser.value = u;
@@ -23,11 +31,12 @@ export const useAuth = () => {
     const u = oidcUser.value;
     if (!u || u.expired) return null;
     const profile = u.profile as Record<string, unknown>;
+    const rawRoles = configuredRolesClaim ? getNestedClaim(profile, configuredRolesClaim) : undefined;
     return {
       id: String(profile['sub'] ?? ''),
       email: profile['email'] ? String(profile['email']) : undefined,
       name: profile['name'] ? String(profile['name']) : undefined,
-      roles: Array.isArray(profile['roles']) ? (profile['roles'] as string[]) : [],
+      roles: Array.isArray(rawRoles) ? rawRoles.filter((r): r is string => typeof r === 'string') : [],
       provider: 'oidc',
       claims: profile,
     };

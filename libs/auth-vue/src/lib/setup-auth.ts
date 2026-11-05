@@ -83,7 +83,7 @@ export const setupAuth = async (
     scope: scopes.join(' '),
     automaticSilentRenew: true,
     revokeTokensOnSignout: true,
-  });
+  }, defaultProvider.rolesClaim);
 
   const storedUser = await loadOidcUser();
 

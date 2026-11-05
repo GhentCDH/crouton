@@ -18,6 +18,7 @@ export type PublicAuthConfig = {
   issuer?: string;
   clientId?: string;
   scopes?: string[];
+  rolesClaim?: string;
   extra?: Record<string, unknown>;
 };
 
@@ -34,6 +35,7 @@ export type LoadedProvider = {
   isDefault: boolean;
   issuer?: string;
   clientId?: string;
+  rolesClaim?: string;
   /** Set only for `custom` providers. */
   adapter?: AuthProviderAdapter;
 };
