@@ -164,7 +164,8 @@
         },
         {
           "id": "isbn",
-          "colspan": 4
+          "colspan": 4,
+          "readonly": true
         },
         {
           "id": "publishedYear",
@@ -206,6 +207,7 @@
         {
           "type": "collapse",
           "title": "Categories",
+          "titleKey": "title",
           "items": [
             "categories"
           ]
