@@ -47,7 +47,7 @@ export default defineConfig({
       url: `http://localhost:${backendPort}/_app/layout`,
       reuseExistingServer: false,
       cwd: backendDir,
-      env: { DATABASE_URL: 'file:///tmp/e2e.db', PORT: backendPort },
+      env: { DATABASE_URL: 'file:///tmp/e2e.db', PORT: backendPort, CROUTON_DEV_TOKEN: 'e2e-dev-token' },
       stdout: 'pipe',
       stderr: 'pipe',
       timeout: 30_000,
