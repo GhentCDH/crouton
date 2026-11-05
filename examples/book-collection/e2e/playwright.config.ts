@@ -43,7 +43,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'node --import tsx/esm src/main.ts',
+      command: 'pnpm prisma migrate deploy && node --import tsx/esm src/main.ts',
       url: `http://localhost:${backendPort}/_app/layout`,
       reuseExistingServer: false,
       cwd: backendDir,
