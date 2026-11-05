@@ -62,7 +62,7 @@ export default defineUserConfig({
           ),
           '@ghentcdh/crouton-core': fileURLToPath(
             new URL(
-              '../../packages/crouton-core/src/index.ts',
+              '../../libs/crouton-core/src/index.ts',
               import.meta.url,
             ),
           ),

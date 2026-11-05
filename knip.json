@@ -42,7 +42,7 @@
     },
     "packages/crouton-cli": {},
     "packages/crouton-codegen": {},
-    "packages/crouton-core": {
+    "libs/crouton-core": {
       "entry": ["scripts/*.mjs"]
     },
     "packages/crouton-editor-vue": {

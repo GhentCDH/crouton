@@ -2,7 +2,7 @@
   "name": "crouton-core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/crouton-core/src",
+  "sourceRoot": "libs/crouton-core/src",
   "tags": ["scope:crouton", "type:util", "tech:typescript", "platform:shared"],
   "targets": {
     "check-schema-coverage": {
