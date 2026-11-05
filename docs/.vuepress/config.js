@@ -50,7 +50,7 @@ export default defineUserConfig({
           ),
           '@ghentcdh/crouton-ui-vue': fileURLToPath(
             new URL(
-              '../../packages/crouton-ui-vue/src/index.ts',
+              '../../libs/crouton-ui-vue/src/index.ts',
               import.meta.url,
             ),
           ),

@@ -53,7 +53,7 @@
     },
     "packages/crouton-mcp": {},
     "libs/crouton-prisma": {},
-    "packages/crouton-ui-vue": {
+    "libs/crouton-ui-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
     "packages/crouton-vue": {
