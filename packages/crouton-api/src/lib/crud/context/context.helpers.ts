@@ -1,9 +1,38 @@
 import type { ListRequest } from '@ghentcdh/crouton-core';
 import { offsetOf } from '@ghentcdh/crouton-core';
 
-import type { CrudContext, CrudOp, DataSourceResolver } from './context.types';
+import type { CrudContext, CrudOp, DataSourceResolver, ParentContext } from './context.types';
 import type { CustomRepositoryContext } from '../custom-repository/custom-repository.types';
+import type { DataSourceAdapter } from '../data-access/adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
+
+/**
+ * Build a `CrudContext` from an adapter and optional overrides.
+ *
+ * Used by `hookCtxRead`/`hookCtxWrite` in `hooks.apply.ts` and by the
+ * custom-repository adapter, so both sides produce structurally identical base contexts.
+ */
+export const buildCrudContext = <P = unknown, OP extends CrudOp = CrudOp>(
+  op: OP,
+  adapter: DataSourceAdapter,
+  options?: {
+    prisma?: P;
+    request?: unknown;
+    id?: string | number;
+    parent?: ParentContext;
+    config?: Resource;
+    dataSources?: DataSourceResolver;
+  },
+): CrudContext<P, OP> & { dataSource: DataSourceAdapter } => ({
+  op,
+  prisma: (options?.prisma ?? adapter.client) as P,
+  dataSource: adapter,
+  ...(options?.id !== undefined && { id: options.id }),
+  ...(options?.request !== undefined && { request: options.request }),
+  ...(options?.parent && { parent: options.parent }),
+  ...(options?.config && { config: options.config }),
+  ...(options?.dataSources && { dataSources: options.dataSources }),
+});
 
 /**
  * Derive a `CustomRepositoryContext` from any `CrudContext` that already carries

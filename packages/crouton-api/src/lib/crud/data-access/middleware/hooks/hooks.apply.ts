@@ -7,6 +7,9 @@ import type {
   ResourceHooks,
   WriteOp,
 } from './hooks.types';
+import type { DataSourceResolver } from '../../../context';
+import { buildCrudContext } from '../../../context';
+import type { Resource } from '../../../resource/ResourceConfig.schema';
 import type { DataSourceAdapter } from '../../adapter';
 import {
   applyValueLabelColumns,
@@ -31,6 +34,10 @@ export type HookTarget = {
    * longer store a pre-projected `valueLabelColumns` list.
    */
   columns?: JsonColumn[];
+  /** Forwarded into hook `ctx.config` so hooks can inspect resource metadata. */
+  config?: Resource;
+  /** Forwarded into hook `ctx.dataSources` so hooks can call `toRepositoryContext`. */
+  dataSources?: DataSourceResolver;
 };
 
 /** @internal — used only in {@link hooks.apply} middleware and its unit spec. */
@@ -43,14 +50,8 @@ const hookCtxRead = (
   request?: unknown,
   parent?: ParentHookContext,
   id?: string | number,
-) => ({
-  dataSource: adapter,
-  prisma: adapter.client,
-  op,
-  ...(id !== undefined && { id }),
-  request,
-  ...(parent && { parent }),
-});
+  target?: HookTarget,
+) => buildCrudContext(op, adapter, { request, parent, id, config: target?.config, dataSources: target?.dataSources });
 
 const hookCtxWrite = (
   adapter: DataSourceAdapter,
@@ -58,14 +59,8 @@ const hookCtxWrite = (
   id?: string | number,
   request?: unknown,
   parent?: ParentHookContext,
-) => ({
-  dataSource: adapter,
-  prisma: adapter.client,
-  op,
-  ...(id !== undefined && { id }),
-  ...(request !== undefined && { request }),
-  ...(parent && { parent }),
-});
+  target?: HookTarget,
+) => buildCrudContext(op, adapter, { id, request, parent, config: target?.config, dataSources: target?.dataSources });
 
 /**
  * `afterRead` for a list, plus the `{ value, label }` envelope.
@@ -83,7 +78,7 @@ export const decorateRows = async (
   parent?: ParentHookContext,
 ): Promise<unknown[]> => {
   const hook = target.hooks?.afterRead;
-  const ctx = hookCtxRead(adapter, op, request, parent);
+  const ctx = hookCtxRead(adapter, op, request, parent, undefined, target);
   const hooked = hook
     ? await Promise.all(rows.map((row) => hook(row, ctx)))
     : rows;
@@ -104,7 +99,7 @@ export const decorateRow = async (
   id?: string | number,
 ): Promise<unknown> => {
   const hook = target.hooks?.afterRead;
-  return hook ? hook(row, hookCtxRead(adapter, op, request, parent, id)) : row;
+  return hook ? hook(row, hookCtxRead(adapter, op, request, parent, id, target)) : row;
 };
 
 /** Unwrap value-label envelopes, then run `beforeWrite`. */
@@ -120,7 +115,7 @@ export const prepareWrite = async (
   const normalized = normalizeValueLabels(data, valueLabelColumnsOf(target));
   const hook = target.hooks?.beforeWrite;
   return hook
-    ? hook(normalized, hookCtxWrite(adapter, op, id, request, parent))
+    ? hook(normalized, hookCtxWrite(adapter, op, id, request, parent, target))
     : normalized;
 };
 
@@ -134,7 +129,7 @@ export const applyBeforeFindAll = async (
 ): Promise<ListRequest> => {
   const hook = target.hooks?.beforeFindAll;
   return hook
-    ? hook(params, hookCtxRead(adapter, 'findAll', request, parent))
+    ? hook(params, hookCtxRead(adapter, 'findAll', request, parent, undefined, target))
     : params;
 };
 
@@ -148,7 +143,7 @@ export const applyAfterFindAll = async (
 ): Promise<unknown[]> => {
   const hook = target.hooks?.afterFindAll;
   return hook
-    ? hook(rows, hookCtxRead(adapter, 'findAll', request, parent))
+    ? hook(rows, hookCtxRead(adapter, 'findAll', request, parent, undefined, target))
     : rows;
 };
 
@@ -165,6 +160,6 @@ export const postWrite = async (
 ): Promise<any> => {
   const hook = target.hooks?.afterWrite;
   return hook
-    ? hook(result, hookCtxWrite(adapter, op, id, request, parent))
+    ? hook(result, hookCtxWrite(adapter, op, id, request, parent, target))
     : result;
 };
