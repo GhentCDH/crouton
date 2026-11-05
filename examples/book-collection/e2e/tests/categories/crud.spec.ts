@@ -25,6 +25,7 @@ test.describe('categories crud', () => {
     await form.fillField('Name', 'Test Category');
     await form.fillField('Slug', 'test-category');
     await form.save();
+    await list.waitForCreatedStatus();
 
     await list.waitForRows();
     await list.search('Test Category');
@@ -65,6 +66,7 @@ test.describe('categories crud', () => {
     await form.fillField('Name', 'To Delete');
     await form.fillField('Slug', 'to-delete');
     await form.save();
+    await list.waitForCreatedStatus();
 
     await list.search('To Delete');
     await list.waitForRows();
