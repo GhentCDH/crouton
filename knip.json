@@ -48,7 +48,7 @@
     "packages/crouton-editor-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
-    "packages/crouton-forms-vue": {
+    "libs/crouton-forms-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
     "packages/crouton-mcp": {},

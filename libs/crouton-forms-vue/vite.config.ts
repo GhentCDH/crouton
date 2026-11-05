@@ -9,7 +9,7 @@ import * as path from 'path';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/crouton-forms-vue',
+  cacheDir: '../../node_modules/.vite/libs/crouton-forms-vue',
   plugins: [
     vue(),
     tailwindcss(),
