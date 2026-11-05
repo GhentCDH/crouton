@@ -2,7 +2,7 @@
   "name": "crouton-editor-vue",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/crouton-editor-vue/src",
+  "sourceRoot": "libs/crouton-editor-vue/src",
   "tags": ["scope:crouton", "type:ui", "tech:vue", "platform:vue"],
   "targets": {
     "typecheck": {

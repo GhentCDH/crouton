@@ -45,7 +45,7 @@
     "packages/crouton-core": {
       "entry": ["scripts/*.mjs"]
     },
-    "packages/crouton-editor-vue": {
+    "libs/crouton-editor-vue": {
       "project": ["src/**/*.{ts,vue}"]
     },
     "libs/crouton-forms-vue": {
