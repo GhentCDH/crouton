@@ -58,7 +58,7 @@ export class CroutonListPage {
   confirmDelete = async () => {
     await this.page.getByRole('button', { name: 'Ok', exact: true }).click();
     await this.page
-      .getByText(/data deleted/i)
+      .getByText(/record deleted/i)
       .waitFor({ state: 'visible', timeout: 5000 });
     await this.page.waitForLoadState('networkidle');
   };
