@@ -6,6 +6,7 @@
   "tags": ["scope:crouton", "type:ui", "tech:vue", "platform:vue"],
   "targets": {
     "typecheck": {
+      "dependsOn": ["build", "^typecheck"],
       "command": "vue-tsc --noEmit -p tsconfig.lib.json",
       "options": {
         "cwd": "{projectRoot}"

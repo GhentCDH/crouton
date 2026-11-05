@@ -17,6 +17,8 @@
     "target": "es2022",
     "customConditions": ["@ghentcdh/crouton"],
     "noUncheckedSideEffectImports": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "types": ["node"],
     "paths": {
       "@crouton/status": ["./libs/status/src/index.ts"],

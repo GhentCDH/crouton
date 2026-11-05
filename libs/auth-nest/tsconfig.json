@@ -12,8 +12,7 @@
     "emitDecoratorMetadata": true,
     "types": ["node"]
   },
-  "files": [],
-  "include": [],
+  "include": ["src/**/*.ts"],
   "references": [
     {
       "path": "./tsconfig.lib.json"

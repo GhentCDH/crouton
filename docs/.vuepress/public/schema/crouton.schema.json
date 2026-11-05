@@ -963,6 +963,11 @@
       ],
       "markdownDescription": "Optional i18n / translation configuration. Omit if the app is single-language.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
     },
+    "authProvidersDir": {
+      "description": "Path to auth-provider modules, relative to the config file directory. Defaults to \"src/app/auth-providers\".",
+      "type": "string",
+      "markdownDescription": "Path to auth-provider modules, relative to the config file directory. Defaults to \"src/app/auth-providers\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
     "agentFiles": {
       "description": "Agent file sync configuration for `crouton migrate`. Stored after the first run.",
       "type": "object",
