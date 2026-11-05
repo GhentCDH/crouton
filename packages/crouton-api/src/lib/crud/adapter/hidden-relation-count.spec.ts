@@ -47,7 +47,7 @@ describe('_count skips relations hidden from the table', () => {
   let tempDir: string;
   let queries: Record<string, unknown>[];
 
-  const boot = async (columns: Record<string, unknown>) => {
+  const boot = async (columns: Record<string, unknown>, layout?: Record<string, unknown>) => {
     mkdirSync(join(tempDir, 'groups', 'expenses'), { recursive: true });
     mkdirSync(join(tempDir, 'groups', 'members'), { recursive: true });
     writeFileSync(
@@ -60,6 +60,7 @@ describe('_count skips relations hidden from the table', () => {
         operations: {},
         schemaVersion: CURRENT_RESOURCE_VERSION,
         columns: { id: { idField: true }, name: {}, ...columns },
+        ...(layout && { layout }),
       }),
     );
     writeFileSync(
@@ -153,5 +154,16 @@ describe('_count skips relations hidden from the table', () => {
     });
     const rows = await list(repo) as Record<string, unknown>[];
     expect(rows[0]).not.toHaveProperty('_count');
+  });
+
+  it('layout.table listing a hiddenInTable column overrides the flag — _count included', async () => {
+    // expenses has hiddenInTable: true in raw JSON, but layout.table lists it explicitly
+    const repo = await boot(
+      { expenses: relation('./expenses/resource.json', true) },
+      { table: { items: ['id', 'name', 'expenses'] } },
+    );
+    await list(repo);
+    const countSelect = (countOf() as Record<string, unknown>)['select'] as Record<string, unknown>;
+    expect(Object.keys(countSelect)).toEqual(['expenses']);
   });
 });
