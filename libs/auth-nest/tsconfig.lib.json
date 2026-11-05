@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/libs/auth-nest",
     "tsBuildInfoFile": "../../dist/libs/auth-nest/tsconfig.lib.tsbuildinfo",
-    "rootDir": "./src",
+    "rootDir": "./",
     "declaration": true,
     "composite": true
   },
