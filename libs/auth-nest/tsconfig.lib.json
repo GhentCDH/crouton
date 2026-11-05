@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/libs/auth-nest",
+    "tsBuildInfoFile": "../../dist/libs/auth-nest/tsconfig.lib.tsbuildinfo",
+    "rootDir": "./src",
+    "declaration": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"],
+  "references": [
+    {
+      "path": "../auth/tsconfig.lib.json"
+    }
+  ]
+}
