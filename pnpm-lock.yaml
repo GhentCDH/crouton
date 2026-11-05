@@ -522,6 +522,22 @@ importers:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
 
+  libs/crouton-mcp:
+    dependencies:
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../crouton-codegen
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.0.0
+        version: 1.32.2(supports-color@7.2.0)(zod@4.6.7)
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.7
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   libs/crouton-ui-vue:
     devDependencies:
       '@playwright/test':
@@ -751,22 +767,6 @@ importers:
       vitest:
         specifier: ^5.0.3
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
-
-  packages/crouton-mcp:
-    dependencies:
-      '@ghentcdh/crouton-codegen':
-        specifier: workspace:*
-        version: link:../../libs/crouton-codegen
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.0.0
-        version: 1.32.2(supports-color@7.2.0)(zod@4.6.7)
-      zod:
-        specifier: ^4.0.0
-        version: 4.6.7
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
 
   packages/crouton-prisma:
     dependencies:
