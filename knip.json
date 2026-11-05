@@ -4,7 +4,7 @@
   "ignoreBinaries": ["production"],
   "ignoreFiles": [
     "**/test-fixtures/**",
-    "packages/crouton-api/test/prisma/**"
+    "libs/crouton-api/test/prisma/**"
   ],
   "ignoreDependencies": [
     "jest",
@@ -37,7 +37,7 @@
     },
     "packages/add-crouton": {},
     "packages/create-crouton": {},
-    "packages/crouton-api": {
+    "libs/crouton-api": {
       "ignore": ["test/crud/harness.ts"]
     },
     "packages/crouton-cli": {},

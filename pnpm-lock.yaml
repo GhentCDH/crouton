@@ -330,7 +330,7 @@ importers:
         version: link:../generated/default/types
       '@ghentcdh/crouton-api':
         specifier: workspace:*
-        version: link:../../../../packages/crouton-api
+        version: link:../../../../libs/crouton-api
       '@libsql/client':
         specifier: ^0.18.0
         version: 0.18.0
@@ -446,6 +446,73 @@ importers:
         version: 8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
 
   examples/book-collection/apps/generated/default/types: {}
+
+  libs/crouton-api:
+    dependencies:
+      '@nestjs/common':
+        specifier: '>=10.0.0'
+        version: 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
+      '@nestjs/core':
+        specifier: '>=10.0.0'
+        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/swagger':
+        specifier: '>=7.0.0'
+        version: 12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3)
+      '@prisma/client':
+        specifier: '>=7.0.0'
+        version: 7.10.1(prisma@7.10.1(@types/node@26.6.5)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3))(typescript@6.0.3)
+      '@prisma/internals':
+        specifier: '>=7.0.0'
+        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
+      nestjs-zod:
+        specifier: '>=5.0.0'
+        version: 5.5.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/swagger@12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3))(rxjs@7.8.2)(zod@4.6.7)
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.7
+    devDependencies:
+      '@crouton/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@crouton/status':
+        specifier: workspace:*
+        version: link:../status
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../crouton-codegen
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
+      '@nestjs/platform-express':
+        specifier: '>=10.0.0'
+        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(supports-color@7.2.0)
+      '@nestjs/testing':
+        specifier: '>=10.0.0'
+        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(@nestjs/platform-express@12.3.1)
+      '@swc/core':
+        specifier: ^1.7.0
+        version: 1.16.13(@swc/helpers@0.5.23)
+      '@testcontainers/postgresql':
+        specifier: ^10.0.0
+        version: 10.28.0(supports-color@7.2.0)
+      '@types/supertest':
+        specifier: ^6.0.0
+        version: 6.0.3
+      prisma:
+        specifier: '>=7.0.0'
+        version: 7.10.1(@types/node@26.6.5)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)
+      supertest:
+        specifier: ^7.0.0
+        version: 7.3.1(supports-color@7.2.0)
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
+      unplugin-swc:
+        specifier: ^1.5.1
+        version: 1.6.0(@swc/core@1.16.13(@swc/helpers@0.5.23))(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+      vitest:
+        specifier: ^5.0.3
+        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
 
   libs/crouton-codegen:
     dependencies:
@@ -586,73 +653,6 @@ importers:
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-
-  packages/crouton-api:
-    dependencies:
-      '@nestjs/common':
-        specifier: '>=10.0.0'
-        version: 12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
-      '@nestjs/core':
-        specifier: '>=10.0.0'
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/platform-express@12.3.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/swagger':
-        specifier: '>=7.0.0'
-        version: 12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3)
-      '@prisma/client':
-        specifier: '>=7.0.0'
-        version: 7.10.1(prisma@7.10.1(@types/node@26.6.5)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3))(typescript@6.0.3)
-      '@prisma/internals':
-        specifier: '>=7.0.0'
-        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
-      nestjs-zod:
-        specifier: '>=5.0.0'
-        version: 5.5.0(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/swagger@12.0.5(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(reflect-metadata@0.2.2)(typescript@6.0.3))(rxjs@7.8.2)(zod@4.6.7)
-      zod:
-        specifier: ^4.0.0
-        version: 4.6.7
-    devDependencies:
-      '@crouton/i18n':
-        specifier: workspace:*
-        version: link:../../libs/i18n
-      '@crouton/status':
-        specifier: workspace:*
-        version: link:../../libs/status
-      '@ghentcdh/crouton-codegen':
-        specifier: workspace:*
-        version: link:../../libs/crouton-codegen
-      '@ghentcdh/crouton-core':
-        specifier: workspace:*
-        version: link:../../libs/crouton-core
-      '@nestjs/platform-express':
-        specifier: '>=10.0.0'
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(supports-color@7.2.0)
-      '@nestjs/testing':
-        specifier: '>=10.0.0'
-        version: 12.3.1(@nestjs/common@12.3.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.3.1)(@nestjs/platform-express@12.3.1)
-      '@swc/core':
-        specifier: ^1.7.0
-        version: 1.16.13(@swc/helpers@0.5.23)
-      '@testcontainers/postgresql':
-        specifier: ^10.0.0
-        version: 10.28.0(supports-color@7.2.0)
-      '@types/supertest':
-        specifier: ^6.0.0
-        version: 6.0.3
-      prisma:
-        specifier: '>=7.0.0'
-        version: 7.10.1(@types/node@26.6.5)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)
-      supertest:
-        specifier: ^7.0.0
-        version: 7.3.1(supports-color@7.2.0)
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-      unplugin-swc:
-        specifier: ^1.5.1
-        version: 1.6.0(@swc/core@1.16.13(@swc/helpers@0.5.23))(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.65.1)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
-      vitest:
-        specifier: ^5.0.3
-        version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
 
   packages/crouton-cli:
     dependencies:

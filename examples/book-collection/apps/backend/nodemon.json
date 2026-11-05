@@ -1,6 +1,6 @@
 {
-  "watch": ["src", "../../../../packages/crouton-api/src", "../../../../libs/crouton-core/src"],
+  "watch": ["src", "../../../../libs/crouton-api/src", "../../../../libs/crouton-core/src"],
   "ext": "ts,json,js",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "TSX_TSCONFIG_PATH=$(pwd)/../../../../packages/crouton-api/tsconfig.json node --conditions @ghentcdh/crouton --import tsx/esm src/main.ts"
+  "exec": "TSX_TSCONFIG_PATH=$(pwd)/../../../../libs/crouton-api/tsconfig.json node --conditions @ghentcdh/crouton --import tsx/esm src/main.ts"
 }
