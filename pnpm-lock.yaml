@@ -514,6 +514,37 @@ importers:
         specifier: ^5.0.3
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.1(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
 
+  libs/crouton-cli:
+    dependencies:
+      '@prisma/internals':
+        specifier: ^7.10.0
+        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
+      prisma-case-format:
+        specifier: ^2.2.1
+        version: 2.2.1(supports-color@7.2.0)
+    devDependencies:
+      '@clack/prompts':
+        specifier: ^1.8.1
+        version: 1.8.1
+      '@crouton/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@ghentcdh/crouton-codegen':
+        specifier: workspace:*
+        version: link:../crouton-codegen
+      '@ghentcdh/crouton-core':
+        specifier: workspace:*
+        version: link:../crouton-core
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
+      picocolors:
+        specifier: ^1.1.0
+        version: 1.1.1
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
+
   libs/crouton-codegen:
     dependencies:
       '@prisma/internals':
@@ -615,7 +646,7 @@ importers:
         version: link:../create-crouton
       '@ghentcdh/crouton-cli':
         specifier: workspace:*
-        version: link:../crouton-cli
+        version: link:../../libs/crouton-cli
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
         version: link:../../libs/crouton-codegen
@@ -640,41 +671,10 @@ importers:
         version: 1.8.1
       '@ghentcdh/crouton-cli':
         specifier: workspace:*
-        version: link:../crouton-cli
+        version: link:../../libs/crouton-cli
       '@ghentcdh/crouton-codegen':
         specifier: workspace:*
         version: link:../../libs/crouton-codegen
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
-      picocolors:
-        specifier: ^1.1.0
-        version: 1.1.1
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(@swc/core@1.16.13(@swc/helpers@0.5.23))(jiti@2.7.0)(postcss@8.5.32)(supports-color@7.2.0)(tsx@4.23.15)(typescript@6.0.3)(yaml@2.9.1)
-
-  packages/crouton-cli:
-    dependencies:
-      '@prisma/internals':
-        specifier: ^7.10.0
-        version: 7.10.1(magicast@0.5.5)(typescript@6.0.3)
-      prisma-case-format:
-        specifier: ^2.2.1
-        version: 2.2.1(supports-color@7.2.0)
-    devDependencies:
-      '@clack/prompts':
-        specifier: ^1.8.1
-        version: 1.8.1
-      '@crouton/i18n':
-        specifier: workspace:*
-        version: link:../../libs/i18n
-      '@ghentcdh/crouton-codegen':
-        specifier: workspace:*
-        version: link:../../libs/crouton-codegen
-      '@ghentcdh/crouton-core':
-        specifier: workspace:*
-        version: link:../../libs/crouton-core
       commander:
         specifier: ^15.0.0
         version: 15.0.0

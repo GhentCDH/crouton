@@ -40,7 +40,7 @@
     "libs/crouton-api": {
       "ignore": ["test/crud/harness.ts"]
     },
-    "packages/crouton-cli": {},
+    "libs/crouton-cli": {},
     "libs/crouton-codegen": {},
     "libs/crouton-core": {
       "entry": ["scripts/*.mjs"]
