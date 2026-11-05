@@ -47,14 +47,6 @@
       <span class="text-xl font-bold mr-4">{{ config.title }}</span>
     </template>
     <template #right>
-      <Transition name="crud-status">
-        <span
-          v-if="resource.lastAction"
-          class="text-success text-sm flex items-center gap-1 mr-2"
-        >
-          ✓ {{ resource.lastAction }}
-        </span>
-      </Transition>
       <Btn
         v-if="isDev"
         :icon="IconEnum.Edit"
@@ -78,6 +70,13 @@
       </Btn>
     </template>
   </TableToolbar>
+  <div class="h-6 flex items-center">
+    <Transition name="crud-status">
+      <span v-if="resource.lastAction" class="text-success text-sm">
+        ✓ {{ resource.lastAction }}
+      </span>
+    </Transition>
+  </div>
   <h2 v-if="tableHeading" class="text-xl font-bold mb-2">
     {{ tableHeading }}
   </h2>
