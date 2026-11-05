@@ -4,7 +4,8 @@
     "outDir": "../../dist/libs/auth-nest",
     "tsBuildInfoFile": "../../dist/libs/auth-nest/tsconfig.lib.tsbuildinfo",
     "rootDir": "./src",
-    "declaration": true
+    "declaration": true,
+    "composite": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"],
