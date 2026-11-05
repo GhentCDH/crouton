@@ -13,6 +13,7 @@ services:
       - USE_PREVIEW_SERVER=true
       - BACKEND_PORT=14444
       - FRONTEND_PORT=14300
+      - CROUTON_DEV_TOKEN=e2e-dev-token
     command:
       - |
         set -e

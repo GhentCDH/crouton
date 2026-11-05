@@ -34,6 +34,7 @@ Read this file to find the right doc for your task.
 | 2.resources/security.md | securing resources with roles/policies |
 | 2.resources/unique.md | enforcing unique constraints on resources |
 | 2.resources/versioning.md | enabling resource versioning |
+| 3.backend/authentication.md | working with authentication |
 | 3.backend/data-sources.md | configuring Prisma or custom data sources |
 | 3.backend/index.md | getting an overview of this section |
 | 3.backend/status.md | checking backend status and health |
