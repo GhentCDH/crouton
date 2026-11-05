@@ -32,6 +32,13 @@ export const LayoutTableFieldControlSchema = z
           .default(false)
           .describe('Enables a sort toggle on the table column header.'),
 
+        sortId: z
+          .string()
+          .optional()
+          .describe(
+            'Overrides the field sent as the sort key when sorting this column. Overrides the column-level sortId.',
+          ),
+
         width: z
           .union([z.enum(['xs', 'sm', 'md', 'lg', 'xl']), z.string()])
           .optional()

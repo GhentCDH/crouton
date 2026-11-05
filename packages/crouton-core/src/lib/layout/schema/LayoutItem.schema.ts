@@ -49,6 +49,9 @@ export const _LayoutFieldControlSchema = z.object({
   disabledWhen: WhenConditionSchema.optional().describe(
     'Conditionally disable this control when the condition matches another field value.',
   ),
+  readonly: z.boolean().optional().describe(
+    'Render the input read-only. Overrides fieldInput.options.readonly for this layout item.',
+  ),
 });
 
 /** A field entry in a layout `items` list: a bare column id or a field config object. */
