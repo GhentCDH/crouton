@@ -46,7 +46,7 @@
         "options": {
           "clearable": false,
           "storeValue": true,
-          "values": [
+          "options": [
             { "value": "available", "label": "Available" },
             { "value": "checked-out", "label": "Checked out" },
             { "value": "reserved", "label": "Reserved" }

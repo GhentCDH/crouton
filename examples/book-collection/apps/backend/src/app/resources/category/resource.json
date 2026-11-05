@@ -11,6 +11,7 @@
     "name": {},
     "slug": {},
     "tags": {
+      "required": false,
       "fieldInput": {
         "type": "array"
       },

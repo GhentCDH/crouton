@@ -38,7 +38,7 @@ test.describe('Select control — availability field', () => {
     await list.clickEdit(0);
     await form.waitForModal();
 
-    await form.selectEnum(/availability/i, 'checked-out');
+    await form.selectEnum(/availability/i, 'Checked out');
     await form.waitForAutoSave();
 
     // Verify
@@ -47,11 +47,15 @@ test.describe('Select control — availability field', () => {
     await list.clickEdit(0);
     await form.waitForModal();
 
-    const val = await form.getFieldValue('Availability');
-    expect(val.toLowerCase()).toContain('checked');
+    const modal = page.getByTestId('form-modal');
+    const availabilityCombo = modal.getByRole('combobox', { name: /availability/i });
+    const selectedText = await availabilityCombo.inputValue().catch(() =>
+      availabilityCombo.textContent().then(t => t?.trim() ?? '')
+    );
+    expect(selectedText.toLowerCase()).toContain('checked');
 
     // Reset
-    await form.selectEnum(/availability/i, 'available');
+    await form.selectEnum(/availability/i, 'Available');
     await form.waitForAutoSave();
   });
 });

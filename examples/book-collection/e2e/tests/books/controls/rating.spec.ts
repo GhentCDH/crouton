@@ -19,8 +19,8 @@ test.describe('Custom control — rating field', () => {
 
     // Rating custom component should be present in the modal
     const modal = page.getByTestId('form-modal');
-    const ratingEl = modal.locator('[data-testid="custom-rating"], .rating-control, [class*="rating"]');
-    await expect(ratingEl.first()).toBeVisible({ timeout: 5000 });
+    const ratingEl = modal.locator('[data-testid="rating-stars"]');
+    await expect(ratingEl).toBeVisible({ timeout: 5000 });
 
     await form.cancel();
   });

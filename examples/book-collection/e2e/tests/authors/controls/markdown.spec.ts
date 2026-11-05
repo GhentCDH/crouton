@@ -17,8 +17,8 @@ test.describe('Markdown control — notes field', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    // Markdown editor rendered as contenteditable or specific editor element
-    const editor = modal.locator('.ProseMirror, .cm-editor, [contenteditable="true"], textarea[aria-label*="Notes" i]').first();
+    // TipTap renders the field as role="textbox" with aria-label matching the field id/label
+    const editor = modal.getByRole('textbox', { name: /notes/i }).first();
     await expect(editor).toBeVisible({ timeout: 5000 });
 
     await form.cancel();
@@ -36,9 +36,11 @@ test.describe('Markdown control — notes field', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    const editor = modal.locator('.ProseMirror, .cm-editor .cm-content, [contenteditable="true"]').first();
-    await editor.click();
-    await page.keyboard.type('# Author notes\n\nSome **bold** text.');
+    // The outer textbox is the TipTap wrapper; the inner textbox is the editable surface
+    const outer = modal.getByRole('textbox', { name: /notes/i }).first();
+    const inner = outer.getByRole('textbox').first();
+    await inner.click();
+    await inner.fill('Author notes content');
     await form.waitForAutoSave();
 
     // Re-open and verify content persisted
@@ -47,8 +49,8 @@ test.describe('Markdown control — notes field', () => {
     await list.clickEdit(0);
     await form.waitForModal();
 
-    const editorContent = await modal.locator('.ProseMirror, .cm-editor, [contenteditable="true"]').first().textContent();
-    expect(editorContent).toBeTruthy();
+    const editorContent = await modal.getByRole('textbox', { name: /notes/i }).first().textContent();
+    expect(editorContent?.trim()).toBeTruthy();
     await form.cancel();
   });
 });
