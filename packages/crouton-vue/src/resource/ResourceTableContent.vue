@@ -72,7 +72,7 @@
   </TableToolbar>
   <div class="h-6 flex items-center">
     <Transition name="crud-status">
-      <span v-if="resource.lastAction" class="text-success text-sm">
+      <span v-if="resource.lastAction" data-testid="crud-status" class="text-success text-sm">
         ✓ {{ resource.lastAction }}
       </span>
     </Transition>

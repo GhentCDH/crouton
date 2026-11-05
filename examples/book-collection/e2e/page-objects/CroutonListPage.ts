@@ -56,17 +56,18 @@ export class CroutonListPage {
   };
 
   waitForCreatedStatus = async () => {
-    await this.page.getByText(/created/i).waitFor({ state: 'visible', timeout: 5000 });
+    await this.page.getByTestId('crud-status').filter({ hasText: /created/i }).waitFor({ state: 'visible', timeout: 5000 });
   };
 
   waitForUpdatedStatus = async () => {
-    await this.page.getByText(/updated/i).waitFor({ state: 'visible', timeout: 5000 });
+    await this.page.getByTestId('crud-status').filter({ hasText: /updated/i }).waitFor({ state: 'visible', timeout: 5000 });
   };
 
   confirmDelete = async () => {
     await this.page.getByRole('button', { name: 'Ok', exact: true }).click();
     await this.page
-      .getByText(/record deleted/i)
+      .getByTestId('crud-status')
+      .filter({ hasText: /deleted/i })
       .waitFor({ state: 'visible', timeout: 5000 });
     await this.page.waitForLoadState('networkidle');
   };
