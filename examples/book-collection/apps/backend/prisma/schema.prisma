@@ -36,6 +36,8 @@ model Book {
   status        String     @default("draft")
   featured      Boolean    @default(false)
   availability  String     @default("available")
+  isSigned      Boolean    @default(false)
+  provenance    String?    @default("[]")
   summary       String?
   rating        Int?
   authorId      String
@@ -52,11 +54,13 @@ model User {
 }
 
 model Loan {
-  id         String    @id @default(cuid())
-  loanedAt   DateTime  @default(now())
-  returnedAt DateTime?
-  userId     String
-  user       User      @relation(fields: [userId], references: [id])
-  bookId     String
-  book       Book      @relation(fields: [bookId], references: [id])
+  id                 String    @id @default(cuid())
+  loanedAt           DateTime  @default(now())
+  returnedAt         DateTime?
+  requestedPickupAt  DateTime?
+  rentalPeriod       String?
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  bookId             String
+  book               Book      @relation(fields: [bookId], references: [id])
 }
