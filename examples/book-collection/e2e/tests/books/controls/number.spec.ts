@@ -18,7 +18,7 @@ test.describe('Number control — publishedYear field', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    const yearInput = modal.locator('#publishedYear, input[name="publishedYear"]').first();
+    const yearInput = modal.getByRole('spinbutton', { name: 'publishedYear' });
     await yearInput.clear();
     await yearInput.fill('1985');
     await page.keyboard.press('Tab');

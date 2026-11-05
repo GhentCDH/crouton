@@ -23,7 +23,8 @@ test.describe('Select control — availability field', () => {
     await expect(page.getByRole('option', { name: /checked.?out/i })).toBeVisible();
     await expect(page.getByRole('option', { name: /reserved/i })).toBeVisible();
 
-    await page.keyboard.press('Escape');
+    // Close dropdown by selecting current value (no-op), then cancel modal
+    await page.getByRole('option', { name: /available/i }).click();
     await form.cancel();
   });
 

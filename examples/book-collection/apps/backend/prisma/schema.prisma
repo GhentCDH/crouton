@@ -24,7 +24,7 @@ model Category {
   id    String @id @default(cuid())
   name  String
   slug  String @unique
-  tags  String @default("[]")
+  tags  String? @default("[]")
   books Book[]
 }
 
