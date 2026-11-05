@@ -50,4 +50,18 @@ describe('AuthProviderSchema', () => {
       expect(() => AuthProviderSchema.parse({ name: 'x', provider })).not.toThrow();
     }
   });
+
+  it('accepts scopes array', () => {
+    const r = AuthProviderSchema.parse({ ...base, scopes: ['openid', 'profile', 'email', 'offline_access'] });
+    expect(r.scopes).toEqual(['openid', 'profile', 'email', 'offline_access']);
+  });
+
+  it('scopes is optional', () => {
+    const r = AuthProviderSchema.parse(base);
+    expect(r.scopes).toBeUndefined();
+  });
+
+  it('rejects empty scopes array', () => {
+    expect(() => AuthProviderSchema.parse({ ...base, scopes: [] })).toThrow();
+  });
 });

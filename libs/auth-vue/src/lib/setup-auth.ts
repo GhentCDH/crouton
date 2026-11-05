@@ -73,12 +73,16 @@ export const setupAuth = async (
 
   const callbackPath = '/auth/callback';
 
+  const DEFAULT_SCOPES = ['openid', 'profile', 'email'];
+  const scopes = defaultProvider.scopes ?? DEFAULT_SCOPES;
+
   setupOidcManager({
     authority: defaultProvider.issuer,
     client_id: defaultProvider.clientId,
     redirect_uri: `${window.location.origin}${callbackPath}`,
-    scope: 'openid profile email',
+    scope: scopes.join(' '),
     automaticSilentRenew: true,
+    revokeTokensOnSignout: true,
   });
 
   const storedUser = await loadOidcUser();
