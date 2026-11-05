@@ -14,7 +14,7 @@ import {
   PARENT_METHOD,
 } from './custom-repository.types';
 import { DEFAULT_ID_FIELD, DEFAULT_ID_TYPE } from '../constants';
-import type { DataSourceAdapter } from '../data-access/adapter';
+import type { DataSourceResolver } from '../context';
 import { PrismaDataSourceAdapter } from '../data-access/adapter';
 import { loadRelationsIntoRow } from '../data-access/middleware/relation-loader';
 import type { CrudRepository } from '../data-access/repository';
@@ -23,13 +23,7 @@ import { type Resource } from '../resource/ResourceConfig.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import type { CroutonRequest } from '../types/request.types';
 
-/** Minimal view of `DataSourceRegistry`, kept structural to avoid a cycle. */
-export type DataSourceResolver = {
-  resolve(name?: string): unknown;
-  entries(): { name: string; client: unknown }[];
-  /** Resolve the full adapter for a datasource (optional — not all callers supply it). */
-  resolveAdapter?(name?: string): DataSourceAdapter;
-};
+export type { DataSourceResolver } from '../context';
 
 const unsupported = (config: Resource, op: CustomOp): never => {
   const method = config.parent ? PARENT_METHOD[op] : op;
@@ -65,6 +59,8 @@ export const createCustomRepository = <T = Row>(
   // datasource must not be handed a fake Prisma adapter around `undefined`.
   const adapter =
     dataSources.resolveAdapter?.(config.database) ?? new PrismaDataSourceAdapter(prisma);
+
+  const hookTarget = { ...config, dataSources };
 
   // Fall back to the adapter client when it implements CustomRepository directly
   // (no repository.ts required).
@@ -162,7 +158,7 @@ export const createCustomRepository = <T = Row>(
     const data = await decorateRows(
       result?.data ?? [],
       'findAll',
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -178,7 +174,7 @@ export const createCustomRepository = <T = Row>(
     // repository — previously they were silently skipped on custom resources.
     const effectiveParams = await applyBeforeFindAll(
       params,
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -186,7 +182,7 @@ export const createCustomRepository = <T = Row>(
     const result = await runFindAll(effectiveParams, request);
     const data = await applyAfterFindAll(
       result.data,
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -230,7 +226,7 @@ export const createCustomRepository = <T = Row>(
     return decorateRow(
       loaded,
       'findOne',
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -253,7 +249,7 @@ export const createCustomRepository = <T = Row>(
       prepareWrite(
         data,
         op,
-        config,
+        hookTarget,
         adapter,
         coercedId,
         request,
@@ -320,7 +316,7 @@ export const createCustomRepository = <T = Row>(
     return postWrite(
       result,
       op,
-      config,
+      hookTarget,
       adapter,
       coercedId,
       request,
@@ -382,7 +378,7 @@ export const createCustomRepository = <T = Row>(
       return postWrite(
         result,
         'delete',
-        config,
+        hookTarget,
         adapter,
         coercedId,
         request,

@@ -2792,6 +2792,10 @@
                         "required": [
                           "field"
                         ]
+                      },
+                      "readonly": {
+                        "description": "Render the input read-only. Overrides fieldInput.options.readonly for this layout item.",
+                        "type": "boolean"
                       }
                     },
                     "required": [

@@ -18,6 +18,9 @@ export {
   type CustomRepositoryContext,
 } from './lib/crud/custom-repository';
 
+export type { CrudContext, CrudOp, DataSourceResolver, ParentContext } from './lib/crud/context';
+export { buildCrudContext, toRepositoryContext } from './lib/crud/context';
+
 export { parseFilterString } from '@ghentcdh/crouton-core';
 
 export type {

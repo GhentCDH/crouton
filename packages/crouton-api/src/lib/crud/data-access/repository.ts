@@ -165,36 +165,38 @@ export function createCrudRepository<T = Row>(
       ...(q !== undefined && { q }),
     });
 
+    const hookTarget = { ...config, dataSources: fallbackDataSources };
+
     const mkDecorateFindAll =
       (adapter: DataSourceAdapter) =>
       async (rows: unknown[], request?: unknown): Promise<unknown[]> => {
         const decorated = await decorateRows(
           rows,
           'findAll',
-          config,
+          hookTarget,
           adapter,
           request,
         );
-        return applyAfterFindAll(decorated, config, adapter, request);
+        return applyAfterFindAll(decorated, hookTarget, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
     const applyBefore = (params: ListRequest, request?: unknown) =>
-      applyBeforeFindAll(params, config, resolvedAdapter, request);
+      applyBeforeFindAll(params, hookTarget, resolvedAdapter, request);
     const decorateFindOne = (row: unknown, request?: unknown, id?: string | number) =>
-      decorateRow(row, 'findOne', config, resolvedAdapter, request, undefined, id);
+      decorateRow(row, 'findOne', hookTarget, resolvedAdapter, request, undefined, id);
     const prepareData = (
       data: unknown,
       op: 'create' | 'update' | 'patch',
       id?: string | number,
       request?: unknown,
-    ) => prepareWrite(data, op, config, resolvedAdapter, id, request);
+    ) => prepareWrite(data, op, hookTarget, resolvedAdapter, id, request);
     // postWrite returns Promise<any> because afterWrite hook is user-provided
     const postData = (
       result: unknown,
       op: 'create' | 'update' | 'patch' | 'delete',
       id?: string | number,
       request?: unknown,
-    ): Promise<T> => postWrite(result, op, config, resolvedAdapter, id, request) as Promise<T>;
+    ): Promise<T> => postWrite(result, op, hookTarget, resolvedAdapter, id, request) as Promise<T>;
     const toId = (id: string | number): string | number =>
       (config.idType ?? 'string') === 'number' ? +id : String(id);
 
@@ -443,6 +445,8 @@ export function createCrudRepository<T = Row>(
   const writer = new WriteRepository<T>(legacyModel, adapter, config);
 
   // ── Resource-level decoration helpers ────────────────────────────────────
+  const legacyHookTarget = { ...config, dataSources: fallbackDataSources };
+
   const decorateFindAll = async (
     rows: unknown[],
     request?: unknown,
@@ -450,22 +454,22 @@ export function createCrudRepository<T = Row>(
     const decorated = await decorateRows(
       rows,
       'findAll',
-      config,
+      legacyHookTarget,
       adapter,
       request,
     );
-    return applyAfterFindAll(decorated, config, adapter, request);
+    return applyAfterFindAll(decorated, legacyHookTarget, adapter, request);
   };
 
   const decorateFindOne = (row: unknown, request?: unknown, id?: string | number): Promise<unknown> =>
-    decorateRow(row, 'findOne', config, adapter, request, undefined, id);
+    decorateRow(row, 'findOne', legacyHookTarget, adapter, request, undefined, id);
 
   const prepareData = (
     data: unknown,
     op: 'create' | 'update' | 'patch',
     id?: string | number,
     request?: unknown,
-  ) => prepareWrite(data, op, config, adapter, id, request);
+  ) => prepareWrite(data, op, legacyHookTarget, adapter, id, request);
 
   // postWrite returns Promise<any> because afterWrite hook is user-provided
   const postData = (
@@ -473,7 +477,7 @@ export function createCrudRepository<T = Row>(
     op: 'create' | 'update' | 'patch' | 'delete',
     id?: string | number,
     request?: unknown,
-  ): Promise<T> => postWrite(result, op, config, adapter, id, request) as Promise<T>;
+  ): Promise<T> => postWrite(result, op, legacyHookTarget, adapter, id, request) as Promise<T>;
 
   const toId = (id: string | number): string | number =>
     (config.idType ?? 'string') === 'number' ? +id : String(id);
@@ -483,7 +487,7 @@ export function createCrudRepository<T = Row>(
     findAll: async (params, request) => {
       const effectiveParams = await applyBeforeFindAll(
         params,
-        config,
+        legacyHookTarget,
         adapter,
         request,
       );
