@@ -69,7 +69,8 @@
       "crouton-api",
       "@ghentcdh/create-crouton",
       "crouton-prisma",
-      "crouton-cli"
+      "crouton-cli",
+      "crouton-auth"
     ],
     "projectsRelationship": "fixed",
     "version": {
