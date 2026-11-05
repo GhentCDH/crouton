@@ -60,6 +60,8 @@ export const createCustomRepository = <T = Row>(
   const adapter =
     dataSources.resolveAdapter?.(config.database) ?? new PrismaDataSourceAdapter(prisma);
 
+  const hookTarget = { ...config, dataSources };
+
   // Fall back to the adapter client when it implements CustomRepository directly
   // (no repository.ts required).
   const repo =
@@ -156,7 +158,7 @@ export const createCustomRepository = <T = Row>(
     const data = await decorateRows(
       result?.data ?? [],
       'findAll',
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -172,7 +174,7 @@ export const createCustomRepository = <T = Row>(
     // repository — previously they were silently skipped on custom resources.
     const effectiveParams = await applyBeforeFindAll(
       params,
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -180,7 +182,7 @@ export const createCustomRepository = <T = Row>(
     const result = await runFindAll(effectiveParams, request);
     const data = await applyAfterFindAll(
       result.data,
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -224,7 +226,7 @@ export const createCustomRepository = <T = Row>(
     return decorateRow(
       loaded,
       'findOne',
-      config,
+      hookTarget,
       adapter,
       request,
       parentHookCtx(request),
@@ -247,7 +249,7 @@ export const createCustomRepository = <T = Row>(
       prepareWrite(
         data,
         op,
-        config,
+        hookTarget,
         adapter,
         coercedId,
         request,
@@ -314,7 +316,7 @@ export const createCustomRepository = <T = Row>(
     return postWrite(
       result,
       op,
-      config,
+      hookTarget,
       adapter,
       coercedId,
       request,
@@ -376,7 +378,7 @@ export const createCustomRepository = <T = Row>(
       return postWrite(
         result,
         'delete',
-        config,
+        hookTarget,
         adapter,
         coercedId,
         request,
