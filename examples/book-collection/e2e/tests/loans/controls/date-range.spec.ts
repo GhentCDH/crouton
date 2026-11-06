@@ -39,20 +39,14 @@ test.describe('Date-range control — rentalPeriod field', () => {
     const modal = page.getByTestId('form-modal');
     const toInput = modal.getByLabel('To');
 
-    // Set To date first
+    // Set To date — the max constraint on From is reactive (no save needed)
     await toInput.fill('2026-12-31');
-    await page.keyboard.press('Tab');
-    await form.waitForAutoSave();
 
     const fromInput = modal.getByLabel('From');
-    // From input max attribute should be set to the To date
-    const maxVal = await fromInput.getAttribute('max');
-    expect(maxVal).toBe('2026-12-31');
+    // From input max attribute is set reactively — use toHaveAttribute for auto-retry
+    await expect(fromInput).toHaveAttribute('max', '2026-12-31');
 
-    // Reset
-    await toInput.fill('');
-    await page.keyboard.press('Tab');
-    await form.waitForAutoSave();
+    await form.cancel();
   });
 
   test('rentalPeriod from/to values persist', async ({ page }) => {

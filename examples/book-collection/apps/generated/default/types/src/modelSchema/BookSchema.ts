@@ -18,6 +18,8 @@ export const BookSchema = z.object({
   status: z.string(),
   featured: z.boolean(),
   availability: z.string(),
+  isSigned: z.boolean(),
+  provenance: z.string().nullable(),
   summary: z.string().nullable(),
   rating: z.number().int().nullable(),
   authorId: z.string(),
