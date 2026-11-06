@@ -36,6 +36,7 @@ export type LoadedProvider = {
   issuer?: string;
   clientId?: string;
   rolesClaim?: string;
+  jwksUrl?: string;
   /** Set only for `custom` providers. */
   adapter?: AuthProviderAdapter;
 };

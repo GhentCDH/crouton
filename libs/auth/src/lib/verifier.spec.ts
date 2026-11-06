@@ -1,71 +1,89 @@
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createOidcVerifier } from './verifier';
 
+vi.mock('jose', () => {
+  const mockJwks = vi.fn();
+  return {
+    createRemoteJWKSet: vi.fn(() => mockJwks),
+    jwtVerify: vi.fn(),
+  };
+});
+
 const ISSUER = 'https://test.issuer';
 const CLIENT_ID = 'test-client';
-const USERINFO_URL = 'https://test.issuer/userinfo';
+const JWKS_URL = 'https://test.issuer/.well-known/jwks.json';
 
-const makeJwt = (payload: Record<string, unknown>) => {
-  const header = btoa(JSON.stringify({ alg: 'RS256' }));
-  const body = btoa(JSON.stringify(payload));
-  return `${header}.${body}.fakesig`;
-};
-
-const makeVerifier = () =>
+const makeVerifier = (audience?: string) =>
   createOidcVerifier({
     issuer: ISSUER,
     clientId: CLIENT_ID,
-    audience: CLIENT_ID,
+    audience,
     rolesClaim: 'roles',
     providerName: 'test',
-    userinfoUrl: USERINFO_URL,
+    jwksUrl: JWKS_URL,
     config: { name: 'test', provider: 'oidc' },
   });
 
 beforeEach(() => {
-  vi.restoreAllMocks();
+  vi.mocked(jwtVerify).mockReset();
+  vi.mocked(createRemoteJWKSet).mockClear();
 });
 
 describe('createOidcVerifier', () => {
-  it('returns null when userinfo endpoint returns non-ok', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(null, { status: 401 }),
-    );
-    const token = makeJwt({ sub: 'u1' });
-    expect(await makeVerifier()(token)).toBeNull();
-  });
-
-  it('returns null when fetch throws', async () => {
-    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network'));
-    const token = makeJwt({ sub: 'u1' });
-    expect(await makeVerifier()(token)).toBeNull();
-  });
-
-  it('maps claims from userinfo + jwt payload on success', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ sub: 'u1', email: 'u@test.com' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
-    );
-    const token = makeJwt({ sub: 'u1', roles: ['admin'] });
-    const result = await makeVerifier()(token);
+  it('returns CroutonUser on valid token', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({
+      payload: { sub: 'u1', email: 'u@test.com', roles: ['admin'] },
+    } as never);
+    const result = await makeVerifier()(  'token');
     expect(result).not.toBeNull();
     expect(result?.id).toBe('u1');
+    expect(result?.email).toBe('u@test.com');
+    expect(result?.roles).toEqual(['admin']);
   });
 
-  it('calls userinfo with Bearer token', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ sub: 'u1' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+  it('returns null when jwtVerify throws', async () => {
+    vi.mocked(jwtVerify).mockRejectedValue(new Error('invalid signature'));
+    expect(await makeVerifier()('bad-token')).toBeNull();
+  });
+
+  it('passes audience to jwtVerify when configured', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1' } } as never);
+    await makeVerifier(CLIENT_ID)('token');
+    expect(vi.mocked(jwtVerify)).toHaveBeenCalledWith(
+      'token',
+      expect.anything(),
+      expect.objectContaining({ audience: CLIENT_ID }),
     );
-    const token = makeJwt({ sub: 'u1' });
-    await makeVerifier()(token);
-    expect(fetchSpy).toHaveBeenCalledWith(USERINFO_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  });
+
+  it('omits audience from jwtVerify when not configured', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1' } } as never);
+    await makeVerifier()('token');
+    const callOpts = vi.mocked(jwtVerify).mock.calls[0]?.[2] as Record<string, unknown>;
+    expect(callOpts).not.toHaveProperty('audience');
+  });
+
+  it('reuses same JWKS set for same URL', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1' } } as never);
+    const freshUrl = 'https://unique-caching-test.example/.well-known/jwks.json';
+    const makeWithUrl = () =>
+      createOidcVerifier({
+        issuer: ISSUER,
+        clientId: CLIENT_ID,
+        rolesClaim: 'roles',
+        providerName: 'test',
+        jwksUrl: freshUrl,
+        config: { name: 'test', provider: 'oidc' },
+      });
+    const v1 = makeWithUrl();
+    const v2 = makeWithUrl();
+    await v1('t1');
+    await v2('t2');
+    const callsForUrl = vi.mocked(createRemoteJWKSet).mock.calls.filter(
+      (c) => (c[0] as URL).href === freshUrl,
+    );
+    expect(callsForUrl).toHaveLength(1);
   });
 });
