@@ -1,7 +1,7 @@
-type TextCellType = any;
-export type ColumnDef = TextCellType & {
+export type ColumnDef = {
   id: string;
   label: string;
   width?: string;
-  actions: any;
+  actions: unknown;
+  [key: string]: unknown;
 };

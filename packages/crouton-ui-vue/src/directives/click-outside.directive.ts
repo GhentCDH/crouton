@@ -1,10 +1,12 @@
+type ClickOutsideElement = HTMLElement & { clickOutsideEvent?: (event: Event) => void };
+
 export const addClickOutsideEventListener = (
-  targetElement: any,
+  targetElement: HTMLElement | null,
   callback: () => void,
 ) => {
   if (!targetElement) return null;
   const eventListener = (event: Event) => {
-    if (!targetElement.contains(event.target)) {
+    if (!targetElement.contains(event.target as Node)) {
       callback();
     }
   };
@@ -14,24 +16,20 @@ export const addClickOutsideEventListener = (
   return eventListener;
 };
 
-export const removeClickOutsideEventListener = (eventListener: any) => {
+export const removeClickOutsideEventListener = (eventListener: (event: Event) => void) => {
   document.removeEventListener('click', eventListener);
 };
 
 export const ClickOutside = {
-  beforeMount(el: any, binding: any) {
-    el.clickOutsideEvent = function (event: Event) {
-      // Check if the clicked element is neither the element
-      // to which the directive is applied nor its child
-      if (!(el === event.target || el.contains(event.target))) {
-        // Invoke the provided method
+  beforeMount(el: ClickOutsideElement, binding: { value: (event: Event) => void }) {
+    el.clickOutsideEvent = (event: Event) => {
+      if (!(el === event.target || el.contains(event.target as Node))) {
         binding.value(event);
       }
     };
     document.addEventListener('click', el.clickOutsideEvent);
   },
-  unmounted(el: any) {
-    // Remove the event listener when the bound element is unmounted
-    document.removeEventListener('click', el.clickOutsideEvent);
+  unmounted(el: ClickOutsideElement) {
+    if (el.clickOutsideEvent) document.removeEventListener('click', el.clickOutsideEvent);
   },
 };

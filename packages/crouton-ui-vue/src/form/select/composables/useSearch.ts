@@ -2,15 +2,24 @@ import { ref } from 'vue';
 
 import { getLabel } from '../composables/useOptions';
 
+type SearchProps = {
+  options?: unknown[];
+  maxResults?: number;
+  debounceMs?: number;
+  labelKey: string;
+  valueKey: string;
+  fetchOptions?: (query: string, signal: AbortSignal) => Promise<unknown[]>;
+};
+
 type SearchStrategy = {
-  results: ReturnType<typeof ref<any[]>>;
+  results: ReturnType<typeof ref<unknown[]>>;
   isLoading: ReturnType<typeof ref<boolean>>;
   search(query: string): void;
   clear(): void;
 };
 
-function useLocalSearch(props: any): SearchStrategy {
-  const results = ref<any[]>([]);
+function useLocalSearch(props: SearchProps): SearchStrategy {
+  const results = ref<unknown[]>([]);
   const isLoading = ref(false);
 
   function search(query: string) {
@@ -20,8 +29,8 @@ function useLocalSearch(props: any): SearchStrategy {
     }
     const q = query.toLowerCase();
     const filtered = q
-      ? props.options.filter((item: any) =>
-          getLabel(item, props).toLowerCase().includes(q),
+      ? props.options.filter((item) =>
+          String(getLabel(item, props) ?? '').toLowerCase().includes(q),
         )
       : props.options;
     results.value = filtered.slice(0, props.maxResults);
@@ -34,8 +43,8 @@ function useLocalSearch(props: any): SearchStrategy {
   return { results, isLoading, search, clear };
 }
 
-function useRemoteSearch(props: any): SearchStrategy {
-  const results = ref<any[]>([]);
+function useRemoteSearch(props: SearchProps): SearchStrategy {
+  const results = ref<unknown[]>([]);
   const isLoading = ref(false);
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let fetchController: AbortController | null = null;
@@ -46,10 +55,10 @@ function useRemoteSearch(props: any): SearchStrategy {
 
     isLoading.value = true;
     try {
-      const data = await props.fetchOptions(query, fetchController.signal);
+      const data = await props.fetchOptions?.(query, fetchController.signal);
       results.value = (data || []).slice(0, props.maxResults);
-    } catch (err: any) {
-      if (err.name !== 'AbortError') results.value = [];
+    } catch (err: unknown) {
+      if ((err as { name?: string }).name !== 'AbortError') results.value = [];
     } finally {
       isLoading.value = false;
     }
@@ -73,7 +82,7 @@ function useRemoteSearch(props: any): SearchStrategy {
   return { results, isLoading, search, clear };
 }
 
-export function useAutoCompleteSearch(props: any) {
+export function useAutoCompleteSearch(props: SearchProps) {
   const strategy = props.fetchOptions
     ? useRemoteSearch(props)
     : useLocalSearch(props);

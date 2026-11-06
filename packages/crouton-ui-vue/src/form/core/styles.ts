@@ -40,7 +40,7 @@ export type MyStyles = typeof myStyles;
 export const mergeStyles = (overrides?: Partial<MyStyles>): MyStyles => {
   if (!overrides) return { ...myStyles };
 
-  const result = { ...myStyles } as Record<string, any>;
+  const result = { ...myStyles } as Record<string, Record<string, unknown>>;
   for (const key of Object.keys(overrides) as (keyof MyStyles)[]) {
     const override = overrides[key];
     if (override && typeof override === 'object') {
