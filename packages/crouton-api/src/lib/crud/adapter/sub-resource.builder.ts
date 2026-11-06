@@ -54,7 +54,8 @@ export const buildSubResources = (
   return columns
     .filter((c) => isRelationColumn(c) && !!getRelationResource(c))
     .flatMap((c) => {
-      const resourcePath = getRelationResource(c)!;
+      const resourcePath = getRelationResource(c);
+      if (!resourcePath) return [];
       if (REMOTE_RESOURCE.test(resourcePath)) return [];
 
       const resolution = resolveChildResourceDetailed(resourcePath, parentDir);

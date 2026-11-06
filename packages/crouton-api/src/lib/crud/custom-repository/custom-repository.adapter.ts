@@ -52,7 +52,7 @@ export const createCustomRepository = <T = Row>(
   config: Resource,
   dataSources: DataSourceResolver,
   repository: CustomRepository<T> | undefined,
-  configRegistry?: ResourceConfigRegistry,
+  _configRegistry?: ResourceConfigRegistry,
 ): CrudRepository<T> => {
   // Wrap the raw prisma client in an adapter so hook contexts receive `dataSource`.
   // Prefer the resource's resolved datasource adapter: a non-Prisma (custom)
@@ -82,21 +82,23 @@ export const createCustomRepository = <T = Row>(
    * controller — fail loudly rather than silently querying across all parents.
    */
   const parentIdFrom = (request: unknown): string | number => {
-    const raw = (request as CroutonRequest | undefined)?.params?.[parentRef!.param];
+    if (!parentRef) throw new Error(`parentIdFrom called without parent config on "${config.name}"`);
+    const raw = (request as CroutonRequest | undefined)?.params?.[parentRef.param];
     if (raw === undefined || raw === null || raw === '') {
       throw new BadRequestException(
-        `Resource "${config.name}" is nested under "${parentRef!.route}" but no "${parentRef!.param}" was supplied.`,
+        `Resource "${config.name}" is nested under "${parentRef.route}" but no "${parentRef.param}" was supplied.`,
       );
     }
-    return (parentRef!.idType ?? 'string') === 'number' ? +raw : String(raw);
+    return (parentRef.idType ?? 'string') === 'number' ? +raw : String(raw);
   };
 
   const parentCtx = (
     _request: unknown,
     parentId: string | number,
-  ): { parent: NonNullable<CustomRepositoryContext['parent']> } => ({
-    parent: { route: parentRef!.route, param: parentRef!.param, id: parentId },
-  });
+  ): { parent: NonNullable<CustomRepositoryContext['parent']> } => {
+    if (!parentRef) throw new Error(`parentCtx called without parent config on "${config.name}"`);
+    return { parent: { route: parentRef.route, param: parentRef.param, id: parentId } };
+  };
 
   /**
    * The parent for a hook context — same shape hooks get on a sub-resource, so a
@@ -143,13 +145,15 @@ export const createCustomRepository = <T = Row>(
     if (parentRef) {
       if (!repo.findAllByParent) unsupported(config, 'findAll');
       const parentId = parentIdFrom(request);
-      result = await repo.findAllByParent!(parentId, params, {
+      const fn = repo.findAllByParent;
+      result = await fn(parentId, params, {
         ...ctx('findAll', params, undefined, request),
         ...parentCtx(request, parentId),
       });
     } else {
       if (!repo.findAll) unsupported(config, 'findAll');
-      result = await repo.findAll!(
+      const fn = repo.findAll;
+      result = await fn(
         params,
         ctx('findAll', params, undefined, request),
       );
@@ -196,15 +200,17 @@ export const createCustomRepository = <T = Row>(
     if (parentRef) {
       if (!repo.findOneByParent) unsupported(config, 'findOne');
       const parentId = parentIdFrom(request);
+      const fn = repo.findOneByParent;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
-      row = await repo.findOneByParent!(parentId, toId(id), {
+      row = await fn(parentId, toId(id), {
         ...ctx('findOne', undefined, id, request),
         ...parentCtx(request, parentId),
       });
     } else {
       if (!repo.findOne) unsupported(config, 'findOne');
+      const fn = repo.findOne;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
-      row = await repo.findOne!(
+      row = await fn(
         toId(id),
         ctx('findOne', undefined, id, request),
       );
@@ -283,7 +289,7 @@ export const createCustomRepository = <T = Row>(
             )
           : await (fn as NonNullable<CustomRepository<T>['updateByParent']>)(
               parentId,
-              coercedId!,
+              coercedId as string | number,
               body,
               nestedCtx,
             );
@@ -306,7 +312,7 @@ export const createCustomRepository = <T = Row>(
               ctx('create', undefined, undefined, request),
             )
           : await (fn as NonNullable<CustomRepository<T>['update']>)(
-              coercedId!,
+              coercedId as string | number,
               body,
               ctx(op, undefined, coercedId, request),
             );
@@ -361,15 +367,17 @@ export const createCustomRepository = <T = Row>(
       if (parentRef) {
         if (!repo.deleteByParent) unsupported(config, 'delete');
         const parentId = parentIdFrom(request);
+        const fn = repo.deleteByParent;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
-        result = await repo.deleteByParent!(parentId, coercedId, {
+        result = await fn(parentId, coercedId, {
           ...ctx('delete', undefined, coercedId, request),
           ...parentCtx(request, parentId),
         });
       } else {
         if (!repo.delete) unsupported(config, 'delete');
+        const fn = repo.delete;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
-        result = await repo.delete!(
+        result = await fn(
           coercedId,
           ctx('delete', undefined, coercedId, request),
         );

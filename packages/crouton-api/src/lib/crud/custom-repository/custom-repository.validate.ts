@@ -77,7 +77,7 @@ export const validateCustomRepository = (
     return (
       `repository.ts does not implement ${names.join(', ')}` +
       (nested
-        ? ` (this resource is nested under "${config.parent!.route}", so it implements the parent-aware operations)` +
+        ? ` (this resource is nested under "${config.parent?.route}", so it implements the parent-aware operations)` +
           '. '
         : '. ') +
       'Either implement them or disable the operation in resource.json ' +

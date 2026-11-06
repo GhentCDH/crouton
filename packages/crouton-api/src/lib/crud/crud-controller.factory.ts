@@ -144,14 +144,10 @@ export function createCrudController(
       ? securityForSub(config, sub, op, moduleDefaultSecurity)
       : securityFor(config, definition, op, moduleDefaultSecurity);
     if (sec) {
-      SetMetadata(CROUTON_SECURITY, sec)(
-        CrudControllerBase.prototype,
-        methodName,
-        Object.getOwnPropertyDescriptor(
-          CrudControllerBase.prototype,
-          methodName,
-        )!,
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(CrudControllerBase.prototype, methodName);
+      if (descriptor) {
+        SetMetadata(CROUTON_SECURITY, sec)(CrudControllerBase.prototype, methodName, descriptor);
+      }
     }
   };
 
