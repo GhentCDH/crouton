@@ -1,4 +1,5 @@
 import type { Component } from 'vue';
+
 import type { SizeType } from '@ghentcdh/crouton-core';
 import type {
   FormEventPayload,
