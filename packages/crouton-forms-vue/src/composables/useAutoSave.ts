@@ -8,7 +8,7 @@ export type UseAutoSaveOptions = {
    * and the form is valid. Should return a promise that resolves on success
    * and rejects on failure.
    */
-  onSave: (data: any) => Promise<any>;
+  onSave: (data: Record<string, unknown>) => Promise<unknown>;
   /**
    * Optional callback re-checked at execution time (when the debounce fires).
    * Use this to guard against the race where `trigger` is called with a stale
@@ -36,12 +36,12 @@ export type UseAutoSaveReturn = {
    * - If `isValid` is false the timer is cancelled and status becomes `'pending'`.
    * - If `isValid` is true a debounced save is scheduled.
    */
-  trigger: (data: any, isValid: boolean) => void;
+  trigger: (data: Record<string, unknown>, isValid: boolean) => void;
   /**
    * Immediately cancel any pending debounce and call `onSave` right now.
    * Useful for the Retry button after an error.
    */
-  saveNow: (data: any) => Promise<void>;
+  saveNow: (data: Record<string, unknown>) => Promise<void>;
   /**
    * Cancel any pending debounce without saving and reset status to `'saved'`.
    * Call this before externally refreshing the form data (e.g. after a relation
@@ -90,7 +90,7 @@ export const useAutoSave = ({
   const status = ref<AutoSaveStatus>('idle');
   let timerId: ReturnType<typeof setTimeout> | null = null;
   let baseline: Record<string, unknown> | null = initialData
-    ? JSON.parse(JSON.stringify(initialData))
+    ? (JSON.parse(JSON.stringify(initialData)) as Record<string, unknown>)
     : null;
 
   const clearTimer = () => {
@@ -100,7 +100,7 @@ export const useAutoSave = ({
     }
   };
 
-  const executeSave = async (data: any) => {
+  const executeSave = async (data: Record<string, unknown>) => {
     // Re-check validity at execution time. This defends against the race where
     // onChange fires with a stale valid=true (before vee-validate's async
     // validation has completed) and onErrors didn't manage to cancel the timer.
@@ -122,7 +122,7 @@ export const useAutoSave = ({
       await onSave(delta);
       // Successful save: advance the baseline so the next save only includes
       // fields changed after this point.
-      baseline = JSON.parse(JSON.stringify(data));
+      baseline = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
       status.value = 'saved';
     } catch (error) {
       console.error(error);
@@ -130,7 +130,7 @@ export const useAutoSave = ({
     }
   };
 
-  const trigger = (data: any, isValid: boolean) => {
+  const trigger = (data: Record<string, unknown>, isValid: boolean) => {
     clearTimer();
 
     if (!isValid) {
@@ -146,7 +146,7 @@ export const useAutoSave = ({
     }, debounceMs);
   };
 
-  const saveNow = (data: any) => executeSave(data);
+  const saveNow = (data: Record<string, unknown>) => executeSave(data);
 
   const cancel = () => {
     clearTimer();
@@ -156,7 +156,7 @@ export const useAutoSave = ({
   };
 
   const resetBaseline = (data: Record<string, unknown>) => {
-    baseline = JSON.parse(JSON.stringify(data));
+    baseline = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
   };
 
   return { status, trigger, saveNow, cancel, resetBaseline };
