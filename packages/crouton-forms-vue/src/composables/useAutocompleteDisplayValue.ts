@@ -1,6 +1,11 @@
 import type { MaybeRefOrGetter, Ref } from 'vue';
 import { ref, toValue, watch } from 'vue';
 
+type FetchConfig = {
+  fetchByValue?: ((value: unknown) => Promise<unknown>) | null;
+  peekByValue?: ((value: unknown) => unknown) | null;
+};
+
 /**
  * Resolves the value an autocomplete renders.
  *
@@ -15,11 +20,11 @@ import { ref, toValue, watch } from 'vue';
  */
 export const useAutocompleteDisplayValue = (
   value: MaybeRefOrGetter<unknown>,
-  fetchOptions: Ref<any>,
+  fetchOptions: Ref<FetchConfig | null>,
   getLabelKey: () => string | undefined,
   getValueKey: () => string | undefined,
 ) => {
-  const displayValue = ref<any>(toValue(value));
+  const displayValue = ref<unknown>(toValue(value));
 
   const hydrateDisplayValue = async (val: unknown) => {
     const config = fetchOptions.value;
@@ -37,7 +42,8 @@ export const useAutocompleteDisplayValue = (
 
     const labelKey = getLabelKey();
     const valueKey = getValueKey();
-    if (!config?.fetchByValue || !labelKey || labelKey === valueKey) {
+    const fetchFn = config?.fetchByValue;
+    if (!fetchFn || !labelKey || labelKey === valueKey) {
       displayValue.value = val;
       return;
     }
@@ -57,7 +63,7 @@ export const useAutocompleteDisplayValue = (
       current[valueKey] === val;
     if (!showsSameValue) displayValue.value = val;
 
-    const record = await config.fetchByValue(val);
+    const record = await fetchFn(val);
     // The value changed while the request was in flight – drop the stale result.
     if (toValue(value) !== val) return;
     displayValue.value = record ?? val;

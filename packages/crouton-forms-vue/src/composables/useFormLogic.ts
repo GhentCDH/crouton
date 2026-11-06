@@ -1,5 +1,4 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
-import type { ComponentPublicInstance } from 'vue';
 import { computed, ref, watch } from 'vue';
 
 import { useFormAutoSave } from './useFormAutoSave';
@@ -13,14 +12,19 @@ import type { FormModalProp } from '../forms/modal/FormModal.properties';
  * Extracts auto-save wiring, validity tracking, form event handlers, and
  * renderer resolution so the two wrapper components are pure templates.
  */
+type FormRefInstance = {
+  markSubmitted?: () => void;
+  getCurrentValues?: () => Record<string, unknown>;
+};
+
 export const useFormLogic = (
   properties: FormModalProp,
   emits: (
     event: 'closeModal' | 'events' | 'errors' | 'valid',
-    ...args: any[]
+    ...args: unknown[]
   ) => void,
-  formData: { value: any },
-  formRef: { value: ComponentPublicInstance | null | undefined },
+  formData: { value: Record<string, unknown> },
+  formRef: { value: FormRefInstance | null | undefined },
 ) => {
   const t = useUiTranslator();
   const id = `edit_${Math.floor(Math.random() * 1000)}`;
@@ -82,23 +86,23 @@ export const useFormLogic = (
     valid.value = isValid;
   };
 
-  const onChange = (data: any) => {
+  const onChange = (data: Record<string, unknown>) => {
     triggerAutoSave(data, valid.value);
   };
 
   const onSubmit = () => {
-    (formRef.value as any)?.markSubmitted?.();
+    formRef.value?.markSubmitted?.();
     if (!valid.value) return;
     emits('closeModal', { data: liveValues(), valid: valid.value });
   };
 
-  const onErrors = (errors: any) => {
+  const onErrors = (errors: unknown) => {
     emits('errors', errors);
     const isValid =
       !errors ||
       (Array.isArray(errors)
         ? errors.length === 0
-        : Object.keys(errors).length === 0);
+        : typeof errors === 'object' && errors !== null && Object.keys(errors).length === 0);
     valid.value = isValid;
 
     if (autoSaver && userHasEdited.value) {
