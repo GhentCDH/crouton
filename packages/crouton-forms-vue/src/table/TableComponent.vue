@@ -11,15 +11,17 @@
     @sort="(id: string) => emits('sort', id)"
     @update-page="(page: number) => emits('updatePage', page)"
     @update-page-size="(size: number) => emits('updatePageSize', size)"
-    @selection-change="(e: any) => emits('selectionChange', e)"
+    @selection-change="(e: unknown) => emits('selectionChange', e)"
   />
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue';
 import { computed } from 'vue';
 
 import type { ColumnDef, TextCellType } from '@ghentcdh/crouton-core';
 import { findColumnDef } from '@ghentcdh/crouton-core';
+import type { Layout } from '@jsonforms/core';
 import { Table } from '@ghentcdh/crouton-ui-vue';
 
 import {
@@ -28,10 +30,12 @@ import {
 } from './TableComponent.properties';
 import { defaultCellRenderers, findCellRenderer } from './cells';
 
+type TableLayout = Layout & { options?: Record<string, unknown> };
+
 const properties = defineProps(TableComponentProperties);
 const emits = defineEmits(TableComponentEmits);
 
-const tableNodeOptions = computed(() => (properties.uiSchema as any)?.options ?? {});
+const tableNodeOptions = computed(() => (properties.uiSchema as TableLayout)?.options ?? {});
 
 const allRenderers = computed(() => [
   ...(properties.cellRenderers ?? []),
@@ -42,7 +46,7 @@ const displayColumns = computed(() =>
   properties.uiSchema.elements.map((e) => {
     const element = e as TextCellType;
     const def = findColumnDef(element, properties.schema);
-    const type = Array.isArray(def.type) ? def.type[0] : def.type;
+    const type = (Array.isArray(def.type) ? def.type[0] : def.type) as string | undefined;
     const component = findCellRenderer(allRenderers.value, element);
 
     if (!component)
@@ -54,11 +58,11 @@ const displayColumns = computed(() =>
 
     return {
       ...def,
-      label: e.options?.label ?? def.id,
+      label: (e.options?.['label'] as string | undefined) ?? def.id,
       type,
       component,
       onRefresh: () => emits('refresh'),
-    } as ColumnDef & { component: any } & { onRefresh: () => void };
+    } as ColumnDef & { component: Component | undefined } & { onRefresh: () => void };
   }),
 );
 </script>

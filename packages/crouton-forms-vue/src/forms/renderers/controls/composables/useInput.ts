@@ -48,12 +48,12 @@ const checkRequired = (
   const parentSegments = segments.slice(0, -2);
   if (parentSegments.length === 0) {
     // Field is at root level — check root schema's required
-    const req = (rootSchema as any)?.required;
+    const req = (rootSchema as Record<string, unknown>)?.['required'];
     return Array.isArray(req) && req.includes(fieldName);
   }
   const parentScope = `#/${parentSegments.join('/')}`;
   const parentSchema = resolveSchema(rootSchema, parentScope);
-  const req = (parentSchema as any)?.required;
+  const req = (parentSchema as Record<string, unknown>)?.['required'];
   return Array.isArray(req) && req.includes(fieldName);
 };
 
@@ -76,24 +76,24 @@ export const useInputProps = (
   const path = scopeToPath(uischema.scope);
   const { errorMessage, meta } = field;
 
-  const opts = (uischema.options ?? {}) as Record<string, any>;
+  const opts = (uischema.options ?? {}) as Record<string, unknown>;
   const labelFromScope = path.split('.').pop() ?? '';
 
   const isRequired = rootSchema
     ? checkRequired(rootSchema, uischema.scope, labelFromScope)
     : false;
 
-  const s = (schema ?? {}) as Record<string, any>;
+  const s = (schema ?? {}) as Record<string, unknown>;
 
   const inferredType = (() => {
-    if (opts.format === 'text') return 'text';
-    if (s.format === 'email') return 'email';
-    if (s.format === 'uri') return 'url';
-    if (s.type === 'number' || s.type === 'integer') return 'number';
+    if (opts['format'] === 'text') return 'text';
+    if (s['format'] === 'email') return 'email';
+    if (s['format'] === 'uri') return 'url';
+    if (s['type'] === 'number' || s['type'] === 'integer') return 'number';
     return options.defaultType ?? 'text';
   })();
 
-  const styles = mergeStyles(opts.styles) as any;
+  const styles = mergeStyles(opts['styles'] as Parameters<typeof mergeStyles>[0]) as MyStyles;
   const t = useUiTranslator();
 
   const errorMode = inject(ERROR_MODE_KEY, ref('onBlur'));
@@ -103,11 +103,12 @@ export const useInputProps = (
   const { values: formValues } = useFormContext();
 
   const conditionallyDisabled = computed(() => {
-    if (!opts.disabledWhen) return false;
-    const scopedValues = (pathPrefix && (formValues as any)[pathPrefix])
-      ? (formValues as any)[pathPrefix]
-      : formValues;
-    return evaluateWhen(opts.disabledWhen, scopedValues as Record<string, unknown>);
+    if (!opts['disabledWhen']) return false;
+    const fv = formValues as Record<string, unknown>;
+    const scopedValues = (pathPrefix && fv[pathPrefix])
+      ? fv[pathPrefix] as Record<string, unknown>
+      : fv;
+    return evaluateWhen(opts['disabledWhen'] as Parameters<typeof evaluateWhen>[0], scopedValues);
   });
 
   const shouldShowError = computed(() => {
@@ -128,27 +129,27 @@ export const useInputProps = (
   });
 
   const width =
-    opts.colspan || styles?.width === 'full'
+    opts['colspan'] || (styles as Record<string, unknown>)?.['width'] === 'full'
       ? 'w-full'
-      : (opts.width ?? 'min-w-input');
+      : ((opts['width'] as string | undefined) ?? 'min-w-input');
 
   return computed<InputProps>(() => ({
     id: path,
-    placeholder: opts.placeholder,
-    description: s.description,
+    placeholder: opts['placeholder'] as string | undefined,
+    description: s['description'] as string | undefined,
     errors: shouldShowError.value
-      ? (opts.errorMessage ?? localizeError(formatError(errorMessage.value), t))
+      ? ((opts['errorMessage'] as string | undefined) ?? localizeError(formatError(errorMessage.value), t))
       : undefined,
     label:
-      opts.label ??
-      s.title ??
+      (opts['label'] as string | undefined) ??
+      (s['title'] as string | undefined) ??
       labelFromScope.charAt(0).toUpperCase() + labelFromScope.slice(1),
-    visible: opts.visible ?? true,
+    visible: (opts['visible'] as boolean | undefined) ?? true,
     required: isRequired,
-    enabled: opts.readonly !== true && opts.disabled !== true && !conditionallyDisabled.value && !formReadonly.value,
+    enabled: opts['readonly'] !== true && opts['disabled'] !== true && !conditionallyDisabled.value && !formReadonly.value,
     isFocused: false,
     isTouched: shouldShowError.value,
-    hideLabel: opts.hideLabel ?? false,
+    hideLabel: (opts['hideLabel'] as boolean | undefined) ?? false,
     styles: styles,
     width,
     type: inferredType,

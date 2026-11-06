@@ -25,13 +25,13 @@ const {
   appliedOptions,
 } = useSelectBinding(props.uischema, props.schema);
 
-const onChange = (val: any) => {
-  const opts = appliedOptions.value as any;
-  const valueKey = opts.valueKey ?? 'value';
+const onChange = (val: unknown) => {
+  const opts = appliedOptions.value as Record<string, unknown>;
+  const valueKey = (opts['valueKey'] as string | undefined) ?? 'value';
   const stored =
-    opts.storeValue && Array.isArray(val)
-      ? val.map((item: any) =>
-          item && typeof item === 'object' ? item[valueKey] : item,
+    opts['storeValue'] && Array.isArray(val)
+      ? val.map((item): unknown =>
+          item && typeof item === 'object' ? (item as Record<string, unknown>)[valueKey] : item,
         )
       : val;
   field.setValue(stored);
