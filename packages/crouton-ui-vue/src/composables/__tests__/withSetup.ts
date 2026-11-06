@@ -11,5 +11,5 @@ export const withSetup = (composable: () => void) => {
     },
   });
   app.mount(document.createElement('div'));
-  return { result: result!, app };
+  return { result: result as ReturnType<typeof composable>, app };
 };

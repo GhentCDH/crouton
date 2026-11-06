@@ -9,14 +9,14 @@ type OptionsProperties = {
   valueKey: string;
 };
 
-export const getLabel = (item: any, props: OptionsProperties) => {
+export const getLabel = (item: unknown, props: OptionsProperties) => {
   if (!item) return undefined;
-  return typeof item === 'object' ? item[props.labelKey] : item;
+  return typeof item === 'object' ? (item as Record<string, unknown>)[props.labelKey] : item;
 };
 
-const getValue = (item: any, props: OptionsProperties) => {
+const getValue = (item: unknown, props: OptionsProperties) => {
   if (!item) return undefined;
-  return typeof item === 'object' ? item[props.valueKey] : item;
+  return typeof item === 'object' ? (item as Record<string, unknown>)[props.valueKey] : item;
 };
 
 type OptionsStrategy<ITEM> = {
@@ -46,7 +46,7 @@ const DefaultOptionsStrategy = <ITEM>(
       const optionValue: OptionValue = {
         value: getValue(option, props),
         label: getLabel(option, props),
-        ...((option as any)?.disabled !== undefined && { disabled: !!(option as any).disabled }),
+        ...((option as Record<string, unknown>)?.['disabled'] !== undefined && { disabled: !!(option as Record<string, unknown>)['disabled'] }),
       };
 
       originalMap.set(optionValue.value, option);
@@ -67,7 +67,8 @@ const DefaultOptionsStrategy = <ITEM>(
   };
 
   const getOption = (option: ITEM): OptionValue | undefined => {
-    return optionMap.get(getValue(option, props)!);
+    const val = getValue(option, props);
+    return val != null ? optionMap.get(String(val)) : undefined;
   };
 
   const getLabels = (...optionList: ITEM[]): string[] => {
@@ -95,7 +96,7 @@ const DefaultOptionsStrategy = <ITEM>(
   };
 };
 
-export const useOptions = <ITEM = any>(props: OptionsProperties) => {
+export const useOptions = <ITEM = unknown>(props: OptionsProperties) => {
   const strategy = DefaultOptionsStrategy<ITEM>(props);
 
   return strategy;

@@ -17,7 +17,7 @@ export const TableComponentProperties = {
   loading: { type: Boolean, default: false as const },
   multiselect: { type: Boolean, default: false as const },
   actions: { type: Array as PropType<TableAction[]> },
-  data: { type: Array as PropType<any[]> },
+  data: { type: Array as PropType<unknown[]> },
   displayColumns: {
     type: Array as PropType<DisplayColumn[]>,
     required: true as const,
