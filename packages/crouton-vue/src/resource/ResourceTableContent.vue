@@ -77,7 +77,7 @@
         data-testid="crud-status"
         class="text-sm font-medium"
         :class="{
-          'text-success':    resource.lastAction.type === 'success',
+          'text-green-700':  resource.lastAction.type === 'success',
           'text-error':      resource.lastAction.type === 'error',
           'text-amber-600':  resource.lastAction.type === 'pending',
         }"

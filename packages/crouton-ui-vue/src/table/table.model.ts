@@ -8,6 +8,8 @@ export type TableAction = {
   action: <T>(data: T) => void;
   /** Optional predicate — when provided, the button is only shown if this returns true for the row. */
   visible?: <T>(data: T) => boolean;
+  /** Optional predicate — when provided and returns true for the row, the button shows a loading spinner. */
+  loading?: <T>(data: T) => boolean;
 };
 
 export type DisplayColumn = ColumnDef & { component: any };

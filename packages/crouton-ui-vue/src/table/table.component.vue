@@ -109,6 +109,7 @@
                     :aria-label="action.tooltip ?? action.label"
                     :data-testid="action.icon ? `btn-action-${action.icon.toLowerCase()}` : undefined"
                     :icon="action.icon"
+                    :loading="action.loading?.(item) ?? false"
                     :color="Color.secondary"
                     size="xs"
                     @click.stop="action.action(item)"

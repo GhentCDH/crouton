@@ -14,12 +14,13 @@
     ]"
     :href="props.href"
     :type="props.type"
-    :disabled="props.disabled"
+    :disabled="props.disabled || props.loading"
     :data-tip="props.tooltip"
     @click="emit('click', $event)"
   >
+    <span v-if="props.loading" class="loading loading-spinner loading-xs" />
     <Icon
-      v-if="props.icon"
+      v-else-if="props.icon"
       :icon="props.icon"
     />
     <span

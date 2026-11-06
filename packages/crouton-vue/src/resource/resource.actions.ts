@@ -298,14 +298,22 @@ export const actions = (
   const op = formDef.operations ?? {};
   const _modals =
     modals ?? resourceModals(api, resource, formDef, handleEvent, false);
+  const pendingKey = ref<string | null>(null);
   return [
     (getTableNode(formDef.schemas.table.ui)?.options?.rowActions ?? []).map(
       (action: any) => {
+        const idField = formDef.idField;
         return {
-          action: backendAction(resource, formDef, defaultUriParams, action),
+          action: (row: any) => {
+            const key = `${action.id}:${row[idField]}`;
+            pendingKey.value = key;
+            return backendAction(resource, formDef, defaultUriParams, action)(row)
+              .finally(() => { if (pendingKey.value === key) pendingKey.value = null; });
+          },
           tooltip: action.label,
           icon: action.icon,
           label: action.icon ? null : action.label,
+          loading: (row: any) => pendingKey.value === `${action.id}:${row[idField]}`,
           ...(action.condition && {
             visible: (row: any) => evaluateCondition(action.condition, row),
           }),

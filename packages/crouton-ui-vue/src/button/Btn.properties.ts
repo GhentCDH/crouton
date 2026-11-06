@@ -8,6 +8,7 @@ import type { IconProp } from '../icons/icon-list';
 export const BtnProperties = {
   href: { type: String },
   disabled: { type: Boolean, default: false },
+  loading: { type: Boolean, default: false },
   tooltip: { type: String },
   as: { type: String as PropType<ButtonTag>, default: ButtonTag.button },
   icon: { type: [String, Object, Function] as PropType<IconProp> },
