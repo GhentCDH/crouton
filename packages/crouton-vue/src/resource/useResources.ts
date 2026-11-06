@@ -21,24 +21,31 @@ import { useLanguage } from '../i18n/useLanguage';
 import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
 
-const translateEnumValue = (val: any, enumName: string, t: (k: string, f?: string) => string): any => {
+type EnumOptionLike = { value: unknown; label?: string; [key: string]: unknown };
+const isEnumOptionLike = (v: unknown): v is EnumOptionLike =>
+  typeof v === 'object' && v !== null && 'value' in v;
+
+const translateEnumValue = (val: unknown, enumName: string, t: (k: string, f?: string) => string): unknown => {
   if (!val || typeof val !== 'object') return val;
   if (Array.isArray(val)) {
-    return val.map((v: any) =>
-      v && typeof v === 'object' && 'value' in v
+    return val.map((v: unknown) =>
+      isEnumOptionLike(v)
         ? { ...v, label: t(enumKey(enumName, String(v.value)), v.label) }
         : v,
     );
   }
-  if ('value' in val) return { ...val, label: t(enumKey(enumName, String(val.value)), val.label) };
+  if (isEnumOptionLike(val)) return { ...val, label: t(enumKey(enumName, String(val.value)), val.label) };
   return val;
 };
 
+type UiSchemaNode = { type?: string; elements?: UiSchemaNode[]; options?: Record<string, unknown>; [key: string]: unknown };
+
 /** When the table UI schema is a wrapper layout, extract the inner Table element. */
-const resolveTableUiSchema = (ui: unknown): any => {
-  const u = ui as any;
-  if (!u || u.type === 'Table') return u;
-  return u.elements?.find((e: any) => e.type === 'Table') ?? u;
+const resolveTableUiSchema = (ui: unknown): UiSchemaNode | null => {
+  if (!ui || typeof ui !== 'object') return null;
+  const u = ui as UiSchemaNode;
+  if (u.type === 'Table') return u;
+  return u.elements?.find((e) => e.type === 'Table') ?? u;
 };
 
 export interface UseResourcesProperties {
@@ -54,32 +61,32 @@ export interface UseResourcesProperties {
 export interface UseResource {
   id: string;
   operations: Record<string, unknown>;
-  uiSchema: any;
-  schema: any;
-  filterSchema: Record<string, any> | undefined;
+  uiSchema: UiSchemaNode | null;
+  schema: unknown;
+  filterSchema: Record<string, unknown> | undefined;
   loading: boolean;
-  data: any[];
+  data: unknown[];
   page: { count: number; pageSize: number; page: number; totalPages: number };
   sort: { sortColumn: string; sortDirection: string };
-  filter: any[];
+  filter: string[];
   search: string;
   onSort: (id: string) => void;
   onUpdatePage: (page: number) => void;
   onUpdatePageSize: (size: number) => void;
-  onUpdateFilters: (filters: any) => void;
+  onUpdateFilters: (filters: unknown) => void;
   onUpdateSearch: (search: string) => void;
-  cellRenderers: any[];
-  actions: any;
-  backendAction: (action: Action) => Promise<any>;
-  tableActions: any[];
+  cellRenderers: unknown[];
+  actions: unknown;
+  backendAction: (action: Action) => Promise<unknown>;
+  tableActions: unknown[];
   create: () => void;
   edit: (id: unknown) => void;
   view: (id: unknown) => void;
   delete: (id: unknown) => void;
-  closeForm: (result: any) => Promise<void>;
+  closeForm: (result: unknown) => Promise<void>;
   form: {
     component: Component;
-    config: any;
+    config: Record<string, unknown>;
     hideTable: boolean;
     customComponent: Component | null;
   } | null;
@@ -137,20 +144,19 @@ export const useResources = (
     initialLoad,
   );
 
-  const filterSchema = resolveTableUiSchema(_formDef.schemas.table.ui)?.options?.filter
-    ?.schema as Record<string, any> | undefined;
+  const filterSchema = (resolveTableUiSchema(_formDef.schemas.table.ui)?.options?.['filter'] as { schema?: Record<string, unknown> } | undefined)?.schema;
 
   const { translator } = useLanguage();
-  const enumCols: ViewColumnConfig[] = ((_formDef.schemas.table as any).columns ?? []).filter(
+  const enumCols: ViewColumnConfig[] = ((_formDef.schemas.table as unknown as { columns?: ViewColumnConfig[] }).columns ?? []).filter(
     (c: ViewColumnConfig) => c.enumName,
   );
   const data =
     enumCols.length === 0
       ? resource.data
       : computed(() =>
-          (resource.data.value ?? []).map((row: any) => {
-            const out = { ...row };
-            for (const col of enumCols) out[col.id] = translateEnumValue(out[col.id], col.enumName!, translator);
+          (resource.data.value ?? []).map((row: Record<string, unknown>) => {
+            const out: Record<string, unknown> = { ...row };
+            for (const col of enumCols) out[col.id] = translateEnumValue(out[col.id], col.enumName ?? '', translator);
             return out;
           }),
         );
@@ -197,7 +203,7 @@ export const useResources = (
         ? initialRequestParams.filter
         : [initialRequestParams.filter]
       : [],
-    search: (initialRequestParams as any).q ?? '',
+    search: initialRequestParams.q ?? '',
     onSort: resource.onSort,
     onUpdatePage: resource.updatePage,
     onUpdatePageSize: resource.updatePageSize,

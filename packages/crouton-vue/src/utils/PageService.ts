@@ -26,7 +26,7 @@ export abstract class PageService extends PaginatedRequestService {
     signal: AbortSignal,
     data?: {
       defaultUriParams?: Record<string, string>;
-      data?: any;
+      data?: unknown;
     },
   ) {
     const formDef = await this.getFormDef(formDefId);
@@ -38,6 +38,6 @@ export abstract class PageService extends PaginatedRequestService {
       data?.defaultUriParams ?? {},
       _data,
       signal,
-    );
+    ) as Promise<unknown>;
   }
 }

@@ -35,12 +35,12 @@ const createViewSchema = (
 ): ResourceViewSchema | undefined => {
   if (!formSchema) return undefined;
   const zodSchema = safeFromJSONSchema(formSchema.data);
-  const parseValue = (value: any) => {
+  const parseValue = (value: unknown): unknown => {
     try {
       const schema =
         zodSchema instanceof z.ZodObject ? zodSchema.partial() : zodSchema;
       const parsed = schema.safeParse(value);
-      return parsed.data ?? value;
+      return (parsed.data as unknown) ?? value;
     } catch {
       return value;
     }
@@ -79,15 +79,16 @@ export class ResourceDefinitionCache {
         const resourceDefinition: ResourceDefinition = {
           ...result,
           schemas: {
-            table: createViewSchema(result.schemas.table)!,
-            form: createViewSchema(result.schemas.form)!,
+            table: createViewSchema(result.schemas.table) as ResourceViewSchema,
+            form: createViewSchema(result.schemas.form) as ResourceViewSchema,
             view: createViewSchema(result.schemas.view),
           },
         };
         return localizeDefinition(resourceDefinition);
       })
-      .catch((err) => {
-        if (err?.response?.status === 404) {
+      .catch((err: unknown) => {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 404) {
           this.cache.delete(uri);
           return null as unknown as ResourceDefinition;
         }
