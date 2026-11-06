@@ -43,12 +43,12 @@ export const interactiveResolver: DecisionResolver = {
       const selected = assertNotCancel(
         await clack.multiselect({
           message: `Columns to add to "${diff.name}"`,
-          options: adds.map((d) => ({ value: d.field!, label: d.field! })),
-          initialValues: adds.map((d) => d.field!),
+          options: adds.map((d) => ({ value: d.field ?? '', label: d.field ?? '' })),
+          initialValues: adds.map((d) => d.field ?? ''),
           required: false,
         }),
       ) as string[];
-      for (const d of adds) out[d.id] = selected.includes(d.field!) ? 'add' : 'skip';
+      for (const d of adds) out[d.id] = selected.includes(d.field ?? '') ? 'add' : 'skip';
     }
 
     // Reconcile changed columns. Ask once for the whole resource, with an
@@ -94,12 +94,12 @@ export const interactiveResolver: DecisionResolver = {
       const selected = assertNotCancel(
         await clack.multiselect({
           message: `Columns not in the DB schema for "${diff.name}" — select any to remove`,
-          options: removes.map((d) => ({ value: d.field!, label: d.field! })),
+          options: removes.map((d) => ({ value: d.field ?? '', label: d.field ?? '' })),
           initialValues: [],
           required: false,
         }),
       ) as string[];
-      for (const d of removes) out[d.id] = selected.includes(d.field!) ? 'remove' : 'keep';
+      for (const d of removes) out[d.id] = selected.includes(d.field ?? '') ? 'remove' : 'keep';
     }
 
     return out;

@@ -11,8 +11,11 @@ const build = (over: Partial<CustomResourceScaffoldInput> = {}) =>
     ...over,
   });
 
-const jsonOf = (files: { path: string; contents: string }[]): Record<string, unknown> =>
-  JSON.parse(files.find((f) => f.path.endsWith('resource.json'))!.contents) as Record<string, unknown>;
+const jsonOf = (files: { path: string; contents: string }[]): Record<string, unknown> => {
+  const f = files.find((f) => f.path.endsWith('resource.json'));
+  if (!f) throw new Error('resource.json not found');
+  return JSON.parse(f.contents) as Record<string, unknown>;
+};
 
 describe('buildCustomResourceFiles', () => {
   it('emits resource.json and repository.ts under the resource dir', () => {
@@ -101,9 +104,9 @@ describe('buildCustomResourceFiles', () => {
   });
 
   it('stubs a typed repository with every operation', () => {
-    const repository = build().files.find((f) =>
-      f.path.endsWith('repository.ts'),
-    )!.contents;
+    const repoFile = build().files.find((f) => f.path.endsWith('repository.ts'));
+    if (!repoFile) throw new Error('repository.ts not found');
+    const repository = repoFile.contents;
     expect(repository).toContain(
       'import type { CustomRepository } from \'@ghentcdh/crouton-api\'',
     );

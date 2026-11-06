@@ -115,7 +115,7 @@ const ensureGeneratedScaffold = async (
 
     if (existsSync(pkgPath)) {
       // Prisma may have written its own package.json — ensure name + private are set
-      const existing = JSON.parse(await readFile(pkgPath, 'utf-8'));
+      const existing = JSON.parse(await readFile(pkgPath, 'utf-8')) as { name?: string; private?: boolean; [key: string]: unknown };
       if (existing.name !== name) {
         existing.name = name;
         existing.private = true;
@@ -173,7 +173,7 @@ const ensureAppWorkspaceDeps = async (
     const pkgPath = join(appsDir, entry.name, 'package.json');
     if (!existsSync(pkgPath)) continue;
 
-    const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
+    const pkg = JSON.parse(await readFile(pkgPath, 'utf-8')) as { name?: string; dependencies?: Record<string, string>; devDependencies?: Record<string, string>; [key: string]: unknown };
     const deps: Record<string, string> = pkg.dependencies ?? {};
     const allDeps = { ...deps, ...(pkg.devDependencies ?? {}) };
     let changed = false;

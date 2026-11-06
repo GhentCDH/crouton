@@ -69,7 +69,7 @@ export const createStrategiesForProvider = (provider: LoadedProvider): StrategyC
     rolesClaim,
     providerName: strategyName,
     config,
-    userinfoUrl: preset.userinfoUrl(env),
+    jwksUrl: preset.jwksUrl(env),
   });
 
   // OAuth2 env vars are optional — if missing, only Bearer strategy is registered.

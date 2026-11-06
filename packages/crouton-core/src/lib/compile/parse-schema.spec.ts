@@ -131,7 +131,7 @@ describe('parseSchema — appConfig', () => {
   });
 
   it('schemaEnricher merged on top (can override keys)', () => {
-    const enricher = (payload: Record<string, unknown>) => ({ extra: 'injected', route: 'overridden' });
+    const enricher = (_payload: Record<string, unknown>) => ({ extra: 'injected', route: 'overridden' });
     const result = parseSchema(minimalCustom, { schemaEnricher: enricher }, 'resource.json') as Record<string, unknown>;
     expect(result.extra).toBe('injected');
     expect(result.route).toBe('overridden');
@@ -139,7 +139,7 @@ describe('parseSchema — appConfig', () => {
 
   it('schemaEnricher called when payload is defined', () => {
     let called = false;
-    const enricher = (p: Record<string, unknown>) => { called = true; return {}; };
+    const enricher = (_p: Record<string, unknown>) => { called = true; return {}; };
     // schemas view returns a payload with views → enricher is called
     parseSchema(minimalCustom, { schemaEnricher: enricher }, 'schemas');
     expect(called).toBe(true);

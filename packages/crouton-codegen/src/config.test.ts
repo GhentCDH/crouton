@@ -131,7 +131,8 @@ describe('scaffoldConfigFromProject', () => {
     expect(config).not.toHaveProperty('datasources');
     expect(config.resourcesDir).toContain('resources');
     expect(config.dataSourcesDir).toContain('data-sources');
-    const docs = datasources.find((d) => d.name === 'docsdb')!;
+    const docs = datasources.find((d) => d.name === 'docsdb');
+    if (!docs) throw new Error('docsdb datasource not found');
     expect(docs).toMatchObject({
       folder: 'docsdb',
       default: true,

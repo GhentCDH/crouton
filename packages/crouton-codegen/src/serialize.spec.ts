@@ -50,6 +50,6 @@ describe('serializeResourceJson', () => {
     const text = serializeResourceJson(withResourceHeader(base, { draft: true }));
     expect(text.endsWith('\n')).toBe(true);
     expect(text.startsWith('{\n  "$schema"')).toBe(true);
-    expect(JSON.parse(text).schemaVersion).toBe(CURRENT_RESOURCE_VERSION);
+    expect((JSON.parse(text) as Record<string, unknown>)['schemaVersion']).toBe(CURRENT_RESOURCE_VERSION);
   });
 });
