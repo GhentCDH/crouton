@@ -1,5 +1,7 @@
 import { type InjectionKey, inject, provide } from 'vue';
 
+import { isRecord } from '@ghentcdh/crouton-core';
+
 /** Scope values for a composite uniqueness check: `{ scopeFieldId: value }`. */
 export type UniqueScope = Record<string, unknown>;
 
@@ -115,17 +117,19 @@ export const withUniqueChecks = <S>(
   if (!checkFn || fields.length === 0) return schema;
   const check = createUniqueChecker(checkFn);
 
-  return (schema as any).superRefine(async (data: any, ctx: any) => {
+  type ZodCtx = { addIssue: (issue: { code: string; path: (string | number)[]; message: string }) => void };
+  type ZodLike = { superRefine: (fn: (data: Record<string, unknown>, ctx: ZodCtx) => Promise<void>) => S };
+  return (schema as ZodLike).superRefine(async (data, ctx) => {
     await Promise.all(
       fields.map(async ({ field, message, scope }) => {
-        const value = data?.[field];
+        const value = data[field];
         if (value === undefined || value === null || value === '') return;
         if (initialValues && value === initialValues[field]) return;
 
         let scopeValues: UniqueScope | undefined;
         if (scope?.length) {
           scopeValues = {};
-          for (const scopeId of scope) scopeValues[scopeId] = data?.[scopeId];
+          for (const scopeId of scope) scopeValues[scopeId] = data[scopeId];
         }
 
         const ok = await check(field, String(value), scopeValues);
@@ -144,21 +148,25 @@ export const withUniqueChecks = <S>(
 /** Collect top-level controls declared `unique` from a form ui schema. */
 export const collectUniqueFields = (uiSchema: unknown): UniqueField[] => {
   const out: UniqueField[] = [];
-  const visit = (node: any): void => {
-    if (!node || typeof node !== 'object') return;
-    const scope: string | undefined = node.scope;
-    const unique = node.options?.unique;
+  const visit = (node: unknown): void => {
+    if (!isRecord(node)) return;
+    const scope = typeof node['scope'] === 'string' ? node['scope'] : undefined;
+    const rawOptions = node['options'];
+    const unique = isRecord(rawOptions) ? rawOptions['unique'] : undefined;
     // Only top-level columns (`#/properties/<field>`) map to a DB unique column.
     const match =
-      typeof scope === 'string' && /^#\/properties\/[^/]+$/.test(scope);
-    if (match && unique?.enabled) {
+      scope !== undefined && /^#\/properties\/[^/]+$/.test(scope);
+    if (match && isRecord(unique) && unique['enabled']) {
       out.push({
-        field: scope!.replace('#/properties/', ''),
-        message: unique.message,
-        scope: unique.scope,
+        field: scope.replace('#/properties/', ''),
+        message: typeof unique['message'] === 'string' ? unique['message'] : undefined,
+        scope: Array.isArray(unique['scope'])
+          ? (unique['scope'] as unknown[]).filter((s): s is string => typeof s === 'string')
+          : undefined,
       });
     }
-    for (const child of node.elements ?? []) visit(child);
+    const elements = node['elements'];
+    if (Array.isArray(elements)) elements.forEach((child: unknown) => visit(child));
   };
   visit(uiSchema);
   return out;
