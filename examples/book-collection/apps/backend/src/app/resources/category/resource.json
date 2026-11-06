@@ -9,7 +9,14 @@
       "hiddenInForm": true
     },
     "name": {},
-    "slug": {}
+    "slug": {},
+    "tags": {
+      "required": false,
+      "fieldInput": {
+        "type": "array"
+      },
+      "hiddenInTable": true
+    }
   },
   "source": {
     "model": "Category"
