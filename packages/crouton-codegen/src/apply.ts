@@ -61,7 +61,8 @@ export const apply = (resolved: ResolvedDiff, ctx: ApplyContext): WritePlan => {
       action: 'create',
     });
   } else {
-    const existing = clone(diff.existing!);
+    if (!diff.existing) throw new Error('expected existing resource for update');
+    const existing = clone(diff.existing);
     const draftMap = new Map<string, Column>(
       columnEntries(diff.draft.config.columns),
     );

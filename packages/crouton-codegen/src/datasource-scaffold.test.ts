@@ -9,7 +9,11 @@ describe('buildDatasourceFiles', () => {
     urlEnv: 'ANALYTICS_DATABASE_URL',
     generatedTypesImport: '@my-app/generated/analyticsdb',
   });
-  const file = (suffix: string) => out.files.find((f) => f.path.endsWith(suffix))!;
+  const file = (suffix: string) => {
+    const f = out.files.find((f) => f.path.endsWith(suffix));
+    if (!f) throw new Error(`File not found: ${suffix}`);
+    return f;
+  };
 
   it('emits the four datasource files at the right paths', () => {
     expect(out.files.map((f) => f.path).sort()).toEqual([
@@ -21,7 +25,7 @@ describe('buildDatasourceFiles', () => {
   });
 
   it('writes a self-describing data-source.json', () => {
-    const ds = JSON.parse(file('data-source.json').contents);
+    const ds = JSON.parse(file('data-source.json').contents) as Record<string, unknown>;
     expect(ds).toMatchObject({
       type: 'postgres',
       name: 'analyticsdb',
@@ -42,8 +46,10 @@ describe('buildDatasourceFiles', () => {
       generatedTypesImport: '@app/generated/maindb',
       default: true,
     });
-    const ds = JSON.parse(def.files.find((f) => f.path.endsWith('data-source.json'))!.contents);
-    expect(ds.default).toBe(true);
+    const dsFile = def.files.find((f) => f.path.endsWith('data-source.json'));
+    if (!dsFile) throw new Error('data-source.json not found');
+    const ds = JSON.parse(dsFile.contents) as Record<string, unknown>;
+    expect(ds['default']).toBe(true);
   });
 
   it('gives each datasource a unique, posix-relative client + zod output', () => {
@@ -81,9 +87,9 @@ describe('buildDatasourceFiles', () => {
       generatedTypesImport: '@app/generated/legacy',
       type: 'mysql',
     });
-    expect(mysql.files.find((f) => f.path.endsWith('schema.prisma'))!.contents).toContain(
-      'provider = "mysql"',
-    );
+    const schemaFile = mysql.files.find((f) => f.path.endsWith('schema.prisma'));
+    if (!schemaFile) throw new Error('schema.prisma not found');
+    expect(schemaFile.contents).toContain('provider = "mysql"');
   });
 });
 
@@ -94,7 +100,11 @@ describe('buildDatasourceFiles — custom adapter', () => {
     dataSourcesDir: 'apps/backend/src/app/data-sources',
     adapter: 'custom',
   });
-  const file = (suffix: string) => out.files.find((f) => f.path.endsWith(suffix))!;
+  const file = (suffix: string) => {
+    const f = out.files.find((f) => f.path.endsWith(suffix));
+    if (!f) throw new Error(`File not found: ${suffix}`);
+    return f;
+  };
 
   it('emits exactly two files', () => {
     expect(out.files).toHaveLength(2);
@@ -105,9 +115,9 @@ describe('buildDatasourceFiles — custom adapter', () => {
   });
 
   it('data-source.json has adapter: "custom", no urlEnv, and no Prisma fields', () => {
-    const ds = JSON.parse(file('data-source.json').contents);
-    expect(ds.adapter).toBe('custom');
-    expect(ds.name).toBe('externalapi');
+    const ds = JSON.parse(file('data-source.json').contents) as Record<string, unknown>;
+    expect(ds['adapter']).toBe('custom');
+    expect(ds['name']).toBe('externalapi');
     expect('urlEnv' in ds).toBe(false);
     expect('prismaSchema' in ds).toBe(false);
     expect('zodOutput' in ds).toBe(false);
@@ -121,8 +131,10 @@ describe('buildDatasourceFiles — custom adapter', () => {
       adapter: 'custom',
       urlEnv: 'EXT_API_KEY',
     });
-    const ds = JSON.parse(withUrl.files.find((f) => f.path.endsWith('data-source.json'))!.contents);
-    expect(ds.urlEnv).toBe('EXT_API_KEY');
+    const urlFile = withUrl.files.find((f) => f.path.endsWith('data-source.json'));
+    if (!urlFile) throw new Error('data-source.json not found');
+    const ds2 = JSON.parse(urlFile.contents) as Record<string, unknown>;
+    expect(ds2['urlEnv']).toBe('EXT_API_KEY');
   });
 
   it('index.ts extends PrismaDataSourceAdapter and has export default class', () => {

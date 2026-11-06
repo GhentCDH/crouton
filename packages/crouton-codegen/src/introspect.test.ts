@@ -102,10 +102,15 @@ const dmmf: Dmmf = {
 
 describe('dmmfToDbModels', () => {
   const models = dmmfToDbModels(dmmf);
-  const text = models.find((m) => m.prismaName === 'Text')!;
-  const author = models.find((m) => m.prismaName === 'Author')!;
-  const field = (m: typeof text, name: string) =>
-    m.fields.find((x) => x.name === name)!;
+  const text = models.find((m) => m.prismaName === 'Text');
+  if (!text) throw new Error('Text model not found');
+  const author = models.find((m) => m.prismaName === 'Author');
+  if (!author) throw new Error('Author model not found');
+  const field = (m: typeof text, name: string) => {
+    const f = m.fields.find((x) => x.name === name);
+    if (!f) throw new Error(`Field not found: ${name}`);
+    return f;
+  };
 
   it('maps model identity', () => {
     expect(text.clientAccessor).toBe('text');
@@ -145,9 +150,13 @@ describe('dmmfToDbModels', () => {
 
 describe('defaultValue normalization', () => {
   const models = dmmfToDbModels(dmmf);
-  const text = models.find((m) => m.prismaName === 'Text')!;
-  const field = (m: typeof text, name: string) =>
-    m.fields.find((x) => x.name === name)!;
+  const text = models.find((m) => m.prismaName === 'Text');
+  if (!text) throw new Error('Text model not found');
+  const field = (m: typeof text, name: string) => {
+    const f = m.fields.find((x) => x.name === name);
+    if (!f) throw new Error(`Field not found: ${name}`);
+    return f;
+  };
 
   it('keeps a literal scalar default', () => {
     expect(field(text, 'status').defaultValue).toBe('draft');
