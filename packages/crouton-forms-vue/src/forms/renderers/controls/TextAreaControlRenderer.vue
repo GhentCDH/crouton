@@ -3,8 +3,8 @@
     v-bind="wrapper"
     v-model="value"
     :dir="dir"
-    :height="(appliedOptions as any).height"
-    :min-height="(appliedOptions as any).minHeight"
+    :height="textareaHeight"
+    :min-height="textareaMinHeight"
     @blur="onBlur"
     @change="onChange"
   />
@@ -26,8 +26,17 @@ const { wrapper, value, onBlur, onChange, appliedOptions } = useControlBinding(
   props.schema,
 );
 
+type TextareaOpts = {
+  directionField?: string;
+  direction?: 'ltr' | 'rtl';
+  height?: unknown;
+  minHeight?: unknown;
+};
+
 const pathPrefix = inject<string>('pathPrefix', '');
-const opts = (props.uischema.options ?? {}) as any;
+const opts = (props.uischema.options ?? {}) as TextareaOpts;
+const textareaHeight = computed(() => opts.height);
+const textareaMinHeight = computed(() => opts.minHeight);
 
 // Read the direction value from the form's reactive values proxy directly.
 // This avoids registering a phantom field (useField side effect) and avoids
@@ -35,11 +44,14 @@ const opts = (props.uischema.options ?? {}) as any;
 const { values: formValues } = useFormContext();
 
 const dir = computed<'ltr' | 'rtl'>(() => {
-  if (!opts.directionField) return (opts.direction as 'ltr' | 'rtl') ?? 'ltr';
+  if (!opts.directionField) return opts.direction ?? 'ltr';
   const key = pathPrefix
     ? `${pathPrefix}.${opts.directionField}`
     : opts.directionField;
-  const val = key.split('.').reduce((o: any, k: string) => o?.[k], formValues);
+  const val = key.split('.').reduce<unknown>((o, k) => {
+    if (o && typeof o === 'object') return (o as Record<string, unknown>)[k];
+    return undefined;
+  }, formValues);
   return (val as 'ltr' | 'rtl') ?? 'ltr';
 });
 </script>

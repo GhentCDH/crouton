@@ -3,7 +3,7 @@
     v-bind="wrapper"
     :model-value="value"
     :options="selectOptions"
-    :clearable="(appliedOptions as any).clearable ?? true"
+    :clearable="selectClearable ?? true"
     @change="onChange"
     @blur="onBlur"
   />
@@ -23,6 +23,16 @@ import { useHttpClient } from '../../../composables/useHttpClient';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
+type SelectOpts = {
+  valueKey?: string;
+  uri?: string;
+  resource?: string;
+  storeValue?: boolean;
+  clearable?: boolean;
+  options?: unknown[];
+  values?: unknown[];
+};
+
 const {
   wrapper,
   value,
@@ -35,17 +45,13 @@ const {
 const http = useHttpClient();
 const { values: formValues } = useFormContext();
 
-const valueKey = computed(
-  () => (appliedOptions.value as any).valueKey ?? 'value',
-);
-const isRemote = computed(
-  () =>
-    !!(appliedOptions.value as any).uri ||
-    !!(appliedOptions.value as any).resource,
-);
+const selectOpts = computed(() => appliedOptions.value as SelectOpts);
+const valueKey = computed(() => selectOpts.value.valueKey ?? 'value');
+const isRemote = computed(() => !!selectOpts.value.uri || !!selectOpts.value.resource);
+const selectClearable = computed(() => selectOpts.value.clearable);
 
 // Remote options fetched from URI or resource.
-const remoteOptions = ref<any[]>([]);
+const remoteOptions = ref<unknown[]>([]);
 
 watch(
   [appliedOptions, formValues],
@@ -58,7 +64,7 @@ watch(
     );
     if (!fetcher.fetchOptions) return;
     try {
-      const results = await fetcher.fetchOptions(
+      const results: unknown = await fetcher.fetchOptions(
         '',
         new AbortController().signal,
       );
@@ -70,17 +76,15 @@ watch(
   { immediate: true, deep: true },
 );
 
-const selectOptions = computed(() => {
+const selectOptions = computed<unknown[]>(() => {
   if (isRemote.value) return remoteOptions.value;
-  const opts = appliedOptions.value as any;
-  return opts.options ?? opts.values ?? [];
+  return selectOpts.value.options ?? selectOpts.value.values ?? [];
 });
 
-const onChange = (val: any) => {
-  const opts = appliedOptions.value as any;
+const onChange = (val: unknown) => {
   const stored =
-    opts.storeValue && val && typeof val === 'object'
-      ? val[valueKey.value]
+    selectOpts.value.storeValue && val && typeof val === 'object'
+      ? (val as Record<string, unknown>)[valueKey.value]
       : val;
   field.setValue(stored);
   onFieldChange();
