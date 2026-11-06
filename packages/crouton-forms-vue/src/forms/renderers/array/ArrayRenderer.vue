@@ -53,19 +53,27 @@ import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 import Dispatch from '../../Dispatch.vue';
 import { resolveSchema, scopeToPath } from '../../scope';
 
+type UiWithScope = UISchemaElement & {
+  scope: string;
+  options?: Record<string, unknown>;
+  _detail?: UISchemaElement;
+  elements?: UISchemaElement[];
+};
+
 const props = defineProps<{
   uischema: UISchemaElement;
   schema: JsonSchema;
 }>();
 
 const parentPrefix = inject<string>('pathPrefix', '');
-const scope = (props.uischema as any).scope as string;
+const ui = props.uischema as UiWithScope;
+const scope = ui.scope;
 const scopePath = scopeToPath(scope);
 const path = parentPrefix ? `${parentPrefix}.${scopePath}` : scopePath;
 
 const rootSchema = inject<JsonSchema>('rootSchema')!;
 const arraySchema = resolveSchema(rootSchema, scope);
-const itemSchema = (arraySchema as any)?.items ?? {};
+const itemSchema = (arraySchema as JsonSchema & { items?: JsonSchema })?.items ?? {};
 
 const { fields, push, remove } = useFieldArray(path);
 
@@ -74,23 +82,23 @@ if (fields.value.length === 0) {
   push({});
 }
 
-const opts = ((props.uischema as any).options ?? {}) as Record<string, any>;
-const layout = opts.layout ?? 'column';
-const showActions = computed(() => !opts.hideActions);
+const opts = (ui.options ?? {}) as Record<string, unknown>;
+const layout = opts['layout'] ?? 'column';
+const showActions = computed(() => !opts['hideActions']);
 
 const detail = computed<UISchemaElement | undefined>(
-  () => (props.uischema as any)._detail ?? opts.detail,
+  () => ui._detail ?? (opts['detail'] as UISchemaElement | undefined),
 );
 
 const childElements = computed<UISchemaElement[]>(() => {
   if (!detail.value) {
-    return (props.uischema as any).elements ?? [];
+    return ui.elements ?? [];
   }
   // If detail is a layout type, dispatch it as-is (e.g. CollapseLayout)
   const type = detail.value.type;
   if (type && type !== 'Control') {
     return [detail.value];
   }
-  return (detail.value as any).elements ?? [detail.value];
+  return (detail.value as UiWithScope).elements ?? [detail.value];
 });
 </script>

@@ -2,11 +2,11 @@ import type { HttpClient } from '../http-client';
 
 type RequestOptions = {
   skipAuth?: boolean;
-  queryParams?: Record<string, any>;
+  queryParams?: Record<string, unknown>;
   contentType?: string;
 };
 
-export type HttpRequest<T> = HttpClient;
+export type HttpRequest = HttpClient;
 
 export type NotificationStore = {
   info: (message: string) => void;
@@ -25,7 +25,7 @@ type RepositoryOptions = {
 
 export const createRepository = <T extends { id?: string }>(
   formSchemaModel: { uri: string },
-  httpRequest: HttpRequest<T>,
+  httpRequest: HttpRequest,
   options: RepositoryOptions = {},
 ) => {
   const notificationEntity = options.notification?.entityType || 'entity';
@@ -39,11 +39,11 @@ export const createRepository = <T extends { id?: string }>(
     notificationStore?.success(message);
   };
 
-  const handleError = (error: any, message: string) => {
+  const handleError = (error: unknown, message: string) => {
     console.error(error);
     notificationStore?.error(message);
 
-    throw new Error(error);
+    throw new Error(String(error));
   };
 
   const create = (object: T, options?: RequestOptions) => {

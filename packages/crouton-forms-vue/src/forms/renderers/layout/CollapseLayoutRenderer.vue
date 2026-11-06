@@ -30,17 +30,20 @@ const props = defineProps<{
   schema: JsonSchema;
 }>();
 
+type CollapseUi = UISchemaElement & { options?: { titleKey?: string; title?: string }; label?: string };
+
 const pathPrefix = inject<string>('pathPrefix', '');
-const opts = (props.uischema as any).options ?? {};
+const ui = props.uischema as CollapseUi;
+const opts = ui.options ?? {};
 
 const titleKeyField = opts.titleKey
   ? useFieldValue<string>(() =>
-      pathPrefix ? `${pathPrefix}.${opts.titleKey}` : opts.titleKey,
+      pathPrefix ? `${pathPrefix}.${opts.titleKey}` : (opts.titleKey ?? ''),
     )
   : undefined;
 
 const title = computed(() => {
   if (titleKeyField?.value) return titleKeyField.value;
-  return (props.uischema as any).label ?? opts.title ?? 'Details';
+  return ui.label ?? opts.title ?? 'Details';
 });
 </script>
