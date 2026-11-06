@@ -28,7 +28,10 @@ export const registerUpdateCommand = (program: Command) => {
     .option('--skip-pull', 'do not run `prisma db pull` (use the current schema)')
     .option('--skip-generate', 'do not run `prisma generate` after pulling')
     .option('--draft', 'write newly-created resources with `draft: true` (hidden until reviewed); asked interactively if omitted')
-    .action(async (opts) => {
+    .action(async (opts: {
+      datasource?: string; models?: string; cwd?: string; prefix?: string;
+      dryRun?: boolean; yes?: boolean; skipPull?: boolean; skipGenerate?: boolean; draft?: boolean;
+    }) => {
       try {
         const cwd = opts.prefix
           ? resolve(opts.cwd ?? process.cwd(), opts.prefix)
