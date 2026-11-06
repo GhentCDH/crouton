@@ -98,7 +98,7 @@ const batchLoadRelation = async (
     for (const child of children) {
       const pid = String(child[sub.foreignKey]);
       if (!byParent.has(pid)) byParent.set(pid, []);
-      byParent.get(pid)!.push(child);
+      byParent.get(pid)?.push(child);
     }
     return rows.map((r) => ({
       ...r,

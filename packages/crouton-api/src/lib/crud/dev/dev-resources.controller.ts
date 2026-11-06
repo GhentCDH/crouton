@@ -347,8 +347,8 @@ export class DevResourcesController {
     const models = body.models?.length
       ? allModels.filter(
           (m) =>
-            body.models!.includes(m.prismaName) ||
-            body.models!.includes(m.clientAccessor),
+            body.models?.includes(m.prismaName) ||
+            body.models?.includes(m.clientAccessor),
         )
       : allModels;
 
@@ -408,7 +408,7 @@ export class DevResourcesController {
     // `resources` filters by resource/directory name (== clientAccessor for
     // new resources) — matches what /plan returns as `resource`.
     const models = body.resources?.length
-      ? allModels.filter((m) => body.resources!.includes(m.clientAccessor))
+      ? allModels.filter((m) => body.resources?.includes(m.clientAccessor))
       : allModels;
 
     const resolveRelationResource = await makeRelationResolver(loaded);
@@ -577,9 +577,9 @@ export class DevResourcesController {
       throw new ForbiddenException('TypeScript resources cannot be edited.');
 
     const sidebarPatch: ResourceFlagPatch['sidebar'] = { hide: false };
-    if (body.group !== undefined) sidebarPatch!.group = body.group;
-    if (body.position !== undefined) sidebarPatch!.position = body.position;
-    if (body.label !== undefined) sidebarPatch!.label = body.label;
+    if (body.group !== undefined) sidebarPatch.group = body.group;
+    if (body.position !== undefined) sidebarPatch.position = body.position;
+    if (body.label !== undefined) sidebarPatch.label = body.label;
 
     const patched = applyResourceFlagPatch(raw, {
       draft: false,

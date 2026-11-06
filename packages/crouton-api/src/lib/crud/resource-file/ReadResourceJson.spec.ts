@@ -37,11 +37,11 @@ describe('readResourceJson', () => {
 
     const result = readResourceJson(jsonPath);
 
-    expect(result).toBeDefined();
-    expect(result!.success).toBe(true);
-    if (result!.success) {
-      expect(result!.data.json.name).toBe('test');
-      expect(result!.data.json.route).toBe('test');
+    if (!result) throw new Error('result is undefined');
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.json.name).toBe('test');
+      expect(result.data.json.route).toBe('test');
     }
   });
 
@@ -51,10 +51,10 @@ describe('readResourceJson', () => {
 
     const result = readResourceJson(jsonPath);
 
-    expect(result).toBeDefined();
-    expect(result!.success).toBe(false);
-    if (!result!.success) {
-      expect(result!.error).toContain('Invalid JSON');
+    if (!result) throw new Error('result is undefined');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain('Invalid JSON');
     }
   });
 
@@ -64,10 +64,10 @@ describe('readResourceJson', () => {
 
     const result = readResourceJson(jsonPath);
 
-    expect(result).toBeDefined();
-    expect(result!.success).toBe(false);
-    if (!result!.success) {
-      expect(result!.error).toContain('Resource cannot be parsed');
+    if (!result) throw new Error('result is undefined');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain('Resource cannot be parsed');
     }
   });
 });

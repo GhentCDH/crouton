@@ -82,11 +82,11 @@ export class ReadRepository<T = unknown> {
       const idField = this.config.idField;
       const forbidden = filter
         .map(parseFilterString)
-        .filter(Boolean)
-        .filter((p) => p!.field !== idField && !allowlist.includes(p!.field));
+        .filter((p): p is NonNullable<ReturnType<typeof parseFilterString>> => p != null)
+        .filter((p) => p.field !== idField && !allowlist.includes(p.field));
       if (forbidden.length) {
         throw new BadRequestException(
-          `Filter field not allowed: ${forbidden.map((p) => p!.field).join(', ')}`,
+          `Filter field not allowed: ${forbidden.map((p) => p.field).join(', ')}`,
         );
       }
     }
@@ -194,7 +194,7 @@ export class ReadRepository<T = unknown> {
    * Resource-level `afterRead` and valueLabel decoration are NOT applied here — the
    * factory wrapper handles them so both Prisma and custom adapters use the same path.
    */
-  async findAll(params: ListRequest, request?: unknown): Promise<T[]> {
+  async findAll(params: ListRequest, _request?: unknown): Promise<T[]> {
     const subResources = this.config.subResources ?? [];
     const projection = this.projection('findAll');
 
@@ -508,10 +508,11 @@ export class ReadRepository<T = unknown> {
       );
       const typedResult = result as { data?: unknown[]; count?: number } | undefined;
       const rows: unknown[] = typedResult?.data ?? [];
-      const decorated = sub.hooks?.afterRead
+      const afterRead = sub.hooks?.afterRead;
+      const decorated = afterRead
         ? await Promise.all(
             rows.map((row) =>
-              sub.hooks!.afterRead!(row, {
+              afterRead(row, {
                 dataSource: this.adapter,
                 prisma: this.prisma,
                 op: 'findAll',
@@ -565,10 +566,11 @@ export class ReadRepository<T = unknown> {
         )
       : data;
 
-    const decorated = sub.hooks?.afterRead
+    const afterRead = sub.hooks?.afterRead;
+    const decorated = afterRead
       ? await Promise.all(
           (withCalc as unknown[]).map((row) =>
-            sub.hooks!.afterRead!(row, {
+            afterRead(row, {
               dataSource: this.adapter,
               prisma: this.prisma,
               op: 'findAll',

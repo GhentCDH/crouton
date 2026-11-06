@@ -58,7 +58,7 @@ describe('schemaEnricher', () => {
 
   beforeAll(async () => {
     ctx = await bootCase('minimal-prisma', {
-      schemaEnricher: (payload: Record<string, unknown>) => ({ extra: 'injected' }),
+      schemaEnricher: (_payload: Record<string, unknown>) => ({ extra: 'injected' }),
     });
   }, 30_000);
 
