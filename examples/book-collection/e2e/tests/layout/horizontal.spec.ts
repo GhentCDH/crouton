@@ -28,10 +28,8 @@ test.describe('Layout — horizontal container', () => {
 
     if (bioBox && notesBox) {
       // Horizontal layout: both fields in same row (overlapping vertical range)
-      const bioMid = bioBox.y + bioBox.height / 2;
-      const notesMid = notesBox.y + notesBox.height / 2;
-      // They should be vertically close (within 100px of each other)
-      expect(Math.abs(bioMid - notesMid)).toBeLessThan(100);
+      // They should start at a similar vertical position (tops within 50px)
+      expect(Math.abs(bioBox.y - notesBox.y)).toBeLessThan(50);
       // And horizontally separated
       expect(Math.abs(bioBox.x - notesBox.x)).toBeGreaterThan(50);
     }

@@ -115,7 +115,10 @@ test.describe('books visual regression', () => {
 
     const modal = page.getByTestId('form-modal');
     // Expand the categories collapse section
-    const categoriesToggle = modal.locator('input[type="checkbox"][aria-label="Toggle Categories"]');
+    const categoriesToggle = modal
+      .locator('input[type="checkbox"][aria-label="Toggle Categories"]')
+      .or(modal.locator('.collapse').filter({ hasText: 'Categories' }).locator('input[type="checkbox"]'))
+      .first();
     await categoriesToggle.check();
     await page.waitForTimeout(300);
 
