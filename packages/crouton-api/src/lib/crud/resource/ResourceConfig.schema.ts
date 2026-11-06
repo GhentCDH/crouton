@@ -6,7 +6,7 @@ import { SubResourceConfigSchema } from './SubResource.schema';
 import { CustomRepositorySchema } from '../custom-repository';
 import { ResourceHooksSchema } from '../hooks';
 
-const ResourceSchema = CompiledResourceSchema.extend({
+export const ResourceSchema = CompiledResourceSchema.extend({
   /**
    * Loader-only flag for the `resource.ts` escape hatch: the loader reads it
    * before validating/registering the resource. The JSON path reads raw

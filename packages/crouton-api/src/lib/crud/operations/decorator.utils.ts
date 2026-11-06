@@ -10,5 +10,8 @@ export const def = (cls: ControllerClass, method: string, fn: unknown): void => 
 };
 
 /** Get the property descriptor for a method just defined via `def()`. */
-export const desc = (cls: ControllerClass, method: string): PropertyDescriptor =>
-  Object.getOwnPropertyDescriptor(cls.prototype, method)!;
+export const desc = (cls: ControllerClass, method: string): PropertyDescriptor => {
+  const d = Object.getOwnPropertyDescriptor(cls.prototype, method);
+  if (!d) throw new Error(`No descriptor for method "${method}" on ${String(cls)}`);
+  return d;
+};
