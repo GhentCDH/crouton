@@ -75,11 +75,11 @@
       <span
         v-if="resource.lastAction"
         data-testid="crud-status"
-        class="text-sm"
+        class="text-sm font-medium"
         :class="{
-          'text-success': resource.lastAction.type === 'success',
-          'text-error':   resource.lastAction.type === 'error',
-          'text-warning': resource.lastAction.type === 'pending',
+          'text-success':    resource.lastAction.type === 'success',
+          'text-error':      resource.lastAction.type === 'error',
+          'text-amber-600':  resource.lastAction.type === 'pending',
         }"
       >
         <span v-if="resource.lastAction.type === 'pending'">⏳</span>
