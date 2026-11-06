@@ -114,7 +114,7 @@ export const localizeDefinition = (def: ResourceDefinition): ResourceDefinition 
       }))
     : tableSchema['tableActions'];
 
-  const localizedTable = localizeSchema(tableSchema, t, name)!;
+  const localizedTable = localizeSchema(tableSchema, t, name) ?? tableSchema;
 
   return {
     ...def,

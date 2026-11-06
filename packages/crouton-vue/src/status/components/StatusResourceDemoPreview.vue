@@ -24,7 +24,7 @@
       <template v-if="activeTab === 'form'">
         <CroutonForm
           v-if="views"
-          :views="views as any"
+          :views="views as Record<string, unknown>"
           :data="formData"
           v-model="formData"
           :http="api"
@@ -36,7 +36,7 @@
       <template v-if="activeTab === 'view'">
         <CroutonForm
           v-if="views"
-          :views="views as any"
+          :views="views as Record<string, unknown>"
           :data="formData"
           :http="api"
           :readonly="true"
@@ -110,14 +110,14 @@ const props = defineProps(StatusResourceDemoPreviewProperties);
 
 const api = useApi();
 const activeTab = ref<Tab>('form');
-const formData = ref<Record<string, any>>({});
+const formData = ref<Record<string, unknown>>({});
 const layoutJson = ref('');
 const parseErrors = ref<string[]>([]);
 const warnings = ref<string[]>([]);
 
 const views = computed(() => props.def.schemas);
 const formUiSchema = computed(() => props.def.schemas.form?.ui ?? null);
-const sampleRows = ref<any[]>([]);
+const sampleRows = ref<Record<string, unknown>[]>([]);
 
 watch(
   () => props.def,

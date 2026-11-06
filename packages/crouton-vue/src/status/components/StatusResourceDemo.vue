@@ -103,17 +103,18 @@ watchEffect(async () => {
   }
 });
 
-const getTableNode = (ui: any): any => {
+type UiNode = Record<string, unknown>;
+const getTableNode = (ui: UiNode | undefined): UiNode | null => {
   if (!ui) return null;
   if (ui.type === 'Table') return ui;
-  return (ui.elements as any[] | undefined)?.find((e: any) => e.type === 'Table') ?? null;
+  return ((ui.elements as UiNode[] | undefined) ?? []).find((e) => e.type === 'Table') ?? null;
 };
 
 const tableUiActions = computed(
-  () => getTableNode(def.value?.schemas.table.ui)?.options?.tableActions ?? [],
+  () => (getTableNode(def.value?.schemas.table.ui)?.options as Record<string, unknown> | undefined)?.tableActions as unknown[] ?? [],
 );
 const tableUiRowActions = computed(
-  () => getTableNode(def.value?.schemas.table.ui)?.options?.rowActions ?? [],
+  () => (getTableNode(def.value?.schemas.table.ui)?.options as Record<string, unknown> | undefined)?.rowActions as unknown[] ?? [],
 );
 
 const rawJson = computed(() => JSON.stringify(props.resource, null, 2));
