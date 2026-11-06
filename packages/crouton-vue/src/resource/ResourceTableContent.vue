@@ -72,8 +72,20 @@
   </TableToolbar>
   <div class="h-6 flex items-center">
     <Transition name="crud-status">
-      <span v-if="resource.lastAction" data-testid="crud-status" class="text-success text-sm">
-        ✓ {{ resource.lastAction }}
+      <span
+        v-if="resource.lastAction"
+        data-testid="crud-status"
+        class="text-sm font-medium"
+        :class="{
+          'text-green-700':  resource.lastAction.type === 'success',
+          'text-error':      resource.lastAction.type === 'error',
+          'text-amber-600':  resource.lastAction.type === 'pending',
+        }"
+      >
+        <span v-if="resource.lastAction.type === 'pending'">⏳</span>
+        <span v-else-if="resource.lastAction.type === 'success'">✓</span>
+        <span v-else>✗</span>
+        {{ resource.lastAction.text }}
       </span>
     </Transition>
   </div>

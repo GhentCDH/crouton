@@ -216,6 +216,13 @@ For any other language, the English strings are used as fallback.
 | `filter.isnotnull` | is not empty | is niet leeg | n'est pas vide | ist nicht leer |
 | `filter.enterValue` | Enter a value | Voer een waarde in | Saisir une valeur | Wert eingeben |
 | `filter.removeFilter` | Remove filter | Filter verwijderen | Supprimer le filtre | Filter entfernen |
+| `notifications.created` | created | created | created | created |
+| `notifications.updated` | updated | updated | updated | updated |
+| `notifications.deleted` | Record deleted | Record deleted | Record deleted | Record deleted |
+| `notifications.actionPending` | Processing… | Processing… | Processing… | Processing… |
+| `notifications.actionSuccess` | Done | Done | Done | Done |
+| `notifications.actionFailed` | Action failed | Action failed | Action failed | Action failed |
+| `notifications.actionError` | Something went wrong… | Something went wrong… | Something went wrong… | Something went wrong… |
 
 #### Overriding a bundled string
 

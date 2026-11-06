@@ -30,6 +30,9 @@ export const ProcedureActionSchema = z.object({
   icon: z.string().optional(),
   tooltip: z.string().optional(),
   condition: ActionConditionSchema.optional(),
+  pendingMessage: z.string().optional(),
+  successMessage: z.string().optional(),
+  errorMessage: z.string().optional(),
 });
 
 export const ActionSchema = z.union([LinkActionSchema, ProcedureActionSchema]);

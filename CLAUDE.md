@@ -162,3 +162,9 @@ Middlewares run after data is fetched (value-label decoration, translations, hoo
   import { MyComponentProperties } from './MyComponent.properties';
   const props = defineProps(MyComponentProperties);
   ```
+
+## User-visible strings
+
+Any user-visible string added to crouton-vue MUST go through `useLanguage().t('key', 'English fallback')`.
+Add the key to `packages/crouton-vue/src/i18n/ui-defaults.ts` under the appropriate namespace.
+Never hardcode English strings directly into templates or composable logic.
