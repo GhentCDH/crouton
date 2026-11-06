@@ -1,6 +1,6 @@
 export type ControlEmits = {
-  'update:modelValue': [value: any];
-  change: [value: any];
+  'update:modelValue': [value: unknown];
+  change: [value: unknown];
   clear: [];
   focus: [event: FocusEvent];
   blur: [event: Event];

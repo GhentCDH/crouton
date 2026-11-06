@@ -23,14 +23,18 @@ export const MarkdownComponentProperties = {
       {
         label: '<strong>B</strong>',
         name: 'bold',
-        action: (editor: Editor | undefined) =>
-          (editor?.chain().focus() as any)?.toggleBold().run(),
+        action: (editor: Editor | undefined) => {
+          const chain = editor?.chain().focus() as { toggleBold(): { run(): boolean } } | undefined;
+          chain?.toggleBold().run();
+        },
       },
       {
         label: '<em>I</em>',
         name: 'italic',
-        action: (editor: Editor | undefined) =>
-          (editor?.chain().focus() as any)?.toggleItalic().run(),
+        action: (editor: Editor | undefined) => {
+          const chain = editor?.chain().focus() as { toggleItalic(): { run(): boolean } } | undefined;
+          chain?.toggleItalic().run();
+        },
       },
     ],
   },
