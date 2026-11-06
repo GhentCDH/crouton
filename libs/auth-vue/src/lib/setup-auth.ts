@@ -1,5 +1,6 @@
 import type { AuthEndpointResponse } from '@crouton/auth';
 import type { AxiosInstance } from 'axios';
+import { WebStorageStateStore } from 'oidc-client-ts';
 
 import { handleCallback, loadOidcUser, setupOidcManager, tryRenewOidcUser, useAuth } from './use-auth';
 
@@ -83,6 +84,8 @@ export const setupAuth = async (
     scope: scopes.join(' '),
     automaticSilentRenew: true,
     revokeTokensOnSignout: true,
+    userStore: new WebStorageStateStore({ store: window.localStorage }),
+    accessTokenExpiringNotificationTimeInSeconds: 60,
   }, defaultProvider.rolesClaim);
 
   const storedUser = await loadOidcUser();
