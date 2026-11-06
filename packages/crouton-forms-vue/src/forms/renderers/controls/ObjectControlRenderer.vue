@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
+import type { ControlElement, JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
@@ -60,7 +60,7 @@ const props = defineProps<{
 }>();
 
 const parentPrefix = inject<string>('pathPrefix', '');
-const scope = (props.uischema as any).scope as string;
+const scope = (props.uischema as ControlElement).scope ?? '';
 const scopePath = scopeToPath(scope);
 const path = parentPrefix ? `${parentPrefix}.${scopePath}` : scopePath;
 
@@ -72,8 +72,9 @@ const objectSchema = computed<JsonSchema>(
       props.schema) as JsonSchema,
 );
 
+type ObjOpts = { hideLabel?: boolean; label?: string; displayKey?: string; colspan?: number };
 const opts = computed(
-  () => ((props.uischema as any).options ?? {}) as Record<string, any>,
+  () => ((props.uischema as ControlElement).options ?? {}) as ObjOpts,
 );
 const hideLabel = computed(() => opts.value.hideLabel === true);
 const label = computed(() => opts.value.label ?? scopePath);
@@ -84,7 +85,10 @@ const { values: formValues } = useFormContext();
 const atPath = (source: unknown, dotted: string): unknown =>
   dotted
     .split('.')
-    .reduce<any>((acc, key) => (acc == null ? acc : acc[key]), source);
+    .reduce<unknown>((acc, key) => {
+      if (acc && typeof acc === 'object') return (acc as Record<string, unknown>)[key];
+      return undefined;
+    }, source);
 
 /**
  * The `displayKey`'s value, or `null` when there is no displayKey — which is
@@ -102,14 +106,10 @@ const displayValue = computed<string | null>(() => {
  * `elements` — in which case the author's ordering and widget choices win.
  */
 const childElements = computed<UISchemaElement[]>(() => {
-  const explicit = (props.uischema as any).elements as
-    | UISchemaElement[]
-    | undefined;
+  const explicit = (props.uischema as { elements?: UISchemaElement[] }).elements;
   if (explicit?.length) return explicit;
 
-  const properties = (objectSchema.value as any)?.properties as
-    | Record<string, JsonSchema>
-    | undefined;
+  const properties = (objectSchema.value as { properties?: Record<string, JsonSchema> })?.properties;
   if (!properties) return [];
 
   return Object.keys(properties).map(
@@ -117,13 +117,13 @@ const childElements = computed<UISchemaElement[]>(() => {
       ({
         type: 'Control',
         scope: `#/properties/${key}`,
-        options: { label: (properties[key] as any)?.title ?? key },
+        options: { label: (properties[key] as { title?: string })?.title ?? key },
       }) as UISchemaElement,
   );
 });
 
 const colspanClass = (child: UISchemaElement): string => {
-  const colspan = ((child as any).options ?? {}).colspan;
+  const colspan = ((child as ControlElement).options as ObjOpts | undefined)?.colspan;
   return typeof colspan === 'number' ? `col-span-${colspan}` : 'col-span-12';
 };
 </script>

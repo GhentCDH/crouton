@@ -67,8 +67,8 @@ const { displayValue } = useAutocompleteDisplayValue(
   () => fetchOptions.value?.valueKey as string | undefined,
 );
 
-const onChange = (val: any) => {
-  setValue(val);
+const onChange = (val: unknown) => {
+  setValue(val as Record<string, unknown>);
   onFieldChange();
 };
 
@@ -84,7 +84,7 @@ const setValue = (result: Record<string, unknown>) => {
   }
 
   const { valueKey, labelKey } = fetchOptions.value;
-  const opts = appliedOptions.value as any;
+  const opts = appliedOptions.value as { storeValue?: boolean };
 
   // storeValue: true → store only the primitive value (e.g. an id string)
   if (opts.storeValue && valueKey && valueKey in result) {
@@ -111,16 +111,17 @@ const setValue = (result: Record<string, unknown>) => {
 
 const onCreate = () => {
   if (fetchOptions.value?.enableCreate === false) return;
-  const form = fetchOptions.value!.form as any;
+  type FormRef = { data: unknown; ui: unknown; create: (d: unknown) => Promise<Record<string, unknown>> };
+  const form = fetchOptions.value?.form as FormRef | undefined;
   if (form && modalOpener) {
     modalOpener({
       schema: form.data,
       uiSchema: form.ui,
-      modalTitle: `Create new ${wrapper.value.label}`,
+      modalTitle: `Create new ${(wrapper.value as { label?: string }).label}`,
       http,
       onClose: (result) => {
         if (!result || !result.valid) return;
-        form.create(result.data).then((res: any) => {
+        void form.create(result.data).then((res) => {
           setValue(res);
         });
       },
