@@ -79,14 +79,15 @@ describe('apply — new resource', () => {
       'apps/backend/src/app/resources/language/schema.ts',
     );
 
-    const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
+    const schema = plan.files.find((f) => f.path.endsWith('schema.ts'));
+    if (!schema) throw new Error('schema.ts not found');
     // Language has no relations → plain LanguageSchema (no WithRelations export).
     expect(schema.contents).toBe(
       'import { LanguageSchema } from \'@np/generated/types\';\n\nexport default LanguageSchema;\n',
     );
-    const res = JSON.parse(
-      plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
-    );
+    const resFile = plan.files.find((f) => f.path.endsWith('resource.json'));
+    if (!resFile) throw new Error('resource.json not found');
+    const res = JSON.parse(resFile.contents) as { sidebar?: unknown; source?: { model?: string } };
     expect(res.sidebar).toEqual({ hide: false }); // recommended = yes
     expect(res.source?.model).toBe('language');
   });
@@ -124,7 +125,8 @@ describe('apply — new resource', () => {
       hasSchemaFile: false,
     });
     const plan = apply(await resolve(d, recommendedResolver), ctx);
-    const schema = plan.files.find((f) => f.path.endsWith('schema.ts'))!;
+    const schema = plan.files.find((f) => f.path.endsWith('schema.ts'));
+    if (!schema) throw new Error('schema.ts not found');
     expect(schema.contents).toContain('WorkWithRelationsSchema');
   });
 });
@@ -132,10 +134,9 @@ describe('apply — new resource', () => {
 describe('apply — idempotency', () => {
   it('re-running against its own output yields no decisions and writes no files', async () => {
     const first = await run();
-    const resourceJson = first.files.find((f) =>
-      f.path.endsWith('resource.json'),
-    )!.contents;
-    const existing = JSON.parse(resourceJson) as ResourceJsonInput;
+    const resourceJsonFile = first.files.find((f) => f.path.endsWith('resource.json'));
+    if (!resourceJsonFile) throw new Error('resource.json not found');
+    const existing = JSON.parse(resourceJsonFile.contents) as ResourceJsonInput;
 
     const draft = classify(model, { database: 'docsdb' });
     const d2 = diff({ draft, existing, hasSchemaFile: true });
@@ -188,13 +189,17 @@ describe('apply — update merges and preserves hand edits', () => {
     const draft = classify(model, { database: 'docsdb' });
     const d = diff({ draft, existing, hasSchemaFile: true });
     const plan = apply(await resolve(d, recommendedResolver), ctx);
-    const res = JSON.parse(
-      plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
-    );
+    const resFile1 = plan.files.find((f) => f.path.endsWith('resource.json'));
+    if (!resFile1) throw new Error('resource.json not found');
+    const res = JSON.parse(resFile1.contents) as {
+      sidebar?: unknown;
+      columns?: Record<string, { fieldInput?: { type?: string } } | undefined>;
+      layout?: { table?: { actions?: unknown[] } };
+    };
 
-    expect(res.columns.created_at).toBeDefined(); // added from DB
-    expect(res.columns.name.fieldInput.type).toBe('markdown'); // kept (recommended=keep)
-    expect(res.columns.legacy).toBeDefined(); // kept (recommended=keep)
+    expect(res.columns?.['created_at']).toBeDefined(); // added from DB
+    expect(res.columns?.['name']?.fieldInput?.type).toBe('markdown'); // kept (recommended=keep)
+    expect(res.columns?.['legacy']).toBeDefined(); // kept (recommended=keep)
     expect(res.sidebar).toEqual({ hide: true }); // preserved
     expect(res.layout?.table?.actions).toHaveLength(1); // preserved (moved to layout.table)
     expect(plan.files[0].action).toBe('update');
@@ -211,11 +216,13 @@ describe('apply — update merges and preserves hand edits', () => {
       }),
     });
     const plan = apply(resolved, ctx);
-    const res = JSON.parse(
-      plan.files.find((f) => f.path.endsWith('resource.json'))!.contents,
-    );
-    expect(res.columns.name.fieldInput.type).toBe('string'); // overwritten with generated default
-    expect(res.columns.legacy).toBeUndefined(); // removed
-    expect(res.columns.created_at).toBeDefined();
+    const resFile2 = plan.files.find((f) => f.path.endsWith('resource.json'));
+    if (!resFile2) throw new Error('resource.json not found');
+    const res2 = JSON.parse(resFile2.contents) as {
+      columns?: Record<string, { fieldInput?: { type?: string } } | undefined>;
+    };
+    expect(res2.columns?.['name']?.fieldInput?.type).toBe('string'); // overwritten with generated default
+    expect(res2.columns?.['legacy']).toBeUndefined(); // removed
+    expect(res2.columns?.['created_at']).toBeDefined();
   });
 });
