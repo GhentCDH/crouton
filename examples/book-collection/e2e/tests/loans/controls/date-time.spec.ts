@@ -68,16 +68,23 @@ test.describe('DateTime control — requestedPickupAt field', () => {
     const modal = page.getByTestId('form-modal');
     const input = modal.locator('#requestedPickupAt');
 
-    // Set then clear
+    // Set value first
     await input.fill('2026-11-01T09:00');
     await page.keyboard.press('Tab');
     await form.waitForAutoSave();
 
+    // Re-open to clear (waitForAutoSave closes the modal)
+    await list.waitForRows();
+    await list.clickEdit(0);
+    await form.waitForModal();
+
+    // Clear and verify before closing
     await input.fill('');
     await page.keyboard.press('Tab');
-    await form.waitForAutoSave();
-
+    await page.getByText('Saved ✓').waitFor({ state: 'visible' });
     const val = await input.inputValue();
     expect(val).toBe('');
+    await page.getByTestId('form-modal').getByRole('button').filter({ hasText: /Close/ }).click();
+    await page.getByTestId('form-modal').waitFor({ state: 'hidden' });
   });
 });

@@ -42,8 +42,6 @@ test.describe('MultiSelect control — provenance field', () => {
     await expect(page.getByRole('option', { name: /inherited/i })).toBeVisible();
     await expect(page.getByRole('option', { name: /borrowed/i })).toBeVisible();
 
-    // Close by pressing Escape on dropdown (not modal)
-    await page.keyboard.press('Escape');
     await form.cancel();
   });
 
@@ -65,12 +63,19 @@ test.describe('MultiSelect control — provenance field', () => {
     await page.getByRole('option', { name: /gift/i }).click();
     await combo.click();
     await page.getByRole('option', { name: /purchased/i }).click();
+    await page.keyboard.press('Tab');
+
+    // Check display before auto-save closes the modal
+    const displayText = await combo.textContent();
+    expect(displayText).toMatch(/gift|purchased/i);
 
     await form.waitForAutoSave();
 
-    // Combobox display should show selected values
-    const displayText = await combo.textContent();
-    expect(displayText).toMatch(/gift|purchased/i);
+    // Reopen to reset (waitForAutoSave closes the modal)
+    await list.search('De Vliegende Aap');
+    await list.waitForRows();
+    await list.clickEdit(0);
+    await form.waitForModal();
 
     // Reset by clearing — open and deselect
     await combo.click();
@@ -79,7 +84,7 @@ test.describe('MultiSelect control — provenance field', () => {
     await combo.click();
     const selectedPurchased = page.getByRole('option', { name: /purchased/i });
     if (await selectedPurchased.isVisible()) await selectedPurchased.click();
-    await page.keyboard.press('Escape');
+    await page.keyboard.press('Tab');
     await form.waitForAutoSave();
   });
 });

@@ -69,6 +69,12 @@ test.describe('Toggle button-group control — isSigned field', () => {
     await modal.getByRole('button', { name: 'Yes' }).click();
     await form.waitForAutoSave();
 
+    // Re-open to verify (waitForAutoSave closes the modal)
+    await list.search('De Nerveuze Neushoorn');
+    await list.waitForRows();
+    await list.clickEdit(0);
+    await form.waitForModal();
+
     // Both buttons still visible (not cleared since clearable: false)
     await expect(modal.getByRole('button', { name: 'Yes' })).toBeVisible();
     await expect(modal.getByRole('button', { name: 'No' })).toBeVisible();
