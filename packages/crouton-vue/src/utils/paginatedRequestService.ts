@@ -3,6 +3,17 @@ import { ref } from 'vue';
 import { type Request, RequestSchema } from './request';
 import type { RequestData } from '../resource/resource.types';
 
+export type PaginatedApiResponse = {
+  request?: {
+    count?: number;
+    pageSize?: number;
+    page?: number;
+    totalPages?: number;
+    sort?: string;
+    sortDir?: string;
+  };
+};
+
 /**
  * Shared request/pagination state for list endpoints.
  *
@@ -12,7 +23,7 @@ import type { RequestData } from '../resource/resource.types';
  * `loadDataRequest` and optionally `afterLoadData`.
  */
 export abstract class PaginatedRequestService {
-  protected requestData = ref<RequestData>();
+  protected requestData = ref<RequestData>({} as RequestData);
   public loading = ref(true);
   private abortController: AbortController | null = null;
 
@@ -32,13 +43,13 @@ export abstract class PaginatedRequestService {
     return this.loadData();
   }
 
-  protected abstract loadDataRequest(signal: AbortSignal): Promise<any>;
+  protected abstract loadDataRequest(signal: AbortSignal): Promise<PaginatedApiResponse>;
 
-  protected afterLoadData(_data: any): void {
+  protected afterLoadData(_data: PaginatedApiResponse): void {
     // Optional hook for subclasses that keep the loaded rows themselves.
   }
 
-  protected async loadData() {
+  protected async loadData(): Promise<PaginatedApiResponse | null> {
     this.abortController?.abort();
     this.abortController = new AbortController();
     const { signal } = this.abortController;
@@ -63,8 +74,8 @@ export abstract class PaginatedRequestService {
       };
 
       this.sort.value = {
-        sortColumn: request.sort,
-        sortDirection: request.sortDir,
+        sortColumn: request.sort ?? '',
+        sortDirection: request.sortDir ?? '',
       };
       this.afterLoadData(data);
       return data;
@@ -80,15 +91,14 @@ export abstract class PaginatedRequestService {
     const merged = { ...this.requestData.value, ...data };
     this.requestData.value = Object.fromEntries(
       Object.entries(merged).filter(([, v]) => v !== undefined),
-    );
+    ) as RequestData;
     this.onRequest(this.requestData.value);
     this.reload();
   };
 
   onSort = (id: string) => {
     const sortDir =
-      this.requestData.value.sort === id &&
-      this.requestData.value.sortDir === 'asc'
+      this.requestData.value.sort === id && this.requestData.value.sortDir === 'asc'
         ? 'desc'
         : 'asc';
     this.updateRequest({ sort: id, sortDir });
