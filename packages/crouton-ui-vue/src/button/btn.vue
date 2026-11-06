@@ -14,13 +14,14 @@
     ]"
     :href="props.href"
     :type="props.type"
-    :disabled="props.disabled"
+    :disabled="props.disabled || props.loading"
     :data-tip="props.tooltip"
     @click="emit('click', $event)"
   >
     <Icon
       v-if="props.icon"
       :icon="props.icon"
+      :class="{ 'animate-spin': props.loading }"
     />
     <span
       v-if="$slots.default"

@@ -32,6 +32,7 @@
           class="border-gray-300 text-base-content/50 h-8"
           :icon="action.icon"
           :tooltip="action.tooltip"
+          :loading="action.loading?.()"
           @click="action.action"
         >
           <span v-if="action.label">{{ action.label }}</span>

@@ -2165,6 +2165,18 @@
                               "type": "string"
                             },
                             "additionalProperties": {}
+                          },
+                          "pendingMessage": {
+                            "description": "Message shown in the toolbar while the action is processing.",
+                            "type": "string"
+                          },
+                          "successMessage": {
+                            "description": "Message shown in the toolbar on success. Falls back to the server response message.",
+                            "type": "string"
+                          },
+                          "errorMessage": {
+                            "description": "Message shown in the toolbar on failure. Falls back to the server response message.",
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -2325,6 +2337,18 @@
                               "type": "string"
                             },
                             "additionalProperties": {}
+                          },
+                          "pendingMessage": {
+                            "description": "Message shown in the toolbar while the action is processing.",
+                            "type": "string"
+                          },
+                          "successMessage": {
+                            "description": "Message shown in the toolbar on success. Falls back to the server response message.",
+                            "type": "string"
+                          },
+                          "errorMessage": {
+                            "description": "Message shown in the toolbar on failure. Falls back to the server response message.",
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -3104,6 +3128,18 @@
                                 "type": "string"
                               },
                               "additionalProperties": {}
+                            },
+                            "pendingMessage": {
+                              "description": "Message shown in the toolbar while the action is processing.",
+                              "type": "string"
+                            },
+                            "successMessage": {
+                              "description": "Message shown in the toolbar on success. Falls back to the server response message.",
+                              "type": "string"
+                            },
+                            "errorMessage": {
+                              "description": "Message shown in the toolbar on failure. Falls back to the server response message.",
+                              "type": "string"
                             }
                           },
                           "required": [
@@ -3264,6 +3300,18 @@
                                 "type": "string"
                               },
                               "additionalProperties": {}
+                            },
+                            "pendingMessage": {
+                              "description": "Message shown in the toolbar while the action is processing.",
+                              "type": "string"
+                            },
+                            "successMessage": {
+                              "description": "Message shown in the toolbar on success. Falls back to the server response message.",
+                              "type": "string"
+                            },
+                            "errorMessage": {
+                              "description": "Message shown in the toolbar on failure. Falls back to the server response message.",
+                              "type": "string"
                             }
                           },
                           "required": [

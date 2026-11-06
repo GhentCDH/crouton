@@ -51,6 +51,15 @@ const en: UiDefaults = {
   validation: {
     required: 'This field is required',
   },
+  notifications: {
+    created: 'created',
+    updated: 'updated',
+    deleted: 'Record deleted',
+    actionPending: 'Processing…',
+    actionSuccess: 'Done',
+    actionFailed: 'Action failed',
+    actionError: 'Something went wrong, please try again',
+  },
 };
 
 const nl: UiDefaults = {
@@ -103,6 +112,15 @@ const nl: UiDefaults = {
   },
   validation: {
     required: 'Dit veld is verplicht',
+  },
+  notifications: {
+    created: 'created',
+    updated: 'updated',
+    deleted: 'Record deleted',
+    actionPending: 'Processing…',
+    actionSuccess: 'Done',
+    actionFailed: 'Action failed',
+    actionError: 'Something went wrong, please try again',
   },
 };
 
@@ -157,6 +175,15 @@ const fr: UiDefaults = {
   validation: {
     required: 'Ce champ est obligatoire',
   },
+  notifications: {
+    created: 'created',
+    updated: 'updated',
+    deleted: 'Record deleted',
+    actionPending: 'Processing…',
+    actionSuccess: 'Done',
+    actionFailed: 'Action failed',
+    actionError: 'Something went wrong, please try again',
+  },
 };
 
 const de: UiDefaults = {
@@ -209,6 +236,15 @@ const de: UiDefaults = {
   },
   validation: {
     required: 'Dieses Feld ist erforderlich',
+  },
+  notifications: {
+    created: 'created',
+    updated: 'updated',
+    deleted: 'Record deleted',
+    actionPending: 'Processing…',
+    actionSuccess: 'Done',
+    actionFailed: 'Action failed',
+    actionError: 'Something went wrong, please try again',
   },
 };
 
@@ -263,6 +299,15 @@ const wv: UiDefaults = {
   },
   validation: {
     required: 'Ge moet iets erop zetten!  ',
+  },
+  notifications: {
+    created: 'created',
+    updated: 'updated',
+    deleted: 'Record deleted',
+    actionPending: 'Processing…',
+    actionSuccess: 'Done',
+    actionFailed: 'Action failed',
+    actionError: 'Something went wrong, please try again',
   },
 };
 

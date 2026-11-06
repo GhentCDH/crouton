@@ -19,7 +19,7 @@ import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
-import { useResources } from './useResources';
+import { type ActionStatus, useResources } from './useResources';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 import { useLanguage } from '../i18n/useLanguage';
@@ -247,6 +247,7 @@ export const backendAction = (
   formDef: ResourceDefinition,
   defaultUriParams: Record<string, string>,
   action: Action,
+  setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ) => {
   const fetch = useApi();
 
@@ -261,20 +262,24 @@ export const backendAction = (
       return;
     }
 
+    const { t } = useLanguage();
+    const procedureAction = action as Extract<Action, { type: 'procedure' }>;
     const uri = replaceUriParams(action.uri, formData);
+
+    setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
 
     const _fetch = (fetch as any)[action.method];
     return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
-      .then(({ data }: { data: any }) => {
+      .then(async ({ data }: { data: any }) => {
         if (data.success) {
-          NotificationService.success(data.message);
-          resource.reload();
+          await resource.reload();
+          setStatus?.({ text: procedureAction.successMessage ?? data.message ?? t('notifications.actionSuccess', 'Done'), type: 'success' });
         } else {
-          NotificationService.error(data.message);
+          setStatus?.({ text: procedureAction.errorMessage ?? data.message ?? t('notifications.actionFailed', 'Action failed'), type: 'error' });
         }
       })
       .catch(() => {
-        NotificationService.error('Something went wrong, please try again');
+        setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });
       });
   };
 };
@@ -287,20 +292,29 @@ export const actions = (
   handleEvent: HandleEvent,
   readonly: boolean,
   modals?: ReturnType<typeof resourceModals>,
+  setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ) => {
   if (!formDef) return [] as TableAction[];
 
   const op = formDef.operations ?? {};
   const _modals =
     modals ?? resourceModals(api, resource, formDef, handleEvent, false);
+  const pendingKey = ref<string | null>(null);
   return [
     (getTableNode(formDef.schemas.table.ui)?.options?.rowActions ?? []).map(
       (action: any) => {
+        const idField = formDef.idField;
         return {
-          action: backendAction(resource, formDef, defaultUriParams, action),
+          action: (row: any) => {
+            const key = `${action.id}:${row[idField]}`;
+            pendingKey.value = key;
+            return backendAction(resource, formDef, defaultUriParams, action, setStatus)(row)
+              .finally(() => { if (pendingKey.value === key) pendingKey.value = null; });
+          },
           tooltip: action.label,
           icon: action.icon,
           label: action.icon ? null : action.label,
+          loading: (row: any) => pendingKey.value === `${action.id}:${row[idField]}`,
           ...(action.condition && {
             visible: (row: any) => evaluateCondition(action.condition, row),
           }),
@@ -338,12 +352,14 @@ export const actions = (
 export const tableActions = (
   resource: Resource,
   formDef: ResourceDefinition | null | undefined,
+  setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ): TableAction[] => {
   const _tableActions: TableActionDef[] =
     getTableNode(formDef?.schemas.table.ui)?.options?.tableActions ?? [];
   if (!formDef || !_tableActions.length) return [];
 
   const fetch = useApi();
+  const pendingActionId = ref<string | null>(null);
 
   return _tableActions.map((action: TableActionDef) => {
     const label = action.tooltip ?? action.label ?? action.id;
@@ -352,23 +368,31 @@ export const tableActions = (
         window.open(action.href, '_blank');
         return;
       }
+      const { t } = useLanguage();
+      const procedureAction = action as any;
+      pendingActionId.value = action.id;
+      setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
       return (fetch as any)[action.method](action.uri, action.data ?? {})
-        .then(({ data }: { data: any }) => {
+        .then(async ({ data }: { data: any }) => {
           if (data?.success !== false) {
-            NotificationService.success(data?.message ?? 'Done');
-            resource.reload();
+            await resource.reload();
+            const msg = procedureAction.successMessage ?? data?.message ?? t('notifications.actionSuccess', 'Done');
+            setStatus?.({ text: msg, type: 'success' });
           } else {
-            NotificationService.error(data?.message ?? 'Action failed');
+            const msg = procedureAction.errorMessage ?? data?.message ?? t('notifications.actionFailed', 'Action failed');
+            setStatus?.({ text: msg, type: 'error' });
           }
         })
         .catch(() => {
-          NotificationService.error('Something went wrong, please try again');
-        });
+          setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });
+        })
+        .finally(() => { pendingActionId.value = null; });
     };
 
     return {
       action: handler,
       tooltip: label,
+      loading: () => pendingActionId.value === action.id,
       ...(action.label && !action.icon && { label: action.label }),
       ...(action.icon && { icon: action.icon }),
     } as TableAction;
