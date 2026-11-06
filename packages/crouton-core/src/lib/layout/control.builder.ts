@@ -167,7 +167,7 @@ export type ControlTypes = {
   options?: TextAreaOptions | AutocompleteOptions | DetailOptions;
 };
 
-export class ControlBuilder<TYPE = Record<string, unknown>, KEY = keyof TYPE> extends ElementBuilder<
+export class ControlBuilder<TYPE = Record<string, unknown>> extends ElementBuilder<
   UISchemaElement,
   ControlOption
 > {

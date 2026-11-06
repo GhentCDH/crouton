@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 /**
  * Shape of a `data-source.json`. The `type`/`name`/`default` keys are also read by crouton-api at runtime;
  * the rest are codegen-only.

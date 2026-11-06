@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 
 /**
  * Configuration for a single sidebar group, defined centrally in `crouton.json`.
