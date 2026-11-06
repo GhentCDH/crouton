@@ -1,9 +1,4 @@
-/**
- * Data payload sent with API requests (query params, body, etc.).
- */
-type RequestData = any;
-
-export type { RequestData };
+export type { ListRequest as RequestData } from '@ghentcdh/crouton-core';
 
 /**
  * Callback invoked when a resource action occurs (e.g. view, create, update, close).
@@ -11,4 +6,4 @@ export type { RequestData };
  * @param event - The event name (`'view'`, `'create'`, `'update'`, `'close'`, etc.).
  * @param data  - Contextual payload associated with the event.
  */
-export type HandleEvent = (event: string, data: any) => void;
+export type HandleEvent = (event: string, data: unknown) => void;
