@@ -18,10 +18,10 @@
     :data-tip="props.tooltip"
     @click="emit('click', $event)"
   >
-    <span v-if="props.loading" class="loading loading-spinner loading-xs" />
     <Icon
-      v-else-if="props.icon"
+      v-if="props.icon"
       :icon="props.icon"
+      :class="{ 'animate-spin': props.loading }"
     />
     <span
       v-if="$slots.default"

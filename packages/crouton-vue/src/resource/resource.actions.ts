@@ -270,10 +270,10 @@ export const backendAction = (
 
     const _fetch = (fetch as any)[action.method];
     return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
-      .then(({ data }: { data: any }) => {
+      .then(async ({ data }: { data: any }) => {
         if (data.success) {
+          await resource.reload();
           setStatus?.({ text: procedureAction.successMessage ?? data.message ?? t('notifications.actionSuccess', 'Done'), type: 'success' });
-          resource.reload();
         } else {
           setStatus?.({ text: procedureAction.errorMessage ?? data.message ?? t('notifications.actionFailed', 'Action failed'), type: 'error' });
         }
@@ -292,6 +292,7 @@ export const actions = (
   handleEvent: HandleEvent,
   readonly: boolean,
   modals?: ReturnType<typeof resourceModals>,
+  setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ) => {
   if (!formDef) return [] as TableAction[];
 
@@ -307,7 +308,7 @@ export const actions = (
           action: (row: any) => {
             const key = `${action.id}:${row[idField]}`;
             pendingKey.value = key;
-            return backendAction(resource, formDef, defaultUriParams, action)(row)
+            return backendAction(resource, formDef, defaultUriParams, action, setStatus)(row)
               .finally(() => { if (pendingKey.value === key) pendingKey.value = null; });
           },
           tooltip: action.label,
@@ -370,11 +371,11 @@ export const tableActions = (
       const procedureAction = action as any;
       setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
       return (fetch as any)[action.method](action.uri, action.data ?? {})
-        .then(({ data }: { data: any }) => {
+        .then(async ({ data }: { data: any }) => {
           if (data?.success !== false) {
+            await resource.reload();
             const msg = procedureAction.successMessage ?? data?.message ?? t('notifications.actionSuccess', 'Done');
             setStatus?.({ text: msg, type: 'success' });
-            resource.reload();
           } else {
             const msg = procedureAction.errorMessage ?? data?.message ?? t('notifications.actionFailed', 'Action failed');
             setStatus?.({ text: msg, type: 'error' });

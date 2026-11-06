@@ -226,6 +226,7 @@ export const useResources = (
       handleEvent,
       readonly,
       resourceModal,
+      setStatus,
     ),
     backendAction: (action: Action) =>
       backendAction(resource, formDef, defaultUriParams, action, setStatus),
