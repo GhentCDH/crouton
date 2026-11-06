@@ -10,6 +10,7 @@ export const AuthorSchema = z.object({
   id: z.string().cuid(),
   name: z.string(),
   bio: z.string().nullable(),
+  notes: z.string().nullable(),
 })
 
 export type Author = z.infer<typeof AuthorSchema>

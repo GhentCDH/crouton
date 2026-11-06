@@ -16,6 +16,7 @@ model Author {
   id    String  @id @default(cuid())
   name  String
   bio   String?
+  notes String?
   books Book[]
 }
 
@@ -23,6 +24,7 @@ model Category {
   id    String @id @default(cuid())
   name  String
   slug  String @unique
+  tags  String? @default("[]")
   books Book[]
 }
 
@@ -32,6 +34,8 @@ model Book {
   isbn          String?    @unique
   publishedYear Int?
   status        String     @default("draft")
+  featured      Boolean    @default(false)
+  availability  String     @default("available")
   summary       String?
   rating        Int?
   authorId      String
