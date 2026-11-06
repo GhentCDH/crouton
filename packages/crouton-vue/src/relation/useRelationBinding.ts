@@ -1,4 +1,5 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
+import type { FieldContext } from 'vee-validate';
 import { type ComputedRef, type Ref, computed } from 'vue';
 
 import {
@@ -20,7 +21,7 @@ const getMessage = (isNew: boolean, resource: string) => {
 
 const getRelationResource = async (
   resource: string,
-  formValues: any,
+  formValues: Record<string, unknown>,
   readonly: boolean,
   formEvents: FormEvents,
   sort?: string,
@@ -31,14 +32,14 @@ const getRelationResource = async (
 
   if (!config) return null;
 
-  const handleEvent = (event: string, data: any) => {
+  const handleEvent = (event: string, data: unknown) => {
     if (!formEvents) if (event !== 'close') return;
-    if (!data || Object.keys(data).length === 0) return;
+    if (!data || Object.keys(data as Record<string, unknown>).length === 0) return;
 
     formEvents.dispatch({
       event: 'update-relation',
       type: resource,
-      data,
+      data: data as Record<string, unknown>,
     });
   };
   return useResources(config, {
@@ -54,21 +55,22 @@ export const useRelationBinding = (
   uischema: ControlElement,
   schema: JsonSchema,
   readonly = false,
-): Record<string, any> & {
+): Record<string, unknown> & {
+  field: FieldContext<unknown>;
   isInline: boolean;
   isNew: ComputedRef<boolean>;
   message: string | null;
   resource: Ref<UseResource | null | undefined>;
-  appliedOptions: ComputedRef<Record<string, any>>;
+  appliedOptions: ComputedRef<Record<string, unknown>>;
 } => {
   const formEvents = useFormEvents();
   const bindings = useControlBinding(uischema, schema);
   const { formValues } = bindings;
-  const opts = (uischema.options ?? {}) as Record<string, any>;
-  const isInline = inlineTypes.includes(opts.relationType);
+  const opts = (uischema.options ?? {}) as Record<string, unknown>;
+  const isInline = inlineTypes.includes(opts.relationType as 'manyToOne' | 'oneToOne');
 
   const isNew = computed(
-    () => !formValues || Object.keys(formValues).length === 0 || !formValues.id,
+    () => !formValues || Object.keys(formValues).length === 0 || !formValues['id'],
   );
   const resource = opts.resource as string;
   const sort = opts.sort as string | undefined;
@@ -78,7 +80,7 @@ export const useRelationBinding = (
     ...bindings,
     // jsonforms options are an open bag; expose them loosely for relation renderers
     appliedOptions: computed(
-      () => (bindings.appliedOptions.value ?? {}) as Record<string, any>,
+      () => (bindings.appliedOptions.value ?? {}) as Record<string, unknown>,
     ),
     isInline,
     isNew,
@@ -86,7 +88,7 @@ export const useRelationBinding = (
     resource: computedAsync(() =>
       getRelationResource(
         resource,
-        bindings.formValues,
+        bindings.formValues as Record<string, unknown>,
         readonly,
         formEvents,
         sort,

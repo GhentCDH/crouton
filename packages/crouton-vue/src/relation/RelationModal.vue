@@ -13,8 +13,8 @@ const properties = defineProps({
   modalTitle: { type: String, required: true },
   /** Label for the close button. */
   closeLabel: { type: String, default: 'Close' },
-  column: { type: Object, required: true },
-  options: { type: Object, required: true },
+  column: { type: Object as PropType<Record<string, unknown>>, required: true },
+  options: { type: Object as PropType<Record<string, unknown>>, required: true },
   /** Callback invoked when the modal closes (with result or `null` on cancel). */
   onClose: {
     type: Function as PropType<() => void>,
@@ -36,7 +36,7 @@ const properties = defineProps({
    */
   canDelete: { type: Boolean, default: false },
   /** Initial form data to populate the form with. */
-  data: { type: Object as PropType<any>, required: true },
+  data: { type: Object as PropType<Record<string, unknown>>, required: true },
 });
 
 const emits = defineEmits<{
@@ -54,7 +54,7 @@ const config = computedAsync(() =>
   crouton.getFormByUri(properties.options.resource),
 );
 
-const handleEvent = (_event: string, _data: any) => {};
+const handleEvent = (_event: string, _data: unknown) => {};
 
 const resource = shallowRef<ReturnType<typeof useResources> | null>(null);
 
@@ -108,7 +108,7 @@ const id = Date.now();
     <template #content>
       <TableComponent
         v-if="resource"
-        v-bind="resource as any"
+        v-bind="resource as Record<string, unknown>"
         :id="`form_table_${id}`"
         :cell-renderers="customCellRenderers"
       />

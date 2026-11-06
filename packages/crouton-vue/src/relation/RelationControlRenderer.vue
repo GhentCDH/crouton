@@ -102,7 +102,8 @@ const message = computed(() => {
 
 const formEvents = useFormEvents();
 const operations = computed(() => {
-  const res = resource.value!;
+  const res = resource.value;
+  if (!res) return {};
   const ops: Record<string, (value: unknown) => void> = {
     onView: (value: unknown) => {
       res.view(value);
@@ -111,7 +112,7 @@ const operations = computed(() => {
   if (resource.value?.operations.create)
     ops['onCreate'] = (value) => {
       const data = { value };
-      res.api.create(data).then((response: any) => {
+      (res.api.create(data) as Promise<unknown>).then(() => {
         formEvents.dispatch({
           event: 'update-relation',
           type: 'text_metadata',
@@ -123,7 +124,7 @@ const operations = computed(() => {
   if (resource.value?.operations.delete)
     ops['onDelete'] = (value: unknown) => {
       confirmDelete(() => {
-        res.api.delete(value).then(() => {
+        (res.api.delete(value) as Promise<unknown>).then(() => {
           formEvents.dispatch({ event: 'update-relation', type: 'text_metadata', data: { value } });
         });
       });
