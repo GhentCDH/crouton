@@ -46,7 +46,7 @@ export const controlRenderers = [
   },
   { tester: rankWith(11, isBooleanControl), renderer: BooleanControlRenderer },
   { tester: rankWith(11, isSelectControl), renderer: SelectControlRenderer },
-  { tester: rankWith(11, isToggleControl), renderer: ToggleControlRenderer },
+  { tester: rankWith(12, isToggleControl), renderer: ToggleControlRenderer },
   {
     tester: rankWith(11, isMultiselectControl),
     renderer: MultiSelectControlRenderer,
