@@ -3,10 +3,18 @@
  * E.g. `getNestedValue({ parent: { id: '1' } }, 'parent.id')` returns `'1'`.
  */
 const getNestedValue = (
-  obj: Record<string, any>,
+  obj: Record<string, unknown>,
   path: string,
 ): string | undefined => {
-  const value = path.split('.').reduce<any>((acc, key) => acc?.[key], obj);
+  const value = path
+    .split('.')
+    .reduce<unknown>(
+      (acc, key) =>
+        acc !== null && typeof acc === 'object'
+          ? (acc as Record<string, unknown>)[key]
+          : undefined,
+      obj,
+    );
   return value == null ? undefined : String(value);
 };
 
@@ -21,7 +29,7 @@ const getNestedValue = (
  */
 export const replaceUriParams = (
   uri: string,
-  params: Record<string, any>,
+  params: Record<string, unknown>,
 ) => {
   return uri.replace(/\{([\w.]+)\}/g, (match, key: string) => {
     const value = getNestedValue(params, key);
