@@ -58,7 +58,7 @@
       "items": [
         "name",
         {
-          "type": "group",
+          "type": "horizontal",
           "title": "Details",
           "items": ["bio", "notes"]
         }
