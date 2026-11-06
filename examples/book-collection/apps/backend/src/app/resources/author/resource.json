@@ -15,6 +15,12 @@
       },
       "hiddenInTable": true
     },
+    "notes": {
+      "fieldInput": {
+        "type": "markdown"
+      },
+      "hiddenInTable": true
+    },
     "books": {
       "label": "Books",
       "hiddenInTable": false,
@@ -47,6 +53,17 @@
     }
   },
   "layout": {
+    "form": {
+      "type": "vertical",
+      "items": [
+        "name",
+        {
+          "type": "group",
+          "title": "Details",
+          "items": ["bio", "notes"]
+        }
+      ]
+    },
     "table": {
       "filterFields": [
         "name"
