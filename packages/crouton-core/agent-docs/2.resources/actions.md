@@ -141,3 +141,43 @@ The `condition` object takes a `field`, an operator, and (except for the existen
 ## Display options
 
 Table actions support `icon`, `label`, and `tooltip`; row actions support `label`. The HTTP `method` of a procedure action defaults to `post`.
+
+## Toolbar status feedback
+
+When a procedure action runs, the CRUD toolbar shows an inline status message. No toasts are shown — feedback stays next to the table.
+
+| State | Icon | Default text |
+|-------|------|--------------|
+| In progress | ⏳ | *Processing…* |
+| Success | ✓ | Server `message`, or *Done* |
+| Error | ✗ | Server `message`, or *Action failed* |
+| Network error | ✗ | *Something went wrong, please try again* |
+
+Override the default messages per action with optional fields on a procedure action:
+
+```json
+{
+  "layout": {
+    "table": {
+      "rowActions": [
+        {
+          "id": "publish",
+          "label": "Publish",
+          "procedure": "publish",
+          "pendingMessage": "Publishing…",
+          "successMessage": "Published successfully",
+          "errorMessage": "Could not publish"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Purpose |
+|-------|---------|
+| `pendingMessage` | Shown immediately when the button is clicked. |
+| `successMessage` | Shown on success. Falls back to the server `message`, then *Done*. |
+| `errorMessage` | Shown when the server returns `success: false`. Falls back to the server `message`, then *Action failed*. |
+
+Success messages auto-clear after 3 s; error messages stay for 5 s.
