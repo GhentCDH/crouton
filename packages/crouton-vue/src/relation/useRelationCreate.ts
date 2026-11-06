@@ -1,6 +1,7 @@
 import type { Ref } from 'vue';
 
 import type { HttpClient } from '@ghentcdh/crouton-forms-vue';
+
 import { JsonFormModalService } from '../forms';
 
 type FetchOptionsValue = {

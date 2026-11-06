@@ -1,6 +1,6 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { type ComputedRef, type Ref, computed } from 'vue';
 import type { FieldContext } from 'vee-validate';
+import { type ComputedRef, type Ref, computed } from 'vue';
 
 import {
   type FormEvents,
