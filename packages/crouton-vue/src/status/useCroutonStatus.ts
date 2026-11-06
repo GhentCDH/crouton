@@ -23,7 +23,7 @@ export const useCroutonStatus = () => {
     error.value = null;
     try {
       const api = useApi();
-      const response = await api.get('/crouton/status.json');
+      const response = await api.get<CroutonStatus>('/crouton/status.json');
       status.value = response.data;
       backendUp.value = true;
       lastChecked.value = new Date();

@@ -23,7 +23,7 @@ const props = defineProps({
   hideTitle: { type: Boolean, default: false },
   tableComponent: {
     type: Object as PropType<Component>,
-    default: () => TableComponent,
+    default: () => TableComponent as Component,
   },
 });
 
@@ -42,7 +42,7 @@ const config = computedAsync(() => {
 });
 
 const emits = defineEmits(['handleEvent', 'onRequest', 'initialLoad']);
-const handleEvent = (event: string, data: any) => {
+const handleEvent = (event: string, data: unknown) => {
   emits('handleEvent', { event, data });
 };
 
@@ -89,20 +89,21 @@ const reload = () => {
   resource.value?.reload();
 };
 
-const tableUi = computed(() => config.value?.schemas?.table?.ui as any);
+type UiNode = Record<string, unknown>;
+const tableUi = computed(() => config.value?.schemas?.table?.ui as UiNode | undefined);
 const isWrapperLayout = computed(
   () => tableUi.value?.type && tableUi.value.type !== 'Table',
 );
-const tableNodeUi = computed(() => {
+const tableNodeUi = computed((): UiNode | null => {
   const ui = tableUi.value;
   if (!ui) return null;
   if (ui.type === 'Table' || !ui.type) return ui;
-  return (ui.elements ?? []).find((e: any) => e.type === 'Table') ?? null;
+  return ((ui.elements as UiNode[] | undefined) ?? []).find((e) => e.type === 'Table') ?? null;
 });
 const tableHeading = computed(
   () =>
-    tableNodeUi.value?.options?.title ??
-    tableNodeUi.value?.options?.label ??
+    (tableNodeUi.value?.options as Record<string, unknown> | undefined)?.title as string | null ??
+    (tableNodeUi.value?.options as Record<string, unknown> | undefined)?.label as string | null ??
     null,
 );
 

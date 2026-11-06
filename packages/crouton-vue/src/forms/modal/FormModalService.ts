@@ -1,3 +1,4 @@
+import type { Component } from 'vue';
 import type { SizeType } from '@ghentcdh/crouton-core';
 import type {
   FormEventPayload,
@@ -13,7 +14,7 @@ import { ModalService } from '@ghentcdh/crouton-ui-vue';
 import FormModal from './FormModal.vue';
 
 export class JsonFormModalService {
-  static openModal<DATA = any>({
+  static openModal<DATA = unknown>({
     initialData,
     modalTitle,
     schema,
@@ -30,22 +31,22 @@ export class JsonFormModalService {
     uniqueCheck,
   }: {
     initialData?: DATA;
-    schema: any;
-    uiSchema: any;
+    schema: unknown;
+    uiSchema: unknown;
     modalSize?: SizeType;
     modalTitle: string;
     onClose: (result: FormModalResult) => void;
     onEvents?: (payload: FormEventPayload) => void;
     http?: HttpClient;
-    renderers?: any[];
+    renderers?: unknown[];
     autoSave?: boolean;
-    onAutoSave?: (data: DATA) => Promise<any>;
-    onRefreshData?: () => Promise<any>;
+    onAutoSave?: (data: DATA) => Promise<unknown>;
+    onRefreshData?: () => Promise<unknown>;
     saveLabel?: string;
     uniqueCheck?: UniqueCheckFn | null;
   }) {
     ModalService.openModal<FormModalProp, FormModalResult>({
-      component: FormModal,
+      component: FormModal as Component,
       props: {
         schema,
         uiSchema,
@@ -65,7 +66,7 @@ export class JsonFormModalService {
     });
   }
 
-  static openViewModal<DATA = any>({
+  static openViewModal<DATA = unknown>({
     data,
     modalTitle,
     schema,
@@ -80,18 +81,18 @@ export class JsonFormModalService {
   }: {
     data?: DATA;
     http?: HttpClient;
-    schema: any;
-    uiSchema: any;
+    schema: unknown;
+    uiSchema: unknown;
     modalSize?: SizeType;
-    renderers?: any[];
+    renderers?: unknown[];
     modalTitle: string;
     onClose?: () => void;
     onEdit?: (data: DATA) => void;
     onDelete?: (data: DATA) => void;
-    onView?: (data: any) => void;
+    onView?: (data: unknown) => void;
   }) {
-    ModalService.openModal<any, ViewModalResult>({
-      component: ViewModal,
+    ModalService.openModal<Record<string, unknown>, ViewModalResult>({
+      component: ViewModal as Component,
       props: {
         schema,
         uiSchema,
