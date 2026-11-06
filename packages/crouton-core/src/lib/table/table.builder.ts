@@ -80,7 +80,7 @@ export class BooleanCellBuilder extends TextCellBuilder<boolean> {
  * `addControl` / `addControls` surface with `LayoutBuilder`; its shortcut form
  * resolves to a `TextCellBuilder` instead of a form control.
  */
-export class TableBuilder<TYPE = Record<string, unknown>> extends ContainerBuilder<
+export class TableBuilder extends ContainerBuilder<
   Layout,
   CroutonLayoutOptions
 > {
@@ -88,8 +88,8 @@ export class TableBuilder<TYPE = Record<string, unknown>> extends ContainerBuild
     super('Table');
   }
 
-  static init<TYPE = Record<string, unknown>>(): TableBuilder<TYPE> {
-    return new TableBuilder<TYPE>();
+  static init(): TableBuilder {
+    return new TableBuilder();
   }
 
   protected resolveShortcut(name: string): Buildable {

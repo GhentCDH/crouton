@@ -6,7 +6,7 @@
  * Scaffolds all the boilerplate for a new field input type.
  * Pass --dry-run to print what would be done without writing files.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
