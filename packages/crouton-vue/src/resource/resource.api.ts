@@ -10,11 +10,16 @@ import { replaceUriParams } from './uri.utils';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
 
-const apiErrorMessage = (error: any): string | null => {
-  const msg = error?.response?.data?.message;
+const apiErrorMessage = (error: unknown): string | null => {
+  const msg = (error as { response?: { data?: { message?: unknown } } })
+    ?.response?.data?.message;
   if (Array.isArray(msg) && msg.length > 0)
     return msg
-      .map((e: any) => (typeof e === 'object' ? e.message : String(e)))
+      .map((e) =>
+        typeof e === 'object' && e !== null && 'message' in e
+          ? String((e as { message: unknown }).message)
+          : String(e),
+      )
       .join(', ');
   if (typeof msg === 'string') return msg;
   return null;
@@ -29,13 +34,18 @@ const paramsSerializer = (params: Record<string, unknown>) => {
   return p.toString();
 };
 
+type AxiosLike = Record<
+  string,
+  (uri: string, config: Record<string, unknown>) => Promise<{ data: unknown }>
+>;
+
 const apiCall = (
   formDef: Pick<ResourceDefinition, 'id' | 'operations'>,
   operation: OperationKey,
   defaultUriParams: Record<string, string>,
-  data?: any,
+  data?: Record<string, unknown>,
   signal?: AbortSignal,
-) => {
+): Promise<{ data: unknown }> => {
   const request = formDef.operations[operation] as Operation;
   if (!request) {
     throw new Error(
@@ -43,11 +53,11 @@ const apiCall = (
     );
   }
   const uri = replaceUriParams(request.uri, defaultUriParams);
-  const method = request.method.toLowerCase() as any;
+  const method = request.method.toLowerCase();
 
   const fetch = useApi();
 
-  return (fetch as any)[method](uri, {
+  return (fetch as unknown as AxiosLike)[method](uri, {
     ...data,
     signal,
     paramsSerializer,
@@ -68,10 +78,10 @@ export const resourceApi = (
       { params: requestData },
       signal,
     )
-      .then((data: any) => {
+      .then((data) => {
         return data.data;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         if (signal?.aborted) return null;
         console.error(error);
         NotificationService.error('Error loading data');
@@ -82,22 +92,22 @@ export const resourceApi = (
 
   const getOneById = (id: string) =>
     apiCall(formDef, 'findOne', { ...defaultUriParams, id, [idField]: id })
-      .then((response: any) => {
+      .then((response) => {
         return response.data;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error(error);
         NotificationService.error('Error loading data');
         return null;
       });
 
-  const save = (id: string, data: any) =>
+  const save = (id: string, data: Record<string, unknown>) =>
     apiCall(formDef, 'update', { ...defaultUriParams, id, [idField]: id }, data)
-      .then((response: any) => {
+      .then((response) => {
         // NotificationService.success('Data saved');
         return response.data;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error(error);
         NotificationService.error(
           apiErrorMessage(error) ?? 'Error saving data',
@@ -105,12 +115,12 @@ export const resourceApi = (
         return null;
       });
 
-  const patchData = (id: string, data: any) =>
+  const patchData = (id: string, data: Record<string, unknown>) =>
     apiCall(formDef, 'patch', { ...defaultUriParams, id, [idField]: id }, data)
-      .then((response: any) => {
+      .then((response) => {
         return response.data;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error(error);
         NotificationService.error(
           apiErrorMessage(error) ?? 'Error saving data',
@@ -118,13 +128,13 @@ export const resourceApi = (
         return null;
       });
 
-  const create = (data: any) =>
+  const create = (data: Record<string, unknown>) =>
     apiCall(formDef, 'create', defaultUriParams, data)
-      .then((response: any) => {
+      .then((response) => {
         // NotificationService.success('Data saved');
         return response.data;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error(error);
         NotificationService.error(
           apiErrorMessage(error) ?? 'Error saving data',
@@ -132,17 +142,17 @@ export const resourceApi = (
         return null;
       });
 
-  const deleteData = (data: any) => {
-    const recordId = data?.[idField] ?? data?.id;
+  const deleteData = (data: Record<string, unknown>) => {
+    const recordId = String(data[idField] ?? data['id'] ?? '');
     return apiCall(formDef, 'delete', {
       ...defaultUriParams,
       id: recordId,
       [idField]: recordId,
     })
-      .then((response: any) => {
+      .then((response) => {
         return response.data;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error(error);
         NotificationService.error('Error deleting data');
         return null;
@@ -168,7 +178,7 @@ export const resourceApi = (
     );
     const fetch = useApi();
     return fetch
-      .get(`${base}/unique`, {
+      .get<{ unique?: boolean }>(`${base}/unique`, {
         params: {
           field,
           value,
@@ -177,7 +187,7 @@ export const resourceApi = (
         },
         paramsSerializer,
       })
-      .then((response: any) => response.data?.unique !== false)
+      .then((response) => response.data?.unique !== false)
       .catch((error: unknown) => {
         console.error(error);
         return true;
