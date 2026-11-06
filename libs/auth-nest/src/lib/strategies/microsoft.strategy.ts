@@ -31,8 +31,8 @@ export const createMicrosoftStrategy = (
     validate(
       accessToken: string,
       _refreshToken: string,
-      profile: any,
-      done: any,
+      profile: { id: string; displayName: string; emails?: Array<{ value: string }> },
+      done: (err: null, user: OAuthCallbackUser) => void,
     ): void {
       const user: OAuthCallbackUser = {
         id: profile.id,
