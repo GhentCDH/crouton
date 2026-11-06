@@ -21,11 +21,11 @@ export const loadRuntimeConfig = async <
     if (!response.ok) {
       throw new Error(`Failed to load config: ${response.status}`);
     }
-    cachedConfig = await response.json();
+    cachedConfig = (await response.json()) as RuntimeConfig;
     return cachedConfig as RUNTIME_CONFIG;
   } catch (error) {
     console.error('Failed to load runtime config:', error);
-    throw new Error(error as any, { cause: error });
+    throw new Error(String(error), { cause: error });
   }
 };
 
