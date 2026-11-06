@@ -359,6 +359,7 @@ export const tableActions = (
   if (!formDef || !_tableActions.length) return [];
 
   const fetch = useApi();
+  const pendingActionId = ref<string | null>(null);
 
   return _tableActions.map((action: TableActionDef) => {
     const label = action.tooltip ?? action.label ?? action.id;
@@ -369,6 +370,7 @@ export const tableActions = (
       }
       const { t } = useLanguage();
       const procedureAction = action as any;
+      pendingActionId.value = action.id;
       setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
       return (fetch as any)[action.method](action.uri, action.data ?? {})
         .then(async ({ data }: { data: any }) => {
@@ -383,12 +385,14 @@ export const tableActions = (
         })
         .catch(() => {
           setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });
-        });
+        })
+        .finally(() => { pendingActionId.value = null; });
     };
 
     return {
       action: handler,
       tooltip: label,
+      loading: () => pendingActionId.value === action.id,
       ...(action.label && !action.icon && { label: action.label }),
       ...(action.icon && { icon: action.icon }),
     } as TableAction;
