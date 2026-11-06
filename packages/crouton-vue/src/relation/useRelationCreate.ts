@@ -1,12 +1,22 @@
 import type { Ref } from 'vue';
 
+import type { HttpClient } from '@ghentcdh/crouton-forms-vue';
 import { JsonFormModalService } from '../forms';
 
+type FetchOptionsValue = {
+  enableCreate?: boolean;
+  form?: {
+    data: unknown;
+    ui: unknown;
+    create: (data: unknown) => Promise<unknown>;
+  };
+};
+
 export interface RelationCreateOptions {
-  fetchOptions: Ref<any>;
-  http: any;
+  fetchOptions: Ref<FetchOptionsValue | null | undefined>;
+  http: HttpClient;
   label: () => string;
-  onCreated: (record: any) => void;
+  onCreated: (record: unknown) => void;
 }
 
 /**
@@ -23,7 +33,7 @@ export const useRelationCreate = ({
   const onCreate = () => {
     const config = fetchOptions.value;
     if (config?.enableCreate === false) return;
-    const form = config!.form as any;
+    const form = config?.form;
     if (!form) return;
 
     JsonFormModalService.openModal({
@@ -33,7 +43,7 @@ export const useRelationCreate = ({
       http,
       onClose: (result) => {
         if (!result || !result.valid) return;
-        form.create(result.data).then((res: any) => onCreated(res));
+        form.create(result.data).then((res: unknown) => onCreated(res));
       },
     });
   };
