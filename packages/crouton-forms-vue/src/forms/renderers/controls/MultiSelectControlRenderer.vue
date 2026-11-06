@@ -1,7 +1,7 @@
 <template>
   <MultiSelect
     v-bind="wrapper"
-    :model-value="value"
+    :model-value="parsedValue"
     @change="onChange"
     @blur="onBlur"
   />
@@ -9,6 +9,7 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
+import { computed } from 'vue';
 
 import { MultiSelect } from '@ghentcdh/crouton-ui-vue';
 
@@ -25,16 +26,24 @@ const {
   appliedOptions,
 } = useSelectBinding(props.uischema, props.schema);
 
+// DB stores array as JSON string; parse for display.
+const parsedValue = computed(() => {
+  const v = value.value;
+  if (!v || typeof v !== 'string') return v;
+  try { return JSON.parse(v); } catch { return []; }
+});
+
 const onChange = (val: any) => {
   const opts = appliedOptions.value as any;
   const valueKey = opts.valueKey ?? 'value';
-  const stored =
+  const rawArray =
     opts.storeValue && Array.isArray(val)
       ? val.map((item: any) =>
           item && typeof item === 'object' ? item[valueKey] : item,
         )
       : val;
-  field.setValue(stored);
+  // Stringify back to JSON string — Prisma column is String?, not a JSON column.
+  field.setValue(Array.isArray(rawArray) ? JSON.stringify(rawArray) : rawArray);
   onFieldChange();
 };
 </script>
