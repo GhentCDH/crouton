@@ -30,15 +30,15 @@ const simplifyNullableAnyOf = (property: Record<string, unknown>): boolean => {
 };
 
 /** Walk nested schemas and set additionalProperties + simplify nullable. */
-const patchProperties = (properties: Record<string, any>): Set<string> => {
+const patchProperties = (properties: Record<string, Record<string, unknown>>): Set<string> => {
   const nullableKeys = new Set<string>();
   for (const key of Object.keys(properties)) {
     const prop = properties[key];
     if (simplifyNullableAnyOf(prop)) nullableKeys.add(key);
     // Recurse into nested objects
-    if (prop.type === 'object' && prop.properties) {
-      prop.additionalProperties = true;
-      patchProperties(prop.properties);
+    if (prop['type'] === 'object' && prop['properties']) {
+      prop['additionalProperties'] = true;
+      patchProperties(prop['properties'] as Record<string, Record<string, unknown>>);
     }
   }
   return nullableKeys;
@@ -48,15 +48,15 @@ export const buildResourceSettingsSchema = (): Record<string, unknown> => {
   const jsonSchema = toJSONSchema(ResourceSettingsShape, {
     unrepresentable: 'any',
     target: 'draft-07',
-  }) as Record<string, any>;
+  }) as Record<string, unknown>;
 
   jsonSchema.additionalProperties = true;
 
-  if (jsonSchema.properties) {
-    const nullableKeys = patchProperties(jsonSchema.properties);
-    if (Array.isArray(jsonSchema.required)) {
-      jsonSchema.required = jsonSchema.required.filter(
-        (key: string) => !nullableKeys.has(key),
+  if (jsonSchema['properties']) {
+    const nullableKeys = patchProperties(jsonSchema['properties'] as Record<string, Record<string, unknown>>);
+    if (Array.isArray(jsonSchema['required'])) {
+      jsonSchema['required'] = (jsonSchema['required'] as string[]).filter(
+        (key) => !nullableKeys.has(key),
       );
     }
   }

@@ -18,7 +18,7 @@ const bootstrap = async () => {
   app.enableCors();
 
   if (process.env['NODE_ENV'] !== 'production') {
-    app.use('/_test/reset', async (req: any, res: any) => {
+    app.use('/_test/reset', async (req: { method: string }, res: { status: (code: number) => { end: () => void }; json: (body: unknown) => void }) => {
       if (req.method !== 'POST') { res.status(405).end(); return; }
       await prisma.$disconnect();
       await prisma.$connect();
