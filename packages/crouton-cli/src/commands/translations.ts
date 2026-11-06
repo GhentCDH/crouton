@@ -27,7 +27,7 @@ export const registerTranslationsCommand = (program: Command) => {
       '-y, --yes',
       'accept all recommended defaults (non-interactive)',
     )
-    .action(async (opts) => {
+    .action(async (opts: { cwd?: string; lang?: string; dryRun?: boolean; yes?: boolean }) => {
       try {
         await runTranslationsInit({
           cwd: opts.cwd ? resolve(opts.cwd) : undefined,

@@ -18,7 +18,10 @@ export const registerCreateResourceCommand = (program: Command) => {
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
     .option('--dry-run', 'show the planned files without writing')
     .option('-y, --yes', 'accept all defaults (non-interactive)')
-    .action(async (name: string | undefined, opts) => {
+    .action(async (name: string | undefined, opts: {
+      name?: string; kind?: string; route?: string; tag?: string; title?: string;
+      database?: string; idType?: string; cwd?: string; dryRun?: boolean; yes?: boolean;
+    }) => {
       try {
         await runCreateResource({
           name: name ?? opts.name,

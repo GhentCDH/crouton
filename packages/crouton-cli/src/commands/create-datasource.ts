@@ -18,7 +18,11 @@ export const registerCreateDatasourceCommand = (program: Command) => {
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
     .option('--dry-run', 'show the planned files without writing')
     .option('-y, --yes', 'accept all defaults (non-interactive)')
-    .action(async (opts) => {
+    .action(async (opts: {
+      name?: string; type?: string; urlEnv?: string; generatedImport?: string;
+      zodOutput?: string; prismaSchema?: string; prismaConfig?: string; clientOutput?: string;
+      default?: boolean; cwd?: string; dryRun?: boolean; yes?: boolean;
+    }) => {
       try {
         await runCreateDatasource({
           name: opts.name,

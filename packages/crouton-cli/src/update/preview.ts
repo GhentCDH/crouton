@@ -32,10 +32,10 @@ export const formatResourceChange = ({ resolved, plan }: ResourceChange): string
     const removed: string[] = [];
     for (const d of diff.decisions) {
       const c = choice(resolved, d.id);
-      if (d.kind === 'addColumn' && c === 'add') added.push(d.field!);
-      else if (d.kind === 'reconcileColumn' && c === 'overwrite') overwritten.push(d.field!);
-      else if (d.kind === 'reconcileColumn' && c === 'merge') merged.push(d.field!);
-      else if (d.kind === 'removeColumn' && c === 'remove') removed.push(d.field!);
+      if (d.kind === 'addColumn' && c === 'add') added.push(d.field ?? '');
+      else if (d.kind === 'reconcileColumn' && c === 'overwrite') overwritten.push(d.field ?? '');
+      else if (d.kind === 'reconcileColumn' && c === 'merge') merged.push(d.field ?? '');
+      else if (d.kind === 'removeColumn' && c === 'remove') removed.push(d.field ?? '');
     }
     if (added.length) lines.push(pc.green(`    + add: ${added.join(', ')}`));
     if (overwritten.length) lines.push(pc.yellow(`    ± overwrite: ${overwritten.join(', ')}`));
