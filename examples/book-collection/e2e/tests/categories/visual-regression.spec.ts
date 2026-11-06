@@ -1,14 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+import { disableAnimations } from '../../helpers/disable-animations';
 import { resetDb } from '../../helpers/reset-db';
 import { CroutonListPage } from '../../page-objects/CroutonListPage';
-
-const disableAnimations = async (page: any) => {
-  await page.addStyleTag({
-    content:
-      '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-  });
-};
 
 test.describe('categories visual regression', () => {
   test.beforeAll(async () => {
