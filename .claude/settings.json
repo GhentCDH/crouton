@@ -1,4 +1,15 @@
 {
+  "permissions": {
+    "deny": [
+      "Read(./.nx/cache/**)",
+      "Read(./.nx/workspace-data/**)",
+      "Read(./dist/**)",
+      "Read(./tmp/**)",
+      "Read(./node_modules/**)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
   "extraKnownMarketplaces": {
     "nx-claude-plugins": {
       "source": {
