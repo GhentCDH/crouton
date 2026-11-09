@@ -155,7 +155,7 @@ const openViewModal =
           .getFormByUri(String(resourceUri))
           .then((config) => {
             if (!config) return;
-            const _resource = useResources(config, { defaultUriParams: data });
+            const _resource = useResources(config, { defaultUriParams: data as Record<string, string> });
             _resource?.view(data['data'] as Record<string, unknown>);
           });
       },
@@ -286,7 +286,7 @@ export const backendAction = (
 
     setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
 
-    const _fetch = (fetch as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
+    const _fetch = (fetch as unknown as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
     return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
       .then(async ({ data }) => {
         if (data.success) {
@@ -326,7 +326,7 @@ export const actions = (
           action: (row: any) => {
             const key = `${action.id}:${row[idField]}`;
             pendingKey.value = key;
-            return backendAction(resource, formDef, defaultUriParams, action, setStatus)(row)
+            return Promise.resolve(backendAction(resource, formDef, defaultUriParams, action, setStatus)(row))
               .finally(() => { if (pendingKey.value === key) pendingKey.value = null; });
           },
           tooltip: action.label,
@@ -390,7 +390,7 @@ export const tableActions = (
       const procedureAction = action as Extract<typeof action, { type: 'procedure' }>;
       pendingActionId.value = action.id;
       setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
-      const _fetch = (fetch as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
+      const _fetch = (fetch as unknown as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
       return _fetch(action.uri, action.data ?? {})
         .then(async ({ data }) => {
           if (data?.success !== false) {
