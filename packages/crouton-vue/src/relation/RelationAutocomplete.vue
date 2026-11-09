@@ -43,13 +43,14 @@ const valueKeyName = computed(
 );
 
 const fetchOptions = computedAsync(() => {
-  const resource = props.options.autocompleteResource ?? props.options.resource;
+  const resource = (props.options.autocompleteResource ?? props.options.resource) as string;
   return useFetchOptions(
     {
+      format: 'autocomplete' as const,
       resource,
       labelKey: labelKeyName.value,
       valueKey: valueKeyName.value,
-    } as any,
+    },
     http,
     props.formValues ?? {},
   );

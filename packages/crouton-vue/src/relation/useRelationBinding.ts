@@ -1,5 +1,5 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { type ComputedRef, type Ref, computed } from 'vue';
+import { computed } from 'vue';
 
 import {
   type FormEvents,
@@ -8,10 +8,23 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
-import { type UseResource, useResources } from '../resource';
+import { useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
 
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;
+
+type RelationAppliedOptions = {
+  labelKey?: string;
+  valueKey?: string;
+  display?: string;
+  relationType?: string;
+  direction?: string;
+  autocompleteResource?: string;
+  resource?: string;
+  descriptionKey?: string;
+  displayKey?: string;
+  [key: string]: unknown;
+};
 
 const getMessage = (isNew: boolean, resource: string) => {
   if (!resource) return 'No resource configured for this relation.';
@@ -20,7 +33,7 @@ const getMessage = (isNew: boolean, resource: string) => {
 
 const getRelationResource = async (
   resource: string,
-  formValues: any,
+  formValues: Record<string, unknown>,
   readonly: boolean,
   formEvents: FormEvents,
   sort?: string,
@@ -31,18 +44,18 @@ const getRelationResource = async (
 
   if (!config) return null;
 
-  const handleEvent = (event: string, data: any) => {
+  const handleEvent = (event: string, data: unknown) => {
     if (!formEvents) if (event !== 'close') return;
-    if (!data || Object.keys(data).length === 0) return;
+    if (!data || Object.keys(data as Record<string, unknown>).length === 0) return;
 
     formEvents.dispatch({
       event: 'update-relation',
       type: resource,
-      data,
+      data: data as Record<string, unknown>,
     });
   };
   return useResources(config, {
-    defaultUriParams: { parent: formValues },
+    defaultUriParams: { parent: formValues as unknown as string },
     readonly,
     handleEvent,
     initialLoad: false,
@@ -54,21 +67,15 @@ export const useRelationBinding = (
   uischema: ControlElement,
   schema: JsonSchema,
   readonly = false,
-): Record<string, any> & {
-  isInline: boolean;
-  isNew: ComputedRef<boolean>;
-  message: string | null;
-  resource: Ref<UseResource | null | undefined>;
-  appliedOptions: ComputedRef<Record<string, any>>;
-} => {
+) => {
   const formEvents = useFormEvents();
   const bindings = useControlBinding(uischema, schema);
   const { formValues } = bindings;
-  const opts = (uischema.options ?? {}) as Record<string, any>;
-  const isInline = inlineTypes.includes(opts.relationType);
+  const opts = (uischema.options ?? {}) as Record<string, unknown>;
+  const isInline = inlineTypes.includes(opts.relationType as 'manyToOne' | 'oneToOne');
 
   const isNew = computed(
-    () => !formValues || Object.keys(formValues).length === 0 || !formValues.id,
+    () => !formValues || Object.keys(formValues).length === 0 || !formValues['id'],
   );
   const resource = opts.resource as string;
   const sort = opts.sort as string | undefined;
@@ -78,7 +85,7 @@ export const useRelationBinding = (
     ...bindings,
     // jsonforms options are an open bag; expose them loosely for relation renderers
     appliedOptions: computed(
-      () => (bindings.appliedOptions.value ?? {}) as Record<string, any>,
+      () => (bindings.appliedOptions.value ?? {}) as RelationAppliedOptions,
     ),
     isInline,
     isNew,
@@ -86,7 +93,7 @@ export const useRelationBinding = (
     resource: computedAsync(() =>
       getRelationResource(
         resource,
-        bindings.formValues,
+        bindings.formValues as Record<string, unknown>,
         readonly,
         formEvents,
         sort,

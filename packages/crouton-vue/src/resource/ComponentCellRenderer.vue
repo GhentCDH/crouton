@@ -4,15 +4,17 @@ import { computed } from 'vue';
 import { useCrouton } from '../composables/useCrouton';
 import { findCustomComponent } from '../utils/custom-component';
 
+import type { PropType } from 'vue';
+
 const props = defineProps({
-  data: { type: Object, required: true as const },
-  column: { type: Object, required: true as const },
+  data: { type: Object as PropType<Record<string, unknown>>, required: true as const },
+  column: { type: Object as PropType<Record<string, unknown>>, required: true as const },
 });
 
 const component = computed(() =>
   findCustomComponent(
     useCrouton().customComponents,
-    props.column.options?.component as string,
+    (props.column.options as Record<string, unknown> | undefined)?.component as string | undefined,
   ),
 );
 </script>

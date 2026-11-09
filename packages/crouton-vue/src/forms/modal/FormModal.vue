@@ -89,7 +89,7 @@ const properties = defineProps(FormModalProperties);
 const emits = defineEmits(FormModalEmits);
 const { t } = useLanguage();
 const formRef = ref<InstanceType<typeof FormComponent>>();
-const formData = defineModel<any>();
+const formData = defineModel<Record<string, unknown>>();
 
 provideUniqueCheck(properties.uniqueCheck ?? null);
 

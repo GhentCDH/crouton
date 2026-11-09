@@ -4,7 +4,7 @@ import type { UseResource } from './useResources';
 
 export const ResourceTableContentProperties = {
   resource: { type: Object as PropType<UseResource>, required: true as const },
-  config: { type: Object as PropType<any>, required: true as const },
+  config: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   label: { type: String, required: false },
   tableHeading: { type: String as PropType<string | null>, default: null },
   tableComponent: {

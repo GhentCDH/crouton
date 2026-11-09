@@ -29,7 +29,7 @@ export const CroutonFormProperties = {
     required: true as const,
   },
   formatBeforeSave: {
-    type: Function as PropType<(data: any) => Promise<any>>,
+    type: Function as PropType<(data: unknown) => Promise<unknown>>,
     required: false,
     default: null,
   },
@@ -53,7 +53,7 @@ export const CroutonFormProperties = {
 };
 
 /** Result payload returned when the modal is submitted. */
-export type CroutonFormData<DATA = any> = FormModalResult<DATA>;
+export type CroutonFormData<DATA = unknown> = FormModalResult<DATA>;
 
 export type CroutonFormEmitsType = {
   cancel: [value: null];
