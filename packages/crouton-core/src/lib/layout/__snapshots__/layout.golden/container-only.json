@@ -1,0 +1,261 @@
+{
+  "views": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/status",
+            "options": {
+              "sortId": "status"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id",
+          "labelKey": "resources.item.columns.id"
+        },
+        {
+          "id": "title",
+          "labelKey": "resources.item.columns.title"
+        },
+        {
+          "id": "status",
+          "labelKey": "resources.item.columns.status"
+        }
+      ],
+      "defaultSort": "id",
+      "defaultSortDir": "asc"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "title": "description",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/description",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title",
+          "labelKey": "resources.item.columns.title"
+        },
+        {
+          "id": "description",
+          "labelKey": "resources.item.columns.description"
+        },
+        {
+          "id": "status",
+          "labelKey": "resources.item.columns.status"
+        }
+      ]
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "title": "description",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "title": "status",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/id",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/title",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/description",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "options": {
+              "format": "text",
+              "styles": {
+                "width": "full",
+                "control": {
+                  "wrapper": "input-full"
+                }
+              },
+              "colspan": 12
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id",
+          "labelKey": "resources.item.columns.id"
+        },
+        {
+          "id": "title",
+          "labelKey": "resources.item.columns.title"
+        },
+        {
+          "id": "description",
+          "labelKey": "resources.item.columns.description"
+        },
+        {
+          "id": "status",
+          "labelKey": "resources.item.columns.status"
+        }
+      ]
+    }
+  },
+  "lookup": {}
+}
