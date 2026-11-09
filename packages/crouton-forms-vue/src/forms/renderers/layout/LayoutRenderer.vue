@@ -39,5 +39,5 @@ const LAYOUT: Record<string, string> = {
 
 const getLayout = computed(() => LAYOUT[props.uischema.type]);
 const isLayout = computed(() => props.uischema.type in LAYOUT);
-const layoutTitle = computed(() => (props.uischema as any).options?.title as string | undefined);
+const layoutTitle = computed(() => (props.uischema as { options?: { title?: string } }).options?.title);
 </script>

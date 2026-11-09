@@ -1,3 +1,4 @@
+import type { Component } from 'vue';
 import { markRaw } from 'vue';
 
 import { rankWith } from '../../../testers/jsonforms-testers';
@@ -34,49 +35,27 @@ export * from './date';
 export { useFetchOptions } from './composables/useFetchOption';
 export { default as DatePicker } from './date/DatePicker.vue';
 
+const r = (c: unknown): Component => c as Component;
+
 export const controlRenderers = [
-  { tester: rankWith(10, isStringFormat), renderer: StringControlRenderer },
-  {
-    tester: rankWith(11, isTextAreaControl),
-    renderer: TextAreaControlRenderer,
-  },
-  {
-    tester: rankWith(11, isMarkdownControl),
-    renderer: MarkdownControlRenderer,
-  },
-  { tester: rankWith(11, isBooleanControl), renderer: BooleanControlRenderer },
-  { tester: rankWith(11, isSelectControl), renderer: SelectControlRenderer },
-  { tester: rankWith(12, isToggleControl), renderer: ToggleControlRenderer },
-  {
-    tester: rankWith(11, isMultiselectControl),
-    renderer: MultiSelectControlRenderer,
-  },
-  {
-    tester: rankWith(12, isAutoCompleteControl),
-    renderer: AutocompleteControlRenderer,
-  },
-  {
-    tester: rankWith(12, isNumberFormat),
-    renderer: NumberControlRenderer,
-  },
-  {
-    tester: rankWith(12, isIntegerFormat),
-    renderer: NumberControlRenderer,
-  },
-  {
-    tester: rankWith(12, isDateRangeControl),
-    renderer: markRaw(DateRangeControlRenderer),
-  },
+  { tester: rankWith(10, isStringFormat), renderer: r(StringControlRenderer) },
+  { tester: rankWith(11, isTextAreaControl), renderer: r(TextAreaControlRenderer) },
+  { tester: rankWith(11, isMarkdownControl), renderer: r(MarkdownControlRenderer) },
+  { tester: rankWith(11, isBooleanControl), renderer: r(BooleanControlRenderer) },
+  { tester: rankWith(11, isSelectControl), renderer: r(SelectControlRenderer) },
+  { tester: rankWith(12, isToggleControl), renderer: r(ToggleControlRenderer) },
+  { tester: rankWith(11, isMultiselectControl), renderer: r(MultiSelectControlRenderer) },
+  { tester: rankWith(12, isAutoCompleteControl), renderer: r(AutocompleteControlRenderer) },
+  { tester: rankWith(12, isNumberFormat), renderer: r(NumberControlRenderer) },
+  { tester: rankWith(12, isIntegerFormat), renderer: r(NumberControlRenderer) },
+  { tester: rankWith(12, isDateRangeControl), renderer: markRaw(r(DateRangeControlRenderer)) },
   {
     // Rank 12 so it wins over isStringFormat (10), which also matches a date
     // because crouton-core emits `{ type: 'string', format: 'date-time' }`.
     tester: rankWith(12, isDateControl),
-    renderer: markRaw(DateControlRenderer),
+    renderer: markRaw(r(DateControlRenderer)),
   },
   // Ranked below date-range/date/relation so a format-specific object control
   // (date-range is an object schema too) still wins.
-  {
-    tester: rankWith(11, isObjectControl),
-    renderer: markRaw(ObjectControlRenderer),
-  },
+  { tester: rankWith(11, isObjectControl), renderer: markRaw(r(ObjectControlRenderer)) },
 ];
