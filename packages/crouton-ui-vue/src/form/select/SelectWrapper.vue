@@ -120,8 +120,6 @@ import ControlWrapper from '../core/ControlWrapper.vue';
 const props = defineProps(SelectWrapperProperties);
 const typedOptions = computed(() => props.options as OptionValue[]);
 
-const typedOptions = computed(() => props.options as OptionValue[]);
-
 const selectWrapperRef = ref<HTMLElement>();
 const inputWrapperRef = ref<HTMLElement>();
 const listResultsRef = ref<InstanceType<typeof ListResults>>();
