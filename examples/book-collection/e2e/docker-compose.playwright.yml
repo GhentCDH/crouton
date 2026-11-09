@@ -1,5 +1,5 @@
 x-playwright-base: &playwright-base
-  image: mcr.microsoft.com/playwright:v1.64.0-jammy
+  image: mcr.microsoft.com/playwright:v1.65.0-jammy
   working_dir: /app
   volumes:
     - ../../..:/app
@@ -19,8 +19,7 @@ services:
     command:
       - |
         set -e
-        corepack enable
-        corepack prepare pnpm@12.8.1 --activate
+        npm install -g pnpm@12.10.1 --silent
         pnpm install --frozen-lockfile
         pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api,book-collection-frontend
         pnpm --filter @book-collection/backend exec prisma generate
@@ -36,8 +35,7 @@ services:
     command:
       - |
         set -e
-        corepack enable
-        corepack prepare pnpm@12.8.1 --activate
+        npm install -g pnpm@12.10.1 --silent
         pnpm install --frozen-lockfile
         pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api,book-collection-frontend
         pnpm --filter @book-collection/backend exec prisma generate
@@ -53,8 +51,7 @@ services:
     command:
       - |
         set -e
-        corepack enable
-        corepack prepare pnpm@12.8.1 --activate
+        npm install -g pnpm@12.10.1 --silent
         pnpm install --frozen-lockfile
         pnpm nx run-many --target=build --projects=crouton-prisma,crouton-api,book-collection-frontend
         pnpm --filter @book-collection/backend exec prisma generate
