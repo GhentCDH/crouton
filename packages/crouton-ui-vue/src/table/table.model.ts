@@ -12,4 +12,4 @@ export type TableAction = {
   loading?: <T>(data: T) => boolean;
 };
 
-export type DisplayColumn = ColumnDef & { component: object };
+export type DisplayColumn = ColumnDef & { component?: object };
