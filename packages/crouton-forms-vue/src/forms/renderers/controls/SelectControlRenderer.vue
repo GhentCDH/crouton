@@ -48,7 +48,7 @@ watch(
   async ([opts]) => {
     if (!isRemote.value) return;
     const fetcher = await useFetchOptions(
-      opts as AutocompleteAllOptions,
+      (opts as unknown) as AutocompleteAllOptions,
       http,
       formValues,
     );

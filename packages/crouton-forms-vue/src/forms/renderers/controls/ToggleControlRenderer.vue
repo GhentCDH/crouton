@@ -5,8 +5,8 @@
         v-for="(opt, i) in toggleOptions"
         :key="optionValue(opt) ?? i"
         class="join-item"
-        :size="appliedOptions?.size ?? 'sm'"
-        :color="isActive(opt) ? (appliedOptions?.color ?? 'primary') : 'blank'"
+        :size="toggleSize ?? 'sm'"
+        :color="isActive(opt) ? (toggleColor ?? 'primary') : 'blank'"
         :outline="!isActive(opt)"
         :disabled="wrapper.enabled === false"
         @click="onSelect(opt)"
@@ -38,6 +38,8 @@ const {
 
 const labelKey = computed(() => appliedOptions.value?.labelKey ?? 'label');
 const valueKey = computed(() => appliedOptions.value?.valueKey ?? 'value');
+const toggleSize = computed<Size | undefined>(() => appliedOptions.value?.size as Size | undefined);
+const toggleColor = computed<`${Color}` | undefined>(() => appliedOptions.value?.color as `${Color}` | undefined);
 
 const toggleOptions = computed<unknown[]>(() =>
   appliedOptions.value?.options ?? appliedOptions.value?.values ?? []
@@ -46,8 +48,10 @@ const toggleOptions = computed<unknown[]>(() =>
 const optionLabel = (opt: unknown) =>
   opt && typeof opt === 'object' ? (opt as Record<string, unknown>)[labelKey.value] : opt;
 
-const optionValue = (opt: unknown) =>
-  opt && typeof opt === 'object' ? (opt as Record<string, unknown>)[valueKey.value] : opt;
+const optionValue = (opt: unknown): PropertyKey | undefined => {
+  const v = opt && typeof opt === 'object' ? (opt as Record<string, unknown>)[valueKey.value] : opt;
+  return v as PropertyKey | undefined;
+};
 
 // The stored value is either a scalar (storeValue) or the whole option object.
 const currentValue = computed(() => {

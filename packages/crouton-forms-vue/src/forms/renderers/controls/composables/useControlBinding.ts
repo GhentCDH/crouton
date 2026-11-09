@@ -83,7 +83,7 @@ export const useResolvedControl = (
 };
 
 export const useCustomControlBinding = <
-  CONTROL_OPTION extends Record<string, unknown> = ControlOption,
+  CONTROL_OPTION extends object = ControlOption,
 >({
   useProps,
   setDefaultValue,
@@ -115,7 +115,7 @@ export const useCustomControlBinding = <
       // True while an async field validation (e.g. a unique check) is in flight.
       isValidating: computed(() => !!(field.meta as any)?.pending),
       appliedOptions: computed(
-        () => uischema.options ?? ({} as CONTROL_OPTION),
+        () => (uischema.options ?? {}) as CONTROL_OPTION,
       ),
     };
   };
