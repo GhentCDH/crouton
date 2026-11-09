@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { type PropType, computed } from 'vue';
 import { Btn, ModalService } from '@ghentcdh/crouton-ui-vue';
 import RelationModal from './RelationModal.vue';
 import { useResources } from '../resource';
@@ -19,9 +19,9 @@ import { computedAsync } from '../utils/computedAsync';
 import { useCrouton } from '../composables/useCrouton';
 
 const props = defineProps({
-  data: { type: Object, required: true },
-  column: { type: Object, required: true },
-  options: { type: Object },
+  data: { type: Object as PropType<Record<string, unknown>>, required: true as const },
+  column: { type: Object as PropType<{ id: string; label?: string }>, required: true as const },
+  options: { type: Object as PropType<Record<string, unknown>> },
 });
 
 const value = computed(() => {
@@ -31,7 +31,7 @@ const isNumberValue = computed(() => {
   return typeof value.value === 'number';
 });
 
-const getNestedValue = (value: any, path: string): unknown => {
+const getNestedValue = (value: unknown, path: string): unknown => {
   return path.split('.').reduce<unknown>((obj, key) => {
     return obj != null && typeof obj === 'object'
       ? (obj as Record<string, unknown>)[key]
@@ -48,7 +48,7 @@ const label = computed(() => {
   if (typeof val === 'undefined' || typeof val === 'undefined' || val === null)
     return undefined;
 
-  const displayKey = props.options?.displayKey ?? 'id';
+  const displayKey = (props.options?.displayKey ?? 'id') as string;
 
   return getNestedValue(val, displayKey) as string;
 });
@@ -63,7 +63,7 @@ const config = computedAsync(() => {
   const resource = props.options?.resource;
   if (!resource) return Promise.resolve(null);
 
-  return useCrouton().getFormByUri(resource);
+  return useCrouton().getFormByUri(resource as string);
 });
 
 const openDetailsManyToOne = () => {
@@ -80,15 +80,15 @@ const openDetailsManyToOne = () => {
 };
 
 const openDetailsManyToMany = () => {
-  ModalService.openModal<any, null>({
-    component: RelationModal,
+  ModalService.openModal({
+    component: RelationModal as object,
     props: {
       modalTitle: props.column.label,
       title: 'Related records',
       data: props.data,
       column: props.column,
       options: props.options,
-      onClose: () => {
+      onClose: (_: unknown) => {
         // No action needed on close
       },
     },

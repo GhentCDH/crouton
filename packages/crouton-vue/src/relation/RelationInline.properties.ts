@@ -4,5 +4,5 @@ import { RelationBaseProperties } from './RelationBase.properties';
 
 export const RelationInlineProperties = {
   ...RelationBaseProperties,
-  values: { type: Array as PropType<any[]>, required: true as const },
+  values: { type: Array as PropType<Record<string, unknown>[]>, required: true as const },
 };

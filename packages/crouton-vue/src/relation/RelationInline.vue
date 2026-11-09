@@ -10,7 +10,7 @@
     >
       <RelationButton
         v-for="value of values"
-        :key="value.id"
+        :key="(value.id as PropertyKey)"
         :value="value"
         :options="options"
         v-bind="operations"
@@ -28,8 +28,8 @@
         :hide-label="true"
         :hide-errors="true"
         :fetch-options="fetchOptions.fetchOptions ?? undefined"
-        :label-key="options.labelKey ?? options.displayKey"
-        :value-key="options.valueKey ?? 'id'"
+        :label-key="((options.labelKey ?? options.displayKey) as string | undefined)"
+        :value-key="((options.valueKey ?? 'id') as string)"
         :enable-create="fetchOptions.enableCreate"
         @change="(v: unknown) => onChange(v as string | null)"
         @blur="onBlur"
@@ -76,13 +76,12 @@ type RelationHandlers = {
 const http = useHttpClient();
 const crouton = useCrouton();
 const formDef = computedAsync(() => {
-  const uri = props.options.resourceUri
-    ? `${props.options.resourceUri}/schemas`
-    : props.options.resource;
+  const resourceUri = props.options.resourceUri as string | undefined;
+  const uri = resourceUri ? `${resourceUri}/schemas` : (props.options.resource as string);
   return crouton.getFormByUri(uri);
 });
 const detailDef = computedAsync(() => {
-  const uri = props.options.autocompleteResource ?? props.options.resource;
+  const uri = (props.options.autocompleteResource ?? props.options.resource) as string;
   return crouton.getFormByUri(uri);
 });
 const detailResource = computed(() =>
@@ -98,23 +97,22 @@ const hasView = computed(() => 'onView' in attrs);
 const hasDelete = computed(() => 'onDelete' in attrs);
 
 const fetchOptions = computedAsync(() => {
-  const resource = props.options.autocompleteResource ?? props.options.resource;
+  const resource = (props.options.autocompleteResource ?? props.options.resource) as string;
   // Extract the linked resource's id from each value. The filter appended to
   // the autocomplete URI always uses 'id' as the key (useResourceOptions default).
   // Simple values (e.g. language { id, name }) expose id directly. Junction-table
   // records (e.g. textAuthor { textId, authorId, author: { id } }) don't have a
   // top-level id, so fall back to the first nested object that carries 'id'.
   const runtimeExclude = props.values
-    .map((item: any) => {
+    .map((item: unknown) => {
       if (typeof item !== 'object' || item === null) return item;
-      if (item['id'] != null) return item['id'];
-      for (const val of Object.values(item)) {
-        if (
-          typeof val === 'object' &&
-          val !== null &&
-          (val as any)['id'] != null
-        )
-          return (val as any)['id'];
+      const rec = item as Record<string, unknown>;
+      if (rec['id'] != null) return rec['id'];
+      for (const val of Object.values(rec)) {
+        if (typeof val === 'object' && val !== null) {
+          const nested = val as Record<string, unknown>;
+          if (nested['id'] != null) return nested['id'];
+        }
       }
       return undefined;
     })
@@ -132,25 +130,25 @@ const fetchOptions = computedAsync(() => {
 });
 
 const operations = computed(() => {
-  const ops: Record<string, (value: any) => void> = {};
+  const ops: Record<string, (value: unknown) => void> = {};
 
   if (hasView.value) {
-    ops['onView'] = (value) => attrs.onView!(value);
+    ops['onView'] = (value) => attrs.onView?.(value);
   } else {
     ops['onView'] = (value) => {
       const id = formDef.value?.idField;
-      if (id) detailResource.value?.view(value[id]);
+      if (id) detailResource.value?.view((value as Record<string, unknown>)[id]);
     };
   }
 
   if (hasDelete.value) {
     ops['onDelete'] = (value) => {
-      attrs.onDelete!(value);
+      attrs.onDelete?.(value);
     };
   }
   if (hasEdit.value) {
     ops['onEdit'] = (value) => {
-      attrs.onEdit!(value);
+      attrs.onEdit?.(value);
     };
   }
   // const resourceModal = resource.value?.resourceModal;
@@ -160,7 +158,7 @@ const operations = computed(() => {
 });
 
 const create = () => {
-  attrs.onCreate!(newValue.value);
+  attrs.onCreate?.(newValue.value);
   newValue.value = null;
 };
 
@@ -169,7 +167,7 @@ const { onCreate } = useRelationCreate({
   http,
   label: () => props.label,
   onCreated: (res) => {
-    newValue.value = res;
+    newValue.value = res as string | null;
   },
 });
 

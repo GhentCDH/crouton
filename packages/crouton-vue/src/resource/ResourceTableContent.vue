@@ -21,7 +21,7 @@
           }}</span>
         </Btn>
         <Btn
-          v-if="config.operations.create"
+          v-if="configOps.create"
           data-testid="btn-create"
           :icon="IconEnum.Plus"
           @click="resource.create"
@@ -59,7 +59,7 @@
         }}</span>
       </Btn>
       <Btn
-        v-if="config.operations.create"
+        v-if="configOps.create"
         data-testid="btn-create"
         :icon="IconEnum.Plus"
         @click="resource.create"
@@ -101,15 +101,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
 import { useLanguage } from '../i18n/useLanguage';
 import { ResourceTableContentProperties } from './ResourceTableContent.properties';
 
-defineProps(ResourceTableContentProperties);
+const props = defineProps(ResourceTableContentProperties);
 const emit = defineEmits(['editSchema', 'refresh']);
 const { t } = useLanguage();
+const configOps = computed(() => (props.config?.operations as Record<string, unknown>) ?? {});
 </script>
 
 <style scoped>

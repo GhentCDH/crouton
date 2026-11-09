@@ -6,7 +6,7 @@
     >
       <Btn
         @click="onBack"
-        :icon="ArrowLeftIcon as any"
+        :icon="ArrowLeftIcon as object"
         color="blank"
         :outline="true"
         size="sm"
@@ -107,7 +107,7 @@ import { JsonFormModalService } from './modal/FormModalService';
 const properties = defineProps(CroutonFormProperties);
 const emits = defineEmits<CroutonFormEmitsType>();
 const formRef = ref<InstanceType<typeof FormComponent>>();
-const formData = defineModel<any>();
+const formData = defineModel<Record<string, unknown>>();
 const api = computed(() => properties.http ?? useApi());
 
 const {

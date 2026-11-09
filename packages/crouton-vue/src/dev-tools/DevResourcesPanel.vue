@@ -75,9 +75,10 @@ const runPull = async (confirm = false) => {
   pullResult.value = null;
   if (confirm) pullDirtyFile.value = null;
   try {
-    const res = await useApi().post('/_app/resources/pull', { confirm });
+    type PullResponse = { requiresConfirmation?: boolean; dirtyFile?: string; restartRequired?: boolean; dbPull: { ok: boolean; output: string }; caseFormat: { ok: boolean; output: string }; generate: { ok: boolean; output: string }; zodImportsFixed?: number };
+    const res = await useApi().post<PullResponse>('/_app/resources/pull', { confirm });
     if (res.data.requiresConfirmation) {
-      pullDirtyFile.value = res.data.dirtyFile;
+      pullDirtyFile.value = res.data.dirtyFile ?? null;
       return;
     }
     pullResult.value = res.data;
@@ -156,7 +157,7 @@ const loadModels = async () => {
   loadingModels.value = true;
   modelsError.value = null;
   try {
-    const res = await useApi().get('/_app/resources/models');
+    const res = await useApi().get<{ models: DbModelSummary[] }>('/_app/resources/models');
     models.value = res.data.models;
   } catch (e) {
     modelsError.value = errorMessage(e);
@@ -199,10 +200,10 @@ const runPlan = async () => {
   planError.value = null;
   planResult.value = null;
   try {
-    const res = await useApi().post('/_app/resources/plan', {});
+    const res = await useApi().post<{ resources: PlannedResource[] }>('/_app/resources/plan', {});
     planResult.value = res.data.resources;
     selected.value = new Set(
-      res.data.resources.map((r: PlannedResource) => r.resource),
+      res.data.resources.map((r) => r.resource),
     );
   } catch (e) {
     planError.value = errorMessage(e);

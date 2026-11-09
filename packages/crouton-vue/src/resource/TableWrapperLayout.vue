@@ -17,15 +17,16 @@ const LAYOUT_CLASSES: Record<string, string> = {
   VerticalLayout: 'flex flex-col gap-3',
 };
 
-const isCollapse = (el: any) => el?.type === 'CollapseLayout' || el?.type === 'Group';
-const isTable = (el: any) => el?.type === 'Table';
-const isComponent = (el: any) => el?.component && !el?.type;
-const layoutClass = computed(() => LAYOUT_CLASSES[props.ui?.type] ?? 'flex flex-col gap-3');
-const collapseTitle = computed(() => props.ui?.options?.title ?? props.ui?.label ?? '');
-const elements = computed((): any[] => props.ui?.elements ?? []);
-const colspanClass = (el: any) => el?.colspan ? `col-span-${el.colspan}` : 'col-span-full';
+type UiEl = Record<string, unknown>;
+const isCollapse = (el: UiEl) => el?.type === 'CollapseLayout' || el?.type === 'Group';
+const isTable = (el: UiEl) => el?.type === 'Table';
+const isComponent = (el: UiEl) => el?.component && !el?.type;
+const layoutClass = computed(() => LAYOUT_CLASSES[props.ui?.type as string] ?? 'flex flex-col gap-3');
+const collapseTitle = computed(() => (props.ui?.options as UiEl | undefined)?.title as string ?? (props.ui?.label as string | undefined) ?? '');
+const elements = computed((): UiEl[] => props.ui?.elements as UiEl[] ?? []);
+const colspanClass = (el: UiEl) => el?.colspan ? `col-span-${el.colspan as number}` : 'col-span-full';
 
-const getComponent = (el: any) => findCustomComponent(crouton.customComponents, el.component);
+const getComponent = (el: UiEl) => findCustomComponent(crouton.customComponents, el.component as string | undefined);
 </script>
 
 <template>

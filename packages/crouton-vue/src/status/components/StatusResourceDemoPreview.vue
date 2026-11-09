@@ -24,7 +24,7 @@
       <template v-if="activeTab === 'form'">
         <CroutonForm
           v-if="views"
-          :views="views as any"
+          :views="(views as unknown as Record<string, any>)"
           :data="formData"
           v-model="formData"
           :http="api"
@@ -36,7 +36,7 @@
       <template v-if="activeTab === 'view'">
         <CroutonForm
           v-if="views"
-          :views="views as any"
+          :views="(views as unknown as Record<string, any>)"
           :data="formData"
           :http="api"
           :readonly="true"
@@ -51,7 +51,7 @@
           id="layout-demo-table"
           :ui-schema="props.def.schemas.table.ui"
           :schema="props.def.schemas.table.data"
-          :data="sampleRows"
+          :data="sampleRows as ({ id: string | number } & Record<string, unknown>)[]"
           :hide-pagination="true"
         />
         <p v-else class="text-sm opacity-50 italic">No table schema generated.</p>
@@ -110,14 +110,14 @@ const props = defineProps(StatusResourceDemoPreviewProperties);
 
 const api = useApi();
 const activeTab = ref<Tab>('form');
-const formData = ref<Record<string, any>>({});
+const formData = ref<Record<string, unknown>>({});
 const layoutJson = ref('');
 const parseErrors = ref<string[]>([]);
 const warnings = ref<string[]>([]);
 
 const views = computed(() => props.def.schemas);
 const formUiSchema = computed(() => props.def.schemas.form?.ui ?? null);
-const sampleRows = ref<any[]>([]);
+const sampleRows = ref<Record<string, unknown>[]>([]);
 
 watch(
   () => props.def,
