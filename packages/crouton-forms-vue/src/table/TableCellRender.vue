@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getDisplayComponent } from '../forms/renderers/controls/composables/useReadonlyBinding';
+import { getDisplayComponent, type ReadonlyOpts } from '../forms/renderers/controls/composables/useReadonlyBinding';
 
 const props = defineProps({
   data: { type: Object, required: true },
@@ -22,7 +22,7 @@ const value = computed(() => {
 });
 
 const displayComponent = computed(() =>
-  getDisplayComponent(value.value, props.options),
+  getDisplayComponent(value.value, (props.options ?? {}) as ReadonlyOpts),
 );
 
 // const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
