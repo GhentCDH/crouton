@@ -107,5 +107,5 @@ const {
   onRetry,
   onFormEvents,
   onErrors,
-} = useFormLogic(properties, emits, formData, formRef);
+} = useFormLogic(properties, emits, formData as { value: Record<string, unknown> }, formRef);
 </script>

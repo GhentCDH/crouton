@@ -45,7 +45,7 @@ import {
   FORM_SUBMITTED_KEY,
 } from './errorMode';
 import { customRenderers } from './renderers';
-import type { FormEventPayload } from '../composables/useFormEvents';
+import type { FormEventDispatch, FormEventPayload } from '../composables/useFormEvents';
 import { provideFormEvents } from '../composables/useFormEvents';
 import { provideHttpClient } from '../composables/useHttpClient';
 import {
@@ -138,9 +138,9 @@ onMounted(async () => {
   emits('valid', result.valid);
 });
 
-provideFormEvents((payload: FormEventPayload) => {
+provideFormEvents(((payload: FormEventPayload) => {
   emits('events', payload);
-});
+}) as FormEventDispatch);
 
 if (properties.http) {
   provideHttpClient(properties.http);

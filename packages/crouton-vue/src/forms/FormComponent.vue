@@ -48,10 +48,10 @@ const { showErrors, debugValue } = useCrouton();
 
 const formRef = ref<InstanceType<typeof JsonForm> | null>(null);
 
-type JsonFormExposed = { markSubmitted?: () => void; getCurrentValues?: () => unknown; validate?: () => boolean };
+type JsonFormExposed = { markSubmitted?: () => void; getCurrentValues?: () => unknown; validate?: () => Promise<{ valid: boolean }> };
 defineExpose({
   markSubmitted: () => (formRef.value as unknown as JsonFormExposed)?.markSubmitted?.(),
-  getCurrentValues: () => (formRef.value as unknown as JsonFormExposed)?.getCurrentValues?.(),
+  getCurrentValues: () => (formRef.value as unknown as JsonFormExposed)?.getCurrentValues?.() as Record<string, unknown>,
   validate: () => (formRef.value as unknown as JsonFormExposed)?.validate?.(),
 });
 </script>

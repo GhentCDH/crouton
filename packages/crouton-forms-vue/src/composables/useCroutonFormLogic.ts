@@ -1,5 +1,4 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
-import type { ComponentPublicInstance } from 'vue';
 import { nextTick, ref, watch } from 'vue';
 
 import type { ViewConfig } from '@ghentcdh/crouton-core';
@@ -9,20 +8,20 @@ import type { FormEventPayload } from './useFormEvents';
 import { useDefaultRenderers } from './useRendererProvider';
 
 export interface FormResourceApi {
-  create(data: any): Promise<any>;
-  save?(id: string, data: any): Promise<any>;
-  patch?(id: string, data: any): Promise<any>;
+  create(data: Record<string, unknown>): Promise<unknown>;
+  save?(id: string, data: Record<string, unknown>): Promise<unknown>;
+  patch?(id: string, data: Record<string, unknown>): Promise<unknown>;
 }
 
 export interface CroutonFormLogicProps {
   readonly?: boolean;
   views: Record<string, ViewConfig>;
-  renderers?: any[] | null;
-  data?: any;
+  renderers?: JsonFormsRendererRegistryEntry[] | null;
+  data?: Record<string, unknown>;
   autoSave?: boolean;
-  onAutoSave?: ((data: any) => Promise<any>) | null;
-  onRefreshData?: (() => Promise<any>) | null;
-  formatBeforeSave?: ((data: any) => Promise<any>) | null;
+  onAutoSave?: ((data: Record<string, unknown>) => Promise<unknown>) | null;
+  onRefreshData?: (() => Promise<unknown>) | null;
+  formatBeforeSave?: ((data: Record<string, unknown>) => Promise<Record<string, unknown>>) | null;
   resourceApi?: FormResourceApi | null;
   saveId?: string | null;
 }
@@ -32,7 +31,7 @@ export type CroutonFormLogicEmitsType = {
   save: [data: unknown];
   onSaveSuccess: [response: unknown];
   onSaveError: [error: unknown];
-  closeModal: [result: { data: any; valid: boolean } | null];
+  closeModal: [result: { data: Record<string, unknown>; valid: boolean } | null];
   events: [payload: FormEventPayload];
   errors: [errors: unknown];
   valid: [isValid: boolean];
@@ -44,15 +43,14 @@ export const useCroutonFormLogic = (
     event: K,
     ...args: CroutonFormLogicEmitsType[K]
   ) => void,
-  formData: { value: any },
-  formRef: { value: ComponentPublicInstance | null | undefined },
+  formData: { value: Record<string, unknown> },
+  formRef: { value: { validate?: () => Promise<{ valid: boolean }>; markSubmitted?: () => void; getCurrentValues?: () => Record<string, unknown> } | null | undefined },
 ) => {
   const viewType = properties.readonly ? 'view' : 'form';
-  const view = ((properties.views as any)?.[viewType] ??
-    null) as ViewConfig | null;
+  const view = (properties.views[viewType] ?? null) as ViewConfig | null;
   const uiSchema = view?.ui ?? null;
   const schema = view?.data ?? null;
-  const errors = ref(null);
+  const errors = ref<unknown>(null);
   const id = `edit_${Math.floor(Math.random() * 1000)}`;
   const valid = ref(!(uiSchema && schema));
 
@@ -63,15 +61,15 @@ export const useCroutonFormLogic = (
   watch(
     () => properties.data,
     async () => {
-      formData.value = properties.data;
+      formData.value = properties.data ?? {};
       await nextTick();
-      const result = await (formRef.value as any)?.validate?.();
+      const result = await formRef.value?.validate?.();
       if (result) valid.value = result.valid;
     },
   );
 
   const renderers = useDefaultRenderers(
-    properties.renderers as JsonFormsRendererRegistryEntry[] | null,
+    properties.renderers ?? null,
     properties.readonly ?? false,
   );
 
@@ -97,31 +95,30 @@ export const useCroutonFormLogic = (
     valid.value = isValid;
   };
 
-  const onChange = (data: any) => {
+  const onChange = (data: Record<string, unknown>) => {
     currentValues.value = data;
     triggerAutoSave(data, valid.value);
   };
 
-  const onSubmit = () => {
-    (formRef.value as any)?.markSubmitted?.();
+  const onSubmit = async () => {
+    formRef.value?.markSubmitted?.();
     if (!valid.value) return;
 
     let data = liveValues();
 
     if (properties.formatBeforeSave) {
-      data = properties.formatBeforeSave(data);
+      data = await properties.formatBeforeSave(data);
     }
 
     const resourceApi = properties.resourceApi;
     if (resourceApi) {
-      let request: Promise<any>;
+      let request: Promise<unknown>;
       const objectId = properties.saveId;
       if (!objectId) {
         request = resourceApi.create(data);
       } else {
-        let fn = properties.autoSave ? resourceApi.patch : resourceApi.save;
-        fn = fn ?? resourceApi.save;
-        request = fn!(objectId, data);
+        const fn = (properties.autoSave ? resourceApi.patch : null) ?? resourceApi.save;
+        request = fn ? fn(objectId, data) : Promise.resolve(null);
       }
       request
         .then((response) => {
@@ -138,7 +135,7 @@ export const useCroutonFormLogic = (
     }
   };
 
-  const onErrors = (_errors: any) => {
+  const onErrors = (_errors: unknown) => {
     emits('errors', _errors);
     errors.value = _errors;
 

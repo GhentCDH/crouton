@@ -2,7 +2,7 @@
   <Autocomplete
     :label="label"
     v-if="fetchOptions"
-    :model-value="displayValue"
+    :model-value="(displayValue as string | Record<string, unknown> | undefined)"
     :clearable="true"
     :fetch-options="fetchOptions.fetchOptions ?? undefined"
     :label-key="labelKeyName"
@@ -61,9 +61,11 @@ const fetchOptions = computedAsync(() => {
  * verbatim, so a stored scalar would render as a raw id when editing. Resolve
  * it back to its record for display only; the emitted value stays scalar.
  */
+const fetchOptionsForDisplay = computed(() => fetchOptions.value ?? null);
+
 const { displayValue } = useAutocompleteDisplayValue(
   () => props.value,
-  fetchOptions,
+  fetchOptionsForDisplay,
   () => labelKeyName.value,
   () => valueKeyName.value,
 );

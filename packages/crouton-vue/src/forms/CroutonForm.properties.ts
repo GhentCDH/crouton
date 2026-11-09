@@ -29,7 +29,7 @@ export const CroutonFormProperties = {
     required: true as const,
   },
   formatBeforeSave: {
-    type: Function as PropType<(data: unknown) => Promise<unknown>>,
+    type: Function as PropType<(data: Record<string, unknown>) => Promise<Record<string, unknown>>>,
     required: false,
     default: null,
   },

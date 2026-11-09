@@ -10,17 +10,17 @@ export type FormEventName = 'create' | 'view' | 'update-relation';
  * Payload passed along with every form event. `type` is user-defined (e.g.
  * `'author'`, `'keyword'`) so the host can decide what entity to act on.
  */
-export type FormEventPayload<TData = any, TResult = any> = {
+export type FormEventPayload<TData = unknown, TResult = unknown> = {
   event: FormEventName;
   type: string;
   data?: TData;
   id?: string | number;
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
   onSuccess?: (result: TResult) => void;
   onError?: (error: unknown) => void;
 };
 
-export type FormEventDispatch = <TData = any, TResult = any>(
+export type FormEventDispatch = <TData = unknown, TResult = unknown>(
   payload: FormEventPayload<TData, TResult>,
 ) => void;
 

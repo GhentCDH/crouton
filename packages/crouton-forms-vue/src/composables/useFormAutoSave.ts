@@ -5,9 +5,9 @@ import type { FormEventPayload } from './useFormEvents';
 
 export interface AutoSaveFormProps {
   autoSave?: boolean;
-  onAutoSave?: ((data: any) => Promise<any>) | null;
-  onRefreshData?: (() => Promise<any>) | null;
-  data?: any;
+  onAutoSave?: ((data: Record<string, unknown>) => Promise<unknown>) | null;
+  onRefreshData?: (() => Promise<unknown>) | null;
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -15,12 +15,16 @@ export interface AutoSaveFormProps {
  * AutoSaveForm) and `useCroutonFormLogic` (CroutonForm). Both wrappers keep
  * their own submit/validity rules; only the duplicated wiring lives here.
  */
+type FormRefInstance = {
+  getCurrentValues?: () => Record<string, unknown>;
+};
+
 export const useFormAutoSave = (
   properties: AutoSaveFormProps,
   emits: (event: 'events', payload: FormEventPayload) => void,
   valid: { value: boolean },
-  formData: { value: any },
-  formRef: { value: any },
+  formData: { value: Record<string, unknown> },
+  formRef: { value: FormRefInstance | null | undefined },
 ) => {
   const autoSaver =
     properties.autoSave && properties.onAutoSave
@@ -39,7 +43,7 @@ export const useFormAutoSave = (
   const liveValues = () =>
     formRef.value?.getCurrentValues?.() ?? formData.value;
 
-  const triggerAutoSave = (data: any, isValid: boolean) => {
+  const triggerAutoSave = (data: Record<string, unknown>, isValid: boolean) => {
     if (autoSaver && !isRefreshing) {
       userHasEdited.value = true;
       autoSaver.trigger(data, isValid);
@@ -61,9 +65,10 @@ export const useFormAutoSave = (
         .onRefreshData()
         .then((fresh) => {
           if (fresh) {
-            autoSaver?.resetBaseline(fresh);
+            const freshData = fresh as Record<string, unknown>;
+            autoSaver?.resetBaseline(freshData);
             nextTick(() => {
-              formData.value = fresh;
+              formData.value = freshData;
             });
           }
         })
