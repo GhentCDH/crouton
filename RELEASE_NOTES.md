@@ -1,3 +1,73 @@
+## 0.0.1-alpha.89 (2026-11-09)
+
+### 🚀 Features
+
+- move i18n translation foundation to frontend ([#294](https://github.com/GhentCDH/crouton/pull/294))
+- add in/not_in filter operators and autocomplete exclude option ([#371](https://github.com/GhentCDH/crouton/pull/371))
+- dot-path includes, filter allowlist, and sub-resource ?q= search ([#373](https://github.com/GhentCDH/crouton/pull/373))
+- disable forms not in sidebar ([#356](https://github.com/GhentCDH/crouton/pull/356), [#387](https://github.com/GhentCDH/crouton/pull/387))
+- **api:** forward search paths and filter allowlist into adapter and custom-repository contexts ([#388](https://github.com/GhentCDH/crouton/pull/388))
+- **api:** introduce CrudContext base and shared context module ([#394](https://github.com/GhentCDH/crouton/pull/394))
+- **api:** add toRepositoryContext helper and type tests ([#396](https://github.com/GhentCDH/crouton/pull/396))
+- **api:** add buildCrudContext factory and thread config/dataSources into hook ctx ([#398](https://github.com/GhentCDH/crouton/pull/398))
+- **api,core:** add dynamic ?include= query param for relations ([#270](https://github.com/GhentCDH/crouton/pull/270))
+- **api,core,vue:** on-demand eager loading for custom child relations ([#264](https://github.com/GhentCDH/crouton/pull/264), [#386](https://github.com/GhentCDH/crouton/pull/386))
+- **auth:** scaffold auth-providers libs — project structure, types, schema- #389 ([#389](https://github.com/GhentCDH/crouton/pull/389))
+- **auth:** implement auth-providers logic — libs, NestJS wiring, Vue OIDC flow ([#390](https://github.com/GhentCDH/crouton/pull/390))
+- **auth:** configurable scopes and refresh token support ([#395](https://github.com/GhentCDH/crouton/pull/395))
+- **core:** support dot-path strings in operations.*.include ([#372](https://github.com/GhentCDH/crouton/pull/372))
+- **core:** resource.json Blocks 6 & 7 — relations out of fieldInput, lookup.labels ([#374](https://github.com/GhentCDH/crouton/pull/374))
+- **crouton-codegen:** default isList enum columns to multiSelect ([#272](https://github.com/GhentCDH/crouton/pull/272), [#275](https://github.com/GhentCDH/crouton/pull/275))
+- **crouton-core:** add readonly and sortId to layout item schemas ([#400](https://github.com/GhentCDH/crouton/pull/400))
+- **crouton-core:** add getIn, assertDefined, UnknownRecord to utils/guards ([#436](https://github.com/GhentCDH/crouton/pull/436))
+- **crouton-core,crouton-forms-vue:** disabled and disabledWhen on ev… ([#232](https://github.com/GhentCDH/crouton/pull/232))
+- **crouton-vue:** CRUD feedback status line in table toolbar ([#421](https://github.com/GhentCDH/crouton/pull/421))
+- **crouton-vue:** action feedback in toolbar + fix i18n strings ([#426](https://github.com/GhentCDH/crouton/pull/426), [#425](https://github.com/GhentCDH/crouton/issues/425))
+- **e2e:** demo fields + phases 4/7/8 control, layout, i18n specs ([#423](https://github.com/GhentCDH/crouton/pull/423))
+- **status:** show sub-resources on /status page ([#276](https://github.com/GhentCDH/crouton/pull/276))
+- **status:** expandable sub-resource rows with definition and form/view/table preview ([#278](https://github.com/GhentCDH/crouton/pull/278))
+
+### 🩹 Fixes
+
+- relation columns visible in auto-generated table/view schema ([#235](https://github.com/GhentCDH/crouton/pull/235))
+- preserve autocompleteResource and repair createChild foreignKey injection ([#239](https://github.com/GhentCDH/crouton/pull/239))
+- lower vee-validate peer dep floor to >=5.0.0-beta.0 ([#237](https://github.com/GhentCDH/crouton/pull/237))
+- 244 empty string null ([#257](https://github.com/GhentCDH/crouton/pull/257), [#244](https://github.com/GhentCDH/crouton/issues/244))
+- command references that does not exist ([#259](https://github.com/GhentCDH/crouton/pull/259))
+- 243 column position ([#258](https://github.com/GhentCDH/crouton/pull/258), [#244](https://github.com/GhentCDH/crouton/issues/244), [#243](https://github.com/GhentCDH/crouton/issues/243))
+- #240 sourcetable and sourcedatabase ([#261](https://github.com/GhentCDH/crouton/pull/261), [#240](https://github.com/GhentCDH/crouton/issues/240))
+- confirm before deleting relation record from chip ([#266](https://github.com/GhentCDH/crouton/pull/266))
+- restore publish metadata dropped by the knip PR ([#366](https://github.com/GhentCDH/crouton/pull/366), [#367](https://github.com/GhentCDH/crouton/pull/367))
+- tests ([987be53](https://github.com/GhentCDH/crouton/commit/987be53))
+- tests ([0acc2ed](https://github.com/GhentCDH/crouton/commit/0acc2ed))
+- **api:** correct hook context on custom resources ([#359](https://github.com/GhentCDH/crouton/pull/359))
+- **api:** use case-insensitive mode for ?q= text search ([#375](https://github.com/GhentCDH/crouton/pull/375))
+- **auth:** map resource_access client roles and use rolesClaim in frontend ([#420](https://github.com/GhentCDH/crouton/pull/420))
+- **auth:** JWKS local token verification with audience validation ([#433](https://github.com/GhentCDH/crouton/pull/433))
+- **auth-nest:** type profile and done in MicrosoftStrategy validate ([#431](https://github.com/GhentCDH/crouton/pull/431))
+- **auth-vue:** persist OIDC session in localStorage for refresh token support ([#432](https://github.com/GhentCDH/crouton/pull/432))
+- **core:** keep a non-empty table for relation-only columns ([#358](https://github.com/GhentCDH/crouton/pull/358))
+- **crouton-api:** detect SQL dialect for computed column placeholders — fixes SQLite ([#256](https://github.com/GhentCDH/crouton/pull/256), [#245](https://github.com/GhentCDH/crouton/issues/245))
+- **crouton-api:** exclude computed columns from search paths ([#265](https://github.com/GhentCDH/crouton/pull/265))
+- **crouton-cli:** type command opts and fix non-null assertions ([#439](https://github.com/GhentCDH/crouton/pull/439))
+- **crouton-codegen:** remove non-null assertions and unsafe-access warnings in tests ([#441](https://github.com/GhentCDH/crouton/pull/441))
+- **crouton-core:** layout.view/form container-only node no longer hides all columns ([#242](https://github.com/GhentCDH/crouton/pull/242), [#254](https://github.com/GhentCDH/crouton/pull/254))
+- **crouton-core:** remove payload-builder wrappers by fixing relationType assignability ([#295](https://github.com/GhentCDH/crouton/pull/295))
+- **crouton-core:** clear named-as-default and unused var lint warnings ([#438](https://github.com/GhentCDH/crouton/pull/438))
+- **crouton-core,crouton-api:** exclude computed columns from buildLayouts to prevent duplication in table ([#247](https://github.com/GhentCDH/crouton/pull/247), [#251](https://github.com/GhentCDH/crouton/pull/251))
+- **crouton-core,crouton-api:** default computed column type to 'string' instead of 'number' ([#248](https://github.com/GhentCDH/crouton/pull/248), [#253](https://github.com/GhentCDH/crouton/pull/253))
+- **crouton-forms-vue:** guard parseDate with ISO_DATE_RE to prevent year strings like '1990' rendering as dates ([#249](https://github.com/GhentCDH/crouton/pull/249), [#250](https://github.com/GhentCDH/crouton/pull/250))
+- **crouton-vue:** add custom onView in relationInline ([#361](https://github.com/GhentCDH/crouton/pull/361))
+- **e2e:** extract typed disableAnimations helper, remove page:any in visual-regression specs ([#434](https://github.com/GhentCDH/crouton/pull/434))
+- **editor-vue,backend:** remove explicit any warnings ([#435](https://github.com/GhentCDH/crouton/pull/435))
+- **eslint:** configure no-unused-vars to ignore _-prefixed vars and rest siblings ([#437](https://github.com/GhentCDH/crouton/pull/437))
+- **vue:** show customComponent in readonly modal and fix schema 404s ([#363](https://github.com/GhentCDH/crouton/pull/363))
+- **vue:** forward custom onView handler in RelationInline to RelationButton ([#369](https://github.com/GhentCDH/crouton/pull/369))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.88 (2026-10-21)
 
 This was a version bump only, there were no code changes.
