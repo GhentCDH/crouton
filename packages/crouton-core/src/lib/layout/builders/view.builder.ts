@@ -23,17 +23,20 @@ export const buildViewLayout = (
   const fieldIds =
     ctx.fieldIds?.view ?? collectNodeFieldIds(node as LayoutNode | undefined, 'view');
 
-  const uiBuilder = node
-    ? (cols: typeof columns) =>
-        buildFormUiSchemaFromLayout(node as LayoutNode, cols, ctx.warn)
-    : buildFormUiSchema;
+  const hasExplicitItems =
+    collectNodeFieldIds(node as LayoutNode | undefined, 'view').size > 0;
+  const uiBuilder =
+    node && hasExplicitItems
+      ? (cols: typeof columns) =>
+          buildFormUiSchemaFromLayout(node as LayoutNode, cols, ctx.warn)
+      : buildFormUiSchema;
 
   return buildView(
     source,
     viewCols,
     (c) => fieldIds.has(c.id),
     uiBuilder,
-    node == null, // sort by position only when no explicit layout (layout order wins)
+    !hasExplicitItems, // sort by position only when no explicit layout (layout order wins)
     undefined,
     ctx.resourceName,
   );
