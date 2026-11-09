@@ -17,7 +17,7 @@ const props = defineProps(DisplayValueProperties);
  * `withTime` is resolved upstream in `useReadonlyBinding`. Defaults to `true`
  * so a component rendered without it keeps the previous behaviour.
  */
-const withTime = computed(() => (props.options as any)?.withTime !== false);
+const withTime = computed(() => (props.options as { withTime?: unknown })?.withTime !== false);
 
 const formatted = computed(() =>
   formatDate(props.displayValue, { withTime: withTime.value }),

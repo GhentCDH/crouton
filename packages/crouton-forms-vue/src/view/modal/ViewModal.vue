@@ -71,7 +71,7 @@ const t = useUiTranslator();
 const id = `view_${Math.floor(Math.random() * 1000)}`;
 
 const valid = ref(false);
-const formData = defineModel<any>();
+const formData = defineModel<Record<string, unknown>>();
 const emits = defineEmits(ViewModalEmits);
 
 if (properties.data) {
@@ -105,7 +105,7 @@ watch(valid, (newValid, oldValid) => {
   }
 });
 
-const handleEvent = (event: { event: string; [key: string]: any }) => {
+const handleEvent = (event: { event: string; [key: string]: unknown }) => {
   // ignore events other than view for now
   if (event.event !== 'view') return;
 

@@ -14,9 +14,9 @@ export const ViewModalProperties = {
   /** Label for the delete button. Only rendered when `canDelete` is true. */
   deleteLabel: { type: String, default: 'Delete' },
   /** JSON schema describing the shape of the form data. */
-  schema: { type: Object as PropType<any>, required: true as const },
+  schema: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** UI schema describing the layout and controls. */
-  uiSchema: { type: Object as PropType<any>, required: true as const },
+  uiSchema: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** Modal width (`'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`). */
   modalSize: { type: String as PropType<SizeType>, default: 'md' },
   /** Callback invoked when the modal closes (with result or `null` on cancel). */
@@ -40,10 +40,10 @@ export const ViewModalProperties = {
    */
   canDelete: { type: Boolean, default: false },
   /** Initial form data to populate the form with. */
-  data: { type: Object as PropType<any>, required: true as const },
+  data: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** Custom renderer registry passed to the inner JsonForm. */
   renderers: {
-    type: Array as PropType<any[]>,
+    type: Array as PropType<unknown[]>,
     default: null,
   },
   /** HTTP client forwarded to FormComponent so custom renderers can make API calls. */
@@ -65,7 +65,7 @@ export const ViewModalEmits = [
 ];
 
 /** Result payload returned when the modal is submitted. */
-export type ViewModalResult<DATA = any> = {
+export type ViewModalResult<DATA = Record<string, unknown>> = {
   /** The form data at the time of submission. */
   data: DATA;
   /** Whether the form passed validation. */

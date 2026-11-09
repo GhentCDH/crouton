@@ -3,9 +3,7 @@ import type { ExtractPublicPropTypes, PropType } from 'vue';
 import type { HttpClient } from '../http-client';
 import type { ErrorMode } from './errorMode';
 
-export type Data = {
-  [key: string]: any;
-};
+export type Data = Record<string, unknown>;
 
 export type SubmitFormEvent = {
   data: Data;
@@ -18,9 +16,9 @@ export const JsonFormComponentProperties = {
   /** HTML name attribute for the form. */
   name: { type: String, default: 'form' },
   /** JSON schema describing the shape of the form data. */
-  schema: { type: Object as PropType<any>, required: true as const },
+  schema: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** UI schema describing the layout and controls. */
-  uiSchema: { type: Object as PropType<any>, required: true as const },
+  uiSchema: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** Disable all form controls. */
   disabled: { type: Boolean, default: false },
   /** Make all form controls readonly. */
@@ -39,7 +37,7 @@ export const JsonFormComponentProperties = {
   },
   /** Custom renderer registry. Overrides the default `customRenderers` when provided. */
   renderers: {
-    type: Array as PropType<any[]>,
+    type: Array as PropType<unknown[]>,
     default: null,
   },
   validateOnMount: {

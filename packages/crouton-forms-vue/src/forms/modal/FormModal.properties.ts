@@ -13,14 +13,14 @@ export const FormModalProperties = {
   /** Label for the cancel button. */
   cancelLabel: { type: String, default: 'Cancel' },
   /** JSON schema describing the shape of the form data. */
-  schema: { type: Object as PropType<any>, required: true as const },
+  schema: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** UI schema describing the layout and controls. */
-  uiSchema: { type: Object as PropType<any>, required: true as const },
+  uiSchema: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** Modal width (`'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`). */
   modalSize: { type: String as PropType<SizeType>, default: 'md' },
   /** Callback invoked when the modal closes (with result or `null` on cancel). */
   onClose: {
-    type: Function as PropType<(result: any) => void>,
+    type: Function as PropType<(result: unknown) => void>,
     required: true as const,
   },
   ...SharedFormProperties,
@@ -45,7 +45,7 @@ export const FormModalEmits = [
 ];
 
 /** Result payload returned when the modal is submitted. */
-export type FormModalResult<DATA = any> = {
+export type FormModalResult<DATA = Record<string, unknown>> = {
   /** The form data at the time of submission. */
   data: DATA;
   /** Whether the form passed validation. */

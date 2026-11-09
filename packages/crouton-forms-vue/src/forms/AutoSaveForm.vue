@@ -102,7 +102,7 @@ onMounted(() => {
   );
 });
 const formRef = ref<InstanceType<typeof FormComponent>>();
-const formData = defineModel<any>();
+const formData = defineModel<Record<string, unknown>>();
 const navigate = useRouter();
 
 const {

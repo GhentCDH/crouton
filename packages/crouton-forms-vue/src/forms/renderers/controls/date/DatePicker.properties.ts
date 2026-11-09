@@ -21,7 +21,7 @@ const CONTROL_WRAPPER_FALLBACK = {
   label: { type: String, default: undefined },
   size: { type: String, default: undefined },
   width: { type: String, default: undefined },
-  styles: { type: Object as PropType<any>, default: undefined },
+  styles: { type: Object as PropType<Record<string, unknown>>, default: undefined },
   visible: { type: Boolean, default: true },
   required: { type: Boolean, default: false },
   // The one that matters: without it the input is disabled forever.

@@ -16,7 +16,7 @@ export const SharedFormProperties = {
     required: false,
   },
   /** Initial form data to populate the form with. */
-  data: { type: Object as PropType<any>, required: true as const },
+  data: { type: Object as PropType<Record<string, unknown>>, required: true as const },
   /** When validation errors are shown. */
   errorMode: {
     type: String as PropType<ErrorMode>,
@@ -31,7 +31,7 @@ export const SharedFormProperties = {
   },
   /** Custom renderer registry passed to the inner form. */
   renderers: {
-    type: Array as PropType<any[]>,
+    type: Array as PropType<unknown[]>,
     default: null,
     required: false,
   },
@@ -49,7 +49,7 @@ export const SharedFormProperties = {
    * is valid. Should return a promise. Only used when `autoSave` is true.
    */
   onAutoSave: {
-    type: Function as PropType<(data: any) => Promise<any>>,
+    type: Function as PropType<(data: Record<string, unknown>) => Promise<unknown>>,
     default: null,
   },
   /**
@@ -61,7 +61,7 @@ export const SharedFormProperties = {
    * Only meaningful in edit mode (relations require an existing parent id).
    */
   onRefreshData: {
-    type: Function as PropType<() => Promise<any>>,
+    type: Function as PropType<() => Promise<unknown>>,
     default: null,
   },
   validateOnMount: {

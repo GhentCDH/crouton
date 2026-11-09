@@ -98,7 +98,7 @@ const operatorOptions = computed(() => {
 
 const noValue = computed(() => OperatorNoValue.has(props.modelValue.operator));
 
-const update = (key: keyof Filter, value: any) => {
+const update = (key: keyof Filter, value: Filter[keyof Filter]) => {
   emit('update:modelValue', { ...props.modelValue, [key]: value });
 };
 

@@ -38,19 +38,20 @@ type CustomErrorIssue = Parameters<
   Exclude<z.core.$ZodConfig['customError'], undefined>
 >[0];
 type IssueTester = (issue: CustomErrorIssue) => boolean;
+type SizedIssue = CustomErrorIssue & { origin?: string; minimum?: number; maximum?: number };
 
 const isRequired: IssueTester = (issue) =>
   ((issue.code === 'invalid_type' || issue.code === 'invalid_value') &&
     (issue.input === undefined || issue.input === null)) ||
   (issue.code === 'too_small' &&
-    (issue as any).origin === 'string' &&
-    (issue as any).minimum === 1);
+    (issue as SizedIssue).origin === 'string' &&
+    (issue as SizedIssue).minimum === 1);
 
 const isTooSmallString: IssueTester = (issue) =>
-  issue.code === 'too_small' && (issue as any).origin === 'string';
+  issue.code === 'too_small' && (issue as SizedIssue).origin === 'string';
 
 const isTooBigString: IssueTester = (issue) =>
-  issue.code === 'too_big' && (issue as any).origin === 'string';
+  issue.code === 'too_big' && (issue as SizedIssue).origin === 'string';
 
 const errorDictionary: {
   test: IssueTester;
@@ -59,11 +60,11 @@ const errorDictionary: {
   { test: isRequired, message: 'This field is required' },
   {
     test: isTooSmallString,
-    message: (issue) => `Must be at least ${(issue as any).minimum} characters`,
+    message: (issue) => `Must be at least ${(issue as SizedIssue).minimum} characters`,
   },
   {
     test: isTooBigString,
-    message: (issue) => `Must be at most ${(issue as any).maximum} characters`,
+    message: (issue) => `Must be at most ${(issue as SizedIssue).maximum} characters`,
   },
 ];
 

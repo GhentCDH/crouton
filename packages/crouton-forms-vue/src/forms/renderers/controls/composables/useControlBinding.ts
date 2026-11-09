@@ -35,8 +35,8 @@ export type useCustomProps = (
   uischema: ControlElement,
   schema: JsonSchema,
   field: FieldContext,
-  options: any,
-) => Ref<any>;
+  options: Record<string, unknown>,
+) => Ref<unknown>;
 
 interface ResolvedControlOptions {
   useProps?: useCustomProps;
@@ -77,7 +77,7 @@ export const useResolvedControl = (
     formValues,
     field,
     path,
-    wrapper: computed(() => ({ ...wrapper.value, ...customWrapper.value })),
+    wrapper: computed(() => ({ ...wrapper.value, ...(customWrapper.value as Record<string, unknown>) })),
     appliedOptions: computed(() => uischema.options ?? {}),
   };
 };
@@ -113,7 +113,7 @@ export const useCustomControlBinding = <
       onBlur,
       onChange,
       // True while an async field validation (e.g. a unique check) is in flight.
-      isValidating: computed(() => !!(field.meta as any)?.pending),
+      isValidating: computed(() => !!(field.meta as { pending?: unknown })?.pending),
       appliedOptions: computed(
         () => (uischema.options ?? {}) as CONTROL_OPTION,
       ),
