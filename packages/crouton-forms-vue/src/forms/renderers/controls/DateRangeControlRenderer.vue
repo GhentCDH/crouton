@@ -96,6 +96,8 @@ const toField = computed<string>(
 );
 
 const yearOnly = computed<boolean>(
+  // appliedOptions is typed as ControlOption | { [key: string]: any } from jsonforms;
+  // custom options not in ControlOption need a cast to access without TS2339.
   () => !!((appliedOptions.value as Record<string, unknown>)?.yearOnly),
 );
 
