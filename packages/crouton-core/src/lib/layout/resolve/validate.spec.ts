@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { validateLayout } from './validate';
 import type { JsonColumn } from '../../resource/Column';
 import type { FormLayoutNode } from '../schema/LayoutNode.schema';
+import { validateLayout } from './validate';
 
 const col = (id: string, extra: Partial<JsonColumn> = {}): JsonColumn =>
   ({ id, hiddenInTable: false, hiddenInForm: false, hiddenInView: false, ...extra } as JsonColumn);

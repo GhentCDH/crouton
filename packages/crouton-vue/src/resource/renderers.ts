@@ -11,13 +11,13 @@ import {
   optionIsIgnoreCase,
 } from '@ghentcdh/crouton-forms-vue';
 
+import RelationCell from '../relation/RelationCell.vue';
+import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
+import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 import ComponentCellRenderer from './ComponentCellRenderer.vue';
 import ComponentLayoutRenderer from './ComponentLayoutRenderer.vue';
 import CustomCellRenderer from './CustomCellRenderer.vue';
 import CustomFormatRenderer from './CustomFormatRenderer.vue';
-import RelationCell from '../relation/RelationCell.vue';
-import RelationControlRenderer from '../relation/RelationControlRenderer.vue';
-import RelationReadonlyRenderer from '../relation/RelationReadonlyRenderer.vue';
 
 export const isCustomFormat = (format: string) =>
   and(optionIsIgnoreCase('format', format));

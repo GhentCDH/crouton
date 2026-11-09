@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
+import type { ResourceJson } from '../resource';
 import {
   buildValueLabelColumns,
   resolveValueLabelColumns,
 } from './column-transforms';
 import { compileResource } from './compile-resource';
-import { invalid } from '../../testing/index';
-import type { ResourceJson } from '../resource';
 
 const values = [
   { value: 'red', label: 'Red' },

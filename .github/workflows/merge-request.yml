@@ -11,7 +11,7 @@ permissions:
 
 env:
   DEPENDENCIES_CACHE: cache-node-modules
-  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.64.0-jammy
+  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.65.0-jammy
 
 jobs:
   install-deps:

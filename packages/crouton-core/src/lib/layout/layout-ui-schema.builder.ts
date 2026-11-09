@@ -1,13 +1,13 @@
 import type { UISchemaElement } from '@jsonforms/core';
 
-import type { LayoutControl, LayoutNode } from './schema';
-import { isComponentControl, isComponentItem, isNodeItem } from './schema';
 import type { ControlOption } from '../layout/control.builder';
 import { LayoutBuilder } from '../layout/layout.builder';
 import { LayoutType } from '../layout/layout.options';
 import { resolveItemControl } from '../layout/resolve/item-control';
 import type { JsonColumn } from '../resource/Column';
 import { buildConditionSchema, buildFormControl } from '../schema/column/form-control';
+import type { LayoutControl, LayoutNode } from './schema';
+import { isComponentControl, isComponentItem, isNodeItem } from './schema';
 
 const buildContainerForNode = (node: LayoutNode): LayoutBuilder => {
   const type = node.type ?? 'grid';

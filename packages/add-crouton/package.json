@@ -21,8 +21,8 @@
     "@ghentcdh/create-crouton": "workspace:*",
     "@ghentcdh/crouton-cli": "workspace:*",
     "@ghentcdh/crouton-codegen": "workspace:*",
-    "commander": "^15.0.0",
+    "commander": "^15.1.0",
     "picocolors": "^1.1.0",
-    "tsup": "^8.0.0"
+    "tsup": "^9.0.0"
   }
 }

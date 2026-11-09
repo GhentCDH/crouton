@@ -1,5 +1,5 @@
-import type { ColumnDef } from './column.model';
 import type { IconEnum } from '../icons';
+import type { ColumnDef } from './column.model';
 
 export type TableAction = {
   label?: string;

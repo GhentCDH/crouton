@@ -1,10 +1,10 @@
 import type { UISchemaElement } from '@jsonforms/core';
 
+import type { NormalizedUnique } from '../resource/Column';
+import { ControlType } from '../schema/ui/control-type';
 import { ElementBuilder } from './base.builder';
 import type { LayoutBuilder } from './layout.builder';
 import type { WhenCondition } from './schema/LayoutItem.schema';
-import type { NormalizedUnique } from '../resource/Column';
-import { ControlType } from '../schema/ui/control-type';
 
 export interface DateRangeOptions extends ControlOption {
   format: 'date-range';

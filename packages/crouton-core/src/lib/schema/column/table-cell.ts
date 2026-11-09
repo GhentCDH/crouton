@@ -1,9 +1,3 @@
-import {
-  isBoolean,
-  isDateRange,
-  isObjectCell,
-  isRecordCell,
-} from './predicates';
 import { deriveSortId } from '../../layout/sort.helpers';
 import type { JsonColumn } from '../../resource/Column';
 import {
@@ -11,6 +5,12 @@ import {
   TableBuilder,
   TextCellBuilder,
 } from '../../table/table.builder';
+import {
+  isBoolean,
+  isDateRange,
+  isObjectCell,
+  isRecordCell,
+} from './predicates';
 
 // ── Table UI schema builder ───────────────────────────────────────────────
 

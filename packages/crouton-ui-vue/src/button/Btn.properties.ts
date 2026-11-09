@@ -1,9 +1,9 @@
 import type { PropType } from 'vue';
 
-import { ButtonTag, ButtonType } from './const';
 import { Color } from '../const/colors';
 import type { Size } from '../const/size';
 import type { IconProp } from '../icons/icon-list';
+import { ButtonTag, ButtonType } from './const';
 
 export const BtnProperties = {
   href: { type: String },

@@ -1,11 +1,11 @@
 import type { RankedTester } from '@jsonforms/core';
 import type { Component } from 'vue';
 
+import { or, rankWith, uiTypeIs } from '../../../testers/jsonforms-testers';
 import CollapseLayoutRenderer from './CollapseLayoutRenderer.vue';
 import GroupLayoutRenderer from './GroupLayoutRenderer.vue';
 import LayoutRenderer from './LayoutRenderer.vue';
 import ReadOnlyLayoutRenderer from './ReadOnlyLayoutRenderer.vue';
-import { or, rankWith, uiTypeIs } from '../../../testers/jsonforms-testers';
 
 type RendererEntry = { tester: RankedTester; renderer: Component };
 

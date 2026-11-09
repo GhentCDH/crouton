@@ -6,12 +6,12 @@ import {
   buildViewsPayload,
 } from '@ghentcdh/crouton-core';
 
-import { def, desc } from './decorator.utils';
-import type { OperationContext } from './operation-context';
 import { IS_DEV } from '../dev-mode';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { CROUTON_SECURITY } from '../security';
+import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 
 const defaultSchemas = (ctx: OperationContext) => {
   const { config, baseUrl, schemaEnricher } = ctx;

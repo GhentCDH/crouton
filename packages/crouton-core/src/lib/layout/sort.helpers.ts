@@ -1,6 +1,6 @@
+import type { JsonColumn } from '../resource/Column';
 import { resolveTableNode } from './layout-table-order';
 import type { LayoutNode } from './schema';
-import type { JsonColumn } from '../resource/Column';
 
 // ── Sort helpers ──────────────────────────────────────────────────────────
 

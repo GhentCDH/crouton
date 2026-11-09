@@ -4,8 +4,8 @@ import { fromJSONSchema, z } from 'zod';
 import type { ResourceDefinition, ResourceViewSchema } from '@ghentcdh/crouton-core';
 import { ResourceDefinitionResponseZ } from '@ghentcdh/crouton-core';
 
-import { useApi } from './useApi';
 import { localizeDefinition } from '../i18n/localize-definition';
+import { useApi } from './useApi';
 
 const stripAdditionalProperties = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripAdditionalProperties);

@@ -1,14 +1,14 @@
 import { computed, ref, watch } from 'vue';
 
-import type { CanvasSelectOption } from './FieldPreview.properties';
-import { type CanvasField, buildCanvasLayout } from './canvas-layout';
-import { swapOptionsFor } from './type-swaps';
 import {
   type EditableColumn,
   HIDDEN_FLAG,
   type Tab,
   type VariantDraft,
 } from '../types/resource-schema-editor.types';
+import type { CanvasSelectOption } from './FieldPreview.properties';
+import { type CanvasField, buildCanvasLayout } from './canvas-layout';
+import { swapOptionsFor } from './type-swaps';
 
 export type CanvasFieldOpsOptions = {
   supportsColspan?: boolean;

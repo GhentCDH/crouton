@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
+import { invalid } from '../../testing/index';
+import { buildLayouts } from '../layout';
+import { JsonColumnSchema, type Layout } from '../resource';
+import { type ViewConfig, zodSchemaSource } from '../schema';
 import {
   columnTypeSchemaSource,
   fixNestedUiSchemaScopes,
   nestedColumnSchemaSource,
 } from './column-type-schema.source';
-import { invalid } from '../../testing/index';
-import { buildLayouts } from '../layout';
-import { JsonColumnSchema, type Layout } from '../resource';
-import { type ViewConfig, zodSchemaSource } from '../schema';
 
 const propsOf = (
   view: ViewConfig | undefined,

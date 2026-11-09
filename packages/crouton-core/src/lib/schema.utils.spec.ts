@@ -1,8 +1,8 @@
 import type { JsonSchema } from '@jsonforms/core';
 import { describe, expect, it } from 'vitest';
 
-import { findProperty } from './schema.utils';
 import { invalid } from '../testing/index';
+import { findProperty } from './schema.utils';
 
 const schema = invalid<JsonSchema>({
   type: 'object',

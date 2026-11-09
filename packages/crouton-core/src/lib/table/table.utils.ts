@@ -1,7 +1,7 @@
 import type { JsonSchema } from '@jsonforms/core';
 
-import type { TextCellType } from './table.builder';
 import { findProperty } from '../schema.utils';
+import type { TextCellType } from './table.builder';
 
 export type ColumnDef = TextCellType & { id: string; label: string };
 

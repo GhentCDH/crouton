@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  columnToJsonSchemaProperty,
-  columnTypeSchemaSource,
-} from './column-type-schema.source';
 import { type TestControl, invalid } from '../../testing/index';
 import { buildLayouts } from '../layout';
 import type { Layout } from '../layout/schema';
 import { ResourceJsonSchema } from '../resource/ResourceJson.schema';
 import type { ViewConfig } from '../schema';
+import {
+  columnToJsonSchemaProperty,
+  columnTypeSchemaSource,
+} from './column-type-schema.source';
 
 const propertiesOf = (
   view: ViewConfig | undefined,

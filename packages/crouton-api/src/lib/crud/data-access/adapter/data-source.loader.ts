@@ -1,9 +1,9 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
+import { resourceLoadErrorsRegistry } from '../../resource/resource-load-errors.registry';
 import type { DataSourceAdapter } from './data-source.adapter';
 import type { DataSourceEntry } from './data-source.types';
 import { PrismaDataSourceAdapter } from './prisma.adapter';
-import { resourceLoadErrorsRegistry } from '../../resource/resource-load-errors.registry';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 

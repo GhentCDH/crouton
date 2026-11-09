@@ -118,7 +118,6 @@ import { IconEnum } from '../../icons/icon-list';
 import ControlWrapper from '../core/ControlWrapper.vue';
 
 const props = defineProps(SelectWrapperProperties);
-
 const typedOptions = computed(() => props.options as OptionValue[]);
 
 const selectWrapperRef = ref<HTMLElement>();

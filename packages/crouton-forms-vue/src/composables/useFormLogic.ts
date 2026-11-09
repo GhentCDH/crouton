@@ -1,10 +1,10 @@
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import { computed, ref, watch } from 'vue';
 
+import type { FormModalProp } from '../forms/modal/FormModal.properties';
 import { useFormAutoSave } from './useFormAutoSave';
 import { useDefaultRenderers } from './useRendererProvider';
 import { useUiTranslator } from './useUiTranslator';
-import type { FormModalProp } from '../forms/modal/FormModal.properties';
 
 /**
  * Shared editable-form logic used by both FormModal and AutoSaveForm.

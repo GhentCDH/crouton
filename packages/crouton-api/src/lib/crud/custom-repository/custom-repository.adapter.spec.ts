@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
-import { createCustomRepository } from './custom-repository.adapter';
-import type { CustomRepository } from './custom-repository.types';
 import { invalid } from '../../../testing/index';
 import { fromJson } from '../adapter';
 import type { Resource } from '../resource/ResourceConfig.schema';
+import { createCustomRepository } from './custom-repository.adapter';
+import type { CustomRepository } from './custom-repository.types';
 
 const listParams = (over: Record<string, unknown> = {}) => ({
   page: 1,

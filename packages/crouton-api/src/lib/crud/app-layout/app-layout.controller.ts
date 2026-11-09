@@ -7,11 +7,11 @@ import {
 } from '@ghentcdh/crouton-core';
 
 import { IS_DEV } from '../dev-mode';
+import { getRequestLanguage } from '../i18n';
+import { type TranslationRegistry } from '../i18n';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { ResourceConfigRegistry } from '../resource-config.registry';
 import { buildLayoutPayload } from './app-layout.builder';
-import { getRequestLanguage } from '../i18n';
-import { type TranslationRegistry } from '../i18n';
 
 export const createAppLayoutController = (
   configs: Resource[],

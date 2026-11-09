@@ -7,13 +7,13 @@
  * flag, but the computation is identical.
  */
 
-import { normalizeCanvasType } from './type-swaps';
 import {
   type EditableColumn,
   HIDDEN_FLAG,
   type Tab,
   type VariantDraft,
 } from '../types/resource-schema-editor.types';
+import { normalizeCanvasType } from './type-swaps';
 
 /** One field as the canvas will render it. */
 export type CanvasField = {

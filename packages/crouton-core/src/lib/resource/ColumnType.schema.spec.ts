@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
 import {
   ColumnTypeSchema,
   type JsonSchemaFragment,
@@ -8,7 +9,6 @@ import {
   isArrayColumnType,
   isObjectColumnType,
 } from './ColumnType.schema';
-import { invalid } from '../../testing/index';
 
 
 describe('ColumnTypeSchema', () => {

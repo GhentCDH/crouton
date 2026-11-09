@@ -6,10 +6,10 @@ import {
   getTableProcedureActions,
 } from '@ghentcdh/crouton-core';
 
+import type { CrudRepository } from '../data-access/repository';
 import { CROUTON_SECURITY } from '../security';
 import { def, desc } from './decorator.utils';
 import type { OperationContext } from './operation-context';
-import type { CrudRepository } from '../data-access/repository';
 
 /**
  * Register a `POST /procedure/{action.id}/:recordId` route for each non-link action

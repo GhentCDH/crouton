@@ -2,11 +2,11 @@ import { NotFoundException } from '@nestjs/common';
 
 import type { ListRequest } from '@ghentcdh/crouton-core';
 
-import type { AdapterCrudContext, DataSourceAdapter } from './data-source.adapter';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
 import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../../types/prisma.types';
 import { ReadRepository } from '../read.repository';
 import { WriteRepository } from '../write.repository';
+import type { AdapterCrudContext, DataSourceAdapter } from './data-source.adapter';
 
 const DB_CHECK_TIMEOUT_MS = 3_000;
 

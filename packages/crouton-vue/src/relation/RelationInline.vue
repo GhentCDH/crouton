@@ -171,8 +171,8 @@ const { onCreate } = useRelationCreate({
   },
 });
 
-const onChange = (value: string | null) => {
-  newValue.value = value;
+const onChange = (value: unknown) => {
+  newValue.value = value as string | null;
 };
 const onBlur = (_e: Event) => {
   // no-op — value already committed via onChange

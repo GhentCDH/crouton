@@ -1,7 +1,7 @@
 import { loadResourceConfigsFromDir } from './index';
 
-import { ResourceConfigLoader } from './resource-config.loader';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { ResourceConfigLoader } from './resource-config.loader';
 
 export class FileSystemResourceConfigLoader extends ResourceConfigLoader {
   private dirsByRoute = new Map<string, string>();

@@ -5,13 +5,13 @@ import {
   isOperationExternal,
 } from '@ghentcdh/crouton-core';
 
+import type { CrudRepository } from '../data-access/repository';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import type { OperationContext } from './operation-context';
 import {
   childWriteProperties,
   registerWriteOperation,
 } from './register-write-operation';
-import type { CrudRepository } from '../data-access/repository';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 const defaultPatch = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'patch')) return null;

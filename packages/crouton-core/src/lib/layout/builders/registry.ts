@@ -1,5 +1,5 @@
-import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import type { Layout } from '../schema/Layout.schema';
+import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 
 /**
  * A builder for a custom layout kind.

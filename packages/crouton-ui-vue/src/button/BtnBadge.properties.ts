@@ -1,9 +1,9 @@
 import type { PropType } from 'vue';
 
-import { ButtonType } from './const';
 import { Color } from '../const/colors';
 import type { Size } from '../const/size';
 import type { IconProp } from '../icons/icon-list';
+import { ButtonType } from './const';
 
 export const BtnBadgeProperties = {
   icon: { type: [String, Object, Function] as PropType<IconProp> },

@@ -1,11 +1,11 @@
 import type { z } from 'zod';
 
+import type { ViewColumnConfig, ViewConfig } from '../schema/view/view.schema';
 import { flattenLayoutItems } from './layout-ui-schema.builder';
 import { resolveItemControl } from './resolve/item-control';
 import type { LayoutNode } from './schema';
 import { isComponentControl, isComponentItem, isFieldControlItem } from './schema';
 import type { TableLayoutRootSchema, TableNode } from './schema/TableLayout.schema';
-import type { ViewColumnConfig, ViewConfig } from '../schema/view/view.schema';
 
 const LAYOUT_TYPE_MAP: Record<string, string> = {
   grid: 'GridLayout',

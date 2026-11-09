@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
 import { compileResource } from '../compile/compile-resource';
 import { resolveTableNode } from '../layout/layout-table-order';
 import type { ResourceJson } from '../resource';
@@ -9,7 +10,6 @@ import {
   getTableActions,
   getTableProcedureActions,
 } from './row-actions';
-import { invalid } from '../../testing/index';
 
 const baseJson = invalid<ResourceJson>({
   name: 'order',

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { defaultLayoutFor } from './default-layout';
 import type { JsonColumn } from '../../resource/Column';
+import { defaultLayoutFor } from './default-layout';
 
 const col = (id: string, pos: number, extra: Partial<JsonColumn> = {}): JsonColumn =>
   ({

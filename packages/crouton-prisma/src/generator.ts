@@ -66,6 +66,10 @@ generatorHandler({
     const tmpSchemaPath = join(schemaDir, '.crouton-gen-tmp.prisma');
     await writeFile(tmpSchemaPath, tmpSchema, 'utf-8');
 
+    // Pre-clean the zod output: zod-prisma-types' own cleanup uses
+    // fs.rmdirSync(..., { recursive: true }), which modern Node no longer supports.
+    await rm(absZodOutput, { recursive: true, force: true });
+
     try {
       // 3. Run zod-prisma-types via prisma generate --schema <tmp>
       const [bin, prefix] = resolveBin('prisma', schemaDir);

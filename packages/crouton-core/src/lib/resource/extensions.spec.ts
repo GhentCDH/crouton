@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
+import { invalid } from '../../testing/index';
 import { ResourceJsonSchema, buildResourceJsonSchema } from './ResourceJson.schema';
 import {
   clearResourceExtensions,
   registerResourceExtension,
   registerResourceExtensions,
 } from './extensions';
-import { invalid } from '../../testing/index';
 
 const extensionsOf = (data: unknown) =>
   invalid<Record<string, unknown> | undefined>(data)?.['extensions'];

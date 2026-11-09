@@ -1,12 +1,12 @@
 import { type SidebarGroupConfig, labelFromId } from '@ghentcdh/crouton-core';
 
+import { type Resource } from '../resource/ResourceConfig.schema'; // ─── Sort helper ─────────────────────────────────────────────────────────────
 import {
   type SidebarGroup,
   type SidebarLeaf,
   SidebarLeafSchema,
   type SidebarNode,
 } from './app-layout.types';
-import { type Resource } from '../resource/ResourceConfig.schema'; // ─── Sort helper ─────────────────────────────────────────────────────────────
 
 // ─── Sort helper ─────────────────────────────────────────────────────────────
 

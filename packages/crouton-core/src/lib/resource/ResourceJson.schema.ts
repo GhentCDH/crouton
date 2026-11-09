@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+import { JsonOperationsSchema } from '../data-source/Operations.schema';
+import { SecuritySchema } from '../data-source/Security.schema';
+import { LayoutSchema } from '../layout/schema/Layout.schema';
+import { labelFromId } from '../schema/label.helper';
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnBaseSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
@@ -8,10 +12,6 @@ import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { getResourceExtensions } from './extensions';
 import { BASELINE_RESOURCE_VERSION } from './version';
-import { JsonOperationsSchema } from '../data-source/Operations.schema';
-import { SecuritySchema } from '../data-source/Security.schema';
-import { LayoutSchema } from '../layout/schema/Layout.schema';
-import { labelFromId } from '../schema/label.helper';
 
 // ── Removed-key registry ─────────────────────────────────────────────
 // Keys that were removed from the root schema and where they moved to.

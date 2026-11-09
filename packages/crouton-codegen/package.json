@@ -29,8 +29,8 @@
   "devDependencies": {
     "@crouton/i18n": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
-    "tsup": "^8.0.0",
-    "vitest": "^5.0.3",
+    "tsup": "^9.0.0",
+    "vitest": "^5.1.0",
     "zod": "^4.0.0"
   }
 }

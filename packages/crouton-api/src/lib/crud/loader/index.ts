@@ -35,7 +35,6 @@ import {
 } from '../custom-repository';
 import { IS_DEV } from '../dev-mode';
 import { loadEnumRegistry } from '../enum-registry';
-import { findModule, importDefault } from './module.loader';
 import { loadResourceHooks, loadSubResourceHooks } from '../hooks';
 import { type Resource } from '../resource/ResourceConfig.schema';
 import { validateResourceConfig } from '../resource/resource-config.validator';
@@ -43,6 +42,7 @@ import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.reg
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import { migrateResourceJsonFile } from '../resource-file/MigrateResourceJson';
 import { readResourceJson } from '../resource-file/ReadResourceJson';
+import { findModule, importDefault } from './module.loader';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 

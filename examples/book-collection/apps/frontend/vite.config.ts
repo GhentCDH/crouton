@@ -1,3 +1,4 @@
+import { nxReadySignal } from '@nx/vite/plugins/nx-ready-signal.plugin';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
@@ -22,14 +23,19 @@ const backendResourceWatcher = (): Plugin => ({
 });
 
 export default defineConfig(({ command }) => ({
-  plugins: [vue(), tailwindcss(), backendResourceWatcher()],
+  plugins: [vue(), tailwindcss(), backendResourceWatcher(), nxReadySignal()],
   resolve: {
     conditions: command === 'serve' ? ['@ghentcdh/crouton'] : [],
     dedupe: ['vue', 'vue-router'],
   },
   build: {
     rollupOptions: {
-      external: ['@tiptap/vue-3', '@tiptap/starter-kit', '@tiptap/pm', 'tiptap-markdown'],
+      external: [
+        '@tiptap/vue-3',
+        '@tiptap/starter-kit',
+        '@tiptap/pm',
+        'tiptap-markdown',
+      ],
     },
   },
   server: {

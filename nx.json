@@ -89,5 +89,8 @@
   "neverConnectToCloud": true,
   "migrate": {
     "agentic": false
+  },
+  "affected": {
+    "legacy": true
   }
 }

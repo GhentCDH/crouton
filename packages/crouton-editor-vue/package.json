@@ -30,9 +30,9 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@ghentcdh/crouton-core": "workspace:*",
     "@ghentcdh/crouton-forms-vue": "workspace:*",
-    "vue": "^3.5.43"
+    "@ghentcdh/crouton-ui-vue": "workspace:*",
+    "vue": "^3.5.45"
   }
 }

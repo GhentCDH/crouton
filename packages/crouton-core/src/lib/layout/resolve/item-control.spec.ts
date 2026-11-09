@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveItemControl } from './item-control';
 import { invalid } from '../../../testing/index';
 import type { LayoutControl } from '../schema/LayoutItem.schema';
+import { resolveItemControl } from './item-control';
 
 const field = (item: Record<string, unknown>) =>
   invalid<LayoutControl>({ id: 'name', ...item });

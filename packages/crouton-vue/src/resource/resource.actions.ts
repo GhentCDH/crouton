@@ -14,16 +14,16 @@ import {
   type TableAction,
 } from '@ghentcdh/crouton-ui-vue';
 
+import { useApi } from '../composables/useApi';
+import { useCrouton } from '../composables/useCrouton';
 import { CroutonForm, FormModal, JsonFormModalService } from '../forms';
+import { useLanguage } from '../i18n/useLanguage';
+import { findCustomComponent } from '../utils/custom-component';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { type ActionStatus, useResources } from './useResources';
-import { useApi } from '../composables/useApi';
-import { useCrouton } from '../composables/useCrouton';
-import { useLanguage } from '../i18n/useLanguage';
-import { findCustomComponent } from '../utils/custom-component';
 
 type TableNodeOptions = {
   rowActions?: Action[];

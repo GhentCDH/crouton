@@ -5,16 +5,16 @@ import {
   buildViewsPayload,
 } from '@ghentcdh/crouton-core';
 
-import { validateCustomRepository } from './custom-repository.validate';
 import { invalid } from '../../../testing/index';
 import { buildLayoutPayload } from '../app-layout';
 import { createCrudController } from '../crud-controller.factory';
-import type { CustomRepositoryContext } from './custom-repository.types';
 import type { DataSourceRegistry } from '../data-access/adapter';
 import { loadResourceConfigsFromDir } from '../loader';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
+import type { CustomRepositoryContext } from './custom-repository.types';
+import { validateCustomRepository } from './custom-repository.validate';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

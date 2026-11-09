@@ -1,7 +1,7 @@
 import type { Command } from 'commander';
 
-import { registerTranslationsUpdateSubcommand } from './translations-update.command';
 import { runUpdateResources } from '../update/runner';
+import { registerTranslationsUpdateSubcommand } from './translations-update.command';
 import { resolve } from 'node:path';
 
 

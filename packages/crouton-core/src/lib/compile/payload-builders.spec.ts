@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
+import type { Layout } from '../layout/schema';
 import type { CompiledResource } from './compiled-resource.schema';
 import {
   buildDefinitionPayload,
@@ -7,8 +9,6 @@ import {
   buildViewsPayload,
   deriveDisplay,
 } from './payload-builders';
-import { invalid } from '../../testing/index';
-import type { Layout } from '../layout/schema';
 
 const baseUri = 'http://host/annotation';
 

@@ -5,10 +5,10 @@ import type {
 } from '@ghentcdh/crouton-core';
 import { NotificationService } from '@ghentcdh/crouton-ui-vue';
 
-import type { RequestData } from './resource.types';
-import { replaceUriParams } from './uri.utils';
 import { useApi } from '../composables/useApi';
 import { useCrouton } from '../composables/useCrouton';
+import type { RequestData } from './resource.types';
+import { replaceUriParams } from './uri.utils';
 
 const apiErrorMessage = (error: unknown): string | null => {
   const msg = (error as { response?: { data?: { message?: unknown } } })

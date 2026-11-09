@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
 import { CroutonValidationError } from './crouton-validation.error';
 import type { Resource } from './resource/ResourceConfig.schema';
 import {
@@ -7,7 +8,6 @@ import {
   mapPrismaUniqueError,
   uniqueColumns,
 } from './unique-validation';
-import { invalid } from '../../testing/index';
 
 const config = invalid<Resource>({
   columns: [

@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 import { ResourceJsonShape } from '../resource';
+import { JsonColumnBaseSchema } from '../resource/Column';
+import { DefinitionSchema } from '../schema/definition/definition.schema';
+import { LookupSchema } from '../schema/definition/lookup.schema';
 import {
   IdTypeSchema,
   OptionalCalculatedColumnsSchema,
@@ -8,9 +11,6 @@ import {
   OptionalViewsSchema,
 } from './compiled-shared.schema';
 import { CompiledSubResourceConfigSchema } from './compiled-sub-resource.schema';
-import { JsonColumnBaseSchema } from '../resource/Column';
-import { DefinitionSchema } from '../schema/definition/definition.schema';
-import { LookupSchema } from '../schema/definition/lookup.schema';
 
 export const CompiledResourceSchema = ResourceJsonShape.omit({
   // Input-only: the compiled resource carries the resolved `definition`, not

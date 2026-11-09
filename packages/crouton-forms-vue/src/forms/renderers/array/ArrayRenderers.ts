@@ -1,9 +1,9 @@
 import type { RankedTester } from '@jsonforms/core';
 import type { Component } from 'vue';
 
-import ArrayRenderer from './ArrayRenderer.vue';
 import { rankWith } from '../../../testers/jsonforms-testers';
 import { isArrayRenderer } from '../../../testers/tester';
+import ArrayRenderer from './ArrayRenderer.vue';
 
 type RendererEntry = { tester: RankedTester; renderer: Component };
 

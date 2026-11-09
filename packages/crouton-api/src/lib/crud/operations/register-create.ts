@@ -6,10 +6,10 @@ import {
   isOperationExternal,
 } from '@ghentcdh/crouton-core';
 
-import { def, desc } from './decorator.utils';
-import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../data-access/repository';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 
 const defaultCreate = (ctx: OperationContext) => {
   if (!isOperationEnabled(ctx.definition, 'create')) return null;

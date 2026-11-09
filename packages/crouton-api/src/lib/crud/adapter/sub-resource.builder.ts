@@ -25,11 +25,11 @@ import {
   toCalculatedColumns,
 } from '@ghentcdh/crouton-core';
 
+import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { enrichNestedRelationColumns } from './column-enrichment';
 import { expandExtendColumns } from './column-transforms';
 import { resolveChildResourceDetailed } from './resource-resolver';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
-import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 
 /**
  * A relation column may point at another service rather than a local child

@@ -5,11 +5,6 @@ import { type Component, computed, inject } from 'vue';
 import { type ControlOption, ControlType } from '@ghentcdh/crouton-core';
 
 import {
-  type useCustomProps,
-  useResolvedControl,
-} from './useControlBinding';
-import { type UseInputOptions } from './useInput';
-import {
   isDateControl,
   isDateRangeControl,
   isIntegerFormat,
@@ -28,6 +23,11 @@ import ObjectValue from '../readonly/displayValue/ObjectValue.vue';
 import { default as StringValue } from '../readonly/displayValue/StringValue.vue';
 import ViewDetailValue from '../readonly/displayValue/ViewDetailValue.vue';
 import { isDate } from '../readonly/displayValue/formatDate';
+import {
+  type useCustomProps,
+  useResolvedControl,
+} from './useControlBinding';
+import { type UseInputOptions } from './useInput';
 
 export type ReadonlyOpts = ControlOption & {
   directionField?: string;

@@ -1,9 +1,9 @@
 import type { OperationKey } from '@ghentcdh/crouton-core';
 
-import { PaginatedRequestService } from './paginatedRequestService';
-import type { Request } from './request';
 import { useCrouton } from '../composables/useCrouton';
 import { croutonApiCall } from '../resource/resource.api';
+import { PaginatedRequestService } from './paginatedRequestService';
+import type { Request } from './request';
 
 export abstract class PageService extends PaginatedRequestService {
   protected crouton: ReturnType<typeof useCrouton> = useCrouton();

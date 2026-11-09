@@ -6,9 +6,9 @@ import { computed, inject } from 'vue';
 
 import type { ControlOption } from '@ghentcdh/crouton-core';
 
+import { scopeToPath } from '../../../scope';
 import type { UseInputOptions } from './useInput';
 import { useInputProps } from './useInput';
-import { scopeToPath } from '../../../scope';
 
 /**
  * Safely call `useField`. When the form data shape doesn't match the schema
