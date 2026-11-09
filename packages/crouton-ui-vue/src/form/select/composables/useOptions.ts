@@ -9,14 +9,21 @@ type OptionsProperties = {
   valueKey: string;
 };
 
+const toOptionString = (value: unknown): string | undefined =>
+  value === null || value === undefined ? undefined : String(value);
+
 export const getLabel = (item: unknown, props: OptionsProperties) => {
   if (!item) return undefined;
-  return typeof item === 'object' ? (item as Record<string, unknown>)[props.labelKey] : item;
+  return typeof item === 'object'
+    ? toOptionString((item as Record<string, unknown>)[props.labelKey])
+    : toOptionString(item);
 };
 
 const getValue = (item: unknown, props: OptionsProperties) => {
   if (!item) return undefined;
-  return typeof item === 'object' ? (item as Record<string, unknown>)[props.valueKey] : item;
+  return typeof item === 'object'
+    ? toOptionString((item as Record<string, unknown>)[props.valueKey])
+    : toOptionString(item);
 };
 
 type OptionsStrategy<ITEM> = {
@@ -44,9 +51,11 @@ const DefaultOptionsStrategy = <ITEM>(
 
     _options?.forEach((option) => {
       const optionValue: OptionValue = {
-        value: getValue(option, props),
-        label: getLabel(option, props),
-        ...((option as Record<string, unknown>)?.['disabled'] !== undefined && { disabled: !!(option as Record<string, unknown>)['disabled'] }),
+        value: getValue(option, props) ?? '',
+        label: getLabel(option, props) ?? '',
+        ...((option as Record<string, unknown>)?.['disabled'] !== undefined
+          ? { disabled: !!(option as Record<string, unknown>)['disabled'] }
+          : {}),
       };
 
       originalMap.set(optionValue.value, option);
@@ -77,12 +86,12 @@ const DefaultOptionsStrategy = <ITEM>(
       if (option !== null && option !== undefined && typeof option !== 'object') {
         return optionMap.get(String(option))?.label ?? String(option);
       }
-      return getLabel(option, props);
+      return getLabel(option, props) ?? '';
     });
   };
 
   const getValues = (...optionList: ITEM[]): string[] => {
-    return optionList.map((option) => getValue(option, props));
+    return optionList.map((option) => getValue(option, props) ?? '');
   };
 
   return {

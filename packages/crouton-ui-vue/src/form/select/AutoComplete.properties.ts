@@ -1,4 +1,6 @@
 // ─── Props ────────────────────────────────────────────────────────────────────
+import type { PropType } from 'vue';
+
 import { ListProperties } from './ListResults.properties';
 import { SelectProperties } from './SelectWrapper.properties';
 
