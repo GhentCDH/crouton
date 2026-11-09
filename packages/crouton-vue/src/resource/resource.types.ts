@@ -1,9 +1,9 @@
-import type { Request } from '../utils/request';
+import type { ListRequestInput } from '../utils/request';
 
 /**
  * Data payload sent with API requests (query params, body, etc.).
  */
-type RequestData = Request;
+type RequestData = ListRequestInput;
 
 export type { RequestData };
 

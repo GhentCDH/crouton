@@ -1,7 +1,6 @@
 import { ref } from 'vue';
 
 import { type Request, RequestSchema } from './request';
-import type { RequestData } from '../resource/resource.types';
 
 export type PaginatedApiResponse = {
   request?: {
@@ -23,7 +22,7 @@ export type PaginatedApiResponse = {
  * `loadDataRequest` and optionally `afterLoadData`.
  */
 export abstract class PaginatedRequestService {
-  protected requestData = ref<RequestData>({} as RequestData);
+  protected requestData = ref<Request>(RequestSchema.parse({}));
   public loading = ref(true);
   private abortController: AbortController | null = null;
 
@@ -87,11 +86,11 @@ export abstract class PaginatedRequestService {
     }
   }
 
-  protected updateRequest = (data: Partial<RequestData>) => {
+  protected updateRequest = (data: Partial<Request>) => {
     const merged = { ...this.requestData.value, ...data };
     this.requestData.value = Object.fromEntries(
       Object.entries(merged).filter(([, v]) => v !== undefined),
-    ) as RequestData;
+    ) as Request;
     this.onRequest(this.requestData.value);
     this.reload();
   };
