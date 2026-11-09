@@ -7,6 +7,9 @@ import type {
 import type { HttpClient } from '../../../../http-client';
 import { getResourceSchema } from '../resource';
 
+type FormValues = Record<string, unknown>;
+type UnknownRecord = Record<string, unknown>;
+
 /**
  * Resolve `{form.fieldName}` placeholders in a URI against the current form values,
  * and replace `{q}` (or `{text}`) with the search term.
@@ -14,15 +17,14 @@ import { getResourceSchema } from '../resource';
  */
 const resolvePlaceholders = (
   uri: string,
-  formValues: any,
+  formValues: FormValues,
   searchTerm: string,
 ): string => {
-  const resolved = uri.replace(/\{form\.([^}]+)\}/g, (_, key) => {
-    // Support dotted paths e.g. {form.metadata_config.key} → formValues.metadata_config.key
-    const value = key
+  const resolved = uri.replace(/\{form\.([^}]+)\}/g, (_, key: string) => {
+    const value = (key as string)
       .split('.')
-      .reduce((o: any, k: string) => o?.[k], formValues);
-    return encodeURIComponent(value ?? '');
+      .reduce((o: unknown, k: string) => (o && typeof o === 'object' ? (o as UnknownRecord)[k] : undefined), formValues as unknown);
+    return encodeURIComponent(value != null ? String(value) : '');
   });
   if (resolved.includes('{q}'))
     return resolved.replace('{q}', encodeURIComponent(searchTerm));
@@ -38,8 +40,8 @@ const resolvePlaceholders = (
  * record up again every time an edit form is opened. Records are stable enough
  * within a session that caching them avoids a request per field per form open.
  */
-const resolvedOptionCache = new Map<string, any>();
-const inflightOptionRequests = new Map<string, Promise<any>>();
+const resolvedOptionCache = new Map<string, unknown>();
+const inflightOptionRequests = new Map<string, Promise<unknown>>();
 
 /** Drop every cached option lookup. Call after mutating the underlying resource. */
 /** @internal test seam — clears the memoized option cache between specs. */
@@ -53,8 +55,8 @@ const optionCacheKey = (resource: string, value: unknown) =>
 
 const cachedResolve = (
   key: string,
-  loader: () => Promise<any>,
-): Promise<any> => {
+  loader: () => Promise<unknown>,
+): Promise<unknown> => {
   if (resolvedOptionCache.has(key))
     return Promise.resolve(resolvedOptionCache.get(key));
 
@@ -67,7 +69,7 @@ const cachedResolve = (
       resolvedOptionCache.set(key, resolved);
       return resolved;
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       // Never break the form because a label could not be resolved.
       console.warn(`[useFetchOptions] could not resolve option ${key}`, error);
       return null;
@@ -81,21 +83,22 @@ const cachedResolve = (
 };
 
 /** Unwrap a `{ data: ... }` envelope when the record itself is nested. */
-const unwrapRecord = (body: any, labelKey?: string) => {
+const unwrapRecord = (body: unknown, labelKey?: string): unknown => {
   if (!body || typeof body !== 'object') return body;
-  if (labelKey && labelKey in body) return body;
-  if (body.data && typeof body.data === 'object') return body.data;
-  return body;
+  const obj = body as UnknownRecord;
+  if (labelKey && labelKey in obj) return obj;
+  if (obj['data'] && typeof obj['data'] === 'object') return obj['data'];
+  return obj;
 };
 
 type ExcludeOption = { values?: string | unknown[]; key?: string; selected?: boolean };
 
-const resolveFormPath = (path: string, formValues: any): unknown =>
-  path.split('.').reduce((o: any, k: string) => o?.[k], formValues);
+const resolveFormPath = (path: string, formValues: FormValues): unknown =>
+  path.split('.').reduce((o: unknown, k: string) => (o && typeof o === 'object' ? (o as UnknownRecord)[k] : undefined), formValues as unknown);
 
 const resolveExclude = (
   exclude: ExcludeOption | undefined,
-  formValues: any,
+  formValues: FormValues,
   runtimeExclude: unknown[] | undefined,
   valueKey: string,
   ownValue?: unknown,
@@ -104,7 +107,7 @@ const resolveExclude = (
   const collected: unknown[] = [];
 
   const toScalar = (item: unknown): unknown =>
-    typeof item === 'object' && item !== null ? (item as any)[valueKey] : item;
+    typeof item === 'object' && item !== null ? (item as UnknownRecord)[valueKey] : item;
 
   if (exclude?.values !== undefined) {
     let resolved: unknown = exclude.values;
@@ -140,6 +143,16 @@ const resolveExclude = (
   };
 };
 
+/** Dispatch an HTTP method by name without casting to `any`. */
+const callMethod = (
+  http: HttpClient,
+  method: string,
+  url: string,
+  data?: unknown,
+  config?: unknown,
+): Promise<{ data: unknown }> =>
+  (http as unknown as Record<string, (u: string, d?: unknown, c?: unknown) => Promise<{ data: unknown }>>)[method](url, data, config);
+
 /**
  * Creates a fetch function for remote URI-based autocomplete.
  * Supports `{form.fieldName}` placeholders in the URI resolved from sibling form values.
@@ -149,7 +162,7 @@ const resolveExclude = (
 const useRemoteOption = (
   options: AutocompleteRemoteOptions,
   http: HttpClient,
-  formValues: any,
+  formValues: FormValues,
   excludeList: unknown[] = [],
 ) => {
   return {
@@ -158,12 +171,12 @@ const useRemoteOption = (
       if (excludeList.length > 0 && uri.includes('{exclude}')) {
         uri = uri.replace('{exclude}', encodeURIComponent(JSON.stringify(excludeList)));
       }
-      return http.get(uri, { signal }).then((data: any) => {
-        const body = data.data;
+      return http.get<unknown[] | UnknownRecord>(uri, { signal }).then((resp) => {
+        const body = resp.data;
         // Flat array response → use directly.
         if (Array.isArray(body)) return body;
         // Nested response → read the declared or default `data` field.
-        return body[options.dataField ?? 'data'];
+        return (body as UnknownRecord)[options.dataField ?? 'data'] as unknown[];
       });
     },
   };
@@ -184,24 +197,24 @@ const useRemoteOption = (
 const useResourceOptions = async (
   options: AutocompleteResourceOptions,
   http: HttpClient,
-  formValues: any,
+  formValues: FormValues,
   excludeList: unknown[] = [],
   excludeKey = 'id',
 ) => {
   const resource = await getResourceSchema(options.resource, http);
-  const lookup = resource.operations.lookup! ?? resource.operations.findAll;
+  const lookup = resource.operations.lookup ?? resource.operations.findAll;
   const { findOne, findAll } = resource.operations;
   const valueKey = (options.valueKey as string) ?? 'id';
   const labelKey = options.labelKey as string | undefined;
 
   // TODO use the crouton logic for resources
-  const fetchRecordByValue = async (value: unknown) => {
+  const fetchRecordByValue = async (value: unknown): Promise<unknown> => {
     // Preferred: findOne with an `{id}`-style placeholder in its uri.
     if (findOne?.uri && /\{[^}]+\}/.test(findOne.uri)) {
       const uri = findOne.uri.replace(/\{[^}]+\}/g, () =>
         encodeURIComponent(String(value)),
       );
-      const response = await (http as any)[findOne.method](uri);
+      const response = await callMethod(http, findOne.method, uri);
       return unwrapRecord(response?.data, labelKey);
     }
 
@@ -209,13 +222,15 @@ const useResourceOptions = async (
     const base = findAll?.uri ?? resource.uri;
     const filter = encodeURIComponent(`${valueKey}:${String(value)}:eq`);
     const uri = `${base}${base.includes('?') ? '&' : '?'}filter=${filter}`;
-    const response = await http.get(uri);
-    const body = response?.data as Record<string, unknown> | unknown[] | undefined;
+    const response = await http.get(uri);;
+    const body = response?.data as UnknownRecord| undefined;
     const rows = Array.isArray(body)
       ? body
-      : (body as Record<string, unknown>)?.[options.dataField ?? 'data'];
+      : body?.[options.dataField ?? 'data'];
     return (Array.isArray(rows) ? rows[0] : rows) ?? null;
   };
+
+  if (!lookup) throw new Error(`[useFetchOption] resource "${options.resource}" has no lookup or findAll operation`);
 
   return {
     fetchOptions: (searchTerm: string, signal: AbortSignal) => {
@@ -226,9 +241,8 @@ const useResourceOptions = async (
       }
       const method = lookup.method;
 
-      return (http as any)
-        [method](uri, { signal })
-        .then((data: any) => data.data[options.dataField ?? 'data']);
+      return callMethod(http, method, uri, undefined, { signal })
+        .then((resp) => (resp.data as UnknownRecord)[options.dataField ?? 'data'] as unknown[]);
     },
     fetchByValue: (value: unknown) => {
       if (value === null || value === undefined || value === '')
@@ -243,17 +257,17 @@ const useResourceOptions = async (
       if (value === null || value === undefined || value === '') return;
       resolvedOptionCache.set(optionCacheKey(options.resource, value), record);
     },
-    enableCreate: !!(resource.operations.create && resource.schema.ui),
-    form: resource.operations.create
+    enableCreate: !!(resource.operations.create && resource.schema?.ui),
+    form: resource.operations.create && resource.schema
       ? {
-          ui: resource.schema!.ui,
-          data: resource.schema!.data,
+          ui: resource.schema.ui,
+          data: resource.schema.data,
           title: `Create new ${resource.id}`,
-          create: async (data: any) => {
-            const create = resource.operations.create!;
-            return (http as any)
-              [create.method](create.uri, data)
-              .then((result: any) => result.data);
+          create: async (data: unknown) => {
+            const create = resource.operations.create;
+            if (!create) return null;
+            return callMethod(http, create.method, create.uri, data)
+              .then((result) => result.data);
           },
         }
       : null,
@@ -272,12 +286,12 @@ const useResourceOptions = async (
 export const useFetchOptions = async (
   options: AutocompleteAllOptions,
   http: HttpClient,
-  formValues: any = {},
+  formValues: FormValues = {},
   runtimeExclude?: unknown[],
   ownValue?: unknown,
 ) => {
   const valueKey = (options.valueKey as string) ?? 'id';
-  const excludeOpt = (options as any).exclude as ExcludeOption | undefined;
+  const excludeOpt = ('exclude' in options ? (options as AutocompleteAllOptions & { exclude?: ExcludeOption }).exclude : undefined);
   const { list: excludeList, key: excludeKey } = resolveExclude(
     excludeOpt,
     formValues,
@@ -286,7 +300,7 @@ export const useFetchOptions = async (
     ownValue,
   );
 
-  let config: Record<string, any> = {};
+  let config: Record<string, unknown> = {};
   if ('uri' in options && options.uri)
     config = useRemoteOption(options as AutocompleteRemoteOptions, http, formValues, excludeList);
   if ('resource' in options && options.resource)
@@ -299,14 +313,14 @@ export const useFetchOptions = async (
     );
 
   // Client-side fallback: always filter out excluded values after fetch
-  const rawFetch = config.fetchOptions as ((searchTerm: string, signal: AbortSignal) => Promise<any>) | null;
+  const rawFetch = config['fetchOptions'] as ((searchTerm: string, signal: AbortSignal) => Promise<unknown[]>) | null;
   if (rawFetch && excludeList.length > 0) {
     const excludeSet = new Set(excludeList.map(String));
-    config.fetchOptions = (searchTerm: string, signal: AbortSignal) =>
-      rawFetch(searchTerm, signal).then((items: unknown) => {
+    config['fetchOptions'] = (searchTerm: string, signal: AbortSignal) =>
+      rawFetch(searchTerm, signal).then((items: unknown[]) => {
         if (!Array.isArray(items)) return items;
         return items.filter(item => {
-          const v = typeof item === 'object' && item !== null ? (item as any)[valueKey] : item;
+          const v = typeof item === 'object' && item !== null ? (item as UnknownRecord)[valueKey] : item;
           return !excludeSet.has(String(v));
         });
       });
@@ -314,14 +328,14 @@ export const useFetchOptions = async (
 
   return {
     fetchOptions: null as
-      ((searchTerm: string, signal: AbortSignal) => Promise<any>) | null,
-    fetchByValue: null as ((value: unknown) => Promise<any>) | null,
-    peekByValue: null as ((value: unknown) => any) | null,
+      ((searchTerm: string, signal: AbortSignal) => Promise<unknown[]>) | null,
+    fetchByValue: null as ((value: unknown) => Promise<unknown>) | null,
+    peekByValue: null as ((value: unknown) => unknown) | null,
     rememberValue: null as ((value: unknown, record: unknown) => void) | null,
     labelKey: options.labelKey,
     valueKey: options.valueKey,
     enableCreate: options.enableCreate ?? false,
-    form: null as Record<string, any> | null,
+    form: null as Record<string, unknown> | null,
     ...config,
   };
 };
