@@ -83,7 +83,7 @@ export const useResolvedControl = (
 };
 
 export const useCustomControlBinding = <
-  CONTROL_OPTION extends ControlOption = ControlOption,
+  CONTROL_OPTION extends Record<string, unknown> = ControlOption,
 >({
   useProps,
   setDefaultValue,

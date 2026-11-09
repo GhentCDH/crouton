@@ -15,20 +15,19 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
+import type { ControlOptions } from '@ghentcdh/crouton-core';
+
 import DatePicker from './date/DatePicker.vue';
 import { resolveWithTime } from './date/useDateModel';
-import { useControlBinding } from './composables/useControlBinding';
+import { useCustomControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 const { wrapper, value, field, onBlur, onChange, appliedOptions } =
-  useControlBinding(props.uischema, props.schema);
+  useCustomControlBinding<ControlOptions<'date'>>()(props.uischema, props.schema);
 
 const withTime = computed(() =>
-  resolveWithTime(
-    appliedOptions.value as Record<string, any>,
-    props.schema as Record<string, any>,
-  ),
+  resolveWithTime(appliedOptions.value, props.schema as Record<string, unknown>),
 );
 
 /**

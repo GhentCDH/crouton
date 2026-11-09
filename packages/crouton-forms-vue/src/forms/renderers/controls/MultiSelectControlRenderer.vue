@@ -33,13 +33,10 @@ const parsedValue = computed(() => {
   try { return JSON.parse(v); } catch { return []; }
 });
 
-type MultiSelectOpts = { valueKey?: string; storeValue?: boolean };
-
 const onChange = (val: unknown) => {
-  const opts = appliedOptions.value as MultiSelectOpts;
-  const valueKey = opts.valueKey ?? 'value';
+  const valueKey = appliedOptions.value?.valueKey ?? 'value';
   const rawArray =
-    opts.storeValue && Array.isArray(val)
+    appliedOptions.value?.storeValue && Array.isArray(val)
       ? val.map((item: unknown) =>
           item && typeof item === 'object' ? (item as Record<string, unknown>)[valueKey] : item,
         )
