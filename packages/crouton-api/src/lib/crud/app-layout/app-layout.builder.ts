@@ -71,7 +71,7 @@ export const buildLayoutPayload = (
           children: [],
         });
       }
-      groupMap.get(groupSlug)!.children.push(leaf);
+      groupMap.get(groupSlug)?.children.push(leaf);
     } else {
       topLevel.push(leaf);
     }

@@ -89,7 +89,8 @@ describe('custom resource loading', () => {
     });
 
     const [config] = await loadResourceConfigsFromDir(tempDir);
-    const views = config.views!;
+    if (!config.views) throw new Error('views missing');
+    const views = config.views;
 
     expect(Object.keys(views).sort()).toEqual(['form', 'table', 'view']);
     // layout.table is auto-generated from sortable:true on title → only title is in the table.

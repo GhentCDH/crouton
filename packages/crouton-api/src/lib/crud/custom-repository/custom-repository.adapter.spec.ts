@@ -62,7 +62,9 @@ describe('createCustomRepository', () => {
       const repo = make({
         findAll: async () => ({ data: [{ id: 'a' }, { id: 'b' }], count: 42 }),
       });
-      await expect(repo.findAllWithCount!(listParams())).resolves.toEqual({
+      const { findAllWithCount } = repo;
+      if (!findAllWithCount) throw new Error('findAllWithCount missing');
+      await expect(findAllWithCount(listParams())).resolves.toEqual({
         data: [{ id: 'a' }, { id: 'b' }],
         count: 42,
       });
@@ -79,7 +81,9 @@ describe('createCustomRepository', () => {
       const repo = make({
         findAll: async () => invalid<{ data: unknown[]; count: number }>({ data: [{ id: 'a' }] }),
       });
-      const { count } = await repo.findAllWithCount!(listParams());
+      const { findAllWithCount } = repo;
+      if (!findAllWithCount) throw new Error('findAllWithCount missing');
+      const { count } = await findAllWithCount(listParams());
       expect(count).toBe(1);
     });
 
@@ -219,7 +223,9 @@ describe('createCustomRepository', () => {
       await repo.patch('1', { title: 'b' });
       expect(update).toHaveBeenCalledTimes(1);
       // The op reported to the repository is the one that was actually called.
-      expect(((update.mock.calls[0]![2]) as Record<string, unknown>)['op']).toBe('patch');
+      const call = update.mock.calls[0];
+      if (!call) throw new Error('update not called');
+      expect((call[2] as Record<string, unknown>)['op']).toBe('patch');
     });
 
     it('prefers patch when implemented', async () => {
@@ -241,7 +247,9 @@ describe('createCustomRepository', () => {
         { findAll: async () => ({ data: [{ id: 'a' }, { id: 'b' }], count: 2 }) },
         config,
       );
-      const { data } = await repo.findAllWithCount!(listParams());
+      const { findAllWithCount } = repo;
+      if (!findAllWithCount) throw new Error('findAllWithCount missing');
+      const { data } = await findAllWithCount(listParams());
       expect(data).toEqual([
         { id: 'a', seen: true },
         { id: 'b', seen: true },
@@ -290,7 +298,9 @@ describe('createCustomRepository', () => {
       });
       const repo = make({ findAll }, config);
 
-      const { data } = await repo.findAllWithCount!(listParams());
+      const { findAllWithCount } = repo;
+      if (!findAllWithCount) throw new Error('findAllWithCount missing');
+      const { data } = await findAllWithCount(listParams());
 
       expect((findAll.mock.calls[0][0] as { page: number }).page).toBe(9);
       expect(data).toEqual([{ id: 'a', seen: true }]);
@@ -301,7 +311,9 @@ describe('createCustomRepository', () => {
       const config = buildConfig({}, { beforeFindAll });
       const repo = make({ findAll: async () => ({ data: [], count: 7 }) }, config);
 
-      await expect(repo.count!(['title:foo'])).resolves.toBe(7);
+      const { count } = repo;
+      if (!count) throw new Error('count missing');
+      await expect(count(['title:foo'])).resolves.toBe(7);
       expect(beforeFindAll).not.toHaveBeenCalled();
     });
 
@@ -343,7 +355,9 @@ describe('createCustomRepository', () => {
         { findAll: async () => ({ data: [{ id: 'a' }], count: 1 }) },
       );
 
-      await repo.findAllWithCount!(listParams());
+      const { findAllWithCount: fawc1 } = repo;
+      if (!fawc1) throw new Error('findAllWithCount missing');
+      await fawc1(listParams());
 
       expect(seen).toBe(resolved);
     });
@@ -364,7 +378,9 @@ describe('createCustomRepository', () => {
         { findAll: async () => ({ data: [{ id: 'a' }], count: 1 }) },
       );
 
-      await repo.findAllWithCount!(listParams());
+      const { findAllWithCount: fawc2 } = repo;
+      if (!fawc2) throw new Error('findAllWithCount missing');
+      await fawc2(listParams());
 
       expect(seen?.client).toBe(prisma);
     });

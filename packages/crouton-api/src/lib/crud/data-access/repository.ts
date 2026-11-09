@@ -147,6 +147,8 @@ export function createCrudRepository<T = Row>(
   //   - kind:custom  + adapter:custom  (no repository.ts needed)
   //   - kind:prisma  + adapter:custom  (custom backend with generated schema)
   if (resolvedAdapter?.findAll && resolvedAdapter.count) {
+    const adFindAll = resolvedAdapter.findAll.bind(resolvedAdapter);
+    const adCount = resolvedAdapter.count.bind(resolvedAdapter);
     const baseCtx = {
       config,
       op: 'n/a',
@@ -228,8 +230,9 @@ export function createCrudRepository<T = Row>(
           `Adapter for "${config.name}" does not implement findAllByParent`,
         );
       const prismaModel = getDelegate(prisma as PrismaClientLike, config.model);
+      if (!prismaModel) throw new Error(`Prisma model "${config.model}" not found on client`);
       const reader = new ReadRepository<T>(
-        prismaModel!,
+        prismaModel,
         resolvedAdapter,
         config,
         listSelect,
@@ -264,8 +267,9 @@ export function createCrudRepository<T = Row>(
           `Adapter for "${config.name}" does not implement findOneChild`,
         );
       const prismaModel = getDelegate(prisma as PrismaClientLike, config.model);
+      if (!prismaModel) throw new Error(`Prisma model "${config.model}" not found on client`);
       const reader = new ReadRepository<T>(
-        prismaModel!,
+        prismaModel,
         resolvedAdapter,
         config,
         listSelect,
@@ -284,7 +288,7 @@ export function createCrudRepository<T = Row>(
       prisma,
       findAllWithCount: async (params, request) => {
         const effectiveParams = await applyBefore(params, request);
-        const { data, count } = await resolvedAdapter.findAll!(
+        const { data, count } = await adFindAll(
           adapterModelKey,
           effectiveParams,
           { ...ctx(request, 'findAll', undefined, effectiveParams.q), offset: offsetOf(effectiveParams) },
@@ -293,7 +297,7 @@ export function createCrudRepository<T = Row>(
       },
       findAll: async (params, request) => {
         const effectiveParams = await applyBefore(params, request);
-        const { data } = await resolvedAdapter.findAll!(
+        const { data } = await adFindAll(
           adapterModelKey,
           effectiveParams,
           { ...ctx(request, 'findAll', undefined, effectiveParams.q), offset: offsetOf(effectiveParams) },
@@ -301,9 +305,10 @@ export function createCrudRepository<T = Row>(
         return decorateFindAll(data, request);
       },
       count: (filter, q) =>
-        resolvedAdapter.count!(adapterModelKey, filter, { ...baseCtx, q }),
+        adCount(adapterModelKey, filter, { ...baseCtx, q }),
       findOne: async (id, request) => {
-        const row = await resolvedAdapter.findOne!(
+        if (!resolvedAdapter.findOne) throw new Error(`Adapter "${config.name}" has no findOne`);
+        const row = await resolvedAdapter.findOne(
           adapterModelKey,
           id,
           ctx(request, 'findOne', id),
@@ -322,7 +327,8 @@ export function createCrudRepository<T = Row>(
           undefined,
           request,
         );
-        const result = await resolvedAdapter.create!(
+        if (!resolvedAdapter.create) throw new Error(`Adapter "${config.name}" has no create`);
+        const result = await resolvedAdapter.create(
           adapterModelKey,
           prepared,
           ctx(request, 'create'),
@@ -338,7 +344,8 @@ export function createCrudRepository<T = Row>(
           coercedId,
           request,
         );
-        const result = await resolvedAdapter.update!(
+        if (!resolvedAdapter.update) throw new Error(`Adapter "${config.name}" has no update`);
+        const result = await resolvedAdapter.update(
           adapterModelKey,
           id,
           prepared,
@@ -355,8 +362,9 @@ export function createCrudRepository<T = Row>(
           coercedId,
           request,
         );
-        const patchOrUpdate = (resolvedAdapter.patch ??
-          resolvedAdapter.update)!.bind(resolvedAdapter);
+        const patchFn = resolvedAdapter.patch ?? resolvedAdapter.update;
+        if (!patchFn) throw new Error(`Adapter "${config.name}" has no patch or update`);
+        const patchOrUpdate = patchFn.bind(resolvedAdapter);
         const result = await patchOrUpdate(
           adapterModelKey,
           id,
@@ -367,7 +375,8 @@ export function createCrudRepository<T = Row>(
       },
       delete: async (id, request) => {
         const coercedId = toId(id);
-        const result = await resolvedAdapter.delete!(
+        if (!resolvedAdapter.delete) throw new Error(`Adapter "${config.name}" has no delete`);
+        const result = await resolvedAdapter.delete(
           adapterModelKey,
           id,
           ctx(request, 'delete', coercedId),

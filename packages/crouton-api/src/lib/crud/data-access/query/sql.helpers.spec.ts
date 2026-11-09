@@ -187,7 +187,8 @@ describe('mergeCalculatedColumnsForRows', () => {
       'id',
       'postgresql',
     );
-    const sql = lastSql()!;
+    const sql = lastSql();
+    if (!sql) throw new Error('no SQL captured');
     expect(sql).toContain('CAST((main.is_active) AS BOOLEAN)');
     expect(sql).toContain('FROM "books" main');
     expect(sql).toContain('WHERE main."id" IN ($1, $2)');
@@ -203,7 +204,8 @@ describe('mergeCalculatedColumnsForRows', () => {
       'id',
       'postgresql',
     );
-    const sql = lastSql()!;
+    const sql = lastSql();
+    if (!sql) throw new Error('no SQL captured');;
     expect(sql).toContain('AS "my_alias"');
   });
 

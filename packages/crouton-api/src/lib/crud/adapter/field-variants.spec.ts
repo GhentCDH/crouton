@@ -10,7 +10,7 @@ describe('resolveColumnFieldVariants', () => {
         fieldInput: { type: 'text', options: { colspan: 6 } },
       }),
     ];
-    const out = resolveColumnFieldVariants(cols)!;
+    const out = resolveColumnFieldVariants(cols);
     expect(out).toBe(cols);
   });
 
