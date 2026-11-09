@@ -43,7 +43,7 @@ export const controlRenderers = [
   { tester: rankWith(11, isMarkdownControl), renderer: r(MarkdownControlRenderer) },
   { tester: rankWith(11, isBooleanControl), renderer: r(BooleanControlRenderer) },
   { tester: rankWith(11, isSelectControl), renderer: r(SelectControlRenderer) },
-  { tester: rankWith(11, isToggleControl), renderer: r(ToggleControlRenderer) },
+  { tester: rankWith(12, isToggleControl), renderer: r(ToggleControlRenderer) },
   { tester: rankWith(11, isMultiselectControl), renderer: r(MultiSelectControlRenderer) },
   { tester: rankWith(12, isAutoCompleteControl), renderer: r(AutocompleteControlRenderer) },
   { tester: rankWith(12, isNumberFormat), renderer: r(NumberControlRenderer) },

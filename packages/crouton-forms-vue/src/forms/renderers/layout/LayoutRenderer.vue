@@ -1,11 +1,14 @@
 <template>
-  <div v-if="isLayout" :class="getLayout">
-    <div
-      v-for="(child, i) in (uischema as Layout).elements"
-      :key="i"
-      :class="[COLSPAN[(child as any).options?.colspan ?? 12], ROWSPAN[(child as any).options?.rowspan ?? 0]]"
-    >
-      <Dispatch :uischema="child" :schema="schema" />
+  <div v-if="isLayout" class="flex flex-col gap-1">
+    <h3 v-if="layoutTitle" class="text-sm font-semibold">{{ layoutTitle }}</h3>
+    <div :class="getLayout">
+      <div
+        v-for="(child, i) in (uischema as Layout).elements"
+        :key="i"
+        :class="[COLSPAN[(child as any).options?.colspan ?? 12], ROWSPAN[(child as any).options?.rowspan ?? 0]]"
+      >
+        <Dispatch :uischema="child" :schema="schema" />
+      </div>
     </div>
   </div>
 
@@ -36,4 +39,5 @@ const LAYOUT: Record<string, string> = {
 
 const getLayout = computed(() => LAYOUT[props.uischema.type]);
 const isLayout = computed(() => props.uischema.type in LAYOUT);
+const layoutTitle = computed(() => (props.uischema as { options?: { title?: string } }).options?.title);
 </script>
