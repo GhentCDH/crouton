@@ -118,7 +118,7 @@ const fields = computed<FieldOption[]>(() => {
     value: key,
     label: (schema['title'] as string | undefined) ?? key,
     type: resolveFieldType(schema),
-    values: schema['x-values'] as unknown[] | undefined,
+    values: schema['x-values'] as FieldOption['values'],
   }));
 });
 

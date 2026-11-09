@@ -210,10 +210,10 @@ const useResourceOptions = async (
     const filter = encodeURIComponent(`${valueKey}:${String(value)}:eq`);
     const uri = `${base}${base.includes('?') ? '&' : '?'}filter=${filter}`;
     const response = await http.get(uri);
-    const body = response?.data;
+    const body = response?.data as Record<string, unknown> | unknown[] | undefined;
     const rows = Array.isArray(body)
       ? body
-      : body?.[options.dataField ?? 'data'];
+      : (body as Record<string, unknown>)?.[options.dataField ?? 'data'];
     return (Array.isArray(rows) ? rows[0] : rows) ?? null;
   };
 
