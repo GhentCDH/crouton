@@ -147,8 +147,8 @@ export function createCrudRepository<T = Row>(
   //   - kind:custom  + adapter:custom  (no repository.ts needed)
   //   - kind:prisma  + adapter:custom  (custom backend with generated schema)
   if (resolvedAdapter?.findAll && resolvedAdapter.count) {
-    const adFindAll = resolvedAdapter.findAll;
-    const adCount = resolvedAdapter.count;
+    const adFindAll = resolvedAdapter.findAll.bind(resolvedAdapter);
+    const adCount = resolvedAdapter.count.bind(resolvedAdapter);
     const baseCtx = {
       config,
       op: 'n/a',
