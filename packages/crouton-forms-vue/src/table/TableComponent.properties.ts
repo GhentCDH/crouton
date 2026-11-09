@@ -16,7 +16,7 @@ export const TableComponentProperties = {
   loading: { type: Boolean, default: false as const },
   multiselect: { type: Boolean, default: false as const },
   actions: { type: Array as PropType<TableAction[]>, default: [] },
-  data: { type: Array as PropType<any[]> },
+  data: { type: Array as PropType<Record<string, unknown>[]> },
   page: { type: Object as PropType<TablePage> },
   sort: { type: Object as PropType<TableSort> },
   cellRenderers: { type: Array as PropType<CellRendererEntry[]>, default: [] },

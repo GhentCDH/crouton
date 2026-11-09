@@ -24,6 +24,8 @@ const props = defineProps<{
   schema: JsonSchema;
 }>();
 
-const opts = (props.uischema as any).options ?? {};
-const title = opts.title ?? (props.uischema as any).label;
+type GroupUi = UISchemaElement & { options?: { title?: string; label?: string }; label?: string };
+const ui = props.uischema as GroupUi;
+const opts = ui.options ?? {};
+const title = opts.title ?? ui.label;
 </script>

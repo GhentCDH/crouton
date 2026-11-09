@@ -133,7 +133,7 @@ export const getResourceSchema = async (
     .then((response) => {
       let resourceSchema = response.data;
 
-      if (resourceSchema.columns) {
+      if ((resourceSchema as Record<string, unknown>).columns) {
         resourceSchema = parseSchema(resourceSchema, {});
       }
 

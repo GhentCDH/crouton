@@ -85,7 +85,7 @@ const props = defineProps<{
   /** Active filter strings from the URL, e.g. ["title:foo:contains"] */
   filters: string[];
   /** JSON Schema for filterable columns — keys are field ids, titles are labels */
-  filterSchema?: Record<string, any>;
+  filterSchema?: Record<string, unknown>;
 }>();
 
 const emit = defineEmits<{
@@ -94,7 +94,7 @@ const emit = defineEmits<{
 }>();
 
 /** Map an x-field-type hint (or JSON schema type/format) to a FieldType. */
-const resolveFieldType = (schema: Record<string, any>): FieldType => {
+const resolveFieldType = (schema: Record<string, unknown>): FieldType => {
   const hint = schema['x-field-type'];
   if (
     hint === 'enum' ||
@@ -103,26 +103,29 @@ const resolveFieldType = (schema: Record<string, any>): FieldType => {
     hint === 'boolean'
   )
     return hint;
-  if (schema.type === 'number' || schema.type === 'integer') return 'number';
-  if (schema.format === 'date-time' || schema.format === 'date') return 'date';
-  if (schema.type === 'boolean') return 'boolean';
+  if (schema['type'] === 'number' || schema['type'] === 'integer') return 'number';
+  if (schema['format'] === 'date-time' || schema['format'] === 'date') return 'date';
+  if (schema['type'] === 'boolean') return 'boolean';
   return 'string';
 };
 
 /** Field options derived from the filterSchema properties */
 const fields = computed<FieldOption[]>(() => {
-  const properties = props.filterSchema?.properties as
-    Record<string, any> | undefined;
+  const properties = props.filterSchema?.['properties'] as
+    Record<string, Record<string, unknown>> | undefined;
   if (!properties) return [];
   return Object.entries(properties).map(([key, schema]) => ({
     value: key,
-    label: (schema as any).title ?? key,
-    type: resolveFieldType(schema as Record<string, any>),
-    values: (schema as any)['x-values'],
+    label: (schema['title'] as string | undefined) ?? key,
+    type: resolveFieldType(schema),
+    values: schema['x-values'] as FieldOption['values'],
   }));
 });
 
-const defaultField = computed(() => fields.value[0]?.value ?? '');
+const defaultField = computed<string>(() => {
+  const first = fields.value[0] as { value: string } | undefined;
+  return first?.value ?? '';
+});
 
 const rows = ref<Filter[]>([]);
 
