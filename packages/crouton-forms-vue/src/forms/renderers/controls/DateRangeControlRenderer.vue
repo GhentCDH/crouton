@@ -96,7 +96,7 @@ const toField = computed<string>(
 );
 
 const yearOnly = computed<boolean>(
-  () => !!(appliedOptions.value?.yearOnly),
+  () => !!((appliedOptions.value as Record<string, unknown>)?.yearOnly),
 );
 
 function update(key: string, v: string) {
