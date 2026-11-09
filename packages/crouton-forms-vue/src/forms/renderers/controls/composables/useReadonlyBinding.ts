@@ -29,7 +29,7 @@ import { default as StringValue } from '../readonly/displayValue/StringValue.vue
 import ViewDetailValue from '../readonly/displayValue/ViewDetailValue.vue';
 import { isDate } from '../readonly/displayValue/formatDate';
 
-type ReadonlyOpts = ControlOption & {
+export type ReadonlyOpts = ControlOption & {
   directionField?: string;
   direction?: 'ltr' | 'rtl';
   dataPath?: string;
