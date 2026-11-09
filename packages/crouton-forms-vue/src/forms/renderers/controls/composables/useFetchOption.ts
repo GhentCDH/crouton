@@ -176,7 +176,7 @@ const useRemoteOption = (
         // Flat array response → use directly.
         if (Array.isArray(body)) return body;
         // Nested response → read the declared or default `data` field.
-        return (body as UnknownRecord)[options.dataField ?? 'data'];
+        return (body as UnknownRecord)[options.dataField ?? 'data'] as unknown[];
       });
     },
   };
@@ -230,6 +230,8 @@ const useResourceOptions = async (
     return (Array.isArray(rows) ? rows[0] : rows) ?? null;
   };
 
+  if (!lookup) throw new Error(`[useFetchOption] resource "${options.resource}" has no lookup or findAll operation`);
+
   return {
     fetchOptions: (searchTerm: string, signal: AbortSignal) => {
       let uri = resolvePlaceholders(lookup.uri, formValues, searchTerm);
@@ -240,7 +242,7 @@ const useResourceOptions = async (
       const method = lookup.method;
 
       return callMethod(http, method, uri, undefined, { signal })
-        .then((resp) => (resp.data as UnknownRecord)[options.dataField ?? 'data']);
+        .then((resp) => (resp.data as UnknownRecord)[options.dataField ?? 'data'] as unknown[]);
     },
     fetchByValue: (value: unknown) => {
       if (value === null || value === undefined || value === '')
@@ -311,11 +313,11 @@ export const useFetchOptions = async (
     );
 
   // Client-side fallback: always filter out excluded values after fetch
-  const rawFetch = config['fetchOptions'] as ((searchTerm: string, signal: AbortSignal) => Promise<unknown>) | null;
+  const rawFetch = config['fetchOptions'] as ((searchTerm: string, signal: AbortSignal) => Promise<unknown[]>) | null;
   if (rawFetch && excludeList.length > 0) {
     const excludeSet = new Set(excludeList.map(String));
     config['fetchOptions'] = (searchTerm: string, signal: AbortSignal) =>
-      rawFetch(searchTerm, signal).then((items: unknown) => {
+      rawFetch(searchTerm, signal).then((items: unknown[]) => {
         if (!Array.isArray(items)) return items;
         return items.filter(item => {
           const v = typeof item === 'object' && item !== null ? (item as UnknownRecord)[valueKey] : item;
@@ -326,7 +328,7 @@ export const useFetchOptions = async (
 
   return {
     fetchOptions: null as
-      ((searchTerm: string, signal: AbortSignal) => Promise<unknown>) | null,
+      ((searchTerm: string, signal: AbortSignal) => Promise<unknown[]>) | null,
     fetchByValue: null as ((value: unknown) => Promise<unknown>) | null,
     peekByValue: null as ((value: unknown) => unknown) | null,
     rememberValue: null as ((value: unknown, record: unknown) => void) | null,
