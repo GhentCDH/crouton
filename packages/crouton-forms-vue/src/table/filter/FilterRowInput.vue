@@ -5,14 +5,14 @@
       :value="modelValue.key"
       :options="fields"
       :clearable="false"
-      @change="onFieldChange($event.value)"
+      @change="(e: unknown) => onFieldChange((e as {value: string}).value)"
     />
     <SelectComponent
       size="sm"
       :value="modelValue.operator"
       :options="operatorOptions"
       :clearable="false"
-      @change="onOperatorChange($event.value)"
+      @change="(e: unknown) => onOperatorChange((e as {value: OperatorType}).value)"
     />
     <SelectComponent
       v-if="!noValue && currentField?.type === 'enum'"
@@ -20,7 +20,7 @@
       :value="modelValue.value"
       :options="currentField.values ?? []"
       :clearable="false"
-      @change="update('value', $event.value)"
+      @change="(e: unknown) => update('value', (e as {value: string}).value)"
     />
     <Input
       v-else-if="!noValue"

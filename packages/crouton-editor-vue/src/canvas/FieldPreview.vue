@@ -65,7 +65,7 @@ const previewValue = ref<unknown>(
   <SelectComponent
     v-else-if="type === 'select'"
     size="sm"
-    :value="previewValue"
+    :value="previewValue as string | number | undefined"
     :options="
       selectOptions.length
         ? selectOptions

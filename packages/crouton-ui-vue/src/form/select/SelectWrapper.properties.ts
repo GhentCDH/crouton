@@ -15,7 +15,8 @@ export const SelectProperties = {
   /** Whether to show the clear button when a value is selected */
   clearable: { type: Boolean, default: false },
   /** Alternative to v-model — accepts a string id or a full option object */
-  value: { type: null as unknown as PropType<unknown>, default: undefined },
+  // ponytail: any needed — Vue's InferPropType doesn't support unknown; array-of-constructors without cast infers correctly
+  value: { type: [String, Number, Boolean, Object, Array, Function], default: undefined },
 };
 
 export const SelectWrapperEmits = ['select', 'clear', 'close', 'create'];

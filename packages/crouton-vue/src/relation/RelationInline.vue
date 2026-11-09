@@ -31,7 +31,7 @@
         :label-key="options.labelKey ?? options.displayKey"
         :value-key="options.valueKey ?? 'id'"
         :enable-create="fetchOptions.enableCreate"
-        @change="onChange"
+        @change="(v: unknown) => onChange(v as string | null)"
         @blur="onBlur"
         @create="onCreate"
       />
