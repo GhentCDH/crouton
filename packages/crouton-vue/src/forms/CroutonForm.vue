@@ -124,7 +124,12 @@ const {
   renderers,
   schema,
   uiSchema,
-} = useFormLogic(properties, emits, formData, formRef);
+} = useFormLogic(
+  properties,
+  emits,
+  formData as { value: Record<string, unknown> },
+  formRef as unknown as { value: { validate?: () => Promise<{ valid: boolean }>; markSubmitted?: () => void; getCurrentValues?: () => Record<string, unknown> } | null | undefined },
+);
 
 provide(FORM_MODAL_OPENER_KEY, (opts) => JsonFormModalService.openModal(opts));
 
