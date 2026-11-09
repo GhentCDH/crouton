@@ -51,8 +51,8 @@ test.describe('Modal dismiss', () => {
 
     await expect(page.getByTestId('form-modal')).toBeVisible();
 
-    // In auto-save mode the Close button is shown
-    const closeBtn = page.getByTestId('form-modal').getByRole('button', { name: /close/i });
+    // In auto-save mode the Close button is shown (exclude the ✕ icon button via text filter)
+    const closeBtn = page.getByTestId('form-modal').locator('button').filter({ hasText: /^Close$/ });
     await closeBtn.click();
 
     await expect(page.getByTestId('form-modal')).not.toBeVisible({ timeout: 3000 });
