@@ -55,6 +55,36 @@
       },
       "hiddenInTable": true
     },
+    "isSigned": {
+      "fieldInput": {
+        "type": "toggle",
+        "options": {
+          "options": [
+            { "value": true, "label": "Yes" },
+            { "value": false, "label": "No" }
+          ],
+          "storeValue": true,
+          "clearable": false
+        }
+      },
+      "hiddenInTable": true
+    },
+    "provenance": {
+      "required": false,
+      "fieldInput": {
+        "type": "mutliSelect",
+        "options": {
+          "storeValue": true,
+          "options": [
+            { "value": "gift", "label": "Gift" },
+            { "value": "purchased", "label": "Purchased" },
+            { "value": "inherited", "label": "Inherited" },
+            { "value": "borrowed", "label": "Borrowed" }
+          ]
+        }
+      },
+      "hiddenInTable": true
+    },
     "rating": {
       "fieldInput": {
         "type": "custom",
@@ -134,7 +164,8 @@
         },
         {
           "id": "isbn",
-          "colspan": 4
+          "colspan": 4,
+          "readonly": true
         },
         {
           "id": "publishedYear",
@@ -158,6 +189,14 @@
           "colspan": 8
         },
         {
+          "id": "isSigned",
+          "colspan": 4
+        },
+        {
+          "id": "provenance",
+          "colspan": 8
+        },
+        {
           "id": "rating",
           "colspan": 6
         },
@@ -168,6 +207,7 @@
         {
           "type": "collapse",
           "title": "Categories",
+          "titleKey": "title",
           "items": [
             "categories"
           ]
