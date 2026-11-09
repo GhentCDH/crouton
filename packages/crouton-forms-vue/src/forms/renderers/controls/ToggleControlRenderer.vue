@@ -21,7 +21,7 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { computed } from 'vue';
 
-import { Btn, ControlWrapper } from '@ghentcdh/crouton-ui-vue';
+import { Btn, ControlWrapper, type Color, type Size } from '@ghentcdh/crouton-ui-vue';
 
 import { useSelectBinding } from './composables/useSelectBinding';
 
@@ -34,8 +34,8 @@ type ToggleOpts = {
   values?: unknown[];
   storeValue?: boolean;
   clearable?: boolean;
-  color?: string;
-  size?: string;
+  color?: `${Color}`;
+  size?: Size;
 };
 
 const {
@@ -57,8 +57,10 @@ const toggleOptions = computed<unknown[]>(() => opts.value.options ?? opts.value
 const optionLabel = (opt: unknown): unknown =>
   opt && typeof opt === 'object' ? (opt as Record<string, unknown>)[labelKey.value] : opt;
 
-const optionValue = (opt: unknown): unknown =>
-  opt && typeof opt === 'object' ? (opt as Record<string, unknown>)[valueKey.value] : opt;
+const optionValue = (opt: unknown): PropertyKey | undefined => {
+  const v = opt && typeof opt === 'object' ? (opt as Record<string, unknown>)[valueKey.value] : opt;
+  return v as PropertyKey | undefined;
+};
 
 // The stored value is either a scalar (storeValue) or the whole option object.
 const currentValue = computed<unknown>(() => {

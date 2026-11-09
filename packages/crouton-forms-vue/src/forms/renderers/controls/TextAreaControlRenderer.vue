@@ -21,7 +21,7 @@ import { useControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, onBlur, onChange, appliedOptions } = useControlBinding(
+const { wrapper, value, onBlur, onChange } = useControlBinding(
   props.uischema,
   props.schema,
 );
