@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 
 import type { ResourceApiInstance } from './resource.api';
-import { PaginatedRequestService, type PaginatedApiResponse } from '../utils/paginatedRequestService';
+import { type PaginatedApiResponse, PaginatedRequestService } from '../utils/paginatedRequestService';
 import { type Request } from '../utils/request';
 
 type UiNode = {
