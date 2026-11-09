@@ -37,24 +37,17 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useCustomControlBinding } from './composables/useControlBinding';
-import { computed } from 'vue';
+import { type Ref, computed } from 'vue';
 import ControlLabel from './ControlLabel.vue';
 
 type DateRange = Record<string, string | undefined>;
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-// Binds to a single property whose value is stored as a JSON string in the DB.
-const { value: rawValue, wrapper, onBlur, onChange, appliedOptions } =
+// Binds to a single property whose value is the object keyed by fromField/toField.
+const { value: rawValue, wrapper, onBlur, appliedOptions } =
   useCustomControlBinding()(props.uischema, props.schema);
-
-// Parse the JSON string from the DB into a DateRange object for the template.
-const value = computed<DateRange | undefined>(() => {
-  const v = rawValue.value;
-  if (!v) return undefined;
-  if (typeof v === 'object') return v as DateRange;
-  try { return JSON.parse(v as string) as DateRange; } catch { return undefined; }
-});
+const value = rawValue as Ref<DateRange | undefined>;
 
 const fromLabel = computed<string>(
   () => (appliedOptions.value?.fromLabel as string) ?? 'From',
@@ -76,9 +69,6 @@ function update(key: string, v: string) {
   if (v) next[key] = v;
   else delete next[key];
   // collapse to undefined when both ends are empty so it persists as NULL
-  const result = next[fromField.value] || next[toField.value] ? next : undefined;
-  // Store as JSON string — Prisma column is String?, not a JSON column. Use null (not undefined) when empty so schema string | null validates.
-  rawValue.value = result !== undefined ? JSON.stringify(result) : null;
-  onChange();
+  value.value = next[fromField.value] || next[toField.value] ? next : undefined;
 }
 </script>
