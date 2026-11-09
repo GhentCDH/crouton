@@ -4,13 +4,16 @@ import { ControlType } from '@ghentcdh/crouton-core';
 
 import { and, or, schemaTypeIs, uiTypeIs } from './jsonforms-testers';
 
+type UiWithOptions = UISchemaElement & { options?: Record<string, unknown> };
+type SchemaRecord = Record<string, unknown>;
+
 export const optionIsIgnoreCase =
   (optionName: string, optionValue: string) =>
   (uischema: UISchemaElement): boolean => {
-    const options = (uischema as any).options;
+    const options = (uischema as UiWithOptions).options;
     if (!options) return false;
-    const val = options[optionName];
-    return val?.toLowerCase() === optionValue?.toLowerCase();
+    const val = options[optionName] as string | undefined;
+    return typeof val === 'string' && val.toLowerCase() === optionValue?.toLowerCase();
   };
 
 // Matches a control whose (already resolved) schema declares one of the given
@@ -18,7 +21,7 @@ export const optionIsIgnoreCase =
 const schemaFormatIsOneOf =
   (...formats: string[]) =>
   (_uischema: UISchemaElement, schema: JsonSchema): boolean => {
-    const fmt = (schema as any)?.format;
+    const fmt = (schema as SchemaRecord)?.['format'];
     return typeof fmt === 'string' && formats.includes(fmt);
   };
 
@@ -27,9 +30,9 @@ const schemaFormatIsOneOf =
 const anyOfTypeIs =
   (type: string) =>
   (_uischema: UISchemaElement, schema: JsonSchema): boolean => {
-    const s = schema as any;
-    if (!Array.isArray(s?.anyOf)) return false;
-    return s.anyOf.some((sub: any) => sub?.type === type);
+    const s = schema as SchemaRecord;
+    if (!Array.isArray(s?.['anyOf'])) return false;
+    return (s['anyOf'] as SchemaRecord[]).some((sub) => sub?.['type'] === type);
   };
 
 // Matches schemas where any variant in anyOf has one of the given formats.
@@ -38,10 +41,10 @@ const anyOfTypeIs =
 const anyOfFormatIsOneOf =
   (...formats: string[]) =>
   (_uischema: UISchemaElement, schema: JsonSchema): boolean => {
-    const s = schema as any;
-    if (!Array.isArray(s?.anyOf)) return false;
-    return s.anyOf.some(
-      (sub: any) => typeof sub?.format === 'string' && formats.includes(sub.format),
+    const s = schema as SchemaRecord;
+    if (!Array.isArray(s?.['anyOf'])) return false;
+    return (s['anyOf'] as SchemaRecord[]).some(
+      (sub) => typeof sub?.['format'] === 'string' && formats.includes(sub['format'] as string),
     );
   };
 
@@ -80,10 +83,12 @@ export const isObjectControl = and(
   uiTypeIs('Control'),
   or(
     optionIsIgnoreCase('format', ControlType.object),
-    (uischema: UISchemaElement, schema: JsonSchema) =>
-      !(uischema as any).options?.format &&
-      (schema as any)?.type === 'object' &&
-      !!(schema as any)?.properties,
+    (uischema: UISchemaElement, schema: JsonSchema) => {
+      const s = schema as SchemaRecord;
+      return !(uischema as UiWithOptions).options?.['format'] &&
+        s?.['type'] === 'object' &&
+        !!s?.['properties'];
+    },
   ),
 );
 

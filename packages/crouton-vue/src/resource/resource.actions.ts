@@ -7,7 +7,7 @@ import type {
   TableAction as TableActionDef,
 } from '@ghentcdh/crouton-core';
 import { resolveDefaultTokens } from '@ghentcdh/crouton-core';
-import type { FormModalResult } from '@ghentcdh/crouton-forms-vue';
+import type { FormEventPayload, FormModalResult } from '@ghentcdh/crouton-forms-vue';
 import {
   ModalService,
   NotificationService,
@@ -25,18 +25,35 @@ import { useCrouton } from '../composables/useCrouton';
 import { useLanguage } from '../i18n/useLanguage';
 import { findCustomComponent } from '../utils/custom-component';
 
-const getTableNode = (ui: any): any => {
+type TableNodeOptions = {
+  rowActions?: Action[];
+  tableActions?: TableActionDef[];
+};
+
+type TableNode = {
+  type: string;
+  elements?: Array<{ type: string }>;
+  options?: TableNodeOptions;
+};
+
+type HttpMethod = (uri: string, params?: unknown) => Promise<{ data: { success?: boolean; message?: string } }>;
+
+type FormConfig = {
+  onClose?: (result: FormModalResult | undefined) => Promise<void> | void;
+  modalTitle?: string;
+  title?: string;
+  [key: string]: unknown;
+};
+
+const getTableNode = (ui: TableNode | undefined | null): TableNode | null => {
   if (!ui) return null;
   if (ui.type === 'Table') return ui;
-  return (
-    (ui.elements as any[] | undefined)?.find((e: any) => e.type === 'Table') ??
-    null
-  );
+  return (ui.elements?.find((e) => e.type === 'Table') as TableNode | undefined) ?? null;
 };
 
 const evaluateCondition = (
   condition: ResourceActionCondition | undefined,
-  row: any,
+  row: Record<string, unknown>,
 ): boolean => {
   if (!condition) return true;
   const v = row[condition.field];
@@ -46,13 +63,13 @@ const evaluateCondition = (
     case 'neq':
       return v !== condition.value;
     case 'gt':
-      return v > (condition.value as any);
+      return (v as number) > (condition.value as number);
     case 'gte':
-      return v >= (condition.value as any);
+      return (v as number) >= (condition.value as number);
     case 'lt':
-      return v < (condition.value as any);
+      return (v as number) < (condition.value as number);
     case 'lte':
-      return v <= (condition.value as any);
+      return (v as number) <= (condition.value as number);
     case 'exists':
       return v !== null && v !== undefined && v !== '';
     case 'notExists':
@@ -80,10 +97,10 @@ export const confirmDelete = (
 };
 
 const openDeleteModal = (api: ResourceApiInstance, resource: Resource, handleEvent: HandleEvent, onSuccess?: () => void) =>
-  (data: any) => {
+  (data: Record<string, unknown>) => {
     confirmDelete(
       () => {
-        api.delete(data).then((response: any) => {
+        api.delete(data).then((response: unknown) => {
           if (response) resource.reload();
           handleEvent('close', { delete: true, data });
           onSuccess?.();
@@ -100,7 +117,7 @@ const openViewModal =
     formDef: ResourceDefinition,
     handleEvent: HandleEvent,
   ) =>
-  (formData: any) => {
+  (formData: Record<string, unknown>) => {
     const view = formDef.schemas.view;
     if (!formData) NotificationService.error('cannot load data');
     if (!view) return;
@@ -117,28 +134,29 @@ const openViewModal =
       renderers: undefined,
       onEdit:
         op.update || op.patch
-          ? (data: any) =>
+          ? (data: Record<string, unknown>) =>
               openEditModal(
                 api,
                 resource,
                 formDef,
                 handleEvent,
-              )(data ?? formData) as any
+              )(data ?? formData)
           : undefined,
       onDelete: op.delete
-        ? (data: any) =>
+        ? (data: Record<string, unknown>) =>
             openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
-      onView: (data: any) => {
-        const resource = data.options.resource ?? data.options.schemasUri;
-        if (!resource) return;
+      onView: (data: Record<string, unknown>) => {
+        const opts = data['options'] as Record<string, unknown> | undefined;
+        const resourceUri = opts?.['resource'] ?? opts?.['schemasUri'];
+        if (!resourceUri) return;
 
         useCrouton()
-          .getFormByUri(resource)
+          .getFormByUri(String(resourceUri))
           .then((config) => {
             if (!config) return;
-            const _resource = useResources(config, { defaultUriParams: data });
-            _resource?.view(data.data);
+            const _resource = useResources(config, { defaultUriParams: data as Record<string, string> });
+            _resource?.view(data['data'] as Record<string, unknown>);
           });
       },
       onClose: () => {
@@ -155,9 +173,9 @@ const openEditModal =
     handleEvent: HandleEvent,
     onSuccess?: (type: 'created' | 'updated') => void,
   ) =>
-  (formData?: any) => {
+  (formData?: Record<string, unknown>) => {
     JsonFormModalService.openModal(
-      createEditForm(api, resource, formDef, handleEvent, onSuccess)(formData) as any,
+      createEditForm(api, resource, formDef, handleEvent, onSuccess)(formData) as Parameters<typeof JsonFormModalService.openModal>[0],
     );
   };
 
@@ -169,7 +187,7 @@ const createEditForm =
     handleEvent: HandleEvent,
     onSuccess?: (type: 'created' | 'updated') => void,
   ) =>
-  (formData?: any) => {
+  (formData?: Record<string, unknown>) => {
     const form = formDef.schemas.form;
     if (!form) return;
 
@@ -181,11 +199,11 @@ const createEditForm =
     const crouton = useCrouton();
     const autoSaveEnabled = crouton.autoSave.value;
 
-    const blankData =
+    const blankData: Record<string, unknown> =
       formData ??
       (resolveDefaultTokens(form.parseValue({}), {
         defaults: crouton.defaults,
-      }) as any);
+      }) as Record<string, unknown>);
 
     const sharedProps = {
       schema: form.data,
@@ -198,13 +216,13 @@ const createEditForm =
       views: formDef.schemas,
       showErrors: crouton.showErrors.value,
       debugValue: crouton.debugValue.value,
-      onEvents: (event: any) => {
+      onEvents: (_event: FormEventPayload) => {
         // Other renderer events (e.g. 'create', 'view') can be handled here.
       },
       // Re-fetch the parent record when a relation changes so the form stays in
       // sync. onRefreshData cancels any pending auto-save debounce first to
       // prevent the stale captured data from overwriting the server state.
-      onRefreshData: isUpdate ? () => api.getOneById(recordId) : undefined,
+      onRefreshData: isUpdate ? () => api.getOneById(String(recordId)) : undefined,
     } as const;
 
     if (autoSaveEnabled && isUpdate) {
@@ -212,7 +230,7 @@ const createEditForm =
       return {
         ...sharedProps,
         autoSave: true,
-        onAutoSave: (data: any) => api.patch(recordId, data),
+        onAutoSave: (data: Record<string, unknown>) => api.patch(String(recordId), data),
         onClose: () => {
           resource.reload();
           handleEvent('close', {});
@@ -228,7 +246,7 @@ const createEditForm =
           if (result && result.valid) {
             const data = result.data;
             const response = await (isUpdate
-              ? api.save(recordId, data)
+              ? api.save(String(recordId), data)
               : api.create(data));
             if (!response) throw new Error('Save failed');
             onSuccess?.(isUpdate ? 'updated' : 'created');
@@ -251,7 +269,7 @@ export const backendAction = (
 ) => {
   const fetch = useApi();
 
-  return (formData: any) => {
+  return (formData: Record<string, unknown>) => {
     if (action.type === 'link') {
       const href = replaceUriParams(action.href, {
         ...defaultUriParams,
@@ -268,9 +286,9 @@ export const backendAction = (
 
     setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
 
-    const _fetch = (fetch as any)[action.method];
+    const _fetch = (fetch as unknown as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
     return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
-      .then(async ({ data }: { data: any }) => {
+      .then(async ({ data }) => {
         if (data.success) {
           await resource.reload();
           setStatus?.({ text: procedureAction.successMessage ?? data.message ?? t('notifications.actionSuccess', 'Done'), type: 'success' });
@@ -301,22 +319,22 @@ export const actions = (
     modals ?? resourceModals(api, resource, formDef, handleEvent, false);
   const pendingKey = ref<string | null>(null);
   return [
-    (getTableNode(formDef.schemas.table.ui)?.options?.rowActions ?? []).map(
-      (action: any) => {
+    (getTableNode(formDef.schemas.table.ui as TableNode)?.options?.rowActions ?? []).map(
+      (action: Action) => {
         const idField = formDef.idField;
         return {
           action: (row: any) => {
             const key = `${action.id}:${row[idField]}`;
             pendingKey.value = key;
-            return backendAction(resource, formDef, defaultUriParams, action, setStatus)(row)
+            return Promise.resolve(backendAction(resource, formDef, defaultUriParams, action, setStatus)(row))
               .finally(() => { if (pendingKey.value === key) pendingKey.value = null; });
           },
           tooltip: action.label,
           icon: action.icon,
           label: action.icon ? null : action.label,
-          loading: (row: any) => pendingKey.value === `${action.id}:${row[idField]}`,
-          ...(action.condition && {
-            visible: (row: any) => evaluateCondition(action.condition, row),
+          loading: (row: Record<string, unknown>) => pendingKey.value === `${action.id}:${row[idField]}`,
+          ...('condition' in action && action.condition && {
+            visible: (row: Record<string, unknown>) => evaluateCondition(action.condition, row),
           }),
         };
       },
@@ -355,7 +373,7 @@ export const tableActions = (
   setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
 ): TableAction[] => {
   const _tableActions: TableActionDef[] =
-    getTableNode(formDef?.schemas.table.ui)?.options?.tableActions ?? [];
+    getTableNode(formDef?.schemas.table.ui as TableNode | undefined)?.options?.tableActions ?? [];
   if (!formDef || !_tableActions.length) return [];
 
   const fetch = useApi();
@@ -369,11 +387,12 @@ export const tableActions = (
         return;
       }
       const { t } = useLanguage();
-      const procedureAction = action as any;
+      const procedureAction = action as Extract<typeof action, { type: 'procedure' }>;
       pendingActionId.value = action.id;
       setStatus?.({ text: procedureAction.pendingMessage ?? t('notifications.actionPending', 'Processing…'), type: 'pending' }, false);
-      return (fetch as any)[action.method](action.uri, action.data ?? {})
-        .then(async ({ data }: { data: any }) => {
+      const _fetch = (fetch as unknown as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
+      return _fetch(action.uri, action.data ?? {})
+        .then(async ({ data }) => {
           if (data?.success !== false) {
             await resource.reload();
             const msg = procedureAction.successMessage ?? data?.message ?? t('notifications.actionSuccess', 'Done');
@@ -402,11 +421,11 @@ export const tableActions = (
 interface ResourceModals {
   form: Ref<{
     component: Component;
-    config: any;
+    config: FormConfig;
     hideTable: boolean;
     customComponent: Component | null;
   } | null>;
-  closeForm: (result: any) => Promise<void>;
+  closeForm: (result: FormModalResult | undefined) => Promise<void>;
   create: () => void;
   edit: (id: unknown) => void;
   view: (id: unknown) => void;
@@ -421,7 +440,7 @@ export const resourceModals = (
   inline: boolean,
   onSuccess?: (type: 'created' | 'updated' | 'deleted') => void,
 ): ResourceModals => {
-  const openWithData = (id: unknown, fn: (data: any) => void) => {
+  const openWithData = (id: unknown, fn: (data: Record<string, unknown>) => void) => {
     const _id =
       typeof id === 'string'
         ? id
@@ -429,10 +448,10 @@ export const resourceModals = (
 
     api
       .getOneById(_id)
-      .then((data: any) => {
-        return fn(data);
+      .then((data: unknown) => {
+        return fn(data as Record<string, unknown>);
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error(error);
         NotificationService.error('Something went wrong, please try again');
       });
@@ -440,7 +459,7 @@ export const resourceModals = (
 
   const form = ref<{
     component: Component;
-    config: any;
+    config: FormConfig;
     hideTable: boolean;
     customComponent: Component | null;
   } | null>(null);
@@ -454,7 +473,7 @@ export const resourceModals = (
       formDef: ResourceDefinition,
       handleEvent: HandleEvent,
     ) =>
-    (formData?: any) => {
+    (formData?: Record<string, unknown>) => {
       const mode = formDef.display.mode;
       if (!inline && mode !== 'page') {
         openEditModal(api, resource, formDef, handleEvent, onSuccess)(formData);
@@ -474,22 +493,22 @@ export const resourceModals = (
         formDef,
         handleEvent,
         onSuccess,
-      )(formData);
+      )(formData) as FormConfig | undefined;
 
       // CroutonForm uses `title` instead of `modalTitle`
       if (isPageMode && config) {
-        (config as any).title = (config as any).modalTitle;
+        config['title'] = config['modalTitle'];
       }
 
       form.value = {
         component: markRaw(component),
-        config,
+        config: config ?? {},
         customComponent: customComponent ? markRaw(customComponent) : null,
         hideTable: isPageMode,
       };
     };
 
-  const closeForm = async (result: any) => {
+  const closeForm = async (result: FormModalResult | undefined) => {
     const onClose = form.value?.config?.onClose;
     if (onClose) {
       try {
