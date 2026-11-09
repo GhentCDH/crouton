@@ -50,7 +50,13 @@ Or for all packages: `pnpm nx run-many --target=lint`. Lint errors in CI are not
 1. **Create options schema** — `packages/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` (extend `BaseOptionsSchema` from `../base.options`, use `opt` from `../option-meta`).
 2. **Register in registry** — `packages/crouton-core/src/lib/resource/field-input/registry.ts`: add import and add entry `['<type>', { options: <Type>OptionsSchema, schemaFile: '<type>' }]`.
 3. **Add to ControlType** — `packages/crouton-core/src/lib/schema/ui/control-type.ts`: add `<type>: '<type>'` to the `ControlType` const.
-4. **Create Vue renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/<Type>ControlRenderer.vue`.
+4. **Create Vue renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/<Type>ControlRenderer.vue`. Use the typed binding so `appliedOptions` matches the Zod schema:
+   ```ts
+   import type { ControlOptions } from '@ghentcdh/crouton-core';
+   import { useCustomControlBinding } from './composables/useControlBinding';
+   const { appliedOptions, ... } = useCustomControlBinding<ControlOptions<'<type>'>>()(...);
+   // appliedOptions.value.<field> is now fully typed — no `as any` casts needed
+   ```
 5. **Add tester** — `packages/crouton-forms-vue/src/testers/tester.ts`: export `const is<Type>Control = and(uiTypeIs('Control'), optionIsIgnoreCase('format', ControlType.<type>))`.
 6. **Register renderer** — `packages/crouton-forms-vue/src/forms/renderers/controls/index.ts`: import tester + component, add entry to `controlRenderers`.
 7. **Add to CANVAS_SUPPORTED_TYPES** — `packages/crouton-editor-vue/src/canvas/type-swaps.ts`: add `'<type>'` to the `CANVAS_SUPPORTED_TYPES` Set.
