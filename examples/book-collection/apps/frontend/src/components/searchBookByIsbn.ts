@@ -180,16 +180,16 @@ export const findOrCreateAuthor = async (
 ): Promise<string> => {
   const resource = await useAuthorResource();
 
-  const search = await resource.findAll({
+  const search = (await resource.findAll({
     q: name,
     sort: 'name',
     sortDir: 'asc',
-  });
+  })) as { data?: { data?: { id: string }[] } } | null;
 
-  const existing = search.data?.data?.[0];
+  const existing = search?.data?.data?.[0];
   if (existing) return existing.id;
 
-  const created = await resource.create({ name }); // api.post<{ id: string }>('/author', { name });
+  const created = (await resource.create({ name })) as { id: string }; // api.post<{ id: string }>('/author', { name });
   return created.id;
 };
 

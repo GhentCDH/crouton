@@ -1,4 +1,4 @@
-export type { ListRequest as RequestData } from '@ghentcdh/crouton-core';
+export type { ListRequestInput as RequestData } from '@ghentcdh/crouton-core';
 
 /**
  * Callback invoked when a resource action occurs (e.g. view, create, update, close).
