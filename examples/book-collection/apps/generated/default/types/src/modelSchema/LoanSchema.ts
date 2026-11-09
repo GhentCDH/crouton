@@ -12,6 +12,8 @@ export const LoanSchema = z.object({
   id: z.string().cuid(),
   loanedAt: z.coerce.date(),
   returnedAt: z.coerce.date().nullable(),
+  requestedPickupAt: z.coerce.date().nullable(),
+  rentalPeriod: z.string().nullable(),
   userId: z.string(),
   bookId: z.string(),
 })
