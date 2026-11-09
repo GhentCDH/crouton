@@ -24,6 +24,11 @@ export const DateRangeOptionsSchema = BaseOptionsSchema.extend({
     default: 'to',
     examples: ['to', 'endDate'],
   }),
+  yearOnly: opt(z.boolean().optional(), {
+    description: 'Render year-only text inputs instead of full date pickers (accepts values like "450" or "450 CE")',
+    default: false,
+    examples: [true],
+  }),
 }).meta({
   title: 'Date-range options',
   description: 'Options for the from/to date range picker',

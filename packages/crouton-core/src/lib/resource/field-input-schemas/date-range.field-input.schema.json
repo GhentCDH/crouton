@@ -151,6 +151,15 @@
       ],
       "type": "string",
       "markdownDescription": "JSON object key for the end date\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
+    },
+    "yearOnly": {
+      "description": "Render year-only text inputs instead of full date pickers (accepts values like \"450\" or \"450 CE\")",
+      "default": false,
+      "examples": [
+        true
+      ],
+      "type": "boolean",
+      "markdownDescription": "Render year-only text inputs instead of full date pickers (accepts values like \"450\" or \"450 CE\")\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/date-range)"
     }
   },
   "additionalProperties": {},

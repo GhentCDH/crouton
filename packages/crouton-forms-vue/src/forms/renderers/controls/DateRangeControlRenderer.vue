@@ -4,6 +4,17 @@
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ fromLabel }}</small>
         <input
+          v-if="yearOnly"
+          type="text"
+          class="input w-28"
+          autocomplete="off"
+          placeholder="e.g. 450 CE"
+          :value="value?.[fromField] ?? ''"
+          @input="update(fromField, ($event.target as HTMLInputElement).value)"
+          @blur="onBlur"
+        />
+        <input
+          v-else
           type="date"
           class="input w-36"
           autocomplete="off"
@@ -19,6 +30,17 @@
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ toLabel }}</small>
         <input
+          v-if="yearOnly"
+          type="text"
+          class="input w-28"
+          autocomplete="off"
+          placeholder="e.g. 450 CE"
+          :value="value?.[toField] ?? ''"
+          @input="update(toField, ($event.target as HTMLInputElement).value)"
+          @blur="onBlur"
+        />
+        <input
+          v-else
           type="date"
           class="input w-36"
           autocomplete="off"
@@ -69,6 +91,12 @@ const fromField = computed<string>(
 );
 const toField = computed<string>(
   () => (appliedOptions.value?.toField as string) ?? 'to',
+);
+
+const yearOnly = computed<boolean>(
+  // appliedOptions is typed as ControlOption | { [key: string]: any } from jsonforms;
+  // custom options not in ControlOption need a cast to access without TS2339.
+  () => !!((appliedOptions.value as Record<string, unknown>)?.yearOnly),
 );
 
 function update(key: string, v: string) {
