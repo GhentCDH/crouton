@@ -58,17 +58,4 @@ export default defineConfig([
       );
     },
   },
-  {
-    // Nx migration factories — built separately to avoid the CLI shebang banner.
-    // @nx/devkit is external: it resolves from the user's installed nx.
-    entry: { 'migrations/migrate-resource-v1-to-v2': 'src/migrations/migrate-resource-v1-to-v2.ts' },
-    outDir,
-    format: ['esm'],
-    dts: false,
-    splitting: false,
-    clean: false,
-    noExternal: ['@ghentcdh/crouton-core'],
-    external: ['@nx/devkit'],
-    esbuildOptions: sharedEsbuildOptions,
-  },
 ]);

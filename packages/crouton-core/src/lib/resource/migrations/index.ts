@@ -78,4 +78,3 @@ export const runResourceMigrations = (
 };
 
 export * from './types';
-export { migration_v1_to_v2 } from './migration-v1-to-v2';
