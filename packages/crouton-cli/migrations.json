@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.nx.dev/core/nx-migrations.schema.json",
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "description": "Migrate resource.json v1 → v2: controls→items, actions→rowActions, table settings move to table node",
+      "factory": "./dist/migrations/migrate-resource-v1-to-v2"
+    }
+  ]
+}
