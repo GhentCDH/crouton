@@ -23,8 +23,6 @@ Add two things:
   run: npx nx release publish --projects=<project-name> --access public --verbose
   shell: bash
   env:
-    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     NPM_CONFIG_PROVENANCE: true
 ```
 
@@ -63,8 +61,6 @@ New package: `packages/crouton-foo` with `"name": "@ghentcdh/crouton-foo"` and n
   run: npx nx release publish --projects=crouton-foo --access public --verbose
   shell: bash
   env:
-    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     NPM_CONFIG_PROVENANCE: true
 ```
 

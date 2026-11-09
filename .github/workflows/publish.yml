@@ -32,8 +32,6 @@ jobs:
         run: npx nx release publish --projects=crouton-api --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @ghentcdh/crouton-auth
@@ -42,8 +40,6 @@ jobs:
         run: npx nx release publish --projects=crouton-auth --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @ghentcdh/crouton-cli
@@ -52,8 +48,6 @@ jobs:
         run: npx nx release publish --projects=crouton-cli --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @ghentcdh/crouton-core
@@ -62,8 +56,6 @@ jobs:
         run: npx nx release publish --projects=crouton-core --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @ghentcdh/crouton-prisma
@@ -72,8 +64,6 @@ jobs:
         run: npx nx release publish --projects=crouton-prisma --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @ghentcdh/crouton-vue
@@ -82,8 +72,6 @@ jobs:
         run: npx nx release publish --projects=crouton-vue --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @ghentcdh/create-crouton
@@ -92,8 +80,6 @@ jobs:
         run: npx nx release publish --projects=create-crouton --access public --verbose
         shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Create GitHub Release
