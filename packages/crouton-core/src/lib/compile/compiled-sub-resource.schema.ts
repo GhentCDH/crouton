@@ -6,13 +6,13 @@ import {
   RelationType,
   ResourceKindSchema,
 } from '../resource';
+import { JsonColumnBaseSchema } from '../resource/Column';
 import {
   IdTypeSchema,
   OptionalCalculatedColumnsSchema,
   OptionalIncludeListSchema,
   OptionalViewsSchema,
 } from './compiled-shared.schema';
-import { JsonColumnBaseSchema } from '../resource/Column';
 
 export const CompiledSubResourceConfigSchema = z.object({
   column: z.string(),

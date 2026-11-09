@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { opt } from './option-meta';
 import { WhenConditionSchema } from '../../layout/schema/LayoutItem.schema';
+import { opt } from './option-meta';
 
 export const BaseOptionsSchema = z
   .object({

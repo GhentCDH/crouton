@@ -6,12 +6,12 @@ import {
   isOperationEnabled,
   isOperationExternal, toJsonSchema } from '@ghentcdh/crouton-core';
 
-import { def, desc } from './decorator.utils';
-import type { OperationContext } from './operation-context';
 import type { CrudRepository } from '../data-access/repository';
 import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
+import { def, desc } from './decorator.utils';
+import type { OperationContext } from './operation-context';
 
 const buildListResult = (
   data: unknown[],

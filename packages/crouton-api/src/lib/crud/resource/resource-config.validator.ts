@@ -5,8 +5,8 @@ import {
   resolveDefinition,
 } from '@ghentcdh/crouton-core';
 
-import type { Resource } from './ResourceConfig.schema';
 import { validateCustomRepository } from '../custom-repository';
+import type { Resource } from './ResourceConfig.schema';
 
 const ALL_OPS: readonly CrudOperation[] = [
   'findAll',

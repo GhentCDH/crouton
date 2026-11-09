@@ -1,12 +1,6 @@
 import { resolveValueLabelColumns } from '@ghentcdh/crouton-core';
 import type { JsonColumn, ListRequest, Row } from '@ghentcdh/crouton-core';
 
-import type {
-  ParentHookContext,
-  ReadOp,
-  ResourceHooks,
-  WriteOp,
-} from './hooks.types';
 import type { DataSourceResolver } from '../../../context';
 import { buildCrudContext } from '../../../context';
 import type { Resource } from '../../../resource/ResourceConfig.schema';
@@ -15,6 +9,12 @@ import {
   applyValueLabelColumns,
   normalizeValueLabels,
 } from '../value-label.apply';
+import type {
+  ParentHookContext,
+  ReadOp,
+  ResourceHooks,
+  WriteOp,
+} from './hooks.types';
 
 /**
  * Lifecycle-hook application, extracted so every repository implementation

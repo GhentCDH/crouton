@@ -6,6 +6,10 @@ import { type Component, type Ref, computed, reactive, ref, shallowRef } from 'v
 
 import type { Action, ResourceDefinition, ViewColumnConfig } from '@ghentcdh/crouton-core';
 
+import { useCrouton } from '../composables/useCrouton';
+import { useLanguage } from '../i18n/useLanguage';
+import { computedAsync } from '../utils/computedAsync';
+import { type Request } from '../utils/request';
 import { customCellRenderers } from './renderers';
 import { Resource } from './resource';
 import {
@@ -16,10 +20,6 @@ import {
 } from './resource.actions';
 import { type ResourceApiInstance, resourceApi } from './resource.api';
 import type { HandleEvent } from './resource.types';
-import { useCrouton } from '../composables/useCrouton';
-import { useLanguage } from '../i18n/useLanguage';
-import { computedAsync } from '../utils/computedAsync';
-import { type Request } from '../utils/request';
 
 type EnumOptionLike = { value: unknown; label?: string; [key: string]: unknown };
 const isEnumOptionLike = (v: unknown): v is EnumOptionLike =>

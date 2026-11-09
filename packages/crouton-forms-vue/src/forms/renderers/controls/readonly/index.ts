@@ -1,5 +1,5 @@
-import ControlReadonlyRenderer from './ControlReadonlyRenderer.vue';
 import { rankWith, uiTypeIs } from '../../../../testers/jsonforms-testers';
+import ControlReadonlyRenderer from './ControlReadonlyRenderer.vue';
 
 export const readonlyControlRenderers = [
   {

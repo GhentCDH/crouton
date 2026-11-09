@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { ResourceJsonSchema } from '@ghentcdh/crouton-core';
 
-import { fromJson } from './json-adapter';
 import { invalid } from '../../../testing/index';
+import { fromJson } from './json-adapter';
 
 const PRISMA_RAW = {
   $schema: 'https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json',

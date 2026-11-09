@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../testing/index';
 import type { JsonColumn } from './Column';
 import { mergeFieldVariant } from './FieldInput.schema';
 import {
@@ -7,7 +8,6 @@ import {
   resolveTableField,
   resolveViewField,
 } from './fieldVariants';
-import { invalid } from '../../testing/index';
 
 /** Minimal column factory — only the fields the resolvers read. */
 const col = (over: Partial<JsonColumn>): JsonColumn =>

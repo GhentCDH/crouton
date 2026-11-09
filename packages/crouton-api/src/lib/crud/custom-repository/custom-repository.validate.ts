@@ -5,13 +5,13 @@ import {
 } from '@ghentcdh/crouton-core';
 import { type CrudOperation } from '@ghentcdh/crouton-core';
 
+import { type Resource } from '../resource/ResourceConfig.schema';
 import {
   CUSTOM_OPS,
   type CustomParentRepository,
   type CustomRepository,
   PARENT_METHOD,
 } from './custom-repository.types';
-import { type Resource } from '../resource/ResourceConfig.schema';
 
 /**
  * Check that a custom resource can actually serve what it advertises.

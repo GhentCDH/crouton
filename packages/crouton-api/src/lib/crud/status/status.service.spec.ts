@@ -2,6 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CURRENT_RESOURCE_VERSION } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../../../testing/index';
+import type { DataSourceRegistry } from '../data-access/adapter';
+import type { Resource } from '../resource/ResourceConfig.schema';
+import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
+import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 import {
   buildStatus,
   buildSummary,
@@ -11,11 +16,6 @@ import {
   getResourceStatus,
   getVersion,
 } from './status.service';
-import { invalid } from '../../../testing/index';
-import type { DataSourceRegistry } from '../data-access/adapter';
-import type { Resource } from '../resource/ResourceConfig.schema';
-import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
-import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
 
 const mockRegistry = (
   entries: { name: string; adapter: { healthCheck?: () => Promise<void> } }[],

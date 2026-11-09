@@ -53,7 +53,7 @@
     "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@heroicons/vue": "^2.2.0",
     "daisyui": "^5.7.47",
-    "vitest": "^5.0.3",
-    "vue": "^3.5.43"
+    "vitest": "^5.1.0",
+    "vue": "^3.5.45"
   }
 }

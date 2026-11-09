@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
+import { invalid } from '../../../testing/index';
+import { JsonColumnSchema } from '../../resource';
+import type { Layout } from '../schema/Layout.schema';
 import {
   collectNodeFieldIds,
   hasExplicitLayout,
   nodeFieldIdOrder,
   resolveLayoutContext,
 } from './context-layout';
-import { invalid } from '../../../testing/index';
-import { JsonColumnSchema } from '../../resource';
-import type { Layout } from '../schema/Layout.schema';
 
 const col = (id: string, extra: Record<string, unknown> = {}) =>
   JsonColumnSchema.parse({ id, ...extra });

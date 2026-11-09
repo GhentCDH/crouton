@@ -1,7 +1,7 @@
 import type { PropType } from 'vue';
 
-import { ListProperties } from './ListResults.properties';
 import { ControlWrapperProperties } from '../core/ControlWrapper.properties';
+import { ListProperties } from './ListResults.properties';
 
 export const SelectProperties = {
   ...ControlWrapperProperties,

@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import type { CrudDefinition as ResourceDefinition, SecurityConfig  } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../../testing/index';
 import { securityFor, securityForSub } from './crud.config';
 import type { Resource } from './resource/ResourceConfig.schema';
 import type { SubResourceConfig } from './resource/SubResource.schema';
-import { invalid } from '../../testing/index';
 
 const resource = (security?: SecurityConfig) =>
   invalid<Resource>({ security });

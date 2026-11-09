@@ -15,13 +15,13 @@ import { vi } from 'vitest';
 
 import { type DataSource, clearResourceExtensions } from '@ghentcdh/crouton-core';
 
-import { invalid } from './utils';
 import { CroutonApiModule } from '../lib/crouton-api.module';
 import type { CroutonAppConfig } from '../lib/crud/app-config';
 import type { DataSourceEntry } from '../lib/crud/data-access/adapter';
 import { loadResourceConfigsFromDir } from '../lib/crud/loader';
 import { FileSystemResourceConfigLoader } from '../lib/crud/loader/fs-resource-config.loader';
 import { resourceLoadErrorsRegistry } from '../lib/crud/resource/resource-load-errors.registry';
+import { invalid } from './utils';
 import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';

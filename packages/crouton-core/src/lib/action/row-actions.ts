@@ -1,11 +1,11 @@
+import { type CompiledResource } from '../compile';
+import { resolveTableNode } from '../layout/layout-table-order';
 import {
   type ResourceRowAction,
   type ResourceTableAction,
   isRowProcedureAction,
   isTableProcedureAction,
 } from './action.types';
-import { type CompiledResource } from '../compile';
-import { resolveTableNode } from '../layout/layout-table-order';
 
 /**
  * Every action declared in the layout is a runtime action at heart: the only

@@ -12,11 +12,6 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 import { UI_TRANSLATOR_KEY } from '@ghentcdh/crouton-ui-vue';
 
-import { CROUTON_STATUS } from '../router';
-import { ResourceDefinitionCache } from './resource-definition';
-import { firstLeafId, isSidebarGroup } from './sidebar';
-import type { SidebarNode } from './sidebar';
-import { configureApi, useApi } from './useApi';
 import {
   configureAllowedLanguages,
   configureLanguage,
@@ -30,7 +25,12 @@ import {
   customControlRenderers,
   relationReadonlyRenderers,
 } from '../resource/renderers';
+import { CROUTON_STATUS } from '../router';
 import { type CustomComponentEntry } from '../utils/custom-component';
+import { ResourceDefinitionCache } from './resource-definition';
+import { firstLeafId, isSidebarGroup } from './sidebar';
+import type { SidebarNode } from './sidebar';
+import { configureApi, useApi } from './useApi';
 
 export { isSidebarGroup, menu } from './sidebar';
 export type { SidebarGroup, SidebarLeaf, SidebarNode } from './sidebar';

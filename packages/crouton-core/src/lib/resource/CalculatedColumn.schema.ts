@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { FieldInputSchema } from './FieldInput.schema';
 import { normalizeLabel } from '../schema/label.helper'; // ── Calculated columns ──────────────────────────────────────────────
+import { FieldInputSchema } from './FieldInput.schema';
 
 /**
  * A column whose value is computed by a raw SQL subquery at query time.

@@ -15,7 +15,6 @@ import {
 } from '@ghentcdh/crouton-core';
 
 
-import type { DataSourceAdapter } from './adapter';
 import {
   childCtx,
   childRepositoryFn,
@@ -25,6 +24,7 @@ import { type SubResourceConfig } from '../resource/SubResource.schema';
 import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../types/prisma.types';
 import type { CroutonRequest } from '../types/request.types';
+import type { DataSourceAdapter } from './adapter';
 import { loadRelationsIntoRow, loadRelationsIntoRows } from './middleware/relation-loader';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath } from './query/filter';

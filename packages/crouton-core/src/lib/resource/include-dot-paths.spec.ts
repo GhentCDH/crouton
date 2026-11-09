@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
+import { enrichIncludeWithSort } from '../compile/column-enrichment';
 import { JsonColumnSchema } from './Column';
 import { buildResourceJsonSchema } from './ResourceJson.schema';
-import { enrichIncludeWithSort } from '../compile/column-enrichment';
 
 
 const ResourceJsonSchema = buildResourceJsonSchema();

@@ -1,12 +1,12 @@
+import type { CalculatedColumn } from '../../resource/CalculatedColumn.schema';
+import type { JsonColumn } from '../../resource/Column';
+import type { Layout } from '../schema/Layout.schema';
 import {
   hasExplicitLayout,
   nodeFieldIdOrder,
   resolveLayoutContext,
 } from './context-layout';
 import { defaultLayoutFor } from './default-layout';
-import type { CalculatedColumn } from '../../resource/CalculatedColumn.schema';
-import type { JsonColumn } from '../../resource/Column';
-import type { Layout } from '../schema/Layout.schema';
 
 /** Ordered field ids a context renders, used to place calculated columns. */
 export type CalculatedPlacement = { order: string[] };

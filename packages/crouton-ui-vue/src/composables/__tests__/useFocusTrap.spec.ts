@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
 
-import { withSetup } from './withSetup';
 import { useFocusTrap } from '../useFocusTrap';
+import { withSetup } from './withSetup';
 
 const createContainer = () => {
   const container = document.createElement('div');

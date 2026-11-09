@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { allowedIncludes } from './include';
 import { JsonColumnSchema } from '../resource';
+import { allowedIncludes } from './include';
 
 const relation = (id: string, extra: Record<string, unknown> = {}) =>
   JsonColumnSchema.parse({

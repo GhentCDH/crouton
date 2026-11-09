@@ -1,11 +1,11 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { clearResourceExtensions } from '../resource';
 import type { EnumRegistry } from './enum-registry';
 import { EnumRegistrySchema } from './enum-registry';
 import type { ParseSchemaView } from './parse-schema';
 import { parseSchema } from './parse-schema';
-import { clearResourceExtensions } from '../resource';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 

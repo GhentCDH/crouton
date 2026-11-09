@@ -2,9 +2,9 @@ import { NotImplementedException } from '@nestjs/common';
 
 import { type ListRequest, offsetOf } from '@ghentcdh/crouton-core';
 
-import { type CustomOp, type CustomRepositoryContext, PARENT_METHOD } from './custom-repository.types';
 import type { Resource } from '../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../resource/SubResource.schema';
+import { type CustomOp, type CustomRepositoryContext, PARENT_METHOD } from './custom-repository.types';
 
 /**
  * Delegation to a **custom sub-resource's** own repository.

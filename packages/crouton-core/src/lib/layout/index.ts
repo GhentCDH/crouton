@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 
+import type { JsonColumn } from '../resource/Column';
 import { buildFormLayout } from './builders/form.builder';
 import type {
   LayoutBuildContext,
@@ -10,7 +11,6 @@ import { buildCustomLayouts } from './builders/registry';
 import { buildTableLayout } from './builders/table.builder';
 import { buildViewLayout } from './builders/view.builder';
 import { collectNodeFieldIds, resolveLayoutContext } from './resolve/context-layout';
-import type { JsonColumn } from '../resource/Column';
 import type { Layout } from './schema/Layout.schema';
 import type { FormLayoutNode } from './schema/LayoutNode.schema';
 import type { TableLayoutRootSchema } from './schema/TableLayout.schema';

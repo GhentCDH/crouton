@@ -12,9 +12,12 @@ import {
   type DataSourceResolver,
   createCustomRepository,
 } from '../custom-repository';
+import { type Resource } from '../resource/ResourceConfig.schema';
+import { type SubResourceConfig } from '../resource/SubResource.schema';
+import type { ResourceConfigRegistry } from '../resource-config.registry';
+import { type PrismaClientLike, getDelegate } from '../types/prisma.types';
 import type { DataSourceAdapter } from './adapter';
 import { PrismaDataSourceAdapter } from './adapter';
-import { type PrismaClientLike, getDelegate } from '../types/prisma.types';
 import {
   applyAfterFindAll,
   applyBeforeFindAll,
@@ -23,12 +26,9 @@ import {
   postWrite,
   prepareWrite,
 } from './middleware/hooks';
+import { toSelectFields } from './query/select';
 import { ReadRepository } from './read.repository';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
-import { type Resource } from '../resource/ResourceConfig.schema';
-import { type SubResourceConfig } from '../resource/SubResource.schema';
-import type { ResourceConfigRegistry } from '../resource-config.registry';
-import { toSelectFields } from './query/select';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
 export interface CrudRepository<T = Row> {

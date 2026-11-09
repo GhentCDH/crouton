@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { invalid } from '../../../testing/index';
+import type { JsonColumn } from '../../resource/Column';
 import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
 import {
   buildCustomLayouts,
   registerLayoutBuilder,
   unregisterLayoutBuilder,
 } from './registry';
-import { invalid } from '../../../testing/index';
-import type { JsonColumn } from '../../resource/Column';
 
 const ctx: LayoutBuildContext = {
   columns: [] as JsonColumn[],

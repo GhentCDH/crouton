@@ -1,8 +1,8 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-import type { SchemaInput } from './schema-input';
 import type { JsonColumn } from '../../resource';
 import { isRelation } from '../../view';
+import type { SchemaInput } from './schema-input';
 
 export const pickByColumns = (
   schema: ZodObject<ZodRawShape> | undefined,

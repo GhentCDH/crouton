@@ -1,7 +1,7 @@
 import type { PropType } from 'vue';
 
-import type { IconProp } from './icon-list';
 import type { Size } from '../const/size';
+import type { IconProp } from './icon-list';
 
 export const IconProperties = {
   icon: { type: [String, Object, Function] as PropType<IconProp> },

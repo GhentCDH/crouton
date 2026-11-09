@@ -1,17 +1,5 @@
 import { markRaw } from 'vue';
 
-import AutocompleteControlRenderer from './AutocompleteControlRenderer.vue';
-import BooleanControlRenderer from './BooleanControlRenderer.vue';
-import DateControlRenderer from './DateControlRenderer.vue';
-import DateRangeControlRenderer from './DateRangeControlRenderer.vue';
-import MarkdownControlRenderer from './MarkdownControlRenderer.vue';
-import MultiSelectControlRenderer from './MultiSelectControlRenderer.vue';
-import NumberControlRenderer from './NumberControlRenderer.vue';
-import ObjectControlRenderer from './ObjectControlRenderer.vue';
-import SelectControlRenderer from './SelectControlRenderer.vue';
-import StringControlRenderer from './StringControlRenderer.vue';
-import TextAreaControlRenderer from './TextAreaControlRenderer.vue';
-import ToggleControlRenderer from './ToggleControlRenderer.vue';
 import { rankWith } from '../../../testers/jsonforms-testers';
 import {
   isAutoCompleteControl,
@@ -28,6 +16,18 @@ import {
   isTextAreaControl,
   isToggleControl,
 } from '../../../testers/tester';
+import AutocompleteControlRenderer from './AutocompleteControlRenderer.vue';
+import BooleanControlRenderer from './BooleanControlRenderer.vue';
+import DateControlRenderer from './DateControlRenderer.vue';
+import DateRangeControlRenderer from './DateRangeControlRenderer.vue';
+import MarkdownControlRenderer from './MarkdownControlRenderer.vue';
+import MultiSelectControlRenderer from './MultiSelectControlRenderer.vue';
+import NumberControlRenderer from './NumberControlRenderer.vue';
+import ObjectControlRenderer from './ObjectControlRenderer.vue';
+import SelectControlRenderer from './SelectControlRenderer.vue';
+import StringControlRenderer from './StringControlRenderer.vue';
+import TextAreaControlRenderer from './TextAreaControlRenderer.vue';
+import ToggleControlRenderer from './ToggleControlRenderer.vue';
 
 export { default as AutocompleteControlRenderer } from './AutocompleteControlRenderer.vue';
 export * from './date';

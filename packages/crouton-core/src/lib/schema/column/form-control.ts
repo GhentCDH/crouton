@@ -1,6 +1,5 @@
 import type { Layout } from '@jsonforms/core';
 
-import { isArrayColumn, isObjectColumn } from './predicates';
 import { ControlBuilder } from '../../layout/control.builder';
 import type { MarkdownOptions } from '../../layout/control.builder';
 import { LayoutBuilder } from '../../layout/layout.builder';
@@ -8,6 +7,7 @@ import type { WhenCondition } from '../../layout/schema/LayoutControl.schema';
 import { type JsonColumn, isRelationColumn, normalizeUnique } from '../../resource/Column';
 import { columnTypeName, columnTypeToJsonSchema } from '../../resource/ColumnType.schema';
 import type { DetailConfig } from '../../resource/FieldInput.schema';
+import { isArrayColumn, isObjectColumn } from './predicates';
 
 export type { WhenCondition };
 

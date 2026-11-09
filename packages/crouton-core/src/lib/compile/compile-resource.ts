@@ -8,6 +8,8 @@ import {
 import { buildLayouts, resolveLayoutVisibility } from '../layout';
 import { resolveCalculatedPlacement } from '../layout/resolve/calculated-placement';
 import type { CalculatedColumn, JsonColumn, ResourceJson } from '../resource';
+import { pickExtensions } from '../resource/extensions';
+import { buildResourceDefinitions } from '../schema/definition/schema.helpers';
 import {
   columnTypeSchemaSource,
   injectCalculatedColumns,
@@ -29,8 +31,6 @@ import type { EnumRegistry } from './enum-registry';
 import { injectEnumValues } from './enum-registry';
 import { enrichRelationTypes } from './relation-type';
 import { buildLookup, buildSearch } from './search-lookup';
-import { pickExtensions } from '../resource/extensions';
-import { buildResourceDefinitions } from '../schema/definition/schema.helpers';
 
 export type CompileResolvers = {
   /** Expand `extends` columns from a sibling resource. Default: identity. */

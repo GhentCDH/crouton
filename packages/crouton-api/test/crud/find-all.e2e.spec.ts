@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { bodyOf } from '../../src/testing';
 import { createTestApp } from './harness';
 import { seed } from './seed';
-import { bodyOf } from '../../src/testing';
 
 let app: Awaited<ReturnType<typeof createTestApp>>;
 

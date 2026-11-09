@@ -1,7 +1,7 @@
 import type { Command } from 'commander';
 
-import { registerTranslationsUpdateSubcommand } from './translations-update.command';
 import { runTranslationsInit } from '../translations/runner';
+import { registerTranslationsUpdateSubcommand } from './translations-update.command';
 import { resolve } from 'node:path';
 
 export const registerTranslationsCommand = (program: Command) => {

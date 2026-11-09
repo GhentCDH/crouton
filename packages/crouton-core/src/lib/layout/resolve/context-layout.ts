@@ -1,13 +1,13 @@
 import type { z } from 'zod';
 
-import { resolveTableNode } from '../layout-table-order';
-import { defaultLayoutFor } from './default-layout';
 import type { JsonColumn } from '../../resource/Column';
+import { resolveTableNode } from '../layout-table-order';
 import { isComponentItem, isNodeItem, resolveItemFieldId } from '../schema';
 import type { Layout } from '../schema/Layout.schema';
 import type { LayoutFieldItemSchema } from '../schema/LayoutItem.schema';
 import type { FormLayoutNode, LayoutNode } from '../schema/LayoutNode.schema';
 import type { TableNode } from '../schema/TableLayout.schema';
+import { defaultLayoutFor } from './default-layout';
 
 export type LayoutKind = 'form' | 'view' | 'table';
 

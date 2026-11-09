@@ -6,8 +6,8 @@ import type { EnumRegistry, ResourceJson } from '@ghentcdh/crouton-core';
 
 import type { CustomRepository } from '../custom-repository';
 import type { ResourceHooks } from '../hooks';
-import { buildResolvers } from './resolver-builder';
 import { type Resource } from '../resource/ResourceConfig.schema';
+import { buildResolvers } from './resolver-builder';
 
 export const fromJson = (
   json: ResourceJson,

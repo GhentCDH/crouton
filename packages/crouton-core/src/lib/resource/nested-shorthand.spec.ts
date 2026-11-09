@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { columnTypeToJsonSchema } from './ColumnType.schema';
 import { invalid } from '../../testing/index';
+import { columnTypeToJsonSchema } from './ColumnType.schema';
 
 /**
  * `"date"` and `"date-time"` are crouton spellings, not JSON Schema types. At the

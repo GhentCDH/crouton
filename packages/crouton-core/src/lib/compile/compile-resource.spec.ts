@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { compileResource } from './compile-resource';
 import { invalid } from '../../testing/index';
 import type { ResourceJson } from '../resource';
+import { compileResource } from './compile-resource';
 
 type CalcCol = { id: string; type: string };
 type WithCalcCols = { calculatedColumns?: CalcCol[] };

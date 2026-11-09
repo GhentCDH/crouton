@@ -1,3 +1,5 @@
+import { IS_DEV } from '../dev-mode';
+import type { SubResourceConfig } from '../resource/SubResource.schema';
 import { type OperationContext } from './operation-context';
 import {
   registerActionRoutes,
@@ -19,8 +21,6 @@ import {
 import { registerSchemas } from './register-schemas';
 import { registerUniqueCheck } from './register-unique-check';
 import { registerUpdate } from './register-update';
-import { IS_DEV } from '../dev-mode';
-import type { SubResourceConfig } from '../resource/SubResource.schema';
 
 export const registerEndpoints = (ctx: OperationContext): void => {
   // ── Register operations (order matters: static routes before :id routes) ──

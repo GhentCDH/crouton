@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { Row } from '@ghentcdh/crouton-core';
 
-import { loadRelationsIntoRow, loadRelationsIntoRows } from './relation-loader';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
+import { loadRelationsIntoRow, loadRelationsIntoRows } from './relation-loader';
 
 const baseSub = (overrides: Partial<SubResourceConfig>): SubResourceConfig =>
   ({

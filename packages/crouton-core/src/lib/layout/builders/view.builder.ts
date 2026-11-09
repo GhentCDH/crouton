@@ -1,5 +1,3 @@
-import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
-import { buildView } from './view-helpers';
 import {
   buildFormUiSchema,
   buildFormUiSchemaFromLayout,
@@ -7,6 +5,8 @@ import {
 } from '../../view';
 import { collectNodeFieldIds } from '../resolve/context-layout';
 import type { FormLayoutNode, LayoutNode } from '../schema';
+import type { LayoutBuildContext, ViewConfig } from './layout-builder.types';
+import { buildView } from './view-helpers';
 
 /**
  * Build the detail (read-only) view for a resource.
