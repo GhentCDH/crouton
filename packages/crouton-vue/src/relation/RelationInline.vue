@@ -10,7 +10,7 @@
     >
       <RelationButton
         v-for="value of values"
-        :key="value.id"
+        :key="(value.id as PropertyKey)"
         :value="value"
         :options="options"
         v-bind="operations"
@@ -28,8 +28,8 @@
         :hide-label="true"
         :hide-errors="true"
         :fetch-options="fetchOptions.fetchOptions ?? undefined"
-        :label-key="options.labelKey ?? options.displayKey"
-        :value-key="options.valueKey ?? 'id'"
+        :label-key="((options.labelKey ?? options.displayKey) as string | undefined)"
+        :value-key="((options.valueKey ?? 'id') as string)"
         :enable-create="fetchOptions.enableCreate"
         @change="(v: unknown) => onChange(v as string | null)"
         @blur="onBlur"

@@ -10,7 +10,7 @@
         :label-key="appliedOptions.labelKey"
         :label="wrapper.label"
         :value-key="appliedOptions.valueKey"
-        :value="value"
+        :value="singleValue"
         :options="options"
         :form-values="formValues"
         v-bind="operations"
@@ -25,7 +25,7 @@
     :label-key="appliedOptions.labelKey"
     :label="wrapper.label"
     :value-key="appliedOptions.valueKey"
-    :values="value"
+    :values="listValues"
     :options="options"
     v-bind="operations"
   />
@@ -136,6 +136,9 @@ const onAutocompleteChange = (selected: unknown) => {
   field.setValue(selected);
   field.setTouched(true);
 };
+
+const singleValue = computed(() => value.value as string | number | Record<string, unknown> | null | undefined);
+const listValues = computed(() => (value.value ?? []) as Record<string, unknown>[]);
 
 const displayAs = computed(() => {
   if (appliedOptions.value.display === 'autocomplete') return 'autocomplete';

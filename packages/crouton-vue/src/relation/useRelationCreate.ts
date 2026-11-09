@@ -6,11 +6,8 @@ import { JsonFormModalService } from '../forms';
 
 type FetchOptionsValue = {
   enableCreate?: boolean;
-  form?: {
-    data: unknown;
-    ui: unknown;
-    create: (data: unknown) => Promise<unknown>;
-  };
+  form?: Record<string, unknown> | null;
+  [key: string]: unknown;
 };
 
 export interface RelationCreateOptions {
@@ -44,7 +41,7 @@ export const useRelationCreate = ({
       http,
       onClose: (result) => {
         if (!result || !result.valid) return;
-        form.create(result.data).then((res: unknown) => onCreated(res));
+        (form.create as (data: unknown) => Promise<unknown>)(result.data).then((res: unknown) => onCreated(res));
       },
     });
   };

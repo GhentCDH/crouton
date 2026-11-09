@@ -48,7 +48,7 @@ const label = computed(() => {
   if (typeof val === 'undefined' || typeof val === 'undefined' || val === null)
     return undefined;
 
-  const displayKey = props.options?.displayKey ?? 'id';
+  const displayKey = (props.options?.displayKey ?? 'id') as string;
 
   return getNestedValue(val, displayKey) as string;
 });
@@ -63,7 +63,7 @@ const config = computedAsync(() => {
   const resource = props.options?.resource;
   if (!resource) return Promise.resolve(null);
 
-  return useCrouton().getFormByUri(resource);
+  return useCrouton().getFormByUri(resource as string);
 });
 
 const openDetailsManyToOne = () => {
@@ -80,7 +80,7 @@ const openDetailsManyToOne = () => {
 };
 
 const openDetailsManyToMany = () => {
-  ModalService.openModal<Record<string, unknown>, null>({
+  ModalService.openModal({
     component: RelationModal as object,
     props: {
       modalTitle: props.column.label,
@@ -88,7 +88,7 @@ const openDetailsManyToMany = () => {
       data: props.data,
       column: props.column,
       options: props.options,
-      onClose: () => {
+      onClose: (_: unknown) => {
         // No action needed on close
       },
     },

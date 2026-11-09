@@ -51,7 +51,7 @@ const onCancel = () => {
 const crouton = useCrouton();
 const { t } = useLanguage();
 const config = computedAsync(() =>
-  crouton.getFormByUri(properties.options.resource),
+  crouton.getFormByUri(properties.options.resource as string),
 );
 
 const handleEvent = (_event: string, _data: unknown) => {};
@@ -64,7 +64,7 @@ watch(
     if (newConfig) {
       resource.value = useResources(newConfig, {
         handleEvent,
-        defaultUriParams: { parent: properties.data },
+        defaultUriParams: { parent: properties.data as unknown as string },
       });
     }
   },
@@ -80,6 +80,7 @@ const id = Date.now();
 <template>
   <Modal
     v-bind="properties"
+    :data="undefined"
     :open="true"
     :disable-close="false"
     width="xl"
@@ -108,7 +109,9 @@ const id = Date.now();
     <template #content>
       <TableComponent
         v-if="resource"
-        v-bind="resource as Record<string, unknown>"
+        v-bind="resource as unknown as Record<string, unknown>"
+        :schema="resource.schema as import('@jsonforms/core').JsonSchema"
+        :ui-schema="resource.uiSchema as unknown as import('@jsonforms/core').Layout"
         :id="`form_table_${id}`"
         :cell-renderers="customCellRenderers"
       />

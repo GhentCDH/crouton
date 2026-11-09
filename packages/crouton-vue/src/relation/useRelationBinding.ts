@@ -1,6 +1,5 @@
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import type { FieldContext } from 'vee-validate';
-import { type ComputedRef, type Ref, computed } from 'vue';
+import { computed } from 'vue';
 
 import {
   type FormEvents,
@@ -9,10 +8,23 @@ import {
 } from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
-import { type UseResource, useResources } from '../resource';
+import { useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
 
 const inlineTypes = ['manyToOne', 'oneToOne'] as const;
+
+type RelationAppliedOptions = {
+  labelKey?: string;
+  valueKey?: string;
+  display?: string;
+  relationType?: string;
+  direction?: string;
+  autocompleteResource?: string;
+  resource?: string;
+  descriptionKey?: string;
+  displayKey?: string;
+  [key: string]: unknown;
+};
 
 const getMessage = (isNew: boolean, resource: string) => {
   if (!resource) return 'No resource configured for this relation.';
@@ -43,7 +55,7 @@ const getRelationResource = async (
     });
   };
   return useResources(config, {
-    defaultUriParams: { parent: formValues },
+    defaultUriParams: { parent: formValues as unknown as string },
     readonly,
     handleEvent,
     initialLoad: false,
@@ -55,14 +67,7 @@ export const useRelationBinding = (
   uischema: ControlElement,
   schema: JsonSchema,
   readonly = false,
-): Record<string, unknown> & {
-  field: FieldContext<unknown>;
-  isInline: boolean;
-  isNew: ComputedRef<boolean>;
-  message: string | null;
-  resource: Ref<UseResource | null | undefined>;
-  appliedOptions: ComputedRef<Record<string, unknown>>;
-} => {
+) => {
   const formEvents = useFormEvents();
   const bindings = useControlBinding(uischema, schema);
   const { formValues } = bindings;
@@ -80,7 +85,7 @@ export const useRelationBinding = (
     ...bindings,
     // jsonforms options are an open bag; expose them loosely for relation renderers
     appliedOptions: computed(
-      () => (bindings.appliedOptions.value ?? {}) as Record<string, unknown>,
+      () => (bindings.appliedOptions.value ?? {}) as RelationAppliedOptions,
     ),
     isInline,
     isNew,
