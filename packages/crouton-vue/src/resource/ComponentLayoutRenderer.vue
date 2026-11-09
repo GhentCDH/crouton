@@ -10,7 +10,7 @@ const props = defineProps<{ uischema: UISchemaElement; schema: JsonSchema }>();
 const component = computed(() =>
   findCustomComponent(
     useCrouton().customComponents,
-    (props.uischema as any).options?.component as string,
+    ((props.uischema as unknown as Record<string, unknown>).options as Record<string, unknown> | undefined)?.component as string | undefined,
   ),
 );
 </script>

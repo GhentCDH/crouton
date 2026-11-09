@@ -1,4 +1,6 @@
+import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import { and, rankWith } from '@jsonforms/core';
+import type { Component } from 'vue';
 import { markRaw } from 'vue';
 
 import {
@@ -22,16 +24,16 @@ export const isCustomFormat = (format: string) =>
 
 /** Matches any control that has `options.customComponent` set. */
 const hasCustomComponent = (uischema: { options?: Record<string, unknown> }) =>
-  !!(uischema as any).options?.customComponent;
+  !!uischema.options?.customComponent;
 /**
  * Additional renderers to pass as the `renderers` prop.
  * These are merged ON TOP of the base renderers inside FormComponent —
  * no need to include customRenderes or relationReadonlyRenderers here.
  */
-const relationRenderers = [
+const relationRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     tester: rankWith(16, isRelationControl),
-    renderer: markRaw(RelationControlRenderer),
+    renderer: markRaw(RelationControlRenderer) as Component,
   },
 ];
 
@@ -39,42 +41,42 @@ const relationRenderers = [
  * All custom control renderers to pass as the `renderers` prop.
  * Merged ON TOP of the base renderers inside the form modal.
  */
-export const customControlRenderers = [
+export const customControlRenderers: JsonFormsRendererRegistryEntry[] = [
   ...relationRenderers,
   {
     tester: rankWith(17, hasCustomComponent),
-    renderer: markRaw(CustomFormatRenderer),
+    renderer: markRaw(CustomFormatRenderer) as Component,
   },
   {
     tester: rankWith(15, isComponentElement),
-    renderer: markRaw(ComponentLayoutRenderer),
+    renderer: markRaw(ComponentLayoutRenderer) as Component,
   },
 ];
 
-export const relationReadonlyRenderers = [
+export const relationReadonlyRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     tester: rankWith(17, hasCustomComponent),
-    renderer: markRaw(CustomFormatRenderer),
+    renderer: markRaw(CustomFormatRenderer) as Component,
   },
   {
     tester: rankWith(16, isRelationControl),
-    renderer: markRaw(RelationReadonlyRenderer),
+    renderer: markRaw(RelationReadonlyRenderer) as Component,
   },
   {
     tester: rankWith(15, isComponentElement),
-    renderer: markRaw(ComponentLayoutRenderer),
+    renderer: markRaw(ComponentLayoutRenderer) as Component,
   },
 ];
 
 /** Matches any cell element that has `options.customComponent` set. */
-const cellHasCustomComponent = (element: { options?: Record<string, unknown> } | any) =>
-  element?.options?.customComponent ? 21 : -1;
+const cellHasCustomComponent = (element: unknown) =>
+  (element as { options?: Record<string, unknown> })?.options?.customComponent ? 21 : -1;
 
 export const customCellRenderers: CellRendererEntry[] = [
   // 'RecordCell' is the legacy wire name emitted by older crouton-api versions;
   // 'RelationCell' is the unified name. Both are accepted for compatibility.
-  { tester: cellTypeIs('RecordCell', 20), renderer: markRaw(RelationCell) },
-  { tester: cellTypeIs('RelationCell', 20), renderer: markRaw(RelationCell) },
-  { tester: cellTypeIs('ComponentCell', 20), renderer: markRaw(ComponentCellRenderer) },
-  { tester: cellHasCustomComponent, renderer: markRaw(CustomCellRenderer) },
+  { tester: cellTypeIs('RecordCell', 20), renderer: markRaw(RelationCell) as Component },
+  { tester: cellTypeIs('RelationCell', 20), renderer: markRaw(RelationCell) as Component },
+  { tester: cellTypeIs('ComponentCell', 20), renderer: markRaw(ComponentCellRenderer) as Component },
+  { tester: cellHasCustomComponent, renderer: markRaw(CustomCellRenderer) as Component },
 ];

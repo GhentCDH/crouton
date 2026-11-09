@@ -121,10 +121,8 @@ const toggleAddResource = async () => {
   }
   try {
     const api = useApi();
-    const res = await api.get('/_app/resources/visibility');
-    availableResources.value = (
-      res.data.resources as VisibilityResource[]
-    ).filter((r) => r.state === 'draft' || r.state === 'hidden');
+    const res = await api.get<{ resources: VisibilityResource[] }>('/_app/resources/visibility');
+    availableResources.value = res.data.resources.filter((r) => r.state === 'draft' || r.state === 'hidden');
     addResourceOpen.value = true;
   } catch (err) {
     console.error('Failed to fetch resource visibility', err);
