@@ -5,6 +5,7 @@ import type { Plugin } from 'vite';
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { nxReadySignal } from '@nx/vite/plugins/nx-ready-signal.plugin';
 
 const _dirname = fileURLToPath(new URL('.', import.meta.url));
 const resourcesDir = resolve(_dirname, '../backend/src/app/resources');
@@ -22,14 +23,19 @@ const backendResourceWatcher = (): Plugin => ({
 });
 
 export default defineConfig(({ command }) => ({
-  plugins: [vue(), tailwindcss(), backendResourceWatcher()],
+  plugins: [vue(), tailwindcss(), backendResourceWatcher(), nxReadySignal()],
   resolve: {
     conditions: command === 'serve' ? ['@ghentcdh/crouton'] : [],
     dedupe: ['vue', 'vue-router'],
   },
   build: {
     rollupOptions: {
-      external: ['@tiptap/vue-3', '@tiptap/starter-kit', '@tiptap/pm', 'tiptap-markdown'],
+      external: [
+        '@tiptap/vue-3',
+        '@tiptap/starter-kit',
+        '@tiptap/pm',
+        'tiptap-markdown',
+      ],
     },
   },
   server: {
