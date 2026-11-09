@@ -1,5 +1,5 @@
-import type { Component } from 'vue';
 import type { RankedTester } from '@jsonforms/core';
+import type { Component } from 'vue';
 
 import CollapseLayoutRenderer from './CollapseLayoutRenderer.vue';
 import GroupLayoutRenderer from './GroupLayoutRenderer.vue';
