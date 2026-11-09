@@ -5,12 +5,11 @@
         <small class="text-gray-500">{{ fromLabel }}</small>
         <input
           v-if="yearOnly"
-          type="number"
-          step="1"
-          class="input w-24"
+          type="text"
+          class="input w-28"
           autocomplete="off"
+          placeholder="e.g. 450 CE"
           :value="value?.[fromField] ?? ''"
-          :max="value?.[toField] || undefined"
           @input="update(fromField, ($event.target as HTMLInputElement).value)"
           @blur="onBlur"
         />
@@ -32,12 +31,11 @@
         <small class="text-gray-500">{{ toLabel }}</small>
         <input
           v-if="yearOnly"
-          type="number"
-          step="1"
-          class="input w-24"
+          type="text"
+          class="input w-28"
           autocomplete="off"
+          placeholder="e.g. 450 CE"
           :value="value?.[toField] ?? ''"
-          :min="value?.[fromField] || undefined"
           @input="update(toField, ($event.target as HTMLInputElement).value)"
           @blur="onBlur"
         />
