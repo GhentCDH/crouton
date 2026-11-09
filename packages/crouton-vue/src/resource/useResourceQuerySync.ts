@@ -28,9 +28,9 @@ export const useResourceQuerySync = (
 
   const resourceRef = shallowRef<UseResource | null>(null);
 
-  const handleEvent = ({ event, data }: { event: string; data: any }) => {
+  const handleEvent = ({ event, data }: { event: string; data?: { id?: unknown } | null }) => {
     let querydata: Record<string, string | undefined> = {
-      [idKey]: data?.id,
+      [idKey]: data?.id != null ? String(data.id) : undefined,
       [eventKey]: event,
     };
     if (event === 'close') {

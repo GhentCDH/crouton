@@ -40,6 +40,19 @@ export type {
   ResourceViewSchemas,
 } from '@ghentcdh/crouton-core';
 
+type LayoutResponse = {
+  sidebar?: SidebarNode[];
+  title?: string;
+  autoSave?: boolean;
+  isDev?: boolean;
+  i18n?: {
+    languages?: string[];
+    defaultLanguage?: string;
+    displayNames?: Record<string, string>;
+  };
+  ui?: Record<string, unknown>;
+};
+
 export const AppConfig = {
   VERSION: 'unknown',
   title: 'Crouton',
@@ -99,7 +112,7 @@ const createCrouton = (
   configureApi(api);
   const fetchBundle = () =>
     useApi()
-      .get('/_app/translations')
+      .get<Record<string, unknown>>('/_app/translations')
       .then((res) => setBundle(res.data))
       .catch(() => {
         // No translations endpoint — silently skip.
@@ -107,7 +120,7 @@ const createCrouton = (
 
   const fetchLayout = (overrides: Partial<typeof AppConfig> = {}) =>
     useApi()
-      .get('/_app/layout')
+      .get<LayoutResponse>('/_app/layout')
       .then((res) => {
         sidebar.value = res.data.sidebar as SidebarNode[];
         // Title from the backend wins unless the consumer passed an explicit override.
@@ -269,7 +282,8 @@ export type UseCrouton = {
   readonly firstSidebarId: string | undefined;
 };
 
-let _crouton: UseCrouton | null = null;
+type InternalCrouton = UseCrouton & { init?: () => Promise<void> | void };
+let _crouton: InternalCrouton | null = null;
 let _authReady: Promise<unknown> = Promise.resolve();
 const _authPending = ref(true);
 
@@ -278,7 +292,7 @@ export const useCrouton = (): UseCrouton => {
     throw new Error('First init the CroutonPlugin');
   }
 
-  (_crouton as any).init();
+  _crouton.init?.();
 
   return _crouton;
 };
