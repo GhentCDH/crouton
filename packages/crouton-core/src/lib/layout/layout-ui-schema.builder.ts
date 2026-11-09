@@ -25,6 +25,7 @@ const buildContainerForNode = (node: LayoutNode): LayoutBuilder => {
       break;
     case 'horizontal':
       builder = LayoutBuilder.horizontal();
+      if (node.title) builder.title(node.title);
       break;
     case 'vertical':
       builder = LayoutBuilder.vertical();
