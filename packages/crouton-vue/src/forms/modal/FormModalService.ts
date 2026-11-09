@@ -7,7 +7,6 @@ import type {
   FormModalResult,
   HttpClient,
   UniqueCheckFn,
-  ViewModalResult,
 } from '@ghentcdh/crouton-forms-vue';
 import { ViewModal } from '@ghentcdh/crouton-forms-vue';
 import { ModalService } from '@ghentcdh/crouton-ui-vue';
@@ -92,7 +91,7 @@ export class JsonFormModalService {
     onDelete?: (data: DATA) => void;
     onView?: (data: unknown) => void;
   }) {
-    ModalService.openModal<Record<string, unknown>, ViewModalResult>({
+    ModalService.openModal({
       component: ViewModal as Component,
       props: {
         schema,

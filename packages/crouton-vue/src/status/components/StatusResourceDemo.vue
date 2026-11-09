@@ -110,11 +110,12 @@ const getTableNode = (ui: UiNode | undefined): UiNode | null => {
   return ((ui.elements as UiNode[] | undefined) ?? []).find((e) => e.type === 'Table') ?? null;
 };
 
+type UiAction = { type?: string; href?: string; uri?: string; id?: string; label?: string };
 const tableUiActions = computed(
-  () => (getTableNode(def.value?.schemas.table.ui)?.options as Record<string, unknown> | undefined)?.tableActions as unknown[] ?? [],
+  () => (getTableNode(def.value?.schemas.table.ui)?.options as Record<string, unknown> | undefined)?.tableActions as UiAction[] ?? [],
 );
 const tableUiRowActions = computed(
-  () => (getTableNode(def.value?.schemas.table.ui)?.options as Record<string, unknown> | undefined)?.rowActions as unknown[] ?? [],
+  () => (getTableNode(def.value?.schemas.table.ui)?.options as Record<string, unknown> | undefined)?.rowActions as UiAction[] ?? [],
 );
 
 const rawJson = computed(() => JSON.stringify(props.resource, null, 2));

@@ -136,7 +136,7 @@ const showSchemaEditor = ref(false);
     <TableWrapperLayout
       v-if="isWrapperLayout && tableUi"
       :ui="tableUi"
-      :resource="resource"
+      :resource="(resource as unknown as Record<string, unknown>)"
     >
       <ResourceTableContent
         :resource="resource"

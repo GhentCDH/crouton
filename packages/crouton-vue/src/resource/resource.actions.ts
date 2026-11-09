@@ -146,17 +146,18 @@ const openViewModal =
         ? (data: Record<string, unknown>) =>
             openDeleteModal(api, resource, handleEvent)(data ?? formData)
         : undefined,
-      onView: (data: Record<string, unknown>) => {
-        const opts = data['options'] as Record<string, unknown> | undefined;
+      onView: (data: unknown) => {
+        const opts = (data as Record<string, unknown>)?.['options'] as Record<string, unknown> | undefined;
         const resourceUri = opts?.['resource'] ?? opts?.['schemasUri'];
         if (!resourceUri) return;
+        const dataRecord = data as Record<string, unknown>;
 
         useCrouton()
           .getFormByUri(String(resourceUri))
           .then((config) => {
             if (!config) return;
-            const _resource = useResources(config, { defaultUriParams: data as Record<string, string> });
-            _resource?.view(data['data'] as Record<string, unknown>);
+            const _resource = useResources(config, { defaultUriParams: dataRecord as Record<string, string> });
+            _resource?.view(dataRecord['data'] as Record<string, unknown>);
           });
       },
       onClose: () => {
