@@ -18,7 +18,6 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useFormContext } from 'vee-validate';
 import { ref, watch } from 'vue';
 
-import type { AutocompleteAllOptions } from '@ghentcdh/crouton-core';
 import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 
 import { useAutocompleteDisplayValue } from '../../../composables/useAutocompleteDisplayValue';
@@ -52,7 +51,7 @@ watch(
   appliedOptions,
   async (opts) => {
     fetchOptions.value = await useFetchOptions(
-      opts as AutocompleteAllOptions,
+      opts,
       http,
       formValues,
     );

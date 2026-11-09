@@ -2,4 +2,11 @@
 
 **Used by:** `textarea`
 
-_All common options apply; no type-specific options._
+**Also available:** all [common options](../common-options.md).
+
+| Option | Type | Required | Default | Description | Example |
+|--------|------|----------|---------|-------------|---------|
+| `minHeight` | string,number | No |  | Minimum height of the textarea (CSS value or pixel number) | `"200px"`, `200` |
+| `height` | string,number | No |  | Fixed height of the textarea (CSS value or pixel number) | `"400px"`, `400` |
+| `directionField` | string | No |  | Form field path whose value controls text direction (ltr/rtl) | `"language"` |
+| `direction` | string | No | `"ltr"` | Explicit text direction when not driven by directionField | `"ltr"`, `"rtl"` |
