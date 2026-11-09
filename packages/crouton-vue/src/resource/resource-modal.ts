@@ -58,14 +58,15 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
       if (result && result.valid) {
         repository
           .create(result.data as Record<string, unknown>)
-          .then((created: { id?: unknown; [key: string]: unknown }) => {
+          .then((created) => {
+            const c = created as { id?: unknown; [key: string]: unknown };
             const zodSchema = formSchema.zodSchema;
             const parsed =
               zodSchema instanceof ZodObject
-                ? zodSchema.strip().safeParse(created)
-                : zodSchema.safeParse(created);
+                ? zodSchema.strip().safeParse(c)
+                : zodSchema.safeParse(c);
             payload.onSuccess({
-              id: created.id,
+              id: c.id,
               ...(parsed.data as Record<string, unknown> ?? {}),
             } as never);
           })

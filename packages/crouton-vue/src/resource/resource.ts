@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 
 import type { ResourceApiInstance } from './resource.api';
-import { PaginatedRequestService } from '../utils/paginatedRequestService';
+import { PaginatedRequestService, type PaginatedApiResponse } from '../utils/paginatedRequestService';
 import { type Request } from '../utils/request';
 
 type UiNode = {
@@ -42,24 +42,24 @@ export class Resource extends PaginatedRequestService {
         include: tableIncludes,
         ...tableDefaults(formDef),
         ...initialRequestParams,
-      },
+      } as Partial<Request>,
       onRequest,
     );
 
     if (initialLoad) this.reload();
   }
 
-  protected override async loadData(): Promise<unknown> {
+  protected override async loadData(): Promise<PaginatedApiResponse | null> {
     if (!this.formDef) return null;
-    return super.loadData() as Promise<unknown>;
+    return super.loadData();
   }
 
-  protected loadDataRequest(signal: AbortSignal) {
-    return this.api.loadData(this.requestData.value, signal);
+  protected loadDataRequest(signal: AbortSignal): Promise<PaginatedApiResponse> {
+    return this.api.loadData(this.requestData.value, signal) as Promise<PaginatedApiResponse>;
   }
 
-  protected override afterLoadData(data: { data: unknown } | null) {
-    this.data.value = data?.data ?? null;
+  protected override afterLoadData(data: PaginatedApiResponse): void {
+    this.data.value = (data as unknown as { data: unknown })?.data ?? null;
   }
 
   /** Update the active filter strings (wire format: `"field:value:operator"`). */

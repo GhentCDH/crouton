@@ -124,7 +124,7 @@ const operations = computed(() => {
   if (resource.value?.operations.delete)
     ops['onDelete'] = (value: unknown) => {
       confirmDelete(() => {
-        (res.api.delete(value) as Promise<unknown>).then(() => {
+        res.api.delete(value as Record<string, unknown>).then(() => {
           formEvents.dispatch({ event: 'update-relation', type: 'text_metadata', data: { value } });
         });
       });
