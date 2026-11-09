@@ -3,25 +3,31 @@ import { ref } from 'vue';
 import type { ResourceDefinition } from '@ghentcdh/crouton-core';
 
 import type { ResourceApiInstance } from './resource.api';
-import { PaginatedRequestService } from '../utils/paginatedRequestService';
+import { type PaginatedApiResponse, PaginatedRequestService } from '../utils/paginatedRequestService';
 import { type Request } from '../utils/request';
 
+type UiNode = {
+  type?: string;
+  options?: Record<string, unknown>;
+  elements?: UiNode[];
+};
+
 const tableDefaults = (formDef: ResourceDefinition) => {
-  const ui = formDef.schemas.table.ui as any;
+  const ui = formDef.schemas.table.ui as UiNode | undefined;
   const node =
     ui?.type === 'Table'
       ? ui
-      : ui?.elements?.find((e: any) => e.type === 'Table');
+      : ui?.elements?.find((e) => e.type === 'Table');
   const opts = node?.options ?? {};
   return {
-    ...(opts.defaultSortId !== undefined && { sort: opts.defaultSortId }),
-    ...(opts.defaultSortDir !== undefined && { sortDir: opts.defaultSortDir }),
-    ...(opts.pageSize !== undefined && { pageSize: opts.pageSize }),
+    ...(opts['defaultSortId'] !== undefined && { sort: opts['defaultSortId'] }),
+    ...(opts['defaultSortDir'] !== undefined && { sortDir: opts['defaultSortDir'] }),
+    ...(opts['pageSize'] !== undefined && { pageSize: opts['pageSize'] }),
   };
 };
 
 export class Resource extends PaginatedRequestService {
-  data = ref(null);
+  data = ref<unknown>(null);
 
   constructor(
     private formDef: ResourceDefinition,
@@ -36,24 +42,24 @@ export class Resource extends PaginatedRequestService {
         include: tableIncludes,
         ...tableDefaults(formDef),
         ...initialRequestParams,
-      },
+      } as Partial<Request>,
       onRequest,
     );
 
     if (initialLoad) this.reload();
   }
 
-  protected override async loadData() {
+  protected override async loadData(): Promise<PaginatedApiResponse | null> {
     if (!this.formDef) return null;
     return super.loadData();
   }
 
-  protected loadDataRequest(signal: AbortSignal) {
-    return this.api.loadData(this.requestData.value, signal);
+  protected loadDataRequest(signal: AbortSignal): Promise<PaginatedApiResponse> {
+    return this.api.loadData(this.requestData.value, signal) as Promise<PaginatedApiResponse>;
   }
 
-  protected override afterLoadData(data: any) {
-    this.data.value = data?.data;
+  protected override afterLoadData(data: PaginatedApiResponse): void {
+    this.data.value = (data as unknown as { data: unknown })?.data ?? null;
   }
 
   /** Update the active filter strings (wire format: `"field:value:operator"`). */
@@ -63,6 +69,6 @@ export class Resource extends PaginatedRequestService {
 
   /** Update the search query (`q` param used for lookup search). */
   public updateSearch = (q: string) => {
-    this.updateRequest({ q: q || undefined } as any);
+    this.updateRequest({ q: q || undefined });
   };
 }

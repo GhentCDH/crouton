@@ -12,7 +12,7 @@ import { useApi } from '../composables/useApi';
 import { type ResourceDefinition, useCrouton } from '../composables/useCrouton';
 import { JsonFormModalService } from '../forms';
 
-export type OpenFormPayload<TData = any, TResult = any> = {
+export type OpenFormPayload<TData = unknown, TResult = unknown> = {
   data?: TData;
   onSuccess: (result: TResult) => void;
   onError?: (error: unknown) => void;
@@ -44,7 +44,7 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
           ...(scope ? { scope: JSON.stringify(scope) } : {}),
         },
       })
-      .then((r: any) => r.data?.unique !== false)
+      .then((r: { data?: { unique?: boolean } }) => r.data?.unique !== false)
       .catch(() => true);
   JsonFormModalService.openModal({
     initialData: payload.data ?? {},
@@ -57,17 +57,18 @@ export const openFormModal = async (key: string, payload: OpenFormPayload) => {
       const repository = useFormDefRepository(formDef);
       if (result && result.valid) {
         repository
-          .create(result.data)
-          .then((created: any) => {
+          .create(result.data as Record<string, unknown>)
+          .then((created) => {
+            const c = created as { id?: unknown; [key: string]: unknown };
             const zodSchema = formSchema.zodSchema;
             const parsed =
               zodSchema instanceof ZodObject
-                ? zodSchema.strip().safeParse(created)
-                : zodSchema.safeParse(created);
+                ? zodSchema.strip().safeParse(c)
+                : zodSchema.safeParse(c);
             payload.onSuccess({
-              id: created.id,
-              ...(parsed.data ?? {}),
-            });
+              id: c.id,
+              ...(parsed.data as Record<string, unknown> ?? {}),
+            } as never);
           })
           .catch(() => {
             payload.onError?.(result);

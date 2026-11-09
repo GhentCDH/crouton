@@ -156,7 +156,7 @@ export const useResources = (
     enumCols.length === 0
       ? resource.data
       : computed(() =>
-          (resource.data.value ?? []).map((row: Record<string, unknown>) => {
+          ((resource.data.value as Record<string, unknown>[]) ?? []).map((row: Record<string, unknown>) => {
             const out: Record<string, unknown> = { ...row };
             for (const col of enumCols) out[col.id] = translateEnumValue(out[col.id], col.enumName ?? '', translator);
             return out;

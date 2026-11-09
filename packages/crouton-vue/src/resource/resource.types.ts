@@ -1,11 +1,4 @@
-import type { ListRequestInput } from '../utils/request';
-
-/**
- * Data payload sent with API requests (query params, body, etc.).
- */
-type RequestData = ListRequestInput;
-
-export type { RequestData };
+export type { ListRequestInput as RequestData } from '@ghentcdh/crouton-core';
 
 /**
  * Callback invoked when a resource action occurs (e.g. view, create, update, close).
