@@ -4,6 +4,18 @@
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ fromLabel }}</small>
         <input
+          v-if="yearOnly"
+          type="number"
+          step="1"
+          class="input w-24"
+          autocomplete="off"
+          :value="value?.[fromField] ?? ''"
+          :max="value?.[toField] || undefined"
+          @input="update(fromField, ($event.target as HTMLInputElement).value)"
+          @blur="onBlur"
+        />
+        <input
+          v-else
           type="date"
           class="input w-36"
           autocomplete="off"
@@ -19,6 +31,18 @@
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ toLabel }}</small>
         <input
+          v-if="yearOnly"
+          type="number"
+          step="1"
+          class="input w-24"
+          autocomplete="off"
+          :value="value?.[toField] ?? ''"
+          :min="value?.[fromField] || undefined"
+          @input="update(toField, ($event.target as HTMLInputElement).value)"
+          @blur="onBlur"
+        />
+        <input
+          v-else
           type="date"
           class="input w-36"
           autocomplete="off"
@@ -69,6 +93,10 @@ const fromField = computed<string>(
 );
 const toField = computed<string>(
   () => (appliedOptions.value?.toField as string) ?? 'to',
+);
+
+const yearOnly = computed<boolean>(
+  () => !!(appliedOptions.value?.yearOnly),
 );
 
 function update(key: string, v: string) {
