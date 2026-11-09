@@ -47,7 +47,11 @@ export class CroutonFormPage {
 
   expandCollapse = async (title: string) => {
     const modal = this.page.getByTestId('form-modal');
-    await modal.locator(`input[type="checkbox"][aria-label="Toggle ${title}"]`).check();
+    const toggle = modal
+      .locator(`input[type="checkbox"][aria-label="Toggle ${title}"]`)
+      .or(modal.locator('.collapse').filter({ hasText: title }).locator('input[type="checkbox"]'))
+      .first();
+    await toggle.check();
     await this.page.waitForTimeout(300);
   };
 

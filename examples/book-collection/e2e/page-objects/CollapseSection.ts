@@ -1,11 +1,17 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 export class CollapseSection {
   constructor(private readonly page: Page) {}
 
+  private findToggle = (modal: Locator, title: string): Locator =>
+    modal
+      .locator(`input[type="checkbox"][aria-label="Toggle ${title}"]`)
+      .or(modal.locator('.collapse').filter({ hasText: title }).locator('input[type="checkbox"]'))
+      .first();
+
   expand = async (title: string) => {
     const modal = this.page.getByTestId('form-modal');
-    const toggle = modal.locator(`input[type="checkbox"][aria-label="Toggle ${title}"], button[aria-label*="${title}"]`).first();
+    const toggle = this.findToggle(modal, title);
     const isChecked = await toggle.isChecked().catch(() => false);
     if (!isChecked) {
       await toggle.click();
@@ -15,7 +21,7 @@ export class CollapseSection {
 
   collapse = async (title: string) => {
     const modal = this.page.getByTestId('form-modal');
-    const toggle = modal.locator(`input[type="checkbox"][aria-label="Toggle ${title}"], button[aria-label*="${title}"]`).first();
+    const toggle = this.findToggle(modal, title);
     const isChecked = await toggle.isChecked().catch(() => false);
     if (isChecked) {
       await toggle.click();
@@ -25,7 +31,6 @@ export class CollapseSection {
 
   isExpanded = async (title: string): Promise<boolean> => {
     const modal = this.page.getByTestId('form-modal');
-    const toggle = modal.locator(`input[type="checkbox"][aria-label="Toggle ${title}"]`).first();
-    return toggle.isChecked().catch(() => false);
+    return this.findToggle(modal, title).isChecked().catch(() => false);
   };
 }

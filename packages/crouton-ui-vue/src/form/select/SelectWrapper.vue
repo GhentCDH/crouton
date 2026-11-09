@@ -153,6 +153,7 @@ const close = () => {
 const onKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
     close();
+    e.stopPropagation();
     return;
   }
   listResultsRef.value?.handleKeydown(e);
