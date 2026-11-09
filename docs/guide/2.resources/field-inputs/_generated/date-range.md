@@ -10,3 +10,4 @@
 | `toLabel` | string | No | `"To"` | Label above the end date input | `"To"`, `"End date"` |
 | `fromField` | string | No | `"from"` | JSON object key for the start date | `"from"`, `"startDate"` |
 | `toField` | string | No | `"to"` | JSON object key for the end date | `"to"`, `"endDate"` |
+| `yearOnly` | boolean | No | `false` | Render year-only number inputs instead of full date pickers | `true` |
