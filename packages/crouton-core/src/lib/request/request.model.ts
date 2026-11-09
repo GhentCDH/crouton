@@ -24,6 +24,7 @@ export const RequestSchema = z.object({
 });
 
 export type ListRequest = z.infer<typeof RequestSchema>;
+export type ListRequestInput = z.input<typeof RequestSchema>;
 
 /** @deprecated Use `ListRequest` instead — `Request` shadows the global DOM `Request` type. */
 export type Request = ListRequest;
