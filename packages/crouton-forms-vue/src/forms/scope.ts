@@ -13,7 +13,7 @@ export const scopeToPath = (scope: string): string => {
 // Walk schema along the scope to get the leaf schema
 export const resolveSchema = (root: JsonSchema, scope: string): JsonSchema => {
   const segments = scope.replace(/^#\//, '').split('/').filter(Boolean);
-  return segments.reduce<any>((acc, key) => acc?.[key], root);
+  return segments.reduce<unknown>((acc, key) => (acc as Record<string, unknown> | null | undefined)?.[key], root) as JsonSchema;
 };
 
 // Derive a label from the scope tail: "properties/name" → "Name"

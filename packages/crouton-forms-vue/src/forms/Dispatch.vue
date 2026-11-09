@@ -4,11 +4,11 @@
     v-if="renderer"
     :uischema="uischema"
     :schema="resolved"
-    :data-dispatch-renderer="(renderer as any).__name ?? (renderer as any).name ?? 'anonymous'"
-    :data-dispatch-scope="(uischema as any).scope"
+    :data-dispatch-renderer="(renderer as { __name?: string; name?: string }).__name ?? (renderer as { name?: string }).name ?? 'anonymous'"
+    :data-dispatch-scope="(uischema as { scope?: string }).scope"
   />
   <div v-else class="text-error text-xs">
-    No renderer for {{ (uischema as any).scope }} type:
+    No renderer for {{ (uischema as { scope?: string }).scope }} type:
     {{ uischema.type }} format: {{ uischema.options?.format }}
   </div>
 </template>
@@ -53,7 +53,7 @@ if (props.pathPrefix !== undefined) {
 }
 
 const resolved = computed(() => {
-  const u = props.uischema as any;
+  const u = props.uischema as { scope?: string };
   if (!u.scope) return props.schema;
   const fromRoot = resolveSchema(rootSchema, u.scope);
   if (fromRoot) return fromRoot;

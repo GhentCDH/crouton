@@ -23,6 +23,7 @@ import {
   toRef,
   watch,
 } from 'vue';
+import type { JsonSchema } from '@jsonforms/core';
 import { fromJSONSchema, z } from 'zod';
 
 import {
@@ -59,9 +60,9 @@ registerZodErrorMap();
 const properties = defineProps(JsonFormComponentProperties);
 const emits = defineEmits(JsonFormComponentEmits);
 
-const cloneSchema = (schema: any) => {
+const cloneSchema = (schema: unknown): unknown => {
   try {
-    return JSON.parse(JSON.stringify(schema));
+    return JSON.parse(JSON.stringify(schema)) as unknown;
   } catch {
     return schema;
   }
@@ -86,7 +87,7 @@ const uniqueFields = collectUniqueFields(properties.uiSchema);
 const uniqueCheck = useUniqueCheckFn();
 const baseValidationSchema = (() => {
   try {
-    return fromJSONSchema(patched as any);
+    return fromJSONSchema(patched as JsonSchema);
   } catch (e) {
     console.warn('[crouton] fromJSONSchema failed, falling back to z.any()', e);
     return z.any();

@@ -84,7 +84,7 @@ export const relativeDate = (
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
 
-export const parseDate = (value: string | Date | any) => {
+export const parseDate = (value: unknown) => {
   if (value == null || value === '') return null;
   if (!(value instanceof Date) && !ISO_DATE_RE.test(String(value))) return null;
 
@@ -94,6 +94,6 @@ export const parseDate = (value: string | Date | any) => {
   return date;
 };
 
-export const isDate = (value: string | Date | any) => {
+export const isDate = (value: unknown) => {
   return !!parseDate(value);
 };

@@ -26,8 +26,8 @@ const { wrapper, value, field, onBlur, onChange, appliedOptions } =
 
 const withTime = computed(() =>
   resolveWithTime(
-    appliedOptions.value as Record<string, any>,
-    props.schema as Record<string, any>,
+    appliedOptions.value as Record<string, unknown>,
+    props.schema as Record<string, unknown>,
   ),
 );
 

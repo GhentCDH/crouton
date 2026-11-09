@@ -54,10 +54,10 @@ import { Btn, Input } from '@ghentcdh/crouton-ui-vue';
 import TableFilter from './filter/TableFilter.vue';
 import { useUiTranslator } from '../composables/useUiTranslator';
 
-type Action = any;
+type Action = { label?: string; tooltip?: string; icon?: unknown; action: () => void };
 const props = defineProps<{
   /** JSON Schema for filterable columns — keys are field ids, titles are labels. */
-  filterSchema?: Record<string, any>;
+  filterSchema?: Record<string, unknown>;
   /** Active filter strings in wire format, e.g. ["title:foo:contains"]. */
   filters?: string[];
   /** Current search query (the `q` lookup param). */

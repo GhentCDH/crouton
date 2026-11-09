@@ -16,10 +16,11 @@ describe('field-input schema drift check', () => {
     it(`${type}: all consumed keys exist in the Zod schema`, () => {
       const def = fieldInputRegistry.get(type);
       expect(def, `${type} missing from fieldInputRegistry`).toBeDefined();
+      if (!def) return;
 
-      if (!(def!.options instanceof z.ZodObject)) return; // union types — skip shape check
+      if (!(def.options instanceof z.ZodObject)) return; // union types — skip shape check
 
-      const schemaKeys = new Set(Object.keys(def!.options.shape));
+      const schemaKeys = new Set(Object.keys(def.options.shape));
       const missing = consumedKeys.filter((k) => !schemaKeys.has(k));
       expect(
         missing,

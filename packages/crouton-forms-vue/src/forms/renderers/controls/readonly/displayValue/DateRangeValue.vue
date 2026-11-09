@@ -13,10 +13,11 @@ import { DateRangeValueProperties } from './DateRangeValue.properties';
 
 const { options, value } = defineProps(DateRangeValueProperties);
 
+const typedOptions = options as { fromField?: string; toField?: string };
 const from = computed(() => {
-  return value?.[options.fromField ?? 'from'];
+  return value?.[typedOptions.fromField ?? 'from'];
 });
 const to = computed(() => {
-  return value?.[options.toField ?? 'to'];
+  return value?.[typedOptions.toField ?? 'to'];
 });
 </script>
