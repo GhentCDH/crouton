@@ -52,7 +52,8 @@ describe('useFocusTrap', () => {
     withSetup(() => useFocusTrap({ containerRef, isActive }));
     await nextTick();
 
-    const last = container.querySelector<HTMLElement>('#last')!;
+    const last = container.querySelector<HTMLElement>('#last');
+    if (!last) throw new Error('Element #last not found');
     last.focus();
 
     const event = new KeyboardEvent('keydown', {
@@ -73,7 +74,8 @@ describe('useFocusTrap', () => {
     withSetup(() => useFocusTrap({ containerRef, isActive }));
     await nextTick();
 
-    const first = container.querySelector<HTMLElement>('#first')!;
+    const first = container.querySelector<HTMLElement>('#first');
+    if (!first) throw new Error('Element #first not found');
     first.focus();
 
     const event = new KeyboardEvent('keydown', {

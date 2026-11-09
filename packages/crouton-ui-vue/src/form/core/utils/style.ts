@@ -25,7 +25,7 @@ export const isDescriptionHidden = (
 export const buildInputStyle = (
   styles: string,
   properties: StyleControlProperties,
-): any => {
+): (string | Record<string, boolean>)[] => {
   return [
     styles,
     {

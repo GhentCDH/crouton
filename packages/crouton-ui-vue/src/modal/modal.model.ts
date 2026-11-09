@@ -1,6 +1,6 @@
 export type ModalWrapperModel<PROPS extends CloseProps<RESULT>, RESULT> = {
   id: string;
-  component: any;
+  component: object;
   props: PROPS;
 };
 

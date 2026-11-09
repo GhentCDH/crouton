@@ -1,4 +1,6 @@
 // ─── Props ────────────────────────────────────────────────────────────────────
+import type { PropType } from 'vue';
+
 import { ListProperties } from './ListResults.properties';
 import { SelectProperties } from './SelectWrapper.properties';
 
@@ -16,7 +18,7 @@ export const AutocompleteProperties = {
    * e.g. :fetchOptions="(q) => fetch(`/api/search?q=${q}`).then(r => r.json())"
    */
   fetchOptions: {
-    type: Function,
+    type: Function as PropType<(query: string, signal: AbortSignal) => Promise<unknown[]>>,
     default: null,
   },
   /** Debounce delay in ms for HTTP mode */

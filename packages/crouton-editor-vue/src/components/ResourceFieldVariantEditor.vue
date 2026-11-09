@@ -163,7 +163,7 @@ const validateRawJson = () => {
               :value="draft.colspan ?? 12"
               :options="colspanOptions"
               :clearable="false"
-              @change="(opt) => (draft.colspan = opt.value)"
+              @change="(opt: unknown) => (draft.colspan = (opt as {value: number}).value)"
             />
             <Btn
               v-if="activeTab !== 'form'"

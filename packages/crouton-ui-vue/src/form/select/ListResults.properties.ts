@@ -15,7 +15,7 @@ export const ListProperties = {
     default: false,
   },
   query: { type: String, default: undefined },
-  isActive: { type: Function, default: (item: any) => false },
+  isActive: { type: Function, default: () => false },
   /** When true the list is teleported to <body>; positioning is handled via inline style from the parent */
   teleported: { type: Boolean, default: false },
 };

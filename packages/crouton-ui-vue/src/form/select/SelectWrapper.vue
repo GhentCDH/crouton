@@ -82,7 +82,7 @@
                 :teleported="true"
                 :style="dropdownStyle"
                 :query="undefined"
-                :options="options"
+                :options="typedOptions"
                 :is-loading="isLoading"
                 :is-active="isActive"
                 @select="emits('select', $event)"
@@ -107,6 +107,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 import ListResults from './ListResults.vue';
+import type { OptionValue } from './ListResults.properties';
 import {
   SelectWrapperEmits,
   SelectWrapperProperties,
@@ -117,6 +118,8 @@ import { IconEnum } from '../../icons/icon-list';
 import ControlWrapper from '../core/ControlWrapper.vue';
 
 const props = defineProps(SelectWrapperProperties);
+
+const typedOptions = computed(() => props.options as OptionValue[]);
 
 const selectWrapperRef = ref<HTMLElement>();
 const inputWrapperRef = ref<HTMLElement>();

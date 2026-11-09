@@ -79,7 +79,7 @@
                 'sticky left-0 bg-white z-10 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)]': column.options?.pin === 'left',
                 'sticky right-10 bg-white z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]': column.options?.pin === 'right',
               }"
-              :style="column.options?.align ? { textAlign: column.options.align } : {}"
+              :style="column.options?.align ? ({ textAlign: column.options.align } as CSSProperties) : undefined"
             >
               <div
                 class="px-3 flex items-center gap-2 rounded-sm relative hover:border hover:bg-gray-50 hover:border-gray-200 border-transparent max-w-56"
@@ -144,6 +144,7 @@ export default { inheritAttrs: false };
 
 <script lang="ts" setup>
 import { computed, ref, useAttrs, watch } from 'vue';
+import type { CSSProperties } from 'vue';
 
 import SortHeader from './header/sort.header.vue';
 import PaginationComponent from './pagination.component.vue';
