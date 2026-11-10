@@ -179,7 +179,7 @@ export const JsonColumnBaseSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Name of a shared enum in crouton.enums.json. At load time the loader injects the enum\'s { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.',
+      'Name of a shared enum in crouton.enums.json. At load time the loader injects the enum\'s { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column. May be combined with fieldInput.options.values to restrict the enum for this screen; labels are then taken from the enum registry.',
     ),
   idField: z
     .boolean()
@@ -287,16 +287,11 @@ export const JsonColumnBaseSchema = z.object({
     ),
 });
 
-export const JsonColumnSchema = JsonColumnBaseSchema.superRefine((col, ctx) => {
-  if (col.enum && (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values']) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['fieldInput', 'options', 'values'],
-      message:
-        'Column has both \'enum\' and \'fieldInput.options.values\'; use \'enum\' for shared lists or \'values\' on fieldInput for local lists — not both.',
-    });
-  }
-});
+// `enum` + `fieldInput.options.values` is allowed: a local `values` list restricts the
+// shared enum for this screen, with labels resolved from the enum registry at load time
+// (see `compile/enum-registry.ts` → `applyLocalEnumRestriction`). No column-level
+// refinement is needed — unknown values warn at load time, not parse time.
+export const JsonColumnSchema = JsonColumnBaseSchema;
 
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;
 export type JsonColumnInput = z.input<typeof JsonColumnSchema>;

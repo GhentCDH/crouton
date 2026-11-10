@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { invalid } from '../../testing/index';
 import type { ResourceJson } from '../resource';
 import {
+  buildEditRequires,
   buildValueLabelColumns,
   resolveValueLabelColumns,
 } from './column-transforms';
@@ -21,6 +22,22 @@ describe('buildValueLabelColumns', () => {
     ];
     expect(buildValueLabelColumns(cols as never)).toEqual([
       { field: 'color', values },
+    ]);
+  });
+
+  it('prefers displayValues over values — legacy values outside a restriction keep their label', () => {
+    const displayValues = [
+      ...values,
+      { value: 'green', label: 'Green' },
+    ];
+    const cols = [
+      {
+        id: 'color',
+        fieldInput: { type: 'select', options: { emitObject: true, values, displayValues } },
+      },
+    ];
+    expect(buildValueLabelColumns(cols as never)).toEqual([
+      { field: 'color', values: displayValues },
     ]);
   });
 
@@ -61,6 +78,43 @@ describe('resolveValueLabelColumns', () => {
 
   it('returns undefined when no column needs the envelope', () => {
     expect(resolveValueLabelColumns([{ id: 'title' } as never])).toBeUndefined();
+  });
+});
+
+describe('buildEditRequires', () => {
+  it('derives from enum-restricted columns (values + displayValues)', () => {
+    const cols = [
+      {
+        id: 'origin',
+        fieldInput: {
+          type: 'select',
+          options: {
+            emitObject: true,
+            values: [{ value: 'internal', label: 'Internal' }],
+            displayValues: [
+              { value: 'internal', label: 'Internal' },
+              { value: 'anonymous', label: 'Anonymous' },
+            ],
+          },
+        },
+      },
+      { id: 'title' },
+    ];
+    expect(buildEditRequires(cols as never)).toEqual([
+      { field: 'origin', values: [{ value: 'internal', label: 'Internal' }] },
+    ]);
+  });
+
+  it('ignores plain local values lists without a shared enum (no displayValues)', () => {
+    const cols = [
+      { id: 'color', fieldInput: { type: 'select', options: { emitObject: true, values } } },
+    ];
+    expect(buildEditRequires(cols as never)).toBeUndefined();
+  });
+
+  it('returns undefined without restricted columns', () => {
+    expect(buildEditRequires(undefined)).toBeUndefined();
+    expect(buildEditRequires([{ id: 'title' } as never])).toBeUndefined();
   });
 });
 

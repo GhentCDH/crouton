@@ -173,7 +173,7 @@
 | `fieldInput` | object | UI input widget config — see field-inputs.md |
 | `relation` | object | Relation data model — see below |
 | `computed` | object | SQL computed column — `{ sql, type? }` |
-| `enum` | string | Shared enum name from `crouton.enums.json` (mutually exclusive with `fieldInput.options.values`) |
+| `enum` | string | Shared enum name from `crouton.enums.json`. May be combined with `fieldInput.options.values` to restrict the enum for that screen; labels then come from the enum registry |
 | `displayKey` | string | Dot-path to display a nested property |
 | `extend` | string | Relative path to another resource.json to expand as sub-columns |
 

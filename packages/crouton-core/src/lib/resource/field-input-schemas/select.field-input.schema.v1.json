@@ -127,11 +127,40 @@
       "markdownDescription": "Inline array of option items\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "values": {
-      "description": "Alias for options (deprecated — prefer options)",
-      "deprecated": true,
+      "description": "Local option list. Entries are { value, label } objects, or plain values (strings/numbers/booleans) — when the column also references a shared `enum`, plain values are resolved against the enum registry to restrict the shared list for this screen, with labels taken from the enum. Rows whose stored value is outside this list cannot be edited from this screen.",
+      "examples": [
+        [
+          {
+            "value": "internal",
+            "label": "Internal"
+          },
+          {
+            "value": "wikidata",
+            "label": "Wikidata"
+          }
+        ],
+        [
+          "internal",
+          "wikidata"
+        ]
+      ],
       "type": "array",
       "items": {},
-      "markdownDescription": "Alias for options (deprecated — prefer options)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
+      "markdownDescription": "Local option list. Entries are { value, label } objects, or plain values (strings/numbers/booleans) — when the column also references a shared `enum`, plain values are resolved against the enum registry to restrict the shared list for this screen, with labels taken from the enum. Rows whose stored value is outside this list cannot be edited from this screen.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
+    },
+    "displayValues": {
+      "description": "Full option list used for label resolution when `values` restricts a shared `enum`. Written by the loader at load time (from the enum registry) — not meant to be set by hand.",
+      "examples": [
+        [
+          {
+            "value": "internal",
+            "label": "Internal"
+          }
+        ]
+      ],
+      "type": "array",
+      "items": {},
+      "markdownDescription": "Full option list used for label resolution when `values` restricts a shared `enum`. Written by the loader at load time (from the enum registry) — not meant to be set by hand.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/select)"
     },
     "resource": {
       "description": "Relative path to a resource.json used to populate the options",

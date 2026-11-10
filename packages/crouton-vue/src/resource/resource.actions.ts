@@ -21,6 +21,7 @@ import { useLanguage } from '../i18n/useLanguage';
 import { findCustomComponent } from '../utils/custom-component';
 import { type Resource } from './resource';
 import type { ResourceApiInstance } from './resource.api';
+import { type EditRequire, editVisibleFor } from './resource.edit-requires';
 import type { HandleEvent } from './resource.types';
 import { replaceUriParams } from './uri.utils';
 import { type ActionStatus, useResources } from './useResources';
@@ -28,6 +29,7 @@ import { type ActionStatus, useResources } from './useResources';
 type TableNodeOptions = {
   rowActions?: Action[];
   tableActions?: TableActionDef[];
+  editRequires?: EditRequire[];
 };
 
 type TableNode = {
@@ -319,6 +321,8 @@ export const actions = (
   const _modals =
     modals ?? resourceModals(api, resource, formDef, handleEvent, false);
   const pendingKey = ref<string | null>(null);
+  const tableNode = getTableNode(formDef.schemas.table.ui as TableNode);
+  const editRequires = tableNode?.options?.editRequires;
   return [
     (getTableNode(formDef.schemas.table.ui as TableNode)?.options?.rowActions ?? []).map(
       (action: Action) => {
@@ -350,6 +354,9 @@ export const actions = (
           action: (id: unknown) => _modals.edit(id),
           tooltip: useLanguage().t('actions.edit', 'Edit'),
           icon: 'Edit',
+          ...(editRequires?.length && {
+            visible: (row: Record<string, unknown>) => editVisibleFor(row, editRequires),
+          }),
         }
       : undefined,
     !readonly && op.delete

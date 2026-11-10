@@ -1034,9 +1034,9 @@
             "markdownDescription": "Overrides which field is sent to the API as the sort key (when the sort column differs from the display column).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "enum": {
-            "description": "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.",
+            "description": "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column. May be combined with fieldInput.options.values to restrict the enum for this screen; labels are then taken from the enum registry.",
             "type": "string",
-            "markdownDescription": "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+            "markdownDescription": "Name of a shared enum in crouton.enums.json. At load time the loader injects the enum's { value, label }[] into fieldInput.options.values. Use this instead of duplicating the option list on each column. May be combined with fieldInput.options.values to restrict the enum for this screen; labels are then taken from the enum registry.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "idField": {
             "default": false,

@@ -135,3 +135,154 @@ describe('injectEnumValues', () => {
     expect(() => injectEnumValues(undefined, registry)).not.toThrow();
   });
 });
+
+describe('injectEnumValues with a local values restriction (enum + values)', () => {
+  const originRegistry = {
+    author_origin_enum: [
+      { value: 'internal', label: 'Internal' },
+      { value: 'wikidata', label: 'Wikidata' },
+      { value: 'trismegistus', label: 'Trismegistus' },
+      { value: 'syriaca', label: 'Syriaca' },
+    ],
+  };
+
+  const originCol = (values: unknown[]): JsonColumn =>
+    invalid<JsonColumn>({
+      id: 'origin',
+      type: 'string',
+      enum: 'author_origin_enum',
+      displayKey: 'label',
+      fieldInput: invalid<JsonColumn['fieldInput']>({
+        type: 'select',
+        options: { storeValue: true, emitObject: true, values },
+      }),
+    });
+
+  const actualValues = (col: JsonColumn) =>
+    (col.fieldInput!.options as Record<string, unknown>)['values'];
+
+  it('resolves plain string entries into { value, label } from the registry', () => {
+    const col = originCol(['internal', 'wikidata']);
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual([
+      { value: 'internal', label: 'Internal' },
+      { value: 'wikidata', label: 'Wikidata' },
+    ]);
+    // Restriction wins: the rest of the enum is not injected
+    expect(actualValues(col)).toHaveLength(2);
+    // The full enum is kept for label resolution of values outside the restriction
+    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toEqual(
+      originRegistry.author_origin_enum,
+    );
+  });
+
+  it('keeps subset order and other option keys intact', () => {
+    const col = originCol(['syriaca', 'internal']);
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual([
+      { value: 'syriaca', label: 'Syriaca' },
+      { value: 'internal', label: 'Internal' },
+    ]);
+    expect((col.fieldInput!.options as Record<string, unknown>)['storeValue']).toBe(true);
+    expect(col.displayKey).toBe('label');
+  });
+
+  it('fills missing labels on object entries from the registry', () => {
+    const col = originCol([{ value: 'trismegistus' }, { value: 'wikidata' }]);
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual([
+      { value: 'trismegistus', label: 'Trismegistus' },
+      { value: 'wikidata', label: 'Wikidata' },
+    ]);
+  });
+
+  it('keeps explicit local labels', () => {
+    const col = originCol([
+      { value: 'internal', label: 'Ugent internal' },
+      'syriaca',
+    ]);
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual([
+      { value: 'internal', label: 'Ugent internal' },
+      { value: 'syriaca', label: 'Syriaca' },
+    ]);
+  });
+
+  it('leaves a fully-labelled local list untouched', () => {
+    const values = [
+      { value: 'internal', label: 'Internal' },
+      { value: 'wikidata', label: 'Wikidata' },
+    ];
+    const col = originCol(values);
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual(values);
+  });
+
+  it('warns for values not in the enum and falls back to the raw value', () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const col = originCol(['internal', 'wikidataa']);
+    injectEnumValues([col], originRegistry);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"origin"'),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('wikidataa'),
+    );
+    expect(actualValues(col)).toEqual([
+      { value: 'internal', label: 'Internal' },
+      { value: 'wikidataa', label: 'wikidataa' },
+    ]);
+    warnSpy.mockRestore();
+  });
+
+  it('leaves local values untouched when the enum name is unknown', () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const col = originCol(['internal']);
+    col.enum = 'no_such_enum';
+    injectEnumValues([col], originRegistry);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('no_such_enum'),
+    );
+    expect(actualValues(col)).toEqual(['internal']);
+    warnSpy.mockRestore();
+  });
+
+  it('resolves string entries in the deprecated `options` alias too', () => {
+    const col = invalid<JsonColumn>({
+      id: 'origin',
+      type: 'string',
+      enum: 'author_origin_enum',
+      fieldInput: invalid<JsonColumn['fieldInput']>({
+        type: 'select',
+        options: { options: ['wikidata'] },
+      }),
+    });
+    injectEnumValues([col], originRegistry);
+    expect((col.fieldInput!.options as Record<string, unknown>)['options']).toEqual([
+      { value: 'wikidata', label: 'Wikidata' },
+    ]);
+  });
+
+  it('does not touch non-enum columns with local values', () => {
+    const col = invalid<JsonColumn>({
+      id: 'origin',
+      type: 'string',
+      fieldInput: invalid<JsonColumn['fieldInput']>({
+        type: 'select',
+        options: { values: ['internal', 'wikidata'] },
+      }),
+    });
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual(['internal', 'wikidata']);
+    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toBeUndefined();
+  });
+
+  it('does not set displayValues without a local restriction', () => {
+    const col = invalid<JsonColumn>({ id: 'origin', type: 'string', enum: 'author_origin_enum' });
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual(originRegistry.author_origin_enum);
+    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toBeUndefined();
+  });
+});
