@@ -1,7 +1,7 @@
 <template>
   <Textarea
     v-bind="wrapper"
-    v-model="value"
+    v-model="textValue"
     :dir="dir"
     :height="textareaHeight"
     :min-height="textareaMinHeight"
@@ -22,12 +22,16 @@ import { useCustomControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, onBlur, onChange, appliedOptions } =
+const { wrapper, field, onBlur, onChange, appliedOptions } =
   useCustomControlBinding<ControlOptions<'textarea'>>()(props.uischema, props.schema);
 
 const pathPrefix = inject<string>('pathPrefix', '');
-const textareaHeight = computed(() => appliedOptions.value?.height);
-const textareaMinHeight = computed(() => appliedOptions.value?.minHeight);
+const textValue = computed({
+  get: () => field.value.value as string | undefined,
+  set: (v: string | undefined) => field.setValue(v),
+});
+const textareaHeight = computed(() => appliedOptions.value?.height?.toString());
+const textareaMinHeight = computed(() => appliedOptions.value?.minHeight?.toString());
 
 // Read the direction value from the form's reactive values proxy directly.
 // This avoids registering a phantom field (useField side effect) and avoids
@@ -35,12 +39,11 @@ const textareaMinHeight = computed(() => appliedOptions.value?.minHeight);
 const { values: formValues } = useFormContext();
 
 const dir = computed<'ltr' | 'rtl'>(() => {
-  const directionField = appliedOptions.value?.directionField;
-  if (!directionField) return appliedOptions.value?.direction ?? 'ltr';
-  const key = pathPrefix
-    ? `${pathPrefix}.${directionField}`
-    : directionField;
-  const val = key.split('.').reduce<unknown>((o, k) => {
+  const opts = appliedOptions.value as Record<string, unknown>;
+  const directionField = opts?.directionField as string | undefined;
+  if (!directionField) return (opts?.direction as 'ltr' | 'rtl') ?? 'ltr';
+  const key = pathPrefix ? `${pathPrefix}.${directionField}` : directionField;
+  const val = key.split('.').reduce<unknown>((o: unknown, k: string) => {
     if (o && typeof o === 'object') return (o as Record<string, unknown>)[k];
     return undefined;
   }, formValues);

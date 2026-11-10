@@ -69,7 +69,7 @@ export const useResolvedControl = (
   const field = safeUseField(path, warningLabel);
   setDefaultValue?.(field);
   const wrapper = useInputProps(uischema, schema, field, options);
-  const customWrapper = useProps?.(uischema, schema, field, options) ?? {
+  const customWrapper = useProps?.(uischema, schema, field, options as Record<string, unknown>) ?? {
     value: {},
   };
 

@@ -2,8 +2,8 @@
   <Autocomplete
     v-if="fetchOptions"
     v-bind="wrapper"
-    :model-value="displayValue"
-    :fetch-options="fetchOptions.fetchOptions"
+    :model-value="(displayValue as string | Record<string, unknown> | undefined)"
+    :fetch-options="fetchOptions?.fetchOptions ?? undefined"
     :label-key="fetchOptions.labelKey"
     :value-key="fetchOptions.valueKey"
     :enable-create="fetchOptions.enableCreate"
@@ -85,7 +85,7 @@ const setValue = (result: Record<string, unknown>) => {
   const { valueKey, labelKey } = fetchOptions.value;
 
   // storeValue: true → store only the primitive value (e.g. an id string)
-  if (appliedOptions.value?.storeValue && valueKey && valueKey in result) {
+  if ((appliedOptions.value as unknown as Record<string, unknown>)?.storeValue && valueKey && valueKey in result) {
     // Remember the picked record so the label survives a reload of this form.
     fetchOptions.value.rememberValue?.(result[valueKey], result);
     displayValue.value = result;
@@ -113,8 +113,8 @@ const onCreate = () => {
   const form = fetchOptions.value?.form as FormRef | undefined;
   if (form && modalOpener) {
     modalOpener({
-      schema: form.data,
-      uiSchema: form.ui,
+      schema: form.data as Record<string, unknown>,
+      uiSchema: form.ui as Record<string, unknown>,
       modalTitle: `Create new ${(wrapper.value as { label?: string }).label}`,
       http,
       onClose: (result) => {

@@ -50,12 +50,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
+import type { IconProp } from '@ghentcdh/crouton-ui-vue';
 import { Btn, Input } from '@ghentcdh/crouton-ui-vue';
 
 import TableFilter from './filter/TableFilter.vue';
 import { useUiTranslator } from '../composables/useUiTranslator';
 
-type Action = { label?: string; tooltip?: string; icon?: unknown; action: () => void };
+type Action = { label?: string; tooltip?: string; icon?: IconProp; loading?: () => boolean; action: () => void };
 const props = defineProps<{
   /** JSON Schema for filterable columns — keys are field ids, titles are labels. */
   filterSchema?: Record<string, unknown>;

@@ -6,7 +6,7 @@
     data-1p-ignore
     data-form-type="other"
   >
-    <Dispatch :uischema="uiSchema" :schema="schema" />
+    <Dispatch :uischema="(uiSchema as unknown as import('@jsonforms/core').UISchemaElement)" :schema="schema" />
     <slot name="debug" :errors="errors" :current-values="currentValues" />
   </form>
 </template>
@@ -74,7 +74,7 @@ const patched = (() => {
   const source = properties.optionalPropertiesNullable
     ? cloneSchema(toRaw(properties.schema))
     : properties.schema;
-  const withoutNullables = dropNullableFromRequired(source);
+  const withoutNullables = dropNullableFromRequired(source as JsonSchema);
   const normalized = properties.optionalPropertiesNullable
     ? makeOptionalPropertiesNullable(withoutNullables)
     : withoutNullables;
@@ -87,7 +87,7 @@ const uniqueFields = collectUniqueFields(properties.uiSchema);
 const uniqueCheck = useUniqueCheckFn();
 const baseValidationSchema = (() => {
   try {
-    return fromJSONSchema(patched as JsonSchema);
+    return fromJSONSchema(patched as unknown as Parameters<typeof fromJSONSchema>[0]);
   } catch (e) {
     console.warn('[crouton] fromJSONSchema failed, falling back to z.any()', e);
     return z.any();

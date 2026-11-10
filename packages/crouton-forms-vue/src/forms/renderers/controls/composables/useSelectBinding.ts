@@ -29,7 +29,7 @@ const useSelectInput =
       if (!options.valueKey) options.valueKey = 'value';
 
       options.displayValue = loadDisplayValue(
-        options as SelectOptions,
+        (options as unknown) as SelectOptions,
         field.value.value,
       );
 

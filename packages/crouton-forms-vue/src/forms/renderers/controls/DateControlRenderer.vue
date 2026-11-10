@@ -1,7 +1,7 @@
 <template>
   <DatePicker
     v-bind="wrapper"
-    :model-value="value"
+    :model-value="(value as string | null | undefined)"
     :with-time="withTime"
     :min="appliedOptions.min"
     :max="appliedOptions.max"

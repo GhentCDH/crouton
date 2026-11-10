@@ -135,7 +135,7 @@ export const getResourceSchema = async (
       let resourceSchema = response.data as Record<string, unknown>;
 
       if ((resourceSchema as { columns?: unknown }).columns) {
-        resourceSchema = parseSchema(resourceSchema, {});
+        resourceSchema = parseSchema(resourceSchema, {}) as Record<string, unknown>;
       }
 
       const resource = ResourceSchema.safeParse(resourceSchema);
