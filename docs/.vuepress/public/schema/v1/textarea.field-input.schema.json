@@ -111,11 +111,57 @@
       ],
       "type": "string",
       "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
+    },
+    "minHeight": {
+      "description": "Minimum height of the textarea (CSS value or pixel number)",
+      "examples": [
+        "200px",
+        200
+      ],
+      "type": [
+        "string",
+        "number"
+      ],
+      "markdownDescription": "Minimum height of the textarea (CSS value or pixel number)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
+    },
+    "height": {
+      "description": "Fixed height of the textarea (CSS value or pixel number)",
+      "examples": [
+        "400px",
+        400
+      ],
+      "type": [
+        "string",
+        "number"
+      ],
+      "markdownDescription": "Fixed height of the textarea (CSS value or pixel number)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
+    },
+    "directionField": {
+      "description": "Form field path whose value controls text direction (ltr/rtl)",
+      "examples": [
+        "language"
+      ],
+      "type": "string",
+      "markdownDescription": "Form field path whose value controls text direction (ltr/rtl)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
+    },
+    "direction": {
+      "description": "Explicit text direction when not driven by directionField",
+      "default": "ltr",
+      "examples": [
+        "ltr",
+        "rtl"
+      ],
+      "type": "string",
+      "enum": [
+        "ltr",
+        "rtl"
+      ],
+      "markdownDescription": "Explicit text direction when not driven by directionField\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
     }
   },
   "additionalProperties": {},
   "title": "Crouton fieldInput options: textarea",
-  "description": "Multi-line text input. All common options apply; no type-specific options.",
+  "description": "Multi-line text input.",
   "$id": "https://ghentcdh.github.io/crouton/schema/v1/textarea.field-input.schema.json",
-  "markdownDescription": "Multi-line text input. All common options apply; no type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
+  "markdownDescription": "Multi-line text input.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/textarea)"
 }

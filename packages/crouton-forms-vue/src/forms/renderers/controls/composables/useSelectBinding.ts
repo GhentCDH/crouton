@@ -2,7 +2,7 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
 import { computed } from 'vue';
 
-import type { AutocompleteAllOptions, SelectOptions } from '@ghentcdh/crouton-core';
+import type { AutocompleteAllOptions, ControlOptions, SelectOptions } from '@ghentcdh/crouton-core';
 
 import { useCustomControlBinding } from './useControlBinding';
 
@@ -62,7 +62,7 @@ export const AUTOCOMPLETE_OPTION_KEYS = [
   'skipAuth',
 ] as const;
 
-export const useSelectBinding = useCustomControlBinding<SelectOptions>({
+export const useSelectBinding = useCustomControlBinding<ControlOptions<'select'>>({
   useProps: useSelectInput(...SELECT_OPTION_KEYS),
 });
 

@@ -15,28 +15,19 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useFormContext } from 'vee-validate';
 import { computed, inject } from 'vue';
 
+import type { ControlOptions } from '@ghentcdh/crouton-core';
 import { Textarea } from '@ghentcdh/crouton-ui-vue';
 
-import { useControlBinding } from './composables/useControlBinding';
+import { useCustomControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, onBlur, onChange } = useControlBinding(
-  props.uischema,
-  props.schema,
-);
-
-type TextareaOpts = {
-  directionField?: string;
-  direction?: 'ltr' | 'rtl';
-  height?: unknown;
-  minHeight?: unknown;
-};
+const { wrapper, value, onBlur, onChange, appliedOptions } =
+  useCustomControlBinding<ControlOptions<'textarea'>>()(props.uischema, props.schema);
 
 const pathPrefix = inject<string>('pathPrefix', '');
-const opts = (props.uischema.options ?? {}) as TextareaOpts;
-const textareaHeight = computed(() => opts.height);
-const textareaMinHeight = computed(() => opts.minHeight);
+const textareaHeight = computed(() => appliedOptions.value?.height);
+const textareaMinHeight = computed(() => appliedOptions.value?.minHeight);
 
 // Read the direction value from the form's reactive values proxy directly.
 // This avoids registering a phantom field (useField side effect) and avoids
@@ -44,10 +35,11 @@ const textareaMinHeight = computed(() => opts.minHeight);
 const { values: formValues } = useFormContext();
 
 const dir = computed<'ltr' | 'rtl'>(() => {
-  if (!opts.directionField) return opts.direction ?? 'ltr';
+  const directionField = appliedOptions.value?.directionField;
+  if (!directionField) return appliedOptions.value?.direction ?? 'ltr';
   const key = pathPrefix
-    ? `${pathPrefix}.${opts.directionField}`
-    : opts.directionField;
+    ? `${pathPrefix}.${directionField}`
+    : directionField;
   const val = key.split('.').reduce<unknown>((o, k) => {
     if (o && typeof o === 'object') return (o as Record<string, unknown>)[k];
     return undefined;

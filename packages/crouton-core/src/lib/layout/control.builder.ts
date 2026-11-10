@@ -55,6 +55,10 @@ export interface SelectOptions extends ControlOption {
   resource?: string;
   labelKey?: string;
   valueKey?: string;
+  uri?: string;
+  dataField?: string;
+  clearable?: boolean;
+  storeValue?: boolean;
 }
 
 /**

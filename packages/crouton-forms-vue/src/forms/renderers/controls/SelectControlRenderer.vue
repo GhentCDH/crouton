@@ -3,7 +3,7 @@
     v-bind="wrapper"
     :model-value="value"
     :options="selectOptions"
-    :clearable="selectClearable ?? true"
+    :clearable="appliedOptions?.clearable ?? true"
     @change="onChange"
     @blur="onBlur"
   />
@@ -23,16 +23,6 @@ import { useHttpClient } from '../../../composables/useHttpClient';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-type SelectOpts = {
-  valueKey?: string;
-  uri?: string;
-  resource?: string;
-  storeValue?: boolean;
-  clearable?: boolean;
-  options?: unknown[];
-  values?: unknown[];
-};
-
 const {
   wrapper,
   value,
@@ -45,10 +35,10 @@ const {
 const http = useHttpClient();
 const { values: formValues } = useFormContext();
 
-const selectOpts = computed(() => appliedOptions.value as SelectOpts);
-const valueKey = computed(() => selectOpts.value.valueKey ?? 'value');
-const isRemote = computed(() => !!selectOpts.value.uri || !!selectOpts.value.resource);
-const selectClearable = computed(() => selectOpts.value.clearable);
+const valueKey = computed(() => appliedOptions.value?.valueKey ?? 'value');
+const isRemote = computed(
+  () => !!appliedOptions.value?.uri || !!appliedOptions.value?.resource,
+);
 
 // Remote options fetched from URI or resource.
 const remoteOptions = ref<unknown[]>([]);
@@ -58,7 +48,7 @@ watch(
   async ([opts]) => {
     if (!isRemote.value) return;
     const fetcher = await useFetchOptions(
-      opts as AutocompleteAllOptions,
+      (opts as unknown) as AutocompleteAllOptions,
       http,
       formValues,
     );
@@ -78,12 +68,12 @@ watch(
 
 const selectOptions = computed<unknown[]>(() => {
   if (isRemote.value) return remoteOptions.value;
-  return selectOpts.value.options ?? selectOpts.value.values ?? [];
+  return appliedOptions.value?.options ?? appliedOptions.value?.values ?? [];
 });
 
 const onChange = (val: unknown) => {
   const stored =
-    selectOpts.value.storeValue && val && typeof val === 'object'
+    appliedOptions.value?.storeValue && val && typeof val === 'object'
       ? (val as Record<string, unknown>)[valueKey.value]
       : val;
   field.setValue(stored);

@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
+import type { ControlOptions } from '@ghentcdh/crouton-core';
 import { useCustomControlBinding } from './composables/useControlBinding';
 import { computed } from 'vue';
 import ControlLabel from './ControlLabel.vue';
@@ -68,7 +69,7 @@ const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 // Binds to a single property whose value is stored as a JSON string in the DB.
 const { value: rawValue, wrapper, onBlur, onChange, appliedOptions } =
-  useCustomControlBinding()(props.uischema, props.schema);
+  useCustomControlBinding<ControlOptions<'date-range'>>()(props.uischema, props.schema);
 
 // Parse the JSON string from the DB into a DateRange object for the template.
 const value = computed<DateRange | undefined>(() => {
@@ -78,20 +79,12 @@ const value = computed<DateRange | undefined>(() => {
   try { return JSON.parse(v as string) as DateRange; } catch { return undefined; }
 });
 
-const fromLabel = computed<string>(
-  () => (appliedOptions.value?.fromLabel as string) ?? 'From',
-);
-const toLabel = computed<string>(
-  () => (appliedOptions.value?.toLabel as string) ?? 'To',
-);
+const fromLabel = computed(() => appliedOptions.value?.fromLabel ?? 'From');
+const toLabel = computed(() => appliedOptions.value?.toLabel ?? 'To');
 
 // JSON object keys used for the two bounds. Default to 'from' / 'to'.
-const fromField = computed<string>(
-  () => (appliedOptions.value?.fromField as string) ?? 'from',
-);
-const toField = computed<string>(
-  () => (appliedOptions.value?.toField as string) ?? 'to',
-);
+const fromField = computed(() => appliedOptions.value?.fromField ?? 'from');
+const toField = computed(() => appliedOptions.value?.toField ?? 'to');
 
 const yearOnly = computed<boolean>(
   // appliedOptions is typed as ControlOption | { [key: string]: any } from jsonforms;

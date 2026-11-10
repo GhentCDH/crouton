@@ -18,7 +18,6 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useFormContext } from 'vee-validate';
 import { ref, watch } from 'vue';
 
-import type { AutocompleteAllOptions } from '@ghentcdh/crouton-core';
 import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 
 import { useAutocompleteDisplayValue } from '../../../composables/useAutocompleteDisplayValue';
@@ -52,7 +51,7 @@ watch(
   appliedOptions,
   async (opts) => {
     fetchOptions.value = await useFetchOptions(
-      opts as AutocompleteAllOptions,
+      opts,
       http,
       formValues,
     );
@@ -84,10 +83,9 @@ const setValue = (result: Record<string, unknown>) => {
   }
 
   const { valueKey, labelKey } = fetchOptions.value;
-  const opts = appliedOptions.value as { storeValue?: boolean };
 
   // storeValue: true → store only the primitive value (e.g. an id string)
-  if (opts.storeValue && valueKey && valueKey in result) {
+  if (appliedOptions.value?.storeValue && valueKey && valueKey in result) {
     // Remember the picked record so the label survives a reload of this form.
     fetchOptions.value.rememberValue?.(result[valueKey], result);
     displayValue.value = result;

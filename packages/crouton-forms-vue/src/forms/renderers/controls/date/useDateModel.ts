@@ -30,8 +30,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
  * date-only field from a timestamp on its own.
  */
 export const resolveWithTime = (
-  options?: Record<string, any> | null,
-  schema?: Record<string, any> | null,
+  options?: Record<string, unknown> | null,
+  schema?: Record<string, unknown> | null,
 ): boolean => {
   if (typeof options?.withTime === 'boolean') return options.withTime;
   if (options?.format === 'dateTime') return true;
