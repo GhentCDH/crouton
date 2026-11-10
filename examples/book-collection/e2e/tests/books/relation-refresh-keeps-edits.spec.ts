@@ -25,7 +25,7 @@ test.describe('relation refresh keeps unsaved edits', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    const title = modal.locator('#title, input[name="title"]').first();
+    const title = modal.getByRole('textbox', { name: /^Title/ });
     const newTitle = 'De Vliegende Aap (2e druk)';
 
     const titleSaved = page.waitForResponse(
