@@ -56,14 +56,40 @@ export const buildValueLabelColumns = (
 ): ValueLabelColumn[] =>
   (columns ?? []).flatMap((c) => {
     const opts = c.fieldInput?.options as
-      | { emitObject?: boolean; values?: { value: unknown; label: string }[] }
+      | {
+          emitObject?: boolean;
+          values?: { value: unknown; label: string }[];
+          /** Full enum list — preferred over `values` so legacy values outside a restriction keep their label. */
+          displayValues?: { value: unknown; label: string }[];
+        }
       | undefined;
-    if (!opts?.emitObject || !Array.isArray(opts.values)) return [];
+    const values = opts?.displayValues ?? opts?.values;
+    if (!opts?.emitObject || !Array.isArray(values)) return [];
     return [
       {
         field: c.column ?? c.id,
-        values: opts.values,
+        values,
         ...(c.enum && { enumName: c.enum }),
       },
     ];
   });
+
+/**
+ * Derive per-field edit requirements from enum-restricted columns. A local
+ * `values` restriction on a shared `enum` means values outside the list do not
+ * belong to this screen — the table's built-in edit action is hidden for rows
+ * carrying such a value (all restricted columns must be in scope).
+ */
+export const buildEditRequires = (
+  columns: JsonColumn[] | undefined,
+): { field: string; values: unknown[] }[] | undefined => {
+  const derived = (columns ?? []).flatMap((c) => {
+    const opts = c.fieldInput?.options as
+      | { values?: unknown[]; displayValues?: unknown[] }
+      | undefined;
+    // displayValues is only written for a genuine enum restriction (enum + values).
+    if (!Array.isArray(opts?.values) || !Array.isArray(opts?.displayValues)) return [];
+    return [{ field: c.column ?? c.id, values: opts.values }];
+  });
+  return derived.length ? derived : undefined;
+};

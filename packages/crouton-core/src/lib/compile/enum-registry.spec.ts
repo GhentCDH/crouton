@@ -170,6 +170,10 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
     ]);
     // Restriction wins: the rest of the enum is not injected
     expect(actualValues(col)).toHaveLength(2);
+    // The full enum is kept for label resolution of values outside the restriction
+    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toEqual(
+      originRegistry.author_origin_enum,
+    );
   });
 
   it('keeps subset order and other option keys intact', () => {
@@ -272,5 +276,13 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
     });
     injectEnumValues([col], originRegistry);
     expect(actualValues(col)).toEqual(['internal', 'wikidata']);
+    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toBeUndefined();
+  });
+
+  it('does not set displayValues without a local restriction', () => {
+    const col = invalid<JsonColumn>({ id: 'origin', type: 'string', enum: 'author_origin_enum' });
+    injectEnumValues([col], originRegistry);
+    expect(actualValues(col)).toEqual(originRegistry.author_origin_enum);
+    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toBeUndefined();
   });
 });

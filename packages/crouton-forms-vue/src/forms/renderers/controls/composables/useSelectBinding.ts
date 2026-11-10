@@ -7,7 +7,9 @@ import type { AutocompleteAllOptions, ControlOptions, SelectOptions } from '@ghe
 import { useCustomControlBinding } from './useControlBinding';
 
 const loadDisplayValue = (options: SelectOptions, value: unknown) => {
-  const values = options.values;
+  // `displayValues` (full enum list) wins over `values` so a stored value that
+  // sits outside a local restriction still resolves to its label.
+  const values = options.displayValues ?? options.values;
   if (!values) return value;
   const valueKey = options.valueKey as string;
   const id = (value as Record<string, unknown>)?.[valueKey] ?? value;
@@ -41,6 +43,7 @@ const useSelectInput =
 export const SELECT_OPTION_KEYS = [
   'options',
   'values',
+  'displayValues',
   'uri',
   'resource',
   'dataField',

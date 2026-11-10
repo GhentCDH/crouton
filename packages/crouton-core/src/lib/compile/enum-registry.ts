@@ -69,6 +69,11 @@ export const applyLocalEnumRestriction = (
   );
   if (!keys.length) return;
 
+  // The full enum list is kept for *label resolution* — values outside the
+  // restriction (legacy data) must still display their label in tables and
+  // views, while `values` stays the restricted choice list for forms/filters.
+  options['displayValues'] = enumValues;
+
   const labelByKey = new Map(enumValues.map((e) => [String(e.value), e.label]));
   const unknownValues: unknown[] = [];
 

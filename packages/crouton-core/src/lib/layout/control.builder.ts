@@ -52,6 +52,8 @@ export interface SelectOptions extends ControlOption {
   format: 'select' | 'multiselect';
   options: Array<unknown>;
   values?: Array<unknown>;
+  /** Full enum list kept for label resolution when `values` restricts a shared enum (loader-written). */
+  displayValues?: Array<unknown>;
   resource?: string;
   labelKey?: string;
   valueKey?: string;

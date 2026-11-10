@@ -65,6 +65,10 @@ the enum (labels come from the registry), unknown values warn:
 
 Duplicate full `{ value, label }` lists only when labels intentionally differ from the enum.
 
+Note: labels for values **outside** the restriction still resolve (the loader keeps the full enum
+in `fieldInput.options.displayValues`), but rows carrying such a legacy value cannot be edited
+from this screen — the table's built-in edit button is hidden for them.
+
 ## 5. Hand-editing auto-generated columns
 
 `crouton update` owns columns derived from Prisma. Edits to column names or types are overwritten on the next

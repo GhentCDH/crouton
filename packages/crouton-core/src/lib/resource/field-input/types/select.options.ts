@@ -10,7 +10,7 @@ export const SelectOptionsSchema = BaseOptionsSchema.extend({
   }),
   values: opt(z.array(z.unknown()).optional(), {
     description:
-      'Local option list. Entries are { value, label } objects, or plain values (strings/numbers/booleans) — when the column also references a shared `enum`, plain values are resolved against the enum registry to restrict the shared list for this screen, with labels taken from the enum',
+      'Local option list. Entries are { value, label } objects, or plain values (strings/numbers/booleans) — when the column also references a shared `enum`, plain values are resolved against the enum registry to restrict the shared list for this screen, with labels taken from the enum. Rows whose stored value is outside this list cannot be edited from this screen.',
     examples: [
       [
         { value: 'internal', label: 'Internal' },
@@ -18,6 +18,11 @@ export const SelectOptionsSchema = BaseOptionsSchema.extend({
       ],
       ['internal', 'wikidata'],
     ],
+  }),
+  displayValues: opt(z.array(z.unknown()).optional(), {
+    description:
+      'Full option list used for label resolution when `values` restricts a shared `enum`. Written by the loader at load time (from the enum registry) — not meant to be set by hand.',
+    examples: [[{ value: 'internal', label: 'Internal' }]],
   }),
   resource: opt(z.string().optional(), {
     description: 'Relative path to a resource.json used to populate the options',

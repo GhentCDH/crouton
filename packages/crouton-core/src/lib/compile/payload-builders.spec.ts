@@ -109,3 +109,58 @@ describe('display is derived into the payloads', () => {
     });
   });
 });
+
+describe('editRequires — enum restrictions reach the table options', () => {
+  const config = (columns: unknown[]) =>
+    invalid<CompiledResource>({
+      name: 'author',
+      route: 'author',
+      tag: 'Author',
+      definition: {},
+      columns: columns as never,
+      views: { table: { data: {}, ui: { type: 'Table', elements: [] } } },
+    });
+
+  const restrictedColumn = {
+    id: 'origin',
+    fieldInput: {
+      type: 'select',
+      options: {
+        emitObject: true,
+        values: [{ value: 'internal', label: 'Internal' }],
+        displayValues: [
+          { value: 'internal', label: 'Internal' },
+          { value: 'anonymous', label: 'Anonymous' },
+        ],
+      },
+    },
+  };
+
+  const tableOptions = (payload: Record<string, unknown> | undefined) =>
+    ((payload?.['schemas'] as Record<string, unknown>)['table'] as { ui: { options?: Record<string, unknown> } })
+      .ui.options;
+
+  it('injects editRequires for enum-restricted columns', () => {
+    const options = tableOptions(buildViewsPayload(config([restrictedColumn])));
+    expect(options?.['editRequires']).toEqual([
+      { field: 'origin', values: [{ value: 'internal', label: 'Internal' }] },
+    ]);
+  });
+
+  it('omits editRequires for plain columns and plain local values lists', () => {
+    const options = tableOptions(
+      buildViewsPayload(
+        config([
+          {
+            id: 'status',
+            fieldInput: {
+              type: 'select',
+              options: { emitObject: true, values: [{ value: 'draft', label: 'Draft' }] },
+            },
+          },
+        ]),
+      ),
+    );
+    expect(options?.['editRequires']).toBeUndefined();
+  });
+});

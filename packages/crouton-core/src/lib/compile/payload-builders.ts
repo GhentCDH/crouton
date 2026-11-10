@@ -14,6 +14,7 @@ import {
 import { toJsonSchema } from '../schema/json';
 import { readEnv } from '../utils';
 import { resolveTableNode } from '../view';
+import { buildEditRequires } from './column-transforms';
 import type { CompiledResource } from './compiled-resource.schema';
 import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 
@@ -32,6 +33,8 @@ interface TableInjectOptions {
   tableActions: unknown[];
   defaultSortId?: string;
   defaultSortDir?: 'asc' | 'desc';
+  /** Per-field restrictions — the built-in edit action is hidden for rows outside these lists. */
+  editRequires?: { field: string; values: unknown[] }[];
   filter?: {
     schema: unknown;
     uischema: unknown;
@@ -55,6 +58,7 @@ const injectTableOptions = (ui: unknown, opts: TableInjectOptions): unknown => {
         ...(opts.defaultSortDir !== undefined && {
           defaultSortDir: opts.defaultSortDir,
         }),
+        ...(opts.editRequires?.length && { editRequires: opts.editRequires }),
         ...(opts.filter && { filter: opts.filter }),
       },
     };
@@ -265,6 +269,7 @@ export const buildViewsPayload = (
       tableActions: resolveTableActions(baseUri, resolveTableNode(config.layout?.table)?.tableActions),
       defaultSortId: config.views['table']?.defaultSort,
       defaultSortDir: config.views['table']?.defaultSortDir,
+      editRequires: buildEditRequires(config.columns),
       ...(filterSchema && {
         filter: {
           schema: filterSchema.data,
@@ -337,6 +342,7 @@ export const buildSubResourceViewsPayload = (
           tableActions: resolveTableActions(subChildUri, tableLayout?.tableActions ?? sub.tableActions),
           defaultSortId: sub.views['table']?.defaultSort,
           defaultSortDir: sub.views['table']?.defaultSortDir,
+          editRequires: buildEditRequires(sub.columns),
           ...(subFilterSchema && {
             filter: {
               schema: subFilterSchema.data,
