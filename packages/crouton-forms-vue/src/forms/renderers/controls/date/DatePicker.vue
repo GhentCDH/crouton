@@ -19,7 +19,7 @@
           @click.prevent="openPicker"
           @input="onInput(($event.target as HTMLInputElement).value)"
           @blur="$emit('blur', $event)"
-          @keydown.esc="close"
+          @keydown.esc="onInputEscape"
         />
       </div>
 
@@ -263,6 +263,14 @@ const close = () => {
   open.value = false;
   focusKey.value = null;
   teardownClickOutside();
+};
+
+// Only swallow Escape when it actually closes the picker, so a surrounding
+// modal still closes on Escape when the picker is already closed.
+const onInputEscape = (event: KeyboardEvent) => {
+  if (!open.value) return;
+  event.preventDefault();
+  close();
 };
 
 const emitValue = (next: string | undefined) => {

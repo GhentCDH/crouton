@@ -27,6 +27,9 @@ export const useFocusTrap = ({
     if (!container) return;
 
     if (event.key === 'Escape') {
+      // A nested control (date picker, dropdown, IME) already consumed this
+      // Escape — don't also close the surrounding modal.
+      if (event.defaultPrevented || event.isComposing) return;
       onEscape?.();
       return;
     }
