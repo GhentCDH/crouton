@@ -54,6 +54,11 @@ export type UseAutoSaveReturn = {
    * this new baseline.
    */
   resetBaseline: (data: Record<string, unknown>) => void;
+  /**
+   * Run a pending debounced save immediately and wait for any in-flight save.
+   * Call this before closing the form so the last edits are persisted first.
+   */
+  flush: () => Promise<void>;
 };
 
 /**
@@ -89,6 +94,8 @@ export const useAutoSave = ({
 }: UseAutoSaveOptions): UseAutoSaveReturn => {
   const status = ref<AutoSaveStatus>('idle');
   let timerId: ReturnType<typeof setTimeout> | null = null;
+  let pendingData: Record<string, unknown> | null = null;
+  let inFlight: Promise<void> | null = null;
   let baseline: Record<string, unknown> | null = initialData
     ? (JSON.parse(JSON.stringify(initialData)) as Record<string, unknown>)
     : null;
@@ -118,8 +125,13 @@ export const useAutoSave = ({
 
     clearTimer();
     status.value = 'saving';
+    const request = onSave(delta);
+    inFlight = request.then(
+      () => undefined,
+      () => undefined,
+    );
     try {
-      await onSave(delta);
+      await request;
       // Successful save: advance the baseline so the next save only includes
       // fields changed after this point.
       baseline = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
@@ -141,6 +153,7 @@ export const useAutoSave = ({
       return;
     }
 
+    pendingData = data;
     timerId = setTimeout(() => {
       executeSave(data);
     }, debounceMs);
@@ -159,5 +172,14 @@ export const useAutoSave = ({
     baseline = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
   };
 
-  return { status, trigger, saveNow, cancel, resetBaseline };
+  const flush = async () => {
+    if (timerId !== null && pendingData) {
+      clearTimer();
+      await executeSave(pendingData);
+      return;
+    }
+    await inFlight;
+  };
+
+  return { status, trigger, saveNow, cancel, resetBaseline, flush };
 };

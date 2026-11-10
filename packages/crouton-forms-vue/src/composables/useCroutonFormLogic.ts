@@ -85,7 +85,10 @@ export const useCroutonFormLogic = (
 
   const currentValues = ref(properties.data ?? {});
 
-  const onCancel = () => {
+  const onCancel = async () => {
+    // Persist pending auto-save edits before the form closes (and before the
+    // parent reloads), so the last keystrokes are never dropped.
+    await autoSaver?.flush();
     formData.value = {};
     emits('cancel', null);
     emits('closeModal', null);
