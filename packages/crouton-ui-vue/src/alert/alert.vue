@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AlertType } from './alert.model.ts';
+import type { AlertType } from './alert.model';
 
 defineProps<{
   message: string;

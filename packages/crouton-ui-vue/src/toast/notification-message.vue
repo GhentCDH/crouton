@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import type { NotificationType } from './notification-message.ts';
+import type { NotificationType } from './notification-message';
 
 defineProps<{
   message: string;

@@ -15,27 +15,30 @@
   "exports": {
     ".": {
       "@ghentcdh/crouton": "./src/index.ts",
-      "types": "./dist/index.d.ts",
+      "types": "./dist/packages/crouton-vue/src/index.d.ts",
       "import": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css"
   },
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/packages/crouton-vue/src/index.d.ts",
   "files": [
     "dist",
     "styles.css"
   ],
   "scripts": {
-    "build": "vite build && node bundle-types.mjs",
+    "build": "vite build",
     "dev": "vite build --watch",
     "typecheck": "vue-tsc --noEmit -p tsconfig.lib.json",
     "test": "vitest run"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21"
+    "@tiptap/vue-3": "^3.0.0",
+    "lodash-es": "^4.17.21",
+    "oidc-client-ts": "^3.1.0"
   },
   "peerDependencies": {
+    "@ghentcdh/crouton-core": "0.0.1-alpha.90",
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
     "vee-validate": ">=5.0.0-beta.0",
