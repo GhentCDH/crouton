@@ -30,7 +30,7 @@
     v-bind="operations"
   />
   <div v-else-if="displayAs == 'table' && resource">
-    <RelationTable :resource="resource" :values="value" v-bind="wrapper" />
+    <RelationTable :resource="resource" :values="(value as unknown[])" v-bind="wrapper" />
   </div>
   <ControlLabel v-bind="wrapper" v-else>
     <div v-if="resource">

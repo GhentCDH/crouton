@@ -25,7 +25,7 @@
 
       <div v-if="actions" class="flex gap-2">
         <Btn
-          v-for="action in actions"
+          v-for="action in (actions as Action[])"
           :key="action.label ?? action.tooltip"
           size="xs"
           color="ghost"
@@ -64,13 +64,12 @@ const props = defineProps<{
   filters?: string[];
   /** Current search query (the `q` lookup param). */
   search?: string;
-  actions?: Action[];
+  actions?: unknown[];
 }>();
 
 const emit = defineEmits<{
   updateSearch: [q: string];
   updateFilters: [filters: string[]];
-  action: [action: Action];
 }>();
 
 const t = useUiTranslator();
