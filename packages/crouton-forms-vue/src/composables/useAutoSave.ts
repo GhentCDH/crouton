@@ -54,6 +54,8 @@ export type UseAutoSaveReturn = {
    * this new baseline.
    */
   resetBaseline: (data: Record<string, unknown>) => void;
+  /** Last known server state (the delta baseline), or `null` when unknown. */
+  getBaseline: () => Record<string, unknown> | null;
   /**
    * Run a pending debounced save immediately and wait for any in-flight save.
    * Call this before closing the form so the last edits are persisted first.
@@ -65,7 +67,7 @@ export type UseAutoSaveReturn = {
  * Compute the top-level keys whose values differ between `current` and
  * `baseline`. Returns only the changed entries, or `null` when nothing changed.
  */
-const computeDelta = (
+export const computeDelta = (
   current: Record<string, unknown>,
   baseline: Record<string, unknown> | null,
 ): Record<string, unknown> | null => {
@@ -172,6 +174,8 @@ export const useAutoSave = ({
     baseline = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
   };
 
+  const getBaseline = () => baseline;
+
   const flush = async () => {
     if (timerId !== null && pendingData) {
       clearTimer();
@@ -181,5 +185,5 @@ export const useAutoSave = ({
     await inFlight;
   };
 
-  return { status, trigger, saveNow, cancel, resetBaseline, flush };
+  return { status, trigger, saveNow, cancel, resetBaseline, getBaseline,flush };
 };

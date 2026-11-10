@@ -1,6 +1,6 @@
 import { computed, nextTick, ref } from 'vue';
 
-import { useAutoSave } from './useAutoSave';
+import { computeDelta, useAutoSave } from './useAutoSave';
 import type { FormEventPayload } from './useFormEvents';
 
 export interface AutoSaveFormProps {
@@ -58,17 +58,28 @@ export const useFormAutoSave = (
 
   const onFormEvents = (payload: FormEventPayload) => {
     if (payload.event === 'update-relation' && properties.onRefreshData) {
+      // The pending debounce is cancelled (its captured data may predate the
+      // refresh), but the edits themselves are kept: anything differing from
+      // the last saved state is merged over the fresh server data below and
+      // re-saved, including text typed while the refresh was in flight.
       autoSaver?.cancel();
-      userHasEdited.value = false;
+      const savedBefore = autoSaver?.getBaseline() ?? null;
+      let unsaved: Record<string, unknown> | null = null;
+      let merged: Record<string, unknown> | null = null;
       isRefreshing = true;
       properties
         .onRefreshData()
         .then((fresh) => {
           if (fresh) {
             const freshData = fresh as Record<string, unknown>;
+            unsaved = savedBefore
+              ? computeDelta(liveValues(), savedBefore)
+              : null;
+            const next = unsaved ? { ...freshData, ...unsaved } : freshData;
+            merged = next;
             autoSaver?.resetBaseline(freshData);
             nextTick(() => {
-              formData.value = freshData;
+              formData.value = next;
             });
           }
         })
@@ -76,7 +87,11 @@ export const useFormAutoSave = (
           nextTick(() => {
             nextTick(() => {
               isRefreshing = false;
-              userHasEdited.value = false;
+              if (unsaved && merged) {
+                triggerAutoSave(merged, valid.value);
+              } else {
+                userHasEdited.value = false;
+              }
             });
           });
         });
