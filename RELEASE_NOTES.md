@@ -1,3 +1,34 @@
+## 0.0.1-alpha.90 (2026-11-10)
+
+### 🚀 Features
+
+- add yearOnly option to DateRangeControlRenderer ([#458](https://github.com/GhentCDH/crouton/pull/458))
+- type appliedOptions in control renderers via ControlOptions<K> ([#462](https://github.com/GhentCDH/crouton/pull/462), [#461](https://github.com/GhentCDH/crouton/issues/461))
+- **ci:** publish each package in a separate step with per-package release status ([#454](https://github.com/GhentCDH/crouton/pull/454))
+- **crouton-cli:** add nx migrate support for resource.json schema migrations ([#457](https://github.com/GhentCDH/crouton/pull/457), [#455](https://github.com/GhentCDH/crouton/issues/455))
+- **crouton-core:** allow fieldInput.options.values to restrict a shared enum ([#465](https://github.com/GhentCDH/crouton/pull/465), [#464](https://github.com/GhentCDH/crouton/issues/464))
+
+### 🩹 Fixes
+
+- layout.form/view with only container renders empty form ([#459](https://github.com/GhentCDH/crouton/pull/459))
+- keep edit modal open on nested Escape and flush autosave on close ([#466](https://github.com/GhentCDH/crouton/pull/466))
+- keep unsaved edits when relation change refreshes record ([#467](https://github.com/GhentCDH/crouton/pull/467))
+- **crouton-api:** replace non-null assertions with guard checks ([#442](https://github.com/GhentCDH/crouton/pull/442))
+- **crouton-forms-vue:** type useFetchOption and spec — eliminate any usage ([#444](https://github.com/GhentCDH/crouton/pull/444))
+- **crouton-forms-vue:** type useReadonlyBinding composable — eliminate any usage ([#445](https://github.com/GhentCDH/crouton/pull/445))
+- **crouton-forms-vue:** type form composables — eliminate any usage ([#449](https://github.com/GhentCDH/crouton/pull/449))
+- **crouton-forms-vue:** type control renderer components — eliminate any usage ([#450](https://github.com/GhentCDH/crouton/pull/450))
+- **crouton-ui-vue:** remove all explicit-any and non-null-assertion warnings ([#440](https://github.com/GhentCDH/crouton/pull/440))
+- **crouton-vue:** type composables and utils — eliminate any usage ([#448](https://github.com/GhentCDH/crouton/pull/448))
+- **crouton-vue:** type resource.actions.ts — eliminate any usage ([#443](https://github.com/GhentCDH/crouton/pull/443))
+- **crouton-vue:** eliminate any usage in layout, forms, dev-tools, status ([#451](https://github.com/GhentCDH/crouton/pull/451))
+- **crouton-vue:** type relation components — eliminate any usage ([#447](https://github.com/GhentCDH/crouton/pull/447))
+- **crouton-vue:** type resource API layer — eliminate any in api/resource/modal/uri files ([#446](https://github.com/GhentCDH/crouton/pull/446))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.89 (2026-11-09)
 
 ### 🚀 Features
