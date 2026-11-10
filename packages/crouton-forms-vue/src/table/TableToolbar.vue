@@ -25,7 +25,7 @@
 
       <div v-if="actions" class="flex gap-2">
         <Btn
-          v-for="action in actions"
+          v-for="action in (actions as Action[])"
           :key="action.label ?? action.tooltip"
           size="xs"
           color="ghost"
@@ -50,26 +50,26 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
+import type { IconProp } from '@ghentcdh/crouton-ui-vue';
 import { Btn, Input } from '@ghentcdh/crouton-ui-vue';
 
 import TableFilter from './filter/TableFilter.vue';
 import { useUiTranslator } from '../composables/useUiTranslator';
 
-type Action = any;
+type Action = { label?: string; tooltip?: string; icon?: IconProp; loading?: () => boolean; action: () => void };
 const props = defineProps<{
   /** JSON Schema for filterable columns — keys are field ids, titles are labels. */
-  filterSchema?: Record<string, any>;
+  filterSchema?: Record<string, unknown>;
   /** Active filter strings in wire format, e.g. ["title:foo:contains"]. */
   filters?: string[];
   /** Current search query (the `q` lookup param). */
   search?: string;
-  actions?: Action[];
+  actions?: unknown[];
 }>();
 
 const emit = defineEmits<{
   updateSearch: [q: string];
   updateFilters: [filters: string[]];
-  action: [action: Action];
 }>();
 
 const t = useUiTranslator();

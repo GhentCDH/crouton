@@ -2,6 +2,7 @@
   <MultiSelect
     v-bind="wrapper"
     :model-value="parsedValue"
+    :options="(appliedOptions.options ?? []) as unknown[]"
     @change="onChange"
     @blur="onBlur"
   />

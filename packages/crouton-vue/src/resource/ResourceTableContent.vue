@@ -41,7 +41,6 @@
     :actions="resource.tableActions"
     @update-search="resource.onUpdateSearch"
     @update-filters="resource.onUpdateFilters"
-    @action="resource.backendAction"
   >
     <template #left>
       <span class="text-xl font-bold mr-4">{{ config.title }}</span>

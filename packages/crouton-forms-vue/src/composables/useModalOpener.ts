@@ -4,8 +4,8 @@ import type { FormModalResult } from '../forms/modal/FormModal.properties';
 import type { HttpClient } from '../http-client';
 
 export type ModalOpenerOptions = {
-  schema: unknown;
-  uiSchema: unknown;
+  schema: Record<string, unknown>;
+  uiSchema: Record<string, unknown>;
   modalTitle: string;
   http?: HttpClient;
   onClose: (result: FormModalResult) => void;

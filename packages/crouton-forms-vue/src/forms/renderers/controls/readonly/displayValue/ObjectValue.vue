@@ -48,7 +48,7 @@ const singleValue = computed<string | null>(() => {
   if (typeof displayKey !== 'string' || !record.value) return null;
   const resolved = displayKey
     .split('.')
-    .reduce<any>((acc, key) => (acc == null ? acc : acc[key]), record.value);
+    .reduce<unknown>((acc, key) => (acc == null ? acc : (acc as Record<string, unknown>)[key]), record.value);
   return resolved === null || resolved === undefined ? null : String(resolved);
 });
 

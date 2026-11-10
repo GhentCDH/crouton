@@ -102,7 +102,7 @@ onMounted(() => {
   );
 });
 const formRef = ref<InstanceType<typeof FormComponent>>();
-const formData = defineModel<any>();
+const formData = defineModel<Record<string, unknown>>();
 const navigate = useRouter();
 
 const {
@@ -119,5 +119,5 @@ const {
   onRetry,
   onFormEvents,
   onErrors,
-} = useFormLogic(properties, emits, formData, formRef);
+} = useFormLogic(properties, emits, formData as { value: Record<string, unknown> }, formRef);
 </script>

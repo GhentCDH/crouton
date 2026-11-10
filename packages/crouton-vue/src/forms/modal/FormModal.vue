@@ -1,6 +1,6 @@
 <template>
   <Modal
-    v-bind="properties"
+    v-bind="modalProps"
     data-testid="form-modal"
     :open="true"
     :disable-close="false"
@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { Btn, Color, Modal } from '@ghentcdh/crouton-ui-vue';
 import {
@@ -92,6 +92,11 @@ const formRef = ref<InstanceType<typeof FormComponent>>();
 const formData = defineModel<Record<string, unknown>>();
 
 provideUniqueCheck(properties.uniqueCheck ?? null);
+
+const modalProps = computed(() => {
+  const { data: _data, ...rest } = properties;
+  return rest;
+});
 
 const {
   id,

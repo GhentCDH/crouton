@@ -14,12 +14,12 @@ import {
 } from '../tester';
 
 const control = (
-  options: Record<string, any> = {},
+  options: Record<string, unknown> = {},
   scope = '#/properties/x',
 ): UISchemaElement =>
   ({ type: 'Control', scope, options }) as UISchemaElement;
 
-const schema = (extra: Record<string, any> = {}): JsonSchema =>
+const schema = (extra: Record<string, unknown> = {}): JsonSchema =>
   ({ type: 'string', ...extra }) as JsonSchema;
 
 const objectSchema = {
@@ -150,7 +150,7 @@ describe('isObjectControl', () => {
   it('does not match a non-Control element', () => {
     expect(
       isObjectControl(
-        { type: 'GridLayout', options: { format: 'object' } } as any,
+        { type: 'GridLayout', options: { format: 'object' } } as unknown as UISchemaElement,
         objectSchema,
       ),
     ).toBe(false);

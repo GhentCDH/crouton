@@ -15,8 +15,9 @@ const props = defineProps({
 });
 
 const value = computed(() => {
-  const dataPath = props.column.options?.dataPath ?? props.column.id;
-  const val = props.data[dataPath];
+  const col = props.column as { options?: { dataPath?: string }; id?: string };
+  const dataPath = col.options?.dataPath ?? col.id;
+  const val = (props.data as Record<string, unknown>)[dataPath ?? ''];
   if (val === null || val === undefined) return null;
   return val;
 });

@@ -1,6 +1,6 @@
 <template>
   <Modal
-    v-bind="properties"
+    v-bind="modalProps"
     data-testid="form-modal"
     :open="true"
     :disable-close="false"
@@ -10,7 +10,7 @@
     <template #title>
       <h3>{{ modalTitle }}</h3>
       <div class="text-gray-500 text-xs mb-2">
-        {{ formData.id }}
+        {{ formData?.id }}
       </div>
     </template>
     <template #content>
@@ -57,8 +57,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
+import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import { Btn, Color, IconEnum, Modal } from '@ghentcdh/crouton-ui-vue';
 
 import { ViewModalEmits, ViewModalProperties } from './ViewModal.properties';
@@ -71,14 +72,18 @@ const t = useUiTranslator();
 const id = `view_${Math.floor(Math.random() * 1000)}`;
 
 const valid = ref(false);
-const formData = defineModel<any>();
+const formData = defineModel<Record<string, unknown>>();
 const emits = defineEmits(ViewModalEmits);
 
 if (properties.data) {
   formData.value = properties.data;
 }
 
-const renderers = useDefaultRenderers(properties.renderers, true);
+const renderers = useDefaultRenderers(properties.renderers as JsonFormsRendererRegistryEntry[] | null, true);
+const modalProps = computed(() => {
+  const { data: _data, renderers: _renderers, ...rest } = properties;
+  return rest;
+});
 
 const onCancel = () => {
   formData.value = {};
@@ -105,7 +110,7 @@ watch(valid, (newValid, oldValid) => {
   }
 });
 
-const handleEvent = (event: { event: string; [key: string]: any }) => {
+const handleEvent = (event: { event: string; [key: string]: unknown }) => {
   // ignore events other than view for now
   if (event.event !== 'view') return;
 

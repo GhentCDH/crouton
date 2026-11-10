@@ -1,3 +1,4 @@
+import type { JsonSchema } from '@jsonforms/core';
 import { z } from 'zod';
 
 import type { Method, Operation } from '@ghentcdh/crouton-core';
@@ -67,7 +68,7 @@ const ResourceSchema = z
       data.schemas?.form ?? { ui: undefined, data: undefined };
 
     if (!schema.ui && schema.data) {
-      schema.ui = uiFromJsonSchema(schema.data);
+      schema.ui = uiFromJsonSchema(schema.data as JsonSchema);
     }
 
     const operations = {} as Record<OperationKey, Operation | null>;
@@ -131,10 +132,10 @@ export const getResourceSchema = async (
   const request = http
     .get(resourceUri)
     .then((response) => {
-      let resourceSchema = response.data;
+      let resourceSchema = response.data as Record<string, unknown>;
 
-      if ((resourceSchema as Record<string, unknown>).columns) {
-        resourceSchema = parseSchema(resourceSchema, {});
+      if ((resourceSchema as { columns?: unknown }).columns) {
+        resourceSchema = parseSchema(resourceSchema, {}) as Record<string, unknown>;
       }
 
       const resource = ResourceSchema.safeParse(resourceSchema);

@@ -6,12 +6,12 @@ import type { AutocompleteAllOptions, ControlOptions, SelectOptions } from '@ghe
 
 import { useCustomControlBinding } from './useControlBinding';
 
-const loadDisplayValue = (options: SelectOptions, value: any) => {
+const loadDisplayValue = (options: SelectOptions, value: unknown) => {
   const values = options.values;
   if (!values) return value;
   const valueKey = options.valueKey as string;
-  const id = value?.[valueKey] ?? value;
-  const findValue = values.find((o: any) => o[valueKey] === id);
+  const id = (value as Record<string, unknown>)?.[valueKey] ?? value;
+  const findValue = values.find((o) => (o as Record<string, unknown>)[valueKey] === id);
 
   return findValue;
 };
@@ -19,7 +19,7 @@ const loadDisplayValue = (options: SelectOptions, value: any) => {
 const useSelectInput =
   (...fields: string[]) =>
   (uischema: ControlElement, schema: JsonSchema, field: FieldContext) => {
-    const opts = (uischema.options ?? {}) as Record<string, any>;
+    const opts = (uischema.options ?? {}) as Record<string, unknown>;
     return computed(() => {
       const options = Object.fromEntries(
         fields.filter((f) => f in opts).map((f) => [f, opts[f]]),
@@ -29,7 +29,7 @@ const useSelectInput =
       if (!options.valueKey) options.valueKey = 'value';
 
       options.displayValue = loadDisplayValue(
-        options as SelectOptions,
+        (options as unknown) as SelectOptions,
         field.value.value,
       );
 

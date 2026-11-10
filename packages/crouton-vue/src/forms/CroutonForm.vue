@@ -88,6 +88,7 @@
 </template>
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import { computed, provide, ref } from 'vue';
 import { Btn, ButtonType } from '@ghentcdh/crouton-ui-vue';
 import {
@@ -125,7 +126,7 @@ const {
   schema,
   uiSchema,
 } = useFormLogic(
-  properties,
+  { ...properties, renderers: properties.renderers as JsonFormsRendererRegistryEntry[] | null },
   emits,
   formData as { value: Record<string, unknown> },
   formRef as unknown as { value: { validate?: () => Promise<{ valid: boolean }>; markSubmitted?: () => void; getCurrentValues?: () => Record<string, unknown> } | null | undefined },

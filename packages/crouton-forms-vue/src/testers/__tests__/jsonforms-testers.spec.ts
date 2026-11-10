@@ -10,7 +10,7 @@ import {
   uiTypeIs,
 } from '../jsonforms-testers';
 
-const control = (extra: Record<string, any> = {}): UISchemaElement =>
+const control = (extra: Record<string, unknown> = {}): UISchemaElement =>
   ({ type: 'Control', scope: '#/properties/x', ...extra }) as UISchemaElement;
 
 const layout = (type: string): UISchemaElement =>
@@ -29,7 +29,7 @@ describe('uiTypeIs', () => {
   });
 
   it('rejects empty input', () => {
-    expect(uiTypeIs('Control')(undefined as any, schema('string'))).toBe(false);
+    expect(uiTypeIs('Control')(undefined as unknown as UISchemaElement, schema('string'))).toBe(false);
   });
 });
 

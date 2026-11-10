@@ -194,7 +194,7 @@ const wrapperProps = computed(() =>
 );
 
 const inputClass = computed(
-  () => (props.styles as any)?.control?.input ?? 'input',
+  () => (props.styles as { control?: { input?: string } })?.control?.input ?? 'input',
 );
 
 const inputValue = computed(() =>

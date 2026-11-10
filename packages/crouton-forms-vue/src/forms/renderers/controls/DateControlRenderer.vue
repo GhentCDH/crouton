@@ -1,7 +1,7 @@
 <template>
   <DatePicker
     v-bind="wrapper"
-    :model-value="value"
+    :model-value="(value as string | null | undefined)"
     :with-time="withTime"
     :min="appliedOptions.min"
     :max="appliedOptions.max"
@@ -27,7 +27,10 @@ const { wrapper, value, field, onBlur, onChange, appliedOptions } =
   useCustomControlBinding<ControlOptions<'date'>>()(props.uischema, props.schema);
 
 const withTime = computed(() =>
-  resolveWithTime(appliedOptions.value, props.schema as Record<string, unknown>),
+  resolveWithTime(
+    appliedOptions.value as Record<string, unknown>,
+    props.schema as Record<string, unknown>,
+  ),
 );
 
 /**
