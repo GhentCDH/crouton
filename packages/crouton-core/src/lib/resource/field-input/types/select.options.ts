@@ -9,8 +9,15 @@ export const SelectOptionsSchema = BaseOptionsSchema.extend({
     examples: [[{ label: 'Active', value: 'active' }]],
   }),
   values: opt(z.array(z.unknown()).optional(), {
-    description: 'Alias for options (deprecated — prefer options)',
-    deprecated: true,
+    description:
+      'Local option list. Entries are { value, label } objects, or plain values (strings/numbers/booleans) — when the column also references a shared `enum`, plain values are resolved against the enum registry to restrict the shared list for this screen, with labels taken from the enum',
+    examples: [
+      [
+        { value: 'internal', label: 'Internal' },
+        { value: 'wikidata', label: 'Wikidata' },
+      ],
+      ['internal', 'wikidata'],
+    ],
   }),
   resource: opt(z.string().optional(), {
     description: 'Relative path to a resource.json used to populate the options',

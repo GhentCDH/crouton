@@ -47,10 +47,23 @@ Many root keys moved. Run `crouton validate` to detect them — it reports the c
 
 `fieldInput.format` is removed. Use `isRelation(col)` from `@ghentcdh/crouton-core` or check `!!col.relation`.
 
-## 4. Setting both `enum` and `fieldInput.options.values`
+## 4. Duplicating labels for a restricted enum
 
-`enum` resolves a shared list from `crouton.enums.json` at load time. Setting both causes a validation error.
-Use `enum` for shared lists, `fieldInput.options.values` for local inline lists — never both.
+`enum` resolves a shared list from `crouton.enums.json` at load time. To limit the enum for one
+screen, add a local `fieldInput.options.values` restriction — plain strings are resolved against
+the enum (labels come from the registry), unknown values warn:
+
+```json
+"status": {
+  "enum": "bookStatus",
+  "fieldInput": {
+    "type": "select",
+    "options": { "values": ["draft", "published"] }
+  }
+}
+```
+
+Duplicate full `{ value, label }` lists only when labels intentionally differ from the enum.
 
 ## 5. Hand-editing auto-generated columns
 

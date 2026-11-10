@@ -302,21 +302,13 @@ export const refineByKind = (
         '"parent" is only supported on a custom resource. A prisma resource is nested by declaring a relation column on its parent.',
     });
   }
-  // Cross-kind: enum + fieldInput.options.values conflict
-  for (const [id, col] of Object.entries(obj.columns ?? {})) {
-    const hasEnum = !!col.enum;
-    const optValues = (col.fieldInput?.options as Record<string, unknown> | undefined)?.['values'];
-    const hasValues = Array.isArray(optValues) && optValues.length > 0;
-    if (hasEnum && hasValues) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['columns', id],
-        message: `Column "${id}" has both 'enum' and 'fieldInput.options.values'; use 'enum' for shared lists or 'values' on fieldInput for local lists, not both.`,
-      });
-    }
-  }
   // "model required for prisma kind" moved to the Prisma adapter at load time —
   // a resource on a custom-adapter datasource may have no model and is still valid.
+  //
+  // `enum` + `fieldInput.options.values` is allowed: a local `values` list restricts the
+  // shared enum for this screen, with labels resolved from the enum registry at load time
+  // (see `compile/enum-registry.ts` → `applyLocalEnumRestriction`). Unknown values warn
+  // there rather than failing schema validation.
 };
 
 // ── Phase 3: layout validation ───────────────────────────────────────────

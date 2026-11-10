@@ -109,7 +109,8 @@ Or use inline `values` for a local list (not shared):
 }
 ```
 
-Never set both `enum` and `fieldInput.options.values` — validation error.
+`enum` + `fieldInput.options.values` is allowed: the local `values` list then restricts the shared enum for
+that screen — use plain strings or `{ value }` objects and labels come from the enum registry.
 
 ## Right-align numbers, newest-first, 50 per page
 

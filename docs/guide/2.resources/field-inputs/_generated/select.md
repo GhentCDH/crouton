@@ -7,7 +7,7 @@
 | Option | Type | Required | Default | Description | Example |
 |--------|------|----------|---------|-------------|---------|
 | `options` | any[] | No |  | Inline array of option items | `[{"label":"Active","value":"active"}]` |
-| `values` | any[] | No |  | Alias for options (deprecated — prefer options) |  |
+| `values` | any[] | No |  | Local option list. Entries are { value, label } objects, or plain values (strings/numbers/booleans) — when the column also references a shared `enum`, plain values are resolved against the enum registry to restrict the shared list for this screen, with labels taken from the enum | `[{"value":"internal","label":"Internal"},{"value":"wikidata","label":"Wikidata"}]`, `["internal","wikidata"]` |
 | `resource` | string | No |  | Relative path to a resource.json used to populate the options | `"./status.resource.json"` |
 | `labelKey` | string | No |  | Object key used as the display label | `"label"`, `"name"` |
 | `valueKey` | string | No |  | Object key used as the stored value | `"value"`, `"id"` |

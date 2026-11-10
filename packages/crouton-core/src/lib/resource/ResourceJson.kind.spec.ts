@@ -47,6 +47,31 @@ describe('resource.json kind', () => {
     expect(issuePaths(result)).toContain('source.model');
   });
 
+  it('allows enum + a local fieldInput.options.values restriction on one column', () => {
+    // A local `values` list restricts a shared enum for this screen; labels are
+    // merged from the enum registry at load time (compile/enum-registry.ts).
+    const result = ResourceJsonSchema.safeParse({
+      ...base,
+      kind: 'custom',
+      columns: {
+        id: { idField: true, type: 'string' },
+        origin: {
+          type: 'string',
+          enum: 'author_origin_enum',
+          fieldInput: {
+            type: 'select',
+            options: {
+              storeValue: true,
+              emitObject: true,
+              values: ['internal', 'wikidata'],
+            },
+          },
+        },
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('allows a datasource on a custom resource — it selects ctx.prisma', () => {
     const result = ResourceJsonSchema.safeParse({
       ...base,
