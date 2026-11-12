@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 
-import type { NotificationMessage, NotificationType } from './notification-message.ts';
+import type { NotificationMessage, NotificationType } from './notification-message';
 
 
 const NOTIFICATION_DURATION = 5000;

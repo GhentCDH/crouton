@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.lib.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "../crouton-ui-vue/src/**/*.ts",
+    "../crouton-ui-vue/src/**/*.vue",
+    "../crouton-forms-vue/src/**/*.ts",
+    "../crouton-forms-vue/src/**/*.vue",
+    "../crouton-editor-vue/src/**/*.ts",
+    "../crouton-editor-vue/src/**/*.vue",
+    "../../libs/auth-vue/src/**/*.ts",
+    "../../libs/auth-vue/src/**/*.vue",
+    "../../libs/auth/src/index.ts",
+    "../../libs/auth/src/lib/schema.ts",
+    "../../libs/auth/src/lib/types.ts",
+    "../../libs/auth/src/lib/guards.ts",
+    "../../libs/auth/src/lib/public-config.ts",
+    "../../libs/i18n/src/**/*.ts",
+    "../../libs/status/src/**/*.ts"
+  ],
+  "exclude": [
+    "../../**/*.spec.ts",
+    "../../**/*.test.ts",
+    "../../**/__tests__/**",
+    "../../**/testing/**",
+    "../../**/*.stories.ts"
+  ]
+}
