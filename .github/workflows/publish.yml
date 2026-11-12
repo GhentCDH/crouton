@@ -10,16 +10,13 @@ on:
 
 jobs:
   npm:
+    # No `projects` input: the packages are one `fixed` release group, and nx
+    # refuses to publish a subset of a fixed group. Everything in
+    # nx.json release.projects is published by one command.
     uses: ./.github/workflows/shared-publish-npm.yml
     with:
-      projects: >-
-        crouton-api
-        crouton-auth
-        crouton-cli
-        crouton-core
-        crouton-prisma
-        crouton-vue
-        @ghentcdh/create-crouton
+      # Prereleases must name their dist-tag; drop `--tag alpha` at 1.0.
+      publish-args: --access public --verbose --tag alpha
     permissions:
       contents: read
       id-token: write
