@@ -1,4 +1,4 @@
-import type { AuthEndpointResponse, LoadedProvider, PublicAuthConfig } from './types';
+import type { AuthAppInfo, AuthEndpointResponse, LoadedProvider, PublicAuthConfig } from './types';
 
 const providerClientConfig = (p: LoadedProvider): PublicAuthConfig =>
   p.adapter?.clientConfig?.() ?? {
@@ -12,11 +12,15 @@ const providerClientConfig = (p: LoadedProvider): PublicAuthConfig =>
 export const buildPublicAuthConfig = (
   providers: LoadedProvider[],
   isAuthenticated = false,
+  app?: AuthAppInfo,
 ): AuthEndpointResponse => ({
   isAuthenticated,
   providers: providers.map((p) => ({
+    id: p.strategyName,
     name: p.config.name,
     default: p.isDefault,
+    loginMode: p.hasOAuth2 ? 'server' : 'browser',
     ...providerClientConfig(p),
   })),
+  ...(app ? { app } : {}),
 });

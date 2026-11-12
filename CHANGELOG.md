@@ -1,5 +1,14 @@
 ## [Unreleased] — Breaking changes
 
+### 🔐 Google + Microsoft login, login chooser, app logo
+
+- **Server-side login works end to end** for `google`, `microsoft`, `keycloak`, `auth0`, `oidc` when `<PROVIDER>_CLIENT_SECRET` + `<PROVIDER>_CALLBACK_URL` are set: the backend verifies the provider token and issues a crouton-signed session JWT, returned to `/auth/callback` in the URL fragment (was `?access_token=` in the query, never read by the frontend).
+- **New env:** `CROUTON_AUTH_SECRET` (required once any provider has server-side login — startup fails without it), `CROUTON_SESSION_TTL` (default `8h`), `MICROSOFT_TENANT` (default `common`).
+- **Stricter token checks:** Google and Microsoft tokens must have `aud` = client id; Microsoft multi-tenant tokens are matched against their own `tid` (previously every Microsoft token failed the fixed `common` issuer).
+- **💥 `roles.allowedDomains` is now enforced** (was documented as not enforced). `roles.byEmail` works for every provider, not only `google`.
+- **Login chooser:** with several providers, `CroutonPlugin` shows `/auth/login` with one button per provider. A single provider still redirects automatically. A provider with server-side env now logs in through the backend instead of browser PKCE.
+- **`logo`** in `crouton.json`: shown on the login screen, served in `GET /_app/layout`, `useCrouton().logo`, `ShellComponent` `logo` prop.
+
 ### 💥 Breaking: layout `controls` → `items`, `actions` → `rowActions`
 
 - Every layout node now has a single **`items`** list (replaces the separate `controls` and `items` lists). Order is preserved — components, fields, and nested nodes can be freely interleaved.

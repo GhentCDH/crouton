@@ -36,11 +36,11 @@ export const AuthProviderSchema = z.object({
       byEmail: z
         .record(z.string(), z.array(z.string()))
         .optional()
-        .describe('Maps a role name to the list of emails that receive it (used by the google provider).'),
+        .describe('Maps a role name to the list of emails that receive it (any provider whose token carries an email claim).'),
       allowedDomains: z
         .array(z.string())
         .optional()
-        .describe('Reserved for restricting sign-in to these email domains (not currently enforced).'),
+        .describe('Restricts sign-in to these email domains (enforced): tokens whose email is outside the list, or has email_verified=false, are rejected.'),
     })
     .optional()
     .describe('Role extraction settings.'),

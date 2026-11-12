@@ -6,7 +6,19 @@ export type ProviderPreset = {
   userinfoUrl: (env: Record<string, string>) => string;
   rolesClaim: string;
   audience?: (env: Record<string, string>) => string | undefined;
+  /** Issuer check for token verification when it differs from `issuer` (several accepted values, or a payload check). */
+  verifyIssuer?: (env: Record<string, string>) => IssuerCheck;
 };
+
+/** Accepted `iss` value(s), or a predicate on the verified payload (for multi-tenant issuers). */
+export type IssuerCheck = string | string[] | ((payload: Record<string, unknown>) => boolean);
+
+const MS_MULTI_TENANT = ['common', 'organizations', 'consumers'];
+const MS_LOGIN = 'https://login.microsoftonline.com';
+
+/** Microsoft tenant: `tenant` env override, else MICROSOFT_TENANT, else `common`. */
+export const microsoftTenant = (env: Record<string, string>): string =>
+  env['tenant'] || process.env['MICROSOFT_TENANT'] || 'common';
 
 export const PRESETS: Record<string, ProviderPreset> = {
   keycloak: {
@@ -33,14 +45,24 @@ export const PRESETS: Record<string, ProviderPreset> = {
     tokenUrl: () => 'https://oauth2.googleapis.com/token',
     userinfoUrl: () => 'https://www.googleapis.com/oauth2/v3/userinfo',
     rolesClaim: '',
+    audience: (env) => env['clientId'],
+    verifyIssuer: () => ['https://accounts.google.com', 'accounts.google.com'],
   },
   microsoft: {
-    issuer: () => 'https://login.microsoftonline.com/common/v2.0',
-    jwksUrl: () => 'https://login.microsoftonline.com/common/discovery/v2.0/keys',
-    authorizationUrl: () => 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-    tokenUrl: () => 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+    issuer: (env) => `${MS_LOGIN}/${microsoftTenant(env)}/v2.0`,
+    jwksUrl: (env) => `${MS_LOGIN}/${microsoftTenant(env)}/discovery/v2.0/keys`,
+    authorizationUrl: (env) => `${MS_LOGIN}/${microsoftTenant(env)}/oauth2/v2.0/authorize`,
+    tokenUrl: (env) => `${MS_LOGIN}/${microsoftTenant(env)}/oauth2/v2.0/token`,
     userinfoUrl: () => 'https://graph.microsoft.com/v1.0/me',
-    rolesClaim: '',
+    rolesClaim: 'roles',
+    audience: (env) => env['clientId'],
+    // Multi-tenant endpoints issue tokens with the user's own tenant in `iss`.
+    verifyIssuer: (env) => {
+      const tenant = microsoftTenant(env);
+      return MS_MULTI_TENANT.includes(tenant)
+        ? (p) => typeof p['tid'] === 'string' && p['iss'] === `${MS_LOGIN}/${p['tid']}/v2.0`
+        : `${MS_LOGIN}/${tenant}/v2.0`;
+    },
   },
   oidc: {
     issuer: (env) => env['issuer'] ?? '',

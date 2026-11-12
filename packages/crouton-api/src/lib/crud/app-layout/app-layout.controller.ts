@@ -21,6 +21,7 @@ export const createAppLayoutController = (
   translationRegistry?: TranslationRegistry,
   i18nConfig?: I18nConfig,
   prefix?: string,
+  logo?: string,
 ) => {
   const layoutPayload = buildLayoutPayload(
     configs,
@@ -28,6 +29,7 @@ export const createAppLayoutController = (
     title,
     autoSave,
     IS_DEV,
+    logo,
   );
 
   @Controller(prefix ? `${prefix}/_app` : '_app')
@@ -50,6 +52,7 @@ export const createAppLayoutController = (
           title,
           autoSave,
           IS_DEV,
+          logo,
         );
       } else {
         payload = layoutPayload;

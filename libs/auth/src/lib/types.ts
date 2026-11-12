@@ -37,13 +37,27 @@ export type LoadedProvider = {
   clientId?: string;
   rolesClaim?: string;
   jwksUrl?: string;
+  /** True when the OAuth2 login env (client secret + callback URL) is configured → server-side login. */
+  hasOAuth2?: boolean;
   /** Set only for `custom` providers. */
   adapter?: AuthProviderAdapter;
 };
 
+export type PublicAuthProvider = PublicAuthConfig & {
+  /** Provider directory name — used in `/_app/auth/:id/login`. */
+  id: string;
+  name: string;
+  default: boolean;
+  /** `server`: backend OAuth2 flow issuing a crouton session JWT. `browser`: OIDC PKCE in the browser. */
+  loginMode: 'server' | 'browser';
+};
+
+export type AuthAppInfo = { title?: string; logo?: string };
+
 export type AuthEndpointResponse = {
   isAuthenticated: boolean;
-  providers: Array<PublicAuthConfig & { name: string; default: boolean }>;
+  providers: PublicAuthProvider[];
+  app?: AuthAppInfo;
 };
 
 export const defineAuthProvider = (adapter: AuthProviderAdapter): AuthProviderAdapter => adapter;

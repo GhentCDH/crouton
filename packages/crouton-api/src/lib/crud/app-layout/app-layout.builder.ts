@@ -28,6 +28,7 @@ export const buildLayoutPayload = (
   title?: string,
   autoSave = true,
   isDev = false,
+  logo?: string,
 ) => {
   const visible = configs.filter(
     (c) =>
@@ -92,5 +93,5 @@ export const buildLayoutPayload = (
   // Merge top-level items and groups, sort together.
   const sidebar: SidebarNode[] = [...topLevel, ...groups].sort(byPosition);
 
-  return { sidebar, title, autoSave, isDev };
+  return { sidebar, title, autoSave, isDev, ...(logo ? { logo } : {}) };
 };

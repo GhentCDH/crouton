@@ -1,6 +1,6 @@
 import { Injectable, type Type } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { type Profile, Strategy, type VerifyCallback } from 'passport-openidconnect';
+import { Strategy } from 'passport-openidconnect';
 
 import type { OAuthCallbackUser } from './google.strategy';
 
@@ -16,8 +16,9 @@ export type OidcStrategyEnv = {
 };
 
 export const createOidcStrategy = (strategyName: string, env: OidcStrategyEnv): Type<unknown> => {
+  // callbackArity=true → passport-openidconnect sees a 7-arg verify (issuer, profile, context, idToken, accessToken, refreshToken, done).
   @Injectable()
-  class OidcStrategyDynamic extends PassportStrategy(Strategy, strategyName) {
+  class OidcStrategyDynamic extends PassportStrategy(Strategy, strategyName, true) {
     constructor() {
       super({
         issuer: env.issuer,
@@ -34,21 +35,16 @@ export const createOidcStrategy = (strategyName: string, env: OidcStrategyEnv): 
 
     validate(
       _issuer: string,
-      profile: Profile,
+      _profile: unknown,
       _context: object,
-      _idToken: string | object,
+      idToken: string | object,
       accessToken: string | object,
       _refreshToken: string,
-      done: VerifyCallback,
-    ): void {
-      const user: OAuthCallbackUser = {
-        id: profile.id,
-        email: (profile as unknown as { emails?: Array<{ value: string }> }).emails?.[0]?.value,
-        name: profile.displayName,
-        provider: strategyName,
-        accessToken: String(accessToken),
+    ): OAuthCallbackUser {
+      return {
+        idToken: typeof idToken === 'string' ? idToken : undefined,
+        accessToken: typeof accessToken === 'string' ? accessToken : undefined,
       };
-      done(null, user);
     }
   }
 

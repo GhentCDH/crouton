@@ -46,7 +46,7 @@
           "type": "string"
         },
         "byEmail": {
-          "description": "Maps a role name to the list of emails that receive it (used by the google provider).",
+          "description": "Maps a role name to the list of emails that receive it (any provider whose token carries an email claim).",
           "type": "object",
           "propertyNames": {
             "type": "string"
@@ -59,7 +59,7 @@
           }
         },
         "allowedDomains": {
-          "description": "Reserved for restricting sign-in to these email domains (not currently enforced).",
+          "description": "Restricts sign-in to these email domains (enforced): tokens whose email is outside the list, or has email_verified=false, are rejected.",
           "type": "array",
           "items": {
             "type": "string"

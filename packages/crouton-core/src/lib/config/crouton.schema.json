@@ -12,6 +12,11 @@
       "description": "Application title served to the frontend via GET /_app/layout. Displayed in the admin sidebar header.",
       "markdownDescription": "Application title served to the frontend via GET /_app/layout. Displayed in the admin sidebar header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
     },
+    "logo": {
+      "description": "URL of the app logo (e.g. \"/logo.svg\" from the frontend public dir). Shown on the login screen and sidebar header.",
+      "type": "string",
+      "markdownDescription": "URL of the app logo (e.g. \"/logo.svg\" from the frontend public dir). Shown on the login screen and sidebar header.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+    },
     "resourcesDir": {
       "type": "string",
       "description": "Path to resource directories, relative to the project root. Each sub-directory contains a resource.json.",

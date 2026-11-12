@@ -9,12 +9,18 @@ import { AuthGuard } from '@nestjs/passport';
 @Injectable()
 export class ProviderOAuth2Guard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<{ params: { provider?: string } }>();
+    const req = context.switchToHttp().getRequest<{ params: { provider?: string }; path?: string }>();
     const providerName = req.params['provider'];
     if (!providerName) return false;
 
     // Delegate to a dynamically-named AuthGuard for this provider
     const guard = new (AuthGuard(providerName))();
-    return guard.canActivate(context) as Promise<boolean>;
+    if (!req.path?.endsWith('/callback')) return guard.canActivate(context) as Promise<boolean>;
+    try {
+      return await (guard.canActivate(context) as Promise<boolean>);
+    } catch {
+      // Denied consent / failed code exchange: let the controller redirect with #error.
+      return true;
+    }
   }
 }

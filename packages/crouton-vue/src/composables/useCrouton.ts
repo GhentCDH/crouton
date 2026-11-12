@@ -1,4 +1,4 @@
-import { handleCallback, setupAuth } from '@crouton/auth-vue';
+import { LOGIN_PATH, handleCallback, setSessionToken, setupAuth } from '@crouton/auth-vue';
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
@@ -43,6 +43,7 @@ export type {
 type LayoutResponse = {
   sidebar?: SidebarNode[];
   title?: string;
+  logo?: string;
   autoSave?: boolean;
   isDev?: boolean;
   i18n?: {
@@ -56,6 +57,8 @@ type LayoutResponse = {
 export const AppConfig = {
   VERSION: 'unknown',
   title: 'Crouton',
+  /** Logo URL — served by the backend from `crouton.json` `logo` unless overridden here. */
+  logo: undefined as string | undefined,
   /**
    * Whether form fields are saved automatically on edit.
    * Served by the backend via `GET /_app/layout` and mirrors `autoSave` in
@@ -126,6 +129,9 @@ const createCrouton = (
         // Title from the backend wins unless the consumer passed an explicit override.
         if (res.data.title && !overrides.title) {
           config.value = { ...config.value, title: res.data.title };
+        }
+        if (res.data.logo && !overrides.logo) {
+          config.value = { ...config.value, logo: res.data.logo };
         }
         // autoSave from the backend wins unless the consumer passed an explicit override.
         if (
@@ -202,6 +208,7 @@ const createCrouton = (
     },
     version: computed(() => config.value.VERSION),
     title: computed(() => config.value.title),
+    logo: computed(() => config.value.logo),
     autoSave: computed(() => config.value.autoSave),
     showErrors: computed(() => config.value.showErrors),
     debugValue: computed(() => config.value.debugValue),
@@ -261,6 +268,7 @@ export type UseCrouton = {
   readonly sidebar: SidebarNode[];
   version: ComputedRef<string>;
   title: ComputedRef<string>;
+  logo: ComputedRef<string | undefined>;
   autoSave: ComputedRef<boolean>;
   showErrors: ComputedRef<boolean>;
   debugValue: ComputedRef<boolean>;
@@ -333,12 +341,34 @@ export const CroutonPlugin = (
           path: '/auth/callback',
           component: { template: '<div />' },
         });
+        // Provider chooser — shown when several login providers are configured.
+        options.router.addRoute({
+          path: LOGIN_PATH,
+          component: () => import('../auth/LoginView.vue'),
+        });
       }
 
       if (window.location.pathname === '/auth/callback') {
         // Callback page: handle the OIDC code exchange here (not in a route
         // component) so it runs even while the loading screen hides <router-view>.
         _authReady = authSetup.then(async ({ flushQueue }) => {
+          // Server-side login: the backend redirects here with the crouton
+          // session token (or an error) in the URL fragment.
+          const hash = new URLSearchParams(window.location.hash.slice(1));
+          const sessionToken = hash.get('token');
+          const error = hash.get('error');
+          if (sessionToken || error) {
+            // Strip the fragment so the token never sits in history.
+            window.history.replaceState(null, '', window.location.pathname);
+            if (sessionToken) setSessionToken(sessionToken);
+            flushQueue();
+            if (options.router) {
+              await options.router.push(
+                sessionToken ? '/' : { path: LOGIN_PATH, query: { error } },
+              );
+            }
+            return;
+          }
           try {
             await handleCallback();
           } catch {

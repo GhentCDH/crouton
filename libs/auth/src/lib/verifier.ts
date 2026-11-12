@@ -1,11 +1,12 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
-import { mapClaims } from './claim-mapping';
+import { isAllowedDomain, mapClaims } from './claim-mapping';
+import type { IssuerCheck } from './presets';
 import type { AuthProviderConfig } from './schema';
 import type { CroutonUser } from './types';
 
 export type VerifierOptions = {
-  issuer: string;
+  issuer: IssuerCheck;
   clientId: string;
   audience?: string;
   rolesClaim: string;
@@ -22,14 +23,18 @@ export const createOidcVerifier = (opts: VerifierOptions) => {
     jwks = createRemoteJWKSet(new URL(opts.jwksUrl));
     jwksSets.set(opts.jwksUrl, jwks);
   }
+  const issuerCheck = typeof opts.issuer === 'function' ? opts.issuer : undefined;
 
   return async (token: string): Promise<CroutonUser | null> => {
     try {
       const { payload } = await jwtVerify(token, jwks, {
-        issuer: opts.issuer,
+        ...(issuerCheck ? {} : { issuer: opts.issuer as string | string[] }),
         ...(opts.audience ? { audience: opts.audience } : {}),
       });
-      return mapClaims(payload as Record<string, unknown>, opts.config, opts.rolesClaim, opts.providerName, opts.clientId);
+      const claims = payload as Record<string, unknown>;
+      if (issuerCheck && !issuerCheck(claims)) return null;
+      if (!isAllowedDomain(claims, opts.config)) return null;
+      return mapClaims(claims, opts.config, opts.rolesClaim, opts.providerName, opts.clientId);
     } catch {
       return null;
     }

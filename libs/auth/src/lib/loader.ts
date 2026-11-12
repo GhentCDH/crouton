@@ -1,4 +1,4 @@
-import { getDefaultEnv, resolveEnv } from './env';
+import { OAUTH2_ENV, getDefaultEnv, resolveEnv } from './env';
 import { PRESETS } from './presets';
 import { AuthProviderSchema } from './schema';
 import type { AuthProviderAdapter, LoadedProvider } from './types';
@@ -29,6 +29,8 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
     let rolesClaim: string | undefined;
     let jwksUrl: string | undefined;
     let adapter: AuthProviderAdapter | undefined;
+    const oauth2Vars = Object.values(OAUTH2_ENV[config.provider] ?? {});
+    const hasOAuth2 = oauth2Vars.length > 0 && oauth2Vars.every((v) => !!process.env[v]);
 
     if (config.provider === 'custom') {
       const indexPath = path.join(authProvidersDir, name, 'index.ts');
@@ -48,7 +50,7 @@ export const loadAuthProviders = async (authProvidersDir: string): Promise<Loade
       jwksUrl = preset.jwksUrl(env);
     }
 
-    providers.push({ config, strategyName: name, isDefault: config.default ?? false, issuer, clientId, rolesClaim, jwksUrl, adapter });
+    providers.push({ config, strategyName: name, isDefault: config.default ?? false, issuer, clientId, rolesClaim, jwksUrl, adapter, hasOAuth2 });
   }
 
   if (providers.length > 0 && !providers.some((p) => p.isDefault)) {
