@@ -328,7 +328,7 @@ export const actions = (
       (action: Action) => {
         const idField = formDef.idField;
         return {
-          action: (row: any) => {
+          action: (row: Record<string, unknown>) => {
             const key = `${action.id}:${row[idField]}`;
             pendingKey.value = key;
             return Promise.resolve(backendAction(resource, formDef, defaultUriParams, action, setStatus)(row))
@@ -488,7 +488,7 @@ export const resourceModals = (
         return;
       }
       const isPageMode = mode === 'page';
-      const component = isPageMode ? CroutonForm : FormModal;
+      const component = (isPageMode ? CroutonForm : FormModal) as Component;
 
       const customComponent =
         findCustomComponent(
