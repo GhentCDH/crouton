@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       projects:
-        description: Space-separated Nx projects, published one by one. Empty = everything in release.projects
+        description: Space-separated Nx projects, published one by one (independent release groups only; nx rejects a subset of a fixed group). Empty = everything in release.projects, in one command
         type: string
         default: ''
       build-command:
