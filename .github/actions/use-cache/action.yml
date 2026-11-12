@@ -5,12 +5,12 @@ runs:
   using: "composite"
   steps:
     - name: Cache node modules
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: node_modules
         key: ${{ env.DEPENDENCIES_CACHE }}-${{ hashFiles('pnpm-lock.yaml') }}
     - name: Cache NX
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: .nx/cache
         key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
@@ -18,7 +18,7 @@ runs:
           ${{ runner.os }}-nx-
     - uses: pnpm/action-setup@v6
     - name: Setup Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: 24
         registry-url: https://registry.npmjs.org/
