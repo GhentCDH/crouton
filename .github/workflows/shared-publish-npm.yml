@@ -1,0 +1,74 @@
+# Reusable npm publish (nx release publish, OIDC trusted publishing + provenance).
+# Caller must grant: contents: read, id-token: write.
+name: Shared Publish npm
+
+on:
+  workflow_call:
+    inputs:
+      projects:
+        description: Space-separated Nx projects, published one by one. Empty = everything in release.projects
+        type: string
+        default: ''
+      build-command:
+        type: string
+        default: npx nx run-many -t build
+      publish-args:
+        type: string
+        default: --access public --verbose
+    outputs:
+      summary:
+        description: Markdown list of published / failed packages
+        value: ${{ jobs.publish.outputs.summary }}
+
+env:
+  DEPENDENCIES_CACHE: cache-node-modules
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing + provenance
+    outputs:
+      summary: ${{ steps.publish.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: GhentCDH/crouton/.github/actions/use-cache@main
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: ${{ inputs.build-command }}
+
+      - name: Publish
+        id: publish
+        shell: bash
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          PROJECTS: ${{ inputs.projects }}
+          PUBLISH_ARGS: ${{ inputs.publish-args }}
+        run: |
+          status=0
+          printf '## Published Packages\n\n' > published.md
+          if [ -z "$PROJECTS" ]; then
+            if npx nx release publish $PUBLISH_ARGS; then
+              echo '- ✅ all release projects' >> published.md
+            else
+              echo '- ❌ all release projects' >> published.md
+              status=1
+            fi
+          else
+            # One project at a time: a failing package must not block the others.
+            for project in $PROJECTS; do
+              if npx nx release publish --projects="$project" $PUBLISH_ARGS; then
+                echo "- ✅ \`$project\`" >> published.md
+              else
+                echo "- ❌ \`$project\`" >> published.md
+                status=1
+              fi
+            done
+          fi
+          cat published.md >> "$GITHUB_STEP_SUMMARY"
+          { echo 'summary<<PUBLISHED_EOF'; cat published.md; echo 'PUBLISHED_EOF'; } >> "$GITHUB_OUTPUT"
+          exit $status

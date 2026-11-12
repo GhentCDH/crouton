@@ -1,0 +1,25 @@
+# Reusable: sync repo labels from .github/labels.yml and label the PR from
+# .github/labeler.yml (both read from the calling repo).
+# Caller must grant: contents: read, pull-requests: write, issues: write.
+name: Shared Labeler
+
+on:
+  workflow_call:
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Sync labels
+        uses: crazy-max/ghaction-github-labeler@v4.1.0
+        with:
+          skip-delete: true
+
+      - name: Label the PR
+        uses: actions/labeler@v5

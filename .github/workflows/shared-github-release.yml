@@ -1,0 +1,34 @@
+# Reusable: create the GitHub release for the pushed tag, with notes generated
+# by GitHub from merged PRs (grouped by .github/release.yml in the calling repo).
+# Caller must grant: contents: write.
+name: Shared GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+      extra-notes:
+        description: Markdown put above the generated notes
+        type: string
+        default: ''
+
+jobs:
+  release:
+    name: GitHub Release
+    # workflow_dispatch on a branch has no tag to release
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          EXTRA_NOTES: ${{ inputs.extra-notes }}
+        run: |
+          args=(--repo "$GITHUB_REPOSITORY" --title "$TAG" --verify-tag --generate-notes)
+          if [ -n "$EXTRA_NOTES" ]; then args+=(--notes "$EXTRA_NOTES"); fi
+          # v1.2.3-alpha.4 and friends
+          if [[ "$TAG" == *-* ]]; then args+=(--prerelease); fi
+          gh release create "$TAG" "${args[@]}"

@@ -12,6 +12,8 @@
     "docs:build": "nx run docs:build",
     "docs:serve": "nx run docs:serve",
     "prepare": "husky",
+    "release": "nx release --skip-publish",
+    "postrelease": "git push --follow-tags --atomic",
     "typecheck": "nx run-many -t typecheck",
     "dev": "nx run-many -t dev --parallel"
   },
