@@ -44,8 +44,9 @@ export class CroutonAuthMiddlewareGuard implements CanActivate {
 
   /** Verifies the tokens returned by a provider's OAuth2 callback (access token first, then ID token). */
   async verifyLogin(providerId: string, tokens: OAuthCallbackUser | undefined): Promise<CroutonUser | null> {
+    // providerId comes from the URL: only dispatch to a verifier we registered ourselves.
     const verify = this.verifiers.get(providerId);
-    if (!verify || !tokens) return null;
+    if (typeof verify !== 'function' || !tokens) return null;
     for (const token of [tokens.accessToken, tokens.idToken]) {
       const user = token ? await verify(token) : null;
       if (user) return user;
