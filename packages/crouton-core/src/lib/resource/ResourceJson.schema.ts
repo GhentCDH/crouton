@@ -5,7 +5,7 @@ import { SecuritySchema } from '../data-source/Security.schema';
 import { LayoutSchema } from '../layout/schema/Layout.schema';
 import { labelFromId } from '../schema/label.helper';
 import { CalculatedColumnSchema } from './CalculatedColumn.schema';
-import { type JsonColumn, JsonColumnBaseSchema } from './Column';
+import { type JsonColumn, JsonColumnSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
@@ -44,7 +44,7 @@ const SOURCE_REMOVED_KEYS: Record<string, string> = {
 
 const JsonColumnsMapSchema = z.record(
   z.string(),
-  JsonColumnBaseSchema.omit({ id: true }).catchall(z.unknown()),
+  JsonColumnSchema.omit({ id: true }).catchall(z.unknown()),
 ); // map form — key becomes `id`
 export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;

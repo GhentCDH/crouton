@@ -1,11 +1,8 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   "ignoreWorkspaces": ["examples/**"],
-  "ignoreBinaries": ["production"],
-  "ignoreFiles": [
-    "**/test-fixtures/**",
-    "packages/crouton-api/test/prisma/**"
-  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreFiles": ["**/test-fixtures/**", "packages/crouton-api/test/prisma/**"],
   "ignoreDependencies": [
     "jest",
     "@nx/jest",
@@ -32,13 +29,24 @@
   ],
   "workspaces": {
     ".": {
-      "entry": ["jest.config.ts", "jest.preset.js", "tools/check-duplicate-exports.mjs"],
+      "entry": ["jest.config.ts", "jest.preset.js"],
       "project": ["*.{ts,tsx,js,mjs}"]
     },
     "packages/add-crouton": {},
     "packages/create-crouton": {},
     "packages/crouton-api": {
-      "ignore": ["test/crud/harness.ts"]
+      "ignore": ["test/crud/harness.ts"],
+      "ignoreDependencies": [
+        "@nestjs/passport",
+        "passport",
+        "passport-google-oauth20",
+        "passport-http-bearer",
+        "passport-microsoft",
+        "passport-openidconnect"
+      ]
+    },
+    "packages/crouton-auth": {
+      "entry": ["scripts/*.mjs"]
     },
     "packages/crouton-cli": {},
     "packages/crouton-codegen": {},
@@ -57,7 +65,8 @@
       "project": ["src/**/*.{ts,vue}"]
     },
     "packages/crouton-vue": {
-      "project": ["src/**/*.{ts,vue}"]
+      "project": ["src/**/*.{ts,vue}"],
+      "ignoreDependencies": ["oidc-client-ts"]
     },
     "libs/i18n": {},
     "libs/status": {}

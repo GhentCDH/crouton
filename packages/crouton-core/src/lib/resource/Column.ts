@@ -101,7 +101,7 @@ export const normalizeUnique = (
 
 // ── Columns ───────────────────────────────────────────────────────────
 
-export const JsonColumnBaseSchema = z.object({
+export const JsonColumnSchema = z.object({
   id: z
     .string()
     .describe(
@@ -275,8 +275,6 @@ export const JsonColumnBaseSchema = z.object({
 // shared enum for this screen, with labels resolved from the enum registry at load time
 // (see `compile/enum-registry.ts` → `applyLocalEnumRestriction`). No column-level
 // refinement is needed — unknown values warn at load time, not parse time.
-export const JsonColumnSchema = JsonColumnBaseSchema;
-
 export type JsonColumn = z.infer<typeof JsonColumnSchema>;
 export type JsonColumnInput = z.input<typeof JsonColumnSchema>;
 

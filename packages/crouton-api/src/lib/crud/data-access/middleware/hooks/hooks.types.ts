@@ -5,7 +5,7 @@ import type { ListRequest } from '@ghentcdh/crouton-core';
 import type { CrudContext, ParentContext } from '../../../context';
 import type { DataSourceAdapter } from '../../adapter';
 
-export type { CrudOp, ReadOp, WriteOp } from '../../../context';
+export type { ReadOp, WriteOp } from '../../../context';
 
 export const WriteOpSchema = z.enum(['create', 'update', 'patch', 'delete'] as const);
 export const ReadOpSchema = z.enum(['findAll', 'findOne'] as const);

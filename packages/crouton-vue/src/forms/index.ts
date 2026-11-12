@@ -1,4 +1,5 @@
 export { default as CroutonForm } from './CroutonForm.vue';
+export type { CroutonFormData } from './CroutonForm.properties';
 export { default as FormComponent } from './FormComponent.vue';
 export type {
   Data,
