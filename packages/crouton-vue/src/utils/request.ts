@@ -1,1 +1,1 @@
-export { type ListRequest as Request, type ListRequestInput, RequestSchema } from '@ghentcdh/crouton-core';
+export { type ListRequest as Request, RequestSchema } from '@ghentcdh/crouton-core';

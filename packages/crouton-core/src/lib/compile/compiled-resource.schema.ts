@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ResourceJsonShape } from '../resource';
-import { JsonColumnBaseSchema } from '../resource/Column';
+import { JsonColumnSchema } from '../resource/Column';
 import { DefinitionSchema } from '../schema/definition/definition.schema';
 import { LookupSchema } from '../schema/definition/lookup.schema';
 import {
@@ -34,7 +34,7 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   calculatedColumns: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
-  columns: z.array(JsonColumnBaseSchema).optional(),
+  columns: z.array(JsonColumnSchema).optional(),
   route: z.string(),
   /** Omitted when the resource has no SQL-computed columns. */
   calculatedColumns: OptionalCalculatedColumnsSchema,
