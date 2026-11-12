@@ -1,3 +1,21 @@
+## 0.0.1-alpha.91 (2026-11-12)
+
+### 🚀 Features
+
+- **create-crouton:** scaffold a CI workflow that calls the shared workflow ([#475](https://github.com/GhentCDH/crouton/pull/475))
+
+### 🩹 Fixes
+
+- **book-collection-e2e:** eliminate no-non-null-assertion lint warnings ([#470](https://github.com/GhentCDH/crouton/pull/470))
+- **crouton-api:** eliminate no-non-null-assertion lint warnings ([#471](https://github.com/GhentCDH/crouton/pull/471))
+- **crouton-core:** eliminate all no-non-null-assertion and no-unused-vars lint warnings ([#473](https://github.com/GhentCDH/crouton/pull/473))
+- **crouton-vue:** ship complete type declarations for bundled private packages ([#469](https://github.com/GhentCDH/crouton/pull/469))
+- **crouton-vue:** eliminate no-explicit-any and no-unsafe-* lint warnings ([#472](https://github.com/GhentCDH/crouton/pull/472))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.90 (2026-11-10)
 
 ### 🚀 Features
