@@ -24,6 +24,11 @@ export const enrichActionColumns = (
         ? userAutocomplete
         : `${base}/${userAutocomplete.replace(/^\//, '')}`
       : `${base}/${sub.childRoute}/schemas`;
+    // manyToOne targets a top-level resource; other sub-resources are only mounted under the parent.
+    const resourceUri =
+      sub.relationType === 'manyToOne'
+        ? `${base}/${sub.childRoute}`
+        : `${base}/${parentRoute}/${sub.childRoute}`;
     return {
       ...col,
       fieldInput: {
@@ -31,11 +36,8 @@ export const enrichActionColumns = (
         options: {
           ...userOpts,
           uri: `${base}/${parentRoute}/{id}/${sub.childRoute}`,
-          resourceUri: `${base}/${sub.childRoute}`,
-          resource:
-            sub.relationType === 'manyToOne'
-              ? `${base}/${sub.childRoute}/schemas`
-              : `${base}/${parentRoute}/${sub.childRoute}/schemas`,
+          resourceUri,
+          resource: `${resourceUri}/schemas`,
           ...(sub.relationType !== 'manyToOne' && {
             autocompleteResource: resolvedAutocomplete,
           }),
