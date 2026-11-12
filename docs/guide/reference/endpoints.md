@@ -1,7 +1,5 @@
 # HTTP endpoints reference
 
-<!-- TODO: auto-generate from Zod .meta() -->
-
 All routes listed below are relative to the crouton API base URL. When `prefix` is set in `CroutonApiModule`, prepend
 it to every route (e.g. `prefix: 'api'` → `/api/books`, `/api/_app/layout`).
 
@@ -19,6 +17,8 @@ For a resource with `"route": "books"`:
 | `DELETE /books/:id`                             | `DELETE` | Delete (when enabled)                                                  |
 | `GET /books/schemas`                            | `GET`    | Table / form / view / filter schemas for the frontend                  |
 | `GET /books/definition`                         | `GET`    | Enabled operations + schemas                                           |
+| `GET /books/resource.json`                      | `GET`    | Resource descriptor (id, uri, operations, form schema) used by relation pickers |
+| `GET /books/unique?field=&value=&excludeId=`    | `GET`    | `{ unique: boolean }` for a column declared [unique](../2.resources/unique.md) |
 | `POST /books/procedure/:actionId/:recordId`     | `POST`   | Row-level [actions](../2.resources/actions.md)                         |
 | `POST /books/table-action/:actionId`            | `POST`   | Table-level [actions](../2.resources/actions.md)                       |
 
@@ -59,6 +59,11 @@ When a resource has a nested relation child (e.g. `books` → `chapters`):
 | `POST /_app/resources/sync`      | `POST`   | Generate a `resource.json` for a single model.                                          |
 | `POST /_app/resources/plan`      | `POST`   | Diff resources against the database; dry run.                                           |
 | `POST /_app/resources/apply`     | `POST`   | Write the resources chosen from a `plan` response.                                      |
+| `GET /_app/resources/visibility` | `GET`    | Every resource with its menu state (in menu, hidden, draft, load error).                |
+| `POST /_app/resources/:name/publish` | `POST` | Publish a draft resource (removes `draft: true`).                                     |
+| `POST /_app/resources/:name/remove-from-menu` | `POST` | Hide from the sidebar (`sidebar.hide: true`).                                  |
+| `POST /_app/resources/:name/add-to-menu` | `POST` | Publish + un-hide, optionally set sidebar group/position/label.                      |
+| `PATCH /_app/resources/:name/flags` | `PATCH` | Set `draft`, `sidebar.hide`, group, position, label.                                   |
 
 See [Resource editor](../5.tooling/resource-editor.md) for full details on the dev-mode endpoints.
 
@@ -70,6 +75,6 @@ See [Resource editor](../5.tooling/resource-editor.md) for full details on the d
 | `pageSize`     | Records per page. Default `20`.                                                      |
 | `sort`         | Field to sort by. Dotted paths (e.g. `author.name`) work for relation fields.        |
 | `sortDir`      | `asc` or `desc`. Default `asc`.                                                      |
-| `q`            | Free-text search across `searchable: true` columns.                                  |
+| `q`            | Free-text search across `operations.findAll.search` (default: all simple columns).   |
 | `filter`       | Field-level filters: `field:value:operator`. Multiple filters are ANDed.              |
 | `Accept-Language` | Requested language for translated labels. Negotiated via standard q-value parsing. |

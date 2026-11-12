@@ -23,6 +23,32 @@ versioning existed (no field) is treated as the **baseline** (version `1`).
 The version crouton understands is `CURRENT_RESOURCE_VERSION`, exported from `@ghentcdh/crouton-core`. Files generated
 by the CLI are stamped with it automatically (see [`$schema` and stamping](#schema-and-stamping)).
 
+## Package versions and stability
+
+Two independent version numbers:
+
+| What | Scheme | Changes when |
+|---|---|---|
+| `@ghentcdh/crouton-*` packages | [semver](https://semver.org), one shared version for all published packages (released together) | every release |
+| `resource.json` `schemaVersion` | integer (`1`, `2`, …) | only when the file **shape** needs a migration |
+
+**During the alpha (`0.0.1-alpha.N`)** breaking changes can land in any release. Each one is listed in
+`migrate-to-next-alpha.md` (printed by `crouton migrate`) with before/after examples.
+
+**From the first stable release on**, the promise is:
+
+- **Patch / minor** releases don't break a valid `resource.json`, `crouton.json`, `data-source.json` or the documented
+  public exports. New keys are optional.
+- A key that has to go is first **deprecated**: it keeps working, the docs and JSON Schema mark it, and the
+  migration guide shows the replacement. It is removed only in the next **major**.
+- A change to the `resource.json` shape bumps `schemaVersion` **only in a major**, together with a migration step
+  (auto-applied in dev, see below) and a new `$schema` URL (`/schema/v<N>/resource.schema.json`). The old URL keeps
+  serving the old schema.
+- Upgrade within a major: bump all `@ghentcdh/crouton-*` packages to the same version. Mixing versions is not
+  supported.
+
+Release notes per version: `RELEASE_NOTES.md` and the GitHub release.
+
 ## Auto-migration on load (dev only)
 
 When crouton loads resources, each `resource.json` is checked against `CURRENT_RESOURCE_VERSION` **before** it is
