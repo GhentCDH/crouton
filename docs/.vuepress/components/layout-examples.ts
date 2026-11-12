@@ -34,7 +34,7 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
       form: {
         type: 'grid',
         columns: 12,
-        controls: [
+        items: [
           { id: 'label', colspan: 3 },
           { id: 'title', colspan: 9 },
           'description',
@@ -57,12 +57,12 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
     ],
     layout: {
       form: {
-        controls: ['title', 'body'],
+        items: ['title', 'body'],
         items: [
           {
             type: 'collapse',
             title: 'Metadata',
-            controls: ['authorName', 'authorEmail', 'createdAt', 'updatedAt'],
+            items: ['authorName', 'authorEmail', 'createdAt', 'updatedAt'],
           },
         ],
       },
@@ -79,12 +79,12 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
     ],
     layout: {
       form: {
-        controls: ['title', 'body'],
+        items: ['title', 'body'],
         items: [
           {
             type: 'group',
             title: 'Author',
-            controls: ['authorName', 'authorEmail'],
+            items: ['authorName', 'authorEmail'],
           },
         ],
       },
@@ -100,12 +100,12 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
       col('createdAt', 'Created', { fieldInput: { type: 'date' } }),
     ],
     layout: {
-      table: { controls: ['status', 'createdAt', 'title'] },
+      table: { items: ['status', 'createdAt', 'title'] },
     },
   },
   'missing-extra': {
     label: 'Missing / extra columns',
-    description: 'Warnings panel shows unknown and unreferenced columns',
+    description: 'Unknown ids are reported; columns not listed are not rendered',
     columns: [
       col('title', 'Title'),
       col('body', 'Body', { fieldInput: { type: 'markdown' } }),
@@ -113,7 +113,7 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
     ],
     layout: {
       form: {
-        controls: ['title', 'nonExistentColumn'],
+        items: ['title', 'nonExistentColumn'],
       },
     },
   },
@@ -129,7 +129,7 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
       form: {
         type: 'grid',
         columns: 12,
-        controls: [
+        items: [
           { id: 'body', colspan: 6, rowspan: 2 },
           { id: 'title', colspan: 6 },
           { id: 'status', colspan: 6 },
@@ -147,7 +147,7 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
     ],
     layout: {
       form: {
-        controls: [
+        items: [
           { id: 'title', label: 'Custom Title Label', colspan: 6 },
           { id: 'body', options: { minHeight: '6rem' } },
           { id: 'status', hideLabel: true },
@@ -168,7 +168,7 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
       form: {
         type: 'grid',
         columns: 12,
-        controls: [
+        items: [
           { id: 'title', colspan: 6 },
           { id: 'status', colspan: 6 },
         ],
@@ -180,7 +180,7 @@ export const EXAMPLES: Record<ExampleKey, Preset> = {
               {
                 type: 'grid',
                 columns: 12,
-                controls: [
+                items: [
                   { id: 'authorName', colspan: 6 },
                   { id: 'authorEmail', colspan: 6 },
                 ],

@@ -1,7 +1,5 @@
 # crouton.json reference
 
-<!-- TODO: auto-generate from Zod .meta() -->
-
 `crouton.json` at the project root (or workspace root for Nx) tells the CLI where things live and configures
 project-wide settings.
 
@@ -15,29 +13,53 @@ project-wide settings.
   "sidebarGroups": {
     "catalogue": { "label": "Catalogue", "position": 1 }
   },
-  "autoSave": false,
+  "autoSave": true,
   "i18n": {
     "defaultLanguage": "en",
     "languages": ["en", "nl"],
     "translationsDir": "translations"
   },
-  "rules": {}
+  "rules": { "hideTimestamps": true }
 }
 ```
 
 ## Fields
 
-| Field              | Type     | Required | Description                                                                                                    |
-|--------------------|----------|----------|----------------------------------------------------------------------------------------------------------------|
-| `title`            | `string` | **yes**  | App title shown in the admin UI.                                                                               |
-| `resourcesDir`     | `string` | **yes**  | Where resource directories live, relative to the project root.                                                 |
-| `dataSourcesDir`   | `string` | **yes**  | Where datasource folders live. The CLI scans this to discover datasources.                                     |
-| `schemaExportName` | `string` | no       | Template for a model's Zod export name; `{Model}` → Prisma model name. Default `{Model}WithRelationsSchema`.  |
-| `enumsFile`        | `string` | no       | Path to the shared enum registry. Default `crouton.enums.json`.                                               |
-| `sidebarGroups`    | `object` | no       | Groups for the sidebar navigation — keyed by slug. See [Sidebar groups](#sidebar-groups).                      |
-| `autoSave`         | `boolean`| no       | Enable autosave globally for all forms. Default `false`.                                                       |
-| `i18n`             | `object` | no       | Translation settings. See [i18n](#i18n).                                                                       |
-| `rules`            | `object` | no       | Global validation rules applied to all resources.                                                              |
+Source of truth: `CroutonConfigSchema` in `@ghentcdh/crouton-core` (editor autocomplete via `$schema`).
+
+| Field              | Type      | Required | Description                                                                                                    |
+|--------------------|-----------|----------|----------------------------------------------------------------------------------------------------------------|
+| `$schema`          | `string`  | no       | URL of the generated JSON Schema, for editor autocomplete/validation. Ignored at runtime.                      |
+| `title`            | `string`  | **yes**  | App title, served via `GET /_app/layout` and shown in the admin sidebar header.                                |
+| `resourcesDir`     | `string`  | **yes**  | Where resource directories live, relative to the project root.                                                 |
+| `dataSourcesDir`   | `string`  | **yes**  | Where datasource folders live. The CLI scans this to discover datasources.                                     |
+| `schemaExportName` | `string`  | no       | Template for a model's Zod export name; `{Model}` → Prisma model name. Default `{Model}WithRelationsSchema`.  |
+| `enumsFile`        | `string`  | no       | Path to the shared enum registry. Default `crouton.enums.json`.                                               |
+| `sidebarGroups`    | `object`  | no       | Groups for the sidebar navigation, keyed by slug. See [`sidebarGroups`](#sidebargroups).                       |
+| `autoSave`         | `boolean` | no       | Save form fields automatically as the user edits them. Default `true`.                                         |
+| `i18n`             | `object`  | no       | Translation settings. Omit for a single-language app. See [`i18n`](#i18n).                                     |
+| `rules`            | `object`  | no       | Defaults used when columns are generated from a Prisma model. See [`rules`](#rules).                          |
+| `authProvidersDir` | `string`  | no       | Auth-provider modules, relative to `crouton.json`. Default `src/app/auth-providers`.                           |
+| `agentFiles`       | `object`  | no       | `{ "targets": ["claude", "cursor"] }` — which AI-agent file sets `crouton migrate` keeps in sync. Stored after the first run. |
+
+## `rules`
+
+Applied when columns are generated from a Prisma model: `crouton update` and the dev-mode resource editor
+(`/_app/resources/sync|plan|apply`). Existing columns are not rewritten. All default to `true`.
+
+| Field                  | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| `hideIdInTable`        | Hide the id column in the table.                                            |
+| `hideIdInForm`         | Hide the id column in the create/edit form.                                 |
+| `hideIdInView`         | Hide the id column in the detail view.                                      |
+| `hideTimestamps`       | Hide `createdAt` / `updatedAt` everywhere.                                  |
+| `hideForeignKeys`      | Hide foreign-key columns (e.g. `authorId`); the relation column shows instead. |
+| `includeRelations`     | Generate relation columns.                                                  |
+| `hideRelationsInTable` | Hide relation columns in the table.                                         |
+| `showRelationsInForm`  | Show relation columns in the form and view.                                 |
+| `enumValueLabel`       | Show enum values by their label rather than the raw value.                  |
+| `sharedEnums`          | Reference enums from `crouton.enums.json` instead of inlining their values. |
+| `defaultOperations`    | CRUD operations enabled on generated resources (same shape as `operations`). |
 
 ## `sidebarGroups`
 
@@ -52,11 +74,12 @@ Resources opt in via `sidebar.group: "<slug>"` in their `resource.json`. See [re
 
 ## `i18n`
 
-| Field             | Description                                                     |
-|-------------------|-----------------------------------------------------------------|
-| `defaultLanguage` | Fallback language when a key is missing.                        |
-| `languages`       | All supported languages. Controls cache size.                   |
-| `translationsDir` | Directory containing `<lang>.json` files, relative to project root. |
+| Field             | Description                                                                                         |
+|-------------------|-----------------------------------------------------------------------------------------------------|
+| `defaultLanguage` | Fallback language when a key is missing. Default `en`.                                              |
+| `languages`       | All supported language codes (at least one).                                                        |
+| `translationsDir` | Directory containing `<lang>.json` files, relative to the project root. Default `translations`.     |
+| `displayNames`    | Custom display names per language code (e.g. `{ "wv": "West Vloams" }`), for codes `Intl.DisplayNames` can't name. |
 
 See [Translations](../4.frontend/translations.md) for the full translation workflow.
 
