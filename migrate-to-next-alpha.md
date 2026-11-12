@@ -754,6 +754,70 @@ overrides; use the column's top-level `type` instead of `columnType`).
 
 ---
 
+## Column presentation → layout items (breaking)
+
+**When to apply:** any column has `position`, `hideLabel`, `fieldInput.position`, or
+`fieldInput.options.{colspan,rowspan,width,hideLabel,readonly,label}`.
+
+A column describes the **data**. Where and how it is placed in a form/view/table lives only in
+`layout.<form|view|table>`. These keys now fail validation.
+
+| Removed key | Moves to |
+|---|---|
+| `fieldInput.position`, `position` (also on computed columns) | order of `layout.<ctx>.items` |
+| `fieldInput.options.colspan` / `rowspan` / `width` | item `colspan` / `rowspan` / `width` (form/view) |
+| `fieldInput.options.hideLabel`, column `hideLabel` | item `hideLabel` (form/view) |
+| `fieldInput.options.readonly` | item `readonly` (form/view) |
+| `fieldInput.options.label` | delete it — the column `label` already won over it; use item `label` per context |
+
+`sortId` stays on the column (a table item `sortId` still overrides it).
+
+**Rules (keep the rendered result the same):**
+
+1. **Positions in plain source order** (what `crouton` codegen writes: 0, 1, 2… following the
+   column order): just delete them. No layout needed.
+2. **Positions that reorder columns**, and the context (`form` / `view` / `table`) has **no** layout:
+   add `layout.<ctx>.items` listing the visible columns (not `hiddenIn<Ctx>`) in the old order —
+   sort by `position`; a column without one keeps its index in the visible list; ties keep source
+   order. For `table`, also add `"rowClick": "none"` and `"pageSizes": [10, 20, 50, 100]`: an
+   explicit table layout otherwise defaults to row-click → view and page sizes 20/50/100.
+3. **Option props** (`colspan`, `hideLabel`, …) and the context has **no** layout: add
+   `layout.form` / `layout.view` listing the visible columns, with `{ "id": …, <prop>: … }` for the
+   columns that carried props.
+4. The context **already has** a layout: positions are already ignored there — delete them. For a
+   **string** item, turn it into `{ "id": …, <props> }`. For an **object** item, copy `hideLabel` /
+   `readonly` only if the item doesn't set them; drop `colspan` / `rowspan` / `width` (the item
+   already defaulted them to 12 / 1 / `full`).
+5. A layout is the full list for its context: columns not listed are not rendered.
+
+```json
+// BEFORE
+{
+  "columns": {
+    "title": { "fieldInput": { "position": 1, "options": { "colspan": 6 } } },
+    "author": { "hiddenInTable": true, "fieldInput": { "position": 0 } },
+    "notes": { "hideLabel": true }
+  }
+}
+
+// AFTER
+{
+  "columns": {
+    "title": {},
+    "author": { "hiddenInTable": true },
+    "notes": {}
+  },
+  "layout": {
+    "form": { "items": ["author", { "id": "title", "colspan": 6 }, { "id": "notes", "hideLabel": true }] },
+    "view": { "items": ["author", { "id": "title", "colspan": 6 }, { "id": "notes", "hideLabel": true }] }
+  }
+}
+```
+
+The table needs no layout here: without `author` its order (`title`, `notes`) is unchanged.
+
+---
+
 ## Deprecated column fields: `sortable`, `searchable`, `filterable`, `showWhen`, `hideWhen`, `disabledWhen`,`fieldTable`
 
 **When to apply:** any column has one of these keys at column level.
@@ -1051,6 +1115,11 @@ grep -rn '"fieldTable"' --include="resource.json" .
 grep -rn '"fieldView"' --include="resource.json" .
 grep -rn '"columnType"' --include="resource.json" .
 
+# Column presentation → layout items
+grep -rn '"position"' --include="resource.json" .
+grep -rn '"hideLabel"' --include="resource.json" .
+grep -rnE '"(colspan|rowspan|width|readonly)"' --include="resource.json" .
+
 # Source fields
 grep -rn '"model"' --include="resource.json" .
 grep -rn '"idType"' --include="resource.json" .
@@ -1077,6 +1146,8 @@ grep -rn '"showInLookup"' --include="resource.json" .
 - **`$schema` path wrong**: it's `https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json` — an absolute URL,
   not a relative path.
 - **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
+- **`position` / `colspan` / `hideLabel` on a column**: removed — order and placement live in
+  `layout.<ctx>.items`. Positions in plain source order can simply be deleted.
 - **`searchFields`/`filterFields` in `layout.table`**: removed — move to `operations.findAll.search` /
   `operations.findAll.filter`.
 
