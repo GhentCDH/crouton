@@ -1,6 +1,6 @@
 {
   "name": "@ghentcdh/crouton-vue",
-  "version": "0.0.1-alpha.91",
+  "version": "0.0.1-alpha.92",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -38,7 +38,7 @@
     "oidc-client-ts": "^3.1.0"
   },
   "peerDependencies": {
-    "@ghentcdh/crouton-core": "0.0.1-alpha.91",
+    "@ghentcdh/crouton-core": "0.0.1-alpha.92",
     "@jsonforms/core": ">=3.0.0",
     "axios": ">=1.0.0",
     "vee-validate": ">=5.0.0-beta.0",

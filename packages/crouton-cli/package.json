@@ -1,6 +1,6 @@
 {
   "name": "@ghentcdh/crouton-cli",
-  "version": "0.0.1-alpha.91",
+  "version": "0.0.1-alpha.92",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
