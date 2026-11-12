@@ -64,7 +64,8 @@ export const enrichIncludeWithSort = (
     if (!col) return entry;
     const sort = col.relation?.sort ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sort;
     const sortDir = col.relation?.sortDir ?? (col.fieldInput?.options as RelationFieldInputOptions | undefined)?.sortDir;
-    const orderBy = buildChildSortClause(sort!, sortDir ?? 'asc');
+    if (!sort) return entry;
+    const orderBy = buildChildSortClause(sort, sortDir ?? 'asc');
     if (typeof entry !== 'string') return { ...entry, orderBy };
     if (rawName === relationName) return { relation: entry, orderBy };
     // Dot-path string with sort on top relation: split into object form so the nested path

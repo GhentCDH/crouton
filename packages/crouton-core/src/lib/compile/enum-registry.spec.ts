@@ -13,41 +13,46 @@ const registry = {
 
 const enumCol = (): JsonColumn => invalid<JsonColumn>({ id: 'status', type: 'string', enum: 'bookStatus' });
 
+const fi = (col: JsonColumn): NonNullable<JsonColumn['fieldInput']> => {
+  if (!col.fieldInput) throw new Error('fieldInput expected');
+  return col.fieldInput;
+};
+
 describe('applyEnumDefaults', () => {
   it('sets fieldInput.type = select when absent', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect(col.fieldInput!.type).toBe('select');
+    expect(fi(col).type).toBe('select');
   });
 
   it('sets fieldInput.type = select when fieldInput exists without type', () => {
     const col: JsonColumn = { ...enumCol(), fieldInput: invalid<JsonColumn['fieldInput']>({ position: 0 }) };
     applyEnumDefaults(col);
-    expect(col.fieldInput!.type).toBe('select');
+    expect(fi(col).type).toBe('select');
   });
 
   it('respects existing fieldInput.type', () => {
     const col: JsonColumn = { ...enumCol(), fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'multiSelect' }) };
     applyEnumDefaults(col);
-    expect(col.fieldInput!.type).toBe('multiSelect');
+    expect(fi(col).type).toBe('multiSelect');
   });
 
   it('defaults emitObject: true', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as Record<string, unknown>)['emitObject']).toBe(true);
+    expect((fi(col).options as Record<string, unknown>)['emitObject']).toBe(true);
   });
 
   it('defaults labelKey: label', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as Record<string, unknown>)['labelKey']).toBe('label');
+    expect((fi(col).options as Record<string, unknown>)['labelKey']).toBe('label');
   });
 
   it('defaults valueKey: value', () => {
     const col = enumCol();
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as Record<string, unknown>)['valueKey']).toBe('value');
+    expect((fi(col).options as Record<string, unknown>)['valueKey']).toBe('value');
   });
 
   it('sets col.displayKey = label when emitObject is true', () => {
@@ -71,7 +76,7 @@ describe('applyEnumDefaults', () => {
       fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'select', options: { emitObject: false } }),
     };
     applyEnumDefaults(col);
-    expect((col.fieldInput!.options as Record<string, unknown>)['emitObject']).toBe(false);
+    expect((fi(col).options as Record<string, unknown>)['emitObject']).toBe(false);
   });
 
   it('respects existing col.displayKey', () => {
@@ -83,13 +88,13 @@ describe('applyEnumDefaults', () => {
   it('injects values when provided', () => {
     const col = enumCol();
     applyEnumDefaults(col, registry.bookStatus);
-    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toEqual(registry.bookStatus);
+    expect((fi(col).options as Record<string, unknown>)['values']).toEqual(registry.bookStatus);
   });
 
   it('does not set values when not provided (unknown enum)', () => {
     const col = enumCol();
     applyEnumDefaults(col, undefined);
-    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toBeUndefined();
+    expect((fi(col).options as Record<string, unknown>)['values']).toBeUndefined();
   });
 
   it('respects explicit options.values override', () => {
@@ -99,7 +104,7 @@ describe('applyEnumDefaults', () => {
       fieldInput: invalid<JsonColumn['fieldInput']>({ type: 'select', options: { values: custom } }),
     };
     applyEnumDefaults(col, registry.bookStatus);
-    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toEqual(custom);
+    expect((fi(col).options as Record<string, unknown>)['values']).toEqual(custom);
   });
 });
 
@@ -107,10 +112,10 @@ describe('injectEnumValues', () => {
   it('applies defaults for all enum columns', () => {
     const col = enumCol();
     injectEnumValues([col], registry);
-    expect(col.fieldInput!.type).toBe('select');
-    expect((col.fieldInput!.options as Record<string, unknown>)['emitObject']).toBe(true);
-    expect((col.fieldInput!.options as Record<string, unknown>)['labelKey']).toBe('label');
-    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toEqual(registry.bookStatus);
+    expect(fi(col).type).toBe('select');
+    expect((fi(col).options as Record<string, unknown>)['emitObject']).toBe(true);
+    expect((fi(col).options as Record<string, unknown>)['labelKey']).toBe('label');
+    expect((fi(col).options as Record<string, unknown>)['values']).toEqual(registry.bookStatus);
     expect(col.displayKey).toBe('label');
   });
 
@@ -120,8 +125,8 @@ describe('injectEnumValues', () => {
     const col = invalid<JsonColumn>({ id: 'foo', type: 'string', enum: 'unknownEnum' });
     injectEnumValues([col], registry);
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('unknownEnum'));
-    expect(col.fieldInput!.type).toBe('select');
-    expect((col.fieldInput!.options as Record<string, unknown>)['values']).toBeUndefined();
+    expect(fi(col).type).toBe('select');
+    expect((fi(col).options as Record<string, unknown>)['values']).toBeUndefined();
     warnSpy.mockRestore();
   });
 
@@ -159,7 +164,7 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
     });
 
   const actualValues = (col: JsonColumn) =>
-    (col.fieldInput!.options as Record<string, unknown>)['values'];
+    (fi(col).options as Record<string, unknown>)['values'];
 
   it('resolves plain string entries into { value, label } from the registry', () => {
     const col = originCol(['internal', 'wikidata']);
@@ -171,7 +176,7 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
     // Restriction wins: the rest of the enum is not injected
     expect(actualValues(col)).toHaveLength(2);
     // The full enum is kept for label resolution of values outside the restriction
-    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toEqual(
+    expect((fi(col).options as Record<string, unknown>)['displayValues']).toEqual(
       originRegistry.author_origin_enum,
     );
   });
@@ -183,7 +188,7 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
       { value: 'syriaca', label: 'Syriaca' },
       { value: 'internal', label: 'Internal' },
     ]);
-    expect((col.fieldInput!.options as Record<string, unknown>)['storeValue']).toBe(true);
+    expect((fi(col).options as Record<string, unknown>)['storeValue']).toBe(true);
     expect(col.displayKey).toBe('label');
   });
 
@@ -260,7 +265,7 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
       }),
     });
     injectEnumValues([col], originRegistry);
-    expect((col.fieldInput!.options as Record<string, unknown>)['options']).toEqual([
+    expect((fi(col).options as Record<string, unknown>)['options']).toEqual([
       { value: 'wikidata', label: 'Wikidata' },
     ]);
   });
@@ -276,13 +281,13 @@ describe('injectEnumValues with a local values restriction (enum + values)', () 
     });
     injectEnumValues([col], originRegistry);
     expect(actualValues(col)).toEqual(['internal', 'wikidata']);
-    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toBeUndefined();
+    expect((fi(col).options as Record<string, unknown>)['displayValues']).toBeUndefined();
   });
 
   it('does not set displayValues without a local restriction', () => {
     const col = invalid<JsonColumn>({ id: 'origin', type: 'string', enum: 'author_origin_enum' });
     injectEnumValues([col], originRegistry);
     expect(actualValues(col)).toEqual(originRegistry.author_origin_enum);
-    expect((col.fieldInput!.options as Record<string, unknown>)['displayValues']).toBeUndefined();
+    expect((fi(col).options as Record<string, unknown>)['displayValues']).toBeUndefined();
   });
 });

@@ -16,7 +16,7 @@ export const toCalculatedColumns = (
       id: c.id,
       alias: c.id,
       label: c.label ?? c.id,
-      sqlExpression: c.computed!.sql,
-      type: c.computed!.type ?? 'string',
+      sqlExpression: c.computed?.sql ?? '',
+      type: c.computed?.type ?? 'string',
       ...(c.fieldInput && { fieldInput: c.fieldInput }),
     }));

@@ -30,7 +30,7 @@ const columnsOf = (columns: Record<string, unknown>) =>
     kind: 'custom',
     operations: {},
     columns,
-  }).columns!;
+  }).columns ?? [];
 
 describe('columnToJsonSchemaProperty', () => {
   it('expands a shorthand and injects the label as title', () => {

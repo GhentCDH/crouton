@@ -116,7 +116,8 @@ const buildNodeInto = (
     }
     // Field id or field control
     const ctrl = item as LayoutControl;
-    const id = resolveControlId(ctrl)!;
+    const id = resolveControlId(ctrl);
+    if (!id) continue;
     const col = colMap.get(id);
     if (!col) {
       warn(`layout: unknown or hidden column id "${id}" — skipping`);
@@ -171,7 +172,8 @@ export const flattenLayoutControlIds = (
   const ids: string[] = [];
   for (const ctrl of flattenLayoutItems(node)) {
     if (isComponentControl(ctrl)) continue;
-    const id = resolveControlId(ctrl)!;
+    const id = resolveControlId(ctrl)
+    if (!id) continue;;
     if (
       typeof ctrl !== 'string' &&
       (ctrl.colspan !== undefined || ctrl.rowspan !== undefined)

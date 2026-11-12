@@ -154,7 +154,7 @@ console.info(
 
 // Per-type field-input option schemas
 const emittedSchemaFiles = new Set();
-for (const [_type, def] of fieldInputRegistry) {
+for (const [, def] of fieldInputRegistry) {
   if (emittedSchemaFiles.has(def.schemaFile)) continue;
   emittedSchemaFiles.add(def.schemaFile);
 
