@@ -145,14 +145,14 @@ export const createCustomRepository = <T = Row>(
     if (parentRef) {
       if (!repo.findAllByParent) unsupported(config, 'findAll');
       const parentId = parentIdFrom(request);
-      const fn = repo.findAllByParent!;
+      const fn = repo.findAllByParent;
       result = await fn(parentId, params, {
         ...ctx('findAll', params, undefined, request),
         ...parentCtx(request, parentId),
       });
     } else {
       if (!repo.findAll) unsupported(config, 'findAll');
-      const fn = repo.findAll!;
+      const fn = repo.findAll;
       result = await fn(
         params,
         ctx('findAll', params, undefined, request),
@@ -200,7 +200,7 @@ export const createCustomRepository = <T = Row>(
     if (parentRef) {
       if (!repo.findOneByParent) unsupported(config, 'findOne');
       const parentId = parentIdFrom(request);
-      const fn = repo.findOneByParent!;
+      const fn = repo.findOneByParent;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
       row = await fn(parentId, toId(id), {
         ...ctx('findOne', undefined, id, request),
@@ -208,7 +208,7 @@ export const createCustomRepository = <T = Row>(
       });
     } else {
       if (!repo.findOne) unsupported(config, 'findOne');
-      const fn = repo.findOne!;
+      const fn = repo.findOne;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
       row = await fn(
         toId(id),
@@ -367,7 +367,7 @@ export const createCustomRepository = <T = Row>(
       if (parentRef) {
         if (!repo.deleteByParent) unsupported(config, 'delete');
         const parentId = parentIdFrom(request);
-        const fn = repo.deleteByParent!;
+        const fn = repo.deleteByParent;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
         result = await fn(parentId, coercedId, {
           ...ctx('delete', undefined, coercedId, request),
@@ -375,7 +375,7 @@ export const createCustomRepository = <T = Row>(
         });
       } else {
         if (!repo.delete) unsupported(config, 'delete');
-        const fn = repo.delete!;
+        const fn = repo.delete;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- repo returns any because CustomRepository defaults to T=any
         result = await fn(
           coercedId,
