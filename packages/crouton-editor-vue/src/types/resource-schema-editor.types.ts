@@ -10,7 +10,6 @@
 export type FieldVariant = {
   type?: string;
   format?: string;
-  position?: number;
   options?: Record<string, unknown>;
 };
 
@@ -63,13 +62,9 @@ export const visibleTabs = (
   TABS.filter((t) => !col[HIDDEN_FLAG[t.key]]);
 
 /** `0`–`11` show as-is; `12` (the schema default) reads as "Full" width. */
-export const COLSPAN_OPTIONS = Array.from({ length: 13 }, (_, i) => i);
-export const colspanLabel = (n: number): string =>
-  n === 12 ? 'Full' : String(n);
-
 /**
- * `displayKey`/`colspan`/`position` get dedicated inputs since they're the
- * options every relation/layout control already understands; anything else
+ * `displayKey` gets a dedicated input since every relation control understands
+ * it; anything else
  * in `options` (e.g. a `display` mode, `sort`, custom renderer options) is
  * edited as raw JSON so the editor never silently drops an option it
  * doesn't have a first-class control for. `type` is the top-level
@@ -79,15 +74,13 @@ export const colspanLabel = (n: number): string =>
  * (`LIVE_FORM_EDITOR_PLAN.md` Phase 4).
  */
 export type VariantDraft = {
-  position?: number;
   displayKey: string;
-  colspan?: number;
   type?: string;
   rawOptionsJson: string;
   rawOptionsError: string | null;
 };
 
-export const FIRST_CLASS_OPTION_KEYS = ['displayKey', 'colspan'];
+export const FIRST_CLASS_OPTION_KEYS = ['displayKey'];
 
 export const toDraft = (variant: FieldVariant | undefined): VariantDraft => {
   const options = (variant?.options ?? {}) as Record<string, unknown>;
@@ -97,9 +90,7 @@ export const toDraft = (variant: FieldVariant | undefined): VariantDraft => {
     ),
   );
   return {
-    position: variant?.position,
     displayKey: (options['displayKey'] as string | undefined) ?? '',
-    colspan: options['colspan'] as number | undefined,
     type: variant?.type,
     rawOptionsJson: Object.keys(rest).length
       ? JSON.stringify(rest, null, 2)
@@ -110,7 +101,6 @@ export const toDraft = (variant: FieldVariant | undefined): VariantDraft => {
 
 /** Body shape for one variant patch — see `PatchResourceJson.schema.ts`. */
 export type FieldVariantPatch = Partial<{
-  position: number | null;
   type: string | null;
   options: Record<string, unknown | null>;
 }>;

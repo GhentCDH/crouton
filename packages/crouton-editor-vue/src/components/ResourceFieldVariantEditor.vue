@@ -4,18 +4,11 @@ import { computed } from 'vue';
 import {
   Btn,
   Input,
-  InputNumber,
-  SelectComponent,
   Textarea,
 } from '@ghentcdh/crouton-ui-vue';
 
 import { ResourceFieldVariantEditorProperties } from './ResourceFieldVariantEditor.properties';
-import {
-  COLSPAN_OPTIONS,
-  colspanLabel,
-  type Tab,
-  visibleTabs,
-} from '../types/resource-schema-editor.types';
+import { type Tab, visibleTabs } from '../types/resource-schema-editor.types';
 
 const props = defineProps(ResourceFieldVariantEditorProperties);
 
@@ -28,11 +21,6 @@ const tabs = computed(() => visibleTabs(props.col));
 /** The draft object for whichever tab is active — mutated directly by the inputs below. */
 const draft = computed(() => props.drafts[props.activeTab]);
 
-const colspanOptions = COLSPAN_OPTIONS.map((n) => ({
-  label: colspanLabel(n),
-  value: n,
-}));
-
 /**
  * Clears a first-class field back to "no local value". Combined with the
  * diffing in `buildVariantPatch` (ResourceSchemaEditor.vue), this is what
@@ -40,9 +28,8 @@ const colspanOptions = COLSPAN_OPTIONS.map((n) => ({
  * override outright; on View/Table it's a "reset to inherited" (the value
  * falls back to the level below again instead of staying pinned here).
  */
-const resetField = (field: 'position' | 'displayKey' | 'colspan') => {
-  if (field === 'displayKey') draft.value.displayKey = '';
-  else draft.value[field] = undefined;
+const resetField = (field: 'displayKey') => {
+  draft.value[field] = '';
 };
 
 const validateRawJson = () => {
@@ -137,46 +124,6 @@ const validateRawJson = () => {
           </div>
         </label>
 
-        <label class="form-control">
-          <span class="label-text text-xs">Position</span>
-          <div class="flex gap-1 items-center">
-            <InputNumber width="w-4" v-model="draft.position" size="sm" />
-            <Btn
-              v-if="activeTab !== 'form'"
-              color="secondary"
-              :outline="true"
-              size="sm"
-              title="Reset to inherited"
-              @click="resetField('position')"
-            >
-              ×
-            </Btn>
-          </div>
-        </label>
-
-        <label v-if="activeTab !== 'table'" class="form-control">
-          <span class="label-text text-xs">Colspan</span>
-          <div class="flex gap-1 items-center">
-            <SelectComponent
-              size="sm"
-              width="!w-4"
-              :value="draft.colspan ?? 12"
-              :options="colspanOptions"
-              :clearable="false"
-              @change="(opt: unknown) => (draft.colspan = (opt as {value: number}).value)"
-            />
-            <Btn
-              v-if="activeTab !== 'form'"
-              color="secondary"
-              :outline="true"
-              size="sm"
-              title="Reset to inherited"
-              @click="resetField('colspan')"
-            >
-              ×
-            </Btn>
-          </div>
-        </label>
       </div>
 
       <label class="form-control max-w-2xl">

@@ -116,7 +116,6 @@ const buildVariantPatch = (
 
   const editedOptions: Record<string, unknown> = { ...rest };
   if (draft.displayKey) editedOptions['displayKey'] = draft.displayKey;
-  if (draft.colspan != null) editedOptions['colspan'] = draft.colspan;
 
   const originalOptions = (original?.options ?? {}) as Record<string, unknown>;
   const optionKeys = new Set([
@@ -132,9 +131,6 @@ const buildVariantPatch = (
   }
 
   const patch: FieldVariantPatch = {};
-  if (draft.position !== original?.position) {
-    patch.position = draft.position ?? null;
-  }
   if (draft.type !== original?.type) {
     patch.type = draft.type ?? null;
   }
@@ -254,10 +250,6 @@ const applyVariantPatch = (
   patch: FieldVariantPatch,
 ): Record<string, unknown> => {
   const base = { ...(existing ?? {}) };
-  if (patch.position !== undefined) {
-    if (patch.position === null) delete base['position'];
-    else base['position'] = patch.position;
-  }
   if (patch.type !== undefined) {
     if (patch.type === null) delete base['type'];
     else base['type'] = patch.type;

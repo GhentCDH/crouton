@@ -13,7 +13,6 @@ const FieldVariantPatchSchema = z
     type: z.string().nullable().optional(),
     format: z.string().nullable().optional(),
     resource: z.string().nullable().optional(),
-    position: z.number().nullable().optional(),
     options: z.record(z.string(), z.unknown().nullable()).optional(),
   })
   .partial();

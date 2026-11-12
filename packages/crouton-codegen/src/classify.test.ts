@@ -122,9 +122,9 @@ describe('classify', () => {
   it('renders enums as a shared-enum reference with no inline options by default', () => {
     const d = classify(model);
     const kind = col(d, 'kind');
-    // sharedEnums=true: only enum ref + position; defaults applied at runtime by applyEnumDefaults
+    // sharedEnums=true: only enum ref; defaults applied at runtime by applyEnumDefaults
     expect(kind.enum).toBe('TextKind');
-    expect(kind.fieldInput).toMatchObject({ position: 1, defaultValue: 'a' });
+    expect(kind.fieldInput).toEqual({ defaultValue: 'a' });
     expect(kind.fieldInput?.type).toBeUndefined();
     expect(kind.fieldInput?.options).toBeUndefined();
     expect(kind.displayKey).toBeUndefined();

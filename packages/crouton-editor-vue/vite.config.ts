@@ -40,7 +40,6 @@ export default defineConfig({
         '@ghentcdh/crouton-forms-vue',
         '@ghentcdh/crouton-ui-vue',
         'vue',
-        'vuedraggable',
         'zod',
       ],
       output: {

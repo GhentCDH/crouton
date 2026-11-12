@@ -31,7 +31,6 @@ export const buildFormLayout = (
     columns,
     (c) => fieldIds.has(c.id),
     uiBuilder,
-    !hasExplicitItems, // sort by position only when no explicit layout (layout order wins)
     (c) =>
       !c.idField &&
       fieldIds.has(c.id) &&

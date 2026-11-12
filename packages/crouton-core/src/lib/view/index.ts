@@ -10,7 +10,6 @@ export {
 } from '../schema/column/predicates';
 export {
   columnForContext,
-  sortByPosition,
   toViewColumn,
 } from '../schema/column/column.utils';
 export type { FieldContext } from '../schema/column/column.utils';

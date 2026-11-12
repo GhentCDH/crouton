@@ -9,16 +9,16 @@ const col = (id: string, pos: number, extra: Partial<JsonColumn> = {}): JsonColu
     hiddenInTable: false,
     hiddenInForm: false,
     hiddenInView: false,
-    fieldInput: { type: 'text', position: pos },
+    fieldInput: { type: 'text' },
     ...extra,
   } as JsonColumn);
 
 describe('defaultLayoutFor', () => {
   describe('form', () => {
-    it('returns items ordered by position, hiddenInForm excluded', () => {
+    it('returns items in column order, hiddenInForm excluded', () => {
       const cols = [col('b', 2), col('a', 1), col('c', 3, { hiddenInForm: true })];
       const layout = defaultLayoutFor('form', cols);
-      expect(layout?.items).toEqual(['a', 'b']);
+      expect(layout?.items).toEqual(['b', 'a']);
     });
 
     it('returns undefined when all columns hidden', () => {
@@ -27,18 +27,18 @@ describe('defaultLayoutFor', () => {
   });
 
   describe('view', () => {
-    it('returns items ordered by position, hiddenInView excluded', () => {
+    it('returns items in column order, hiddenInView excluded', () => {
       const cols = [col('b', 2), col('a', 1), col('c', 3, { hiddenInView: true })];
       const layout = defaultLayoutFor('view', cols);
-      expect(layout?.items).toEqual(['a', 'b']);
+      expect(layout?.items).toEqual(['b', 'a']);
     });
   });
 
   describe('table', () => {
-    it('returns items ordered by position, hiddenInTable excluded', () => {
+    it('returns items in column order, hiddenInTable excluded', () => {
       const cols = [col('b', 2), col('a', 1), col('c', 3, { hiddenInTable: true })];
       const layout = defaultLayoutFor('table', cols);
-      expect(layout?.items).toEqual(['a', 'b']);
+      expect(layout?.items).toEqual(['b', 'a']);
     });
 
     it('table layout includes empty filterFields/rowActions/tableActions', () => {

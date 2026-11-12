@@ -1017,12 +1017,6 @@
             "type": "boolean",
             "markdownDescription": "When false, this column is excluded from the edit form after creation. Useful for immutable fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
-          "hideLabel": {
-            "default": false,
-            "description": "When true, the label is hidden in the form (useful for boolean toggles or when the context makes the label redundant).",
-            "type": "boolean",
-            "markdownDescription": "When true, the label is hidden in the form (useful for boolean toggles or when the context makes the label redundant).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
           "displayKey": {
             "description": "Dot-path to display a nested property (e.g. \"author.name\"). Used when the raw field value is an object.",
             "type": "string",
@@ -1208,11 +1202,6 @@
                 "description": "Override the Prisma relation field name when it differs from the column id. Deprecated: use columns.<id>.relation.prismaField instead.",
                 "type": "string",
                 "markdownDescription": "Override the Prisma relation field name when it differs from the column id. Deprecated: use columns.<id>.relation.prismaField instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "position": {
-                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
-                "type": "number",
-                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "defaultValue": {
                 "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
@@ -1490,11 +1479,6 @@
               "sql"
             ],
             "markdownDescription": "SQL computed column. The column value is derived from a raw subquery at query time.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
-          "position": {
-            "description": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).",
-            "type": "number",
-            "markdownDescription": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "additionalProperties": {}
@@ -1537,13 +1521,8 @@
             ],
             "markdownDescription": "Cast type for the computed value. \"number\" (default) or \"boolean\" applies a SQL CAST; \"string\" skips it.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
-          "position": {
-            "description": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).",
-            "type": "number",
-            "markdownDescription": "Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-          },
           "fieldInput": {
-            "description": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.",
+            "description": "Rendering options for form/view schemas (format, options, etc).",
             "type": "object",
             "properties": {
               "$schema": {
@@ -1591,11 +1570,6 @@
                 "description": "Override the Prisma relation field name when it differs from the column id. Deprecated: use columns.<id>.relation.prismaField instead.",
                 "type": "string",
                 "markdownDescription": "Override the Prisma relation field name when it differs from the column id. Deprecated: use columns.<id>.relation.prismaField instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
-              },
-              "position": {
-                "description": "Override the display order in form views. Lower values come first. Defaults to source order.",
-                "type": "number",
-                "markdownDescription": "Override the display order in form views. Lower values come first. Defaults to source order.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "defaultValue": {
                 "description": "Value to pre-fill this field with on the create form. Supports dynamic tokens: \"$now\" (current datetime), \"$today\" (current date), \"$user\" (current user object). Not applicable to format:\"relation\" fields.",
@@ -1827,7 +1801,7 @@
                 "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
-            "markdownDescription": "Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+            "markdownDescription": "Rendering options for form/view schemas (format, options, etc).\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           }
         },
         "required": [

@@ -18,8 +18,6 @@ export const FormFieldCardProperties = {
     type: Array as PropType<CanvasSelectOption[]>,
     default: () => [],
   },
-  /** The grid container element, so the resize handle can measure drag distance against actual column width. */
-  gridEl: { type: Object as PropType<HTMLElement | null>, default: null },
   /** Label for the remove action in the field menu. */
   removeLabel: { type: String, default: 'Remove from form' },
   /** Whether this card is currently selected for detail editing. */

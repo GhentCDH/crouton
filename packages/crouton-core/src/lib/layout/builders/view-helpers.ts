@@ -1,5 +1,5 @@
 import type { JsonColumn } from '../../resource/Column';
-import { sortByPosition, toViewColumn } from '../../schema/column/column.utils';
+import { toViewColumn } from '../../schema/column/column.utils';
 import { isRelation } from '../../schema/column/predicates';
 import { buildTableUiSchema } from '../../schema/column/table-cell';
 import type { ViewConfig } from '../../schema/view/view.schema';
@@ -68,14 +68,11 @@ export const buildView = (
   columns: JsonColumn[] | undefined,
   visible: (column: JsonColumn) => boolean,
   buildUiSchema: (cols: JsonColumn[]) => Record<string, unknown> | object,
-  sort = false,
   schemaVisible?: (column: JsonColumn) => boolean,
   resourceName?: string,
 ): ViewConfig | undefined => {
   if (!source || !columns?.length) return undefined;
-  const visibleCols = sort
-    ? sortByPosition(columns.filter(visible))
-    : columns.filter(visible);
+  const visibleCols = columns.filter(visible);
   if (!visibleCols.length) return undefined;
 
   const schemaCols = (

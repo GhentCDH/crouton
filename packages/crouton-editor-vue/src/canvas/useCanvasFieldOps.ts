@@ -10,20 +10,13 @@ import type { CanvasSelectOption } from './FieldPreview.properties';
 import { type CanvasField, buildCanvasLayout } from './canvas-layout';
 import { swapOptionsFor } from './type-swaps';
 
-export type CanvasFieldOpsOptions = {
-  supportsColspan?: boolean;
-};
-
 export const useCanvasFieldOps = (
   props: {
     columns: EditableColumn[];
     drafts: Record<string, Record<Tab, VariantDraft>>;
   },
   ctx: Tab,
-  opts: CanvasFieldOpsOptions = {},
 ) => {
-  const { supportsColspan = true } = opts;
-
   const layout = computed(() => buildCanvasLayout(props.columns, props.drafts, ctx));
 
   const orderedFields = ref<CanvasField[]>([]);
@@ -36,20 +29,6 @@ export const useCanvasFieldOps = (
   );
 
   const hiddenFlag = HIDDEN_FLAG[ctx];
-
-  const onDragEnd = () => {
-    orderedFields.value.forEach((field, index) => {
-      const d = props.drafts[field.id];
-      if (d) d[ctx].position = index;
-    });
-  };
-
-  const onColspanUpdate = supportsColspan
-    ? (fieldId: string, colspan: number) => {
-        const d = props.drafts[fieldId];
-        if (d) d[ctx].colspan = colspan;
-      }
-    : undefined;
 
   const onChangeType = (fieldId: string, type: string) => {
     const d = props.drafts[fieldId];
@@ -76,12 +55,6 @@ export const useCanvasFieldOps = (
     const col = props.columns.find((c) => c.id === fieldId);
     if (!col) return;
     col[hiddenFlag] = false;
-    const maxPosition = layout.value.fields.reduce(
-      (max, f) => Math.max(max, f.position),
-      -1,
-    );
-    const d = props.drafts[fieldId];
-    if (d) d[ctx].position = maxPosition + 1;
   };
 
   const selectOptionsFor = (fieldId: string): CanvasSelectOption[] => {
@@ -102,8 +75,6 @@ export const useCanvasFieldOps = (
   return {
     layout,
     orderedFields,
-    onDragEnd,
-    onColspanUpdate,
     onChangeType,
     onRemove,
     lastRemoved,

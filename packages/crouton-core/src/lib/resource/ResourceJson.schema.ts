@@ -538,6 +538,75 @@ const collectRemovedLayoutKeyErrors = (
   return errors;
 };
 
+const MIGRATE_HINT = '(see migrate-to-next-alpha.md → "Column presentation → layout items")';
+const ORDER_MOVED = `moved to the order of layout.<form|view|table>.items ${MIGRATE_HINT}`;
+const ITEM_MOVED = (key: string) =>
+  `moved to the layout item: layout.<form|view>.items[{ id, ${key} }] ${MIGRATE_HINT}`;
+/** Column presentation keys that now live in layout items. */
+const COLUMN_OPTION_REMOVED_KEYS = [
+  'colspan',
+  'rowspan',
+  'width',
+  'hideLabel',
+  'readonly',
+];
+
+/**
+ * Walk raw columns (map or array) for presentation keys that moved to the layout.
+ * Zod would strip them silently; report them so the file gets migrated.
+ */
+const collectRemovedColumnKeyErrors = (
+  columns: unknown,
+): Array<{ path: string[]; message: string }> => {
+  const entries: [string, unknown][] = Array.isArray(columns)
+    ? (columns as unknown[]).map((c, i) => [String(i), c])
+    : columns && typeof columns === 'object'
+      ? Object.entries(columns)
+      : [];
+  const errors: Array<{ path: string[]; message: string }> = [];
+  for (const [key, col] of entries) {
+    if (!col || typeof col !== 'object') continue;
+    const c = col as Record<string, unknown>;
+    const base = ['columns', key];
+    if ('position' in c)
+      errors.push({
+        path: [...base, 'position'],
+        message: `'position' ${ORDER_MOVED}`,
+      });
+    if ('hideLabel' in c)
+      errors.push({
+        path: [...base, 'hideLabel'],
+        message: `'hideLabel' ${ITEM_MOVED('hideLabel')}`,
+      });
+    const fi = c['fieldInput'];
+    if (!fi || typeof fi !== 'object') continue;
+    const f = fi as Record<string, unknown>;
+    if ('position' in f) {
+      errors.push({
+        path: [...base, 'fieldInput', 'position'],
+        message: `'fieldInput.position' ${ORDER_MOVED}`,
+      });
+    }
+    const options = f['options'];
+    if (!options || typeof options !== 'object') continue;
+    for (const k of COLUMN_OPTION_REMOVED_KEYS) {
+      if (k in options) {
+        errors.push({
+          path: [...base, 'fieldInput', 'options', k],
+          message: `'fieldInput.options.${k}' ${ITEM_MOVED(k)}`,
+        });
+      }
+    }
+    if ('label' in options) {
+      errors.push({
+        path: [...base, 'fieldInput', 'options', 'label'],
+        message: `'fieldInput.options.label' was removed: use the column 'label', or a layout item 'label' per context ${MIGRATE_HINT}`,
+      });
+    }
+  }
+  return errors;
+};
+
 export const buildResourceJsonSchema = () => {
   const ext = getResourceExtensions();
   const extShape = Object.fromEntries(
@@ -558,9 +627,12 @@ export const buildResourceJsonSchema = () => {
       let obj = raw as Record<string, unknown>;
 
       // Collect errors for removed root keys before Zod strips them
-      _rawRootErrors = Object.entries(ROOT_REMOVED_KEYS)
-        .filter(([k]) => k in obj)
-        .map(([k, message]) => ({ path: [k], message }));
+      _rawRootErrors = [
+        ...Object.entries(ROOT_REMOVED_KEYS)
+          .filter(([k]) => k in obj)
+          .map(([k, message]) => ({ path: [k], message })),
+        ...collectRemovedColumnKeyErrors(obj['columns']),
+      ];
 
       // Collect errors for removed keys before any transforms
       _rawLayoutErrors = collectRemovedLayoutKeyErrors(obj['layout'], [
