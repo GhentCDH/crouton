@@ -41,7 +41,6 @@
       "hiddenInView": true,
       "label": "User",
       "fieldInput": {
-        "position": 0,
         "type": "autocomplete",
         "relationType": "manyToOne",
         "options": {
@@ -57,7 +56,6 @@
       "hiddenInView": true,
       "label": "Book",
       "fieldInput": {
-        "position": 0,
         "type": "autocomplete",
         "relationType": "manyToOne",
         "options": {
@@ -76,7 +74,6 @@
         "foreignKey": "bookId",
         "format": "relation",
         "resource": "../book/resource.json",
-        "position": 0,
         "relationType": "manyToOne",
         "options": {
           "displayKey": "title"
@@ -91,7 +88,6 @@
         "foreignKey": "userId",
         "format": "relation",
         "resource": "../user/resource.json",
-        "position": 0,
         "relationType": "manyToOne",
         "options": {
           "displayKey": "name"
@@ -101,19 +97,41 @@
   },
   "operations": {
     "findAll": {
-      "include": [
-        "user",
-        "book"
-      ]
+      "include": ["user", "book"]
     },
     "findOne": {
-      "include": [
-        "user",
-        "book"
-      ]
+      "include": ["user", "book"]
     }
   },
   "source": {
     "model": "Loan"
+  },
+  "layout": {
+    "form": {
+      "items": [
+        "loanedAt",
+        "userId",
+        "bookId",
+        "returnedAt",
+        "requestedPickupAt",
+        "rentalPeriod"
+      ]
+    },
+    "view": {
+      "items": [
+        "id",
+        "book",
+        "user",
+        "loanedAt",
+        "returnedAt",
+        "requestedPickupAt",
+        "rentalPeriod"
+      ]
+    },
+    "table": {
+      "items": ["id", "book", "user", "loanedAt", "returnedAt"],
+      "rowClick": "none",
+      "pageSizes": [10, 20, 50, 100]
+    }
   }
 }
