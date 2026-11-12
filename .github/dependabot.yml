@@ -1,0 +1,20 @@
+# Keeps the GitHub Actions used by the workflows up to date. The shared-*.yml
+# workflows here run in other GhentCDH repos too, so this is the one place to
+# bump them. npm dependencies are not listed: vulnerable ones get a PR from
+# Dependabot security updates (repo setting), Nx is upgraded with `nx migrate`.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/use-cache
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - ci
