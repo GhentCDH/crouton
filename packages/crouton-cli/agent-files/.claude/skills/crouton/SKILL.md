@@ -37,7 +37,11 @@ resources.
 - Table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`) go on the `type: "table"` node inside
   `layout.table`, never on an outer wrapper node.
 - When `layout.<ctx>` is defined, it is the **full list** for that context — only listed columns render. Unlisted
-  columns are hidden regardless of `hiddenIn*` flags.
+  columns are hidden regardless of `hiddenIn*` flags. To hide/show a field there, edit `layout.<ctx>.items`, not
+  `hiddenIn*`.
+- Placement lives only on layout items: order, `colspan`, `rowspan`, `width`, `hideLabel`, `readonly`, per-context
+  `label`. Never put `position`, `hideLabel` or `fieldInput.options.{colspan,width,…}` on a column — they fail
+  validation.
 - After editing layouts, run `crouton validate` to confirm no migration is needed.
 
 ## Project-specific notes

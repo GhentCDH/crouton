@@ -104,3 +104,9 @@ Remove them from `layout.table` items — use `width`, `align`, `truncate` for t
 
 In a wrapper table layout, `rowActions`, `tableActions`, `searchFields`, `filterFields`, `pageSize` etc.
 belong on the **`type: "table"` node**, not on the outer wrapper.
+
+## 12. Placement keys on a column, or `hiddenIn*` under a layout
+
+`position`, `hideLabel`, `fieldInput.position` and `fieldInput.options.{colspan,rowspan,width,hideLabel,readonly,label}`
+on a column fail validation. Put order and placement on `layout.<ctx>.items` (`{ "id": "title", "colspan": 6 }`).
+When `layout.<ctx>` exists, `hiddenIn<Ctx>` does nothing — add or remove the id in `layout.<ctx>.items` instead.

@@ -252,6 +252,41 @@ describe('compileResource — sub-resource visibility follows the table layout',
     const result = compile(undefined);
     expect(result.subResources.find((s) => s.column === 'chapters')?.hiddenInTable).toBe(false);
   });
+
+  describe('findOne eager-load follows form/view visibility', () => {
+    const hiddenChapters = (layout: ResourceJson['layout']) =>
+      compileResource(
+        invalid<ResourceJson>({
+          ...json,
+          columns: (json.columns ?? []).map((c) =>
+            c.id === 'chapters' ? { ...c, hiddenInForm: true, hiddenInView: true } : c,
+          ),
+          layout,
+        }),
+        undefined,
+        {
+          resolvers: {
+            buildSubResources: (cols) =>
+              cols
+                .filter((c) => c.relation)
+                // the builder's own flag-based guess must not leak through
+                .map((c) => ({ ...buildSub(c.id), includeRelationInParentFindOne: true })),
+          },
+        },
+      ).subResources.find((s) => s.column === 'chapters');
+
+    it('includes a relation listed in layout.form even when flagged hidden', () => {
+      expect(hiddenChapters({ form: { items: ['title', 'chapters'] } })?.includeRelationInParentFindOne).toBe(true);
+    });
+
+    it('includes a relation listed in layout.view even when flagged hidden', () => {
+      expect(hiddenChapters({ view: { items: ['chapters'] } })?.includeRelationInParentFindOne).toBe(true);
+    });
+
+    it('skips a relation neither form nor view renders', () => {
+      expect(hiddenChapters(undefined)?.includeRelationInParentFindOne).toBeUndefined();
+    });
+  });
 });
 
 describe('compileResource — findAllInclude naming', () => {
