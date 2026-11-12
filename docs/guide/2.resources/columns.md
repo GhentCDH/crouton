@@ -20,7 +20,7 @@ Both forms support the same options:
 |---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `idField`                                         | Marks the id column                                                                                                                                                                                                                                                                                                                        |
 | `type`                                            | Data type — a shorthand (`"string"`, `"integer"`, `"boolean"`, `"date"`, …) or a JSON Schema fragment for nested shapes. Optional on a prisma resource (derived from the Zod model); **required on every column of a `kind: "custom"` resource**, see [Custom resources](custom-resource.md#column-types)                                  |
-| `label` / `hideLabel`                             | Display label, or hide it                                                                                                                                                                                                                                                                                                                  |
+| `label`                                           | Default display label (forms, table header, lookups, filters). Override it per context with a layout item `label`; hide it with a layout item `hideLabel`                                                                                                                                                                                   |
 | `hiddenInTable` / `hiddenInForm` / `hiddenInView` | Visibility per context, used **only when that context has no `layout.<ctx>.items`** — they are the fallback that builds the layout. As soon as `layout.<ctx>` lists field items, those items are the full list: only listed columns render and these flags are ignored. On a `oneToMany` relation column, `hiddenInTable` (when acting as the table fallback) also drops it from the `_count` subquery `findAll` issues |
 | `createable` / `updateable`                       | Whether the field is written on create/update                                                                                                                                                                                                                                                                                              |
 | `required`                                        | Whether the **form** demands a value. Overrides the Zod model in either direction on a prisma resource (`true` adds, `false` removes, omitted defers to the model); the only way to mark a field required on a `kind: "custom"` resource. Ignored on the id column and on fields that are neither createable nor updateable                |
@@ -115,15 +115,21 @@ record cell in the table.
   "column": "summary",
   "fieldInput": {
     "type": "textarea",
-    "position": 2,
     "options": {
-      "colspan": 4
+      "placeholder": "Short summary"
     }
   }
 }
 ```
 
 See [Field input types](field-inputs/index.md) for the full list of types and their options.
+
+::: tip Placement lives in the layout
+A column describes the **data** and its input. Order, `colspan`, `rowspan`, `width`, `hideLabel`, `readonly` and
+per-context labels go on [layout items](layout.md#items) — `columns[id].position`, `hideLabel`,
+`fieldInput.position` and `fieldInput.options.{colspan,rowspan,width,hideLabel,readonly,label}` fail validation.
+Without a layout, a context renders its visible columns in the order they are declared.
+:::
 
 ### `defaultValue` — pre-filling the create form
 
@@ -274,10 +280,10 @@ Read-only columns derived from a raw SQL subquery at query time. Add a `computed
 | `sql`  | `string` | Raw SQL subquery. Use `main` as the alias for the parent table row.         |
 | `type` | `string` | Cast type for the result: `"number"` (default), `"string"`, or `"boolean"`. |
 
-All standard column fields (`label`, `hiddenInTable`, `hiddenInView`, `position`, `fieldInput`, …) are valid alongside
+All standard column fields (`label`, `hiddenInTable`, `hiddenInView`, `fieldInput`, …) are valid alongside
 `computed`. When a context declares a layout, list the computed column's id in `layout.table.items` /
 `layout.view.items` to place it there (it is hidden otherwise); with no layout it follows `hiddenInTable` /
-`hiddenInView` as before.
+`hiddenInView` and renders after the regular columns.
 
 ::: warning
 Computed columns are not available on `kind: "custom"` resources — they run raw SQL against a real table.

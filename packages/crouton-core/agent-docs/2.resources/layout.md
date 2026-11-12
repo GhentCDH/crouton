@@ -6,6 +6,34 @@ The optional `layout` key in `resource.json` lets you declare an explicit layout
 When `layout` is **absent**, the view is built exactly as before — one control per visible column in a 12-column
 `GridLayout`. Backward-compatible and additive: no `schemaVersion` bump, no migration needed.
 
+## A layout is the full list
+
+> If `layout.<ctx>` is defined, it is the **only** source of truth for **presentation** in that context. Column
+> settings are fallbacks used only when that context has no layout.
+
+Each context (`form`, `view`, `table`) is decided on its own: a resource with only `layout.form` still builds its table
+and view from the column flags.
+
+| With `layout.<ctx>` | Rule |
+|---|---|
+| Columns listed in the layout | Rendered, in layout order — even with `hiddenIn<Ctx>: true` |
+| Columns **not** listed | **Not rendered** (nothing is appended) |
+| `hiddenIn<Ctx>` | Ignored for that context |
+| Order, `colspan`, `rowspan`, `width`, `hideLabel`, `readonly`, `label` | Set on the item; the column `label` is the default |
+| Unknown or duplicate ids | Validation error |
+
+Not overridden by a layout (data rules, apply everywhere): `id`, `column`, `idField`, `type`, `required`, `unique`,
+`createable`, `updateable`, `enum`, `displayKey`, `sortId`. A layout decides *what is shown and how*, not *what is
+valid or writable*.
+
+Without a layout, a context shows the columns not hidden by `hiddenIn<Ctx>`, in declaration order, full width. Placement
+keys on columns (`position`, `hideLabel`, `fieldInput.position`, `fieldInput.options.colspan`/`width`/…) are no longer
+accepted — see the migration guide section *Column presentation → layout items*.
+
+::: warning Common mistake
+Setting `hiddenInForm` while `layout.form` exists does nothing. Remove the column from `layout.form.items` instead.
+:::
+
 ## Shape
 
 ```json
@@ -619,9 +647,10 @@ The old root keys `display` and `modalSize` are removed.
 
 ## Missing / extra columns
 
-- A control id that doesn't match a visible column → **skipped, dev warning logged**.
-- Visible columns not referenced anywhere in the layout → **appended at the end, dev warning logged** (nothing silently
-  disappears).
+- An item id that doesn't match a column → **validation error** (the file fails to load).
+- The same id twice in one context → **validation error**.
+- Columns not referenced anywhere in the layout → **not rendered**. A `required` + `createable` column missing from
+  `layout.form` logs a warning: create will fail unless a hook or default fills it.
 
 <LayoutDemo example="missing-extra" />
 
