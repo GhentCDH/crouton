@@ -65,7 +65,8 @@
       "project": ["src/**/*.{ts,vue}"]
     },
     "packages/crouton-vue": {
-      "project": ["src/**/*.{ts,vue}"]
+      "project": ["src/**/*.{ts,vue}"],
+      "ignoreDependencies": ["oidc-client-ts"]
     },
     "libs/i18n": {},
     "libs/status": {}
