@@ -1,8 +1,10 @@
 /**
  * Migration v1 → v2: `controls` → `items`, `actions` → `rowActions`, table
- * settings move from wrapper root to the inner `type: "table"` node.
+ * settings move from wrapper root to the inner `type: "table"` node, and column
+ * presentation keys move to layout items (`./column-presentation.ts`).
  */
 
+import { migrateColumnPresentation } from './column-presentation';
 import type { RawResourceJson, ResourceMigration } from './types';
 
 type RawNode = Record<string, unknown>;
@@ -128,12 +130,13 @@ const migrate = (raw: RawResourceJson): RawResourceJson => {
     result['subResources'] = transformSubResources(raw['subResources']);
   }
 
-  return result;
+  return migrateColumnPresentation(result);
 };
 
 export const migration_v1_to_v2: ResourceMigration = {
   from: 1,
   to: 2,
-  description: 'controls → items, actions → rowActions, table settings move to table node',
+  description:
+    'controls → items, actions → rowActions, table settings move to table node, column presentation moves to layout items',
   migrate,
 };
