@@ -129,7 +129,7 @@
                 }
               },
               "uri": "http://localhost:3000/groups/{id}/chapter",
-              "resourceUri": "http://localhost:3000/chapter",
+              "resourceUri": "http://localhost:3000/groups/chapter",
               "resource": "http://localhost:3000/groups/chapter/schemas",
               "autocompleteResource": "http://localhost:3000/chapter/schemas",
               "colspan": 12,
@@ -156,7 +156,7 @@
             "foreignKey": "group_id",
             "options": {
               "uri": "http://localhost:3000/groups/{id}/chapter",
-              "resourceUri": "http://localhost:3000/chapter",
+              "resourceUri": "http://localhost:3000/groups/chapter",
               "resource": "http://localhost:3000/groups/chapter/schemas",
               "autocompleteResource": "http://localhost:3000/chapter/schemas"
             }
@@ -226,7 +226,7 @@
                 }
               },
               "uri": "http://localhost:3000/groups/{id}/chapter",
-              "resourceUri": "http://localhost:3000/chapter",
+              "resourceUri": "http://localhost:3000/groups/chapter",
               "resource": "http://localhost:3000/groups/chapter/schemas",
               "autocompleteResource": "http://localhost:3000/chapter/schemas",
               "colspan": 12,
@@ -258,7 +258,7 @@
             "foreignKey": "group_id",
             "options": {
               "uri": "http://localhost:3000/groups/{id}/chapter",
-              "resourceUri": "http://localhost:3000/chapter",
+              "resourceUri": "http://localhost:3000/groups/chapter",
               "resource": "http://localhost:3000/groups/chapter/schemas",
               "autocompleteResource": "http://localhost:3000/chapter/schemas"
             }
