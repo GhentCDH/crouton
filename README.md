@@ -21,8 +21,9 @@
 
 ---
 
-> ⚠️ **Work in progress** — crouton is still in active development. APIs, schemas, and components may change without
-> notice; use at your own risk until a stable release is published.
+> **0.x release** — crouton follows [semver](https://semver.org): within `0.x`, patch releases don't break you,
+> minor releases may, and every breaking change is listed in the [migration guide](migrate-to-next-alpha.md) with
+> before/after examples. See [Versioning](https://ghentcdh.github.io/crouton/guide/2.resources/versioning.html).
 
 A schema-driven CRUD framework for **NestJS + Vue**. Define your resources once in JSON — crouton handles the rest: API
 endpoints, data tables, forms, and filters.
@@ -33,18 +34,19 @@ Configure resources once. Use them over and over. No boilerplate, just filling.
 
 | Package                        | Description                                                                                               | Status            |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------- | ----------------- |
-| `@ghentcdh/crouton-api`        | NestJS library — generates controllers, repositories, and `/schemas` endpoints from a `resource.json`     | 🚧 in development |
-| `@ghentcdh/crouton-vue`        | Vue 3 component library — renders data tables, forms, filters, and views driven by the schemas            | 🚧 in development |
-| `@ghentcdh/crouton-forms-vue`  | Standalone `<CroutonForm>` component — embed a crouton form anywhere without the full admin UI            | 🚧 in development |
-| `@ghentcdh/crouton-ui-vue`     | Vue 3 UI primitives — shell, buttons, tables, modals, drawers, toasts, form controls                      | 🚧 in development |
-| `@ghentcdh/crouton-editor-vue` | Dev-mode resource editor UI — visual builder and `ResourceJsonEditor` component                           | 🚧 in development |
-| `@ghentcdh/crouton-core`       | Shared browser-safe foundation — schema builders, filter models, request/response types                   | 🚧 in development |
-| `@ghentcdh/crouton-codegen`    | Shared Node-only codegen tooling — Prisma introspection, scaffolding, shell wrappers                      | 🚧 in development |
-| `@ghentcdh/crouton-prisma`     | Prisma data-source adapter and Prisma-specific utilities                                                  | 🚧 in development |
-| `@ghentcdh/crouton-cli`        | `crouton` CLI — `init`, `create-datasource`, `create-resource`, `update resources`, `migrate`, `validate` | 🚧 in development |
-| `@ghentcdh/create-crouton`     | `npm create @ghentcdh/crouton` scaffolder — bootstraps a new project                                      | 🚧 in development |
-| `@ghentcdh/add-crouton`        | `npx @ghentcdh/add-crouton` — adds crouton to an existing project                                         | 🚧 in development |
-| `@ghentcdh/crouton-mcp`        | MCP server — lets LLM agents query resources, validate configs, and search the docs                       | 🚧 in development |
+| `@ghentcdh/crouton-api`        | NestJS library — generates controllers, repositories, and `/schemas` endpoints from a `resource.json`     | ✅ released |
+| `@ghentcdh/crouton-vue`        | Vue 3 component library — renders data tables, forms, filters, and views driven by the schemas            | ✅ released |
+| `@ghentcdh/crouton-forms-vue`  | Standalone `<CroutonForm>` component — embed a crouton form anywhere without the full admin UI            | bundled in `crouton-vue` |
+| `@ghentcdh/crouton-ui-vue`     | Vue 3 UI primitives — shell, buttons, tables, modals, drawers, toasts, form controls                      | bundled in `crouton-vue` |
+| `@ghentcdh/crouton-editor-vue` | Dev-mode resource editor UI — visual builder and `ResourceJsonEditor` component                           | bundled in `crouton-vue` |
+| `@ghentcdh/crouton-core`       | Shared browser-safe foundation — schema builders, filter models, request/response types                   | ✅ released |
+| `@ghentcdh/crouton-codegen`    | Shared Node-only codegen tooling — Prisma introspection, scaffolding, shell wrappers                      | bundled in `crouton-api` / `crouton-cli` |
+| `@ghentcdh/crouton-prisma`     | Prisma data-source adapter and Prisma-specific utilities                                                  | ✅ released |
+| `@ghentcdh/crouton-auth`       | Auth-provider definitions (`defineAuthProvider`, role guards, `auth-provider.json` schema)                 | ✅ released |
+| `@ghentcdh/crouton-cli`        | `crouton` CLI — `init`, `create-datasource`, `create-resource`, `update resources`, `migrate`, `validate` | ✅ released |
+| `@ghentcdh/create-crouton`     | `npm create @ghentcdh/crouton` scaffolder — bootstraps a new project                                      | ✅ released |
+| `@ghentcdh/add-crouton`        | `npx @ghentcdh/add-crouton` — adds crouton to an existing project                                         | 🚧 not published yet |
+| `@ghentcdh/crouton-mcp`        | MCP server — lets LLM agents query resources, validate configs, and search the docs                       | 🚧 not published yet |
 
 ## How it works
 

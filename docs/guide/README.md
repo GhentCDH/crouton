@@ -7,8 +7,10 @@ description: Overview of Crouton — a schema-driven CRUD framework for NestJS +
 Crouton is a schema-driven CRUD framework for **NestJS + Vue**. You define each resource once — in a `resource.json`
 file plus a Zod schema — and crouton generates the API endpoints, validation, data tables, forms, and filters for it.
 
-::: warning Work in progress Crouton is still in active development. APIs, schemas, and components may change without
-notice.
+::: tip 0.x release
+Crouton follows semver. Within `0.x`, patch releases don't break you; minor releases may, and every breaking change is
+in the [migration guide](5.tooling/migrate.md). See [Versioning](2.resources/versioning.md) and the
+[Roadmap](roadmap.md).
 :::
 
 ## How it works

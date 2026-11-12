@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitest/config';
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
 export default defineConfig(() => ({
   resolve: {
@@ -7,7 +6,6 @@ export default defineConfig(() => ({
   },
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/libs/i18n',
-  plugins: [nxCopyAssetsPlugin(['*.md'])],
   test: {
     name: 'i18n',
     watch: false,

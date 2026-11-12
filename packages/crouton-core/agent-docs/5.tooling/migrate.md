@@ -1,65 +1,42 @@
 ---
-description: Migrate resource.json files between schema versions using nx migrate.
+description: Upgrade a crouton project to a new release — the migration guide, crouton migrate and crouton validate.
 ---
 
-# Migrating resource.json with nx migrate
+# Upgrading crouton
 
-Crouton ships Nx migration steps alongside releases that change the `resource.json` schema.
-Running `nx migrate` applies them automatically — the same way you'd migrate any Nx plugin.
+During `0.x`, `resource.json` stays at **`schemaVersion: 1`** and its `$schema` URL stays
+`https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json`. Breaking changes to the file shape are not
+migrated automatically: each one is described in the **migration guide**, `migrate-to-next-alpha.md`, with the rule
+to apply and a before/after example. See [Versioning](../2.resources/versioning.md) for what a release may change.
 
-```sh
-pnpm nx migrate @ghentcdh/crouton-cli
-pnpm nx migrate --run-migrations
-```
+## Steps
 
-The first command downloads the migration list and writes `migrations.json`. The second runs every pending step, rewrites all affected `resource.json` files in-place, and prints which files were changed.
+1. Bump every `@ghentcdh/crouton-*` package to the same new version.
+2. Print the migration guide that matches the installed version:
 
-::: warning Alpha — no migrations yet
-`resource.json` is still at **schemaVersion 1** during the alpha. No migration steps are active yet. The commands above are safe to run but will produce an empty `migrations.json`. This page documents the mechanism for when v2 is released.
+   ```sh
+   pnpm crouton migrate
+   ```
+
+   It prints `migrate-to-next-alpha.md`. Follow its sections yourself, or hand the whole file to your AI assistant —
+   it is written for that (step-by-step workflow, grep checklist, common mistakes).
+3. Validate every resource:
+
+   ```sh
+   pnpm crouton validate
+   ```
+
+   A key that moved fails with a message that names the guide section to follow. Repeat until it exits `0`.
+4. Commit the changed `resource.json` files.
+
+::: tip Find what needs changing
+The guide ends with a grep checklist (`grep -rn '"position"' --include="resource.json" .` …) that lists every file a
+section applies to.
 :::
 
-::: tip Auto-migration in dev
-If `CROUTON_SCHEMA_EDITOR=true`, crouton auto-migrates on load in dev. `nx migrate` is for CI and production checkouts where the dev loader is not running. See [Versioning](../2.resources/versioning.md).
-:::
+## Why no automatic migration in 0.x
 
-## v1 → v2
-
-This step rewrites the structural parts of `resource.json` layout nodes. It is safe to run on any file, including already-migrated ones — a file at v2 is left unchanged.
-
-### What changes
-
-| Old (v1) | New (v2) | Notes |
-|---|---|---|
-| `controls` | `items` | `controls` is merged into `items` (controls first, then existing items). |
-| `layout.table.actions` | `layout.table.rowActions` | Rename only; no other change. |
-| `layout.table.tableActions`, `searchFields`, `filterFields` at wrapper level | Moved onto the inner `type: "table"` node | Only when an explicit table node exists inside the layout. |
-
-### Example
-
-```json
-// Before (v1)
-{
-  "schemaVersion": 1,
-  "layout": {
-    "table": {
-      "controls": [{ "type": "Control", "scope": "#/properties/title" }],
-      "actions": [{ "type": "edit" }],
-      "tableActions": [{ "type": "create" }]
-    }
-  }
-}
-```
-
-```json
-// After (v2)
-{
-  "schemaVersion": 2,
-  "layout": {
-    "table": {
-      "items": [{ "type": "Control", "scope": "#/properties/title" }],
-      "rowActions": [{ "type": "edit" }],
-      "tableActions": [{ "type": "create" }]
-    }
-  }
-}
-```
+The migration engine exists (`runResourceMigrations` in `@ghentcdh/crouton-core`, auto-applied in dev — see
+[Versioning](../2.resources/versioning.md#auto-migration-on-load-dev-only)) but no step is registered: within `0.x`
+the file stays at version `1`, so there is nothing to run. A future `schemaVersion` bump ships together with its
+migration step.

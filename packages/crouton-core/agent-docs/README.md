@@ -64,3 +64,4 @@ Read this file to find the right doc for your task.
 | reference/normalize-schema.md | understanding schema normalisation |
 | reference/packages.md | understanding which packages to install |
 | reference/parse-schema.md | reference for schema parsing utilities |
+| roadmap.md | working with roadmap |
