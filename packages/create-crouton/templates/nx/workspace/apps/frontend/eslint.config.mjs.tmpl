@@ -1,3 +1,14 @@
+import vue from 'eslint-plugin-vue';
+import tseslint from 'typescript-eslint';
+
 import baseConfig from '../../eslint.config.mjs';
 
-export default [...baseConfig];
+export default [
+  ...baseConfig,
+  ...vue.configs['flat/essential'],
+  {
+    // <script lang="ts"> in single-file components
+    files: ['**/*.vue'],
+    languageOptions: { parserOptions: { parser: tseslint.parser } },
+  },
+];

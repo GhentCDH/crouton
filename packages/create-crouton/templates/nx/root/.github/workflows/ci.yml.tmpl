@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    # Reusable workflow maintained in the crouton repo (pnpm + Nx):
+    # https://github.com/GhentCDH/crouton/blob/main/.github/workflows/shared-ci.yml
+    # More shared workflows (docs, GitHub release, labeler) live next to it.
+    uses: GhentCDH/crouton/.github/workflows/shared-ci.yml@main
+    with:
+      targets: '["lint", "build"]'
+      # {{generatedGlob}}/ is gitignored, but its packages are part of the pnpm
+      # workspace: stub them so pnpm can resolve, generate them from the
+      # committed Prisma schema (no database needed), then re-link.
+      install-command: |
+        mkdir -p {{generatedGlob}}/client {{generatedGlob}}/types
+        echo '{"name":"@{{name}}/generated-default-client","version":"0.0.1","private":true}' > {{generatedGlob}}/client/package.json
+        echo '{"name":"@{{name}}/generated-default-types","version":"0.0.1","private":true}' > {{generatedGlob}}/types/package.json
+        pnpm install --no-frozen-lockfile
+        DATABASE_URL=postgresql://ci:ci@localhost:5432/ci pnpm crouton update resources --yes --skip-pull{{#if prefix}} --prefix {{prefix}}{{/if}}
+        pnpm install --no-frozen-lockfile

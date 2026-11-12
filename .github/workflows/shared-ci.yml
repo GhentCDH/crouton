@@ -13,6 +13,10 @@ on:
         description: Nx configuration for the build target
         type: string
         default: production
+      install-command:
+        description: Install step, for repos that need more than a frozen install (e.g. generated workspace packages)
+        type: string
+        default: pnpm install --frozen-lockfile
       post-build:
         description: Shell command run after the build target (e.g. a generated-file drift check)
         type: string
@@ -36,7 +40,7 @@ jobs:
       # Full path, not ./ : a relative path resolves in the calling repo.
       - uses: GhentCDH/crouton/.github/actions/use-cache@main
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: ${{ inputs.install-command }}
 
   nx:
     name: ${{ matrix.target }}
@@ -50,7 +54,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: GhentCDH/crouton/.github/actions/use-cache@main
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: ${{ inputs.install-command }}
       - name: Run ${{ matrix.target }}
         run: npx nx run-many -t "$TARGET" $CONFIGURATION --parallel --max-parallel=6
         env:
@@ -68,5 +72,5 @@ jobs:
       - uses: actions/checkout@v7
       - uses: GhentCDH/crouton/.github/actions/use-cache@main
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: ${{ inputs.install-command }}
       - run: pnpm knip
