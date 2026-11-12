@@ -47,8 +47,9 @@ test.describe('Layout — author form group', () => {
 
     expect(nameBox).not.toBeNull();
     expect(detailsBox).not.toBeNull();
+    if (!nameBox || !detailsBox) return;
     // Name should be above Details group
-    expect(nameBox!.y).toBeLessThan(detailsBox!.y);
+    expect(nameBox.y).toBeLessThan(detailsBox.y);
 
     await form.cancel();
   });
