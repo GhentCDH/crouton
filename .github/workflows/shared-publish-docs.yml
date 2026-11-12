@@ -1,0 +1,55 @@
+# Reusable: build the docs site and deploy it to GitHub Pages.
+# Caller must grant: contents: read, pages: write, id-token: write.
+name: Shared Publish Docs
+
+on:
+  workflow_call:
+    inputs:
+      docs-base:
+        description: Base path of the site, e.g. /crouton
+        type: string
+        required: true
+      build-command:
+        type: string
+        default: npx nx run docs:build
+      output-path:
+        type: string
+        default: docs/.vuepress/dist
+
+env:
+  DEPENDENCIES_CACHE: cache-node-modules
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: GhentCDH/crouton/.github/actions/use-cache@main
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Build docs site
+        run: ${{ inputs.build-command }}
+        env:
+          DOCS_BASE: ${{ inputs.docs-base }}
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ inputs.output-path }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

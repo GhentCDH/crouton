@@ -1,101 +1,35 @@
 name: Publish
 
+# Triggered by the tag that `pnpm release` (nx release --skip-publish) pushes.
+# Keep this filename: npm trusted publishing is registered against publish.yml.
 on:
   push:
     tags:
       - v*.*.*
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 jobs:
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+  npm:
+    uses: ./.github/workflows/shared-publish-npm.yml
+    with:
+      projects: >-
+        crouton-api
+        crouton-auth
+        crouton-cli
+        crouton-core
+        crouton-prisma
+        crouton-vue
+        @ghentcdh/create-crouton
+    permissions:
+      contents: read
+      id-token: write
 
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: npx nx run-many -t build
-
-      - name: Publish @ghentcdh/crouton-api
-        id: pub_crouton_api
-        continue-on-error: true
-        run: npx nx release publish --projects=crouton-api --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish @ghentcdh/crouton-auth
-        id: pub_crouton_auth
-        continue-on-error: true
-        run: npx nx release publish --projects=crouton-auth --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish @ghentcdh/crouton-cli
-        id: pub_crouton_cli
-        continue-on-error: true
-        run: npx nx release publish --projects=crouton-cli --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish @ghentcdh/crouton-core
-        id: pub_crouton_core
-        continue-on-error: true
-        run: npx nx release publish --projects=crouton-core --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish @ghentcdh/crouton-prisma
-        id: pub_crouton_prisma
-        continue-on-error: true
-        run: npx nx release publish --projects=crouton-prisma --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish @ghentcdh/crouton-vue
-        id: pub_crouton_vue
-        continue-on-error: true
-        run: npx nx release publish --projects=crouton-vue --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish @ghentcdh/create-crouton
-        id: pub_create_crouton
-        continue-on-error: true
-        run: npx nx release publish --projects=create-crouton --access public --verbose
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Create GitHub Release
-        if: always()
-        run: |
-          cp RELEASE_NOTES.md release_body.md
-          echo "" >> release_body.md
-          echo "## Published Packages" >> release_body.md
-          echo "" >> release_body.md
-          [ "${{ steps.pub_crouton_api.outcome }}" = "success" ]    && echo "- ✅ \`@ghentcdh/crouton-api\`"    >> release_body.md || echo "- ❌ \`@ghentcdh/crouton-api\`"    >> release_body.md
-          [ "${{ steps.pub_crouton_auth.outcome }}" = "success" ]   && echo "- ✅ \`@ghentcdh/crouton-auth\`"   >> release_body.md || echo "- ❌ \`@ghentcdh/crouton-auth\`"   >> release_body.md
-          [ "${{ steps.pub_crouton_cli.outcome }}" = "success" ]    && echo "- ✅ \`@ghentcdh/crouton-cli\`"    >> release_body.md || echo "- ❌ \`@ghentcdh/crouton-cli\`"    >> release_body.md
-          [ "${{ steps.pub_crouton_core.outcome }}" = "success" ]   && echo "- ✅ \`@ghentcdh/crouton-core\`"   >> release_body.md || echo "- ❌ \`@ghentcdh/crouton-core\`"   >> release_body.md
-          [ "${{ steps.pub_crouton_prisma.outcome }}" = "success" ] && echo "- ✅ \`@ghentcdh/crouton-prisma\`" >> release_body.md || echo "- ❌ \`@ghentcdh/crouton-prisma\`" >> release_body.md
-          [ "${{ steps.pub_crouton_vue.outcome }}" = "success" ]    && echo "- ✅ \`@ghentcdh/crouton-vue\`"    >> release_body.md || echo "- ❌ \`@ghentcdh/crouton-vue\`"    >> release_body.md
-          [ "${{ steps.pub_create_crouton.outcome }}" = "success" ] && echo "- ✅ \`@ghentcdh/create-crouton\`" >> release_body.md || echo "- ❌ \`@ghentcdh/create-crouton\`" >> release_body.md
-          gh release create ${{ github.ref_name }} --title "${{ github.ref_name }}" --notes-file release_body.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  release:
+    needs: npm
+    # Still cut the release when a package failed: the notes list what made it.
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/shared-github-release.yml
+    with:
+      extra-notes: ${{ needs.npm.outputs.summary }}
+    permissions:
+      contents: write

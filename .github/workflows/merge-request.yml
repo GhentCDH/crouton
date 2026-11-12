@@ -14,51 +14,21 @@ env:
   PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.65.0-jammy
 
 jobs:
-  install-deps:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-  build:
-    runs-on: ubuntu-latest
-    needs: install-deps
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - uses: nrwl/nx-set-shas@v5
-      - run: npx nx run-many -t build -c production --parallel --max-parallel=6
-      - name: Verify generated resource.schema.json is up to date
-        run: git diff --exit-code -- 'packages/crouton-core/src/lib/resource/resource.schema*.json' docs/.vuepress/public/schema 'docs/guide/2.resources/field-inputs/_generated'
-
-  test:
-    runs-on: ubuntu-latest
-    needs: install-deps
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Run unit tests with coverage
-        run: npx nx run-many -t test --parallel --max-parallel=6
-
-  lint:
-    runs-on: ubuntu-latest
-    needs: install-deps
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - run: npx nx run-many -t lint --parallel --max-parallel=6
+  ci:
+    uses: ./.github/workflows/shared-ci.yml
+    with:
+      # Report-only for now: knip prints issues but always exits 0.
+      # Switch the `knip` script to `knip:strict` once the findings are triaged.
+      knip: true
+      # Generated resource.schema.json and docs must be committed up to date.
+      post-build: >-
+        git diff --exit-code --
+        'packages/crouton-core/src/lib/resource/resource.schema*.json'
+        docs/.vuepress/public/schema
+        'docs/guide/2.resources/field-inputs/_generated'
 
   e2e:
     runs-on: ubuntu-latest
-    needs: install-deps
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/use-cache
@@ -88,26 +58,3 @@ jobs:
           name: playwright-report
           path: examples/book-collection/e2e/playwright-report/
           retention-days: 7
-
-  typecheck:
-    runs-on: ubuntu-latest
-    needs: install-deps
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - run: npx nx run-many -t typecheck --parallel --max-parallel=6
-
-  knip:
-    runs-on: ubuntu-latest
-    needs: install-deps
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/use-cache
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      # Report-only for now: knip prints issues but always exits 0.
-      # Switch to `pnpm knip:strict` (--include files,exports,dependencies)
-      # once the current findings are triaged.
-      - run: pnpm knip

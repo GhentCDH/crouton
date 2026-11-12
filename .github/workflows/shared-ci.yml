@@ -1,0 +1,72 @@
+# Reusable CI for pnpm + Nx repos. Called from merge-request.yml here and from
+# other GhentCDH repos: GhentCDH/crouton/.github/workflows/shared-ci.yml@main
+name: Shared CI
+
+on:
+  workflow_call:
+    inputs:
+      targets:
+        description: JSON array of Nx targets, one job each
+        type: string
+        default: '["build", "test", "lint", "typecheck"]'
+      build-configuration:
+        description: Nx configuration for the build target
+        type: string
+        default: production
+      post-build:
+        description: Shell command run after the build target (e.g. a generated-file drift check)
+        type: string
+        default: ''
+      knip:
+        description: Run `pnpm knip`
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  DEPENDENCIES_CACHE: cache-node-modules
+
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Full path, not ./ : a relative path resolves in the calling repo.
+      - uses: GhentCDH/crouton/.github/actions/use-cache@main
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+  nx:
+    name: ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    needs: install-deps
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(inputs.targets) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: GhentCDH/crouton/.github/actions/use-cache@main
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run ${{ matrix.target }}
+        run: npx nx run-many -t "$TARGET" $CONFIGURATION --parallel --max-parallel=6
+        env:
+          TARGET: ${{ matrix.target }}
+          CONFIGURATION: ${{ matrix.target == 'build' && format('-c {0}', inputs.build-configuration) || '' }}
+      - name: Post-build check
+        if: matrix.target == 'build' && inputs.post-build != ''
+        run: ${{ inputs.post-build }}
+
+  knip:
+    if: inputs.knip
+    runs-on: ubuntu-latest
+    needs: install-deps
+    steps:
+      - uses: actions/checkout@v7
+      - uses: GhentCDH/crouton/.github/actions/use-cache@main
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - run: pnpm knip

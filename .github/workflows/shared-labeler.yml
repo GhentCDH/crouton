@@ -1,0 +1,66 @@
+# Reusable: sync repo labels from .github/labels.yml, then label the PR from
+# its branch name / changed files (.github/labeler.yml) and from its title
+# (Conventional Commit type). Config files are read from the calling repo.
+# Call it on pull_request with types [opened, edited, synchronize, reopened]
+# so a retitled PR gets relabelled.
+# Caller must grant: contents: read, pull-requests: write, issues: write.
+name: Shared Labeler
+
+on:
+  workflow_call:
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Sync labels
+        uses: crazy-max/ghaction-github-labeler@v4.1.0
+        with:
+          skip-delete: true
+
+      - name: Label the PR
+        uses: actions/labeler@v5
+
+      - name: Label the PR from its title
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # feat(core)!: message  ->  type=feat scope=core breaking=!
+          if [[ ! "$TITLE" =~ ^([a-zA-Z]+)(\(([^\)]*)\))?(!)?: ]]; then
+            echo "Title is not a Conventional Commit, nothing to add."
+            exit 0
+          fi
+          type="${BASH_REMATCH[1],,}"
+          scope="${BASH_REMATCH[3],,}"
+          breaking="${BASH_REMATCH[4]}"
+
+          labels=()
+          case "$type" in
+            feat|feature)   labels+=('enhancement 🚀') ;;
+            fix|bugfix)     labels+=('bug 🐞') ;;
+            docs|doc)       labels+=('documentation') ;;
+            refactor|style) labels+=('refactoring') ;;
+            perf)           labels+=('performance') ;;
+            test|tests)     labels+=('testing') ;;
+            ci)             labels+=('ci') ;;
+            build|chore)    labels+=('build') ;;
+            revert)         labels+=('bug 🐞') ;;
+          esac
+          case "$scope" in
+            release)           labels+=('release') ;;
+            deps|deps-dev|dep) labels+=('dependencies') ;;
+          esac
+          if [ -n "$breaking" ]; then labels+=('breaking ⛏️'); fi
+
+          for label in "${labels[@]}"; do
+            gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" --add-label "$label"
+          done
