@@ -528,9 +528,6 @@ importers:
 
   libs/i18n:
     dependencies:
-      '@nx/vite':
-        specifier: 24.0.5
-        version: 24.0.5(8ca55a8077cdc2272e579c88ff073c30)
       tslib:
         specifier: ^2.9.1
         version: 2.9.1

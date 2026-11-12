@@ -15,8 +15,11 @@ jobs:
     # nx.json release.projects is published by one command.
     uses: ./.github/workflows/shared-publish-npm.yml
     with:
-      # Prereleases must name their dist-tag; drop `--tag alpha` at 1.0.
-      publish-args: --access public --verbose --tag alpha
+      # A prerelease tag (v0.2.0-alpha.1) publishes under the `alpha` dist-tag so
+      # it never becomes `latest`; a plain version (v0.1.0) publishes as `latest`.
+      publish-args: >-
+        --access public --verbose
+        ${{ contains(github.ref_name, '-') && '--tag alpha' || '' }}
     permissions:
       contents: read
       id-token: write
