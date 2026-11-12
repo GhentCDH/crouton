@@ -55,14 +55,14 @@ describe('resolveCalculatedPlacement', () => {
     expect(placement.order).not.toContain('count');
   });
 
-  it('positions a no-layout computed column by fieldInput.position', () => {
+  it('appends a no-layout computed column after the regular columns', () => {
     const placement = resolveCalculatedPlacement(
       undefined,
-      [...columns, col('count', { computed: { sql: '1' }, fieldInput: { position: 0 } })],
+      [col('count', { computed: { sql: '1' } }), ...columns],
       [calc('count')],
       'table',
     );
-    expect(placement.order[0]).toBe('count');
+    expect(placement.order.at(-1)).toBe('count');
   });
 
   it('always includes a legacy top-level calculated column in the fallback', () => {

@@ -153,16 +153,6 @@ export const JsonColumnBaseSchema = z.object({
     .describe(
       'When false, this column is excluded from the edit form after creation. Useful for immutable fields.',
     ),
-  /**
-   * TODO remove it
-   *     @deprected shoudl be par of the layout.[xxx].items
-   */
-  hideLabel: z
-    .boolean()
-    .default(false)
-    .describe(
-      'When true, the label is hidden in the form (useful for boolean toggles or when the context makes the label redundant).',
-    ),
   displayKey: z
     .string()
     .optional()
@@ -279,12 +269,6 @@ export const JsonColumnBaseSchema = z.object({
     })
     .optional()
     .describe('SQL computed column. The column value is derived from a raw subquery at query time.'),
-  position: z
-    .number()
-    .optional()
-    .describe(
-      'Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).',
-    ),
 });
 
 // `enum` + `fieldInput.options.values` is allowed: a local `values` list restricts the

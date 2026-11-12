@@ -25,13 +25,6 @@ const typeLabel = computed(
     :class="{ 'ring-2 ring-primary': selected }"
     @click="emits('select')"
   >
-    <span
-      class="drag-handle cursor-grab active:cursor-grabbing select-none text-base-content/40 hover:text-base-content/70"
-      title="Drag to reorder"
-      @click.stop
-    >
-      ⠿
-    </span>
     <div class="flex-1 min-w-0">
       <div class="text-xs font-medium truncate">{{ field.label }}</div>
       <div class="text-[10px] uppercase tracking-wide opacity-50">

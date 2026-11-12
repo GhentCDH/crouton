@@ -119,7 +119,6 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<Record<string,
   if (col.unique) control.opt({ unique: normalizeUnique(col.unique) });
   if (fieldInput?.customRender)
     control.setCustomRender(fieldInput?.customRender);
-  if (col.hideLabel) control.hideLabel();
   if (col.label) control.label(col.label);
 
   return control;

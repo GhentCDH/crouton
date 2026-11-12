@@ -21,10 +21,8 @@ export type CanvasField = {
   label: string;
   /** Normalized type (`normalizeCanvasType` — 'text'/undefined collapse to 'string'). */
   type: string;
-  /** Grid colspan (form/view). Omitted for table context (flat array, no grid). */
+  /** Grid colspan: full width (12) for form/view, 1 for the flat table row. */
   colspan: number;
-  /** Effective sort key — the draft's explicit position, or its position in `columns`. */
-  position: number;
 };
 
 /**
@@ -38,19 +36,6 @@ const draftType = (
   drafts: Record<Tab, VariantDraft> | undefined,
   ctx: Tab = 'form',
 ): string | undefined => drafts?.[ctx].type;
-
-/** Reads the live-edited colspan for a column in the given context, defaulting to 12. */
-const draftColspan = (
-  drafts: Record<Tab, VariantDraft> | undefined,
-  ctx: Tab = 'form',
-): number => drafts?.[ctx].colspan ?? 12;
-
-/** Reads the live-edited position, falling back to `fallbackIndex`. */
-const draftPosition = (
-  drafts: Record<Tab, VariantDraft> | undefined,
-  fallbackIndex: number,
-  ctx: Tab = 'form',
-): number => drafts?.[ctx].position ?? fallbackIndex;
 
 export type CanvasLayout = {
   /** Visible, non-relation, canvas-supported fields, in effective order. */
@@ -75,7 +60,7 @@ export const buildCanvasLayout = (
   const fields: CanvasField[] = [];
   const hiddenFields: { id: string; label: string }[] = [];
 
-  columns.forEach((col, index) => {
+  columns.forEach((col) => {
     const d = drafts[col.id];
     const type = normalizeCanvasType(draftType(d, ctx));
 
@@ -88,12 +73,11 @@ export const buildCanvasLayout = (
       id: col.id,
       label: col.label || col.column,
       type,
-      colspan: ctx === 'table' ? 1 : draftColspan(d, ctx),
-      position: draftPosition(d, index, ctx),
+      // ponytail: order/colspan live in layout.<ctx>.items now; this canvas shows column
+      // order at full width and can't edit placement until the new editor lands.
+      colspan: ctx === 'table' ? 1 : 12,
     });
   });
-
-  fields.sort((a, b) => a.position - b.position);
 
   return { fields, hiddenFields };
 };

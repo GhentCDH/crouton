@@ -49,8 +49,8 @@ describe('diff', () => {
         // identical to generated → no decision
         id: { idField: true, hiddenInTable: true, hiddenInForm: true, hiddenInView: true },
         // changed (hand-edited control) → reconcile
-        name: { fieldInput: { type: 'markdown', position: 0 } },
-        code: { fieldInput: { type: 'text', position: 1 } },
+        name: { fieldInput: { type: 'markdown' } },
+        code: { fieldInput: { type: 'text' } },
       },
     };
     const d = diff({ draft, existing });
@@ -65,8 +65,8 @@ describe('diff', () => {
       operations: { findAll: true },
       columns: {
         id: { idField: true, hiddenInTable: true, hiddenInForm: true, hiddenInView: true },
-        name: { fieldInput: { type: 'text', position: 0 } },
-        code: { fieldInput: { type: 'text', position: 1 } },
+        name: { fieldInput: { type: 'text' } },
+        code: { fieldInput: { type: 'text' } },
         legacy_field: { fieldInput: { type: 'text' } },
       },
     };

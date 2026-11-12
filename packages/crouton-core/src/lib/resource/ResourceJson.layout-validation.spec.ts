@@ -178,3 +178,33 @@ describe('layout validation (Phase 3)', () => {
     });
   });
 });
+
+describe('column presentation keys moved to layout items', () => {
+  const withColumn = (column: Record<string, unknown>) =>
+    ResourceJsonSchema.safeParse({ ...base, columns: { ...base.columns, extra: column } });
+
+  it.each([
+    [{ position: 1 }, '\'position\' moved to the order of layout'],
+    [{ hideLabel: true }, '\'hideLabel\' moved to the layout item'],
+    [{ fieldInput: { position: 1 } }, '\'fieldInput.position\' moved to the order of layout'],
+    [{ fieldInput: { options: { colspan: 6 } } }, '\'fieldInput.options.colspan\' moved to the layout item'],
+    [{ fieldInput: { options: { width: 'md' } } }, '\'fieldInput.options.width\' moved to the layout item'],
+    [{ fieldInput: { options: { readonly: true } } }, '\'fieldInput.options.readonly\' moved to the layout item'],
+    [{ fieldInput: { options: { label: 'x' } } }, '\'fieldInput.options.label\' was removed'],
+  ])('rejects %j with a migration hint', (column, message) => {
+    const result = withColumn(column);
+    expect(result.success).toBe(false);
+    expect(issueMessages(result)).toEqual(
+      expect.arrayContaining([expect.stringContaining(message)]),
+    );
+    expect(issueMessages(result).join()).toContain('migrate-to-next-alpha.md');
+  });
+
+  it('accepts the props on layout items', () => {
+    const result = ResourceJsonSchema.safeParse({
+      ...base,
+      layout: { form: { items: [{ id: 'title', colspan: 6, hideLabel: true, readonly: true }] } },
+    });
+    expect(result.success).toBe(true);
+  });
+});

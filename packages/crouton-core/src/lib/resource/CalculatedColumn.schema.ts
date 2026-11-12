@@ -13,8 +13,7 @@ import { FieldInputSchema } from './FieldInput.schema';
  *   "id": "inception",
  *   "alias": "inception",
  *   "label": "Available in inception",
- *   "sqlExpression": "SELECT COUNT(id) FROM text_content WHERE text_content.text_id = main.id",
- *   "position": 8
+ *   "sqlExpression": "SELECT COUNT(id) FROM text_content WHERE text_content.text_id = main.id"
  * }
  * ```
  */
@@ -25,8 +24,7 @@ export const CalculatedColumnSchema = z
     label: z.string().optional().describe('Human-readable label shown in the table header. Defaults to a title-cased version of "id".'),
     sqlExpression: z.string().describe('Raw SQL subquery computing the column value. Use "main" as the alias for the parent table row, e.g. "SELECT COUNT(*) FROM child WHERE child.parent_id = main.id".'),
     type: z.enum(['number', 'boolean', 'string']).optional().describe('Cast type for the computed value. "number" (default) or "boolean" applies a SQL CAST; "string" skips it.'),
-    position: z.number().optional().describe('Insertion position relative to other visible columns. Same semantics as fieldInput.position. Can also be set via fieldInput.position (takes precedence).'),
-    fieldInput: FieldInputSchema.optional().describe('Rendering options for form/view schemas (colspan, format, etc). fieldInput.position takes precedence over the top-level position.'),
+    fieldInput: FieldInputSchema.optional().describe('Rendering options for form/view schemas (format, options, etc).'),
   })
   .transform(normalizeLabel);
 

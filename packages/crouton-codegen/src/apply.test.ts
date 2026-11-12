@@ -180,7 +180,7 @@ describe('apply — update merges and preserves hand edits', () => {
         hiddenInForm: true,
         hiddenInView: true,
       },
-      name: { fieldInput: { type: 'markdown', position: 0 } }, // hand-edited
+      name: { fieldInput: { type: 'markdown' } }, // hand-edited
       legacy: { fieldInput: { type: 'text' } }, // not in DB
     },
   };

@@ -3,17 +3,6 @@ import { columnKey } from '@crouton/i18n';
 import type { JsonColumn } from '../../resource/Column';
 import type { ViewColumnConfig } from '../view/view.schema';
 
-/** Resolve the sort position for a column: `fieldInput.position`, then `col.position`, then natural index. */
-const colPosition = (col: JsonColumn, i: number): number =>
-  col.fieldInput?.position ?? col.position ?? i;
-
-/** Sort columns by position; columns without an explicit position keep array order. */
-export const sortByPosition = (cols: JsonColumn[]): JsonColumn[] =>
-  cols
-    .map((col, i) => ({ col, i }))
-    .sort((a, b) => colPosition(a.col, a.i) - colPosition(b.col, b.i))
-    .map(({ col }) => col);
-
 export type FieldContext = 'form' | 'view' | 'table';
 
 /**

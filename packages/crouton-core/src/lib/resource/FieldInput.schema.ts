@@ -131,16 +131,6 @@ export const FieldInputSchema = z.object({
       'Override the Prisma relation field name when it differs from the column id. Deprecated: use columns.<id>.relation.prismaField instead.',
     ),
   /**
-   * TODO remove it
-   * @deprecated layout.xxx instead
-   */
-  position: z
-    .number()
-    .optional()
-    .describe(
-      'Override the display order in form views. Lower values come first. Defaults to source order.',
-    ),
-  /**
    * Value to pre-fill this field with on the create form. Injected into the
    * generated form view's JSON Schema as `properties[id].default`, which
    * `parseValue({})` (see `@ghentcdh/crouton-vue`'s `form-def.ts`) applies when

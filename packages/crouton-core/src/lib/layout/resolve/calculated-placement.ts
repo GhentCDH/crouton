@@ -11,10 +11,6 @@ import { defaultLayoutFor } from './default-layout';
 /** Ordered field ids a context renders, used to place calculated columns. */
 export type CalculatedPlacement = { order: string[] };
 
-/** Position slot for a computed column: fieldInput wins over the column position. */
-const calcPosition = (c: { fieldInput?: { position?: number } | null; position?: number }): number =>
-  c.fieldInput?.position ?? c.position ?? Infinity;
-
 const visibleByFlag = (c: JsonColumn, kind: 'table' | 'view'): boolean =>
   kind === 'table' ? !c.hiddenInTable : !c.hiddenInView;
 
@@ -23,7 +19,8 @@ const visibleByFlag = (c: JsonColumn, kind: 'table' | 'view'): boolean =>
  * are visible under their own column flags (the no-layout fallback), and with
  * the deprecated top-level `calculatedColumns` entries that are not shadowed by
  * a same-id computed column (those are always visible — the legacy array has no
- * visibility control anymore). Computed columns slot in by `position`.
+ * visibility control anymore). Computed columns follow the regular ones; a layout
+ * places them anywhere.
  */
 const defaultOrder = (
   columns: JsonColumn[],
@@ -41,18 +38,12 @@ const defaultOrder = (
   );
   const computed = columns
     .filter((c) => c.computed && visibleByFlag(c, kind))
-    .map((c) => ({ id: c.id, pos: calcPosition(c) }));
+    .map((c) => c.id);
   const legacy = calculated
     .filter((c) => !computedIds.has(c.id))
-    .map((c) => ({ id: c.id, pos: calcPosition(c) }));
+    .map((c) => c.id);
 
-  return [
-    ...regular.map((id, i) => ({ id, pos: i + 0.5 })),
-    ...computed,
-    ...legacy,
-  ]
-    .sort((a, b) => a.pos - b.pos)
-    .map((entry) => entry.id);
+  return [...regular, ...computed, ...legacy];
 };
 
 /**

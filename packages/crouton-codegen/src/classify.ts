@@ -43,7 +43,6 @@ export const classify = (
   const columnOrder: string[] = [];
   const columns: Record<string, Column> = {};
   const unwiredRelations: { field: string; targetModel: string }[] = [];
-  let position = 0;
 
   for (const field of model.fields) {
     // Relations are ignored by default — they are not real DB columns and can't
@@ -71,7 +70,6 @@ export const classify = (
         : {
             fieldInput: {
               type: 'date',
-              position: position++,
               ...(field.defaultValue !== undefined
                 ? { defaultValue: field.defaultValue }
                 : {}),
@@ -88,7 +86,6 @@ export const classify = (
         : {
             fieldInput: {
               type: 'text',
-              position: position++,
               ...(field.defaultValue !== undefined
                 ? { defaultValue: field.defaultValue }
                 : {}),
@@ -132,7 +129,6 @@ export const classify = (
           enum: field.type,
           fieldInput: {
             ...(field.isList ? { type: 'multiSelect' } : {}),
-            position: position++,
             ...(field.defaultValue !== undefined
               ? { defaultValue: field.defaultValue }
               : {}),
@@ -149,7 +145,6 @@ export const classify = (
           ...(ruleset.enumValueLabel ? { displayKey: 'label' } : {}),
           fieldInput: {
             type: field.isList ? 'multiSelect' : 'select',
-            position: position++,
             options,
             ...(field.defaultValue !== undefined
               ? { defaultValue: field.defaultValue }
@@ -161,7 +156,6 @@ export const classify = (
       col = {
         fieldInput: {
           type: scalarFieldInputType(field.name, field.type),
-          position: position++,
           ...(field.defaultValue !== undefined
             ? { defaultValue: field.defaultValue }
             : {}),
