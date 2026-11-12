@@ -59,7 +59,7 @@ const isOptionObject = (entry: unknown): entry is Record<string, unknown> =>
  * warning naming the column, enum and offending values is emitted. Local lists where
  * every entry already carries a label are left untouched.
  */
-export const applyLocalEnumRestriction = (
+const applyLocalEnumRestriction = (
   col: JsonColumn,
   enumValues: EnumEntry[],
 ): void => {
