@@ -61,7 +61,8 @@ import {
 } from '@ghentcdh/crouton-core';
 import { Btn, Icon, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
-import FilterRowInput, { type FieldOption } from './FilterRowInput.vue';
+import type { FieldOption } from './field-option';
+import FilterRowInput from './FilterRowInput.vue';
 
 const t = useUiTranslator();
 const showFilters = ref(false);

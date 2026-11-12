@@ -85,9 +85,12 @@ const patched = (() => {
 // validation path (field-level rules are unreliable under a form schema).
 const uniqueFields = collectUniqueFields(properties.uiSchema);
 const uniqueCheck = useUniqueCheckFn();
-const baseValidationSchema = (() => {
+type FormValues = Record<string, unknown>;
+const baseValidationSchema = ((): z.ZodType<FormValues> => {
   try {
-    return fromJSONSchema(patched as unknown as Parameters<typeof fromJSONSchema>[0]);
+    return fromJSONSchema(
+      patched as unknown as Parameters<typeof fromJSONSchema>[0],
+    ) as z.ZodType<FormValues>;
   } catch (e) {
     console.warn('[crouton] fromJSONSchema failed, falling back to z.any()', e);
     return z.any();

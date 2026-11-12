@@ -47,7 +47,6 @@
 import { computed } from 'vue';
 
 import {
-  type FieldType,
   type Filter,
   OperatorNoValue,
   OperatorOptions,
@@ -61,15 +60,7 @@ import {
   SelectComponent,
 } from '@ghentcdh/crouton-ui-vue';
 import { useUiTranslator } from '../../composables/useUiTranslator';
-
-type EnumValue = { value: unknown; label: string };
-
-export type FieldOption = {
-  label: string;
-  value: string;
-  type?: FieldType;
-  values?: EnumValue[];
-};
+import type { FieldOption } from './field-option';
 
 const t = useUiTranslator();
 

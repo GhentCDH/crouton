@@ -30,8 +30,8 @@ const {
 // DB stores array as JSON string; parse for display.
 const parsedValue = computed(() => {
   const v = value.value;
-  if (!v || typeof v !== 'string') return v;
-  try { return JSON.parse(v); } catch { return []; }
+  if (!v || typeof v !== 'string') return v as unknown[] | undefined;
+  try { return JSON.parse(v) as unknown[]; } catch { return []; }
 });
 
 const onChange = (val: unknown) => {
