@@ -27,6 +27,13 @@ jobs:
         docs/.vuepress/public/schema
         'docs/guide/2.resources/field-inputs/_generated'
 
+  duplicate-exports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Plain Node script, no install needed.
+      - run: node tools/check-duplicate-exports.mjs --fail
+
   e2e:
     runs-on: ubuntu-latest
     steps:

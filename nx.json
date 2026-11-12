@@ -11,6 +11,12 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "options": {
+        "max-warnings": 0
+      }
     }
   },
   "namedInputs": {

@@ -1,4 +1,4 @@
-import type { JsonSchema } from '@jsonforms/core';
+import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { z } from 'zod';
 
 import type { Method, Operation } from '@ghentcdh/crouton-core';
@@ -35,8 +35,8 @@ const OperationMap: Record<OperationKey, Method> = {
 };
 
 const schemaDef = z.object({
-  ui: z.any().optional(),
-  data: z.any(),
+  ui: z.custom<UISchemaElement>().optional(),
+  data: z.custom<JsonSchema>(),
 });
 
 /**
@@ -68,7 +68,7 @@ const ResourceSchema = z
       data.schemas?.form ?? { ui: undefined, data: undefined };
 
     if (!schema.ui && schema.data) {
-      schema.ui = uiFromJsonSchema(schema.data as JsonSchema);
+      schema.ui = uiFromJsonSchema(schema.data);
     }
 
     const operations = {} as Record<OperationKey, Operation | null>;

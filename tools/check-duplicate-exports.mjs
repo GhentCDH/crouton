@@ -82,6 +82,16 @@ const CODEGEN_BRIDGES = new Set([
 
 // Everything else — out of scope for this plan (frontend dedup, api↔vue types, etc.)
 const DEFERRED = new Set([
+  // packages→libs auth migration (FIRST_RELEASE_PLAN D1.4): crouton-auth/api/vue copies live on
+  // until consumers switch to libs/auth*. Remove when the old package exports are dropped.
+  'AuthProviderSchema|auth,crouton-auth',
+  'buildPublicAuthConfig|auth,crouton-auth',
+  'defineAuthProvider|auth,crouton-auth',
+  'evaluateGuard|auth,crouton-auth',
+  'getCroutonUser|auth-nest,crouton-api',
+  'useAuth|auth-vue,crouton-vue',
+  // CLI prompt helper copied into create-crouton (FIRST_RELEASE_PLAN P1.4)
+  'assertNotCancel|create-crouton,crouton-cli',
   // frontend re-export bridges (frontend dedup deferred to separate plan)
   'BooleanCellBuilder|crouton-core,crouton-forms-vue',
   'BooleanOperationSchema|crouton-core,crouton-forms-vue',

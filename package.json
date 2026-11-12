@@ -8,6 +8,7 @@
     "e2e": "NX_TUI=false nx run book-collection-e2e:e2e",
     "e2e:update-snapshots": "NX_TUI=false nx run book-collection-e2e:e2e:update-snapshots",
     "lint": "nx run-many -t lint",
+    "check:duplicate-exports": "node tools/check-duplicate-exports.mjs --fail",
     "format": "prettier --write \"packages/**/*.{ts,js,json,md}\"",
     "docs:build": "nx run docs:build",
     "docs:serve": "nx run docs:serve",
