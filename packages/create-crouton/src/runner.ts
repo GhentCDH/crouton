@@ -171,6 +171,8 @@ export const runCreate = async (
         '',
         tokens,
         targetDir,
+        // The CI workflow calls crouton's shared workflow, which is pnpm-only.
+        pm === 'pnpm' ? [] : ['.github'],
       );
       const files: FileEntry[] = [...rootFiles];
 
