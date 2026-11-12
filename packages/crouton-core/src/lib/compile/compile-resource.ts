@@ -89,9 +89,13 @@ export const compileResource = (
           model: src?.model ?? json.model ?? '',
         })
       : []
-  ).map((sub) => ({
+  ).map(({ includeRelationInParentFindOne: _flagged, ...sub }) => ({
     ...sub,
     hiddenInTable: !visibility.table?.has(sub.column),
+    // Eager-load the relation for findOne when the form or view renders it.
+    ...((visibility.form?.has(sub.column) || visibility.view?.has(sub.column)) && {
+      includeRelationInParentFindOne: true,
+    }),
   }));
 
   const actionEnriched =

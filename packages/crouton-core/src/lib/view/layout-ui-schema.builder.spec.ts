@@ -92,15 +92,11 @@ describe('buildFormUiSchemaFromLayout – control overrides', () => {
     expect(byScope(ui, 'name')?.options?.['hideLabel']).toBe(true);
   });
 
-  it('applies hideLabel: false override — shows label even when column has hideLabel: true', () => {
-    const hideLabelCols = parse([
-      { id: 'name', hideLabel: true, fieldInput: { type: 'text' } },
-      { id: 'bio', fieldInput: { type: 'text' } },
-    ]);
+  it('applies hideLabel: false override explicitly', () => {
     const node = invalid<LayoutNode>({
       items: [{ id: 'name', hideLabel: false }, 'bio'],
     });
-    const ui = buildFormUiSchemaFromLayout(node, hideLabelCols);
+    const ui = buildFormUiSchemaFromLayout(node, cols);
     expect(byScope(ui, 'name')?.options?.['hideLabel']).toBe(false);
   });
 

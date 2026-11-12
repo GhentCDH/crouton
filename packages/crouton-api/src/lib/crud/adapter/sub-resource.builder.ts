@@ -248,22 +248,24 @@ export const buildSubResources = (
         ...(childCalculatedColumns.length && {
           calculatedColumns: childCalculatedColumns,
         }),
+        // Fallback from the column flags; compileResource replaces it with the
+        // effective form/view visibility, so a layout listing the relation wins.
         ...((c.hiddenInForm === false || c.hiddenInView === false) && {
           includeRelationInParentFindOne: true,
-          ...(() => {
-            const sort =
-              c.relation?.sort ??
-              (c.fieldInput?.options as RelationFieldInputOptions | undefined)
-                ?.sort;
-            const sortDir =
-              c.relation?.sortDir ??
-              (c.fieldInput?.options as RelationFieldInputOptions | undefined)
-                ?.sortDir;
-            if (sort)
-              return { findOneOrderBy: buildChildSortClause(sort, sortDir) };
-            return {};
-          })(),
         }),
+        ...(() => {
+          const sort =
+            c.relation?.sort ??
+            (c.fieldInput?.options as RelationFieldInputOptions | undefined)
+              ?.sort;
+          const sortDir =
+            c.relation?.sortDir ??
+            (c.fieldInput?.options as RelationFieldInputOptions | undefined)
+              ?.sortDir;
+          if (sort)
+            return { findOneOrderBy: buildChildSortClause(sort, sortDir) };
+          return {};
+        })(),
         ...((childColumns?.length || regularChildColumns.length) && {
           columns: enrichedChildColumns,
         }),
