@@ -143,7 +143,7 @@
                 }
               },
               "uri": "http://localhost:3000/groups/{id}/expense",
-              "resourceUri": "http://localhost:3000/expense",
+              "resourceUri": "http://localhost:3000/groups/expense",
               "resource": "http://localhost:3000/groups/expense/schemas",
               "autocompleteResource": "http://localhost:3000/expense/schemas",
               "colspan": 12,
@@ -170,7 +170,7 @@
             "foreignKey": "group_id",
             "options": {
               "uri": "http://localhost:3000/groups/{id}/expense",
-              "resourceUri": "http://localhost:3000/expense",
+              "resourceUri": "http://localhost:3000/groups/expense",
               "resource": "http://localhost:3000/groups/expense/schemas",
               "autocompleteResource": "http://localhost:3000/expense/schemas"
             }
@@ -240,7 +240,7 @@
                 }
               },
               "uri": "http://localhost:3000/groups/{id}/expense",
-              "resourceUri": "http://localhost:3000/expense",
+              "resourceUri": "http://localhost:3000/groups/expense",
               "resource": "http://localhost:3000/groups/expense/schemas",
               "autocompleteResource": "http://localhost:3000/expense/schemas",
               "colspan": 12,
@@ -272,7 +272,7 @@
             "foreignKey": "group_id",
             "options": {
               "uri": "http://localhost:3000/groups/{id}/expense",
-              "resourceUri": "http://localhost:3000/expense",
+              "resourceUri": "http://localhost:3000/groups/expense",
               "resource": "http://localhost:3000/groups/expense/schemas",
               "autocompleteResource": "http://localhost:3000/expense/schemas"
             }

@@ -271,7 +271,7 @@
                 }
               },
               "uri": "http://localhost:3000/author/{id}/book",
-              "resourceUri": "http://localhost:3000/book",
+              "resourceUri": "http://localhost:3000/author/book",
               "resource": "http://localhost:3000/author/book/schemas",
               "autocompleteResource": "http://localhost:3000/book/schemas",
               "colspan": 12,
@@ -310,7 +310,7 @@
             "relationType": "oneToMany",
             "options": {
               "uri": "http://localhost:3000/author/{id}/book",
-              "resourceUri": "http://localhost:3000/book",
+              "resourceUri": "http://localhost:3000/author/book",
               "resource": "http://localhost:3000/author/book/schemas",
               "autocompleteResource": "http://localhost:3000/book/schemas"
             }
