@@ -28,12 +28,13 @@ export const isNullableProperty = (property: unknown): boolean => {
  */
 export const dropNullableFromRequired = (schema: JsonSchema): JsonSchema => {
   if (!schema?.properties) return schema;
+  const { properties } = schema;
 
   const required = schema.required as string[] | undefined;
   if (!Array.isArray(required) || required.length === 0) return schema;
 
   const filteredRequired = required.filter(
-    (key) => !isNullableProperty(schema.properties![key]),
+    (key) => !isNullableProperty(properties[key]),
   );
 
   if (filteredRequired.length === required.length) return schema;

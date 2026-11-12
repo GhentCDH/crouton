@@ -49,7 +49,8 @@ export const enrichRelationTypes = (
     if (col.relation) {
       return { ...col, relation: { ...col.relation, type: derived } };
     }
-    const fi = col.fieldInput!;
+    if (!col.fieldInput) return col;
+    const fi = col.fieldInput;
     return { ...col, fieldInput: { ...fi, relationType: derived } };
   });
 };

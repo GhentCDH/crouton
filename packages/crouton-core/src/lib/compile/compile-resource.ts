@@ -96,11 +96,12 @@ export const compileResource = (
 
   const actionEnriched =
     enrichActionColumns(columns, json.route, subResources, baseUrl) ?? columns;
-  const enrichedColumns = resolveColumnFieldVariants(
-    resolvers.enrichResourceRefs
-      ? resolvers.enrichResourceRefs(actionEnriched)
-      : actionEnriched,
-  )!;
+  const enrichedColumns =
+    resolveColumnFieldVariants(
+      resolvers.enrichResourceRefs
+        ? resolvers.enrichResourceRefs(actionEnriched)
+        : actionEnriched,
+    ) ?? actionEnriched;
 
   const calculatedColumns: CalculatedColumn[] = [
     ...(json.calculatedColumns ?? []),

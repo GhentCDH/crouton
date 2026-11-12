@@ -37,24 +37,18 @@ export const buildResourceDefinitions = (
     (c) => !c.idField && c.updateable !== false,
   );
 
+  const findAll = opWithSchema(operations.findAll, picked);
+  const findOne = opWithSchema(operations.findOne, picked);
+  const create = opWithSchema(operations.create, createSchema);
+  const update = opWithSchema(operations.update, updateSchema);
+  const patch = opWithSchema(operations.patch as boolean | Record<string, unknown>, undefined);
+  const del = opWithSchema(operations.delete as boolean | Record<string, unknown>, undefined);
   return {
-    ...(opWithSchema(operations.findAll, picked) && {
-      findAll: opWithSchema(operations.findAll, picked)!,
-    }),
-    ...(opWithSchema(operations.findOne, picked) && {
-      findOne: opWithSchema(operations.findOne, picked)!,
-    }),
-    ...(opWithSchema(operations.create, createSchema) && {
-      create: opWithSchema(operations.create, createSchema)!,
-    }),
-    ...(opWithSchema(operations.update, updateSchema) && {
-      update: opWithSchema(operations.update, updateSchema)!,
-    }),
-    ...(opWithSchema(operations.patch as boolean | Record<string, unknown>, undefined) && {
-      patch: opWithSchema(operations.patch as boolean | Record<string, unknown>, undefined)!,
-    }),
-    ...(opWithSchema(operations.delete as boolean | Record<string, unknown>, undefined) && {
-      delete: opWithSchema(operations.delete as boolean | Record<string, unknown>, undefined)!,
-    }),
+    ...(findAll && { findAll }),
+    ...(findOne && { findOne }),
+    ...(create && { create }),
+    ...(update && { update }),
+    ...(patch && { patch }),
+    ...(del && { delete: del }),
   };
 };

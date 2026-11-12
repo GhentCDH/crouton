@@ -68,11 +68,11 @@ const injectCalculatedColumnsIntoView = (
   const tagged: Array<{ el: Record<string, unknown>; pos: number }> = [
     ...existing.map((el, i) => {
       const id = elementId(el);
-      return { el, pos: id !== undefined && indexOf.has(id) ? indexOf.get(id)! : i + 0.5 };
+      return { el, pos: id !== undefined && indexOf.has(id) ? (indexOf.get(id) ?? i + 0.5) : i + 0.5 };
     }),
     ...visible.map((c) => ({
       el: buildCalculatedElement(c, mode),
-      pos: indexOf.get(c.id)!,
+      pos: indexOf.get(c.id) ?? 0,
     })),
   ];
   tagged.sort((a, b) => a.pos - b.pos);
@@ -81,7 +81,7 @@ const injectCalculatedColumnsIntoView = (
   // Insert new ViewColumnConfig entries at the same relative position.
   const columns = [...viewConfig.columns];
   for (const c of visible) {
-    columns.splice(indexOf.get(c.id)!, 0, { id: c.id, label: c.label });
+    columns.splice(indexOf.get(c.id) ?? 0, 0, { id: c.id, label: c.label });
   }
 
   return {

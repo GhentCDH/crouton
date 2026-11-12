@@ -109,7 +109,8 @@ describe('shorthand expansion inside a fragment', () => {
 
     // Callers mutate what they get back — applySchemaTransforms adds minLength,
     // injectFieldDefaults adds default. That must not reach the resource config.
-    (result.properties!['name'] as Record<string, unknown>)['minLength'] = 1;
+    if (!result.properties) throw new Error('expected result.properties');
+    (result.properties['name'] as Record<string, unknown>)['minLength'] = 1;
 
     expect(declared.properties.name).toEqual({ type: 'string' });
   });
