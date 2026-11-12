@@ -6,7 +6,7 @@ import {
   RelationType,
   ResourceKindSchema,
 } from '../resource';
-import { JsonColumnBaseSchema } from '../resource/Column';
+import { JsonColumnSchema } from '../resource/Column';
 import {
   IdTypeSchema,
   OptionalCalculatedColumnsSchema,
@@ -37,7 +37,7 @@ export const CompiledSubResourceConfigSchema = z.object({
   hiddenInTable: z.boolean().optional(),
   findOneOrderBy: z.record(z.string(), z.unknown()).optional(),
   /** Child column definitions (enriched). Runtime consumers derive value-label decoration from these. */
-  columns: z.array(JsonColumnBaseSchema).optional(),
+  columns: z.array(JsonColumnSchema).optional(),
   relationType: RelationType.optional(),
   /** Display field name on the child model used for filter/search remapping (e.g. `"name"`). */
   displayKey: z.string().optional(),

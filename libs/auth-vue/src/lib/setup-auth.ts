@@ -2,7 +2,7 @@ import type { AuthEndpointResponse } from '@crouton/auth';
 import type { AxiosInstance } from 'axios';
 import { WebStorageStateStore } from 'oidc-client-ts';
 
-import { handleCallback, loadOidcUser, setupOidcManager, tryRenewOidcUser, useAuth } from './use-auth';
+import { loadOidcUser, setupOidcManager, tryRenewOidcUser, useAuth } from './use-auth';
 
 export type AuthSetupResult = {
   enabled: boolean;
@@ -114,4 +114,3 @@ export const setupAuth = async (
   return { enabled: true, callbackPath, flushQueue };
 };
 
-export { handleCallback };

@@ -17,8 +17,6 @@ jobs:
   ci:
     uses: ./.github/workflows/shared-ci.yml
     with:
-      # Report-only for now: knip prints issues but always exits 0.
-      # Switch the `knip` script to `knip:strict` once the findings are triaged.
       knip: true
       # Generated resource.schema.json and docs must be committed up to date.
       post-build: >-

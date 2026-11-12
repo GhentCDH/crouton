@@ -129,10 +129,10 @@ editFile(
   join(repoRoot, 'packages/crouton-editor-vue/src/canvas/type-swaps.ts'),
   (src) => {
     if (src.includes(`'${type}'`)) return src;
-    // Insert new entry before the Set's closing ]); (distinguished by the blank line before the next export)
+    // Insert new entry before the CANVAS_SUPPORTED_TYPES Set's closing ]);
     return src.replace(
-      /\]\);\n\nexport const isCanvasSupportedType/,
-      `  '${type}',\n]);\n\nexport const isCanvasSupportedType`,
+      /(export const CANVAS_SUPPORTED_TYPES = new Set<string>\(\[[\s\S]*?)\n\]\);/,
+      `$1\n  '${type}',\n]);`,
     );
   },
 );
