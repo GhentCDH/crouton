@@ -9,9 +9,9 @@ services:
       dockerfile: {{dockerfileDev}}
     env_file: [{{envFile}}]
     ports:
-      - "{{frontendPort}}:{{frontendPort}}"
+      - "${FRONTEND_PORT:-{{frontendPort}}}:${FRONTEND_PORT:-{{frontendPort}}}"
     environment:
-      - PORT={{frontendPort}}
+      - BACKEND_HOST={{appName}}-backend
       - NX_COMMAND={{frontendApp}}:dev
       - WATCHPACK_POLLING=true
       - IS_DOCKER=true
@@ -26,9 +26,8 @@ services:
       dockerfile: {{dockerfileDev}}
     env_file: [{{envFile}}]
     ports:
-      - "{{backendPort}}:{{backendPort}}"
+      - "${BACKEND_PORT:-{{backendPort}}}:${BACKEND_PORT:-{{backendPort}}}"
     environment:
-      - PORT={{backendPort}}
       - NX_COMMAND={{backendApp}}:serve
       - WATCHPACK_POLLING=true
       - IS_DOCKER=true
