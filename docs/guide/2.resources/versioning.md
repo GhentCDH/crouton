@@ -32,20 +32,21 @@ Two independent version numbers:
 | `@ghentcdh/crouton-*` packages | [semver](https://semver.org), one shared version for all published packages (released together) | every release |
 | `resource.json` `schemaVersion` | integer (`1`, `2`, …) | only when the file **shape** needs a migration |
 
-**During the alpha (`0.0.1-alpha.N`)** breaking changes can land in any release. Each one is listed in
-`migrate-to-next-alpha.md` (printed by `crouton migrate`) with before/after examples.
+**`0.x` (from `0.1.0`)** — semver's pre-1.0 rules:
 
-**From the first stable release on**, the promise is:
+- **Patch** releases (`0.1.x`) don't break a valid `resource.json`, `crouton.json`, `data-source.json` or the
+  documented public exports.
+- **Minor** releases (`0.2.0`) may break. Every breaking change is listed in the migration guide
+  (`migrate-to-next-alpha.md`, printed by `crouton migrate`) with the rule to apply and a before/after example, and
+  removed keys fail `crouton validate` with a pointer to it.
+- `resource.json` stays at `schemaVersion: 1` and the `$schema` URL `/schema/v1/resource.schema.json` for all of
+  `0.x`; upgrades follow the guide (see [Upgrading crouton](../5.tooling/migrate.md)).
+- Prereleases (`0.2.0-alpha.N`) are published under the npm `alpha` dist-tag; `latest` is always a release.
 
-- **Patch / minor** releases don't break a valid `resource.json`, `crouton.json`, `data-source.json` or the documented
-  public exports. New keys are optional.
-- A key that has to go is first **deprecated**: it keeps working, the docs and JSON Schema mark it, and the
-  migration guide shows the replacement. It is removed only in the next **major**.
-- A change to the `resource.json` shape bumps `schemaVersion` **only in a major**, together with a migration step
-  (auto-applied in dev, see below) and a new `$schema` URL (`/schema/v<N>/resource.schema.json`). The old URL keeps
-  serving the old schema.
-- Upgrade within a major: bump all `@ghentcdh/crouton-*` packages to the same version. Mixing versions is not
-  supported.
+**`1.0` and later** — breaking changes only in a major. A key is deprecated (still works, marked in docs and JSON
+Schema) before it is removed, and a `schemaVersion` bump ships with a migration step and a new `$schema` URL.
+
+Upgrade by bumping all `@ghentcdh/crouton-*` packages to the same version; mixing versions is not supported.
 
 Release notes per version: `RELEASE_NOTES.md` and the GitHub release.
 
