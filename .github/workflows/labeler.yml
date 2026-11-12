@@ -2,6 +2,8 @@ name: Labeler
 
 on:
   pull_request:
+    # edited: relabel when the title changes
+    types: [opened, edited, synchronize, reopened]
     branches:
       - main
       - master
