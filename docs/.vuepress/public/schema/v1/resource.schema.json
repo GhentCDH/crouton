@@ -1005,13 +1005,13 @@
             "type": "boolean",
             "markdownDescription": "When true, this column is not rendered in the read-only detail view.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
-          "createable": {
+          "creatable": {
             "default": true,
             "description": "When false, this column is excluded from the create form. Useful for system-managed fields.",
             "type": "boolean",
             "markdownDescription": "When false, this column is excluded from the create form. Useful for system-managed fields.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
-          "updateable": {
+          "updatable": {
             "default": true,
             "description": "When false, this column is excluded from the edit form after creation. Useful for immutable fields.",
             "type": "boolean",
@@ -1154,7 +1154,7 @@
             "markdownDescription": "Sub-resource relation configuration. Prefer this over fieldInput.resource / fieldInput.relationType for new resources.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "fieldInput": {
-            "description": "Configures the UI control used in create/edit forms and the display format. Use \"type\" to pick the input widget; \"format\" to pick a special renderer (e.g. \"relation\").",
+            "description": "Configures the UI control used in create/edit forms. Use \"type\" to pick the input widget.",
             "type": "object",
             "properties": {
               "$schema": {
@@ -1163,9 +1163,9 @@
                 "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "type": {
-                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
+                "description": "Field input widget; picks the renderer and the options schema. Known values: \"string\", \"textarea\", \"markdown\", \"number\", \"integer\", \"boolean\", \"toggle\", \"select\", \"multiSelect\", \"autocomplete\", \"date\", \"dateTime\", \"dateRange\", \"relation\", \"array\", \"custom\". When omitted, the widget is derived from the column \"type\".",
                 "type": "string",
-                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+                "markdownDescription": "Field input widget; picks the renderer and the options schema. Known values: \"string\", \"textarea\", \"markdown\", \"number\", \"integer\", \"boolean\", \"toggle\", \"select\", \"multiSelect\", \"autocomplete\", \"date\", \"dateTime\", \"dateRange\", \"relation\", \"array\", \"custom\". When omitted, the widget is derived from the column \"type\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "customRender": {
                 "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
@@ -1173,9 +1173,9 @@
                 "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "format": {
-                "description": "Render format hint for the frontend. The display format; determines which field input is used. Use \"fieldInput.type\" to override. Note: \"relation\" format is deprecated — use columns.<id>.relation instead.",
+                "description": "Deprecated: use \"fieldInput.type\" for the widget and \"columns.<id>.relation\" for relations. Still read as a renderer override during alpha.",
                 "type": "string",
-                "markdownDescription": "Render format hint for the frontend. The display format; determines which field input is used. Use \"fieldInput.type\" to override. Note: \"relation\" format is deprecated — use columns.<id>.relation instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+                "markdownDescription": "Deprecated: use \"fieldInput.type\" for the widget and \"columns.<id>.relation\" for relations. Still read as a renderer override during alpha.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "resource": {
                 "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options. Deprecated: use columns.<id>.relation.resource instead.",
@@ -1433,7 +1433,7 @@
                 "markdownDescription": "Nested array detail layout configuration. Renders via the detailFixed renderer.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               }
             },
-            "markdownDescription": "Configures the UI control used in create/edit forms and the display format. Use \"type\" to pick the input widget; \"format\" to pick a special renderer (e.g. \"relation\").\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+            "markdownDescription": "Configures the UI control used in create/edit forms. Use \"type\" to pick the input widget.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
           },
           "extend": {
             "description": "Relative path to another resource.json whose columns are expanded as virtual sub-columns under this column key. Example: \"../author/resource.json\" on a column \"author\" generates columns like \"author_name\".",
@@ -1531,9 +1531,9 @@
                 "markdownDescription": "JSON Schema URL for this field-input options block. Enables editor autocomplete for type-specific options.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "type": {
-                "description": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".",
+                "description": "Field input widget; picks the renderer and the options schema. Known values: \"string\", \"textarea\", \"markdown\", \"number\", \"integer\", \"boolean\", \"toggle\", \"select\", \"multiSelect\", \"autocomplete\", \"date\", \"dateTime\", \"dateRange\", \"relation\", \"array\", \"custom\". When omitted, the widget is derived from the column \"type\".",
                 "type": "string",
-                "markdownDescription": "Field input type — determines which renderer and options schema apply. Known values: \"string\" (text), \"textarea\" (multi-line text), \"markdown\" (markdown editor), \"number\" (decimal), \"Integer\" (whole number), \"boolean\" (checkbox), \"toggle\" (toggle switch), \"select\" (single-select dropdown), \"multiSelect\" (multi-select), \"autocomplete\" (relation lookup), \"date\" (date picker), \"dateTime\" (date+time picker), \"date-range\" (date range), \"relation\" (sub-resource table), \"array\" (array editor), \"custom\" (custom renderer). Use \"fieldInput.type\" to override the display format derived from \"columns[*].format\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+                "markdownDescription": "Field input widget; picks the renderer and the options schema. Known values: \"string\", \"textarea\", \"markdown\", \"number\", \"integer\", \"boolean\", \"toggle\", \"select\", \"multiSelect\", \"autocomplete\", \"date\", \"dateTime\", \"dateRange\", \"relation\", \"array\", \"custom\". When omitted, the widget is derived from the column \"type\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "customRender": {
                 "description": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".",
@@ -1541,9 +1541,9 @@
                 "markdownDescription": "Import path to a custom Vue component used as the field renderer. Only used when type is \"custom\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "format": {
-                "description": "Render format hint for the frontend. The display format; determines which field input is used. Use \"fieldInput.type\" to override. Note: \"relation\" format is deprecated — use columns.<id>.relation instead.",
+                "description": "Deprecated: use \"fieldInput.type\" for the widget and \"columns.<id>.relation\" for relations. Still read as a renderer override during alpha.",
                 "type": "string",
-                "markdownDescription": "Render format hint for the frontend. The display format; determines which field input is used. Use \"fieldInput.type\" to override. Note: \"relation\" format is deprecated — use columns.<id>.relation instead.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+                "markdownDescription": "Deprecated: use \"fieldInput.type\" for the widget and \"columns.<id>.relation\" for relations. Still read as a renderer override during alpha.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
               "resource": {
                 "description": "Relative path to the child resource definition (e.g. \"./author.resource\"). Required when format is \"relation\". Resolved at load time to inject sub-resource URIs into options. Deprecated: use columns.<id>.relation.resource instead.",

@@ -2,6 +2,7 @@ import { type ZodObject, type ZodRawShape, toJSONSchema } from 'zod';
 
 import type { JsonColumn } from '../../resource/Column';
 import { jsonSchemaOpts } from '../../view/json-schema.opts';
+import { isDateRange } from '../column/predicates';
 
 /**
  * Produces the JSON schema (`data`) for one view from the columns that belong in it.
@@ -60,7 +61,7 @@ export const patchFilterProperties = (
     // the API filter builder (buildFilterWhere) understands, e.g.
     // `date_range->from` / `date_range->to`. The frontend filter dropdown
     // reads these straight from `properties` and emits `key:value:operator`.
-    if (col.fieldInput?.format === 'date-range') {
+    if (isDateRange(col)) {
       delete properties[col.id];
       const opts =
         (col.fieldInput?.options as Record<string, unknown> | undefined) ?? {};

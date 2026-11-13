@@ -42,7 +42,7 @@ export const applyRequiredColumns = (
       continue;
     }
     if (col.idField) continue;
-    if (col.createable === false && col.updateable === false) continue;
+    if (col.creatable === false && col.updatable === false) continue;
     required.add(col.id);
 
     const property = properties[col.id];
@@ -89,7 +89,7 @@ export const buildView = (
   if (schemaVisible) {
     const nonEditableIds = new Set(
       schemaCols
-        .filter((c) => c.idField || (c.createable === false && c.updateable === false))
+        .filter((c) => c.idField || (c.creatable === false && c.updatable === false))
         .map((c) => c.id),
     );
     const required = jsonSchema['required'] as string[] | undefined;

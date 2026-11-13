@@ -24,7 +24,7 @@ export const isRecordCell = (col: JsonColumn): boolean =>
 
 /** Returns `true` when the column is a date-range control rendered in the table. */
 export const isDateRange = (col: JsonColumn): boolean =>
-  col.fieldInput?.format === 'date-range';
+  col.fieldInput?.type === 'dateRange' || col.fieldInput?.format === 'dateRange';
 
 /** Returns `true` when the column declares a nested object `type`. */
 export const isObjectColumn = (col: JsonColumn): boolean =>

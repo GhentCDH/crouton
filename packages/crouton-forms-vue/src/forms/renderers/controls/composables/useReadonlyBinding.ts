@@ -113,7 +113,7 @@ const getDisplayValue = (value: unknown, formValues: Record<string, unknown>, op
 export const getDisplayComponent = (value: unknown, options: ReadonlyOpts): Component => {
   const format = options.format;
   switch (format) {
-    case 'date-range':
+    case 'dateRange':
       return DateRangeValue as Component;
     case ControlType.number:
     case ControlType.integer:

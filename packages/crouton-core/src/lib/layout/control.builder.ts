@@ -7,7 +7,7 @@ import type { LayoutBuilder } from './layout.builder';
 import type { WhenCondition } from './schema/LayoutItem.schema';
 
 export interface DateRangeOptions extends ControlOption {
-  format: 'date-range';
+  format: 'dateRange';
   /** Label shown above the start date input. Defaults to "From". */
   fromLabel?: string;
   /** Label shown above the end date input. Defaults to "To". */
@@ -317,9 +317,9 @@ export class ControlBuilder<TYPE = Record<string, unknown>> extends ElementBuild
     });
   }
 
-  mutliSelect(options: Omit<SelectOptions, 'format'>) {
+  multiSelect(options: Omit<SelectOptions, 'format'>) {
     return this.opt({
-      format: ControlType.mutliSelect,
+      format: ControlType.multiSelect,
       ...options,
     });
   }

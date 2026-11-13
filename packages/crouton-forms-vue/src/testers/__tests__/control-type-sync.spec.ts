@@ -38,7 +38,7 @@ const FORMAT_TESTER_MAP: Array<[string, (u: UISchemaElement, s: JsonSchema) => b
   [ControlType.markdown,    isMarkdownControl],
   [ControlType.autocomplete,isAutoCompleteControl],
   [ControlType.select,      isSelectControl],
-  [ControlType.mutliSelect, isMultiselectControl],
+  [ControlType.multiSelect, isMultiselectControl],
   [ControlType.toggle,      isToggleControl],
   [ControlType.boolean,     isBooleanControl],
   [ControlType.relation,    isRelationControl],

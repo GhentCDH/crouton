@@ -34,7 +34,7 @@ export const buildFormLayout = (
     (c) =>
       !c.idField &&
       fieldIds.has(c.id) &&
-      (c.createable === true || c.updateable === true),
+      (c.creatable === true || c.updatable === true),
     ctx.resourceName,
   );
   if (form) applyRequiredColumns(form.data as Record<string, unknown>, columns);

@@ -52,5 +52,5 @@ export const SelectOptionsSchema = BaseOptionsSchema.extend({
   }),
 }).meta({
   title: 'Select options',
-  description: 'Options for the select dropdown and multi-select (mutliSelect alias)',
+  description: 'Options for the select dropdown and multi-select (multiSelect alias)',
 });

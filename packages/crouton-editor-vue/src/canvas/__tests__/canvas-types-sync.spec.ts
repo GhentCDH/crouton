@@ -21,11 +21,11 @@ describe('CANVAS_SUPPORTED_TYPES ↔ registry sync', () => {
       'autocomplete',
       'date',
       'dateTime',
-      'date-range',
+      'dateRange',
       'relation',
       'array',
       'custom',
-      'Integer', // alias for number — canvas uses 'number' key instead
+      'integer', // alias for number — canvas uses 'number' key instead
     ]);
 
     const missingFromCanvas = [...fieldInputRegistry.keys()].filter(

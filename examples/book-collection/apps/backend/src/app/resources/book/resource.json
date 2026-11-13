@@ -72,7 +72,7 @@
     "provenance": {
       "required": false,
       "fieldInput": {
-        "type": "mutliSelect",
+        "type": "multiSelect",
         "options": {
           "storeValue": true,
           "options": [

@@ -74,13 +74,10 @@ export const FieldInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Field input type — determines which renderer and options schema apply. ' +
-        'Known values: "string" (text), "textarea" (multi-line text), "markdown" (markdown editor), ' +
-        '"number" (decimal), "Integer" (whole number), "boolean" (checkbox), "toggle" (toggle switch), ' +
-        '"select" (single-select dropdown), "multiSelect" (multi-select), "autocomplete" (relation lookup), ' +
-        '"date" (date picker), "dateTime" (date+time picker), "date-range" (date range), ' +
-        '"relation" (sub-resource table), "array" (array editor), "custom" (custom renderer). ' +
-        'Use "fieldInput.type" to override the display format derived from "columns[*].format".',
+      'Field input widget; picks the renderer and the options schema. ' +
+        'Known values: "string", "textarea", "markdown", "number", "integer", "boolean", "toggle", ' +
+        '"select", "multiSelect", "autocomplete", "date", "dateTime", "dateRange", "relation", "array", "custom". ' +
+        'When omitted, the widget is derived from the column "type".',
     ),
   customRender: z
     .string()
@@ -88,11 +85,12 @@ export const FieldInputSchema = z.object({
     .describe(
       'Import path to a custom Vue component used as the field renderer. Only used when type is "custom".',
     ),
+  /** @deprecated Use `type` (widget) or `columns.<id>.relation` (relations). */
   format: z
     .string()
     .optional()
     .describe(
-      'Render format hint for the frontend. The display format; determines which field input is used. Use "fieldInput.type" to override. Note: "relation" format is deprecated — use columns.<id>.relation instead.',
+      'Deprecated: use "fieldInput.type" for the widget and "columns.<id>.relation" for relations. Still read as a renderer override during alpha.',
     ),
   /**
    * @deprecated Move to `columns.<id>.relation.resource` (run `crouton migrate`).

@@ -28,8 +28,8 @@ const col = (overrides: Partial<JsonColumn> & { id: string }): JsonColumn =>
     hiddenInForm: false,
     hiddenInTable: false,
     hiddenInView: false,
-    createable: true,
-    updateable: true,
+    creatable: true,
+    updatable: true,
     idField: false,
     ...overrides,
   });
@@ -65,7 +65,7 @@ describe('required on a custom resource (no Zod model)', () => {
 
   it('does not require a field the form cannot write', () => {
     const views = bl([
-      col({ id: 'computed', type: 'string', required: true, createable: false, updateable: false }),
+      col({ id: 'computed', type: 'string', required: true, creatable: false, updatable: false }),
       col({ id: 'label', type: 'string' }),
     ]);
     expect(required(views)).toBeUndefined();

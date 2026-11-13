@@ -35,6 +35,6 @@ Expected: exits 0 with no issues.
 
 - Computed columns go in `columns[id].computed.sql`, not in `calculatedColumns`
 - Use `main` as the alias for the parent table row in the subquery
-- Computed columns are implicitly `createable: false`, `updateable: false`, `hiddenInForm: true`
+- Computed columns are implicitly `creatable: false`, `updatable: false`, `hiddenInForm: true`
 - Add the column to `layout.table.items` to control its position
 - Use the crouton skill if available

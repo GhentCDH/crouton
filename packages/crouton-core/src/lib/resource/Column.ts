@@ -141,13 +141,13 @@ export const JsonColumnSchema = z.object({
     .describe(
       'When true, this column is not rendered in the read-only detail view.',
     ),
-  createable: z
+  creatable: z
     .boolean()
     .default(true)
     .describe(
       'When false, this column is excluded from the create form. Useful for system-managed fields.',
     ),
-  updateable: z
+  updatable: z
     .boolean()
     .default(true)
     .describe(
@@ -221,8 +221,8 @@ export const JsonColumnSchema = z.object({
    *
    * Applies to the **form** view only — a required filter input would make the
    * filter panel unsubmittable, and the table and view schemas are read-only.
-   * Ignored on the id column and on columns that are neither createable nor
-   * updateable, since the form cannot supply a value for those.
+   * Ignored on the id column and on columns that are neither creatable nor
+   * updatable, since the form cannot supply a value for those.
    */
   required: z
     .boolean()
@@ -234,7 +234,7 @@ export const JsonColumnSchema = z.object({
     'Sub-resource relation configuration. Prefer this over fieldInput.resource / fieldInput.relationType for new resources.',
   ),
   fieldInput: FieldInputSchema.optional().describe(
-    'Configures the UI control used in create/edit forms and the display format. Use "type" to pick the input widget; "format" to pick a special renderer (e.g. "relation").',
+    'Configures the UI control used in create/edit forms. Use "type" to pick the input widget.',
   ),
   /**
    * Path to another `resource.json` whose columns are expanded as nested sub-columns

@@ -21,11 +21,11 @@ const previewValue = ref<unknown>(
   (() => {
     switch (props.type) {
       case 'number':
-      case 'Integer':
+      case 'integer':
         return 0;
       case 'boolean':
         return false;
-      case 'mutliSelect':
+      case 'multiSelect':
         return [];
       case 'select':
       case 'toggle':
@@ -52,7 +52,7 @@ const previewValue = ref<unknown>(
     :enabled="false"
   />
   <InputNumber
-    v-else-if="type === 'number' || type === 'Integer'"
+    v-else-if="type === 'number' || type === 'integer'"
     v-model="previewValue as number"
     size="sm"
     :enabled="false"
@@ -78,7 +78,7 @@ const previewValue = ref<unknown>(
     :enabled="false"
   />
   <MultiSelect
-    v-else-if="type === 'mutliSelect'"
+    v-else-if="type === 'multiSelect'"
     v-model="previewValue as unknown[]"
     size="sm"
     :options="

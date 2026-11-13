@@ -29,7 +29,7 @@
       "label": "Rental period",
       "hiddenInTable": true,
       "fieldInput": {
-        "type": "date-range",
+        "type": "dateRange",
         "options": {
           "fromLabel": "From",
           "toLabel": "To"

@@ -1,5 +1,5 @@
-# Number / Integer
+# Number / integer
 
-Numeric input. `Integer` is an alias for `number`.
+Numeric input. `integer` is an alias for `number` that only accepts whole numbers.
 
 <!-- @include: ./_generated/number.md -->

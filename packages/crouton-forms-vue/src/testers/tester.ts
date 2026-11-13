@@ -99,7 +99,7 @@ export const isArrayRenderer = and(
 
 export const isMultiselectControl = and(
   uiTypeIs('Control'),
-  optionIsIgnoreCase('format', ControlType.mutliSelect),
+  optionIsIgnoreCase('format', ControlType.multiSelect),
 );
 
 export const isSelectControl = and(
@@ -147,7 +147,7 @@ export const isRelationControl = and(
 );
 
 export const isDateRangeControl = and(
-  optionIsIgnoreCase('format', 'date-range'),
+  optionIsIgnoreCase('format', 'dateRange'),
 );
 
 export const isComponentElement = uiTypeIs('ComponentElement');

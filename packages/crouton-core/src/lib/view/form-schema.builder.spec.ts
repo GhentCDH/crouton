@@ -165,12 +165,12 @@ describe('buildFormControl option forwarding', () => {
     const col = JsonColumnSchema.parse({
       id: 'period',
       fieldInput: {
-        format: 'date-range',
+        format: 'dateRange',
         options: { fromLabel: 'Start', toLabel: 'End' },
       },
     });
     const built = asControl(buildFormControl(col).build());
-    expect(built?.options?.['format']).toBe('date-range');
+    expect(built?.options?.['format']).toBe('dateRange');
     expect(built?.options?.['fromLabel']).toBe('Start');
     expect(built?.options?.['toLabel']).toBe('End');
   });

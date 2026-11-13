@@ -7,7 +7,7 @@ import type { WhenCondition } from '../../layout/schema/LayoutControl.schema';
 import { type JsonColumn, isRelationColumn, normalizeUnique } from '../../resource/Column';
 import { columnTypeName, columnTypeToJsonSchema } from '../../resource/ColumnType.schema';
 import type { DetailConfig } from '../../resource/FieldInput.schema';
-import { isArrayColumn, isObjectColumn } from './predicates';
+import { isArrayColumn, isDateRange, isObjectColumn } from './predicates';
 
 export type { WhenCondition };
 
@@ -86,7 +86,7 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<Record<string,
       layout: fieldInput.detail.layout === 'collapse' ? 'row' : undefined,
     });
   } else if (
-    fieldInput?.format !== 'date-range' &&
+    !isDateRange(col) &&
     (fieldInput?.type === 'date' || fieldInput?.format === 'dateTime')
   ) {
     // Explicit branch (like date-range below) so the datepicker's date options
@@ -96,13 +96,12 @@ export const buildFormControl = (col: JsonColumn): ControlBuilder<Record<string,
     if (!options['colspan']) options['colspan'] = 12;
     const format = fieldInput.format === 'dateTime' ? 'dateTime' : 'date';
     control.control(format, options).width('full');
-  } else if (fieldInput?.format === 'date-range') {
-    // Drive the renderer off the explicit `format` so its option-based tester
-    // matches, not `type` (which for this json column is 'object' and has no
-    // renderer). Mirrors the relation branch.
-    const options: Record<string, unknown> = { ...(fieldInput.options as object | undefined) };
+  } else if (isDateRange(col)) {
+    // Name the renderer explicitly so its option-based tester matches, not the
+    // column `type` (which for this json column is 'object'). Mirrors the relation branch.
+    const options: Record<string, unknown> = { ...(fieldInput?.options as object | undefined) };
     if (!options['colspan']) options['colspan'] = 12;
-    control.control('date-range', options).width('full');
+    control.control('dateRange', options).width('full');
   } else {
     const options: Record<string, unknown> = { ...(fieldInput?.options as object | undefined) };
     if (!options['colspan']) options['colspan'] = 12;

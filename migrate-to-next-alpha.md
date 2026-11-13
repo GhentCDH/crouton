@@ -1078,6 +1078,63 @@ grep -rn "json_schema\|ui_schema" --include="*.ts" --include="*.vue" src
 
 ---
 
+## Spelling fixes: `creatable`, `updatable`, field-input type values (breaking at v1)
+
+**When to apply:** any column has `createable` / `updateable`, or a `fieldInput.type` / `fieldInput.format` of
+`"Integer"`, `"mutliSelect"` or `"date-range"`.
+
+The old spellings are still accepted (rewritten on load) during alpha, but they are not autocompleted and will be
+rejected from v1.
+
+```json
+// BEFORE
+{
+  "columns": {
+    "isbn": { "createable": false, "updateable": false },
+    "pages": { "fieldInput": { "type": "Integer" } },
+    "tags": { "fieldInput": { "type": "mutliSelect" } },
+    "period": { "fieldInput": { "type": "date-range" } }
+  }
+}
+
+// AFTER
+{
+  "columns": {
+    "isbn": { "creatable": false, "updatable": false },
+    "pages": { "fieldInput": { "type": "integer" } },
+    "tags": { "fieldInput": { "type": "multiSelect" } },
+    "period": { "fieldInput": { "type": "dateRange" } }
+  }
+}
+```
+
+**Rule:** Rename `createable` → `creatable` and `updateable` → `updatable` on every column. Rewrite the type values
+`"Integer"` → `"integer"`, `"mutliSelect"` → `"multiSelect"`, `"date-range"` → `"dateRange"` in both
+`fieldInput.type` and `fieldInput.format`. Type values are camelCase. The field-input `$schema` URLs
+(`date-range.field-input.schema.json`) are unchanged.
+
+---
+
+## `fieldInput.format` deprecated
+
+**When to apply:** any column has `fieldInput.format`.
+
+`fieldInput.type` picks the widget; `columns.<id>.relation` declares relations (see "Relation config" above).
+`format` is still read during alpha but has no autocomplete description beyond the deprecation.
+
+```json
+// BEFORE
+{ "fieldInput": { "format": "dateRange" } }
+
+// AFTER
+{ "fieldInput": { "type": "dateRange" } }
+```
+
+**Rule:** If `fieldInput.format` is `"relation"`, apply the relation migration. Otherwise, if `fieldInput.type` is
+not set, move the `format` value to `type`; then remove `format`.
+
+---
+
 ## Automated detection — grep checklist
 
 Run these from the repo root to find files needing migration:
@@ -1129,6 +1186,11 @@ grep -rn '"calculatedColumns"' --include="resource.json" .
 
 # showInLookup
 grep -rn '"showInLookup"' --include="resource.json" .
+
+# Spelling fixes and deprecated fieldInput.format
+grep -rnE '"(createable|updateable)"' --include="resource.json" .
+grep -rnE '"(Integer|mutliSelect|date-range)"' --include="resource.json" .
+grep -rn '"format"' --include="resource.json" .
 ```
 
 ---
@@ -1148,6 +1210,9 @@ grep -rn '"showInLookup"' --include="resource.json" .
 - **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
 - **`position` / `colspan` / `hideLabel` on a column**: removed — order and placement live in
   `layout.<ctx>.items`. Positions in plain source order can simply be deleted.
+- **`createable` / `updateable`**: misspelled — use `creatable` / `updatable`.
+- **`"Integer"`, `"mutliSelect"`, `"date-range"` as a field-input type**: use `"integer"`, `"multiSelect"`,
+  `"dateRange"` (type values are camelCase).
 - **`searchFields`/`filterFields` in `layout.table`**: removed — move to `operations.findAll.search` /
   `operations.findAll.filter`.
 

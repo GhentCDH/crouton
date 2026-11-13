@@ -38,7 +38,7 @@ See [Decision tables — kind vs adapter](./decision-tables.md#kind-vs-adapter).
 npx crouton validate resources resources/book/resource.json
 ```
 
-Valid built-in types: `autocomplete`, `textarea`, `select`, `multiSelect`, `boolean`, `toggle`, `date`, `date-range`, `number`, `markdown`, `array`, `string`.
+Valid built-in types: `autocomplete`, `textarea`, `select`, `multiSelect`, `boolean`, `toggle`, `date`, `dateTime`, `dateRange`, `number`, `integer`, `markdown`, `array`, `string`.
 
 ---
 
