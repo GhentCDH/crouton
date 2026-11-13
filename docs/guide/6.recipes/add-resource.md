@@ -132,6 +132,6 @@ The book resource from the book-collection example — a Prisma model with searc
 
 ## What `crouton update` owns vs what you own
 
-`crouton update` regenerates `schema.ts` and may add new columns it detects in the Prisma schema. It will **not** overwrite field-level config you have set (`searchable`, `fieldInput`, `label`, etc.) — but it will add columns you have not seen yet. Review the diff each time before accepting.
+`crouton update` regenerates `schema.ts` and may add new columns it detects in the Prisma schema. It will **not** overwrite field-level config you have set (`fieldInput`, `relation`, `label`, etc.) — but it will add columns you have not seen yet. Review the diff each time before accepting.
 
 See [Decision tables](./decision-tables.md#crouton-update-vs-hand-edits) for the full breakdown.

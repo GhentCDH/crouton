@@ -1,9 +1,17 @@
 # Migration Guide — next-alpha
 
-## Hand this file to your AI assistant
+## Run `crouton migrate`
 
-Paste the following prompt into Claude, Cursor, or any AI assistant, followed by the contents of each `resource.json`
-you want to migrate:
+Every `resource.json` rule in this guide is implemented as a codemod:
+
+```bash
+pnpm crouton migrate --dry-run   # preview which rules apply to each file
+pnpm crouton migrate             # rewrite the files (asks once)
+```
+
+It keeps the rendered result the same, only writes files that validate afterwards, and is safe to run twice. The
+sections below remain the reference for what it does — and for the changes it cannot make (application code, unknown
+column keys). For those you can still hand this file to an AI assistant:
 
 ```
 Read migrate-to-next-alpha.md and apply all applicable migrations to the resource.json below.
@@ -11,9 +19,6 @@ Output the full updated JSON.
 
 <resource.json content>
 ```
-
-The AI will check every rule in this guide and rewrite only the sections that need updating. Review the diff before
-saving.
 
 ---
 
@@ -54,15 +59,17 @@ pnpm crouton validate
 
 Fix any reported errors before migrating `resource.json` files.
 
-### Step 4 — Apply resource.json migrations (AI-assisted)
+### Step 4 — Apply resource.json migrations
 
-Hand the AI this file and each `resource.json` using the prompt at the top of this document. Review the diff before
-saving.
+```bash
+pnpm crouton migrate
+```
+
+Review the diff before committing. Files it reports as failed need a manual fix (see the matching section below).
 
 ### Step 5 — Add `$schema` and `schemaVersion: 1`
 
-Every `resource.json` must have these two root keys after migration (the AI migration step above sets them, but
-double-check):
+Every `resource.json` must have these two root keys after migration (`crouton migrate` sets them):
 
 ```json
 {
@@ -83,7 +90,8 @@ Fix any remaining validation errors reported. The `$schema` key enables editor a
 
 ### Step 7 — Write a migration report
 
-After all files pass validation, ask the AI to summarise what changed:
+After all files pass validation, summarise what changed (the `crouton migrate --dry-run` output lists the rules per
+file), or ask an AI to do it:
 
 ```
 You have just migrated the resource.json files listed below.
@@ -374,7 +382,7 @@ Relation configuration has moved from `fieldInput` to a top-level `relation` fie
       "fieldInput": {
         "format": "relation",
         "resource": "authors",
-        "relationType": "many-to-one",
+        "relationType": "manyToOne",
         "foreignKey": "author_id",
         "relation": "author",
         "options": {
@@ -394,7 +402,7 @@ Relation configuration has moved from `fieldInput` to a top-level `relation` fie
       "displayKey": "fullName",
       "relation": {
         "resource": "authors",
-        "type": "many-to-one",
+        "type": "manyToOne",
         "foreignKey": "author_id",
         "prismaField": "author",
         "sort": "lastName",
@@ -405,8 +413,9 @@ Relation configuration has moved from `fieldInput` to a top-level `relation` fie
 }
 ```
 
-**Rule (per column):** If `fieldInput.resource` exists or `fieldInput.format === "relation"`, and `relation` is not yet
-set:
+**Rule (per column):** If `fieldInput.format === "relation"`, or `fieldInput.resource` exists without a `format` or
+`type` (with a widget `type` such as `autocomplete`, `resource` is a widget option — leave it), and `relation` is not
+yet set:
 
 1. Build a `relation` object: `resource` from `fieldInput.resource`, `type` from `fieldInput.relationType`, `foreignKey`
    from `fieldInput.foreignKey`, `prismaField` from `fieldInput.relation`, `sort` from `fieldInput.options.sort`,
@@ -667,9 +676,9 @@ column has `searchable: true`.
 ```
 
 **Rule:** Collect all search fields from: (a) `layout.table.searchFields` (or recursively inside a wrapper table node),
-(b) column ids where `searchable: true`. Remove `searchable` from columns. Remove `searchFields` from layout. Set
-`operations.findAll.search` to the deduplicated union. Move `filterFields` → `operations.findAll.filter` the same way.
-Only apply if `operations.findAll.search` is not already set.
+(b) column ids where `searchable: true`. Remove `searchable` from columns. Remove `searchFields` from layout. Merge
+them into `operations.findAll.search` (existing entries first, deduplicated). Move `filterFields` →
+`operations.findAll.filter` the same way. Skip when `findAll` is disabled.
 
 `operations.findAll.filter` drives the toolbar filter controls **and** is the server allowlist: a `?filter=` on any
 other column (except the id field) is rejected with 400. `layout.table.searchFields` / `filterFields` fail validation.
@@ -862,7 +871,9 @@ The table needs no layout here: without `author` its order (`title`, `notes`) is
 ```
 
 **Rule:** Move `sortable` and `defaultSort` from column to the matching `layout.table.items[]` entry (match by `id`).
-Create the entry if it doesn't exist.
+Create the entry if it doesn't exist. Note: during the alpha the loader only applied these flags to columns *not* yet
+listed in an explicit `layout.table`; on a listed column they were ignored, so `crouton migrate` drops them there to
+keep the table unchanged — add them to the item yourself if you want them.
 
 ### `filterable`
 

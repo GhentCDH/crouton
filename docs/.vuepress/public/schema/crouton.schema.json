@@ -974,7 +974,7 @@
       "markdownDescription": "Path to auth-provider modules, relative to the config file directory. Defaults to \"src/app/auth-providers\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
     },
     "agentFiles": {
-      "description": "Agent file sync configuration for `crouton migrate`. Stored after the first run.",
+      "description": "Agent file sync configuration for `crouton update resources`. Stored after the first run.",
       "type": "object",
       "properties": {
         "targets": {
@@ -990,7 +990,7 @@
           "markdownDescription": "Which agent file sets to manage. Defaults to those already present in the project, or both on first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
         }
       },
-      "markdownDescription": "Agent file sync configuration for `crouton migrate`. Stored after the first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+      "markdownDescription": "Agent file sync configuration for `crouton update resources`. Stored after the first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
     }
   },
   "required": [
