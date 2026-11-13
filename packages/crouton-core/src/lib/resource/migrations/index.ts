@@ -78,3 +78,4 @@ export const runResourceMigrations = (
 };
 
 export * from './types';
+export * from './codemods';

@@ -74,6 +74,7 @@ export {
   runProcess,
 } from './prisma-shell';
 export * from './validate';
+export * from './migrate';
 export * from './agent-block/upsert-agent-block';
 export * from './agent-files/render';
 export * from './agent-files/manifest';
