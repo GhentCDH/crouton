@@ -11,7 +11,7 @@ interface CreateResourceCliOptions extends CommonOptions {
 }
 
 interface CreateDatasourceCliOptions extends CommonOptions {
-  name?: string; type?: string; urlEnv?: string; generatedImport?: string;
+  name?: string; adapter?: 'prisma' | 'custom'; type?: string; urlEnv?: string; generatedImport?: string;
   zodOutput?: string; prismaSchema?: string; prismaConfig?: string; clientOutput?: string;
   default?: boolean;
 }
@@ -33,6 +33,7 @@ const createResource = (name: string | undefined, opts: CreateResourceCliOptions
 const createDatasource = (opts: CreateDatasourceCliOptions) =>
   runCreateDatasource({
     name: opts.name,
+    adapter: opts.adapter,
     type: opts.type,
     urlEnv: opts.urlEnv,
     generatedImport: opts.generatedImport,
@@ -85,6 +86,7 @@ export const registerCreateCommand = (program: Command) => {
       .command('datasource')
       .description('Scaffold a new datasource (data-source.json, index.ts, Prisma schema + config)')
       .option('-n, --name <name>', 'datasource name')
+      .option('-a, --adapter <adapter>', 'datasource adapter: prisma | custom')
       .option('-t, --type <type>', 'datasource type (postgres, mysql, sqlite, …)')
       .option('-e, --url-env <env>', 'env var holding the connection URL')
       .option('-i, --generated-import <path>', 'import path for the generated Zod types')

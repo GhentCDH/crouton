@@ -13,7 +13,9 @@ import pc from 'picocolors';
 import {
   buildCustomResourceFiles,
   loadConfig,
+  loadDatasources,
 } from '@ghentcdh/crouton-codegen';
+import { labelFromId } from '@ghentcdh/crouton-core';
 
 import { CancelledError, assertNotCancel } from '../prompts';
 import { writeScaffoldFiles } from '../scaffold/scaffold-files';
@@ -71,6 +73,36 @@ export const runCreateResource = async (
       );
     }
 
+    /** Flag wins; `-y` keeps the derived default; otherwise ask with the default prefilled (blank = default). */
+    const ask = async (flag: string | undefined, message: string, initialValue: string) => {
+      if (flag !== undefined || opts.yes) return flag;
+      const value = (assertNotCancel(await clack.text({ message, initialValue })) as string | undefined)?.trim();
+      return value || undefined;
+    };
+
+    const label = labelFromId(name);
+    const route = await ask(opts.route, 'URL route segment', name);
+    const tag = await ask(opts.tag, 'OpenAPI tag', label);
+    const title = await ask(opts.title, 'UI title', label);
+
+    let database = opts.database;
+    if (database === undefined && !opts.yes) {
+      const datasources = await loadDatasources(loaded).catch(() => []);
+      if (datasources.length > 0) {
+        const picked = assertNotCancel<string>(
+          await clack.select<string>({
+            message: 'Datasource exposed to the repository as ctx.prisma',
+            options: [
+              { value: '', label: 'none', hint: 'implement data access yourself' },
+              ...datasources.map((d) => ({ value: d.name, label: d.name, hint: d.default ? 'default' : undefined })),
+            ],
+            initialValue: '',
+          }),
+        );
+        database = picked || undefined;
+      }
+    }
+
     const idType =
       opts.idType ??
       (opts.yes
@@ -92,10 +124,10 @@ export const runCreateResource = async (
 
     const { files, notes } = buildCustomResourceFiles({
       name,
-      route: opts.route,
-      tag: opts.tag,
-      title: opts.title,
-      database: opts.database,
+      route,
+      tag,
+      title,
+      database,
       idType,
       resourcesDir: loaded.config.resourcesDir,
     });
