@@ -18,16 +18,12 @@
       "search": [
         "name",
         "email"
-      ]
+      ],
+      "filter": ["name", "email"]
     }
   },
   "layout": {
-    "table": {
-      "filterFields": [
-        "name",
-        "email"
-      ]
-    }
+    "table": {}
   },
   "source": {
     "model": "User"

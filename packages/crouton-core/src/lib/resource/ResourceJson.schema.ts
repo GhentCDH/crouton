@@ -4,7 +4,6 @@ import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SecuritySchema } from '../data-source/Security.schema';
 import { LayoutSchema } from '../layout/schema/Layout.schema';
 import { labelFromId } from '../schema/label.helper';
-import { CalculatedColumnSchema } from './CalculatedColumn.schema';
 import { type JsonColumn, JsonColumnSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
@@ -28,6 +27,7 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
   idType: '\'idType\' moved to source.idType (run crouton migrate)',
   calculatedColumns:
     '\'calculatedColumns\' moved to columns[id].computed (run crouton migrate)',
+  id: '\'id\' was removed — the resource id is always "name" (run crouton migrate)',
 };
 
 // ── Removed `source` keys ─────────────────────────────────────────────
@@ -44,8 +44,8 @@ const SOURCE_REMOVED_KEYS: Record<string, string> = {
 
 const JsonColumnsMapSchema = z.record(
   z.string(),
-  JsonColumnSchema.omit({ id: true }).catchall(z.unknown()),
-); // map form — key becomes `id`
+  JsonColumnSchema.omit({ id: true }).strict(),
+); // map form — key becomes `id`; unknown column keys fail (typo protection)
 export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;
 
@@ -104,30 +104,13 @@ export const ResourceJsonShape = z.object({
   name: z
     .string()
     .describe(
-      'Unique resource identifier. Used as the frontend form id and as the default route/id when those are not explicitly set.',
+      'Unique resource identifier. Used as the resource id, the frontend form id and the default route.',
     ),
   route: z
     .string()
     .optional()
     .describe(
       'URL segment for generated API endpoints. Defaults to "name" when omitted.',
-    ),
-  id: z
-    .string()
-    .optional()
-    .describe(
-      'Internal resource id used in frontend routing. Defaults to "name" when omitted.',
-    ),
-  /**
-   * Prisma model name. Required when `kind` is `prisma` (enforced by the
-   * refinement on `ResourceJsonSchema`), and must be absent when `kind` is
-   * `custom` — there is no Prisma delegate to address.
-   */
-  model: z
-    .string()
-    .optional()
-    .describe(
-      'Prisma model name. Required when kind is "prisma"; must be absent when kind is "custom".',
     ),
   tag: z
     .string()
@@ -145,7 +128,9 @@ export const ResourceJsonShape = z.object({
       description: z
         .string()
         .optional()
-        .describe('Description shown in the OpenAPI spec for this tag group.'),
+        .describe(
+          'Description of the OpenAPI tag. Added to the Swagger document by applyResourceTagDescriptions() from @ghentcdh/crouton-api.',
+        ),
     })
     .optional()
     .describe(
@@ -156,24 +141,6 @@ export const ResourceJsonShape = z.object({
     .optional()
     .describe(
       'Human-readable title shown in the UI sidebar and page headers. Defaults to a title-cased version of "name".',
-    ),
-  table: z
-    .string()
-    .optional()
-    .describe(
-      'Database table name override. Defaults to the Prisma model\'s table name.',
-    ),
-  idType: z
-    .enum(['string', 'number'])
-    .optional()
-    .describe(
-      'Data type of the resource\'s primary key, used to coerce :id route params. Written by codegen from the Prisma model; defaults to "string".',
-    ),
-  database: z
-    .string()
-    .optional()
-    .describe(
-      'Name of the datasource this resource uses. Defaults to the project\'s default datasource.',
     ),
   /**
    * Mount this resource under a parent route instead of at the top level —
@@ -196,12 +163,6 @@ export const ResourceJsonShape = z.object({
     .describe(
       'Column definitions as an id-keyed map. Each key becomes the column id. Omit for a columnless resource.',
     ),
-  calculatedColumns: z
-    .array(CalculatedColumnSchema)
-    .default([])
-    .describe(
-      'Columns computed from raw SQL expressions. Not supported on "custom" resources.',
-    ),
   source: z
     .object({
       model: z.string().optional().describe('Prisma model name.'),
@@ -214,14 +175,18 @@ export const ResourceJsonShape = z.object({
     })
     .optional()
     .describe(
-      'Where the data comes from (replaces root model/table/database/idType).',
+      'Where the data comes from: Prisma model, table, datasource and primary-key type.',
     ),
   lookup: z
     .object({
       labels: z
         .array(z.string())
         .describe('Ordered display fields for relation dropdowns.'),
-      separator: z.string().optional().default(' '),
+      separator: z
+        .string()
+        .optional()
+        .default(' ')
+        .describe('String placed between the label fields. Default: a single space.'),
     })
     .optional()
     .describe('How this resource is labelled in other resources\' dropdowns.'),
@@ -244,28 +209,12 @@ export const refineByKind = (
   ctx: z.RefinementCtx,
 ): void => {
   if (obj.kind === 'custom') {
-    if (obj.model !== undefined) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['model'],
-        message:
-          'A custom resource has no Prisma model. Remove "model" — data access comes from repository.ts.',
-      });
-    }
     if (obj.source?.model !== undefined) {
       ctx.addIssue({
         code: 'custom',
         path: ['source', 'model'],
         message:
           'A custom resource has no Prisma model. Remove "source.model" — data access comes from repository.ts.',
-      });
-    }
-    if (obj.calculatedColumns?.length) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['calculatedColumns'],
-        message:
-          'calculatedColumns run raw SQL against a database table and are not supported on a custom resource. Compute the value in repository.ts instead.',
       });
     }
     for (const [id, col] of Object.entries(obj.columns ?? {})) {
@@ -353,21 +302,20 @@ const refineLayout = (
   obj: z.infer<typeof ResourceJsonShape>,
   ctx: z.RefinementCtx,
 ): void => {
-  const allIds = new Set([
-    ...Object.keys(obj.columns ?? {}),
-    ...(obj.calculatedColumns ?? []).map((c) => c.id),
-  ]);
+  const allIds = new Set(Object.keys(obj.columns ?? {}));
 
-  // Validate operations.findAll.search independently of layout
+  // Validate operations.findAll.search / filter independently of layout
   const findAll = obj.operations?.findAll;
   if (findAll && typeof findAll === 'object' && !('uri' in findAll)) {
-    for (const sf of ((findAll as { search?: string[] }).search ?? [])) {
-      if (!allIds.has(sf)) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['operations', 'findAll', 'search'],
-          message: `Unknown column id "${sf}" in operations.findAll.search.`,
-        });
+    for (const key of ['search', 'filter'] as const) {
+      for (const id of findAll[key] ?? []) {
+        if (!allIds.has(id)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['operations', 'findAll', key],
+            message: `Unknown column id "${id}" in operations.findAll.${key}.`,
+          });
+        }
       }
     }
   }
@@ -382,7 +330,7 @@ const refineLayout = (
         ctx.addIssue({
           code: 'custom',
           path,
-          message: `Unknown column id "${id}" in layout.${label} — not found in columns or calculatedColumns.`,
+          message: `Unknown column id "${id}" in layout.${label} — not found in columns.`,
         });
       }
       if (seen.has(id)) {
@@ -414,17 +362,6 @@ const refineLayout = (
         )
         .filter(Boolean);
       validateIds(ids, ['layout', 'table'], 'table');
-
-      for (const ff of (tableNode['filterFields'] as string[] | undefined) ??
-        []) {
-        if (!allIds.has(ff)) {
-          ctx.addIssue({
-            code: 'custom',
-            path: ['layout', 'table', 'filterFields'],
-            message: `Unknown column id "${ff}" in filterFields.`,
-          });
-        }
-      }
     }
   }
 };
@@ -485,15 +422,16 @@ const patchTableNodeInLayout = (
   });
 
 /**
- * Merge `searchFields` into `operations.findAll.search` (deduped, existing first).
+ * Merge column ids into `operations.findAll.<key>` (deduped, existing first).
  * No-op when findAll is disabled; an unset findAll defaults to off for `custom`.
  */
-const mergeSearchFieldsIntoFindAll = (
+const mergeIntoFindAll = (
   obj: Record<string, unknown>,
-  searchFields: string[],
-  kind: string | undefined,
+  key: 'search' | 'filter',
+  fields: string[],
 ): Record<string, unknown> => {
-  if (!searchFields.length) return obj;
+  if (!fields.length) return obj;
+  const kind = obj['kind'] as string | undefined;
   const ops = (obj['operations'] as Record<string, unknown> | undefined) ?? {};
   const findAll = ops['findAll'];
   if ((findAll ?? kind !== 'custom') === false) return obj;
@@ -501,37 +439,32 @@ const mergeSearchFieldsIntoFindAll = (
     typeof findAll === 'object' && findAll !== null
       ? (findAll as Record<string, unknown>)
       : undefined;
-  const existing = (findAllObj?.['search'] as string[] | undefined) ?? [];
-  const search = [
-    ...existing,
-    ...searchFields.filter((f) => !existing.includes(f)),
-  ];
+  const existing = (findAllObj?.[key] as string[] | undefined) ?? [];
+  const merged = [...existing, ...fields.filter((f) => !existing.includes(f))];
   return {
     ...obj,
-    operations: { ...ops, findAll: { ...findAllObj, search } },
+    operations: { ...ops, findAll: { ...findAllObj, [key]: merged } },
   };
 };
 
 /**
- * Lift `layout.table.searchFields` (flat or wrapped table node) into
- * `operations.findAll.search` and strip it from the layout. Runs before kind
- * auto-derivation, so the kind falls back to `model` presence.
+ * Lift `layout.table.searchFields` / `filterFields` (flat or wrapped table node)
+ * into `operations.findAll.search` / `filter` and strip them from the layout.
+ * Both keys are also reported as removed; the lift keeps the rest of the parse sane.
  */
-const liftLayoutTableSearchFields = (
+const liftLayoutTableQueryFields = (
   obj: Record<string, unknown>,
 ): Record<string, unknown> => {
   const layout = obj['layout'] as Record<string, unknown> | undefined;
   if (!layout?.['table']) return obj;
   const node = getOrCreateTableNode(layout);
-  if (!('searchFields' in node)) return obj;
-  const { searchFields, ...rest } = node;
-  const kind =
-    (obj['kind'] as string | undefined) ??
-    (obj['model'] !== undefined ? 'prisma' : 'custom');
-  return mergeSearchFieldsIntoFindAll(
-    { ...obj, layout: replaceTableNodeInLayout(layout, rest) },
-    (searchFields as string[] | undefined) ?? [],
-    kind,
+  if (!('searchFields' in node) && !('filterFields' in node)) return obj;
+  const { searchFields, filterFields, ...rest } = node;
+  const lifted = { ...obj, layout: replaceTableNodeInLayout(layout, rest) };
+  return mergeIntoFindAll(
+    mergeIntoFindAll(lifted, 'search', (searchFields as string[] | undefined) ?? []),
+    'filter',
+    (filterFields as string[] | undefined) ?? [],
   );
 };
 
@@ -557,6 +490,12 @@ const collectRemovedLayoutKeyErrors = (
     errors.push({
       path: [...path, 'searchFields'],
       message: '\'searchFields\' was moved to \'operations.findAll.search\'.',
+    });
+  }
+  if ('filterFields' in obj) {
+    errors.push({
+      path: [...path, 'filterFields'],
+      message: '\'filterFields\' was moved to \'operations.findAll.filter\'.',
     });
   }
   if ('actions' in obj && path.some((p) => p === 'table')) {
@@ -661,6 +600,23 @@ const collectRemovedColumnKeyErrors = (
   return errors;
 };
 
+/** Legacy column flags lifted onto the table layout item (see migrate-to-next-alpha.md). */
+const LEGACY_COLUMN_CONTROL_KEYS = [
+  'sortable',
+  'defaultSort',
+  'showWhen',
+  'hideWhen',
+  'disabledWhen',
+] as const;
+/** Column keys consumed by the preprocess (lifted or reported) before strict validation. */
+const STRIPPED_COLUMN_KEYS = new Set<string>([
+  ...LEGACY_COLUMN_CONTROL_KEYS,
+  'searchable',
+  'filterable',
+  'position',
+  'hideLabel',
+]);
+
 /** Old column-key spellings, rewritten before validation (alpha only — drop at v1). */
 const COLUMN_KEY_ALIASES: Record<string, string> = {
   createable: 'creatable',
@@ -673,15 +629,15 @@ const FIELD_INPUT_TYPE_ALIASES: Record<string, string> = {
   'date-range': 'dateRange',
 };
 
+/** Rename alias keys; when both spellings are present the new one wins. */
 const renameKeys = (
   obj: Record<string, unknown>,
   aliases: Record<string, string>,
 ): Record<string, unknown> =>
   Object.fromEntries(
-    Object.entries(obj).map(([k, v]) => [
-      aliases[k] && !(aliases[k] in obj) ? aliases[k] : k,
-      v,
-    ]),
+    Object.entries(obj)
+      .filter(([k]) => !(aliases[k] && aliases[k] in obj))
+      .map(([k, v]) => [aliases[k] ?? k, v]),
   );
 
 /** Rewrite legacy column spellings in a raw `columns` map. */
@@ -754,12 +710,7 @@ const createResourceJsonSchema = () => {
           .map(([k, message]) => ({ path: ['source', k], message }));
       }
 
-      obj = liftLayoutTableSearchFields(obj);
-
-      // Auto-derive kind='prisma' when a model is present and kind is unset.
-      if (obj['kind'] === undefined && obj['model'] !== undefined) {
-        obj = { ...obj, kind: 'prisma' };
-      }
+      obj = liftLayoutTableQueryFields(obj);
 
       // Backward-compat: lift deprecated root actions/tableActions into layout.table.rowActions/tableActions
       const rootActions = obj['actions'] as unknown[] | undefined;
@@ -807,47 +758,47 @@ const createResourceJsonSchema = () => {
       }
 
 
-      // Backward-compat: lift deprecated column-level table flags into layout.table
+      // Backward-compat: lift deprecated column-level table flags into
+      // layout.table items / operations.findAll, then drop them (and the
+      // already-reported presentation keys) so the strict column schema
+      // does not reject them a second time.
       const columns = obj['columns'] as
         Record<string, Record<string, unknown>> | undefined;
       if (columns && typeof columns === 'object' && !Array.isArray(columns)) {
         const searchFields: string[] = [];
         const filterFields: string[] = [];
-        const controlOverrides: Record<string, Record<string, unknown>> = {};
+        const controlOverrides: Record<string, unknown>[] = [];
 
         for (const [id, col] of Object.entries(columns)) {
           if (!col || typeof col !== 'object') continue;
           if (col['searchable']) searchFields.push(id);
           if (col['filterable']) filterFields.push(id);
-          const hasCtrl =
-            col['sortable'] !== undefined ||
-            col['defaultSort'] !== undefined ||
-            col['showWhen'] ||
-            col['hideWhen'] ||
-            col['disabledWhen'];
-          if (hasCtrl) {
-            controlOverrides[id] = {
-              id,
-              ...(col['sortable'] !== undefined && {
-                sortable: col['sortable'],
-              }),
-              ...(col['defaultSort'] !== undefined && {
-                defaultSort: col['defaultSort'],
-              }),
-              ...(col['showWhen'] ? { showWhen: col['showWhen'] } : {}),
-              ...(col['hideWhen'] ? { hideWhen: col['hideWhen'] } : {}),
-              ...(col['disabledWhen']
-                ? { disabledWhen: col['disabledWhen'] }
-                : {}),
-            };
-          }
+          const ctrl = Object.fromEntries(
+            LEGACY_COLUMN_CONTROL_KEYS.filter((k) => col[k] != null).map((k) => [
+              k,
+              col[k],
+            ]),
+          );
+          if (Object.keys(ctrl).length) controlOverrides.push({ id, ...ctrl });
         }
 
-        if (
-          searchFields.length ||
-          filterFields.length ||
-          Object.keys(controlOverrides).length
-        ) {
+        obj = {
+          ...obj,
+          columns: Object.fromEntries(
+            Object.entries(columns).map(([id, col]) => [
+              id,
+              col && typeof col === 'object'
+                ? Object.fromEntries(
+                    Object.entries(col).filter(([k]) => !STRIPPED_COLUMN_KEYS.has(k)),
+                  )
+                : col,
+            ]),
+          ),
+        };
+
+        // Any legacy flag materialises layout.table (as before), so the table
+        // node defaults (pageSize, density, …) still apply.
+        if (controlOverrides.length || searchFields.length || filterFields.length) {
           const layout =
             (obj['layout'] as Record<string, unknown> | undefined) ?? {};
           const tableNode = getOrCreateTableNode(layout);
@@ -858,38 +809,19 @@ const createResourceJsonSchema = () => {
               typeof c === 'string' ? c : (c['id'] as string),
             ),
           );
-          const mergedItems = [
-            ...existingItems,
-            ...Object.values(controlOverrides).filter(
-              (c) => !existingIds.has(c['id'] as string),
-            ),
-          ];
+          const added = controlOverrides.filter(
+            (c) => !existingIds.has(c['id'] as string),
+          );
           obj = {
             ...obj,
-            layout: patchTableNodeInLayout(layout, {
-              ...(filterFields.length && {
-                filterFields: [
-                  ...((tableNode['filterFields'] as string[]) ?? []),
-                  ...filterFields.filter(
-                    (f) =>
-                      !((tableNode['filterFields'] as string[]) ?? []).includes(
-                        f,
-                      ),
-                  ),
-                ],
-              }),
-              ...(mergedItems.length > existingItems.length && {
-                items: mergedItems,
-              }),
-            }),
+            layout: patchTableNodeInLayout(
+              layout,
+              added.length ? { items: [...existingItems, ...added] } : {},
+            ),
           };
-          // Lift column searchable flags → operations.findAll.search
-          obj = mergeSearchFieldsIntoFindAll(
-            obj,
-            searchFields,
-            obj['kind'] as string | undefined,
-          );
         }
+        obj = mergeIntoFindAll(obj, 'search', searchFields);
+        obj = mergeIntoFindAll(obj, 'filter', filterFields);
       }
 
       return obj;
@@ -927,8 +859,7 @@ const createResourceJsonSchema = () => {
         return {
           title,
           ...obj,
-          id: (obj.id ?? obj.name) as string,
-          route: (obj.route ?? obj.id ?? obj.name ?? '') as string,
+          route: obj.route ?? obj.name,
           schemaVersion,
           columns: normalizeColumns(obj.columns)?.map((col) => {
             const out = { ...col };

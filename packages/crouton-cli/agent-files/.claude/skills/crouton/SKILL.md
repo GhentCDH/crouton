@@ -34,8 +34,9 @@ resources.
   `datasource.json`.
 - After any `resource.json` or `crouton.json` change, run `crouton validate`.
 - Layout nodes use `items` only — there is no `controls` list. Items render in declared order.
-- Table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`) go on the `type: "table"` node inside
-  `layout.table`, never on an outer wrapper node.
+- Table settings (`rowActions`, `tableActions`, `pageSize`, …) go on the `type: "table"` node inside
+  `layout.table`, never on an outer wrapper node. Search and filter fields go in `operations.findAll.search` /
+  `operations.findAll.filter`.
 - When `layout.<ctx>` is defined, it is the **full list** for that context — only listed columns render. Unlisted
   columns are hidden regardless of `hiddenIn*` flags. To hide/show a field there, edit `layout.<ctx>.items`, not
   `hiddenIn*`.

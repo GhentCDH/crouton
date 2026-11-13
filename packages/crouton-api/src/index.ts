@@ -6,6 +6,7 @@ export * from './lib/crud/loader/index';
 export * from './lib/crud/loader/resource-config.loader';
 export * from './lib/crud/loader/fs-resource-config.loader';
 export * from './lib/crud/resource-config.registry';
+export { applyResourceTagDescriptions } from './lib/crud/openapi-tags';
 export * from './lib/crud/data-access/adapter';
 export * from './lib/crud/crud.config';
 export * from './lib/crud/hooks';

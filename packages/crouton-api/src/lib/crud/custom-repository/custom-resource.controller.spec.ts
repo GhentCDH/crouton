@@ -58,7 +58,7 @@ const RESOURCE_JSON = {
   tag: 'Zotero',
   kind: 'custom',
   title: 'Zotero items',
-  operations: {},
+  operations: { findAll: { filter: ['title'] } },
   schemaVersion: CURRENT_RESOURCE_VERSION,
   columns: {
     id: { type: 'string', idField: true, hiddenInForm: true },
@@ -73,7 +73,6 @@ const RESOURCE_JSON = {
   },
   layout: {
     table: {
-      filterFields: ['title'],
       items: [{ id: 'title', sortable: true, defaultSort: true }, 'metadata'],
     },
   },

@@ -71,13 +71,17 @@ Write the extension key at the top level, as a sibling of `columns`:
 {
   "$schema": "./resource.schema.json",
   "name": "lemma",
+  "source": {
+    "model": "Lemma"
+  },
   "route": "lemmas",
   "tag": "Lemmas",
-  "model": "Lemma",
   "annotation": {
     "color": "#4fff66",
     "isRoot": true,
-    "allowedChildren": ["sense"],
+    "allowedChildren": [
+      "sense"
+    ],
     "allowedLinks": []
   },
   "operations": {},

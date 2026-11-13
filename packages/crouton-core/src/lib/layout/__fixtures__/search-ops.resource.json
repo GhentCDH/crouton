@@ -1,13 +1,12 @@
 {
   "name": "note",
   "route": "notes",
-  "model": "Note",
   "tag": "Notes",
   "kind": "custom",
   "operations": {
     "findAll": {
       "search": ["title", "body"],
-      "filter": true
+      "filter": ["tag"]
     },
     "findOne": true,
     "create": true,
@@ -21,8 +20,7 @@
   ],
   "layout": {
     "table": {
-      "items": ["title", "tag"],
-      "filterFields": ["tag"]
+      "items": ["title", "tag"]
     },
     "form": {
       "items": ["title", "body", "tag"]

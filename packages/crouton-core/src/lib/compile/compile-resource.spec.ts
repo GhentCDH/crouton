@@ -155,19 +155,10 @@ describe('compileResource — source flattening (dbTable/datasource, not the rem
     expect('source' in result).toBe(false);
   });
 
-  it('falls back to the legacy root aliases when source is absent', () => {
-    const json = invalid<ResourceJson>({
-      ...baseJson,
-      model: 'LegacyArticle',
-      table: 'legacy_articles',
-      database: 'legacydb',
-      idType: 'number',
-    });
-    const result = compileResource(json);
-    expect(result.model).toBe('LegacyArticle');
-    expect(result.table).toBe('legacy_articles');
-    expect(result.database).toBe('legacydb');
-    expect(result.idType).toBe('number');
+  it('flattens openapi.description onto tagDescription', () => {
+    const result = compileResource({ ...baseJson, openapi: { tag: 'Articles', description: 'All articles' } });
+    expect(result.tag).toBe('Articles');
+    expect(result.tagDescription).toBe('All articles');
   });
 });
 

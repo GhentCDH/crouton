@@ -11,7 +11,10 @@
     "model": "Book"
   },
   "lookup": {
-    "labels": ["title", "authorId"],
+    "labels": [
+      "title",
+      "authorId"
+    ],
     "separator": " · "
   },
   "openapi": {
@@ -24,24 +27,38 @@
     },
     "title": {
       "label": "Title",
-      "fieldInput": { "type": "string" }
+      "fieldInput": {
+        "type": "string"
+      }
     },
     "pageCount": {
       "label": "Page count",
-      "fieldInput": { "type": "number" }
+      "fieldInput": {
+        "type": "number"
+      }
     },
     "publishedAt": {
       "label": "Published",
-      "fieldInput": { "type": "date" }
+      "fieldInput": {
+        "type": "date"
+      }
     },
     "genre": {
       "label": "Genre",
       "fieldInput": {
         "type": "select",
-        "options": { "values": [
-          { "value": "fiction", "label": "Fiction" },
-          { "value": "non-fiction", "label": "Non-fiction" }
-        ]}
+        "options": {
+          "values": [
+            {
+              "value": "fiction",
+              "label": "Fiction"
+            },
+            {
+              "value": "non-fiction",
+              "label": "Non-fiction"
+            }
+          ]
+        }
       }
     },
     "authorId": {
@@ -52,7 +69,9 @@
         "foreignKey": "authorId",
         "displayKey": "name"
       },
-      "fieldInput": { "type": "autocomplete" }
+      "fieldInput": {
+        "type": "autocomplete"
+      }
     },
     "chapterCount": {
       "label": "Chapters",
@@ -64,53 +83,111 @@
   },
   "operations": {
     "findAll": {
-      "search": ["title"],
-      "include": ["author"]
+      "search": [
+        "title"
+      ],
+      "include": [
+        "author"
+      ],
+      "filter": [
+        "genre"
+      ]
     },
     "findOne": {
-      "include": ["author", { "relation": "chapters", "orderBy": { "position": "asc" } }]
+      "include": [
+        "author",
+        {
+          "relation": "chapters",
+          "orderBy": {
+            "position": "asc"
+          }
+        }
+      ]
     }
   },
   "layout": {
     "form": {
-      "container": { "mode": "modal", "size": "lg" },
+      "container": {
+        "mode": "modal",
+        "size": "lg"
+      },
       "type": "grid",
       "columns": 12,
       "items": [
-        { "id": "title", "colspan": 9 },
-        { "id": "genre", "colspan": 3 },
+        {
+          "id": "title",
+          "colspan": 9
+        },
+        {
+          "id": "genre",
+          "colspan": 3
+        },
         "pageCount",
         "publishedAt",
         "authorId",
         {
           "type": "collapse",
           "title": "Metadata",
-          "items": ["createdAt", "updatedAt"]
+          "items": [
+            "createdAt",
+            "updatedAt"
+          ]
         }
       ]
     },
     "view": {
-      "container": { "mode": "page" }
+      "container": {
+        "mode": "page"
+      }
     },
     "table": {
       "pageSize": 50,
-      "pageSizes": [20, 50, 100],
+      "pageSizes": [
+        20,
+        50,
+        100
+      ],
       "density": "compact",
       "rowClick": "view",
       "items": [
-        { "id": "title", "sortable": true, "defaultSort": "asc", "width": "md", "truncate": 2 },
-        { "id": "pageCount", "align": "right", "width": "xs" },
-        { "id": "publishedAt", "sortable": true },
-        { "id": "authorId" },
-        { "id": "genre", "visible": false }
+        {
+          "id": "title",
+          "sortable": true,
+          "defaultSort": "asc",
+          "width": "md",
+          "truncate": 2
+        },
+        {
+          "id": "pageCount",
+          "align": "right",
+          "width": "xs"
+        },
+        {
+          "id": "publishedAt",
+          "sortable": true
+        },
+        {
+          "id": "authorId"
+        },
+        {
+          "id": "genre",
+          "visible": false
+        }
       ],
-      "searchFields": ["title"],
-      "filterFields": ["genre"],
       "rowActions": [
-        { "id": "preview", "type": "link", "href": "/preview/{id}", "label": "Preview" }
+        {
+          "id": "preview",
+          "type": "link",
+          "href": "/preview/{id}",
+          "label": "Preview"
+        }
       ],
       "tableActions": [
-        { "id": "export", "label": "Export CSV", "procedure": "exportCsv" }
+        {
+          "id": "export",
+          "label": "Export CSV",
+          "procedure": "exportCsv"
+        }
       ]
     }
   }
@@ -304,7 +381,7 @@ Every entry in a node's `items` array is one of:
 
 ## Table layout: flat vs wrapper
 
-All table-specific settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, table options) go on the **`type: "table"` node**, never on an outer wrapper.
+All table-specific settings (`rowActions`, `tableActions`, table options) go on the **`type: "table"` node**, never on an outer wrapper.
 
 ```json
 "table": {
@@ -314,8 +391,7 @@ All table-specific settings (`rowActions`, `tableActions`, `searchFields`, `filt
     {
       "type": "table",
       "pageSize": 50,
-      "items": ["title", "isbn"],
-      "searchFields": ["title", "isbn"]
+      "items": ["title", "isbn"]
     }
   ]
 }

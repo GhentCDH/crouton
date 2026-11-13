@@ -59,10 +59,12 @@ describe('buildViews — no schema fallback to column types', () => {
     { id: 'register', fieldInput: { type: 'autocomplete' } },
   ]);
 
-  const views = buildLayouts(
-    invalid<Layout>({ table: { filterFields: ['title'] } }),
-    { columns, source: columnTypeSchemaSource, warn: () => undefined },
-  );
+  const views = buildLayouts(undefined, {
+    columns,
+    source: columnTypeSchemaSource,
+    warn: () => undefined,
+    filterFields: ['title'],
+  });
 
   it('produces table, form, filter, and view', () => {
     expect(Object.keys(views).sort()).toEqual([
@@ -86,10 +88,12 @@ describe('buildViews — no schema fallback to column types', () => {
   });
 
   it('matches direct buildLayouts call with columnTypeSchemaSource', () => {
-    const expected = buildLayouts(
-      invalid<Layout>({ table: { filterFields: ['title'] } }),
-      { columns, source: columnTypeSchemaSource, warn: () => undefined },
-    );
+    const expected = buildLayouts(undefined, {
+      columns,
+      source: columnTypeSchemaSource,
+      warn: () => undefined,
+      filterFields: ['title'],
+    });
     expect(views).toEqual(expected);
   });
 });

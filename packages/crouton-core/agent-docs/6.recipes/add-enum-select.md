@@ -75,14 +75,30 @@ Full `resource.json` for a book resource with an enum status column:
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "book",
-  "model": "Book",
+  "source": {
+    "model": "Book"
+  },
   "title": "Books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "sortable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "sortable": true
+    },
     "status": {
-      "enum": "bookStatus",
-      "filterable": true
+      "enum": "bookStatus"
+    }
+  },
+  "operations": {
+    "findAll": {
+      "search": [
+        "title"
+      ],
+      "filter": [
+        "status"
+      ]
     }
   }
 }

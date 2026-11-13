@@ -74,10 +74,10 @@ describe('layout validation (Phase 3)', () => {
       );
     });
 
-    it('rejects an unknown id in filterFields', () => {
+    it('rejects an unknown id in operations.findAll.filter', () => {
       const result = ResourceJsonSchema.safeParse({
         ...base,
-        layout: { table: { items: ['title'], filterFields: ['nope'] } },
+        operations: { findAll: { filter: ['nope'] } },
       });
       expect(result.success).toBe(false);
       expect(issueMessages(result)).toEqual(
@@ -91,8 +91,9 @@ describe('layout validation (Phase 3)', () => {
         layout: {
           form: { items: ['title', 'status'] },
           view: { items: ['title'] },
-          table: { items: ['title', 'status'], filterFields: ['status'] },
+          table: { items: ['title', 'status'] },
         },
+        operations: { findAll: { filter: ['status'] } },
       });
       expect(result.success).toBe(true);
     });

@@ -1,20 +1,19 @@
 # Columns
 
-`columns` accepts either form:
+`columns` is a map keyed by column id; the key becomes the column's `id`:
 
-- **Map** — keyed by column id; the key becomes the column's `id`.
-- **Array** — each entry needs an explicit `id`:
-
-  ```json
-  {
-    "columns": [
-      { "id": "id", "idField": true, "hiddenInForm": true },
-      { "id": "title", "searchable": true, "sortable": true }
-    ]
+```json
+{
+  "columns": {
+    "id": { "idField": true, "hiddenInForm": true },
+    "title": { "label": "Title" }
   }
-  ```
+}
+```
 
-Both forms support the same options:
+Unknown keys inside a column fail validation, so a typo like `"lable"` is reported instead of silently ignored.
+
+Column options:
 
 | Option                                            | Description                                                                                                                                                                                                                                                                                                                                |
 |---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -38,7 +37,7 @@ The following column-level options are **deprecated** and will be removed. Use `
 - `sortable` → `layout.table.items[{ id, sortable }]`
 - `defaultSort` → `layout.table.defaultSort` (`{ field: "colId", sortDir: "asc" | "desc" }`)
 - `searchable` → `operations.findAll.search: ["colId"]`
-- `filterable` → `layout.table.filterFields: ["colId"]`
+- `filterable` → `operations.findAll.filter: ["colId"]`
 - `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`
 - `fieldTable` → `layout.table.items[{ id, type, options }]`
 

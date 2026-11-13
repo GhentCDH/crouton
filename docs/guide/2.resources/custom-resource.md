@@ -82,7 +82,7 @@ Everything a prisma resource supports still applies — `sidebar`, `display`,
   // Optional. Selects which datasource client is handed to the repository as
   // ctx.prisma. Omitted ⇒ the project default. A project of only custom
   // resources needs no datasource at all.
-  "database": "maindb",
+  "source": { "datasource": "maindb" },
 
   // Disable anything you do not implement — see "Validation" below.
   "operations": {
@@ -323,8 +323,7 @@ You implement the fetch; the framework keeps its usual guarantees:
 A custom resource is checked at load time, not on first request. Problems appear on
 the [status page](../3.backend/status.md) and the resource is skipped rather than crashing the server:
 
-- `model` present, or a column missing its `type`;
-- `calculatedColumns` used — they run raw SQL against a real table, so compute the value in `findAll` instead;
+- `source.model` present, or a column missing its `type`;
 - no `repository.ts`, or one that does not implement an operation
   `resource.json` enables. The message names the missing operations. Either implement them, or disable them:
 

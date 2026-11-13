@@ -86,7 +86,7 @@ export const compileResource = (
     resolvers.buildSubResources
       ? resolvers.buildSubResources(columns, {
           route: json.route,
-          model: src?.model ?? json.model ?? '',
+          model: src?.model ?? '',
         })
       : []
   ).map(({ includeRelationInParentFindOne: _flagged, ...sub }) => ({
@@ -107,10 +107,8 @@ export const compileResource = (
         : actionEnriched,
     ) ?? actionEnriched;
 
-  const calculatedColumns: CalculatedColumn[] = [
-    ...(json.calculatedColumns ?? []),
-    ...toCalculatedColumns(enrichedColumns),
-  ];
+  const calculatedColumns: CalculatedColumn[] =
+    toCalculatedColumns(enrichedColumns);
 
   const regularColumns = enrichedColumns.filter((c) => !c.computed);
   const layoutCtx = {
@@ -123,6 +121,7 @@ export const compileResource = (
       : columnTypeSchemaSource,
     warn: console.warn,
     resourceName: json.name ?? json.route,
+    filterFields: extractFindAllFilter(json.operations?.findAll),
   };
   const rawViews = buildLayouts(json.layout, layoutCtx);
   let views = Object.keys(rawViews).length ? rawViews : undefined;
@@ -189,20 +188,8 @@ export const compileResource = (
     draft: _draft,
     $schema: _jsonSchema,
     source: _source,
-    model: rootModel,
-    table: rootTable,
-    database: rootDatabase,
-    idType: rootIdType,
-    calculatedColumns: _inputCalculated,
     ...jsonRest
   } = json;
-
-  // `source.*` wins; the legacy root aliases remain a fallback for resources
-  // built programmatically instead of through the migration.
-  const flattenedModel = src?.model ?? rootModel;
-  const flattenedTable = src?.dbTable ?? rootTable;
-  const flattenedDatabase = src?.datasource ?? rootDatabase;
-  const flattenedIdType = src?.idType ?? rootIdType;
 
   return {
     ...jsonRest,
@@ -210,10 +197,11 @@ export const compileResource = (
     route: json.route,
     tag: openapi?.tag ?? json.tag,
     sidebar: json.sidebar,
-    ...(flattenedModel && { model: flattenedModel }),
-    ...(flattenedTable && { table: flattenedTable }),
-    ...(flattenedDatabase && { database: flattenedDatabase }),
-    idType: flattenedIdType ?? 'string',
+    ...(src?.model && { model: src.model }),
+    ...(src?.dbTable && { table: src.dbTable }),
+    ...(src?.datasource && { database: src.datasource }),
+    idType: src?.idType ?? 'string',
+    ...(openapi?.description && { tagDescription: openapi.description }),
     idField,
     definition,
     subResources,

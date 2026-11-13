@@ -88,8 +88,6 @@ export type LayoutNode = {
   /** @deprecated Use `items` */
   controls?: LayoutControl[];
   items?: (LayoutControl | LayoutNode)[];
-  searchFields?: string[];
-  filterFields?: string[];
   actions?: unknown[];
   tableActions?: unknown[];
 };

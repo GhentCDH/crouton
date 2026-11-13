@@ -38,7 +38,7 @@ describe('buildResourceDiff', () => {
   it('produces add-column decisions against an existing config', async () => {
     const readExisting = async (): Promise<ExistingResource> => ({
       config: {
-        name: 'language', route: 'language', model: 'language', tag: 'Language',
+        name: 'language', route: 'language', source: { model: 'language' }, tag: 'Language',
         operations: { findAll: true },
         columns: { id: { idField: true, hiddenInTable: true, hiddenInForm: true, hiddenInView: true } },
       },
