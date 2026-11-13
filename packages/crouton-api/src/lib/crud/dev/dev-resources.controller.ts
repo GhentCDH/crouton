@@ -496,28 +496,7 @@ export class DevResourcesController {
   })
   @ApiResponse({ status: 200, description: 'Resource published' })
   async publish(@Param('name') name: string): Promise<{ ok: true }> {
-    this.assertDev();
-    const { loaded } = await this.loadProject();
-    const resourcesDir = resolveFromRoot(
-      loaded.root,
-      loaded.config.resourcesDir,
-    );
-    const jsonPath = resolveResourcePath(resourcesDir, name);
-
-    const raw = readRawResourceJson(jsonPath);
-    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
-    if (jsonPath.endsWith('.ts'))
-      throw new ForbiddenException('TypeScript resources cannot be edited.');
-
-    const patched = applyResourceFlagPatch(raw, { draft: false });
-    const result = validateResourceJson(patched);
-    if (!result.success) {
-      throw new BadRequestException(
-        `Validation failed: ${result.error.message}`,
-      );
-    }
-    writeRawResourceJson(jsonPath, patched);
-    return { ok: true };
+    return this.patchFlags(name, { draft: false });
   }
 
   @Post(':name/remove-from-menu')
@@ -527,30 +506,7 @@ export class DevResourcesController {
   })
   @ApiResponse({ status: 200, description: 'Resource removed from menu' })
   async removeFromMenu(@Param('name') name: string): Promise<{ ok: true }> {
-    this.assertDev();
-    const { loaded } = await this.loadProject();
-    const resourcesDir = resolveFromRoot(
-      loaded.root,
-      loaded.config.resourcesDir,
-    );
-    const jsonPath = resolveResourcePath(resourcesDir, name);
-
-    const raw = readRawResourceJson(jsonPath);
-    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
-    if (jsonPath.endsWith('.ts'))
-      throw new ForbiddenException('TypeScript resources cannot be edited.');
-
-    const patched = applyResourceFlagPatch(raw, {
-      sidebar: { hide: true },
-    });
-    const result = validateResourceJson(patched);
-    if (!result.success) {
-      throw new BadRequestException(
-        `Validation failed: ${result.error.message}`,
-      );
-    }
-    writeRawResourceJson(jsonPath, patched);
-    return { ok: true };
+    return this.patchFlags(name, { sidebar: { hide: true } });
   }
 
   @Post(':name/add-to-menu')
@@ -563,36 +519,11 @@ export class DevResourcesController {
     @Param('name') name: string,
     @Body() body: { group?: string; position?: number; label?: string } = {},
   ): Promise<{ ok: true }> {
-    this.assertDev();
-    const { loaded } = await this.loadProject();
-    const resourcesDir = resolveFromRoot(
-      loaded.root,
-      loaded.config.resourcesDir,
-    );
-    const jsonPath = resolveResourcePath(resourcesDir, name);
-
-    const raw = readRawResourceJson(jsonPath);
-    if (!raw) throw new NotFoundException(`Resource "${name}" not found.`);
-    if (jsonPath.endsWith('.ts'))
-      throw new ForbiddenException('TypeScript resources cannot be edited.');
-
     const sidebarPatch: ResourceFlagPatch['sidebar'] = { hide: false };
     if (body.group !== undefined) sidebarPatch.group = body.group;
     if (body.position !== undefined) sidebarPatch.position = body.position;
     if (body.label !== undefined) sidebarPatch.label = body.label;
-
-    const patched = applyResourceFlagPatch(raw, {
-      draft: false,
-      sidebar: sidebarPatch,
-    });
-    const result = validateResourceJson(patched);
-    if (!result.success) {
-      throw new BadRequestException(
-        `Validation failed: ${result.error.message}`,
-      );
-    }
-    writeRawResourceJson(jsonPath, patched);
-    return { ok: true };
+    return this.patchFlags(name, { draft: false, sidebar: sidebarPatch });
   }
 
   @Patch(':name/flags')
@@ -604,6 +535,14 @@ export class DevResourcesController {
   async updateFlags(
     @Param('name') name: string,
     @Body() body: ResourceFlagPatch,
+  ): Promise<{ ok: true }> {
+    return this.patchFlags(name, body);
+  }
+
+  /** Dev-only: apply a flag patch to one resource.json, validate it, write it back. */
+  private async patchFlags(
+    name: string,
+    patch: ResourceFlagPatch,
   ): Promise<{ ok: true }> {
     this.assertDev();
     const { loaded } = await this.loadProject();
@@ -618,7 +557,7 @@ export class DevResourcesController {
     if (jsonPath.endsWith('.ts'))
       throw new ForbiddenException('TypeScript resources cannot be edited.');
 
-    const patched = applyResourceFlagPatch(raw, body);
+    const patched = applyResourceFlagPatch(raw, patch);
     const result = validateResourceJson(patched);
     if (!result.success) {
       throw new BadRequestException(
