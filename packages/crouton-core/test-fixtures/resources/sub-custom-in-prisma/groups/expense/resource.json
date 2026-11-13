@@ -20,5 +20,19 @@
       "sortable": true
     }
   },
+  "layout": {
+    "form": {
+      "container": {
+        "mode": "modal",
+        "size": "xl"
+      }
+    },
+    "view": {
+      "container": {
+        "mode": "page"
+      },
+      "component": "ExpenseDetail"
+    }
+  },
   "schemaVersion": 1
 }

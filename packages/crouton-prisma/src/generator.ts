@@ -47,10 +47,28 @@ generatorHandler({
     const normalized = await readFile(schemaPath, 'utf-8');
     const modelsOnly = stripGenerators(normalized);
 
+    // Carry previewFeatures from the original generator blocks into the temp
+    // schema (e.g. "partialIndexes"), otherwise models using preview features
+    // fail validation in the temp schema.
+    const previewFeatures = [
+      ...new Set(
+        [...normalized.matchAll(/previewFeatures\s*=\s*\[([^\]]*)\]/g)]
+          .flatMap((m) =>
+            m[1]
+              .split(',')
+              .map((s) => s.trim().replace(/^["']|["']$/g, ''))
+              .filter(Boolean),
+          ),
+      ),
+    ];
+    const previewLine = previewFeatures.length
+      ? `\n  previewFeatures                  = [${previewFeatures.map((f) => `"${f}"`).join(', ')}]`
+      : '';
+
     // zod-prisma-types config (hardcoded; matches what the scaffold template used to emit)
     const zodBlock = `generator zod {
   provider                         = "zod-prisma-types"
-  output                           = "${absZodOutput}"
+  output                           = "${absZodOutput}"${previewLine}
   addInputTypeValidation           = "false"
   createInputTypes                 = "false"
   createModelTypes                 = "true"

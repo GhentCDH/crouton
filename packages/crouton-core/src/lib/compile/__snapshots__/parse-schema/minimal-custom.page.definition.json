@@ -4,8 +4,13 @@
   "tag": "Crouton",
   "operations": [],
   "display": {
-    "mode": "modal",
-    "customComponent": null
+    "form": {
+      "mode": "modal"
+    },
+    "view": {
+      "mode": "modal",
+      "customComponent": null
+    }
   },
   "schemas": {}
 }
