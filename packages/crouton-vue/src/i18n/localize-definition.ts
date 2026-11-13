@@ -1,8 +1,4 @@
-import {
-  actionKey,
-  columnKey,
-  resourceTitleKey,
-} from '@crouton/i18n';
+import { actionKey, columnKey, resourceTitleKey } from '@crouton/i18n';
 
 import type { ResourceDefinition, ViewColumnConfig, ViewConfig } from '@ghentcdh/crouton-core';
 
@@ -13,10 +9,51 @@ const idFromScope = (scope: string): string | undefined => {
   return match?.[1];
 };
 
+type Translator = (k: string, f?: string) => string;
+
+/**
+ * Key candidates for a definition. Sub-resources (id `parent/child`) live
+ * under `resources.<parent>.subResources.<child>` in the translation bundle;
+ * top-level resources under `resources.<name>`. Candidates are tried in
+ * order until one resolves.
+ */
+const keyCandidates = (def: ResourceDefinition) => {
+  const [parentRoute, childRoute] = def.id.includes('/') ? def.id.split('/') : [];
+  if (parentRoute && childRoute) {
+    const subPrefix = (parent: string, child: string): string =>
+      `resources.${parent}.subResources.${child}`;
+    const subKeys = (leaf: string): string[] => {
+      // Primary: bundle keys the sub-resource by its route.
+      const keys = [`${subPrefix(parentRoute, childRoute)}${leaf}`];
+      // The bundle may key the sub-resource by its configured name instead.
+      if (def.name && def.name !== childRoute) {
+        keys.push(`${subPrefix(parentRoute, def.name)}${leaf}`);
+      }
+      // Tolerate bundles that store sub-resources flat under their own name.
+      keys.push(`resources.${childRoute}${leaf}`);
+      return keys;
+    };
+    return {
+      title: (): string[] => subKeys('.title'),
+      column: (col: string): string[] => subKeys(`.columns.${col}`),
+      action: (id: string): string[] => subKeys(`.actions.${id}`),
+    };
+  }
+  return {
+    title: (): string[] => [resourceTitleKey(def.name)],
+    column: (col: string): string[] => [columnKey(def.name, col)],
+    action: (id: string): string[] => [actionKey(def.name, id)],
+  };
+};
+
+/** Try each candidate key in order; the last fallback wins if none resolve. */
+const tFirst = (t: Translator, keys: string[], fallback: string): string =>
+  keys.reduceRight((acc, key) => t(key, acc), fallback);
+
 const translateUiElements = (
   elements: unknown[],
-  t: (k: string, f?: string) => string,
-  name: string,
+  t: Translator,
+  keys: ReturnType<typeof keyCandidates>,
 ): unknown[] =>
   elements.map((el) => {
     if (!el || typeof el !== 'object') return el;
@@ -30,21 +67,21 @@ const translateUiElements = (
             ...element,
             options: {
               ...opts,
-              label: t(columnKey(name, id), opts.label as string),
+              label: tFirst(t, keys.column(id), opts.label as string),
             },
           }
         : element;
     const nested = (newEl as Record<string, unknown>).elements as unknown[] | undefined;
     if (Array.isArray(nested)) {
-      return { ...(newEl as Record<string, unknown>), elements: translateUiElements(nested, t, name) };
+      return { ...(newEl as Record<string, unknown>), elements: translateUiElements(nested, t, keys) };
     }
     return newEl;
   });
 
 const translateJsonSchemaProps = (
   data: unknown,
-  t: (k: string, f?: string) => string,
-  name: string,
+  t: Translator,
+  keys: ReturnType<typeof keyCandidates>,
 ): unknown => {
   if (!data || typeof data !== 'object') return data;
   const d = data as Record<string, unknown>;
@@ -55,7 +92,7 @@ const translateJsonSchemaProps = (
     if (prop && typeof prop === 'object') {
       const p = prop as Record<string, unknown>;
       translated[col] = p.title
-        ? { ...p, title: t(columnKey(name, col), p.title as string) }
+        ? { ...p, title: tFirst(t, keys.column(col), p.title as string) }
         : p;
     } else {
       translated[col] = prop;
@@ -66,8 +103,8 @@ const translateJsonSchemaProps = (
 
 const localizeSchema = (
   schema: ViewConfig | undefined,
-  t: (k: string, f?: string) => string,
-  name: string,
+  t: Translator,
+  keys: ReturnType<typeof keyCandidates>,
 ): ViewConfig | undefined => {
   if (!schema) return schema;
   const ui = schema.ui as Record<string, unknown> | undefined;
@@ -76,11 +113,13 @@ const localizeSchema = (
   const columns: ViewColumnConfig[] = (schema.columns ?? []).map((col) => ({
     ...col,
     ...(col.label !== undefined && {
-      label: t(col.labelKey ?? columnKey(name, col.id), col.label),
+      label: col.labelKey
+        ? t(col.labelKey, col.label)
+        : tFirst(t, keys.column(col.id), col.label),
     }),
   }));
-  const translatedUi = elements ? { ...ui, elements: translateUiElements(elements, t, name) } : ui;
-  const translatedData = translateJsonSchemaProps(rawData, t, name) as Record<string, unknown>;
+  const translatedUi = elements ? { ...ui, elements: translateUiElements(elements, t, keys) } : ui;
+  const translatedData = translateJsonSchemaProps(rawData, t, keys) as Record<string, unknown>;
   return {
     ...schema,
     columns,
@@ -95,7 +134,7 @@ const localizeSchema = (
  */
 export const localizeDefinition = (def: ResourceDefinition): ResourceDefinition => {
   const { translator } = useLanguage();
-  const name = def.name;
+  const keys = keyCandidates(def);
   const t = translator;
 
   // Cast to unknown first then to the runtime shape — the schema API returns ViewConfig objects
@@ -104,21 +143,21 @@ export const localizeDefinition = (def: ResourceDefinition): ResourceDefinition 
   const rowActions = Array.isArray(tableSchema['rowActions'])
     ? (tableSchema['rowActions'] as Array<Record<string, unknown>>).map((a) => ({
         ...a,
-        label: t(actionKey(name, a['id'] as string), a['label'] as string),
+        label: tFirst(t, keys.action(a['id'] as string), a['label'] as string),
       }))
     : tableSchema['rowActions'];
   const tableActions = Array.isArray(tableSchema['tableActions'])
     ? (tableSchema['tableActions'] as Array<Record<string, unknown>>).map((a) => ({
         ...a,
-        ...(a['label'] ? { label: t(actionKey(name, a['id'] as string), a['label'] as string) } : {}),
+        ...(a['label'] ? { label: tFirst(t, keys.action(a['id'] as string), a['label'] as string) } : {}),
       }))
     : tableSchema['tableActions'];
 
-  const localizedTable = localizeSchema(tableSchema, t, name) ?? tableSchema;
+  const localizedTable = localizeSchema(tableSchema, t, keys) ?? tableSchema;
 
   return {
     ...def,
-    title: t(resourceTitleKey(name), def.title),
+    title: tFirst(t, keys.title(), def.title),
     schemas: {
       ...def.schemas,
       table: {
@@ -126,8 +165,8 @@ export const localizeDefinition = (def: ResourceDefinition): ResourceDefinition 
         ...(rowActions !== undefined && { rowActions }),
         ...(tableActions !== undefined && { tableActions }),
       } as unknown as typeof def.schemas.table,
-      form: localizeSchema(def.schemas.form as unknown as ViewConfig, t, name) as unknown as typeof def.schemas.form,
-      view: localizeSchema(def.schemas.view as unknown as ViewConfig, t, name) as unknown as typeof def.schemas.view,
+      form: localizeSchema(def.schemas.form as unknown as ViewConfig, t, keys) as unknown as typeof def.schemas.form,
+      view: localizeSchema(def.schemas.view as unknown as ViewConfig, t, keys) as unknown as typeof def.schemas.view,
     },
   };
 };
