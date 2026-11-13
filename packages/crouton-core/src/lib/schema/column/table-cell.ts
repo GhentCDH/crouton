@@ -90,7 +90,7 @@ export const buildTableUiSchema = (
         // cells; object columns render via RecordCell/RelationCell, which reads
         // `displayKey` — emit both so the cell is self-describing.
         ...(col.displayKey && { displayKey: col.displayKey }),
-        ...(isDateRange(col) && { format: 'date-range' }),
+        ...(isDateRange(col) && { format: 'dateRange' }),
         label: col.label,
       },
       ...((isRecordCell(col) || isObjectCell(col)) && { type: 'RecordCell' }),

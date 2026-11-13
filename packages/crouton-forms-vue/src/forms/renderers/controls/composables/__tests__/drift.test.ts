@@ -7,7 +7,7 @@ import { AUTOCOMPLETE_OPTION_KEYS, SELECT_OPTION_KEYS } from '../useSelectBindin
 
 const RENDERER_ALLOWLISTS: Record<string, readonly string[]> = {
   select: SELECT_OPTION_KEYS,
-  mutliSelect: SELECT_OPTION_KEYS,
+  multiSelect: SELECT_OPTION_KEYS,
   autocomplete: AUTOCOMPLETE_OPTION_KEYS,
 };
 

@@ -50,8 +50,8 @@ API endpoints, validation wiring, table columns, form fields, and filters.
     "created_at": {
       "hiddenInTable": true,
       "hiddenInForm": true,
-      "createable": false,
-      "updateable": false
+      "creatable": false,
+      "updatable": false
     }
   }
 }

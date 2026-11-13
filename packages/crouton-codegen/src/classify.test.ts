@@ -53,8 +53,8 @@ describe('classify', () => {
     expect(col(d, 'created_at')).toEqual({
       hiddenInTable: true,
       hiddenInForm: true,
-      createable: false,
-      updateable: false,
+      creatable: false,
+      updatable: false,
     });
   });
 

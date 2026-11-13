@@ -64,8 +64,8 @@ export const classify = (
         ? {
             hiddenInTable: true,
             hiddenInForm: true,
-            createable: false,
-            updateable: false,
+            creatable: false,
+            updatable: false,
           }
         : {
             fieldInput: {
@@ -80,8 +80,8 @@ export const classify = (
         ? {
             hiddenInTable: true,
             hiddenInForm: true,
-            createable: false,
-            updateable: false,
+            creatable: false,
+            updatable: false,
           }
         : {
             fieldInput: {

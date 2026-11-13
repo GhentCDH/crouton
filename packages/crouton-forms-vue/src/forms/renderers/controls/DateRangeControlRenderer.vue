@@ -69,7 +69,7 @@ const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
 // Binds to a single property whose value is stored as a JSON string in the DB.
 const { value: rawValue, wrapper, onBlur, onChange, appliedOptions } =
-  useCustomControlBinding<ControlOptions<'date-range'>>()(props.uischema, props.schema);
+  useCustomControlBinding<ControlOptions<'dateRange'>>()(props.uischema, props.schema);
 
 // Parse the JSON string from the DB into a DateRange object for the template.
 const value = computed<DateRange | undefined>(() => {

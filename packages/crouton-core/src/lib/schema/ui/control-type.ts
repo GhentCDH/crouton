@@ -1,7 +1,7 @@
 export const ControlType = {
   number: 'number',
   string: 'string',
-  integer: 'Integer',
+  integer: 'integer',
   autocomplete: 'autocomplete',
   textArea: 'textarea',
   markdown: 'markdown',
@@ -9,14 +9,14 @@ export const ControlType = {
   object: 'object',
   custom: 'custom',
   select: 'select',
-  mutliSelect: 'mutliSelect',
+  multiSelect: 'multiSelect',
   toggle: 'toggle',
   boolean: 'boolean',
   link: 'link',
   relation: 'relation',
   date: 'date',
   dateTime: 'dateTime',
-  dateRange: 'date-range',
+  dateRange: 'dateRange',
 } as const;
 
 export type ControlTypeValue = (typeof ControlType)[keyof typeof ControlType];

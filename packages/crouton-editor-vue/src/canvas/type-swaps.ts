@@ -8,7 +8,7 @@
  * branch does `const type = fieldInput?.type ?? 'text'; control.control(type, options)`,
  * which becomes the ui schema's `options.format` the renderer testers key off
  * (`crouton-forms-vue/src/testers/tester.ts`). `fieldInput.format` itself is
- * reserved for the special-cased branches (`'relation'`, `'date-range'`) and
+ * reserved for the special-cased branches (`'relation'`, `'dateRange'`) and
  * isn't part of this swap set at all.
  *
  * Only "same-shape" swaps are offered here — ones that don't change the
@@ -23,7 +23,7 @@
  *
  * Deliberately excluded from v1 (see `LIVE_FORM_EDITOR_PLAN.md` open
  * decisions 2):
- * - `select ↔ mutliSelect` — changes the data shape from scalar to array,
+ * - `select ↔ multiSelect` — changes the data shape from scalar to array,
  *   not just a display hint; needs its own confirmation flow and possibly a
  *   `Column.ts` schema change, not a silent swap.
  * - `boolean` — no safe swap partner in the standard set.
@@ -42,7 +42,7 @@ const STRING_FAMILY: CanvasTypeOption[] = [
 
 const NUMBER_FAMILY: CanvasTypeOption[] = [
   { value: 'number', label: 'Number' },
-  { value: 'Integer', label: 'Integer' },
+  { value: 'integer', label: 'integer' },
 ];
 
 /** Normalizes the handful of values that all mean "plain text" to one canonical key. */
@@ -55,7 +55,7 @@ export const normalizeCanvasType = (type: string | undefined): string => {
  * Same-shape swap options for a column currently using `type` — always
  * includes `type` itself (already normalized) so the current value has a
  * matching entry in the menu. Returns an empty array when there's no safe
- * swap partner (boolean, select/mutliSelect, date family, anything else).
+ * swap partner (boolean, select/multiSelect, date family, anything else).
  */
 export const swapOptionsFor = (
   type: string | undefined,
@@ -72,9 +72,9 @@ export const CANVAS_SUPPORTED_TYPES = new Set<string>([
   'textarea',
   'markdown',
   'number',
-  'Integer',
+  'integer',
   'boolean',
   'select',
-  'mutliSelect',
+  'multiSelect',
   'toggle',
 ]);

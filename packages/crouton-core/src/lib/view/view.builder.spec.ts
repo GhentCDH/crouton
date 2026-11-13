@@ -94,7 +94,7 @@ describe('buildViews — no schema fallback to column types', () => {
   });
 });
 
-describe('buildViews — hiddenInForm is absolute even when updateable', () => {
+describe('buildViews — hiddenInForm is absolute even when updatable', () => {
   const schema = z.object({
     id: z.string(),
     title: z.string(),
@@ -104,7 +104,7 @@ describe('buildViews — hiddenInForm is absolute even when updateable', () => {
   const columns = parse([
     { id: 'id', idField: true, hiddenInForm: true },
     { id: 'title' },
-    { id: 'modified', type: 'date', hiddenInForm: true, updateable: true },
+    { id: 'modified', type: 'date', hiddenInForm: true, updatable: true },
   ]);
 
   const views = buildLayouts(undefined, {
@@ -113,7 +113,7 @@ describe('buildViews — hiddenInForm is absolute even when updateable', () => {
     warn: () => undefined,
   });
 
-  it('excludes hiddenInForm column from form schema even when updateable', () => {
+  it('excludes hiddenInForm column from form schema even when updatable', () => {
     expect(propsOf(views.form).modified).toBeUndefined();
   });
 

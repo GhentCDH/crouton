@@ -1,6 +1,6 @@
-# Select / mutliSelect
+# Select / multiSelect
 
-Dropdown select. `mutliSelect` is an alias that enables multi-value selection.
+Dropdown select. `multiSelect` is an alias that enables multi-value selection.
 
 Options can come from an inline array, a remote endpoint, or a resource reference — supply exactly one of `options`, `uri`, or `resource`.
 

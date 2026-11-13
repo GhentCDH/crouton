@@ -75,7 +75,7 @@ const stripNonCreateableChildFields = (
   if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
   const nonCreateable = new Set<string>(
     (sub.views?.form?.columns ?? [])
-      .filter((c) => (c as Record<string, unknown>)['createable'] === false)
+      .filter((c) => (c as Record<string, unknown>)['creatable'] === false)
       .map((c) => c.id),
   );
   if (!nonCreateable.size) return data;
@@ -265,7 +265,7 @@ export class WriteRepository<T = unknown> {
 
   /**
    * Create a child record and attach it to the parent via the configured foreign key.
-   * Fields marked `createable: false` in the form view are stripped before writing.
+   * Fields marked `creatable: false` in the form view are stripped before writing.
    */
   async createChild(
     parentId: string | number,

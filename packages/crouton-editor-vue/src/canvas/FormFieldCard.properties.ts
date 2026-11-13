@@ -13,7 +13,7 @@ export const FormFieldCardProperties = {
     type: Array as PropType<CanvasTypeOption[]>,
     required: true as const,
   },
-  /** Options for select/mutliSelect preview rendering — irrelevant for other types. */
+  /** Options for select/multiSelect preview rendering — irrelevant for other types. */
   selectOptions: {
     type: Array as PropType<CanvasSelectOption[]>,
     default: () => [],

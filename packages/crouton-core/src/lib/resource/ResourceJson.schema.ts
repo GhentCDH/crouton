@@ -661,6 +661,52 @@ const collectRemovedColumnKeyErrors = (
   return errors;
 };
 
+/** Old column-key spellings, rewritten before validation (alpha only — drop at v1). */
+const COLUMN_KEY_ALIASES: Record<string, string> = {
+  createable: 'creatable',
+  updateable: 'updatable',
+};
+/** Old `fieldInput.type`/`format` values, rewritten before validation (alpha only). */
+const FIELD_INPUT_TYPE_ALIASES: Record<string, string> = {
+  Integer: 'integer',
+  mutliSelect: 'multiSelect',
+  'date-range': 'dateRange',
+};
+
+const renameKeys = (
+  obj: Record<string, unknown>,
+  aliases: Record<string, string>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      aliases[k] && !(aliases[k] in obj) ? aliases[k] : k,
+      v,
+    ]),
+  );
+
+/** Rewrite legacy column spellings in a raw `columns` map. */
+const applyColumnAliases = (columns: unknown): unknown => {
+  if (!columns || typeof columns !== 'object' || Array.isArray(columns))
+    return columns;
+  return Object.fromEntries(
+    Object.entries(columns).map(([id, col]) => {
+      if (!col || typeof col !== 'object') return [id, col];
+      const out = renameKeys(col as Record<string, unknown>, COLUMN_KEY_ALIASES);
+      const fi = out['fieldInput'] as Record<string, unknown> | undefined;
+      if (fi && typeof fi === 'object') {
+        const alias = (v: unknown) =>
+          typeof v === 'string' ? (FIELD_INPUT_TYPE_ALIASES[v] ?? v) : v;
+        out['fieldInput'] = {
+          ...fi,
+          ...('type' in fi && { type: alias(fi['type']) }),
+          ...('format' in fi && { format: alias(fi['format']) }),
+        };
+      }
+      return [id, out];
+    }),
+  );
+};
+
 const createResourceJsonSchema = () => {
   const ext = getResourceExtensions();
   const extShape = Object.fromEntries(
@@ -679,6 +725,8 @@ const createResourceJsonSchema = () => {
     (raw) => {
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
       let obj = raw as Record<string, unknown>;
+      if ('columns' in obj)
+        obj = { ...obj, columns: applyColumnAliases(obj['columns']) };
 
       // Collect errors for removed root keys before Zod strips them
       _rawRootErrors = [

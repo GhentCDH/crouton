@@ -165,8 +165,8 @@
 | `hiddenInTable` | boolean | Hide in list view — only when `layout.table` is absent |
 | `hiddenInForm` | boolean | Hide in create/edit form — only when `layout.form` is absent |
 | `hiddenInView` | boolean | Hide in detail view — only when `layout.view` is absent |
-| `createable` | boolean | Include in create form (default `true`) |
-| `updateable` | boolean | Include in edit form (default `true`) |
+| `creatable` | boolean | Include in create form (default `true`) |
+| `updatable` | boolean | Include in edit form (default `true`) |
 | `required` | boolean | Override Prisma-derived required state in forms |
 | `unique` | boolean \| UniqueConfig | Enforce uniqueness; object form allows `scope`, `caseInsensitive`, `message` |
 | `type` | string \| object | Data type (`"string"`, `"number"`, `"boolean"`, `"date"`, `"date-time"`, `"object"`, `"array"`) or JSON Schema fragment |

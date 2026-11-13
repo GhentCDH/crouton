@@ -179,7 +179,7 @@ A prisma resource derives `required` from its Zod model. A custom resource has n
 This lands in the **form** schema's `required` array only — a required filter field would make the filter panel
 unsubmittable, and the table and view schemas are read-only. It is ignored on the id column and on columns that are
 neither
-`createable` nor `updateable`, since the form cannot supply a value for those.
+`creatable` nor `updatable`, since the form cannot supply a value for those.
 
 On a prisma resource the same flag overrides the model in either direction:
 `true` requires a field the model left optional, `false` relaxes one the model made mandatory, and omitting it defers to

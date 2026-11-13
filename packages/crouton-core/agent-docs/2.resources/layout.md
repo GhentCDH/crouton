@@ -23,7 +23,7 @@ and view from the column flags.
 | Unknown or duplicate ids | Validation error |
 
 Not overridden by a layout (data rules, apply everywhere): `id`, `column`, `idField`, `type`, `required`, `unique`,
-`createable`, `updateable`, `enum`, `displayKey`, `sortId`. A layout decides *what is shown and how*, not *what is
+`creatable`, `updatable`, `enum`, `displayKey`, `sortId`. A layout decides *what is shown and how*, not *what is
 valid or writable*.
 
 Without a layout, a context shows the columns not hidden by `hiddenIn<Ctx>`, in declaration order, full width. Placement
@@ -649,7 +649,7 @@ The old root keys `display` and `modalSize` are removed.
 
 - An item id that doesn't match a column → **validation error** (the file fails to load).
 - The same id twice in one context → **validation error**.
-- Columns not referenced anywhere in the layout → **not rendered**. A `required` + `createable` column missing from
+- Columns not referenced anywhere in the layout → **not rendered**. A `required` + `creatable` column missing from
   `layout.form` logs a warning: create will fail unless a hook or default fills it.
 
 <LayoutDemo example="missing-extra" />

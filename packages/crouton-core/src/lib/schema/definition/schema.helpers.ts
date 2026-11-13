@@ -29,12 +29,12 @@ export const buildResourceDefinitions = (
   const createSchema = pickByColumns(
     schema,
     enrichedColumns,
-    (c) => !c.idField && c.createable !== false,
+    (c) => !c.idField && c.creatable !== false,
   );
   const updateSchema = pickByColumns(
     schema,
     enrichedColumns,
-    (c) => !c.idField && c.updateable !== false,
+    (c) => !c.idField && c.updatable !== false,
   );
 
   const findAll = opWithSchema(operations.findAll, picked);

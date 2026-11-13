@@ -135,7 +135,7 @@ describe('isObjectControl', () => {
 
   it('does not hijack a control that names another format', () => {
     // date-range is an object schema too — its own tester must win.
-    const dateRange = control({ format: 'date-range' });
+    const dateRange = control({ format: 'dateRange' });
     expect(isObjectControl(dateRange, objectSchema)).toBe(false);
     expect(isDateRangeControl(dateRange, objectSchema)).toBe(true);
 
@@ -159,10 +159,10 @@ describe('isObjectControl', () => {
 
 describe('isDateRangeControl', () => {
   it('matches the date-range format option regardless of case', () => {
-    expect(isDateRangeControl(control({ format: 'date-range' }), schema())).toBe(
+    expect(isDateRangeControl(control({ format: 'dateRange' }), schema())).toBe(
       true,
     );
-    expect(isDateRangeControl(control({ format: 'Date-Range' }), schema())).toBe(
+    expect(isDateRangeControl(control({ format: 'DateRange' }), schema())).toBe(
       true,
     );
   });
