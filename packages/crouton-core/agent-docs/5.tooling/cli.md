@@ -27,7 +27,7 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
 | `crouton create datasource`            | Scaffold a new [datasource](../3.backend/data-sources.md).           |
 | `crouton validate`                     | Validate every discovered `resource.json`.                           |
-| `crouton validate resources [paths…]`  | Validate the given files/directories (`--json`, `--strict`).         |
+| `crouton validate resources [paths…]`  | Validate the given files/directories (`--json`).                     |
 | `crouton migrate`                      | Print the [migration guide](./migrate.md).                           |
 | `crouton migrate resources` / `layout` | Print the migration guide (codemods are on the way).                 |
 

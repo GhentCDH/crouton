@@ -5,7 +5,7 @@ import { type ValidationIssue, discoverResourceEntries, validateResourceFile } f
 import { type CommonOptions, registerCommonOptions, resolveTargetProject, withRun } from './shared';
 import { resolve } from 'node:path';
 
-interface ValidateOptions { json?: boolean; strict?: boolean; cwd?: string; project?: string }
+interface ValidateOptions { json?: boolean; cwd?: string; project?: string }
 
 const discoverResourceFiles = async (cwd: string): Promise<string[]> =>
   (await discoverResourceEntries(cwd)).map((entry) => entry.path);
@@ -32,7 +32,7 @@ const validateResources = async (paths: string[], opts: ValidateOptions): Promis
 
   const allIssues: ValidationIssue[] = [];
   for (const file of files) {
-    const issues = await validateResourceFile(file, { strict: opts.strict });
+    const issues = await validateResourceFile(file);
     allIssues.push(...issues);
   }
 
@@ -64,7 +64,6 @@ export const registerValidateCommand = (program: Command) => {
     .description('Validate resource.json files')
     .argument('[paths...]', 'files or directories to validate (default: discover via crouton.json)')
     .option('--json', 'output results as JSON')
-    .option('--strict', 'enable strict checks')
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
     .option('-p, --project <name>', 'project subfolder (resolves cwd to <cwd>/<project>)')
     .action(withRun(validateResources));

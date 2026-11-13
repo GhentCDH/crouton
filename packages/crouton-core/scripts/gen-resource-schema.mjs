@@ -7,7 +7,7 @@
 // Generate from ResourceJsonShape (the z.object), NOT ResourceJsonSchema (which has a
 // .transform() that z.toJSONSchema rejects). The input shape is what a file author writes.
 
-// ponytail: strict refineByKind not in schema; crouton validate --strict covers it
+// ponytail: refineByKind is not in the JSON Schema; crouton validate covers it
 
 import { z } from 'zod';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';

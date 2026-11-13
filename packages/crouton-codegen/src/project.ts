@@ -117,7 +117,7 @@ export const listResourceNames = async (
 
 /**
  * Read and parse all `resource.json` files (including custom resources).
- * Invalid files are silently skipped.
+ * Invalid or unreadable files are skipped with a warning (run `crouton validate` for details).
  */
 export const readAllResourceJsons = async (
   loaded: LoadedConfig,
@@ -132,8 +132,9 @@ export const readAllResourceJsons = async (
       );
       const parsed = buildResourceJsonSchema().safeParse(raw);
       if (parsed.success) results.push(parsed.data);
-    } catch {
-      /* skip unreadable */
+      else console.warn(`[crouton] skipping invalid ${name}/resource.json — run \`crouton validate\` for details`);
+    } catch (err) {
+      console.warn(`[crouton] skipping unreadable ${name}/resource.json: ${(err as Error).message}`);
     }
   }
   return results;

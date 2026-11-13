@@ -144,9 +144,8 @@ server.tool(
   'Validate resource.json files',
   {
     paths: z.array(z.string()).optional().describe('Paths to validate; defaults to all discovered resources'),
-    strict: z.boolean().optional().default(false).describe('Enable strict checks'),
   },
-  async ({ paths, strict }) => {
+  async ({ paths }) => {
     const cwd = process.cwd();
     let files: string[];
     if (paths && paths.length > 0) {
@@ -160,7 +159,7 @@ server.tool(
     }
     const allIssues: ValidationIssue[] = [];
     for (const file of files) {
-      const issues = await validateResourceFile(file, { strict: strict ?? false });
+      const issues = await validateResourceFile(file);
       allIssues.push(...issues);
     }
     const formatted = allIssues.map((i) => {
