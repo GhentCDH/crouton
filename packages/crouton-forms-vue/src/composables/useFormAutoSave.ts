@@ -11,8 +11,7 @@ export interface AutoSaveFormProps {
 }
 
 /**
- * Shared auto-save + form-event plumbing used by `useFormLogic` (FormModal /
- * AutoSaveForm) and `useCroutonFormLogic` (CroutonForm). Both wrappers keep
+ * Shared auto-save + form-event plumbing used by `useFormLogic` (FormModal) and `useCroutonFormLogic` (CroutonForm). Both wrappers keep
  * their own submit/validity rules; only the duplicated wiring lives here.
  */
 type FormRefInstance = {
