@@ -10,7 +10,7 @@ import { parseFieldInputOptions } from './FieldInput.schema';
 import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
-import { getResourceExtensions } from './extensions';
+import { getResourceExtensions, getResourceExtensionsStamp } from './extensions';
 import { BASELINE_RESOURCE_VERSION } from './version';
 
 // ── Removed-key registry ─────────────────────────────────────────────
@@ -451,34 +451,88 @@ const getOrCreateTableNode = (
 
 /**
  * Return an updated copy of `layout` where the table node (possibly nested inside a
- * wrapper) has `updates` merged in.  When `layout.table` is a wrapper, the inner
- * `{ type: "table" }` sub-node is updated and the wrapper structure is preserved.
- * When `layout.table` does not exist yet, it is created from `updates`.
+ * wrapper) is replaced by `node`.  When `layout.table` is a wrapper, the inner
+ * `{ type: "table" }` sub-node is replaced and the wrapper structure is preserved.
+ * When `layout.table` does not exist yet, it is created from `node`.
  */
-const patchTableNodeInLayout = (
+const replaceTableNodeInLayout = (
   layout: Record<string, unknown>,
-  updates: Record<string, unknown>,
+  node: Record<string, unknown>,
 ): Record<string, unknown> => {
   const outerTable = layout['table'] as Record<string, unknown> | undefined;
-  if (!outerTable) return { ...layout, table: updates };
-  const tableNode = getOrCreateTableNode(layout);
-  const isWrapper = tableNode !== outerTable;
-  const updatedNode = { ...tableNode, ...updates };
-  if (!isWrapper) return { ...layout, table: updatedNode };
+  if (!outerTable || getOrCreateTableNode(layout) === outerTable)
+    return { ...layout, table: node };
   const outerItems = (outerTable['items'] as Record<string, unknown>[]) ?? [];
-  const idx = outerItems.findIndex((i: Record<string, unknown>) => i?.['type'] === 'table');
-  if (idx < 0) return { ...layout, table: updatedNode };
+  const idx = outerItems.findIndex((i) => i?.['type'] === 'table');
+  if (idx < 0) return { ...layout, table: node };
   return {
     ...layout,
     table: {
       ...outerTable,
-      items: [
-        ...outerItems.slice(0, idx),
-        updatedNode,
-        ...outerItems.slice(idx + 1),
-      ],
+      items: [...outerItems.slice(0, idx), node, ...outerItems.slice(idx + 1)],
     },
   };
+};
+
+/** Merge `updates` into the table node of `layout` (see `replaceTableNodeInLayout`). */
+const patchTableNodeInLayout = (
+  layout: Record<string, unknown>,
+  updates: Record<string, unknown>,
+): Record<string, unknown> =>
+  replaceTableNodeInLayout(layout, {
+    ...(layout['table'] ? getOrCreateTableNode(layout) : {}),
+    ...updates,
+  });
+
+/**
+ * Merge `searchFields` into `operations.findAll.search` (deduped, existing first).
+ * No-op when findAll is disabled; an unset findAll defaults to off for `custom`.
+ */
+const mergeSearchFieldsIntoFindAll = (
+  obj: Record<string, unknown>,
+  searchFields: string[],
+  kind: string | undefined,
+): Record<string, unknown> => {
+  if (!searchFields.length) return obj;
+  const ops = (obj['operations'] as Record<string, unknown> | undefined) ?? {};
+  const findAll = ops['findAll'];
+  if ((findAll ?? kind !== 'custom') === false) return obj;
+  const findAllObj =
+    typeof findAll === 'object' && findAll !== null
+      ? (findAll as Record<string, unknown>)
+      : undefined;
+  const existing = (findAllObj?.['search'] as string[] | undefined) ?? [];
+  const search = [
+    ...existing,
+    ...searchFields.filter((f) => !existing.includes(f)),
+  ];
+  return {
+    ...obj,
+    operations: { ...ops, findAll: { ...findAllObj, search } },
+  };
+};
+
+/**
+ * Lift `layout.table.searchFields` (flat or wrapped table node) into
+ * `operations.findAll.search` and strip it from the layout. Runs before kind
+ * auto-derivation, so the kind falls back to `model` presence.
+ */
+const liftLayoutTableSearchFields = (
+  obj: Record<string, unknown>,
+): Record<string, unknown> => {
+  const layout = obj['layout'] as Record<string, unknown> | undefined;
+  if (!layout?.['table']) return obj;
+  const node = getOrCreateTableNode(layout);
+  if (!('searchFields' in node)) return obj;
+  const { searchFields, ...rest } = node;
+  const kind =
+    (obj['kind'] as string | undefined) ??
+    (obj['model'] !== undefined ? 'prisma' : 'custom');
+  return mergeSearchFieldsIntoFindAll(
+    { ...obj, layout: replaceTableNodeInLayout(layout, rest) },
+    (searchFields as string[] | undefined) ?? [],
+    kind,
+  );
 };
 
 /**
@@ -607,7 +661,7 @@ const collectRemovedColumnKeyErrors = (
   return errors;
 };
 
-export const buildResourceJsonSchema = () => {
+const createResourceJsonSchema = () => {
   const ext = getResourceExtensions();
   const extShape = Object.fromEntries(
     [...ext].map(([name, schema]) => [name, schema.optional()]),
@@ -652,113 +706,7 @@ export const buildResourceJsonSchema = () => {
           .map(([k, message]) => ({ path: ['source', k], message }));
       }
 
-      // Lift layout.table.searchFields → operations.findAll.search and remove from layout
-      {
-        const layout = obj['layout'] as Record<string, unknown> | undefined;
-        if (layout) {
-          const outerTable = layout['table'] as
-            Record<string, unknown> | undefined;
-          if (outerTable) {
-            const isFlat =
-              !outerTable['type'] || outerTable['type'] === 'table';
-            if (isFlat && 'searchFields' in outerTable) {
-              const layoutSearchFields =
-                (outerTable['searchFields'] as string[]) ?? [];
-              const { searchFields: _sf, ...restTable } = outerTable;
-              obj = { ...obj, layout: { ...layout, table: restTable } };
-              if (layoutSearchFields.length) {
-                const kind2 =
-                  (obj['kind'] as string | undefined) ??
-                  (obj['model'] !== undefined ? 'prisma' : 'custom');
-                const rawOps2 = obj['operations'] as
-                  Record<string, unknown> | undefined;
-                const eff2 =
-                  rawOps2?.['findAll'] ?? (kind2 === 'custom' ? false : true);
-                if (eff2 !== false) {
-                  const ops = rawOps2 ?? {};
-                  const findAll = ops['findAll'];
-                  const existingSearch: string[] =
-                    typeof findAll === 'object' && findAll !== null
-                      ? (((findAll as Record<string, unknown>)['search'] as string[] | undefined) ?? [])
-                      : [];
-                  const merged = [
-                    ...existingSearch,
-                    ...layoutSearchFields.filter(
-                      (f: string) => !existingSearch.includes(f),
-                    ),
-                  ];
-                  obj = {
-                    ...obj,
-                    operations: {
-                      ...ops,
-                      findAll:
-                        typeof findAll === 'object' && findAll !== null
-                          ? { ...(findAll as object), search: merged }
-                          : { search: merged },
-                    },
-                  };
-                }
-              }
-            } else if (!isFlat) {
-              const items =
-                (outerTable['items'] as Record<string, unknown>[]) ?? [];
-              const idx = items.findIndex((i) => i?.['type'] === 'table');
-              if (idx >= 0 && 'searchFields' in items[idx]) {
-                const layoutSearchFields =
-                  (items[idx]['searchFields'] as string[]) ?? [];
-                const { searchFields: _sf, ...restInner } = items[idx];
-                obj = {
-                  ...obj,
-                  layout: {
-                    ...layout,
-                    table: {
-                      ...outerTable,
-                      items: [
-                        ...items.slice(0, idx),
-                        restInner,
-                        ...items.slice(idx + 1),
-                      ],
-                    },
-                  },
-                };
-                if (layoutSearchFields.length) {
-                  const kind3 =
-                    (obj['kind'] as string | undefined) ??
-                    (obj['model'] !== undefined ? 'prisma' : 'custom');
-                  const rawOps3 = obj['operations'] as
-                    Record<string, unknown> | undefined;
-                  const eff3 =
-                    rawOps3?.['findAll'] ?? (kind3 === 'custom' ? false : true);
-                  if (eff3 !== false) {
-                    const ops = rawOps3 ?? {};
-                    const findAll = ops['findAll'];
-                    const existingSearch: string[] =
-                      typeof findAll === 'object' && findAll !== null
-                        ? (((findAll as Record<string, unknown>)['search'] as string[] | undefined) ?? [])
-                        : [];
-                    const merged = [
-                      ...existingSearch,
-                      ...layoutSearchFields.filter(
-                        (f: string) => !existingSearch.includes(f),
-                      ),
-                    ];
-                    obj = {
-                      ...obj,
-                      operations: {
-                        ...ops,
-                        findAll:
-                          typeof findAll === 'object' && findAll !== null
-                            ? { ...(findAll as object), search: merged }
-                            : { search: merged },
-                      },
-                    };
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      obj = liftLayoutTableSearchFields(obj);
 
       // Auto-derive kind='prisma' when a model is present and kind is unset.
       if (obj['kind'] === undefined && obj['model'] !== undefined) {
@@ -794,46 +742,22 @@ export const buildResourceJsonSchema = () => {
         const layout = obj['layout'] as Record<string, unknown> | undefined;
         if (layout) {
           const tableNode = getOrCreateTableNode(layout);
-          const oldActions = tableNode['actions'] as unknown[] | undefined;
+          const { actions: oldActions, ...rest } = tableNode;
           if (
-            oldActions?.length &&
+            (oldActions as unknown[] | undefined)?.length &&
             !(tableNode['rowActions'] as unknown[])?.length
           ) {
-            const updatedTable: Record<string, unknown> = {
-              ...tableNode,
-              rowActions: oldActions,
+            obj = {
+              ...obj,
+              layout: replaceTableNodeInLayout(layout, {
+                ...rest,
+                rowActions: oldActions,
+              }),
             };
-            delete updatedTable['actions'];
-            const outerTable = layout['table'] as
-              Record<string, unknown> | undefined;
-            const isWrapper = outerTable != null && tableNode !== outerTable;
-            if (!isWrapper || !outerTable) {
-              obj = { ...obj, layout: { ...layout, table: updatedTable } };
-            } else {
-              const outerItems =
-                (outerTable['items'] as Record<string, unknown>[]) ?? [];
-              const idx = outerItems.findIndex(
-                (i: Record<string, unknown>) => i?.['type'] === 'table',
-              );
-              const newItems =
-                idx >= 0
-                  ? [
-                      ...outerItems.slice(0, idx),
-                      updatedTable,
-                      ...outerItems.slice(idx + 1),
-                    ]
-                  : outerItems;
-              obj = {
-                ...obj,
-                layout: {
-                  ...layout,
-                  table: { ...outerTable, items: newItems },
-                },
-              };
-            }
           }
         }
       }
+
 
       // Backward-compat: lift deprecated column-level table flags into layout.table
       const columns = obj['columns'] as
@@ -912,39 +836,11 @@ export const buildResourceJsonSchema = () => {
             }),
           };
           // Lift column searchable flags → operations.findAll.search
-          // Only lift when findAll is (or will be) enabled; kind:'custom' defaults findAll to false.
-          if (searchFields.length) {
-            const kind = obj['kind'] as string | undefined;
-            const rawOps = obj['operations'] as
-              Record<string, unknown> | undefined;
-            const rawFindAll = rawOps?.['findAll'];
-            const defaultFindAll = kind === 'custom' ? false : true;
-            const effectiveFindAll = rawFindAll ?? defaultFindAll;
-            if (effectiveFindAll !== false) {
-              const ops = rawOps ?? {};
-              const findAll = ops['findAll'];
-              const existingSearch: string[] =
-                typeof findAll === 'object' && findAll !== null
-                  ? (((findAll as Record<string, unknown>)['search'] as string[] | undefined) ?? [])
-                  : [];
-              const merged = [
-                ...existingSearch,
-                ...searchFields.filter(
-                  (f: string) => !existingSearch.includes(f),
-                ),
-              ];
-              obj = {
-                ...obj,
-                operations: {
-                  ...ops,
-                  findAll:
-                    typeof findAll === 'object' && findAll !== null
-                      ? { ...(findAll as object), search: merged }
-                      : { search: merged },
-                },
-              };
-            }
-          }
+          obj = mergeSearchFieldsIntoFindAll(
+            obj,
+            searchFields,
+            obj['kind'] as string | undefined,
+          );
         }
       }
 
@@ -998,11 +894,27 @@ export const buildResourceJsonSchema = () => {
   );
 };
 
-/** Convenience constant — reads the registry at call time via the builder. */
-export const ResourceJsonSchema = buildResourceJsonSchema();
+let cachedSchema:
+  | { stamp: number; schema: ReturnType<typeof createResourceJsonSchema> }
+  | undefined;
+
+/**
+ * The resource.json schema including all registered extensions. Cached per
+ * extension-registry state: building it is expensive and parse is synchronous,
+ * so the preprocess→superRefine closure state is safe to share.
+ */
+export const buildResourceJsonSchema = () => {
+  const stamp = getResourceExtensionsStamp();
+  if (cachedSchema?.stamp !== stamp)
+    cachedSchema = { stamp, schema: createResourceJsonSchema() };
+  return cachedSchema.schema;
+};
+
+/** Extension-free schema — built once at module load. */
+export const ResourceJsonSchema = createResourceJsonSchema();
 
 export type ResourceJson = z.infer<
-  ReturnType<typeof buildResourceJsonSchema>
+  ReturnType<typeof createResourceJsonSchema>
 > & {
   route: string;
 };
