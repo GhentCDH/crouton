@@ -24,10 +24,10 @@ resources/book/
 └── schema.ts       ← generated Zod model (do not edit by hand)
 ```
 
-Alternatively, create the files manually with `crouton create-resource`:
+Alternatively, create the files manually with `crouton create resource`:
 
 ```sh
-npx crouton create-resource book --title "Books"
+npx crouton create resource book --title "Books"
 ```
 
 ### 2. Set required fields
@@ -41,7 +41,7 @@ Open `resource.json` and verify:
 ### 3. Validate
 
 ```sh
-npx crouton validate resources/book/resource.json
+npx crouton validate resources resources/book/resource.json
 ```
 
 Fix any reported issues, then run the command again until it passes.

@@ -43,7 +43,7 @@ know the difference. Nothing to configure on that side.
 ## Scaffold one
 
 ```bash
-npx crouton create-resource zotero_item
+npx crouton create resource zotero_item
 ```
 
 That writes two files and never overwrites an existing one:

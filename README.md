@@ -43,7 +43,7 @@ Configure resources once. Use them over and over. No boilerplate, just filling.
 | `@ghentcdh/crouton-codegen`    | Shared Node-only codegen tooling — Prisma introspection, scaffolding, shell wrappers                      | bundled in `crouton-api` / `crouton-cli` |
 | `@ghentcdh/crouton-prisma`     | Prisma data-source adapter and Prisma-specific utilities                                                  | ✅ released |
 | `@ghentcdh/crouton-auth`       | Auth-provider definitions (`defineAuthProvider`, role guards, `auth-provider.json` schema)                 | ✅ released |
-| `@ghentcdh/crouton-cli`        | `crouton` CLI — `init`, `create-datasource`, `create-resource`, `update resources`, `migrate`, `validate` | ✅ released |
+| `@ghentcdh/crouton-cli`        | `crouton` CLI — `update`, `create`, `init`, `validate`, `migrate` | ✅ released |
 | `@ghentcdh/create-crouton`     | `npm create @ghentcdh/crouton` scaffolder — bootstraps a new project                                      | ✅ released |
 | `@ghentcdh/add-crouton`        | `npx @ghentcdh/add-crouton` — adds crouton to an existing project                                         | 🚧 not published yet |
 | `@ghentcdh/crouton-mcp`        | MCP server — lets LLM agents query resources, validate configs, and search the docs                       | 🚧 not published yet |

@@ -27,7 +27,7 @@ No `schema.ts` — the JSON model is built from the column `type`s declared in `
 ### 1. Scaffold with the CLI
 
 ```sh
-npx crouton create-resource zotero_item --title "Zotero items" --kind custom
+npx crouton create resource zotero_item --title "Zotero items" --kind custom
 ```
 
 Or create the files manually.
@@ -96,7 +96,7 @@ export default repository;
 ### 4. Validate
 
 ```sh
-npx crouton validate resources/zotero_item/resource.json
+npx crouton validate resources resources/zotero_item/resource.json
 ```
 
 Crouton also checks at load time that every enabled operation is implemented. Problems appear on the [status page](../3.backend/status.md).

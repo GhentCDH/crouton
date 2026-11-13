@@ -109,7 +109,7 @@ export const loadDatasources = async (
       throw new Error(
         `${jsonPath}: datasource "${name}" is missing ${missing}. ` +
           'A v2 data-source.json must be self-describing — add prismaSchema, urlEnv, ' +
-          'generatedTypesImport, zodOutput and prismaConfig (see `crouton create-datasource`).',
+          'generatedTypesImport, zodOutput and prismaConfig (see `crouton create datasource`).',
       );
     }
     datasources.push(

@@ -31,19 +31,19 @@ Add an `i18n` block to `crouton.json`:
 
 ```sh
 # Create initial files for every configured language
-npx crouton translations init
+npx crouton init translations
 
 # Regenerate & merge (safe — hand edits are preserved)
-npx crouton translations update
+npx crouton update translations
 
 # Same as above, limited to specific languages
-npx crouton translations update --lang nl,fr
+npx crouton update translations --lang nl,fr
 
 # Remove keys that no longer match any column/enum
-npx crouton translations update --prune
+npx crouton update translations --prune
 
 # Preview without writing
-npx crouton translations update --dry-run
+npx crouton update translations --dry-run
 ```
 
 `crouton update resources` also refreshes translation files in the same pass, so the normal database-sync flow keeps

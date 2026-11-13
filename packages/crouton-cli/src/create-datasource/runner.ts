@@ -1,5 +1,5 @@
 /**
- * `crouton create-datasource` — scaffold a new self-describing datasource:
+ * `crouton create datasource` — scaffold a new self-describing datasource:
  * `data-sources/<name>/{data-source.json,index.ts}` plus a per-datasource
  * `prisma/<name>/{schema.prisma,prisma.config.ts}`. Interactive by default;
  * fully scriptable via flags. The file set comes from the pure
@@ -42,7 +42,7 @@ const defaultUrlEnv = (name: string): string =>
 
 export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promise<void> => {
   const cwd = pathResolve(opts.cwd ?? process.cwd());
-  clack.intro(pc.bold('crouton create-datasource'));
+  clack.intro(pc.bold('crouton create datasource'));
 
   try {
     let loaded: LoadedConfig;

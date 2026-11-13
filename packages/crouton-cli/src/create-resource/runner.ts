@@ -1,5 +1,5 @@
 /**
- * `crouton create-resource --kind custom` — scaffold a config-only resource:
+ * `crouton create resource --kind custom` — scaffold a config-only resource:
  * `resources/<name>/{resource.json,repository.ts}`.
  *
  * Interactive by default, fully scriptable via flags. The file set comes from
@@ -39,7 +39,7 @@ export const runCreateResource = async (
   opts: CreateResourceOptions,
 ): Promise<void> => {
   const cwd = pathResolve(opts.cwd ?? process.cwd());
-  clack.intro(pc.bold('crouton create-resource'));
+  clack.intro(pc.bold('crouton create resource'));
 
   try {
     if (opts.kind && opts.kind !== 'custom') {

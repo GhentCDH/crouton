@@ -112,7 +112,7 @@ FORM -->|CRUD requests|CRUD
 - [Translations](4.frontend/translations.md) — server-side i18n
 
 ### Tooling
-- [CLI & project config](5.tooling/cli.md) — `crouton.json`, `crouton create-datasource`, and `crouton update resources`
+- [CLI & project config](5.tooling/cli.md) — `crouton.json`, `crouton create datasource`, and `crouton update resources`
 - [Resource editor](5.tooling/resource-editor.md) — dev-mode visual builder and ResourceJsonEditor component
 
 ### Reference
