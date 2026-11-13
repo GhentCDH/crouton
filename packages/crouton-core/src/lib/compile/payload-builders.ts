@@ -21,11 +21,18 @@ import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 /**
  * Derive the wire `display` from the layout. `display` is not stored on the
  * compiled resource — it is fully derivable, so the payload builders compute it
- * here to keep `/definition` and `/schemas` output unchanged.
+ * here. `form` and `view` keep their own container mode: they are independent
+ * in the layout, so a resource can e.g. open the create/edit form in a modal
+ * while the read-only detail view opens as a page (or vice versa).
  */
 export const deriveDisplay = (layout: Layout | undefined) => ({
-  mode: layout?.form?.container?.mode ?? layout?.view?.container?.mode ?? 'modal',
-  customComponent: layout?.view?.component ?? null,
+  form: {
+    mode: layout?.form?.container?.mode ?? 'modal',
+  },
+  view: {
+    mode: layout?.view?.container?.mode ?? 'modal',
+    customComponent: layout?.view?.component ?? null,
+  },
 });
 
 interface TableInjectOptions {

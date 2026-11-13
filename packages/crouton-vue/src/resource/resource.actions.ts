@@ -47,6 +47,17 @@ type FormConfig = {
   [key: string]: unknown;
 };
 
+/**
+ * Which container mode applies to a given action. The create/edit form and the
+ * read-only detail view keep independent modes (`layout.form.container` vs
+ * `layout.view.container`), so a resource can open the form as a modal while
+ * the view opens as a custom page (or vice versa).
+ */
+export const displayModeFor = (
+  display: ResourceDefinition['display'],
+  context: 'form' | 'view',
+): 'page' | 'modal' => display[context].mode;
+
 const getTableNode = (ui: TableNode | undefined | null): TableNode | null => {
   if (!ui) return null;
   if (ui.type === 'Table') return ui;
@@ -480,9 +491,10 @@ export const resourceModals = (
       resource: Resource,
       formDef: ResourceDefinition,
       handleEvent: HandleEvent,
+      context: 'form' | 'view' = 'form',
     ) =>
     (formData?: Record<string, unknown>) => {
-      const mode = formDef.display.mode;
+      const mode = displayModeFor(formDef.display, context);
       if (!inline && mode !== 'page') {
         openEditModal(api, resource, formDef, handleEvent, onSuccess)(formData);
         return;
@@ -493,7 +505,7 @@ export const resourceModals = (
       const customComponent =
         findCustomComponent(
           crouton.customComponents,
-          formDef.display.customComponent,
+          formDef.display.view.customComponent,
         ) ?? null;
       const config = createEditForm(
         api,
@@ -531,12 +543,12 @@ export const resourceModals = (
   return {
     form,
     closeForm,
-    create: () => openForm(api, resource, formDef, handleEvent)(),
+    create: () => openForm(api, resource, formDef, handleEvent, 'form')(),
     edit: (id: unknown) =>
-      openWithData(id, openForm(api, resource, formDef, handleEvent)),
+      openWithData(id, openForm(api, resource, formDef, handleEvent, 'form')),
     view: (id: unknown) =>
-      formDef.display.mode === 'page'
-        ? openWithData(id, openForm(api, resource, formDef, handleEvent))
+      displayModeFor(formDef.display, 'view') === 'page'
+        ? openWithData(id, openForm(api, resource, formDef, handleEvent, 'view'))
         : openWithData(id, openViewModal(api, resource, formDef, handleEvent)),
     delete: (id: unknown) =>
       openWithData(id, openDeleteModal(api, resource, handleEvent, () => onSuccess?.('deleted'))),

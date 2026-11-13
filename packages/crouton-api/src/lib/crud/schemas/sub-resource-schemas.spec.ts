@@ -46,6 +46,14 @@ describe('case 18: prisma child in prisma parent (sub-prisma-in-prisma)', () => 
     expect(typeof body['operations']).toBe('object');
   });
 
+  it('child schemas payload carries a normalized per-context display', async () => {
+    const res = await ctx.http.get('/api/groups/chapter/schemas');
+    expect(bodyOf(res)['display']).toEqual({
+      form: { mode: 'modal' },
+      view: { mode: 'modal', customComponent: null },
+    });
+  });
+
   it('parent schemas payload references child schemas endpoint in relation column', async () => {
     const res = await ctx.http.get('/api/groups/schemas');
     const schemas = bodyOf(res)['schemas'] as Record<string, SchemaView> | undefined;
@@ -88,6 +96,14 @@ describe('case 19: custom child in prisma parent (sub-custom-in-prisma)', () => 
     expect(res.body).toMatchObject({
       route: 'expense',
       idField: 'id',
+    });
+  });
+
+  it('child display keeps the form (modal) and view (page) modes independent', async () => {
+    const res = await ctx.http.get('/api/groups/expense/schemas');
+    expect(bodyOf(res)['display']).toEqual({
+      form: { mode: 'modal' },
+      view: { mode: 'page', customComponent: 'ExpenseDetail' },
     });
   });
 

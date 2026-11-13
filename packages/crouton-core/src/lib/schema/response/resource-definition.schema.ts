@@ -14,6 +14,27 @@ import {
 } from './operation.schema';
 import { Display, FormDevSchemas } from './view.schema';
 
+/** Display shape after normalization — both contexts are always present. */
+export type NormalizedDisplay = {
+  form: { mode: 'page' | 'modal' };
+  view: { mode: 'page' | 'modal'; customComponent: string | null };
+};
+
+/**
+ * Fill in the per-context defaults so consumers can always read
+ * `display.form.mode` / `display.view.mode`. Older payloads (or a missing
+ * `display`) are normalized to modal in both contexts.
+ */
+const normalizeDisplay = (
+  display?: z.infer<typeof Display>,
+): NormalizedDisplay => ({
+  form: { mode: display?.form?.mode ?? 'modal' },
+  view: {
+    mode: display?.view?.mode ?? 'modal',
+    customComponent: display?.view?.customComponent ?? null,
+  },
+});
+
 export const ResourceDefinitionResponseZ = z
   .object({
     id: z.string(),
@@ -60,7 +81,7 @@ export const ResourceDefinitionResponseZ = z
 
     return {
       ...data,
-      display: data.display ?? { mode: 'modal' },
+      display: normalizeDisplay(data.display),
       operations: {
         ...operations,
         ...(data.operations.lookup !== undefined && {

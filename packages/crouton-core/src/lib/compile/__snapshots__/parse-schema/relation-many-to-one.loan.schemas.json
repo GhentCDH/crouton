@@ -34,8 +34,13 @@
     "lookup": "http://localhost:3000/loans?q={text}"
   },
   "display": {
-    "mode": "modal",
-    "customComponent": null
+    "form": {
+      "mode": "modal"
+    },
+    "view": {
+      "mode": "modal",
+      "customComponent": null
+    }
   },
   "schemas": {
     "table": {

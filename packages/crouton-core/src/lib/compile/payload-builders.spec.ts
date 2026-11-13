@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { invalid } from '../../testing/index';
 import type { Layout } from '../layout/schema';
 import type { CompiledResource } from './compiled-resource.schema';
+import type { CompiledSubResourceConfig } from './compiled-sub-resource.schema';
 import {
   buildDefinitionPayload,
   buildResourceOperations,
+  buildSubResourceViewsPayload,
   buildViewsPayload,
   deriveDisplay,
 } from './payload-builders';
@@ -43,14 +45,14 @@ describe('buildResourceOperations — external uri', () => {
 });
 
 describe('deriveDisplay', () => {
-  it('defaults to a modal without a custom component', () => {
+  it('defaults to a modal in both contexts without a layout', () => {
     expect(deriveDisplay(undefined)).toEqual({
-      mode: 'modal',
-      customComponent: null,
+      form: { mode: 'modal' },
+      view: { mode: 'modal', customComponent: null },
     });
   });
 
-  it('reads the form container mode and the view custom component', () => {
+  it('keeps the form and view modes independent (form page, view modal)', () => {
     expect(
       deriveDisplay(
         invalid<Layout>({
@@ -58,17 +60,37 @@ describe('deriveDisplay', () => {
           view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Page.vue' },
         }),
       ),
-    ).toEqual({ mode: 'page', customComponent: 'src/Page.vue' });
+    ).toEqual({
+      form: { mode: 'page' },
+      view: { mode: 'modal', customComponent: 'src/Page.vue' },
+    });
   });
 
-  it('falls back to the view container mode when the form has none', () => {
+  it('keeps the form and view modes independent (form modal, view page)', () => {
+    expect(
+      deriveDisplay(
+        invalid<Layout>({
+          form: { container: { mode: 'modal', size: 'xl' } },
+          view: { container: { mode: 'page', size: 'sm' } },
+        }),
+      ),
+    ).toEqual({
+      form: { mode: 'modal' },
+      view: { mode: 'page', customComponent: null },
+    });
+  });
+
+  it('defaults the form to modal when only the view sets a mode', () => {
     expect(
       deriveDisplay(
         invalid<Layout>({
           view: { container: { mode: 'page', size: 'sm' } },
         }),
       ),
-    ).toEqual({ mode: 'page', customComponent: null });
+    ).toEqual({
+      form: { mode: 'modal' },
+      view: { mode: 'page', customComponent: null },
+    });
   });
 });
 
@@ -83,29 +105,74 @@ describe('display is derived into the payloads', () => {
       views: { view: { data: {}, ui: {} } },
     });
 
+  // Documented case (tools/agent-eval/tasks/11-open-as-page.md): the detail
+  // view opens as a page, the create/edit form stays a large modal.
   const layout: Layout = {
-    form: { container: { mode: 'page', size: 'sm' } },
-    view: { container: { mode: 'modal', size: 'sm' }, component: 'src/Detail.vue' },
+    form: { container: { mode: 'modal', size: 'xl' } },
+    view: { container: { mode: 'page', size: 'sm' }, component: 'src/Detail.vue' },
   };
 
-  it('buildDefinitionPayload keeps display on the wire', () => {
-    expect(buildDefinitionPayload(config(layout))['display']).toEqual({
-      mode: 'page',
-      customComponent: 'src/Detail.vue',
-    });
+  const expectedDisplay = {
+    form: { mode: 'modal' },
+    view: { mode: 'page', customComponent: 'src/Detail.vue' },
+  };
+
+  it('buildDefinitionPayload keeps per-context display on the wire', () => {
+    expect(buildDefinitionPayload(config(layout))['display']).toEqual(expectedDisplay);
   });
 
-  it('buildViewsPayload keeps display on the wire', () => {
-    expect(buildViewsPayload(config(layout))?.['display']).toEqual({
-      mode: 'page',
-      customComponent: 'src/Detail.vue',
-    });
+  it('buildViewsPayload keeps per-context display on the wire', () => {
+    expect(buildViewsPayload(config(layout))?.['display']).toEqual(expectedDisplay);
   });
 
-  it('buildDefinitionPayload defaults to a modal without a layout', () => {
+  it('buildDefinitionPayload defaults to a modal in both contexts without a layout', () => {
     expect(buildDefinitionPayload(config(undefined))['display']).toEqual({
-      mode: 'modal',
-      customComponent: null,
+      form: { mode: 'modal' },
+      view: { mode: 'modal', customComponent: null },
+    });
+  });
+});
+
+describe('display is derived into the sub-resource payload', () => {
+  const parent = (layout: Layout | undefined) =>
+    invalid<CompiledResource>({
+      name: 'text',
+      route: 'text',
+      tag: 'Text',
+      definition: {},
+      layout,
+    });
+
+  const sub = (layout: Layout | undefined) =>
+    invalid<CompiledSubResourceConfig>({
+      column: 'textAuthor',
+      relation: 'textAuthor',
+      childRoute: 'textAuthor',
+      childKind: 'prisma',
+      childModel: 'TextAuthor',
+      foreignKey: 'text_id',
+      operations: {},
+      views: { view: { data: {}, ui: {} } },
+      layout,
+    });
+
+  it('carries the child form and view modes independently', () => {
+    const layout: Layout = {
+      form: { container: { mode: 'modal', size: 'xl' } },
+      view: { container: { mode: 'page', size: 'sm' }, component: 'src/Page.vue' },
+    };
+    const payload = buildSubResourceViewsPayload(parent(undefined), sub(layout), '/api');
+    expect(payload?.['display']).toEqual({
+      form: { mode: 'modal' },
+      view: { mode: 'page', customComponent: 'src/Page.vue' },
+    });
+  });
+
+  it('defaults to a modal in both contexts without a child layout', () => {
+    const payload = buildSubResourceViewsPayload(parent(undefined), sub(undefined), '/api');
+    expect(payload?.['display']).toEqual({
+      form: { mode: 'modal' },
+      view: { mode: 'modal', customComponent: null },
     });
   });
 });
