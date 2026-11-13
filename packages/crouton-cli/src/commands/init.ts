@@ -12,9 +12,9 @@ export const registerInitCommand = (program: Command) => {
       .description('Create translation files for every configured language')
       .option('--lang <list>', 'comma-separated languages to limit to'),
   ).action(
-    withRun((opts: CommonOptions & { lang?: string }) =>
+    withRun(async (opts: CommonOptions & { lang?: string }) =>
       runTranslationsInit({
-        cwd: resolveTargetProject(opts),
+        cwd: await resolveTargetProject(opts),
         lang: opts.lang,
         dryRun: opts.dryRun,
         yes: opts.yes,

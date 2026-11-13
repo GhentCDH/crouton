@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { CroutonConfig, DataSource } from '@ghentcdh/crouton-core';
 
 import {
+  discoverProjects,
   loadConfig,
   loadDatasources,
   makeSchemaExportName,
@@ -139,5 +140,30 @@ describe('scaffoldConfigFromProject', () => {
       urlEnv: 'DATABASE_APP_URL',
       generatedTypesImport: '@np/generated/types',
     });
+  });
+});
+
+describe('discoverProjects', () => {
+  it('finds crouton projects in immediate subfolders only, skipping dot-dirs and node_modules', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'crouton-projects-'));
+    for (const dir of ['b-app', 'a-app', '.hidden', 'node_modules', 'no-config', 'deep/nested']) {
+      await mkdir(join(root, dir), { recursive: true });
+    }
+    for (const dir of ['b-app', 'a-app', '.hidden', 'node_modules', 'deep/nested']) {
+      await writeFile(join(root, dir, 'crouton.json'), '{}');
+    }
+
+    const projects = await discoverProjects(root);
+
+    expect(projects.map((p) => p.name)).toEqual(['a-app', 'b-app']);
+    expect(projects[0]).toEqual({
+      name: 'a-app',
+      root: join(root, 'a-app'),
+      configPath: join(root, 'a-app', 'crouton.json'),
+    });
+  });
+
+  it('returns [] for a missing directory', async () => {
+    expect(await discoverProjects(join(tmpdir(), 'crouton-does-not-exist-xyz'))).toEqual([]);
   });
 });

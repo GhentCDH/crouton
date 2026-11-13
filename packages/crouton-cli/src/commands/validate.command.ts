@@ -5,19 +5,18 @@ import { type ValidationIssue, discoverResourceEntries, validateResourceFile } f
 import { type CommonOptions, registerCommonOptions, resolveTargetProject, withRun } from './shared';
 import { resolve } from 'node:path';
 
-interface ValidateOptions { json?: boolean; cwd?: string; project?: string }
+interface ValidateOptions { json?: boolean; cwd?: string; project?: string; yes?: boolean }
 
 const discoverResourceFiles = async (cwd: string): Promise<string[]> =>
   (await discoverResourceEntries(cwd)).map((entry) => entry.path);
 
 const validateResources = async (paths: string[], opts: ValidateOptions): Promise<void> => {
-  const cwd = resolveTargetProject(opts);
-
   let files: string[];
   if (paths.length > 0) {
     files = paths.map((p) => resolve(p));
   } else {
-    files = await discoverResourceFiles(cwd);
+    // --json output must stay machine-readable: never prompt.
+    files = await discoverResourceFiles(await resolveTargetProject({ ...opts, yes: opts.yes || opts.json }));
     if (files.length === 0) {
       const msg = 'No resource.json files found. Pass paths or set up crouton.json.';
       if (opts.json) {
@@ -65,6 +64,6 @@ export const registerValidateCommand = (program: Command) => {
     .argument('[paths...]', 'files or directories to validate (default: discover via crouton.json)')
     .option('--json', 'output results as JSON')
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
-    .option('-p, --project <name>', 'project subfolder (resolves cwd to <cwd>/<project>)')
+    .option('-p, --project <name>', 'project to use: a subfolder of cwd containing crouton.json (asked when several exist)')
     .action(withRun(validateResources));
 };
