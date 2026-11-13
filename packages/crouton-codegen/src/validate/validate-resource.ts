@@ -71,7 +71,6 @@ const checkFieldInputTypes = (
 
 export const validateResourceFile = async (
   filePath: string,
-  options: { strict?: boolean } = {},
 ): Promise<ValidationIssue[]> => {
   const issues: ValidationIssue[] = [];
 
@@ -115,9 +114,6 @@ export const validateResourceFile = async (
   if (rawColumns && typeof rawColumns === 'object' && !Array.isArray(rawColumns)) {
     checkFieldInputTypes(filePath, rawColumns as RawObj, issues);
   }
-
-  // ponytail: strict compile step skipped, add when crouton-api loader is extractable
-  void options.strict;
 
   return issues;
 };
