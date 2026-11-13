@@ -152,10 +152,10 @@ crouton update resources      # generate resource CRUD from your schema
 pnpm dev                      # start dev server
 ```
 
-When using a prefix, add the `--prefix` flag:
+When using a prefix, point the CLI at that project with `--project`:
 
 ```sh
-crouton update resources --prefix split
+crouton update resources --project split
 ```
 
 ## @ghentcdh/add-crouton

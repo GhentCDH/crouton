@@ -63,7 +63,7 @@ The column renders as a dropdown in the form and as a labelled chip in the table
 ### 5. Validate
 
 ```sh
-npx crouton validate resources/book/resource.json
+npx crouton validate resources resources/book/resource.json
 ```
 
 ### Complete example

@@ -155,7 +155,7 @@ Override any subset of: `findAll`, `count`, `findOne`, `create`, `update`, `patc
 Methods you don't override fall through to the base class (which calls Prisma, or throws
 `NotImplementedException` when the client is `null`).
 
-Run `crouton create-datasource` and choose **custom** when prompted to generate this scaffold automatically.
+Run `crouton create datasource` and choose **custom** when prompted to generate this scaffold automatically.
 
 ### Starting from scratch (no Prisma)
 

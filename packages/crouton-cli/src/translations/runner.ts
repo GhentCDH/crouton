@@ -1,5 +1,5 @@
 /**
- * `crouton translations init` / `crouton translations update` runner.
+ * `crouton init translations` / `crouton update translations` runner.
  *
  * Reads all resource.json files + the enum registry, builds per-language
  * translation bundles, merges with existing files (hand edits preserved),
@@ -207,7 +207,7 @@ export const runTranslationsInit = async (
   opts: TranslationsOptions,
 ): Promise<void> => {
   const cwd = pathResolve(opts.cwd ?? process.cwd());
-  clack.intro(pc.bold('crouton translations init'));
+  clack.intro(pc.bold('crouton init translations'));
 
   try {
     const plans = await loadTranslationPlans(opts, cwd);
@@ -233,7 +233,7 @@ export const runTranslationsUpdate = async (
   opts: TranslationsOptions,
 ): Promise<void> => {
   const cwd = pathResolve(opts.cwd ?? process.cwd());
-  clack.intro(pc.bold('crouton translations update'));
+  clack.intro(pc.bold('crouton update translations'));
 
   try {
     const plans = await loadTranslationPlans(opts, cwd);

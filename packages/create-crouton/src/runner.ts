@@ -284,7 +284,7 @@ export const runCreate = async (
 
     // 8. Next steps
     const pmRun = pm === 'npm' ? 'npm run' : pm;
-    const prefixFlag = prefix ? ` --prefix ${prefix}` : '';
+    const prefixFlag = prefix ? ` --project ${prefix}` : '';
     clack.note(
       [
         postgres ? 'docker compose up -d                 # start postgres' : null,
@@ -449,8 +449,8 @@ const postScaffold = async (
         const s2 = clack.spinner();
         s2.start('Running crouton update resources');
         // In an Nx monorepo the CLI must run from the workspace root and target
-        // the app via --prefix, so it can resolve nx.json / the pnpm workspace.
-        const prefixArg = prefix ? ` --prefix ${prefix}` : '';
+        // the app via --project, so it can resolve nx.json / the pnpm workspace.
+        const prefixArg = prefix ? ` --project ${prefix}` : '';
         execSync(`${pmExec(pm, 'crouton')} update resources --yes${prefixArg}`, {
           cwd: targetDir,
           stdio: 'pipe',

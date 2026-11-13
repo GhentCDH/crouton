@@ -1,20 +1,20 @@
 import { Command } from 'commander';
 
-import { registerCreateDatasourceCommand } from './commands/create-datasource';
-import { registerCreateResourceCommand } from './commands/create-resource';
+import { registerCreateCommand } from './commands/create';
+import { registerInitCommand } from './commands/init';
 import { registerMigrateCommand } from './commands/migrate.command';
-import { registerTranslationsCommand } from './commands/translations';
 import { registerUpdateCommand } from './commands/update';
 import { registerValidateCommand } from './commands/validate.command';
 
 const program = new Command('crouton')
   .description('Crouton project CLI')
-  .version('0.0.1');
+  .version('0.0.1')
+  // Group options (`crouton update --cwd x`) must not swallow noun options (`crouton update resources --cwd x`).
+  .enablePositionalOptions();
 
 registerUpdateCommand(program);
-registerCreateDatasourceCommand(program);
-registerCreateResourceCommand(program);
-registerTranslationsCommand(program);
+registerCreateCommand(program);
+registerInitCommand(program);
 registerValidateCommand(program);
 registerMigrateCommand(program);
 

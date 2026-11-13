@@ -11,7 +11,7 @@ Crouton is split into focused packages. Most projects need only two: `@ghentcdh/
 | `@ghentcdh/crouton-vue`    | runtime        | Vue 3 admin UI — the one frontend package to install                                                     |
 | `@ghentcdh/crouton-core`   | runtime        | Shared framework-agnostic foundation: schemas, builders, filter/request models. Used by api and vue.     |
 | `@ghentcdh/crouton-prisma` | devDependency  | Prisma generator that produces Zod schemas from your Prisma models. Used in the prisma schema file.      |
-| `@ghentcdh/crouton-cli`    | devDependency  | `crouton` CLI — `update resources`, `create-datasource`, `create-resource`, `translations init/update`.  |
+| `@ghentcdh/crouton-cli`    | devDependency  | `crouton` CLI — `update resources`, `create resource`, `create datasource`, `init translations`, `update translations`.  |
 | `@ghentcdh/create-crouton` | used via `npx` | Project scaffolding: new monorepo or standalone backend+frontend from scratch.                           |
 | `@ghentcdh/add-crouton`    | used via `npx` | Add crouton to an existing NestJS project (additive, never overwrites existing files).                   |
 

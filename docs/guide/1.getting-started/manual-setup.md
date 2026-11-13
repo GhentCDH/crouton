@@ -244,7 +244,7 @@ npx crouton update resources
 For Nx workspaces with a prefix subfolder:
 
 ```sh
-npx crouton update resources --prefix split
+npx crouton update resources --project split
 ```
 
 This introspects your database, lets you pick which models to expose, and generates `resource.json` + `schema.ts` files
@@ -257,7 +257,7 @@ per resource.
 | `-d, --datasource <name>` | Datasource to use (from crouton.config).             |
 | `-m, --models <list>`     | Comma-separated models to limit to.                  |
 | `--cwd <dir>`             | Project directory (defaults to cwd).                 |
-| `--prefix <name>`         | Subfolder prefix (resolves cwd to `<cwd>/<prefix>`). |
+| `-p, --project <name>`    | Project subfolder (resolves cwd to `<cwd>/<name>`).  |
 | `--dry-run`               | Show planned changes without writing files.          |
 | `-y, --yes`               | Accept all defaults (non-interactive).               |
 | `--skip-pull`             | Do not run `prisma db pull`.                         |

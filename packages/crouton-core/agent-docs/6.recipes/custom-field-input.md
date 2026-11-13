@@ -91,7 +91,7 @@ Set `fieldInput.type` to the registered name. Pass any component-specific config
 ### 4. Validate
 
 ```sh
-npx crouton validate resources/book/resource.json
+npx crouton validate resources resources/book/resource.json
 ```
 
 `crouton validate` does not check that a component name is registered (that is a runtime concern), but it will catch typos in the field shape.

@@ -1,54 +1,74 @@
 import type { Command } from 'commander';
 
+import { runTranslationsUpdate } from '../translations/runner';
 import { runUpdateResources } from '../update/runner';
-import { registerTranslationsUpdateSubcommand } from './translations-update.command';
-import { resolve } from 'node:path';
+import { type CommonOptions, registerCommonOptions, resolveTargetProject, runAggregate, withRun } from './shared';
 
+interface UpdateResourcesCliOptions extends CommonOptions {
+  datasource?: string;
+  models?: string;
+  skipPull?: boolean;
+  skipGenerate?: boolean;
+  draft?: boolean;
+}
+
+interface UpdateTranslationsCliOptions extends CommonOptions {
+  lang?: string;
+  prune?: boolean;
+}
+
+const updateResources = (opts: UpdateResourcesCliOptions) =>
+  runUpdateResources({
+    datasource: opts.datasource,
+    models: opts.models,
+    cwd: resolveTargetProject(opts),
+    dryRun: opts.dryRun,
+    yes: opts.yes,
+    skipPull: opts.skipPull,
+    skipGenerate: opts.skipGenerate,
+    draft: opts.draft, // undefined unless --draft was passed; the runner resolves the effective value
+  });
+
+const updateTranslations = (opts: UpdateTranslationsCliOptions) =>
+  runTranslationsUpdate({
+    cwd: resolveTargetProject(opts),
+    lang: opts.lang,
+    prune: opts.prune,
+    dryRun: opts.dryRun,
+    yes: opts.yes,
+  });
 
 export const registerUpdateCommand = (program: Command) => {
-  const update = program
-    .command('update')
-    .description('Update resources in the project');
-
-  registerTranslationsUpdateSubcommand(
-    update,
-    'translations',
-    'Regenerate and merge translation bundles (alias for `crouton translations update`)',
+  const update = registerCommonOptions(
+    program
+      .command('update')
+      .description('Update everything: resources, then translations (or pick a noun below)'),
+  ).action(
+    withRun((opts: CommonOptions) =>
+      runAggregate('crouton update', opts, [
+        { name: 'update resources', run: updateResources },
+        { name: 'update translations', run: updateTranslations },
+      ]),
+    ),
   );
 
-  update
-    .command('resources')
-    .description('Introspect the database and create/update resource config files')
-    .option('-d, --datasource <name>', 'datasource to use (from crouton.config)')
-    .option('-m, --models <list>', 'comma-separated models/resources to limit to')
-    .option('--cwd <dir>', 'project directory (defaults to the current directory)')
-    .option('-p, --prefix <name>', 'subfolder prefix (resolves cwd to <cwd>/<prefix>)')
-    .option('--dry-run', 'show the planned changes without writing files')
-    .option('-y, --yes', 'accept all recommended defaults (non-interactive)')
+  registerCommonOptions(
+    update
+      .command('resources')
+      .description('Introspect the database and create/update resource config files')
+      .option('-d, --datasource <name>', 'datasource to use (from crouton.config)')
+      .option('-m, --models <list>', 'comma-separated models/resources to limit to'),
+  )
     .option('--skip-pull', 'do not run `prisma db pull` (use the current schema)')
     .option('--skip-generate', 'do not run `prisma generate` after pulling')
     .option('--draft', 'write newly-created resources with `draft: true` (hidden until reviewed); asked interactively if omitted')
-    .action(async (opts: {
-      datasource?: string; models?: string; cwd?: string; prefix?: string;
-      dryRun?: boolean; yes?: boolean; skipPull?: boolean; skipGenerate?: boolean; draft?: boolean;
-    }) => {
-      try {
-        const cwd = opts.prefix
-          ? resolve(opts.cwd ?? process.cwd(), opts.prefix)
-          : opts.cwd;
-        await runUpdateResources({
-          datasource: opts.datasource,
-          models: opts.models,
-          cwd,
-          dryRun: opts.dryRun,
-          yes: opts.yes,
-          skipPull: opts.skipPull,
-          skipGenerate: opts.skipGenerate,
-          draft: opts.draft, // undefined unless --draft was passed; the runner resolves the effective value
-        });
-      } catch (err) {
-        console.error(err instanceof Error ? err.message : err);
-        process.exitCode = 1;
-      }
-    });
+    .action(withRun(updateResources));
+
+  registerCommonOptions(
+    update
+      .command('translations')
+      .description('Regenerate and merge translation bundles')
+      .option('--lang <list>', 'comma-separated languages to limit to')
+      .option('--prune', 'remove keys with no backing column/enum (reports first)'),
+  ).action(withRun(updateTranslations));
 };

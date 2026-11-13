@@ -1,5 +1,5 @@
 ---
-description: Reference for the Crouton CLI — crouton.json config, crouton create-datasource, and crouton update resources to keep resource.json files in sync with the database schema.
+description: Reference for the Crouton CLI — crouton.json config, crouton create datasource, and crouton update resources to keep resource.json files in sync with the database schema.
 ---
 
 # CLI & project config
@@ -12,6 +12,36 @@ change.
 pnpm add -D @ghentcdh/crouton-cli
 npx crouton update resources
 ```
+
+## Commands
+
+Every command is **verb → noun**. A bare verb runs all of its nouns.
+
+| Command                                | What it does                                                         |
+|----------------------------------------|----------------------------------------------------------------------|
+| `crouton update`                       | Runs `update resources`, then `update translations` (asks once).     |
+| `crouton update resources`             | Introspect the database and create/update `resource.json` files.     |
+| `crouton update translations`          | Regenerate and merge translation bundles (`--lang`, `--prune`).      |
+| `crouton init translations`            | Create translation files for every configured language (`--lang`).   |
+| `crouton create`                       | Asks whether to create a resource or a datasource.                   |
+| `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
+| `crouton create datasource`            | Scaffold a new [datasource](../3.backend/data-sources.md).           |
+| `crouton validate`                     | Validate every discovered `resource.json`.                           |
+| `crouton validate resources [paths…]`  | Validate the given files/directories (`--json`, `--strict`).         |
+| `crouton migrate`                      | Print the [migration guide](./migrate.md).                           |
+| `crouton migrate resources` / `layout` | Print the migration guide (codemods are on the way).                 |
+
+Common options, accepted by every command that touches a project:
+
+| Option                 | Effect                                                              |
+|------------------------|---------------------------------------------------------------------|
+| `--cwd <dir>`          | Project directory (defaults to the current directory).              |
+| `-p, --project <name>` | Project subfolder — resolves the directory to `<cwd>/<name>`.        |
+| `--dry-run`            | Show the planned changes without writing files.                     |
+| `-y, --yes`            | Accept all recommended defaults (non-interactive).                  |
+
+Aggregates (`crouton update`) only take the common options; noun flags such as `--prune` or `--datasource` stay on the
+nouns and are never applied implicitly.
 
 ## crouton.json
 
@@ -48,14 +78,14 @@ settings** — datasources are described in their own folders (see [Data sources
 If no `crouton.json` is found, the CLI proposes one (and a `data-source.json` per detected datasource) and offers to
 write it.
 
-## crouton create-datasource
+## crouton create datasource
 
 Scaffold a new [datasource](../3.backend/data-sources.md) — interactively, or fully via flags:
 
 ```sh
-npx crouton create-datasource
+npx crouton create datasource
 # or scripted:
-npx crouton create-datasource \
+npx crouton create datasource \
   --name analyticsdb \
   --url-env ANALYTICS_DATABASE_URL \
   --generated-import @my-app/generated/analyticsdb
@@ -78,13 +108,13 @@ one datasource may be default). Useful flags: `--type` (postgres/mysql/sqlite/�
 After scaffolding: add the `urlEnv` to your `.env`, map the `generatedTypesImport` to the zod output in your tsconfig
 paths / workspace, then run `crouton update resources --datasource <name>`.
 
-## crouton create-resource
+## crouton create resource
 
 Scaffold a [custom resource](../2.resources/custom-resource.md) — one whose form, table and view are configured
 declaratively while you implement the data access.
 
 ```bash
-npx crouton create-resource zotero_item
+npx crouton create resource zotero_item
 ```
 
 Writes two files, and never overwrites an existing one:
@@ -104,6 +134,7 @@ resources/zotero_item/
 | `-d, --database <name>` | Datasource exposed to the repository as `ctx.prisma`                                      |
 | `--id-type <type>`      | `string` (default) or `number`                                                            |
 | `--cwd <dir>`           | Project directory                                                                         |
+| `-p, --project <name>`  | Project subfolder                                                                         |
 | `--dry-run`             | Show the planned files without writing                                                    |
 | `-y, --yes`             | Accept all defaults (non-interactive)                                                     |
 

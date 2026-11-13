@@ -35,7 +35,7 @@ See [Decision tables — kind vs adapter](./decision-tables.md#kind-vs-adapter).
 **Fix:** Run `crouton validate` — it checks `fieldInput.type` against the registered renderer list and reports unknown types.
 
 ```sh
-npx crouton validate resources/book/resource.json
+npx crouton validate resources resources/book/resource.json
 ```
 
 Valid built-in types: `autocomplete`, `textarea`, `select`, `multiSelect`, `boolean`, `toggle`, `date`, `date-range`, `number`, `markdown`, `array`, `string`.
@@ -49,13 +49,13 @@ Valid built-in types: `autocomplete`, `textarea`, `select`, `multiSelect`, `bool
 **Fix:** Always run `crouton validate` after any manual edit:
 
 ```sh
-npx crouton validate resources/book/resource.json
+npx crouton validate resources resources/book/resource.json
 ```
 
 For a whole directory:
 
 ```sh
-npx crouton validate --all
+npx crouton validate resources
 ```
 
 Check the [status page](../3.backend/status.md) in the running app — it shows load errors for every resource.

@@ -2,7 +2,7 @@
  * Shared I/O for the `create-*` scaffold commands: preview the planned file
  * set, ask for confirmation, and write only files that do not exist yet.
  *
- * `create-datasource` and `create-resource` had identical copies of this.
+ * `create datasource` and `create resource` had identical copies of this.
  */
 
 import * as clack from '@clack/prompts';
