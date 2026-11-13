@@ -3,7 +3,7 @@ import type { Command } from 'commander';
 
 import { runCreateDatasource } from '../create-datasource/runner';
 import { runCreateResource } from '../create-resource/runner';
-import { assertNotCancel } from '../scaffold/scaffold-files';
+import { assertNotCancel } from '../prompts';
 import { type CommonOptions, registerCommonOptions, resolveTargetProject, withRun } from './shared';
 
 interface CreateResourceCliOptions extends CommonOptions {

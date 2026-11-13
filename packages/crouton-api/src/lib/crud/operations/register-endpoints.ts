@@ -9,7 +9,6 @@ import { registerCreate } from './register-create';
 import { registerDelete } from './register-delete';
 import { registerFindAll } from './register-findall';
 import { registerFindOne } from './register-findone';
-import { registerPatch } from './register-patch';
 import {
   registerDefinitionEndpoint,
   registerResourceColumnsEndpoint,
@@ -20,7 +19,7 @@ import {
 } from './register-schema-endpoints';
 import { registerSchemas } from './register-schemas';
 import { registerUniqueCheck } from './register-unique-check';
-import { registerUpdate } from './register-update';
+import { registerPatch, registerUpdate } from './register-update';
 
 export const registerEndpoints = (ctx: OperationContext): void => {
   // ── Register operations (order matters: static routes before :id routes) ──

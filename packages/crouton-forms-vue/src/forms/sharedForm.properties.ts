@@ -5,7 +5,7 @@ import type { HttpClient } from '../http-client';
 import type { ErrorMode } from './errorMode';
 
 /**
- * Props shared by every form wrapper (FormModal, AutoSaveForm, CroutonForm).
+ * Props shared by every form wrapper (FormModal, CroutonForm).
  * Wrappers spread this object and only declare the props unique to them, so
  * the form-event/http/auto-save contract is defined once.
  */

@@ -8,17 +8,8 @@ import * as clack from '@clack/prompts';
 
 import type { Decision, DecisionResolver, ResourceDiff } from '@ghentcdh/crouton-codegen';
 
-export class CancelledError extends Error {
-  constructor() {
-    super('Cancelled');
-    this.name = 'CancelledError';
-  }
-}
+import { assertNotCancel } from '../prompts';
 
-const assertNotCancel = <T>(value: T | symbol): T => {
-  if (clack.isCancel(value)) throw new CancelledError();
-  return value as T;
-};
 
 export const interactiveResolver: DecisionResolver = {
   async resolve(decisions: Decision[], diff: ResourceDiff): Promise<Record<string, string>> {

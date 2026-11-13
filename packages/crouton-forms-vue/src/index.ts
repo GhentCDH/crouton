@@ -83,7 +83,6 @@ export { default as JsonForm } from './forms/FormComponent.vue';
 /**
  * @deprecated Use `CroutonForm` from `@ghentcdh/crouton-vue` instead.
  */
-export { default as AutoSaveForm } from './forms/AutoSaveForm.vue';
 export {
   FormModalEmits,
   FormModalProperties,

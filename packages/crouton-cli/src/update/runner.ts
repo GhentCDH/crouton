@@ -52,8 +52,9 @@ import {
 } from '@ghentcdh/crouton-codegen';
 import { type DataSource } from '@ghentcdh/crouton-core';
 
+import { CancelledError } from '../prompts';
 import { formatResourceChange } from './preview';
-import { CancelledError, interactiveResolver } from './resolver';
+import { interactiveResolver } from './resolver';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve as pathResolve } from 'node:path';

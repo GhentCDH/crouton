@@ -37,6 +37,10 @@ import { warnMissingUniqueConstraints } from './crud/unique-validation';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/** Auth providers from `crouton.json` `authProvidersDir` (default `src/app/auth-providers`). */
+const loadConfiguredAuthProviders = (config: LoadedConfig) =>
+  loadAuthProviders(join(config.configDir, config.authProvidersDir || 'src/app/auth-providers'));
+
 @Module({
   controllers: [],
   providers: [],
@@ -294,10 +298,7 @@ export class CroutonApiModule {
       config.enumsFile,
     );
     const dataSources = await loadDataSourcesFromDir(dataSourcesPath);
-    const authProvidersDir = config.authProvidersDir
-      ? join(config.configDir, config.authProvidersDir)
-      : join(config.configDir, 'src/app/auth-providers');
-    const authProviders = await loadAuthProviders(authProvidersDir);
+    const authProviders = await loadConfiguredAuthProviders(config);
 
     return CroutonApiModule.forResources(
       configs,
@@ -316,10 +317,7 @@ export class CroutonApiModule {
     appConfig: CroutonAppConfig,
   ): Promise<DynamicModule> {
     const config = await loadConfig();
-    const authProvidersDir = config.authProvidersDir
-      ? join(config.configDir, config.authProvidersDir)
-      : join(config.configDir, 'src/app/auth-providers');
-    const authProviders = await loadAuthProviders(authProvidersDir);
+    const authProviders = await loadConfiguredAuthProviders(config);
     return CroutonApiModule.forResources(
       configs,
       dataSources,

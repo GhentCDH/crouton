@@ -7,10 +7,8 @@ import { useDefaultRenderers } from './useRendererProvider';
 import { useUiTranslator } from './useUiTranslator';
 
 /**
- * Shared editable-form logic used by both FormModal and AutoSaveForm.
- *
- * Extracts auto-save wiring, validity tracking, form event handlers, and
- * renderer resolution so the two wrapper components are pure templates.
+ * Editable-form logic for FormModal: auto-save wiring, validity tracking,
+ * form event handlers and renderer resolution, so the component is a pure template.
  */
 type FormRefInstance = {
   markSubmitted?: () => void;
