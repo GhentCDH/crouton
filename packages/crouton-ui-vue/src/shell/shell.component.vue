@@ -18,6 +18,11 @@
           <a
             class="btn btn-ghost text-primary-content text-lg color-white"
             :href="baseUrl"
+          ><img
+            v-if="logo"
+            :src="logo"
+            alt=""
+            class="h-8"
           >{{ title }}</a>
         </div>
         <div class="navbar-end">
@@ -86,6 +91,7 @@ const baseUrl = import.meta.env.BASE_URL;
 const properties = withDefaults(
   defineProps<{
     title: string;
+    logo?: string;
     menu: ShellMenu;
     user: User | undefined;
     version: string;

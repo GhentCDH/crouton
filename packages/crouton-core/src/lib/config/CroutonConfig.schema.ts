@@ -33,6 +33,7 @@ export type I18nConfig = z.infer<typeof I18nConfigSchema>;
 export const CroutonConfigSchema = z.object({
   $schema: z.string().optional().describe('URL of the generated JSON Schema for editor autocomplete and validation. Ignored at runtime.'),
   title: z.string().describe('Application title served to the frontend via GET /_app/layout. Displayed in the admin sidebar header.'),
+  logo: z.string().optional().describe('URL of the app logo (e.g. "/logo.svg" from the frontend public dir). Shown on the login screen and sidebar header.'),
   resourcesDir: z.string().describe('Path to resource directories, relative to the project root. Each sub-directory contains a resource.json.'),
   dataSourcesDir: z.string().describe('Path to datasource folders, relative to the project root. Each sub-directory contains a data-source.json.'),
   schemaExportName: z.string().default('{Model}WithRelationsSchema').describe('Template for a Prisma model\'s Zod export name. {Model} is replaced by the Prisma model name. Default matches the zod-prisma-types "createRelationValuesTypes" output.'),

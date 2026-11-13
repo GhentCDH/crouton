@@ -219,6 +219,7 @@ export class CroutonApiModule {
         translationRegistry,
         config.i18n,
         prefix,
+        config.logo,
       ),
       // Only registered (and thus only visible in Swagger/routing) when the
       // visual resource builder is enabled — see dev-resources.controller.ts.
@@ -241,6 +242,7 @@ export class CroutonApiModule {
         ...(hasAuth
           ? [
               { provide: 'CROUTON_AUTH_PROVIDERS', useValue: authProviders },
+              { provide: 'CROUTON_APP_INFO', useValue: { title: config.title, logo: config.logo } },
               {
                 provide: CroutonAuthMiddlewareGuard,
                 useValue: new CroutonAuthMiddlewareGuard(authProviders),

@@ -60,6 +60,10 @@ const en: UiDefaults = {
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
   },
+  auth: {
+    signInWith: 'Sign in with',
+    accessDenied: 'Sign-in failed or this account has no access.',
+  },
 };
 
 const nl: UiDefaults = {
@@ -121,6 +125,10 @@ const nl: UiDefaults = {
     actionSuccess: 'Done',
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
+  },
+  auth: {
+    signInWith: 'Aanmelden met',
+    accessDenied: 'Aanmelden mislukt of dit account heeft geen toegang.',
   },
 };
 
@@ -184,6 +192,10 @@ const fr: UiDefaults = {
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
   },
+  auth: {
+    signInWith: 'Se connecter avec',
+    accessDenied: 'Échec de la connexion ou ce compte n’a pas accès.',
+  },
 };
 
 const de: UiDefaults = {
@@ -245,6 +257,10 @@ const de: UiDefaults = {
     actionSuccess: 'Done',
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
+  },
+  auth: {
+    signInWith: 'Anmelden mit',
+    accessDenied: 'Anmeldung fehlgeschlagen oder dieses Konto hat keinen Zugriff.',
   },
 };
 
@@ -308,6 +324,10 @@ const wv: UiDefaults = {
     actionSuccess: 'Done',
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
+  },
+  auth: {
+    signInWith: 'Anmelden mee',
+    accessDenied: 'Anmelden mislukt of dienen account èt gin toegang.',
   },
 };
 

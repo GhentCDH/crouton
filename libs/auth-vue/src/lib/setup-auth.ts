@@ -1,8 +1,16 @@
 import type { AuthEndpointResponse } from '@crouton/auth';
 import type { AxiosInstance } from 'axios';
-import { WebStorageStateStore } from 'oidc-client-ts';
 
-import { loadOidcUser, setupOidcManager, tryRenewOidcUser, useAuth } from './use-auth';
+import {
+  CALLBACK_PATH,
+  loadOidcUser,
+  pickBrowserProvider,
+  setAuthProviders,
+  setSessionToken,
+  setupBrowserProvider,
+  tryRenewOidcUser,
+  useAuth,
+} from './use-auth';
 
 export type AuthSetupResult = {
   enabled: boolean;
@@ -46,7 +54,8 @@ export const setupAuth = async (
     (r) => r,
     async (err) => {
       if (err?.response?.status === 401 && !window.location.pathname.startsWith('/auth/')) {
-        await login?.();
+        setSessionToken(null); // rejected by the backend (expired, rotated secret) → drop it
+        await login();
       }
       return Promise.reject(err);
     },
@@ -61,38 +70,23 @@ export const setupAuth = async (
     return { enabled: false, callbackPath: '', flushQueue };
   }
 
-  if (!data?.providers?.length) {
+  // Providers the frontend can log in with: server-side OAuth2, or browser PKCE (issuer + clientId).
+  // Others (dev, custom without client config) authenticate out-of-band → no login UI.
+  const loginable = (data?.providers ?? []).filter((p) => p.loginMode === 'server' || (p.issuer && p.clientId));
+  if (!loginable.length) {
     flushQueue();
     return { enabled: false, callbackPath: '', flushQueue };
   }
 
-  const defaultProvider = data.providers.find((p) => p.default) ?? data.providers[0];
-  if (!defaultProvider?.issuer || !defaultProvider?.clientId) {
-    flushQueue();
-    return { enabled: false, callbackPath: '', flushQueue };
-  }
+  const callbackPath = CALLBACK_PATH;
+  setAuthProviders(loginable, data.app, `${axios.defaults.baseURL ?? ''}${apiBase}`.replace(/\/$/, ''));
 
-  const callbackPath = '/auth/callback';
-
-  const DEFAULT_SCOPES = ['openid', 'profile', 'email'];
-  const scopes = defaultProvider.scopes ?? DEFAULT_SCOPES;
-
-  setupOidcManager({
-    authority: defaultProvider.issuer,
-    client_id: defaultProvider.clientId,
-    redirect_uri: `${window.location.origin}${callbackPath}`,
-    scope: scopes.join(' '),
-    automaticSilentRenew: true,
-    revokeTokensOnSignout: true,
-    userStore: new WebStorageStateStore({ store: window.localStorage }),
-    accessTokenExpiringNotificationTimeInSeconds: 60,
-  }, defaultProvider.rolesClaim);
-
-  const storedUser = await loadOidcUser();
+  const browserProvider = pickBrowserProvider();
+  const storedUser = browserProvider && setupBrowserProvider(browserProvider) ? await loadOidcUser() : null;
 
   if (isCallbackPage) {
-    // On the callback page the code hasn't been exchanged yet — don't flush.
-    // The caller (plugin install code) calls flushQueue() after handleCallback().
+    // On /auth/* pages (callback, login chooser) don't flush: the callback
+    // caller invokes flushQueue() after storing the token.
     return { enabled: true, callbackPath, flushQueue };
   }
 
@@ -104,8 +98,8 @@ export const setupAuth = async (
   }
 
   if (!getToken()) {
-    // No valid session → redirect to login.
-    await login?.();
+    // No valid session → login (single provider) or the chooser (several).
+    await login();
     return { enabled: true, callbackPath, flushQueue };
   }
 
@@ -113,4 +107,3 @@ export const setupAuth = async (
   flushQueue();
   return { enabled: true, callbackPath, flushQueue };
 };
-

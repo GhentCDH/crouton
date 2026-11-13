@@ -87,3 +87,34 @@ describe('createOidcVerifier', () => {
     expect(callsForUrl).toHaveLength(1);
   });
 });
+
+describe('issuer + domain checks', () => {
+  const MS = 'https://login.microsoftonline.com';
+  const make = (issuer: Parameters<typeof createOidcVerifier>[0]['issuer'], config = { name: 't', provider: 'microsoft' as const }) =>
+    createOidcVerifier({ issuer, clientId: CLIENT_ID, audience: CLIENT_ID, rolesClaim: '', providerName: 't', jwksUrl: JWKS_URL, config });
+
+  it('passes an issuer list to jwtVerify', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1' } } as never);
+    const google = ['https://accounts.google.com', 'accounts.google.com'];
+    await make(google)('token');
+    expect(vi.mocked(jwtVerify).mock.calls[0]?.[2]).toMatchObject({ issuer: google, audience: CLIENT_ID });
+  });
+
+  it('predicate issuer: verifies without fixed issuer and accepts a matching payload', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1', tid: 'abc', iss: `${MS}/abc/v2.0` } } as never);
+    const result = await make((p) => p['iss'] === `${MS}/${p['tid']}/v2.0`)('token');
+    expect(result?.id).toBe('u1');
+    expect(vi.mocked(jwtVerify).mock.calls[0]?.[2]).not.toHaveProperty('issuer');
+  });
+
+  it('predicate issuer: rejects a non-matching payload', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1', tid: 'abc', iss: `${MS}/other/v2.0` } } as never);
+    expect(await make((p) => p['iss'] === `${MS}/${p['tid']}/v2.0`)('token')).toBeNull();
+  });
+
+  it('rejects a token outside roles.allowedDomains', async () => {
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'u1', email: 'a@gmail.com' } } as never);
+    const v = make(ISSUER, { name: 't', provider: 'microsoft', roles: { allowedDomains: ['ugent.be'] } } as never);
+    expect(await v('token')).toBeNull();
+  });
+});

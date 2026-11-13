@@ -1,10 +1,18 @@
 import type { AuthProviderAdapter } from '@crouton/auth';
-import { type LoadedProvider, OAUTH2_ENV, PRESETS, getDefaultEnv, resolveEnv } from '@crouton/auth/server';
+import {
+  type LoadedProvider,
+  OAUTH2_ENV,
+  PRESETS,
+  createOidcVerifier,
+  getDefaultEnv,
+  microsoftTenant,
+  resolveEnv,
+} from '@crouton/auth/server';
 import { Injectable, type Type } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 
-import { BEARER_STRATEGY_SUFFIX, createBearerStrategy } from './strategies/bearer.strategy';
+import { BEARER_STRATEGY_SUFFIX, type TokenVerifier, createBearerStrategy } from './strategies/bearer.strategy';
 import { createDevStrategy } from './strategies/dev.strategy';
 import { createGoogleStrategy } from './strategies/google.strategy';
 import { createMicrosoftStrategy } from './strategies/microsoft.strategy';
@@ -15,6 +23,8 @@ export type StrategyClasses = {
   oauth?: Type<unknown>;
   /** Bearer token API protection strategy. Always present. */
   bearer: Type<unknown>;
+  /** Token verifier (preset providers only) — also used to verify tokens returned by the OAuth2 callback. */
+  verify?: TokenVerifier;
 };
 
 const resolveProviderEnv = (provider: LoadedProvider): Record<string, string> => {
@@ -62,8 +72,8 @@ export const createStrategiesForProvider = (provider: LoadedProvider): StrategyC
   if (!preset) throw new Error(`Unknown provider: ${config.provider}`);
 
   const rolesClaim = config.roles?.claim ?? preset.rolesClaim;
-  const bearer = createBearerStrategy(strategyName, {
-    issuer: preset.issuer(env),
+  const verify = createOidcVerifier({
+    issuer: preset.verifyIssuer?.(env) ?? preset.issuer(env),
     clientId: env['clientId'] ?? '',
     audience: preset.audience?.(env),
     rolesClaim,
@@ -71,10 +81,11 @@ export const createStrategiesForProvider = (provider: LoadedProvider): StrategyC
     config,
     jwksUrl: preset.jwksUrl(env),
   });
+  const bearer = createBearerStrategy(strategyName, verify);
 
   // OAuth2 env vars are optional — if missing, only Bearer strategy is registered.
   const oauth2Env = resolveOAuth2Env(provider);
-  if (!oauth2Env) return { bearer };
+  if (!oauth2Env) return { bearer, verify };
 
   const oidcEnv = {
     issuer: preset.issuer(env),
@@ -92,7 +103,7 @@ export const createStrategiesForProvider = (provider: LoadedProvider): StrategyC
       oauth = createGoogleStrategy(strategyName, oidcEnv);
       break;
     case 'microsoft':
-      oauth = createMicrosoftStrategy(strategyName, oidcEnv);
+      oauth = createMicrosoftStrategy(strategyName, { ...oidcEnv, tenant: microsoftTenant(env) });
       break;
     case 'keycloak':
     case 'auth0':
@@ -101,5 +112,5 @@ export const createStrategiesForProvider = (provider: LoadedProvider): StrategyC
       break;
   }
 
-  return { oauth, bearer };
+  return { oauth, bearer, verify };
 };

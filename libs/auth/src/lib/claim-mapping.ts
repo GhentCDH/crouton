@@ -29,7 +29,7 @@ export const mapClaims = (
     }
   }
 
-  if (config.provider === 'google' && config.roles?.byEmail) {
+  if (config.roles?.byEmail) {
     const email = String(claims['email'] ?? '');
     for (const [role, emails] of Object.entries(config.roles.byEmail)) {
       if (emails.includes(email)) roles.push(role);
@@ -44,4 +44,16 @@ export const mapClaims = (
     provider: providerName,
     claims,
   };
+};
+
+/**
+ * `roles.allowedDomains` gate: when set, the email domain must be listed and the
+ * email must not be explicitly unverified (`email_verified: false`).
+ */
+export const isAllowedDomain = (claims: Record<string, unknown>, config: AuthProviderConfig): boolean => {
+  const domains = config.roles?.allowedDomains;
+  if (!domains?.length) return true;
+  if (claims['email_verified'] === false) return false;
+  const domain = String(claims['email'] ?? '').split('@')[1]?.toLowerCase();
+  return !!domain && domains.some((d) => d.toLowerCase() === domain);
 };

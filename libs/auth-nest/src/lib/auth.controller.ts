@@ -1,21 +1,28 @@
 import {
+  type AuthAppInfo,
   type AuthEndpointResponse,
   type CroutonUser,
   type LoadedProvider,
   buildPublicAuthConfig,
 } from '@crouton/auth';
-import { Controller, Get, Inject, Req, Res, UseGuards } from '@nestjs/common';
+import { getSessionSecret, signSession } from '@crouton/auth/server';
+import { Controller, Get, Inject, Optional, Param, Req, Res, UseGuards } from '@nestjs/common';
 
+import { CroutonAuthMiddlewareGuard } from './auth-middleware.guard';
 import { ProviderOAuth2Guard } from './provider-oauth2.guard';
 import type { OAuthCallbackUser } from './strategies/google.strategy';
 
 @Controller('_app')
 export class AuthController {
-  constructor(@Inject('CROUTON_AUTH_PROVIDERS') private readonly providers: LoadedProvider[]) {}
+  constructor(
+    @Inject('CROUTON_AUTH_PROVIDERS') private readonly providers: LoadedProvider[],
+    @Inject(CroutonAuthMiddlewareGuard) private readonly authGuard: CroutonAuthMiddlewareGuard,
+    @Optional() @Inject('CROUTON_APP_INFO') private readonly app?: AuthAppInfo,
+  ) {}
 
   @Get('auth')
   getAuthConfig(@Req() req: { user?: CroutonUser }): AuthEndpointResponse {
-    return buildPublicAuthConfig(this.providers, !!req.user);
+    return buildPublicAuthConfig(this.providers, !!req.user, this.app);
   }
 
   @Get('me')
@@ -30,18 +37,26 @@ export class AuthController {
     // Passport handles the redirect; this method is never reached.
   }
 
-  /** OAuth2 callback — exchanges code for tokens and redirects frontend with access_token. */
+  /**
+   * OAuth2 callback — verifies the provider's tokens, issues a crouton session JWT and
+   * redirects to `<frontend>/auth/callback#token=…`. The token travels in the URL
+   * fragment so it never reaches server logs or Referer headers.
+   */
   @Get('auth/:provider/callback')
   @UseGuards(ProviderOAuth2Guard)
-  callback(
+  async callback(
+    @Param('provider') providerId: string,
     @Req() req: { user?: OAuthCallbackUser },
     @Res() res: { redirect: (url: string) => void },
-  ): void {
-    const accessToken = req.user?.accessToken;
-    const frontendUrl = process.env['CROUTON_FRONTEND_URL'] ?? '/';
-    const redirect = accessToken
-      ? `${frontendUrl}?access_token=${encodeURIComponent(accessToken)}`
-      : frontendUrl;
-    res.redirect(redirect);
+  ): Promise<void> {
+    const target = `${(process.env['CROUTON_FRONTEND_URL'] ?? '').replace(/\/$/, '')}/auth/callback`;
+    const secret = getSessionSecret();
+    const user = secret ? await this.authGuard.verifyLogin(providerId, req.user) : null;
+    if (!user || !secret) {
+      res.redirect(`${target}#error=access_denied`);
+      return;
+    }
+    const token = await signSession(user, secret);
+    res.redirect(`${target}#token=${encodeURIComponent(token)}&provider=${encodeURIComponent(providerId)}`);
   }
 }

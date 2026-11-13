@@ -44,3 +44,20 @@ describe('buildPublicAuthConfig', () => {
     expect(buildPublicAuthConfig([base], false).isAuthenticated).toBe(false);
   });
 });
+
+describe('buildPublicAuthConfig — login metadata', () => {
+  it('exposes id and loginMode', () => {
+    const [browser] = buildPublicAuthConfig([base]).providers;
+    expect(browser).toMatchObject({ id: 'keycloak', loginMode: 'browser' });
+    const [server] = buildPublicAuthConfig([{ ...base, strategyName: 'kc', hasOAuth2: true }]).providers;
+    expect(server).toMatchObject({ id: 'kc', loginMode: 'server' });
+  });
+
+  it('includes app info when given', () => {
+    expect(buildPublicAuthConfig([base], false, { title: 'App', logo: '/logo.svg' }).app).toEqual({
+      title: 'App',
+      logo: '/logo.svg',
+    });
+    expect(buildPublicAuthConfig([base]).app).toBeUndefined();
+  });
+});

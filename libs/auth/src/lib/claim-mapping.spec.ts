@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapClaims } from './claim-mapping';
+import { isAllowedDomain, mapClaims } from './claim-mapping';
 import type { AuthProviderConfig } from './schema';
 
 const kcConfig: AuthProviderConfig = { name: 'kc', provider: 'keycloak' };
@@ -109,5 +109,44 @@ describe('mapClaims', () => {
     };
     const user = mapClaims({ sub: 'u1', email: 'alice@example.com' }, config, '', 'g');
     expect(user.roles).toEqual([]);
+  });
+});
+
+describe('byEmail for any provider', () => {
+  it('microsoft: assigns role by email', () => {
+    const config: AuthProviderConfig = {
+      name: 'ms',
+      provider: 'microsoft',
+      roles: { byEmail: { admin: ['alice@example.com'] } },
+    };
+    expect(mapClaims({ sub: 'u1', email: 'alice@example.com' }, config, '', 'ms').roles).toEqual(['admin']);
+  });
+});
+
+describe('isAllowedDomain', () => {
+  const config: AuthProviderConfig = { name: 'g', provider: 'google', roles: { allowedDomains: ['ugent.be'] } };
+
+  it('allows everything when allowedDomains is unset', () => {
+    expect(isAllowedDomain({ email: 'x@gmail.com' }, googleConfig)).toBe(true);
+  });
+
+  it('accepts an email in a listed domain (case-insensitive)', () => {
+    expect(isAllowedDomain({ email: 'Alice@UGent.be', email_verified: true }, config)).toBe(true);
+  });
+
+  it('rejects an email outside the listed domains', () => {
+    expect(isAllowedDomain({ email: 'alice@gmail.com' }, config)).toBe(false);
+  });
+
+  it('rejects a missing email', () => {
+    expect(isAllowedDomain({ sub: 'u1' }, config)).toBe(false);
+  });
+
+  it('rejects an explicitly unverified email', () => {
+    expect(isAllowedDomain({ email: 'alice@ugent.be', email_verified: false }, config)).toBe(false);
+  });
+
+  it('does not match a suffix-lookalike domain', () => {
+    expect(isAllowedDomain({ email: 'alice@evilugent.be' }, config)).toBe(false);
   });
 });
