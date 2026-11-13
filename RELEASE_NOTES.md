@@ -1,3 +1,258 @@
+## 0.0.1-alpha.93 (2026-11-13)
+
+### 🚀 Features
+
+- ⚠️  **auth:** Google/Microsoft login, login chooser, app logo ([#492](https://github.com/GhentCDH/crouton/pull/492))
+- ⚠️  **crouton-cli:** verb-noun command grammar with aggregates ([#499](https://github.com/GhentCDH/crouton/pull/499))
+- ⚠️  **crouton-core:** column presentation lives only in layout items ([#486](https://github.com/GhentCDH/crouton/pull/486))
+- ⚠️  **crouton-core:** fix creatable/updatable and field-input type spellings ([#494](https://github.com/GhentCDH/crouton/pull/494))
+
+### 🩹 Fixes
+
+- **ci:** publish the fixed release group in one command, with the alpha dist-tag ([#478](https://github.com/GhentCDH/crouton/pull/478))
+- **core:** nest sub-resource resourceUri under parent route ([#483](https://github.com/GhentCDH/crouton/pull/483), [#482](https://github.com/GhentCDH/crouton/issues/482))
+- **create-crouton:** read dev ports from .env and route API via /api proxy ([#490](https://github.com/GhentCDH/crouton/pull/490))
+- ⚠️  **crouton-core:** open custom pages via per-context display modes ([#495](https://github.com/GhentCDH/crouton/pull/495))
+- **crouton-core,crouton-vue:** render relation displayKey in table cells ([#497](https://github.com/GhentCDH/crouton/pull/497))
+- **crouton-vue:** translate sub-resource labels via parent-scoped bundle keys ([#496](https://github.com/GhentCDH/crouton/pull/496))
+
+### 🔥 Performance
+
+- **crouton-core:** memoize resource schema and dedupe search-field lifting ([#493](https://github.com/GhentCDH/crouton/pull/493))
+
+### ⚠️  Breaking Changes
+
+- **crouton-core:** fix creatable/updatable and field-input type spellings  ([#494](https://github.com/GhentCDH/crouton/pull/494))
+- **crouton-cli:** verb-noun command grammar with aggregates  ([#499](https://github.com/GhentCDH/crouton/pull/499))
+  removed `crouton create-resource` (→ `create resource`),
+  `crouton create-datasource` (→ `create datasource`), `crouton translations init`
+  (→ `init translations`), `crouton translations update` (→ `update translations`),
+  `crouton validate <paths>` (→ `validate resources <paths>`) and the
+  `-p/--prefix` flag (→ `-p/--project`)."
+  M	README.md
+  M	docs/guide/1.getting-started/index.md
+  M	docs/guide/1.getting-started/manual-setup.md
+  M	docs/guide/2.resources/custom-resource.md
+  M	docs/guide/3.backend/data-sources.md
+  M	docs/guide/4.frontend/translations.md
+  M	docs/guide/5.tooling/cli.md
+  M	docs/guide/6.recipes/add-enum-select.md
+  M	docs/guide/6.recipes/add-resource.md
+  M	docs/guide/6.recipes/common-mistakes.md
+  M	docs/guide/6.recipes/config-only-resource.md
+  M	docs/guide/6.recipes/custom-field-input.md
+  M	docs/guide/README.md
+  M	docs/guide/reference/packages.md
+  M	packages/create-crouton/src/runner.ts
+  D	packages/crouton-cli/src/commands/create-datasource.ts
+  D	packages/crouton-cli/src/commands/create-resource.ts
+  A	packages/crouton-cli/src/commands/create.ts
+  A	packages/crouton-cli/src/commands/init.ts
+  M	packages/crouton-cli/src/commands/migrate.command.ts
+  A	packages/crouton-cli/src/commands/shared.ts
+  D	packages/crouton-cli/src/commands/translations-update.command.ts
+  D	packages/crouton-cli/src/commands/translations.ts
+  M	packages/crouton-cli/src/commands/update.ts
+  M	packages/crouton-cli/src/commands/validate.command.ts
+  M	packages/crouton-cli/src/create-datasource/runner.ts
+  M	packages/crouton-cli/src/create-resource/runner.ts
+  M	packages/crouton-cli/src/index.ts
+  M	packages/crouton-cli/src/scaffold/scaffold-files.ts
+  M	packages/crouton-cli/src/translations/runner.ts
+  M	packages/crouton-codegen/src/config.ts
+  M	packages/crouton-codegen/src/datasource-scaffold.ts
+  M	packages/crouton-core/agent-docs/1.getting-started/index.md
+  M	packages/crouton-core/agent-docs/1.getting-started/manual-setup.md
+  M	packages/crouton-core/agent-docs/2.resources/custom-resource.md
+  M	packages/crouton-core/agent-docs/3.backend/data-sources.md
+  M	packages/crouton-core/agent-docs/4.frontend/translations.md
+  M	packages/crouton-core/agent-docs/5.tooling/cli.md
+  M	packages/crouton-core/agent-docs/6.recipes/add-enum-select.md
+  M	packages/crouton-core/agent-docs/6.recipes/add-resource.md
+  M	packages/crouton-core/agent-docs/6.recipes/common-mistakes.md
+  M	packages/crouton-core/agent-docs/6.recipes/config-only-resource.md
+  M	packages/crouton-core/agent-docs/6.recipes/custom-field-input.md
+  M	packages/crouton-core/agent-docs/reference/packages.md
+- **crouton-core:** open custom pages via per-context display modes  ([#495](https://github.com/GhentCDH/crouton/pull/495))
+  `/definition` and `/schemas` (resource and sub-resource)
+  now emit `display.form.mode` / `display.view.mode` instead of `display.mode`."
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.author.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.author.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.book.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.book.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.category.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.category.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.loan.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.loan.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.user.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/book-collection.user.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/column-flags.item.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/column-flags.item.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/column-types.product.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/column-types.product.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/enum-column.book.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/enum-column.book.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/include.article.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/include.article.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/minimal-custom.page.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/minimal-custom.page.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/minimal-prisma.book.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/minimal-prisma.book.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/relation-many-to-many.book.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/relation-many-to-many.book.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/relation-many-to-one.loan.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/relation-many-to-one.loan.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/sub-custom-in-prisma.groups.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/sub-custom-in-prisma.groups.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/sub-prisma-in-prisma.group.definition.json
+  M	packages/crouton-api/src/lib/crud/schemas/__snapshots__/schemas/sub-prisma-in-prisma.group.schemas.json
+  M	packages/crouton-api/src/lib/crud/schemas/sub-resource-schemas.spec.ts
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.author.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.author.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.book.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.book.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.category.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.category.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.loan.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.loan.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.user.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/book-collection.user.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/column-flags.item.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/column-flags.item.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/column-types.product.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/column-types.product.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/enum-column.book.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/enum-column.book.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/include.article.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/include.article.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/minimal-custom.page.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/minimal-custom.page.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/minimal-prisma.book.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/minimal-prisma.book.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/relation-many-to-many.book.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/relation-many-to-many.book.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/relation-many-to-one.loan.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/relation-many-to-one.loan.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/sub-custom-in-prisma.groups.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/sub-custom-in-prisma.groups.schemas.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/sub-prisma-in-prisma.group.definition.json
+  M	packages/crouton-core/src/lib/compile/__snapshots__/parse-schema/sub-prisma-in-prisma.group.schemas.json
+  M	packages/crouton-core/src/lib/compile/payload-builders.spec.ts
+  M	packages/crouton-core/src/lib/compile/payload-builders.ts
+  M	packages/crouton-core/src/lib/schema/response/resource-definition.schema.ts
+  M	packages/crouton-core/src/lib/schema/response/view.schema.ts
+  M	packages/crouton-core/test-fixtures/resources/sub-custom-in-prisma/groups/expense/resource.json
+  M	packages/crouton-prisma/src/generator.ts
+  A	packages/crouton-vue/src/resource/resource.actions.spec.ts
+  M	packages/crouton-vue/src/resource/resource.actions.ts
+- **auth:** Google/Microsoft login, login chooser, app logo  ([#492](https://github.com/GhentCDH/crouton/pull/492))
+  roles.allowedDomains is now enforced. Providers with
+  <PROVIDER>_CLIENT_SECRET + _CALLBACK_URL now log in server-side and
+  require CROUTON_AUTH_SECRET at startup.
+  * fix(auth-nest): guard OAuth callback verifier lookup against non-function values
+  Addresses CodeQL js/unvalidated-dynamic-method-call on the provider id taken from the callback URL."
+  M	CHANGELOG.md
+  M	docs/.vuepress/public/schema/auth-provider.schema.json
+  M	docs/.vuepress/public/schema/crouton.schema.json
+  M	docs/.vuepress/public/schema/v1/crouton.schema.json
+  M	docs/guide/3.backend/authentication.md
+  M	libs/auth-nest/src/lib/auth-middleware.guard.ts
+  M	libs/auth-nest/src/lib/auth.controller.ts
+  M	libs/auth-nest/src/lib/provider-oauth2.guard.ts
+  M	libs/auth-nest/src/lib/strategies/bearer.strategy.ts
+  M	libs/auth-nest/src/lib/strategies/google.strategy.ts
+  M	libs/auth-nest/src/lib/strategies/microsoft.strategy.ts
+  M	libs/auth-nest/src/lib/strategies/openidconnect.strategy.ts
+  A	libs/auth-nest/src/lib/strategies/session.strategy.ts
+  M	libs/auth-nest/src/lib/strategy-loader.ts
+  M	libs/auth-vue/src/index.ts
+  M	libs/auth-vue/src/lib/setup-auth.ts
+  M	libs/auth-vue/src/lib/use-auth.ts
+  M	libs/auth/src/index.ts
+  M	libs/auth/src/lib/claim-mapping.spec.ts
+  M	libs/auth/src/lib/claim-mapping.ts
+  M	libs/auth/src/lib/loader.ts
+  A	libs/auth/src/lib/presets.spec.ts
+  M	libs/auth/src/lib/presets.ts
+  M	libs/auth/src/lib/public-config.spec.ts
+  M	libs/auth/src/lib/public-config.ts
+  M	libs/auth/src/lib/schema.ts
+  A	libs/auth/src/lib/session.spec.ts
+  A	libs/auth/src/lib/session.ts
+  M	libs/auth/src/lib/types.ts
+  M	libs/auth/src/lib/verifier.spec.ts
+  M	libs/auth/src/lib/verifier.ts
+  M	libs/auth/src/server.ts
+  M	packages/crouton-api/src/lib/crouton-api.module.ts
+  M	packages/crouton-api/src/lib/crud/app-layout/app-layout.builder.ts
+  M	packages/crouton-api/src/lib/crud/app-layout/app-layout.controller.ts
+  M	packages/crouton-auth/src/lib/auth-provider.schema.json
+  M	packages/crouton-core/agent-docs/3.backend/authentication.md
+  M	packages/crouton-core/src/lib/config/CroutonConfig.schema.ts
+  M	packages/crouton-core/src/lib/config/crouton.schema.json
+  M	packages/crouton-ui-vue/src/shell/shell.component.vue
+  A	packages/crouton-vue/src/auth/LoginView.vue
+  M	packages/crouton-vue/src/composables/useCrouton.ts
+  M	packages/crouton-vue/src/i18n/ui-defaults.ts
+- **crouton-core:** column presentation lives only in layout items  ([#486](https://github.com/GhentCDH/crouton/pull/486))
+  columns no longer accept position, hideLabel,
+  fieldInput.position or fieldInput.options.{colspan,rowspan,width,
+  hideLabel,readonly,label}. They fail validation with a pointer to the
+  'Column presentation -> layout items' section of migrate-to-next-alpha.md.
+  - core: drop sortByPosition; no-layout contexts render in column order,
+    computed columns follow the regular ones. buildFormControl stops
+    reading column hideLabel.
+  - codegen: classify no longer writes fieldInput.position.
+  - api: resource.json patch no longer takes fieldInput.position.
+  - editor: the canvas can't reorder or resize fields any more (it wrote
+    column position/colspan) and the variant editor drops its position and
+    colspan inputs. Placement editing returns with the layout-aware editor.
+    vuedraggable removed."
+  M	docs/.vuepress/public/schema/resource.schema.json
+  M	docs/.vuepress/public/schema/v1/resource.schema.json
+  M	packages/crouton-api/src/lib/crud/resource-file/PatchResourceJson.schema.ts
+  M	packages/crouton-codegen/src/apply.test.ts
+  M	packages/crouton-codegen/src/classify.test.ts
+  M	packages/crouton-codegen/src/classify.ts
+  M	packages/crouton-codegen/src/diff.test.ts
+  M	packages/crouton-core/src/lib/layout/builders/form.builder.ts
+  M	packages/crouton-core/src/lib/layout/builders/table.builder.ts
+  M	packages/crouton-core/src/lib/layout/builders/view-helpers.ts
+  M	packages/crouton-core/src/lib/layout/builders/view.builder.ts
+  M	packages/crouton-core/src/lib/layout/resolve/calculated-placement.spec.ts
+  M	packages/crouton-core/src/lib/layout/resolve/calculated-placement.ts
+  M	packages/crouton-core/src/lib/layout/resolve/default-layout.spec.ts
+  M	packages/crouton-core/src/lib/layout/resolve/default-layout.ts
+  M	packages/crouton-core/src/lib/resource/CalculatedColumn.schema.ts
+  M	packages/crouton-core/src/lib/resource/Column.ts
+  M	packages/crouton-core/src/lib/resource/FieldInput.schema.ts
+  M	packages/crouton-core/src/lib/resource/ResourceJson.layout-validation.spec.ts
+  M	packages/crouton-core/src/lib/resource/ResourceJson.schema.ts
+  M	packages/crouton-core/src/lib/resource/resource.schema.json
+  M	packages/crouton-core/src/lib/resource/resource.schema.v1.json
+  M	packages/crouton-core/src/lib/schema/column/column.utils.ts
+  M	packages/crouton-core/src/lib/schema/column/form-control.ts
+  M	packages/crouton-core/src/lib/view/index.ts
+  M	packages/crouton-editor-vue/package.json
+  M	packages/crouton-editor-vue/src/canvas/FormCanvasEditor.vue
+  M	packages/crouton-editor-vue/src/canvas/FormFieldCard.properties.ts
+  M	packages/crouton-editor-vue/src/canvas/FormFieldCard.vue
+  M	packages/crouton-editor-vue/src/canvas/TableCanvasEditor.vue
+  M	packages/crouton-editor-vue/src/canvas/TableColumnChip.vue
+  M	packages/crouton-editor-vue/src/canvas/canvas-layout.ts
+  M	packages/crouton-editor-vue/src/canvas/useCanvasFieldOps.ts
+  D	packages/crouton-editor-vue/src/canvas/useColspanResize.ts
+  M	packages/crouton-editor-vue/src/components/ResourceFieldVariantEditor.vue
+  M	packages/crouton-editor-vue/src/components/ResourceJsonEditor.vue
+  M	packages/crouton-editor-vue/src/index.ts
+  M	packages/crouton-editor-vue/src/types/resource-schema-editor.types.ts
+  M	packages/crouton-editor-vue/vite.config.ts
+  M	pnpm-lock.yaml
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-alpha.92 (2026-11-12)
 
 This was a version bump only, there were no code changes.
