@@ -65,18 +65,36 @@ The book resource from the book-collection example — a Prisma model with searc
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "book",
-  "model": "Book",
+  "source": {
+    "model": "Book"
+  },
   "title": "Books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "filterable": true, "sortable": true },
-    "isbn": { "sortable": true },
-    "publishedYear": { "type": "integer", "sortable": true },
-    "status": { "enum": "bookStatus", "filterable": true },
-    "summary": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "sortable": true
+    },
+    "isbn": {
+      "sortable": true
+    },
+    "publishedYear": {
+      "type": "integer",
+      "sortable": true
+    },
+    "status": {
+      "enum": "bookStatus"
+    },
+    "summary": {
+      "fieldInput": {
+        "type": "textarea"
+      },
+      "hiddenInTable": true
+    },
     "authorId": {
       "label": "Author",
-      "searchable": true,
       "fieldInput": {
         "type": "autocomplete",
         "relationType": "manyToOne",
@@ -93,7 +111,22 @@ The book resource from the book-collection example — a Prisma model with searc
       "hiddenInTable": true
     }
   },
-  "include": ["author", "categories"]
+  "operations": {
+    "findAll": {
+      "include": [
+        "author",
+        "categories"
+      ],
+      "search": [
+        "title",
+        "authorId"
+      ],
+      "filter": [
+        "title",
+        "status"
+      ]
+    }
+  }
 }
 ```
 

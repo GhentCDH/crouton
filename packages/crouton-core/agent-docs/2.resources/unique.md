@@ -9,7 +9,7 @@ friendly, field-scoped error instead of a 500.
 // resources/user/resource.json
 {
   "name": "user",
-  "model": "User",
+  "source": { "model": "User" },
   "columns": {
     "id": { "idField": true, "hiddenInForm": true },
     "name": {},

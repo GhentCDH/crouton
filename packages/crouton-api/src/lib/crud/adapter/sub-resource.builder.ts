@@ -12,6 +12,7 @@ import {
   buildLayouts,
   buildSearch,
   deriveRelationTypeFromColumns,
+  extractFindAllFilter,
   extractFindAllSearch,
   fixNestedUiSchemaScopes,
   getPrismaRelationField,
@@ -130,10 +131,7 @@ export const buildSubResources = (
 
       const childLookupKey =
         childColumns?.find((col) => col.idField)?.id ?? 'id';
-      const childCalculatedColumns = [
-        ...(childJson?.calculatedColumns ?? []),
-        ...toCalculatedColumns(enrichedChildColumns),
-      ];
+      const childCalculatedColumns = toCalculatedColumns(enrichedChildColumns);
       const regularChildColumns = (enrichedChildColumns ?? []).filter(
         (c) => !c.computed,
       );
@@ -143,6 +141,7 @@ export const buildSubResources = (
             source: nestedColumnSchemaSource,
             warn: console.warn,
             resourceName: childJson?.name ?? childJson?.route,
+            filterFields: extractFindAllFilter(childJson?.operations?.findAll),
           })
         : undefined;
       const cols = enrichedChildColumns ?? [];

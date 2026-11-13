@@ -16,7 +16,7 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   // Input-only: the compiled resource carries the resolved `definition`, not
   // the raw operation toggles.
   operations: true,
-  // Input-only: only `openapi.tag` is read, and it is flattened onto `tag`.
+  // Input-only: flattened onto `tag` / `tagDescription`.
   openapi: true,
   // Input-only: the loader reads it before compiling and skips the resource.
   draft: true,
@@ -24,14 +24,6 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   $schema: true,
   // Input-only: the compiled resource carries the flattened fields below.
   source: true,
-  // Legacy root aliases: the compiler normalizes them (with `source`) into the
-  // flattened fields below and never copies the raw keys.
-  model: true,
-  table: true,
-  database: true,
-  idType: true,
-  // Input-only: the compiler merges the input list with columns[].computed.
-  calculatedColumns: true,
 }).extend({
   // Override: ResourceJsonShape.columns is the map (input) form; after compile, columns is always an array.
   columns: z.array(JsonColumnSchema).optional(),
@@ -61,6 +53,8 @@ export const CompiledResourceSchema = ResourceJsonShape.omit({
   database: z.string().optional(),
   /** Primary key type (flattened from source.idType). Defaults to "string". */
   idType: IdTypeSchema.default('string'),
+  /** OpenAPI tag description (flattened from openapi.description). */
+  tagDescription: z.string().optional(),
 });
 
 export type CompiledResource = z.infer<typeof CompiledResourceSchema>;

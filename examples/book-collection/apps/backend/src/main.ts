@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { applyResourceTagDescriptions } from '@ghentcdh/crouton-api';
+
 import { seedDatabase } from './seed.js';
 
 const bootstrap = async () => {
@@ -31,7 +33,10 @@ const bootstrap = async () => {
     .setTitle('Book Collection')
     .setVersion('0.0.1')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = await applyResourceTagDescriptions(
+    app,
+    SwaggerModule.createDocument(app, config),
+  );
   SwaggerModule.setup('docs', app, document);
 
   const port = process.env['PORT'] || 4444;

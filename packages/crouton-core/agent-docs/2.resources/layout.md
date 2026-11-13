@@ -371,13 +371,6 @@ The table node carries all table-specific settings:
     "createdAt",
     "updatedAt"
   ],
-  "searchFields": [
-    "title",
-    "isbn"
-  ],
-  "filterFields": [
-    "status"
-  ],
   "rowActions": [
     {
       "id": "approve",
@@ -398,8 +391,6 @@ The table node carries all table-specific settings:
 | Field             | Description                                                                                                                                      |
 |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
 | `items[]`         | Column order + per-column overrides. Entries are field ids (strings) or field controls (objects with `id`). No nested nodes — the table is flat. |
-| `searchFields`    | Column ids included in `?q=` free-text search.                                                                                                   |
-| `filterFields`    | Column ids that get a filter control in the toolbar.                                                                                             |
 | `rowActions`      | Per-record actions (receive the record id).                                                                                                      |
 | `tableActions`    | Global toolbar actions (no record id).                                                                                                           |
 | `title` / `label` | Heading rendered above the table. `title` wins over `label`.                                                                                     |
@@ -520,13 +511,6 @@ A `layout.table` with an outer container type (not `"table"`) wraps the table. P
         "publishedYear",
         "status"
       ],
-      "searchFields": [
-        "title",
-        "isbn"
-      ],
-      "filterFields": [
-        "status"
-      ],
       "tableActions": [
         {
           "id": "searchOpenLibrary",
@@ -552,7 +536,7 @@ A `layout.table` with an outer container type (not `"table"`) wraps the table. P
 }
 ```
 
-All table settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`) go on the **table node**, not
+All table settings (`rowActions`, `tableActions`, `title`) go on the **table node**, not
 the wrapper.
 
 Wrappers can nest arbitrarily:

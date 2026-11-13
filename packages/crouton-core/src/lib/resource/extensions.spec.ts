@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { invalid } from '../../testing/index';
-import { ResourceJsonSchema, buildResourceJsonSchema } from './ResourceJson.schema';
+import { ResourceJsonSchema, ResourceJsonShape, buildResourceJsonSchema } from './ResourceJson.schema';
 import {
   clearResourceExtensions,
   registerResourceExtension,
@@ -28,6 +28,12 @@ describe('registerResourceExtension', () => {
       'shadows a core resource key',
     );
     expect(() => registerResourceExtension('extensions', z.unknown())).toThrow(
+      'shadows a core resource key',
+    );
+  });
+
+  it.each(Object.keys(ResourceJsonShape.shape))('reserves core key %s', (key) => {
+    expect(() => registerResourceExtension(key, z.unknown())).toThrow(
       'shadows a core resource key',
     );
   });

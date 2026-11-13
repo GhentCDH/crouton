@@ -9,7 +9,7 @@ import {
 const TABLE_REMOVED_KEYS = ['colspan', 'rowspan', 'hideLabel'] as const;
 
 export const LayoutTableFieldControlSchema = z
-  .object({ id: z.string() })
+  .object({ id: z.string().describe('Column id this table item is bound to.') })
   .passthrough()
   .transform((val, ctx) => {
     for (const key of TABLE_REMOVED_KEYS) {
@@ -92,7 +92,6 @@ export const TableItemSchema = z.union([
 ]);
 
 
-const FilterFields = z.string();
 
 // ── TableNodeSchema ────────────────────────────────────────────────────
 
@@ -102,7 +101,7 @@ const FilterFields = z.string();
  * In a wrapper layout, this is the single `{ type: "table" }` descendant node.
  */
 export const TableNodeSchema = z.object({
-  type: z.literal('table').optional(),
+  type: z.literal('table').optional().describe('Node type. Optional on a flat table; required on the inner node of a wrapper.'),
   title: z
     .string()
     .optional()
@@ -111,7 +110,6 @@ export const TableNodeSchema = z.object({
     .string()
     .optional()
     .describe('Alias for title; title takes precedence.'),
-  filterFields: z.array(FilterFields).optional().default([]),
   defaultSort: z
     .object({
       field: z

@@ -4,10 +4,7 @@ import { ResourceJsonShape } from '@ghentcdh/crouton-core'; // ── Settings-o
 
 // ── Settings-only subset of ResourceJsonShape ──────────────────────────
 // Omit columns — those are edited elsewhere.
-const ResourceSettingsShape = ResourceJsonShape.omit({
-  columns: true,
-  calculatedColumns: true,
-});
+const ResourceSettingsShape = ResourceJsonShape.omit({ columns: true });
 
 // ── JSON Schema ────────────────────────────────────────────────────────
 

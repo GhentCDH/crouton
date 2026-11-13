@@ -45,7 +45,14 @@ Every column that is not a relation must declare a `type`. Omit `model` entirely
   "route": "zotero-items",
   "title": "Zotero items",
   "operations": {
-    "findAll": true,
+    "findAll": {
+      "search": [
+        "title"
+      ],
+      "filter": [
+        "year"
+      ]
+    },
     "findOne": true,
     "create": false,
     "update": false,
@@ -53,10 +60,23 @@ Every column that is not a relation must declare a `type`. Omit `model` entirely
     "delete": false
   },
   "columns": {
-    "id":    { "type": "string",  "idField": true, "hiddenInForm": true },
-    "title": { "type": "string",  "searchable": true, "sortable": true, "defaultSort": true },
-    "year":  { "type": "integer", "filterable": true },
-    "url":   { "type": "string",  "hiddenInTable": true }
+    "id": {
+      "type": "string",
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "type": "string",
+      "sortable": true,
+      "defaultSort": true
+    },
+    "year": {
+      "type": "integer"
+    },
+    "url": {
+      "type": "string",
+      "hiddenInTable": true
+    }
   }
 }
 ```

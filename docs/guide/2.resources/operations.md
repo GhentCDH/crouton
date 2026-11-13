@@ -69,9 +69,24 @@ When `findAll: true` (no explicit `search`), crouton searches all non-id, non-re
 
 The second form restricts search to `name` and `email` only.
 
-### Migration from `searchFields`
+## Filters
 
-The old `layout.table.searchFields` array and per-column `searchable: true` flag are deprecated. Use [migrate-to-next-alpha.md](/migrate-to-next-alpha) with an AI assistant to migrate automatically.
+`operations.findAll.filter` lists the columns that get a filter control in the table toolbar. It is also the server
+allowlist: a `?filter=` on any other column (except the id field) is rejected with 400. Omit it to show no filter
+controls and accept filters on every column.
+
+```json
+{
+  "operations": {
+    "findAll": { "search": ["title"], "filter": ["status", "author"] }
+  }
+}
+```
+
+### Migration from `searchFields` / `filterFields`
+
+`layout.table.searchFields` / `filterFields` fail validation; per-column `searchable` / `filterable` flags are
+deprecated. Use [migrate-to-next-alpha.md](/migrate-to-next-alpha) with an AI assistant to migrate automatically.
 
 ## PUT vs PATCH
 

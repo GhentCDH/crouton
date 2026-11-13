@@ -41,9 +41,9 @@ describe('defaultLayoutFor', () => {
       expect(layout?.items).toEqual(['b', 'a']);
     });
 
-    it('table layout includes empty filterFields/rowActions/tableActions', () => {
+    it('table layout includes empty rowActions/tableActions', () => {
       const layout = defaultLayoutFor('table', [col('a', 1)]);
-      expect(layout).toMatchObject({ filterFields: [], rowActions: [], tableActions: [] });
+      expect(layout).toMatchObject({ rowActions: [], tableActions: [] });
     });
 
     it('returns undefined when all columns hidden', () => {

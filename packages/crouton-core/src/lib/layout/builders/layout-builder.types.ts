@@ -27,6 +27,8 @@ export type LayoutBuildContext = {
   /** Resource name/route — used to auto-generate labelKey on ViewColumnConfig columns. */
   resourceName?: string;
   fieldIds?: LayoutVisibility;
+  /** Column ids for the filter view (from `operations.findAll.filter`). */
+  filterFields?: string[];
 };
 
 export type { ViewConfig };

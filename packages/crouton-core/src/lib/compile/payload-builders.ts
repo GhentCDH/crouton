@@ -212,7 +212,7 @@ export const buildResourceJsonPayload = (
   const schema = form?.data ? { data: form.data, ui: form.ui } : null;
 
   return {
-    id: config.id ?? route,
+    id: config.name,
     uri,
     operations,
     schema,
@@ -288,7 +288,7 @@ export const buildViewsPayload = (
   };
 
   return {
-    id: config.id ?? config.route,
+    id: config.name,
     name: config.name,
     route: config.route,
     uri: baseUri,

@@ -141,6 +141,7 @@
         "title",
         "author"
       ],
+      "filter": ["title", "status", "author"],
       "include": [
         "author",
         "categories"
@@ -264,11 +265,6 @@
         },
         {
           "type": "table",
-          "filterFields": [
-            "title",
-            "status",
-            "author"
-          ],
           "items": [
             "title",
             "author",

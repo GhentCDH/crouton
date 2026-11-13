@@ -102,7 +102,7 @@ Remove them from `layout.table` items — use `width`, `align`, `truncate` for t
 
 ## 11. Table/column settings on the wrapper instead of the table node
 
-In a wrapper table layout, `rowActions`, `tableActions`, `searchFields`, `filterFields`, `pageSize` etc.
+In a wrapper table layout, `rowActions`, `tableActions`, `pageSize` etc.
 belong on the **`type: "table"` node**, not on the outer wrapper.
 
 ## 12. Placement keys on a column, or `hiddenIn*` under a layout

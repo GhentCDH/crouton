@@ -70,12 +70,24 @@ Add the relation name to `include`:
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "author",
-  "model": "Author",
+  "source": {
+    "model": "Author"
+  },
   "title": "Authors",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "name": { "searchable": true, "filterable": true, "sortable": true },
-    "bio": { "fieldInput": { "type": "textarea" }, "hiddenInTable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "name": {
+      "sortable": true
+    },
+    "bio": {
+      "fieldInput": {
+        "type": "textarea"
+      },
+      "hiddenInTable": true
+    },
     "books": {
       "label": "Books",
       "hiddenInTable": true,
@@ -87,7 +99,19 @@ Add the relation name to `include`:
       }
     }
   },
-  "include": ["books"]
+  "operations": {
+    "findAll": {
+      "include": [
+        "books"
+      ],
+      "search": [
+        "name"
+      ],
+      "filter": [
+        "name"
+      ]
+    }
+  }
 }
 ```
 
@@ -98,14 +122,20 @@ Add the relation name to `include`:
   "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
   "schemaVersion": 1,
   "name": "book",
-  "model": "Book",
+  "source": {
+    "model": "Book"
+  },
   "title": "Books",
   "columns": {
-    "id": { "idField": true, "hiddenInForm": true },
-    "title": { "searchable": true, "sortable": true },
+    "id": {
+      "idField": true,
+      "hiddenInForm": true
+    },
+    "title": {
+      "sortable": true
+    },
     "authorId": {
       "label": "Author",
-      "searchable": true,
       "fieldInput": {
         "type": "autocomplete",
         "relationType": "manyToOne",
@@ -113,7 +143,17 @@ Add the relation name to `include`:
       }
     }
   },
-  "include": ["author"]
+  "operations": {
+    "findAll": {
+      "include": [
+        "author"
+      ],
+      "search": [
+        "title",
+        "authorId"
+      ]
+    }
+  }
 }
 ```
 

@@ -36,11 +36,6 @@ export class ResourceConfigRegistry<R extends Resource = Resource> {
     return this.configs.find((c) => c.route === route);
   }
 
-  async findById(id: string): Promise<R | undefined> {
-    const all = await this.getAll();
-    return all.find((c) => c.id === id);
-  }
-
   /**
    * On-disk directory containing `route`'s `resource.json`, if known.
    * Only meaningful after a load has populated the loader's internal map —

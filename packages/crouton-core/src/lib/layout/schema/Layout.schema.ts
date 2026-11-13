@@ -14,11 +14,13 @@ export const ContainerSchema = z.object({
 export type Container = z.infer<typeof ContainerSchema>;
 
 const FormLayoutWithContainerSchema = FormLayoutNodeSchema.and(
-  z.object({ container: ContainerSchema.default({ mode: 'modal', size: 'sm' }) }),
+  z.object({
+    container: ContainerSchema.default({ mode: 'modal', size: 'sm' }).describe('How a record opens: modal (with size) or full page. Default: modal, size "sm".'),
+  }),
 );
 const ViewLayoutWithContainerSchema = FormLayoutNodeSchema.and(
   z.object({
-    container: ContainerSchema.default({ mode: 'modal', size: 'sm' }),
+    container: ContainerSchema.default({ mode: 'modal', size: 'sm' }).describe('How a record opens: modal (with size) or full page. Default: modal, size "sm".'),
     component: z.string().optional().describe(
       'Import path to a custom Vue component for the detail view. When set, the default view layout is ignored.',
     ),

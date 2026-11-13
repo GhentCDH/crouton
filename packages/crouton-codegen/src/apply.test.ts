@@ -153,11 +153,9 @@ describe('apply — update merges and preserves hand edits', () => {
   const existing: ResourceJsonInput = {
     name: 'language',
     route: 'language',
-    model: 'language',
+    source: { model: 'language', idType: 'string', datasource: 'docsdb' },
     tag: 'Language',
     title: 'Language',
-    idType: 'string',
-    database: 'docsdb',
     sidebar: { hide: true },
     operations: {
       findAll: true,

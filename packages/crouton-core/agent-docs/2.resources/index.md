@@ -12,18 +12,24 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 ```json
 {
   "name": "book",
+  "source": {
+    "model": "book",
+    "datasource": "maindb"
+  },
   "route": "books",
-  "model": "book",
   "tag": "Book",
   "title": "Books",
-  "database": "maindb",
   "sidebar": {
     "position": 1,
     "label": "Books",
     "group": "catalogue"
   },
   "operations": {
-    "findAll": true,
+    "findAll": {
+      "search": [
+        "title"
+      ]
+    },
     "findOne": true,
     "create": true,
     "update": true,
@@ -37,7 +43,6 @@ API endpoints, validation wiring, table columns, form fields, and filters.
       "hiddenInView": true
     },
     "title": {
-      "searchable": true,
       "sortable": true,
       "defaultSort": true
     },
@@ -59,33 +64,25 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 
 ## Top-level fields
 
-| Field               | Type                           | Description                                                                                                                                                                                   |
-|---------------------|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `$schema`           | `string`                       | URL of the generated JSON Schema, for editor autocomplete — see [Versioning](versioning.md#schema-and-stamping)                                                                      |
-| `schemaVersion`     | `number`                       | resource.json shape version; auto-migrated in dev — see [Versioning](versioning.md)                                                                                                  |
-| `draft`             | `boolean`                      | When `true`, kept in the repo but not loaded/served — see [Draft resources](versioning.md#draft-resources)                                                                             |
-| `kind`              | `'prisma' \| 'custom'`         | Where the data comes from. Default `prisma`. `custom` means no Prisma model and no `schema.ts` — you implement data access in `repository.ts`, see [Custom resources](custom-resource.md)     |
-| `idType`            | `'string' \| 'number'`         | Type of the id field. Default `'number'`. Use `'string'` for UUID primary keys.                                                                                                               |
-| `name`              | `string`                       | Unique resource name (used as form id in the frontend)                                                                                                                                        |
-| `id`                | `string`                       | Internal id; `route` falls back to it when omitted, and it falls back to `name`. Rarely set by hand                                                        |
-| `route`             | `string`                       | URL segment for the generated endpoints                                                                                                                                                       |
-| `model`             | `string`                       | Prisma model name. Required when `kind` is `prisma`; must be omitted when `kind` is `custom`                                                                                                  |
-| `tag`               | `string`                       | OpenAPI tag (default `Crouton`)                                                                                                                                                                                   |
-| `title`             | `string`                       | Display title in the UI                                                                                                                                                                       |
-| `table`             | `string`                       | Database table (when it differs from the model)                                                                                                                                               |
-| `database`          | `string`                       | Name of the [data source](../3.backend/data-sources.md) to use                                                                                                                                 |
-| `parent`            | object                         | Mount this resource under a parent route: `{ "route": "groups", "param": "groupId" }`. Custom resources only — see [Custom resources](custom-resource.md#as-a-standalone-nested-route-parent) |
-| `sidebar`           | object                         | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar)                                                                                                                          |
-| `display`           | object                         | `mode` (`'page'` \| `'modal'`, default `'modal'`) and `customComponent`, see [Display](#display)                                                                                              |
-| `operations`        | object                         | Enable `findAll`, `findOne`, `create`, `update`, `patch`, `delete` — see [Operations](operations.md)                                                                                                                            |
-| `security`          | object                         | Per-resource authorization guard(s) — see [Security](security.md)                                                                                          |
-| `columns`           | map or array                   | Column definitions, see [Columns](columns.md)                                                                                                                                                                 |
-| `calculatedColumns` | array                          | SQL-computed read-only columns, see [Columns](columns.md#calculated-columns)                                                                                                                                                     |
-| `actions`           | array                          | Row-level [actions](actions.md)                                                                                                                                                               |
-| `tableActions`      | array                          | Table-level [actions](actions.md)                                                                                                                                                               |
-| `modalSize`         | `'xs' \| 'sm' \| 'lg' \| 'xl'` | Size of the create/edit modal (default `sm`)                                                                                                                                                                 |
-| `include`           | array                          | Relations to eagerly load, see [Columns](columns.md#includes)                                                                                                                                          |
-| `layout`            | object                         | Form layout configuration — controls column spans and section grouping — see [Layout](layout.md)                                                                                                                         |
+| Field | Type | Description |
+|-------|------|-------------|
+| `$schema` | `string` | URL of the generated JSON Schema, for editor autocomplete — see [Versioning](versioning.md#schema-and-stamping) |
+| `schemaVersion` | `number` | resource.json shape version; auto-migrated in dev — see [Versioning](versioning.md) |
+| `draft` | `boolean` | When `true`, kept in the repo but not loaded/served — see [Draft resources](versioning.md#draft-resources) |
+| `kind` | `'prisma' \| 'custom'` | Where the data comes from. Default `prisma`. `custom` means no Prisma model and no `schema.ts` — see [Custom resources](custom-resource.md) |
+| `name` | `string` | Unique resource name. Also the resource id (frontend form id) and the default `route` |
+| `route` | `string` | URL segment for the generated endpoints. Defaults to `name` |
+| `source` | object | `model` (Prisma model; required for `prisma`, absent for `custom`), `dbTable`, `datasource` ([data source](../3.backend/data-sources.md) name), `idType` (`'string'` \| `'number'`, default `'string'`) |
+| `title` | `string` | Display title in the UI. Defaults to a title-cased `name` |
+| `openapi` | object | `tag` (OpenAPI tag) and `description` (tag description, applied by `applyResourceTagDescriptions` from `@ghentcdh/crouton-api`) |
+| `tag` | `string` | OpenAPI tag (default `Crouton`). Prefer `openapi.tag` |
+| `parent` | object | Mount this resource under a parent route: `{ "route": "groups", "param": "groupId" }`. Custom resources only — see [Custom resources](custom-resource.md#as-a-standalone-nested-route-parent) |
+| `sidebar` | object | Sidebar visibility, ordering, and grouping — see [Sidebar](#sidebar) |
+| `operations` | object | Enable `findAll`, `findOne`, `create`, `update`, `patch`, `delete`; `findAll.search` / `filter` / `include` — see [Operations](operations.md) |
+| `security` | object | Per-resource authorization guard(s) — see [Security](security.md) |
+| `columns` | map | Column definitions keyed by id. Unknown keys inside a column fail validation — see [Columns](columns.md) |
+| `lookup` | object | How this resource is labelled in other resources' dropdowns (`labels`, `separator`) |
+| `layout` | object | Form, view and table layout, including row/table actions and the modal/page container — see [Layout](layout.md) |
 
 ## Operations
 
@@ -105,7 +102,8 @@ See [Operations](operations.md) for external operations, per-op security, and PU
 
 ## Display
 
-The `display` object controls how the create/edit form is presented.
+Set the presentation on `layout.form.container` / `layout.view.container` (the root `display` key was removed — see
+[Layout](layout.md#how-a-record-opens-layout-form-view-container)). The fields below describe the container.
 
 | Field             | Type                | Default    | Description                                                                                      |
 |-------------------|---------------------|------------|--------------------------------------------------------------------------------------------------|

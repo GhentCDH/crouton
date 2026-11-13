@@ -1,11 +1,16 @@
 import type { ZodType } from 'zod';
 
-// Hardcoded to avoid a circular dep with ResourceJson.schema.ts.
-// Update when a key is added to or removed from ResourceJsonShape.
+// Hardcoded to avoid a circular dep with ResourceJson.schema.ts; extensions.spec
+// asserts it covers every ResourceJsonShape key. Also reserves keys the
+// preprocess consumes (root actions) or reports as removed.
 const CORE_RESOURCE_KEYS = new Set([
-  '$schema', 'schemaVersion', 'draft', 'kind', 'id', 'name', 'route', 'tag',
-  'title', 'source', 'parent', 'sidebar', 'security', 'operations', 'columns',
-  'actions', 'tableActions', 'layout', 'lookup', 'extensions',
+  // ResourceJsonShape
+  '$schema', 'schemaVersion', 'draft', 'kind', 'name', 'route', 'tag', 'openapi',
+  'title', 'parent', 'sidebar', 'security', 'operations', 'columns', 'source',
+  'lookup', 'layout',
+  // Consumed by the preprocess, or removed with a migration hint
+  'actions', 'tableActions', 'extensions', 'id', 'model', 'table', 'database',
+  'idType', 'calculatedColumns', 'display', 'modalSize', 'include',
 ]);
 
 const registry = new Map<string, ZodType>();

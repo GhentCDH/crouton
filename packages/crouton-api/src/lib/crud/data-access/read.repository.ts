@@ -83,7 +83,8 @@ export class ReadRepository<T = unknown> {
       const forbidden = filter
         .map(parseFilterString)
         .filter((p): p is NonNullable<ReturnType<typeof parseFilterString>> => p != null)
-        .filter((p) => p.field !== idField && !allowlist.includes(p.field));
+        // A json-path filter (`period->from`) is allowed when its column is.
+        .filter((p) => p.field !== idField && !allowlist.includes(p.field.split('->')[0]));
       if (forbidden.length) {
         throw new BadRequestException(
           `Filter field not allowed: ${forbidden.map((p) => p.field).join(', ')}`,

@@ -336,11 +336,11 @@ already exists, leave the file unchanged (assume it was set intentionally).
 
 ---
 
-## Redundant root `id` removal
+## Root `id` removal (breaking)
 
-**When to apply:** root-level `id` equals root-level `name`.
+**When to apply:** root-level `id` exists.
 
-The `id` field is redundant when it equals `name` (the default).
+The resource id is always `name`; a root `id` fails validation.
 
 ```json
 // BEFORE
@@ -355,8 +355,8 @@ The `id` field is redundant when it equals `name` (the default).
 }
 ```
 
-**Rule:** If `id` exists at root and `id === name`, remove `id`. If `id !== name`, leave it (it is a meaningful
-override).
+**Rule:** Remove root `id`. If `id !== name` and no `route` is set, add `"route": <old id>` so the URL stays the same
+(the frontend form id changes to `name`).
 
 ---
 
@@ -670,6 +670,9 @@ column has `searchable: true`.
 (b) column ids where `searchable: true`. Remove `searchable` from columns. Remove `searchFields` from layout. Set
 `operations.findAll.search` to the deduplicated union. Move `filterFields` → `operations.findAll.filter` the same way.
 Only apply if `operations.findAll.search` is not already set.
+
+`operations.findAll.filter` drives the toolbar filter controls **and** is the server allowlist: a `?filter=` on any
+other column (except the id field) is rejected with 400. `layout.table.searchFields` / `filterFields` fail validation.
 
 ---
 
@@ -1078,6 +1081,35 @@ grep -rn "json_schema\|ui_schema" --include="*.ts" --include="*.vue" src
 
 ---
 
+## Unknown column keys fail validation (breaking)
+
+**When to apply:** a column contains a key that is not a column option (a typo, or a removed key such as `fieldView`,
+`columnType`, `fieldTable`).
+
+Unknown keys inside a column used to be kept silently. They now fail validation with `Unrecognized key`. The
+deprecated table flags (`searchable`, `filterable`, `sortable`, `defaultSort`, `showWhen`, `hideWhen`,
+`disabledWhen`) are still lifted onto the table layout / `operations.findAll` during alpha.
+
+**Rule:** Fix the spelling, or apply the migration for the removed key. Delete keys that have no replacement.
+
+---
+
+## `openapi.description` is applied to the Swagger document
+
+`openapi.description` is now emitted as the OpenAPI tag description. Swagger only reads tag descriptions from
+`DocumentBuilder.addTag`, so call the helper on the created document in `main.ts`:
+
+```ts
+import { applyResourceTagDescriptions } from '@ghentcdh/crouton-api';
+
+const document = await applyResourceTagDescriptions(
+  app,
+  SwaggerModule.createDocument(app, config),
+);
+```
+
+---
+
 ## Spelling fixes: `creatable`, `updatable`, field-input type values (breaking at v1)
 
 **When to apply:** any column has `createable` / `updateable`, or a `fieldInput.type` / `fieldInput.format` of
@@ -1146,7 +1178,7 @@ grep -rn '"fieldInput"' --include="resource.json" . | grep '"resource"'
 # OpenAPI tag
 grep -rn '"tag"' --include="resource.json" .
 
-# Redundant id
+# Root id (must not appear at root)
 grep -rn '"id"' --include="resource.json" .
 
 # Layout v1 migration (controls → items, actions → rowActions)
@@ -1177,9 +1209,8 @@ grep -rn '"position"' --include="resource.json" .
 grep -rn '"hideLabel"' --include="resource.json" .
 grep -rnE '"(colspan|rowspan|width|readonly)"' --include="resource.json" .
 
-# Source fields
-grep -rn '"model"' --include="resource.json" .
-grep -rn '"idType"' --include="resource.json" .
+# Source fields (must not appear at root — only inside "source")
+grep -rnE '"(model|table|database|idType)"' --include="resource.json" .
 
 # calculatedColumns
 grep -rn '"calculatedColumns"' --include="resource.json" .
@@ -1199,17 +1230,20 @@ grep -rn '"format"' --include="resource.json" .
 
 - **`controls` instead of `items`**: `"controls": [...]` fails validation with a migration hint.
 - **`actions` instead of `rowActions`**: `"actions": [...]` on a table node fails validation. Rename to `rowActions`.
-- **Table settings on the wrapper, not the table node**: in a wrapper layout, `rowActions`, `tableActions`,
-  `searchFields`, `filterFields` must go on the `{ "type": "table", ... }` node, not the outer grid.
+- **Table settings on the wrapper, not the table node**: in a wrapper layout, `rowActions` and `tableActions`
+  must go on the `{ "type": "table", ... }` node, not the outer grid.
 - **Field ids directly in a wrapper node**: field ids (strings or `{ id }` objects) are only valid inside the table
   node's `items`.
-- **`sortable` on the column, not the item**: still validates (backward compat) but won't get autocomplete. Move to
+- **`sortable` on the column, not the item**: still validates (lifted during alpha) but won't get autocomplete. Move to
   `layout.table.items[].sortable`.
 - **`$schema` path wrong**: it's `https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json` — an absolute URL,
   not a relative path.
 - **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
 - **`position` / `colspan` / `hideLabel` on a column**: removed — order and placement live in
   `layout.<ctx>.items`. Positions in plain source order can simply be deleted.
+- **Root `model` / `table` / `database` / `idType` / `calculatedColumns` / `id`**: must not appear — they fail
+  validation. Use `source.*`, `columns[id].computed`, and `name`.
+- **Unknown column keys**: fail validation (`Unrecognized key`). Check the spelling.
 - **`createable` / `updateable`**: misspelled — use `creatable` / `updatable`.
 - **`"Integer"`, `"mutliSelect"`, `"date-range"` as a field-input type**: use `"integer"`, `"multiSelect"`,
   `"dateRange"` (type values are camelCase).

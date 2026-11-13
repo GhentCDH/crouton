@@ -14,7 +14,7 @@ type TableLayoutRoot = z.infer<typeof TableLayoutRootSchema>;
 
 /**
  * Build the table view (and optional filter view) for a resource.
- * Returns a record with `table` always present, and `filter` when filterFields exist.
+ * Returns a record with `table` always present, and `filter` when `ctx.filterFields` is non-empty.
  */
 export const buildTableLayout = (
   node: TableLayoutRoot | undefined,
@@ -60,7 +60,7 @@ export const buildTableLayout = (
     views.table = emptyTableView();
   }
 
-  const filterFields = resolveTableNode(node)?.filterFields;
+  const { filterFields } = ctx;
   if (filterFields?.length) {
     const isFilterable = (c: { id: string }) => filterFields.includes(c.id);
     const filter = buildView(
