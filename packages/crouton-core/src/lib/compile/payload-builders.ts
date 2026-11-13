@@ -318,6 +318,7 @@ export const buildSubResourceViewsPayload = (
     title: sub.title ?? sub.childRoute,
     idField: sub.idField ?? 'id',
     ...(subModalSize && { modalSize: subModalSize }),
+    display: deriveDisplay(sub.layout),
     operations: buildSubResourceOperations(
       sub.operations,
       childUri,
