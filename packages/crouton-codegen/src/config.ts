@@ -46,6 +46,36 @@ export const findConfigPath = async (
   }
 };
 
+export interface DiscoveredProject {
+  /** Folder name (what `--project` matches). */
+  name: string;
+  /** Absolute project root. */
+  root: string;
+  /** Absolute path to the config file. */
+  configPath: string;
+}
+
+/**
+ * Find crouton projects in the immediate subdirectories of `cwd` (each holding a
+ * crouton config). Dot-dirs and `node_modules` are skipped. Sorted by name.
+ */
+export const discoverProjects = async (cwd: string): Promise<DiscoveredProject[]> => {
+  const base = resolve(cwd);
+  const entries = await readdir(base, { withFileTypes: true }).catch(() => []);
+  const projects: DiscoveredProject[] = [];
+  for (const e of entries) {
+    if (!e.isDirectory() || e.name.startsWith('.') || e.name === 'node_modules') continue;
+    for (const file of CONFIG_FILES) {
+      const configPath = join(base, e.name, file);
+      if (await fileExists(configPath)) {
+        projects.push({ name: e.name, root: join(base, e.name), configPath });
+        break;
+      }
+    }
+  }
+  return projects.sort((a, b) => a.name.localeCompare(b.name));
+};
+
 /** Load + validate `crouton.json`. Throws if none is found. */
 export const loadConfig = async (cwd: string): Promise<LoadedConfig> => {
   const path = await findConfigPath(cwd);

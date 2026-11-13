@@ -16,7 +16,7 @@ interface CreateDatasourceCliOptions extends CommonOptions {
   default?: boolean;
 }
 
-const createResource = (name: string | undefined, opts: CreateResourceCliOptions) =>
+const createResource = async (name: string | undefined, opts: CreateResourceCliOptions) =>
   runCreateResource({
     name,
     kind: opts.kind,
@@ -25,12 +25,12 @@ const createResource = (name: string | undefined, opts: CreateResourceCliOptions
     title: opts.title,
     database: opts.database,
     idType: opts.idType,
-    cwd: resolveTargetProject(opts),
+    cwd: await resolveTargetProject(opts),
     dryRun: opts.dryRun,
     yes: opts.yes,
   });
 
-const createDatasource = (opts: CreateDatasourceCliOptions) =>
+const createDatasource = async (opts: CreateDatasourceCliOptions) =>
   runCreateDatasource({
     name: opts.name,
     type: opts.type,
@@ -41,7 +41,7 @@ const createDatasource = (opts: CreateDatasourceCliOptions) =>
     prismaConfig: opts.prismaConfig,
     clientOutput: opts.clientOutput,
     default: opts.default,
-    cwd: resolveTargetProject(opts),
+    cwd: await resolveTargetProject(opts),
     dryRun: opts.dryRun,
     yes: opts.yes,
   });

@@ -2,8 +2,10 @@ import * as clack from '@clack/prompts';
 import type { Command } from 'commander';
 import pc from 'picocolors';
 
+import { discoverProjects, findConfigPath } from '@ghentcdh/crouton-codegen';
+
 import { assertNotCancel } from '../prompts';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 
 /** Options every cwd-touching command accepts. */
 export interface CommonOptions {
@@ -17,7 +19,7 @@ export interface CommonOptions {
 export const registerCommonOptions = (cmd: Command): Command =>
   cmd
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
-    .option('-p, --project <name>', 'project subfolder (resolves cwd to <cwd>/<project>)')
+    .option('-p, --project <name>', 'project to use: a subfolder of cwd containing crouton.json (asked when several exist)')
     .option('--dry-run', 'show the planned changes without writing files')
     .option('-y, --yes', 'accept all recommended defaults (non-interactive)');
 
@@ -33,11 +35,45 @@ export const withRun =
     }
   };
 
-/** Resolve the project directory from `--cwd` and `--project`. */
-// ponytail: --project is a plain subfolder for now; discovery + picker land in the project-picker PR.
-export const resolveTargetProject = (opts: CommonOptions): string => {
+/**
+ * Resolve the project directory once per invocation:
+ *  - `--project <name>` → the subfolder of cwd with that name holding a crouton config
+ *  - cwd (or an ancestor) has a config → cwd (runners walk up from there)
+ *  - else scan immediate subfolders: none → cwd (runner reports "no config"),
+ *    one → it, several → interactive picker (`-y` → error listing candidates)
+ */
+export const resolveTargetProject = async (opts: CommonOptions): Promise<string> => {
   const cwd = resolve(opts.cwd ?? process.cwd());
-  return opts.project ? resolve(cwd, opts.project) : cwd;
+  const candidates = () => discoverProjects(cwd);
+  const list = (names: string[]) => (names.length ? names.join(', ') : '(none)');
+
+  if (opts.project) {
+    const projects = await candidates();
+    const found = projects.find((p) => p.name === opts.project);
+    if (!found) {
+      throw new Error(
+        `Unknown project "${opts.project}" under ${cwd}. Available: ${list(projects.map((p) => p.name))}.`,
+      );
+    }
+    return found.root;
+  }
+
+  if (await findConfigPath(cwd)) return cwd;
+
+  const projects = await candidates();
+  if (projects.length === 0) return cwd;
+  if (projects.length === 1) return projects[0].root;
+  if (opts.yes) {
+    throw new Error(
+      `Multiple crouton projects under ${cwd}: ${list(projects.map((p) => p.name))}. Pick one with --project <name>.`,
+    );
+  }
+  return assertNotCancel<string>(
+    await clack.select<string>({
+      message: 'Which project?',
+      options: projects.map((p) => ({ value: p.root, label: p.name, hint: relative(cwd, p.configPath) })),
+    }),
+  );
 };
 
 /**
@@ -50,7 +86,7 @@ export const runAggregate = async (
   opts: CommonOptions,
   steps: { name: string; run: (common: CommonOptions) => Promise<void> }[],
 ): Promise<void> => {
-  const common: CommonOptions = { ...opts, cwd: resolveTargetProject(opts), project: undefined };
+  const common: CommonOptions = { ...opts, cwd: await resolveTargetProject(opts), project: undefined };
   clack.log.step(`${pc.bold(title)} runs: ${steps.map((s) => s.name).join(' → ')}`);
   if (!opts.yes && !opts.dryRun) {
     const go = assertNotCancel(await clack.confirm({ message: 'Continue?', initialValue: true }));

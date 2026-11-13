@@ -17,11 +17,11 @@ interface UpdateTranslationsCliOptions extends CommonOptions {
   prune?: boolean;
 }
 
-const updateResources = (opts: UpdateResourcesCliOptions) =>
+const updateResources = async (opts: UpdateResourcesCliOptions) =>
   runUpdateResources({
     datasource: opts.datasource,
     models: opts.models,
-    cwd: resolveTargetProject(opts),
+    cwd: await resolveTargetProject(opts),
     dryRun: opts.dryRun,
     yes: opts.yes,
     skipPull: opts.skipPull,
@@ -29,9 +29,9 @@ const updateResources = (opts: UpdateResourcesCliOptions) =>
     draft: opts.draft, // undefined unless --draft was passed; the runner resolves the effective value
   });
 
-const updateTranslations = (opts: UpdateTranslationsCliOptions) =>
+const updateTranslations = async (opts: UpdateTranslationsCliOptions) =>
   runTranslationsUpdate({
-    cwd: resolveTargetProject(opts),
+    cwd: await resolveTargetProject(opts),
     lang: opts.lang,
     prune: opts.prune,
     dryRun: opts.dryRun,

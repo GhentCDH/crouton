@@ -30,9 +30,10 @@ export * from './resolve';
 export * from './serialize';
 export * from './apply';
 export * from './commit';
-export type { LoadedConfig } from './config';
+export type { DiscoveredProject, LoadedConfig } from './config';
 export {
   defaultPrismaConfig,
+  discoverProjects,
   findConfigPath,
   loadConfig,
   loadDatasources,
