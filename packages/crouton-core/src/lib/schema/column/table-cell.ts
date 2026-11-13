@@ -86,6 +86,10 @@ export const buildTableUiSchema = (
         ...dataPathOption,
         ...sortOptions,
         ...relationTypeOption,
+        // The legacy `key` option (format: keyValue) is consumed by text/boolean
+        // cells; object columns render via RecordCell/RelationCell, which reads
+        // `displayKey` — emit both so the cell is self-describing.
+        ...(col.displayKey && { displayKey: col.displayKey }),
         ...(isDateRange(col) && { format: 'date-range' }),
         label: col.label,
       },
