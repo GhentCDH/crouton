@@ -55,7 +55,9 @@
     "@ghentcdh/crouton-forms-vue": "workspace:*",
     "@ghentcdh/crouton-ui-vue": "workspace:*",
     "@heroicons/vue": "^2.2.0",
+    "@vue/test-utils": "^2.5.1",
     "daisyui": "^5.7.47",
+    "happy-dom": "^21.0.4",
     "vitest": "^5.1.0",
     "vue": "^3.5.45"
   }

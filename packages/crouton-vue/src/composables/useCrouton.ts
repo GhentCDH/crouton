@@ -197,7 +197,13 @@ const createCrouton = (
     // so any 401 from subsequent requests triggers login instead of failing silently.
     return _authReady
       .then(() => fetchLayout(_config))
-      .then(() => fetchBundle());
+      .then(() => fetchBundle())
+      .then(() => {
+        // Resource views can mount while the bundle request is still in flight;
+        // any FormDef localized with an empty bundle stayed English forever.
+        // Invalidate once so they refetch (and re-localize) with the bundle present.
+        formDefCache.invalidateAll();
+      });
   };
 
   return {

@@ -48,7 +48,7 @@ const label = computed(() => {
   if (typeof val === 'undefined' || typeof val === 'undefined' || val === null)
     return undefined;
 
-  const displayKey = (props.options?.displayKey ?? 'id') as string;
+  const displayKey = ((props.options?.displayKey ?? props.options?.key) ?? 'id') as string;
 
   return getNestedValue(val, displayKey) as string;
 });
