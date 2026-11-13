@@ -36,6 +36,9 @@ export interface CreateDatasourceOptions {
   yes?: boolean;
 }
 
+/** Datasource types offered in the prompt (each maps to a Prisma provider in the scaffold). */
+const DATASOURCE_TYPES = ['postgres', 'mysql', 'sqlite', 'sqlserver', 'mongodb', 'cockroachdb'];
+
 /** Convert a datasource name to a default env var, e.g. `analyticsdb` → `ANALYTICSDB_DATABASE_URL`. */
 const defaultUrlEnv = (name: string): string =>
   `${name.replace(/[^a-zA-Z0-9]+/g, '_').toUpperCase()}_DATABASE_URL`;
@@ -100,6 +103,22 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
               initialValue: 'prisma',
             }),
           ) as 'prisma' | 'custom'));
+    if (adapter !== 'prisma' && adapter !== 'custom') {
+      throw new Error(`--adapter must be "prisma" or "custom", got "${adapter}".`);
+    }
+
+    // ── type (Prisma only: picks the schema provider) ───────────────────────
+    const type =
+      opts.type ??
+      (adapter !== 'prisma' || opts.yes
+        ? undefined
+        : assertNotCancel<string>(
+            await clack.select<string>({
+              message: 'Database type',
+              options: DATASOURCE_TYPES.map((t) => ({ value: t, label: t })),
+              initialValue: 'postgres',
+            }),
+          ));
 
     // ── url env ─────────────────────────────────────────────────────────────
     // Required for Prisma (the connection string must come from somewhere).
@@ -165,7 +184,7 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
       dataSourcesDir: loaded.config.dataSourcesDir,
       urlEnv,
       generatedTypesImport: generatedImport,
-      type: opts.type,
+      type,
       default: makeDefault,
       prismaSchema: opts.prismaSchema,
       prismaConfig: opts.prismaConfig,
