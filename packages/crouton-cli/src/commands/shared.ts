@@ -2,7 +2,7 @@ import * as clack from '@clack/prompts';
 import type { Command } from 'commander';
 import pc from 'picocolors';
 
-import { assertNotCancel } from '../scaffold/scaffold-files';
+import { assertNotCancel } from '../prompts';
 import { resolve } from 'node:path';
 
 /** Options every cwd-touching command accepts. */

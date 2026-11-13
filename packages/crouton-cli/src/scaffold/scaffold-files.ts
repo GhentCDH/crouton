@@ -10,14 +10,9 @@ import pc from 'picocolors';
 
 import { resolveFromRoot } from '@ghentcdh/crouton-codegen';
 
-import { CancelledError } from '../update/resolver';
+import { CancelledError, assertNotCancel } from '../prompts';
 import { access, mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
-
-export const assertNotCancel = <T>(value: T | symbol): T => {
-  if (clack.isCancel(value)) throw new CancelledError();
-  return value as T;
-};
 
 const fileExists = async (p: string): Promise<boolean> => {
   try {

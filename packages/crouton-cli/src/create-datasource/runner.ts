@@ -16,8 +16,8 @@ import {
   loadDatasources,
 } from '@ghentcdh/crouton-codegen';
 
-import { assertNotCancel, writeScaffoldFiles } from '../scaffold/scaffold-files';
-import { CancelledError } from '../update/resolver';
+import { CancelledError, assertNotCancel } from '../prompts';
+import { writeScaffoldFiles } from '../scaffold/scaffold-files';
 import { resolve as pathResolve } from 'node:path';
 
 export interface CreateDatasourceOptions {
