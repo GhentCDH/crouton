@@ -33,7 +33,7 @@ Two independent version numbers:
 | `resource.json` `schemaVersion` | integer (`1`, `2`, …) | only when the file **shape** needs a migration |
 
 **During the alpha (`0.0.1-alpha.N`)** breaking changes can land in any release. Each one is listed in
-`migrate-to-next-alpha.md` (printed by `crouton migrate`) with before/after examples.
+`migrate-to-next-alpha.md` with before/after examples; `crouton migrate` applies them for you.
 
 **From the first stable release on**, the promise is:
 

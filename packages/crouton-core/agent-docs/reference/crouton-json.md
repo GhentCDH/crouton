@@ -40,7 +40,7 @@ Source of truth: `CroutonConfigSchema` in `@ghentcdh/crouton-core` (editor autoc
 | `i18n`             | `object`  | no       | Translation settings. Omit for a single-language app. See [`i18n`](#i18n).                                     |
 | `rules`            | `object`  | no       | Defaults used when columns are generated from a Prisma model. See [`rules`](#rules).                          |
 | `authProvidersDir` | `string`  | no       | Auth-provider modules, relative to `crouton.json`. Default `src/app/auth-providers`.                           |
-| `agentFiles`       | `object`  | no       | `{ "targets": ["claude", "cursor"] }` — which AI-agent file sets `crouton migrate` keeps in sync. Stored after the first run. |
+| `agentFiles`       | `object`  | no       | `{ "targets": ["claude", "cursor"] }` — which AI-agent file sets `crouton update resources` keeps in sync. Stored after the first run. |
 
 ## `rules`
 
