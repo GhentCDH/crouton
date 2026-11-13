@@ -43,6 +43,17 @@ describe('registerResourceExtension', () => {
 });
 
 describe('buildResourceJsonSchema', () => {
+  it('caches the schema until the extension registry changes', () => {
+    const first = buildResourceJsonSchema();
+    expect(buildResourceJsonSchema()).toBe(first);
+    registerResourceExtension('annotation', z.unknown());
+    const second = buildResourceJsonSchema();
+    expect(second).not.toBe(first);
+    expect(buildResourceJsonSchema()).toBe(second);
+    clearResourceExtensions();
+    expect(buildResourceJsonSchema()).not.toBe(second);
+  });
+
   it('strips an unregistered top-level key silently (backward compat)', () => {
     const result = ResourceJsonSchema.safeParse({ ...base, annotation: { color: '#fff' } });
     expect(result.success).toBe(true);

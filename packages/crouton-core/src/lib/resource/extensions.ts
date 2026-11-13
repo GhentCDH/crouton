@@ -9,11 +9,14 @@ const CORE_RESOURCE_KEYS = new Set([
 ]);
 
 const registry = new Map<string, ZodType>();
+// Bumped on every registry change so schema builders can cache per registry state.
+let registryStamp = 0;
 
 export const registerResourceExtension = (name: string, schema: ZodType): void => {
   if (CORE_RESOURCE_KEYS.has(name))
     throw new Error(`Extension "${name}" shadows a core resource key.`);
   registry.set(name, schema);
+  registryStamp++;
 };
 
 export const registerResourceExtensions = (map: Record<string, ZodType> = {}): void =>
@@ -21,7 +24,12 @@ export const registerResourceExtensions = (map: Record<string, ZodType> = {}): v
 
 export const getResourceExtensions = (): ReadonlyMap<string, ZodType> => registry;
 
-export const clearResourceExtensions = (): void => registry.clear();
+export const getResourceExtensionsStamp = (): number => registryStamp;
+
+export const clearResourceExtensions = (): void => {
+  registry.clear();
+  registryStamp++;
+};
 
 /** Pick only registered extension fields from an arbitrary object. */
 export const pickExtensions = (obj: unknown): Record<string, unknown> => {
