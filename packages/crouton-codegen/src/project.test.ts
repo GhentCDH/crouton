@@ -4,6 +4,7 @@ import type { CroutonConfig } from '@ghentcdh/crouton-core';
 
 import type { LoadedConfig } from './config';
 import {
+  discoverResourceEntries,
   isCustomResourceFile,
   listResourceNames,
   makeRelationResolver,
@@ -117,5 +118,22 @@ describe('makeRelationResolver', () => {
     expect(resolve('Author')).toBe('../author/resource.json'); // exists (accessor "author")
     expect(resolve('Language')).toBe('../language/resource.json');
     expect(resolve('Unknown')).toBeUndefined();
+  });
+});
+
+describe('discoverResourceEntries', () => {
+  it('lists top-level resources and nested sub-resources at any depth', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'crouton-discover-'));
+    await writeFile(join(root, 'crouton.json'), JSON.stringify(config));
+    const res = join(root, 'resources');
+    await mkdir(join(res, 'text', 'content', 'notes'), { recursive: true });
+    await mkdir(join(res, 'text', 'actions'), { recursive: true });
+    await writeFile(join(res, 'text', 'resource.json'), '{}');
+    await writeFile(join(res, 'text', 'content', 'resource.json'), '{}');
+    await writeFile(join(res, 'text', 'content', 'notes', 'resource.json'), '{}');
+
+    const names = (await discoverResourceEntries(root)).map((e) => e.name).sort();
+    // `text/actions` has no resource.json → not a sub-resource
+    expect(names).toEqual(['text', 'text/content', 'text/content/notes']);
   });
 });
