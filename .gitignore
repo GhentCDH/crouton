@@ -4,7 +4,6 @@
 dist
 tmp
 out-tsc
-plans/
 # dependencies
 node_modules
 
