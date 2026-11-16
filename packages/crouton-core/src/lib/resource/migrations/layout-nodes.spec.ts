@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { runResourceMigrations } from './index';
+import { migrateLayoutNodes as migrate } from './layout-nodes';
 
-import { migration_v1_to_v2 } from './migration-v1-to-v2';
-
-const migrate = (raw: Record<string, unknown>) =>
-  runResourceMigrations(raw, 2, [migration_v1_to_v2]).raw;
-
-describe('migration v1 → v2', () => {
+describe('layout-nodes codemod', () => {
   it('flat table: controls → items', () => {
     const result = migrate({
       layout: { table: { controls: ['title', 'author'], actions: [{ id: 'del' }] } },
@@ -81,7 +76,7 @@ describe('migration v1 → v2', () => {
         table: { controls: ['title'], actions: [{ id: 'x' }] },
       },
     });
-    const twice = runResourceMigrations(once, 2, [migration_v1_to_v2]).raw;
+    const twice = migrate(once);
     expect(twice).toEqual(once);
   });
 });

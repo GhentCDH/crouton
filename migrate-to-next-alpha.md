@@ -1039,7 +1039,7 @@ Sub-resource configs (inline children of a resource) also had a top-level `actio
 
 ---
 
-## `/schemas` API response changes (v2)
+## `/schemas` API response changes
 
 > **This section affects custom frontends or integrations that consume the `/schemas` HTTP endpoint directly.**
 

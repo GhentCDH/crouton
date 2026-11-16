@@ -7,7 +7,7 @@
  * `CURRENT_RESOURCE_VERSION` stays 1 during alpha, so files are not version-gated.
  */
 
-import { migration_v1_to_v2 } from './migration-v1-to-v2';
+import { migrateLayoutNodes } from './layout-nodes';
 import type { RawResourceJson } from './types';
 
 type Obj = Record<string, unknown>;
@@ -273,7 +273,7 @@ const deadFields: Transform = {
 /** `controls` → `items`, `actions` → `rowActions`, table settings → inner table node. */
 const layoutNodes: Transform = {
   name: 'layout controls → items, actions → rowActions',
-  run: (raw) => migration_v1_to_v2.migrate(raw),
+  run: migrateLayoutNodes,
 };
 
 /** Find the table node of `layout.table` (the wrapper itself, or its inner `type: "table"` item). */
