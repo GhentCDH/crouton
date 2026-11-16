@@ -11,6 +11,7 @@ import {
   Input,
   InputNumber,
   Loading,
+  Modal,
   SelectComponent,
   Textarea,
 } from '@ghentcdh/crouton-ui-vue';
@@ -20,6 +21,7 @@ const numberValue = ref(42);
 const textareaValue = ref('');
 const checkboxValue = ref(false);
 const selectValue = ref('');
+const modalOpen = ref(false);
 
 const selectOptions = [
   { value: 'a', label: 'Option A' },
@@ -122,6 +124,21 @@ const selectOptions = [
       <section>
         <h2 class="text-lg font-semibold mb-3 border-b pb-2">Loading</h2>
         <Loading :loading="true" />
+      </section>
+
+      <!-- Modal -->
+      <section>
+        <h2 class="text-lg font-semibold mb-3 border-b pb-2">Modal</h2>
+        <Btn color="primary" @click="modalOpen = true">Open modal</Btn>
+        <Modal modal-title="Example modal" :open="modalOpen" @close-modal="modalOpen = false">
+          <template #content>
+            Native &lt;dialog&gt;: Esc closes, focus is trapped and returned.
+          </template>
+          <template #actions>
+            <Btn color="secondary" outline @click="modalOpen = false">Cancel</Btn>
+            <Btn color="primary" @click="modalOpen = false">Save</Btn>
+          </template>
+        </Modal>
       </section>
 
     </div>
