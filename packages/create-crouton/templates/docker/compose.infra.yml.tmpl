@@ -1,6 +1,6 @@
 networks:
-  {{name}}-net:
-    name: {{name}}-net
+  {{network}}-net:
+    name: {{network}}-net
 
 services:
   postgres:
@@ -21,4 +21,4 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks: [{{name}}-net]
+    networks: [{{network}}-net]

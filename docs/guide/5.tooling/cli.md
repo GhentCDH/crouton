@@ -23,9 +23,10 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton update resources`             | Introspect the database and create/update `resource.json` files.     |
 | `crouton update translations`          | Regenerate and merge translation bundles (`--lang`, `--prune`).      |
 | `crouton init translations`            | Create translation files for every configured language (`--lang`).   |
-| `crouton create`                       | Asks whether to create a resource or a datasource.                   |
+| `crouton create`                       | Asks whether to create a resource, a datasource or a project.        |
 | `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
 | `crouton create datasource`            | Scaffold a new [datasource](../3.backend/data-sources.md).           |
+| `crouton create project [name]`        | Add a project to an existing codespace ([below](#crouton-create-project)). |
 | `crouton validate`                     | Validate every discovered `resource.json`.                           |
 | `crouton validate resources [paths…]`  | Validate the given files/directories (`--json`).                     |
 | `crouton migrate`                      | Runs `migrate resources`, then `migrate layout` (asks once).         |
@@ -157,6 +158,41 @@ resources/zotero_item/
 | `-p, --project <name>`  | Project to use ([choosing a project](#choosing-a-project))                                |
 | `--dry-run`             | Show the planned files without writing                                                    |
 | `-y, --yes`             | Accept all defaults (non-interactive)                                                     |
+
+## crouton create project
+
+Add another project — a backend app with its default datasource, plus an optional Vue frontend — to a codespace made
+with [`create-crouton`](../1.getting-started/index.md). Run it from the codespace root:
+
+```sh
+npx crouton create project archive
+npx crouton create project archive --dry-run   # list the files first
+```
+
+It asks the same questions as `create-crouton` (frontend, database URL) but skips everything workspace-wide: no root
+config, git init or dependency install. The layout is detected, not asked:
+
+| Layout | What it writes |
+|--------|----------------|
+| Nx (`nx.json` at the root) | A workspace under `archive/` (like `create-crouton --prefix archive`): `crouton.json`, `.env`, `apps/backend`, `apps/frontend`, `generated/default`, Dockerfiles, plus `compose.app.archive.yml` at the root. It registers the project in `pnpm-workspace.yaml`, `tsconfig.base.json` (`@archive/generated-default-*` paths) and the root `compose.yml` include. |
+| Regular (`package.json` + `crouton.json`) | A standalone NestJS app in `archive/` with its own `package.json` and Docker files. The root app is left untouched. |
+
+Backend and frontend ports are the next free ones after those found in the root and per-project `.env` /
+`compose.app.*.yml` files (3000/4200 count as taken). The new compose file joins the codespace's Docker network.
+
+| Flag | Description |
+|------|-------------|
+| `--frontend` / `--no-frontend` | Include the Vue frontend (Nx only; asked when omitted, default yes with `-y`) |
+| `--db-url <url>` | Connection URL written to the project's `.env` (default: a database named after the project on `localhost:5432`) |
+| `--no-docker` | Skip Docker files |
+| `--backend-port <n>`, `--frontend-port <n>` | Override the detected free ports |
+| `--cwd <dir>` | Codespace root |
+| `--dry-run` | List the files without writing |
+| `-y, --yes` | Accept all defaults (non-interactive) |
+| `--force` | Write into a non-empty project folder |
+
+Afterwards: create the database if needed, run `pnpm install` (regular: inside `archive/`), then
+`crouton update resources --project archive`.
 
 ## crouton update resources
 

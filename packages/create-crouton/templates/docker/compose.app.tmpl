@@ -1,6 +1,6 @@
 networks:
-  {{name}}-net:
-    name: {{name}}-net
+  {{network}}-net:
+    name: {{network}}-net
 
 services:
 {{#if frontend}}  {{appName}}-frontend:
@@ -19,7 +19,7 @@ services:
       - .:/app
       - /app/node_modules
       - /app/.nx
-    networks: [{{name}}-net]
+    networks: [{{network}}-net]
 {{/if}}{{#if nx}}  {{appName}}-backend:
     build:
       context: .
@@ -35,7 +35,7 @@ services:
       - .:/app
       - /app/node_modules
       - /app/.nx
-    networks: [{{name}}-net]
+    networks: [{{network}}-net]
 {{/if}}{{#if regular}}  {{appName}}-backend:
     build:
       context: .
@@ -48,5 +48,5 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    networks: [{{name}}-net]
+    networks: [{{network}}-net]
 {{/if}}
