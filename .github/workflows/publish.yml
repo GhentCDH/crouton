@@ -14,11 +14,12 @@ jobs:
     # nx.json release.projects is published by one command.
     uses: ./.github/workflows/shared-publish-npm.yml
     with:
-      # A prerelease tag (v0.2.0-alpha.1) publishes under the `alpha` dist-tag so
-      # it never becomes `latest`; a plain version (v0.1.0) publishes as `latest`.
+      # A prerelease tag never becomes `latest`: v0.2.0-rc.1 publishes under the
+      # `rc` dist-tag, any other prerelease (v0.2.0-alpha.1) under `alpha`.
+      # A plain version (v0.1.0) publishes as `latest`.
       publish-args: >-
         --access public --verbose
-        ${{ contains(github.ref_name, '-') && '--tag alpha' || '' }}
+        ${{ contains(github.ref_name, '-rc.') && '--tag rc' || (contains(github.ref_name, '-') && '--tag alpha' || '') }}
     permissions:
       contents: read
       id-token: write
