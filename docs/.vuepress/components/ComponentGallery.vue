@@ -15,6 +15,7 @@ import {
   SelectComponent,
   Textarea,
 } from '@ghentcdh/crouton-ui-vue';
+import { DatePicker } from '@ghentcdh/crouton-forms-vue';
 
 const textValue = ref('');
 const numberValue = ref(42);
@@ -22,6 +23,8 @@ const textareaValue = ref('');
 const checkboxValue = ref(false);
 const selectValue = ref('');
 const modalOpen = ref(false);
+const dateValue = ref<string | undefined>('2026-08-14T00:00:00.000Z');
+const dateTimeValue = ref<string | undefined>();
 
 const selectOptions = [
   { value: 'a', label: 'Option A' },
@@ -124,6 +127,18 @@ const selectOptions = [
       <section>
         <h2 class="text-lg font-semibold mb-3 border-b pb-2">Loading</h2>
         <Loading :loading="true" />
+      </section>
+
+      <!-- Date picker -->
+      <section>
+        <h2 class="text-lg font-semibold mb-3 border-b pb-2">Date picker</h2>
+        <div class="flex flex-wrap gap-4 items-start">
+          <DatePicker v-model="dateValue" label="Date" width="w-64" />
+          <DatePicker v-model="dateTimeValue" label="Date + time" :with-time="true" width="w-64" />
+          <DatePicker v-model="dateValue" label="Bounded (Aug 2026)" min="2026-08-01" max="2026-08-31" width="w-64" />
+          <DatePicker v-model="dateValue" label="Disabled" :enabled="false" width="w-64" />
+        </div>
+        <p class="text-sm opacity-60 mt-2">Value: {{ dateValue ?? '—' }}</p>
       </section>
 
       <!-- Modal -->
