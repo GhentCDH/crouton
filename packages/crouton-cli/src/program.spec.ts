@@ -2,7 +2,7 @@ import type { Command } from 'commander';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { createProgram } from './program';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
 const EXAMPLE = resolve(__dirname, '../../../examples/book-collection');
@@ -30,7 +30,7 @@ const run = async (args: string[]) => {
   return { out, exitCode };
 };
 
-const status = () => execSync(`git status --porcelain -- ${EXAMPLE}`, { encoding: 'utf8' });
+const status = () => execFileSync('git', ['status', '--porcelain', '--', EXAMPLE], { encoding: 'utf8' });
 
 describe('crouton CLI', () => {
   const paths = commandPaths(createProgram());
