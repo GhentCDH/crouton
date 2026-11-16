@@ -15,6 +15,7 @@ export type {
 } from './forms/FormComponent.properties';
 
 export { default as ReadonlyLabel } from './forms/renderers/controls/readonly/ReadonlyLabel.vue';
+export { default as DatePicker } from './forms/renderers/controls/date/DatePicker.vue';
 export { default as ControlLabel } from './forms/renderers/controls/ControlLabel.vue';
 
 export type { ErrorMode } from './forms/errorMode';

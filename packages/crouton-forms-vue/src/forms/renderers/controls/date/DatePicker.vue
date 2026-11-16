@@ -1,6 +1,6 @@
 <template>
   <ControlWrapper v-bind="wrapperProps">
-    <div ref="rootRef" class="dropdown" :class="{ 'dropdown-open': open }">
+    <div ref="rootRef" class="relative inline-block">
       <div class="flex items-center gap-1">
         <input
           :id="id"
@@ -23,11 +23,17 @@
         />
       </div>
 
+      <!-- Top-layer popover: never clipped by a modal's overflow. -->
+      <div
+        ref="popoverRef"
+        popover="manual"
+        class="m-0 p-0 border-0 bg-transparent overflow-visible z-[9999]"
+        :style="popoverStyle"
+      >
       <div
         v-if="open"
-        class="dropdown-content rounded-box bg-base-100 z-10 mt-1 w-72 p-3 shadow-lg"
+        class="rounded-box bg-base-100 w-72 p-3 shadow-lg"
         role="dialog"
-        aria-modal="false"
         :aria-label="label ?? 'Choose a date'"
       >
         <div class="mb-2 flex items-center justify-between gap-1">
@@ -126,18 +132,15 @@
           </button>
         </div>
       </div>
+      </div>
     </div>
   </ControlWrapper>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
-import {
-  addClickOutsideEventListener,
-  ControlWrapper,
-  removeClickOutsideEventListener,
-} from '@ghentcdh/crouton-ui-vue';
+import { ControlWrapper, useAnchoredPopover } from '@ghentcdh/crouton-ui-vue';
 
 import {
   DATE_PICKER_OWN_PROPS,
@@ -162,6 +165,7 @@ const props = defineProps(DatePickerProperties);
 const emit = defineEmits(DatePickerEmits);
 
 const rootRef = ref<HTMLElement | null>(null);
+const popoverRef = ref<HTMLElement | null>(null);
 const inputRef = ref<HTMLInputElement | null>(null);
 const open = ref(false);
 /** `yyyy-MM-dd` of the cell holding the roving tabindex while the popover is open. */
@@ -238,32 +242,24 @@ const cellClass = (cell: DateGridCell) => {
   return 'btn-ghost';
 };
 
-let clickOutsideListener: ReturnType<typeof addClickOutsideEventListener> =
-  null;
-
-const teardownClickOutside = () => {
-  if (!clickOutsideListener) return;
-  removeClickOutsideEventListener(clickOutsideListener);
-  clickOutsideListener = null;
-};
-
 const openPicker = () => {
   if (!props.enabled) return;
   view.value = initialView();
   open.value = true;
-  nextTick(() => {
-    if (rootRef.value && !clickOutsideListener) {
-      clickOutsideListener = addClickOutsideEventListener(rootRef.value, close);
-    }
-  });
 };
 
 const close = () => {
   if (!open.value) return;
   open.value = false;
   focusKey.value = null;
-  teardownClickOutside();
 };
+
+const { style: popoverStyle } = useAnchoredPopover({
+  anchorRef: rootRef,
+  popoverRef,
+  isOpen: open,
+  onDismiss: close,
+});
 
 // Only swallow Escape when it actually closes the picker, so a surrounding
 // modal still closes on Escape when the picker is already closed.
@@ -376,5 +372,4 @@ watch(
   },
 );
 
-onBeforeUnmount(teardownClickOutside);
 </script>
