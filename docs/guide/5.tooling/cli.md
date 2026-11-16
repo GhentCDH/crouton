@@ -28,20 +28,36 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton create datasource`            | Scaffold a new [datasource](../3.backend/data-sources.md).           |
 | `crouton validate`                     | Validate every discovered `resource.json`.                           |
 | `crouton validate resources [paths…]`  | Validate the given files/directories (`--json`).                     |
-| `crouton migrate`                      | Print the [migration guide](./migrate.md).                           |
-| `crouton migrate resources` / `layout` | Print the migration guide (codemods are on the way).                 |
+| `crouton migrate`                      | Runs `migrate resources`, then `migrate layout` (asks once).         |
+| `crouton migrate resources`            | Rewrite every `resource.json` to the current shape ([upgrading](./migrate.md)). |
+| `crouton migrate layout`               | Rewrite only layout nodes (`controls` → `items`, `actions` → `rowActions`, …). |
 
 Common options, accepted by every command that touches a project:
 
 | Option                 | Effect                                                              |
 |------------------------|---------------------------------------------------------------------|
 | `--cwd <dir>`          | Project directory (defaults to the current directory).              |
-| `-p, --project <name>` | Project subfolder — resolves the directory to `<cwd>/<name>`.        |
+| `-p, --project <name>` | Project to use: a subfolder of `--cwd` holding a `crouton.json`.     |
 | `--dry-run`            | Show the planned changes without writing files.                     |
 | `-y, --yes`            | Accept all recommended defaults (non-interactive).                  |
 
-Aggregates (`crouton update`) only take the common options; noun flags such as `--prune` or `--datasource` stay on the
+Aggregates (`crouton update`, `crouton migrate`, …) only take the common options; noun flags such as `--prune` or `--datasource` stay on the
 nouns and are never applied implicitly.
+
+### Choosing a project
+
+Every command works on one project — a folder with a `crouton.json`. It is resolved once per invocation:
+
+1. `--project <name>` → the subfolder of `--cwd` with that name (an unknown name lists the available ones).
+2. The current directory, or one of its parents, has a `crouton.json` → that project.
+3. Otherwise the immediate subfolders of the current directory are scanned: one project is used as-is, several open a
+   picker. With `-y` (or `validate resources --json`) several projects are an error that lists them — pass `--project`.
+
+```sh
+# monorepo with apps/ and admin/ each holding a crouton.json
+cd my-workspace
+npx crouton update resources --project admin
+```
 
 ## crouton.json
 
@@ -101,8 +117,10 @@ overwriting existing ones):
 | `prisma/<name>/schema.prisma`              | Per-datasource schema with **unique** client and zod outputs, so multiple datasources never collide. |
 | `prisma/<name>/prisma.config.ts`           | Binds this datasource's `urlEnv` (Prisma 7 reads the URL here, not from the schema).                 |
 
-The first datasource in a project becomes the default; later ones are non-default unless you pass `--default` (and only
-one datasource may be default). Useful flags: `--type` (postgres/mysql/sqlite/…), `--zod-output`, `--prisma-schema`,
+Without flags it asks for the name, the adapter (`prisma` or `custom`), the database type (Prisma only), the connection
+env var and the generated-types import. The first datasource in a project becomes the default; later ones are
+non-default unless you pass `--default` (and only one datasource may be default). Useful flags: `-a/--adapter`
+(`prisma`/`custom`), `--type` (postgres/mysql/sqlite/…), `--zod-output`, `--prisma-schema`,
 `--prisma-config`, `--client-output`, `--cwd`, `--dry-run`, `-y/--yes`.
 
 After scaffolding: add the `urlEnv` to your `.env`, map the `generatedTypesImport` to the zod output in your tsconfig
@@ -117,7 +135,9 @@ declaratively while you implement the data access.
 npx crouton create resource zotero_item
 ```
 
-Writes two files, and never overwrites an existing one:
+Without flags it asks for the name, route, tag, title (each prefilled with its default — press Enter to keep it), the
+datasource for `ctx.prisma` and the primary-key type; `-y` keeps every default. Writes two files, and never overwrites
+an existing one:
 
 ```
 resources/zotero_item/
@@ -134,7 +154,7 @@ resources/zotero_item/
 | `-d, --database <name>` | Datasource exposed to the repository as `ctx.prisma`                                      |
 | `--id-type <type>`      | `string` (default) or `number`                                                            |
 | `--cwd <dir>`           | Project directory                                                                         |
-| `-p, --project <name>`  | Project subfolder                                                                         |
+| `-p, --project <name>`  | Project to use ([choosing a project](#choosing-a-project))                                |
 | `--dry-run`             | Show the planned files without writing                                                    |
 | `-y, --yes`             | Accept all defaults (non-interactive)                                                     |
 

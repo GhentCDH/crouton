@@ -45,7 +45,7 @@ export const CroutonConfigSchema = z.object({
   authProvidersDir: z.string().optional().describe('Path to auth-provider modules, relative to the config file directory. Defaults to "src/app/auth-providers".'),
   agentFiles: z.object({
     targets: z.array(z.enum(['claude', 'cursor'])).optional().describe('Which agent file sets to manage. Defaults to those already present in the project, or both on first run.'),
-  }).optional().describe('Agent file sync configuration for `crouton migrate`. Stored after the first run.'),
+  }).optional().describe('Agent file sync configuration for `crouton update resources`. Stored after the first run.'),
 });
 
 export type CroutonConfig = z.infer<typeof CroutonConfigSchema>;
