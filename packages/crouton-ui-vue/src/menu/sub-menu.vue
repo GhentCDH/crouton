@@ -45,6 +45,11 @@ import { ref, useId } from 'vue';
 
 import MenuItem from './menu-item.vue';
 import { SubMenuProperties } from './sub-menu.properties';
+import {
+  anchoredStyle,
+  fixedStyleBelow,
+  supportsAnchorPositioning,
+} from '../composables/anchorPosition';
 import { Icon, IconEnum } from '../icons';
 
 defineProps(SubMenuProperties);
@@ -54,19 +59,15 @@ const buttonRef = ref<HTMLButtonElement>();
 const popoverRef = ref<HTMLDivElement>();
 const style = ref<Record<string, string>>({});
 
-// Place the list under the button, right-aligned. `beforetoggle` fires before
-// the popover is painted, so it never flashes at the default centred position.
-// ponytail: JS positioning; switch to CSS anchor positioning once Baseline.
+// Place the list under the button, right-aligned. The button is the popover's
+// implicit anchor (popovertarget), so CSS anchor positioning needs no JS. The
+// fallback runs in `beforetoggle`, before the popover is painted, so it never
+// flashes at the default centred position.
 const onBeforeToggle = (event: Event) => {
   if ((event as ToggleEvent).newState !== 'open' || !buttonRef.value) return;
-  const rect = buttonRef.value.getBoundingClientRect();
-  style.value = {
-    position: 'fixed',
-    left: 'auto',
-    bottom: 'auto',
-    top: `${rect.bottom + 4}px`,
-    right: `${window.innerWidth - rect.right}px`,
-  };
+  style.value = supportsAnchorPositioning()
+    ? anchoredStyle('end')
+    : fixedStyleBelow(buttonRef.value, 'end');
 };
 
 // Close after choosing an item (links and buttons); a nested submenu trigger
