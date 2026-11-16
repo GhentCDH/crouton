@@ -2,6 +2,7 @@ import { type Component, type Ref, markRaw, ref } from 'vue';
 
 import type {
   Action,
+  ActionResult,
   ResourceActionCondition,
   ResourceDefinition,
   TableAction as TableActionDef,
@@ -38,7 +39,28 @@ type TableNode = {
   options?: TableNodeOptions;
 };
 
-type HttpMethod = (uri: string, params?: unknown) => Promise<{ data: { success?: boolean; message?: string } }>;
+type HttpMethod = (uri: string, params?: unknown) => Promise<{ data: Partial<ActionResult> }>;
+
+/**
+ * Map an action response body to a status banner. A non-success `severity`
+ * lets the dynamic `data.message` win over the configured static message.
+ */
+export const resultStatus = (
+  data: Partial<ActionResult> | undefined,
+  ok: boolean,
+  messages: { successMessage?: string; errorMessage?: string },
+): ActionStatus => {
+  const { t } = useLanguage();
+  const type = data?.severity ?? (ok ? 'success' : 'error');
+  const configured = ok ? messages.successMessage : messages.errorMessage;
+  const fallback = ok
+    ? t('notifications.actionSuccess', 'Done')
+    : t('notifications.actionFailed', 'Action failed');
+  const text = data?.severity && data.severity !== 'success'
+    ? (data?.message ?? configured ?? fallback)
+    : (configured ?? data?.message ?? fallback);
+  return { text, type };
+};
 
 type FormConfig = {
   onClose?: (result: FormModalResult | undefined) => Promise<void> | void;
@@ -303,12 +325,9 @@ export const backendAction = (
     const _fetch = (fetch as unknown as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
     return _fetch(replaceUriParams(uri, defaultUriParams), defaultUriParams)
       .then(async ({ data }) => {
-        if (data.success) {
-          await resource.reload();
-          setStatus?.({ text: procedureAction.successMessage ?? data.message ?? t('notifications.actionSuccess', 'Done'), type: 'success' });
-        } else {
-          setStatus?.({ text: procedureAction.errorMessage ?? data.message ?? t('notifications.actionFailed', 'Action failed'), type: 'error' });
-        }
+        const ok = !!data.success;
+        if (ok) await resource.reload();
+        setStatus?.(resultStatus(data, ok, procedureAction));
       })
       .catch(() => {
         setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });
@@ -412,14 +431,9 @@ export const tableActions = (
       const _fetch = (fetch as unknown as Record<string, unknown>)[action.method ?? 'post'] as HttpMethod;
       return _fetch(action.uri, action.data ?? {})
         .then(async ({ data }) => {
-          if (data?.success !== false) {
-            await resource.reload();
-            const msg = procedureAction.successMessage ?? data?.message ?? t('notifications.actionSuccess', 'Done');
-            setStatus?.({ text: msg, type: 'success' });
-          } else {
-            const msg = procedureAction.errorMessage ?? data?.message ?? t('notifications.actionFailed', 'Action failed');
-            setStatus?.({ text: msg, type: 'error' });
-          }
+          const ok = data?.success !== false;
+          if (ok) await resource.reload();
+          setStatus?.(resultStatus(data, ok, procedureAction));
         })
         .catch(() => {
           setStatus?.({ text: t('notifications.actionError', 'Something went wrong, please try again'), type: 'error' });

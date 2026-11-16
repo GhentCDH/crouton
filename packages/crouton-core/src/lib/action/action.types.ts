@@ -80,3 +80,17 @@ export const isRowProcedureAction = (
 export const isTableProcedureAction = (
   action: ResourceTableAction,
 ): action is ResourceTableProcedureAction => action.type !== 'link';
+
+// ── Action result contract ─────────────────────────────────────────────────
+
+/**
+ * Response body a procedure action (row or table) may return.
+ * `severity` defaults to `success`/`error` based on `success`. When it is not
+ * `'success'`, the dynamic `message` overrides the configured static message.
+ */
+export interface ActionResult<T = unknown> {
+  success: boolean;
+  severity?: 'success' | 'warning' | 'error';
+  message?: string;
+  record?: T;
+}

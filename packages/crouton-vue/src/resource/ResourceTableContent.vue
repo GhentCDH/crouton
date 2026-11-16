@@ -78,11 +78,12 @@
         :class="{
           'text-green-700':  resource.lastAction.type === 'success',
           'text-error':      resource.lastAction.type === 'error',
-          'text-amber-600':  resource.lastAction.type === 'pending',
+          'text-amber-600':  resource.lastAction.type === 'pending' || resource.lastAction.type === 'warning',
         }"
       >
         <span v-if="resource.lastAction.type === 'pending'">⏳</span>
         <span v-else-if="resource.lastAction.type === 'success'">✓</span>
+        <span v-else-if="resource.lastAction.type === 'warning'">⚠️</span>
         <span v-else>✗</span>
         {{ resource.lastAction.text }}
       </span>
