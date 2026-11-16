@@ -52,10 +52,21 @@
           }"
         >
           <!-- Highlight matching text -->
-          <span
-            class="whitespace-nowrap"
-            v-html="highlight(isActive(item), item.label, query ?? '')"
-          />
+          <span class="whitespace-nowrap">
+            <template
+              v-for="(part, p) in splitHighlight(
+                item.label,
+                isActive(item) ? '' : (query ?? ''),
+              )"
+              :key="p"
+            >
+              <mark
+                v-if="part.match"
+                class="bg-warning/40 text-inherit rounded-sm px-0.5"
+              >{{ part.text }}</mark>
+              <template v-else>{{ part.text }}</template>
+            </template>
+          </span>
           <!-- Active checkmark -->
           <svg
             v-if="isActive(item)"
@@ -79,6 +90,8 @@
 </template>
 <script lang="ts" setup>
 import { nextTick, ref, watch } from 'vue';
+
+import { splitHighlight } from './highlight';
 
 import {
   ListProperties,
@@ -140,16 +153,4 @@ function select(item: OptionValue) {
 }
 
 defineExpose({ handleKeydown });
-</script>
-
-<script lang="ts">
-// ─── Highlight helper (outside setup so it's available in template) ───────────
-function highlight(isActive: boolean, text: string, query: string) {
-  if (isActive || !query) return text;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return text.replace(
-    new RegExp(`(${escaped})`, 'gi'),
-    '<mark class="bg-warning/40 text-inherit rounded-sm px-0.5">$1</mark>',
-  );
-}
 </script>
