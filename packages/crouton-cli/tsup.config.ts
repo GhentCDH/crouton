@@ -1,6 +1,7 @@
 import { defineConfig } from 'tsup';
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 
 
 const outDir = './dist';
@@ -31,16 +32,21 @@ export default defineConfig([
     // `@prisma/internals` is the one exception: it is huge, imported lazily by
     // the codegen engine, and stays a real runtime dependency (declared in the
     // emitted dist package.json) so it resolves from the installed package.
-    noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen'],
+    noExternal: ['commander', '@clack/prompts', 'picocolors', '@ghentcdh/crouton-codegen', '@ghentcdh/create-crouton'],
     external: ['@prisma/internals'],
     // Resolve workspace `@ghentcdh/*` packages to their TS source (their dist
     // `exports` point at the root `dist/` with paths esbuild rejects). Mirrors
     // how crouton-api bundles crouton-core.
     esbuildOptions: sharedEsbuildOptions,
+    define: {
+      __CROUTON_VERSION__: JSON.stringify(JSON.parse(readFileSync('./package.json', 'utf8')).version),
+    },
     // Emit a self-contained package.json into dist so the folder is both a
     // publishable unit (`npm publish ../../dist/crouton-cli`) and a valid
     // `file:` link target for consumers (e.g. new_polities).
     async onSuccess() {
+      // `crouton create project` renders create-crouton's templates (resolved next to dist/index.js).
+      await cp('../create-crouton/templates', `${outDir}/templates`, { recursive: true });
       const pkg = JSON.parse(await readFile('./package.json', 'utf8'));
       const distPkg = {
         name: pkg.name,

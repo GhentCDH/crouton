@@ -36,7 +36,7 @@ export interface CreateOptions {
  * live next to the compiled index.js in dist/templates/. During development
  * via ts-node or similar, they are at ../templates/ relative to src/.
  */
-const resolveTemplateDir = (): string => {
+export const resolveTemplateDir = (): string => {
   const thisDir =
     typeof __dirname !== 'undefined'
       ? __dirname
@@ -50,8 +50,109 @@ const resolveTemplateDir = (): string => {
 const capitalize = (s: string): string =>
   s.charAt(0).toUpperCase() + s.slice(1);
 
-const toTitle = (name: string): string =>
+export const toTitle = (name: string): string =>
   name.replace(/[-_]+/g, ' ').split(' ').map(capitalize).join(' ');
+
+export interface TokenInput {
+  name: string;
+  layout: 'nx' | 'regular';
+  prefix?: string;
+  frontend: boolean;
+  postgres: boolean;
+  dbUrl: string;
+  pm: PackageManager;
+  /** Docker network prefix; defaults to `name` (an added project joins the codespace's network). */
+  network?: string;
+  backendPort?: number;
+  frontendPort?: number;
+}
+
+/** Template tokens shared by `create-crouton` and `crouton create project`. */
+export const buildTokens = (t: TokenInput): Record<string, string> => {
+  const { name, layout, prefix, frontend, postgres, pm } = t;
+  const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
+  const appName = prefix || name;
+  const tokens: Record<string, string> = {
+    name,
+    Name: toTitle(name),
+    version:
+      typeof __CROUTON_VERSION__ !== 'undefined'
+        ? __CROUTON_VERSION__
+        : 'latest',
+    year: String(new Date().getFullYear()),
+    pmRun: pm === 'npm' ? 'npm run' : pm,
+    urlEnv: 'DATABASE_URL',
+    dbUrl:
+      t.dbUrl ||
+      `postgresql://crouton:crouton@localhost:5432/${dbName}?schema=public`,
+    dbName,
+    appName,
+    network: t.network ?? name,
+    frontendPort: String(t.frontendPort ?? 4200),
+    backendPort: String(t.backendPort ?? 3000),
+  };
+  if (layout === 'nx') {
+    tokens['nx'] = 'true';
+    tokens['backendApp'] = `${appName}-backend`;
+    tokens['frontendApp'] = `${appName}-frontend`;
+    tokens['workspaceRoot'] = prefix || '.';
+    tokens['dockerfileDev'] = prefix
+      ? `${prefix}/Dockerfile.dev`
+      : 'Dockerfile.dev';
+    tokens['envFile'] = prefix ? `${prefix}/.env` : '.env';
+    tokens['generatedGlob'] = prefix
+      ? `${prefix}/generated/default`
+      : 'generated/default';
+
+    if (prefix) {
+      tokens['prefix'] = prefix;
+      tokens['appsRoot'] = `${prefix}/apps`;
+      tokens['schemaPath'] =
+        '../../../node_modules/nx/schemas/project-schema.json';
+      tokens['tsconfigBase'] = '../../../tsconfig.base.json';
+      tokens['generatedTypesPath'] = `${prefix}/generated/default/types/src`;
+      tokens['generatedClientPath'] = `${prefix}/generated/default/client`;
+    } else {
+      tokens['noPrefix'] = 'true';
+      tokens['appsRoot'] = 'apps';
+      tokens['schemaPath'] =
+        '../../node_modules/nx/schemas/project-schema.json';
+      tokens['tsconfigBase'] = '../../tsconfig.base.json';
+      tokens['generatedTypesPath'] = 'generated/default/types/src';
+      tokens['generatedClientPath'] = 'generated/default/client';
+    }
+  } else {
+    tokens['regular'] = 'true';
+    tokens['dockerfileDev'] = 'Dockerfile.dev';
+    tokens['envFile'] = '.env';
+  }
+  if (frontend) tokens['frontend'] = 'true';
+  if (layout === 'nx' && frontend) tokens['nxFrontend'] = 'true';
+  if (layout === 'nx' && !frontend) tokens['nxBackendOnly'] = 'true';
+  if (postgres) tokens['postgres'] = 'true';
+  return tokens;
+};
+
+/** The default datasource for a project rooted at `baseDir` (`name` = package scope in Nx). */
+export const datasourceFiles = (
+  layout: 'nx' | 'regular',
+  name: string,
+  baseDir: string,
+): FileEntry[] => {
+  const nx = layout === 'nx';
+  const { files } = buildDatasourceFiles({
+    name: 'default',
+    dataSourcesDir: nx ? 'apps/backend/src/app/data-sources' : 'src/data-sources',
+    urlEnv: 'DATABASE_URL',
+    generatedTypesImport: nx ? `@${name}/generated-default-types` : '@app/generated/default/types',
+    generatedClientImport: nx ? `@${name}/generated-default-client` : '@app/generated/default/client',
+    type: 'postgres',
+    default: true,
+    zodOutput: 'generated/default/types/src',
+    clientOutput: 'generated/default/client',
+  });
+  return files.map((f) => ({ path: resolve(baseDir, f.path), contents: f.contents }));
+};
 
 export const runCreate = async (
   name: string,
@@ -89,73 +190,7 @@ export const runCreate = async (
       opts.docker !== false && !dbUrl ? await resolvePostgres(opts) : false;
 
     // 3. Resolve tokens
-    const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
-    const appName = prefix || name;
-    const tokens: Record<string, string> = {
-      name,
-      Name: toTitle(name),
-      version:
-        typeof __CROUTON_VERSION__ !== 'undefined'
-          ? __CROUTON_VERSION__
-          : 'latest',
-      year: String(new Date().getFullYear()),
-      pmRun: pm === 'npm' ? 'npm run' : pm,
-      urlEnv: 'DATABASE_URL',
-      dbUrl:
-        dbUrl ||
-        `postgresql://crouton:crouton@localhost:5432/${dbName}?schema=public`,
-      dbName,
-      appName,
-      frontendPort: '4200',
-      backendPort: '3000',
-    };
-    if (layout === 'nx') {
-      tokens['nx'] = 'true';
-      tokens['backendApp'] = `${appName}-backend`;
-      tokens['frontendApp'] = `${appName}-frontend`;
-      tokens['workspaceRoot'] = prefix || '.';
-      tokens['dockerfileDev'] = prefix
-        ? `${prefix}/Dockerfile.dev`
-        : 'Dockerfile.dev';
-      tokens['envFile'] = prefix ? `${prefix}/.env` : '.env';
-      tokens['generatedGlob'] = prefix
-        ? `${prefix}/generated/default`
-        : 'generated/default';
-
-      if (prefix) {
-        tokens['prefix'] = prefix;
-        tokens['appsRoot'] = `${prefix}/apps`;
-        tokens['schemaPath'] =
-          '../../../node_modules/nx/schemas/project-schema.json';
-        tokens['tsconfigBase'] = '../../../tsconfig.base.json';
-        tokens['generatedTypesPath'] = `${prefix}/generated/default/types/src`;
-        tokens['generatedClientPath'] = `${prefix}/generated/default/client`;
-      } else {
-        tokens['noPrefix'] = 'true';
-        tokens['appsRoot'] = 'apps';
-        tokens['schemaPath'] =
-          '../../node_modules/nx/schemas/project-schema.json';
-        tokens['tsconfigBase'] = '../../tsconfig.base.json';
-        tokens['generatedTypesPath'] = 'generated/default/types/src';
-        tokens['generatedClientPath'] = 'generated/default/client';
-      }
-    } else {
-      tokens['regular'] = 'true';
-      tokens['dockerfileDev'] = 'Dockerfile.dev';
-      tokens['envFile'] = '.env';
-    }
-    if (frontend) {
-      tokens['frontend'] = 'true';
-    }
-    if (layout === 'nx' && frontend) {
-      tokens['nxFrontend'] = 'true';
-    }
-    if (layout === 'nx' && !frontend) {
-      tokens['nxBackendOnly'] = 'true';
-    }
-    if (postgres) {
-      tokens['postgres'] = 'true';
-    }
+    const tokens = buildTokens({ name, layout, prefix, frontend, postgres, dbUrl, pm });
 
     // 4. Read + render templates
     const templateRoot = resolveTemplateDir();
@@ -201,28 +236,7 @@ export const runCreate = async (
       }
 
       // 5. Generate datasource files
-      const dataSourcesDir = 'apps/backend/src/app/data-sources';
-      const generatedImport = `@${name}/generated-default-types`;
-      const generatedClientImport = `@${name}/generated-default-client`;
-
-      const { files: dsFiles } = buildDatasourceFiles({
-        name: 'default',
-        dataSourcesDir,
-        urlEnv: 'DATABASE_URL',
-        generatedTypesImport: generatedImport,
-        generatedClientImport,
-        type: 'postgres',
-        default: true,
-        zodOutput: 'generated/default/types/src',
-        clientOutput: 'generated/default/client',
-      });
-
-      for (const f of dsFiles) {
-        files.push({
-          path: resolve(workspaceTarget, f.path),
-          contents: f.contents,
-        });
-      }
+      files.push(...datasourceFiles('nx', name, workspaceTarget));
 
       // 6. Write all files
       const written = await writeFiles(files, { force: opts.force });
@@ -254,25 +268,7 @@ export const runCreate = async (
       }
 
       // Generate datasource files
-      const dataSourcesDir = 'src/data-sources';
-      const generatedImport = '@app/generated/default/types';
-      const generatedClientImport = '@app/generated/default/client';
-
-      const { files: dsFiles } = buildDatasourceFiles({
-        name: 'default',
-        dataSourcesDir,
-        urlEnv: 'DATABASE_URL',
-        generatedTypesImport: generatedImport,
-        generatedClientImport,
-        type: 'postgres',
-        default: true,
-        zodOutput: 'generated/default/types/src',
-        clientOutput: 'generated/default/client',
-      });
-
-      for (const f of dsFiles) {
-        files.push({ path: resolve(targetDir, f.path), contents: f.contents });
-      }
+      files.push(...datasourceFiles('regular', name, targetDir));
 
       // Write all files
       const written = await writeFiles(files, { force: opts.force });
@@ -311,7 +307,7 @@ export const runCreate = async (
  * compose files → targetDir (repo root)
  * Dockerfiles → workspaceTarget (next to crouton.json)
  */
-const renderDockerTemplates = async (
+export const renderDockerTemplates = async (
   templateRoot: string,
   tokens: Record<string, string>,
   targetDir: string,
@@ -576,7 +572,7 @@ const resolvePostgres = async (opts: CreateOptions): Promise<boolean> => {
  * Recursively load all .tmpl files from a template directory, render them,
  * and return FileEntry[] with absolute paths in the target directory.
  */
-const loadAndRenderTemplates = async (
+export const loadAndRenderTemplates = async (
   templateDir: string,
   subPath: string,
   tokens: Record<string, string>,
