@@ -154,8 +154,13 @@ const close = () => {
 
 const onKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
+    // Only swallow Esc when it closes the dropdown; preventDefault() stops a
+    // surrounding native <dialog> from also closing (stopPropagation does not).
+    if (props.isOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     close();
-    e.stopPropagation();
     return;
   }
   listResultsRef.value?.handleKeydown(e);

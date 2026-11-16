@@ -5,11 +5,11 @@ import { Harness } from './Harness';
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `Modal` component.
  *
- * Renders `<dialog role="dialog" aria-labelledby="{titleId}">` containing an
+ * Renders a native `<dialog aria-labelledby="{titleId}">` (implicit dialog role) containing an
  * `<h3 id="{titleId}">{{ modalTitle }}</h3>`, an `aria-label="Close"` button
  * (unless `disableClose`), and `#content` / `#actions` slots.
  *
- * The native `<dialog>` element handles focus trap + Esc + backdrop click for
+ * The native `<dialog>` (opened with `showModal()`) handles focus trap + Esc for
  * us; the harness exposes the surface needed to assert that behavior.
  */
 export class ModalHarness extends Harness {

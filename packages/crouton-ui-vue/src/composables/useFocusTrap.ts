@@ -14,6 +14,11 @@ export type UseFocusTrapOptions = {
   restoreFocus?: boolean;
 };
 
+/**
+ * @deprecated Use a native `<dialog>` opened with `showModal()` instead — it
+ * provides focus containment, Esc handling and focus return. No longer used by
+ * `Modal`; kept only for backwards compatibility and will be removed.
+ */
 export const useFocusTrap = ({
   containerRef,
   isActive,
