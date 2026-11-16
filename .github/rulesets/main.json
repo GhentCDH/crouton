@@ -4,8 +4,8 @@
   "enforcement": "active",
   "bypass_actors": [
     {
-      "actor_id": 5,
-      "actor_type": "RepositoryRole",
+      "actor_id": 10315561,
+      "actor_type": "Team",
       "bypass_mode": "always"
     }
   ],
@@ -23,16 +23,6 @@
     },
     {
       "type": "non_fast_forward"
-    },
-    {
-      "type": "pull_request",
-      "parameters": {
-        "required_approving_review_count": 0,
-        "dismiss_stale_reviews_on_push": false,
-        "require_code_owner_review": false,
-        "require_last_push_approval": false,
-        "required_review_thread_resolution": false
-      }
     },
     {
       "type": "required_status_checks",
@@ -56,6 +46,9 @@
           },
           {
             "context": "e2e"
+          },
+          {
+            "context": "duplicate-exports"
           }
         ]
       }
