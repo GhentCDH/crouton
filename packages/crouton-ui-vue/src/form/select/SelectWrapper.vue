@@ -1,6 +1,5 @@
 <template>
   <div
-    ref="selectWrapperRef"
     :aria-label="id"
     role="select"
   >
@@ -66,21 +65,23 @@
             </svg>
           </div>
 
-          <!-- Dropdown -->
-          <Teleport :to="teleportTarget">
+          <!-- Dropdown: a top-layer popover, so no teleport is needed to escape
+               overflow clipping or a surrounding modal <dialog>. -->
+          <div
+            ref="popoverRef"
+            popover="manual"
+            class="m-0 p-0 border-0 bg-transparent overflow-visible z-[9999]"
+            :style="popoverStyle"
+          >
             <Transition
               enter-active-class="transition-all duration-150 ease-out"
               enter-from-class="opacity-0 -translate-y-1 scale-y-95"
               enter-to-class="opacity-100 translate-y-0 scale-y-100"
-              leave-active-class="transition-all duration-100 ease-in"
-              leave-from-class="opacity-100 translate-y-0 scale-y-100"
-              leave-to-class="opacity-0 -translate-y-1 scale-y-95"
             >
               <ListResults
                 v-if="isOpen"
                 ref="listResultsRef"
                 :teleported="true"
-                :style="dropdownStyle"
                 :query="undefined"
                 :options="typedOptions"
                 :is-loading="isLoading"
@@ -88,7 +89,7 @@
                 @select="emits('select', $event)"
               />
             </Transition>
-          </Teleport>
+          </div>
         </div>
         <Btn
           v-if="enableCreate"
@@ -104,7 +105,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, ref, toRef } from 'vue';
 
 import ListResults from './ListResults.vue';
 import type { OptionValue } from './ListResults.properties';
@@ -113,6 +114,7 @@ import {
   SelectWrapperProperties,
 } from './SelectWrapper.properties';
 import Btn from '../../button/btn.vue';
+import { useAnchoredPopover } from '../../composables/useAnchoredPopover';
 import { Color } from '../../const/colors';
 import { IconEnum } from '../../icons/icon-list';
 import ControlWrapper from '../core/ControlWrapper.vue';
@@ -120,28 +122,18 @@ import ControlWrapper from '../core/ControlWrapper.vue';
 const props = defineProps(SelectWrapperProperties);
 const typedOptions = computed(() => props.options as OptionValue[]);
 
-const selectWrapperRef = ref<HTMLElement>();
 const inputWrapperRef = ref<HTMLElement>();
+const popoverRef = ref<HTMLElement>();
 const listResultsRef = ref<InstanceType<typeof ListResults>>();
 const emits = defineEmits(SelectWrapperEmits);
 
-// Teleport target: the nearest <dialog> ancestor when inside a modal (to stay in the
-// browser top layer), otherwise fall back to body.
-const teleportTarget = ref<string | Element>('body');
-
-const dropdownStyle = computed(() => {
-  // Use the input row ref so the dropdown aligns with the bottom of the input,
-  // not the bottom of the full component (which includes the label).
-  const anchor = inputWrapperRef.value ?? selectWrapperRef.value;
-  if (!anchor) return {};
-  const rect = anchor.getBoundingClientRect();
-  return {
-    position: 'fixed' as const,
-    zIndex: 9999,
-    top: `${rect.bottom + 4}px`,
-    left: `${rect.left}px`,
-    width: `${rect.width}px`,
-  };
+// Anchor on the input row so the dropdown sits under the input, not the label.
+const { style: popoverStyle } = useAnchoredPopover({
+  anchorRef: inputWrapperRef,
+  popoverRef,
+  isOpen: toRef(props, 'isOpen'),
+  onDismiss: () => emits('close'),
+  matchWidth: true,
 });
 
 const clear = () => {
@@ -165,22 +157,4 @@ const onKeydown = (e: KeyboardEvent) => {
   }
   listResultsRef.value?.handleKeydown(e);
 };
-
-const handleOutsideClick = (e: MouseEvent) => {
-  if (
-    selectWrapperRef.value &&
-    !selectWrapperRef.value.contains(e.target as Node)
-  ) {
-    close();
-  }
-};
-onMounted(() => {
-  document.addEventListener('click', handleOutsideClick);
-  // If we're inside a native dialog, teleport there so we stay in the top layer
-  const dialog = selectWrapperRef.value?.closest('dialog');
-  if (dialog) teleportTarget.value = dialog;
-});
-onUnmounted(() => {
-  document.removeEventListener('click', handleOutsideClick);
-});
 </script>

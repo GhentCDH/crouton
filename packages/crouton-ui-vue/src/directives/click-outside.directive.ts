@@ -1,5 +1,11 @@
+/**
+ * @deprecated Click-outside handling via document listeners. Use a
+ * top-layer popover via `useAnchoredPopover`, which handles dismissal
+ * itself. No longer used internally; kept for backwards compatibility.
+ */
 type ClickOutsideElement = HTMLElement & { clickOutsideEvent?: (event: Event) => void };
 
+/** @deprecated Use `useAnchoredPopover` instead. */
 export const addClickOutsideEventListener = (
   targetElement: HTMLElement | null,
   callback: () => void,
@@ -16,10 +22,12 @@ export const addClickOutsideEventListener = (
   return eventListener;
 };
 
+/** @deprecated Use `useAnchoredPopover` instead. */
 export const removeClickOutsideEventListener = (eventListener: (event: Event) => void) => {
   document.removeEventListener('click', eventListener);
 };
 
+/** @deprecated Use `useAnchoredPopover` instead. */
 export const ClickOutside = {
   beforeMount(el: ClickOutsideElement, binding: { value: (event: Event) => void }) {
     el.clickOutsideEvent = (event: Event) => {

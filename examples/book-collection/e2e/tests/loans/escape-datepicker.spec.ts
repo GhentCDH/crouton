@@ -17,7 +17,7 @@ test.describe('Escape inside date picker', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    const picker = modal.locator('.dropdown-content[role="dialog"]');
+    const picker = modal.locator('[popover] [role="dialog"]');
 
     await modal.locator('#loanedAt, input[name="loanedAt"]').first().click();
     await expect(picker).toBeVisible();
