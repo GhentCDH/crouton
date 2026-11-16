@@ -1,0 +1,36 @@
+name: PR author
+
+# pull_request_target: runs the workflow from main with a write token, also for fork PRs.
+# Safe because nothing from the PR is checked out or executed.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      AUTHOR: ${{ github.event.pull_request.user.login }}
+    steps:
+      - name: Assign the author
+        if: github.event.action == 'opened'
+        # Outside contributors may not be assignable; never fail the PR on that.
+        run: gh pr edit "$PR" --add-assignee "$AUTHOR" || true
+
+      # The `main review` ruleset needs 1 approval. Authors with write access (the team) get it from
+      # this bot, so they never need someone else or the "bypass rules" box (which would skip checks too).
+      # Outside contributors get no approval here and wait for a human review.
+      - name: Approve PRs from the team
+        run: |
+          perm=$(gh api "repos/$GH_REPO/collaborators/$AUTHOR/permission" --jq .permission 2>/dev/null || echo none)
+          echo "$AUTHOR has $perm access"
+          case "$perm" in
+            admin|maintain|write)
+              gh pr review "$PR" --approve --body "Auto-approved: author has $perm access." ;;
+          esac
