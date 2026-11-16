@@ -27,7 +27,10 @@ Required check names come from the workflow job names (`ci / …` = jobs of the 
 ### `review.json`: outside contributors
 
 - changes go through a pull request with 1 approval (anyone with write access); new pushes dismiss it
-- the team bypasses it, so team members merge their own PRs without approval
+- `.github/workflows/pr-author.yml` approves PRs whose author has write access (needs repo setting "Allow GitHub
+  Actions to create and approve pull requests"), so team members merge their own PRs without a second person and
+  without the "bypass rules" box; it also assigns the PR author
+- the team bypass on this ruleset only exists for the release push to `main`
 - `CODEOWNERS` auto-requests a review from `@bovandersteene` on every PR
 
 ## `tags.json`: release tags
