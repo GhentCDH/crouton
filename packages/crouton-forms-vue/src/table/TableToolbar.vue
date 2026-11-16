@@ -32,6 +32,7 @@
           class="border-gray-300 text-base-content/50 h-8"
           :icon="action.icon"
           :tooltip="action.tooltip"
+          :aria-label="action.label ? undefined : action.tooltip"
           :loading="action.loading?.()"
           @click="action.action"
         >
