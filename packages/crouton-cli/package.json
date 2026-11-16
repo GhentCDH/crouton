@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "build": "tsup",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/internals": "^7.10.0",
@@ -47,6 +48,7 @@
     "@ghentcdh/crouton-core": "workspace:*",
     "commander": "^15.1.0",
     "picocolors": "^1.1.0",
-    "tsup": "^9.0.0"
+    "tsup": "^9.0.0",
+    "vitest": "^5.1.0"
   }
 }
