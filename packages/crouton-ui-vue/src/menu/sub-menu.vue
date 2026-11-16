@@ -1,38 +1,78 @@
 <template>
-  <div class="dropdown dropdown-end">
-    <div
-      tabindex="0"
-      role="button"
-      aria-haspopup="menu"
+  <div>
+    <!-- A popovertarget button: the browser handles open/close, light dismiss,
+         Esc and aria-expanded. No role="menu" — that would promise arrow-key
+         navigation this list does not implement. -->
+    <button
+      ref="buttonRef"
+      type="button"
+      :popovertarget="id"
       :class="[btnClass, 'btn btn-ghost text-right flex-nowrap flex']"
     >
-      <span> {{ label }}</span>
+      <span>{{ label }}</span>
       <Icon
         v-if="!disableArrow"
         :icon="IconEnum.ChevronDown"
         size="sm"
       />
-    </div>
-    <ul
-      tabindex="0"
-      role="menu"
-      class="menu dropdown-content bg-white z-1 mt-4 p-2 shadow-sm"
+    </button>
+    <!-- popover sits on a wrapper: daisyUI's `.menu` sets display:flex, which
+         would override the browser's display:none for a closed popover. -->
+    <div
+      :id="id"
+      ref="popoverRef"
+      popover
+      class="m-0 p-0 border-0 bg-transparent"
+      :style="style"
+      @beforetoggle="onBeforeToggle"
+      @click="onClick"
     >
-      <li class="min-w-max flex-no-wrap text-black">
-        <MenuItem
+      <ul class="menu bg-white p-2 shadow-sm text-black">
+        <li
           v-for="item in items"
           :key="item.label"
-          v-bind="item"
-        />
-      </li>
-    </ul>
+          class="min-w-max flex-no-wrap"
+        >
+          <MenuItem v-bind="item" />
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, useId } from 'vue';
+
 import MenuItem from './menu-item.vue';
-import type { MenuWithItems } from './menu.type';
+import { SubMenuProperties } from './sub-menu.properties';
 import { Icon, IconEnum } from '../icons';
 
-defineProps<MenuWithItems & { btnClass: string; disableArrow?: boolean }>();
+defineProps(SubMenuProperties);
+
+const id = `submenu-${useId()}`;
+const buttonRef = ref<HTMLButtonElement>();
+const popoverRef = ref<HTMLDivElement>();
+const style = ref<Record<string, string>>({});
+
+// Place the list under the button, right-aligned. `beforetoggle` fires before
+// the popover is painted, so it never flashes at the default centred position.
+// ponytail: JS positioning; switch to CSS anchor positioning once Baseline.
+const onBeforeToggle = (event: Event) => {
+  if ((event as ToggleEvent).newState !== 'open' || !buttonRef.value) return;
+  const rect = buttonRef.value.getBoundingClientRect();
+  style.value = {
+    position: 'fixed',
+    left: 'auto',
+    bottom: 'auto',
+    top: `${rect.bottom + 4}px`,
+    right: `${window.innerWidth - rect.right}px`,
+  };
+};
+
+// Close after choosing an item (links and buttons); a nested submenu trigger
+// stays open because it opens its own popover instead.
+const onClick = (event: MouseEvent) => {
+  const target = (event.target as HTMLElement).closest('a, button');
+  if (target && !target.hasAttribute('popovertarget')) popoverRef.value?.hidePopover();
+};
 </script>
