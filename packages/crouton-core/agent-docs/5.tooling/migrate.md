@@ -16,7 +16,7 @@ change.
 2. Preview, then apply the codemods:
 
    ```sh
-   pnpm crouton migrate --dry-run   # lists, per file, which rules apply
+   pnpm crouton migrate --dry-run   # lists, per file (sub-resources included), which rules apply
    pnpm crouton migrate             # asks once, then rewrites the files
    ```
 

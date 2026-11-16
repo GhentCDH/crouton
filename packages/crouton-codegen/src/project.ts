@@ -24,9 +24,38 @@ const resourceBase = (loaded: LoadedConfig): string =>
 const resourceDir = (loaded: LoadedConfig, name: string): string =>
   join(resourceBase(loaded), name);
 
+type DirEntry = { isDirectory(): boolean; name: string };
+
+const readDirs = async (dir: string): Promise<DirEntry[]> => {
+  try {
+    return (await readdir(dir, { withFileTypes: true })).filter((e) => e.isDirectory());
+  } catch {
+    return [];
+  }
+};
+
+/** Nested sub-resources: every directory below `dir` that holds a `resource.json`, at any depth. */
+const discoverSubResources = async (
+  dir: string,
+  prefix: string,
+): Promise<{ name: string; path: string }[]> => {
+  const found: { name: string; path: string }[] = [];
+  for (const e of await readDirs(dir)) {
+    const sub = join(dir, e.name);
+    const name = `${prefix}/${e.name}`;
+    const path = join(sub, 'resource.json');
+    if (await fileExists(path)) found.push({ name, path });
+    found.push(...(await discoverSubResources(sub, name)));
+  }
+  return found;
+};
+
 /**
- * Discover `resources/<name>/resource.json` files from the project's
- * crouton config. Returns an empty list when there is no config or directory.
+ * Discover `resources/<name>/resource.json` files from the project's crouton
+ * config, plus nested sub-resources (`resources/<name>/<sub>/resource.json`,
+ * named `<name>/<sub>`). Every top-level directory is listed (so a missing
+ * `resource.json` is reported); nested directories only when they hold one.
+ * Returns an empty list when there is no config or directory.
  */
 export const discoverResourceEntries = async (
   cwd: string,
@@ -35,15 +64,12 @@ export const discoverResourceEntries = async (
   if (!configPath) return [];
   const loaded = await loadConfig(cwd);
   const base = resourceBase(loaded);
-  let entries: { isDirectory(): boolean; name: string }[];
-  try {
-    entries = await readdir(base, { withFileTypes: true });
-  } catch {
-    return [];
+  const entries: { name: string; path: string }[] = [];
+  for (const e of await readDirs(base)) {
+    entries.push({ name: e.name, path: join(base, e.name, 'resource.json') });
+    entries.push(...(await discoverSubResources(join(base, e.name), e.name)));
   }
-  return entries
-    .filter((e) => e.isDirectory())
-    .map((e) => ({ name: e.name, path: join(base, e.name, 'resource.json') }));
+  return entries;
 };
 
 export interface ExistingResource {
