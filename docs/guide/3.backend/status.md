@@ -103,13 +103,13 @@ mounted **outside** `AdminView` so it renders even when the backend is broken �
 ├────────────────────────────────────────────────────────────────┤
 │ ✖ database  main      connection refused (ECONNREFUSED)    →   │
 │ ✖ resource  books     Unknown field "autor" in columns     →   │
-│ ▲ resource  authors   needs migration to v3                →   │
+│ ▲ resource  authors   needs `crouton migrate`              →   │
 │ ▲ i18n      nl        12 untranslated keys                 →   │
 ├────────────────────────────────────────────────────────────────┤
 │ Databases                                                      │
 │ Resources  [All|Errors|Warnings|Draft|Hidden] [search…]        │
-│   ▸ books   ✖ error   v2  prisma                               │
-│   ▸ authors ▲ migrate v2→v3                                    │
+│   ▸ books   ✖ error   v1  prisma                               │
+│   ▸ authors ▲ migrate                                          │
 │ Enums (collapsed)                                              │
 │ Translations                                                   │
 │ Raw JSON  [copy] [download]   (collapsed)                      │

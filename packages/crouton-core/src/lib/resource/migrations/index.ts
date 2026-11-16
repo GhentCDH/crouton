@@ -20,7 +20,7 @@ import {
  * Ordered, contiguous migration steps. Append one (`from: N, to: N + 1`) every time
  * `CURRENT_RESOURCE_VERSION` is bumped. A gap is a programming error caught by the spec.
  */
-// ponytail: migration_v1_to_v2 exists but is not registered — CURRENT_RESOURCE_VERSION stays 1 during alpha. Register and bump CURRENT when releasing stable.
+// ponytail: empty — schemaVersion stays 1 during alpha; changes ship as `crouton migrate` codemods. Add a step when the version is bumped.
 export const MIGRATIONS: ResourceMigration[] = [];
 
 /** Read a raw object's version, treating a missing/invalid field as the baseline. */

@@ -1,9 +1,9 @@
 /**
- * Migration v1 → v2: `controls` → `items`, `actions` → `rowActions`, table
+ * Layout-node codemod: `controls` → `items`, `actions` → `rowActions`, table
  * settings move from wrapper root to the inner `type: "table"` node.
  */
 
-import type { RawResourceJson, ResourceMigration } from './types';
+import type { RawResourceJson } from './types';
 
 type RawNode = Record<string, unknown>;
 
@@ -112,7 +112,7 @@ const transformSubResources = (subResources: unknown): unknown => {
   });
 };
 
-const migrate = (raw: RawResourceJson): RawResourceJson => {
+export const migrateLayoutNodes = (raw: RawResourceJson): RawResourceJson => {
   const result = { ...raw };
 
   const layout = raw['layout'] as RawNode | undefined;
@@ -129,11 +129,4 @@ const migrate = (raw: RawResourceJson): RawResourceJson => {
   }
 
   return result;
-};
-
-export const migration_v1_to_v2: ResourceMigration = {
-  from: 1,
-  to: 2,
-  description: 'controls → items, actions → rowActions, table settings move to table node',
-  migrate,
 };
