@@ -38,6 +38,7 @@
       color="error"
       :no-border="true"
       :tooltip="t('filter.removeFilter', 'Remove filter')"
+      :aria-label="t('filter.removeFilter', 'Remove filter')"
       @click="$emit('remove')"
     />
   </div>

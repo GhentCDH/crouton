@@ -31,6 +31,7 @@
             size="xs"
             :icon="action.icon"
             :tooltip="action.tooltip"
+            :aria-label="action.label ? undefined : action.tooltip"
             :disabled="action.disabled"
             @click="action.onClick"
           >
