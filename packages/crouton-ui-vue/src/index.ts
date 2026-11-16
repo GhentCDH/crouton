@@ -11,7 +11,6 @@ export * from './const';
 
 export { default as Card } from './card/card.vue';
 
-export * from './directives/click-outside.directive';
 export * from './toast';
 
 export * from './modal';

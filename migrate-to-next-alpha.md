@@ -1304,3 +1304,17 @@ export default {
 ```bash
 grep -rn "CustomRepository\|ResourceHooks\|CustomRepositoryContext" --include="*.ts" .
 ```
+
+## Removed UI helpers: `useFocusTrap`, click-outside (breaking)
+
+`@ghentcdh/crouton-vue` / `@ghentcdh/crouton-ui-vue` no longer export these helpers. The components that used them now rely on the browser:
+
+| Removed | Use instead |
+|---|---|
+| `useFocusTrap`, `UseFocusTrapOptions` | A native `<dialog>` opened with `showModal()`, which traps focus, handles Esc and returns focus. The `Modal` component already does this. |
+| `addClickOutsideEventListener`, `removeClickOutsideEventListener`, `ClickOutside` directive | A popover. Use `popover="auto"` with a `popovertarget` button for light dismiss, or `useAnchoredPopover` for a dropdown under an input. |
+
+**What to look for:**
+```bash
+grep -rn "useFocusTrap\|ClickOutside\|addClickOutsideEventListener\|removeClickOutsideEventListener" --include="*.ts" --include="*.vue" .
+```
