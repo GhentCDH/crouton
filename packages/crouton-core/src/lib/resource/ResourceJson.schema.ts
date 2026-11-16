@@ -309,6 +309,9 @@ const refineLayout = (
   if (findAll && typeof findAll === 'object' && !('uri' in findAll)) {
     for (const key of ['search', 'filter'] as const) {
       for (const id of findAll[key] ?? []) {
+        // A dotted filter id is a Prisma relation path (e.g. `tags.some.name`),
+        // which the server builds into a nested where clause — not a column id.
+        if (key === 'filter' && id.includes('.')) continue;
         if (!allIds.has(id)) {
           ctx.addIssue({
             code: 'custom',

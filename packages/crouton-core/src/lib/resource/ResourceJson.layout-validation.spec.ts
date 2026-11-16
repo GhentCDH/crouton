@@ -85,6 +85,14 @@ describe('layout validation (Phase 3)', () => {
       );
     });
 
+    it('accepts a relation path in operations.findAll.filter', () => {
+      const result = ResourceJsonSchema.safeParse({
+        ...base,
+        operations: { findAll: { filter: ['status', 'tags.some.name'] } },
+      });
+      expect(result.success).toBe(true);
+    });
+
     it('accepts all valid column ids', () => {
       const result = ResourceJsonSchema.safeParse({
         ...base,

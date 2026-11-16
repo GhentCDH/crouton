@@ -75,6 +75,9 @@ The second form restricts search to `name` and `email` only.
 allowlist: a `?filter=` on any other column (except the id field) is rejected with 400. Omit it to show no filter
 controls and accept filters on every column.
 
+A dotted entry is a Prisma relation path, e.g. `"tags.some.name"` → `?filter=tags.some.name:x:equals` becomes
+`{ tags: { some: { name: { equals: 'x' } } } }`. It is allowed through the server allowlist but gets no toolbar control.
+
 ```json
 {
   "operations": {
