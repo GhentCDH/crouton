@@ -48,7 +48,7 @@ const resolveTableUiSchema = (ui: unknown): UiSchemaNode | null => {
   return u.elements?.find((e) => e.type === 'Table') ?? u;
 };
 
-export type ActionStatus = { text: string; type: 'success' | 'error' | 'pending' };
+export type ActionStatus = { text: string; type: 'success' | 'warning' | 'error' | 'pending' };
 
 export interface UseResourcesProperties {
   initialRequestParams?: Partial<Request>;
@@ -178,7 +178,8 @@ export const useResources = (
     if (status && autoClear) {
       _lastActionTimer = setTimeout(
         () => { lastAction.value = null; },
-        status.type === 'error' ? 5000 : 3000,
+        // Warnings (e.g. partial sends) need time to be read.
+        status.type === 'warning' ? 8000 : status.type === 'error' ? 5000 : 3000,
       );
     }
   };
