@@ -80,17 +80,13 @@ export default defineUserConfig({
     markdown: {
       mermaid: true,
       include: true,
+      tabs: true,
+      codeTabs: true,
+      demo: true,
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/GhentCDH/crouton' },
     ],
-    plugins: {
-      mdEnhance: {
-        tabs: true,
-        codetabs: true,
-        demo: true,
-      },
-    },
     navbar: [{ text: 'Home', link: '/' }],
     sidebar: [
       {

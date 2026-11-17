@@ -176,5 +176,5 @@ it), and it shows on the [status page](../3.backend/status.md) as an information
 visible but clearly excluded rather than silently missing.
 
 New resources scaffolded by `crouton update resources` default to `draft: true`, so a generated-but-unreviewed resource
-never goes live by accident. Pass [`--no-draft`](../cli/cli.md#crouton-update-resources) to opt out, or flip the flag to
+never goes live by accident. Pass [`--no-draft`](../5.tooling/cli.md#crouton-update-resources) to opt out, or flip the flag to
 `false` (or remove it) once the resource is ready.

@@ -125,7 +125,7 @@ const hooks: ResourceHooks = {
 
 ::: warning
 `afterRead` runs per row — keep it cheap. Avoid extra queries inside it for list endpoints; prefer [
-`include`](resource-json.md#includes) or [calculated columns](resource-json.md#calculated-columns) to fetch related data
+`include`](columns.md#includes) or [computed columns](columns.md#computed-columns) to fetch related data
 in the main query.
 :::
 
