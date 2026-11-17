@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 export type MarkdownToolbarButton = 'B' | 'I';
 
@@ -12,7 +12,7 @@ export type MarkdownToolbarButton = 'B' | 'I';
  */
 export class MarkdownHarness extends Harness {
   static byId(parent: Locator | Page, id: string): MarkdownHarness {
-    return new MarkdownHarness(byRole(parent, 'textbox', id));
+    return new MarkdownHarness(byControlId(parent, 'textbox', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): MarkdownHarness {

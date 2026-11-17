@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `Checkbox` component.
@@ -8,7 +8,7 @@ import { Harness, byRole } from './Harness';
  */
 export class BooleanHarness extends Harness {
   static byId(parent: Locator | Page, id: string): BooleanHarness {
-    return new BooleanHarness(byRole(parent, 'checkbox', id));
+    return new BooleanHarness(byControlId(parent, 'checkbox', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): BooleanHarness {

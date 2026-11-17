@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `Input` component. The component renders
@@ -9,7 +9,7 @@ import { Harness, byRole } from './Harness';
  */
 export class TextHarness extends Harness {
   static byId(parent: Locator | Page, id: string): TextHarness {
-    return new TextHarness(byRole(parent, 'textbox', id));
+    return new TextHarness(byControlId(parent, 'textbox', id));
   }
 
   /** Resolve by visible label (the `<legend>` text). */

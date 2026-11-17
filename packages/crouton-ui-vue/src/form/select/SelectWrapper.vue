@@ -1,8 +1,5 @@
 <template>
-  <div
-    :aria-label="id"
-    role="select"
-  >
+  <div>
     <ControlWrapper v-bind="props">
       <div class="flex items-center w-full">
         <div

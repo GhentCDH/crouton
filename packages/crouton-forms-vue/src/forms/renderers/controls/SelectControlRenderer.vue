@@ -3,6 +3,7 @@
     v-bind="wrapper"
     :model-value="value"
     :options="selectOptions"
+    :display-label="displayLabel"
     :clearable="appliedOptions?.clearable ?? true"
     @change="onChange"
     @blur="onBlur"
@@ -69,6 +70,14 @@ watch(
 const selectOptions = computed<unknown[]>(() => {
   if (isRemote.value) return remoteOptions.value;
   return appliedOptions.value?.options ?? appliedOptions.value?.values ?? [];
+});
+
+// Label for a stored value outside `options`, resolved by the binding from `displayValues`.
+const displayLabel = computed(() => {
+  const record = (wrapper.value as { displayValue?: unknown }).displayValue;
+  if (!record || typeof record !== 'object') return undefined;
+  const label = (record as Record<string, unknown>)[(appliedOptions.value?.labelKey as string) ?? 'label'];
+  return label === undefined || label === null ? undefined : String(label);
 });
 
 const onChange = (val: unknown) => {

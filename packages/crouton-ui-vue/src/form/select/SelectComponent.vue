@@ -14,12 +14,13 @@
       type="button"
       class="truncate block text-left"
       :class="[style, width]"
-      :aria-label="id"
+      :aria-label="label"
+      :aria-expanded="isOpen"
       role="combobox"
       :disabled="!enabled"
       @click="isOpen = true"
     >
-      {{ displayValue ?? 'Select value' }}
+      {{ displayValue ?? placeholder ?? 'Select value' }}
     </button>
   </SelectWrapper>
 </template>
@@ -58,9 +59,13 @@ const onChange = (event: unknown) => {
 // Accept either v-model/modelValue (object or string) or plain :value prop
 const activeValue = computed(() => model.value ?? properties.value);
 
-const displayValue = computed(() =>
-  activeValue.value ? optionsHelper.getLabels(activeValue.value)[0] : '',
-);
+// Only null/undefined/'' mean "no value" — 0 and false are real selections.
+const isEmpty = (v: unknown) => v === null || v === undefined || v === '';
+const displayValue = computed(() => {
+  if (isEmpty(activeValue.value)) return undefined;
+  if (!optionsHelper.getOption(activeValue.value) && properties.displayLabel) return properties.displayLabel;
+  return optionsHelper.getLabels(activeValue.value)[0];
+});
 
 const styles = computed(() => mergeStyles(properties.styles));
 const style = computed(() =>

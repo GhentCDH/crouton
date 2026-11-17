@@ -42,7 +42,9 @@ export const controlRenderers = [
   { tester: rankWith(11, isTextAreaControl), renderer: r(TextAreaControlRenderer) },
   { tester: rankWith(11, isMarkdownControl), renderer: r(MarkdownControlRenderer) },
   { tester: rankWith(11, isBooleanControl), renderer: r(BooleanControlRenderer) },
-  { tester: rankWith(11, isSelectControl), renderer: r(SelectControlRenderer) },
+  // Rank 13: an explicit `format: 'select'` must beat the number/integer
+  // testers (12), otherwise a select with numeric values renders as a number input.
+  { tester: rankWith(13, isSelectControl), renderer: r(SelectControlRenderer) },
   { tester: rankWith(12, isToggleControl), renderer: r(ToggleControlRenderer) },
   { tester: rankWith(11, isMultiselectControl), renderer: r(MultiSelectControlRenderer) },
   { tester: rankWith(12, isAutoCompleteControl), renderer: r(AutocompleteControlRenderer) },

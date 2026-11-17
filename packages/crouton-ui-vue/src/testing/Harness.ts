@@ -9,7 +9,7 @@ import type { Locator, Page } from '@playwright/test';
  *
  * Concrete harnesses provide one or more `static` factory methods. The two
  * conventional ones are `byLabel` (the user-visible label or aria-label) and
- * `byId` (the `aria-label="{id}"` that lib components emit). Subclasses can
+ * `byId` (the control's form id, from `data-control-id` on the control wrapper). Subclasses can
  * add more — e.g. `MarkdownHarness.byTitle`.
  */
 export abstract class Harness {
@@ -42,3 +42,13 @@ export const byRole = (
     | 'dialog',
   name: string,
 ): Locator => parent.getByRole(role, { name });
+
+/**
+ * Resolve a control by its form id: every lib control renders a wrapper with
+ * `data-control-id="{id}"`; the control itself is found inside it by role.
+ */
+export const byControlId = (
+  parent: Locator | Page,
+  role: Parameters<typeof byRole>[1],
+  id: string,
+): Locator => parent.locator(`[data-control-id="${id}"]`).getByRole(role).first();

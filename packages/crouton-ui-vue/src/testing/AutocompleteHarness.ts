@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `AutoComplete` component.
@@ -11,7 +11,7 @@ import { Harness, byRole } from './Harness';
  */
 export class AutocompleteHarness extends Harness {
   static byId(parent: Locator | Page, id: string): AutocompleteHarness {
-    return new AutocompleteHarness(byRole(parent, 'combobox', id));
+    return new AutocompleteHarness(byControlId(parent, 'combobox', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): AutocompleteHarness {
@@ -51,12 +51,12 @@ export class AutocompleteHarness extends Harness {
 
   /** Click the "Create new" button (requires `enableCreate`). */
   async clickCreateNew(): Promise<void> {
-    const group = this.locator.locator('xpath=ancestor::*[@role="select"][1]');
+    const group = this.locator.locator('xpath=ancestor::*[@data-control-id][1]');
     await group.getByRole('button', { name: 'create' }).click();
   }
 
   async clear(): Promise<this> {
-    const group = this.locator.locator('xpath=ancestor::*[@role="select"][1]');
+    const group = this.locator.locator('xpath=ancestor::*[@data-control-id][1]');
     await group.getByRole('button', { name: 'Clear' }).click();
     return this;
   }

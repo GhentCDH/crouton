@@ -36,6 +36,8 @@ export type ReadonlyOpts = ControlOption & {
   key?: string;
   resource?: boolean | string | Record<string, unknown>;
   values?: Array<Record<string, unknown>>;
+  displayValues?: unknown[];
+  options?: unknown[];
 } & Record<string, unknown>;
 
 export const isLink = (value: string) => value?.startsWith?.('http');
@@ -62,19 +64,22 @@ const getSelectValue = (value: unknown, opts: ReadonlyOpts): unknown => {
       ? ((value as Record<string, unknown>)[valueKey] ?? value)
       : value;
 
-  if (typeof resolvedKey === 'string' && opts.values)
-    return (
-      opts.values?.find((o) => o[valueKey] === resolvedKey)?.[labelKey] ??
-      resolvedKey
+  // Same precedence as the editable select: the full enum list wins over a restriction.
+  const list = opts.displayValues ?? opts.values ?? opts.options;
+  if (resolvedKey !== null && resolvedKey !== undefined && typeof resolvedKey !== 'object' && list) {
+    const found = list.find((o) =>
+      o !== null && typeof o === 'object' ? (o as Record<string, unknown>)[valueKey] === resolvedKey : o === resolvedKey,
     );
+    if (found !== undefined)
+      return found !== null && typeof found === 'object' ? (found as Record<string, unknown>)[labelKey] : found;
+  }
 
   const resolved =
     value && typeof value === 'object'
       ? ((value as Record<string, unknown>)[labelKey] ?? (value as Record<string, unknown>)[valueKey])
       : value;
 
-  if (!resolved) return null;
-  return resolved;
+  return resolved === undefined || resolved === '' ? null : resolved;
 };
 
 export const getNestedValue = (value: unknown, opts: ReadonlyOpts, formValues: Record<string, unknown>): unknown => {

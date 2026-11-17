@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `SelectComponent`.
@@ -10,7 +10,7 @@ import { Harness, byRole } from './Harness';
  */
 export class SelectHarness extends Harness {
   static byId(parent: Locator | Page, id: string): SelectHarness {
-    return new SelectHarness(byRole(parent, 'combobox', id));
+    return new SelectHarness(byControlId(parent, 'combobox', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): SelectHarness {
@@ -43,7 +43,7 @@ export class SelectHarness extends Harness {
 
   /** Click the "Clear" button rendered next to the select. */
   async clear(): Promise<this> {
-    const group = this.locator.locator('xpath=ancestor::*[@role="select"][1]');
+    const group = this.locator.locator('xpath=ancestor::*[@data-control-id][1]');
     await group.getByRole('button', { name: 'Clear' }).click();
     return this;
   }
@@ -53,7 +53,7 @@ export class SelectHarness extends Harness {
    * the component (SelectWrapper conditionally renders the button).
    */
   async clickCreateNew(): Promise<void> {
-    const group = this.locator.locator('xpath=ancestor::*[@role="select"][1]');
+    const group = this.locator.locator('xpath=ancestor::*[@data-control-id][1]');
     await group.getByRole('button', { name: 'create' }).click();
   }
 }
