@@ -93,7 +93,7 @@ const onLayoutInput = (e: Event) => {
 
 <template>
   <ClientOnly>
-    <div class="layout-demo border border-base-300 rounded-lg overflow-hidden my-4 not-content">
+    <div class="layout-demo demo-surface border border-base-300 rounded-lg overflow-hidden my-4 not-content">
       <div class="bg-base-200 px-4 py-2 flex gap-1 text-sm font-medium flex-wrap">
         <button
           v-for="tab in (['form', 'view', 'table', 'json', 'uischema'] as Tab[])"

@@ -54,6 +54,24 @@
 }
 
 
+/* Live demos: components are light-theme only, so every demo is a light
+   island — readable labels and matching inputs in the docs' dark mode too. */
+.demo,
+.demo-surface {
+    color-scheme: light;
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+}
+
+/* The theme's markdown table and list rules (zebra rows, borders, bullets)
+   are unlayered, so they beat the components' layered Tailwind utilities.
+   revert-layer drops them inside demos. Doubled class outranks
+   `tbody tr:nth-child(2n+1)`. */
+.demo-surface.demo-surface :is(table, thead, tbody, tr, th, td, ul, ol, li),
+.demo.demo :is(table, thead, tbody, tr, th, td, ul, ol, li) {
+    all: revert-layer;
+}
+
 /* Component docs: live preview box above each code snippet */
 .demo {
     display: flex;
@@ -64,7 +82,12 @@
     margin: 1rem 0 0.5rem;
     border: 1px solid var(--vp-c-border, var(--color-base-300));
     border-radius: 0.5rem;
-    background: var(--color-base-100);
+}
+
+/* Let wide children (tables, pagination) shrink and scroll inside the box */
+.demo > * {
+    min-width: 0;
+    max-width: 100%;
 }
 
 .demo.demo-stack {

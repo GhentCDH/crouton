@@ -35,7 +35,7 @@ export default defineUserConfig({
         alias: {
           '@ghentcdh/crouton-vue/styles.css': fileURLToPath(
             new URL(
-              '../../packages/crouton-vue/src/styles.scss',
+              '../../packages/crouton-vue/src/styles.css',
               import.meta.url,
             ),
           ),

@@ -45,17 +45,25 @@ const collapseActions = [
 
 ## Collapse
 
+Put `CollapseRow`s in the `#list` slot; the default slot takes free content.
+
 <ClientOnly>
 <div class="demo demo-stack">
   <Collapse title="Open by default" :opened="true">
-    <CollapseRow title="Item 1" label="Value 1" />
-    <CollapseRow title="Item 2" label="Value 2" description="A description" />
+    <template #list>
+      <CollapseRow title="Item 1" label="Value 1" />
+      <CollapseRow title="Item 2" label="Value 2" description="A description" />
+    </template>
   </Collapse>
   <Collapse title="Closed by default" :opened="false">
-    <CollapseRow title="Hidden item" label="Revealed on expand" />
+    <template #list>
+      <CollapseRow title="Hidden item" label="Revealed on expand" />
+    </template>
   </Collapse>
   <Collapse title="With actions" :opened="true" :actions="collapseActions">
-    <CollapseRow title="Item" label="Icon actions in the header" />
+    <template #list>
+      <CollapseRow title="Item" label="Icon actions in the header" />
+    </template>
   </Collapse>
   <span class="demo-note">Last action: {{ lastAction }}</span>
 </div>
@@ -63,7 +71,9 @@ const collapseActions = [
 
 ```vue
 <Collapse title="With actions" :opened="true" :actions="[{ icon: IconEnum.Edit, tooltip: 'Edit', onClick: edit }]">
-  <CollapseRow title="Item 2" label="Value 2" description="A description" />
+  <template #list>
+    <CollapseRow title="Item 2" label="Value 2" description="A description" />
+  </template>
 </Collapse>
 ```
 
@@ -74,7 +84,7 @@ Three-column layout with collapsible side panels. Only the slots you fill (`left
 <ClientOnly>
 <div class="demo demo-stack">
   <div class="h-64 border border-base-300 rounded">
-    <Drawer :width-left="160" :width-right="160">
+    <Drawer :width-left="120" :width-right="120">
       <template #left-drawer>Left panel</template>
       <div class="p-4">Main content</div>
       <template #right-drawer>Right panel</template>

@@ -83,13 +83,13 @@ Icon-only buttons need an `aria-label`; `tooltip` shows a native hover/focus hin
 <ClientOnly>
 <div class="demo">
   <BtnBadge>Badge</BtnBadge>
-  <BtnBadge icon="mdi:star">With icon</BtnBadge>
+  <BtnBadge :icon="IconEnum.Check">With icon</BtnBadge>
   <BtnBadge color="secondary">Secondary badge</BtnBadge>
 </div>
 </ClientOnly>
 
 ```vue
-<BtnBadge icon="mdi:star">With icon</BtnBadge>
+<BtnBadge :icon="IconEnum.Check">With icon</BtnBadge>
 ```
 
 ## Menu

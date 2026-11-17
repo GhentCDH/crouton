@@ -27,7 +27,7 @@
     },
     "serve": {
       "executor": "nx:run-commands",
-      "dependsOn": ["build:menu"],
+      "dependsOn": ["build:menu", { "projects": ["crouton-vue"], "target": "build" }],
       "options": {
         "command": "vuepress dev docs"
       }
