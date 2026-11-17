@@ -1,5 +1,7 @@
 import { type Ref, onBeforeUnmount, ref, watch } from 'vue';
 
+import { anchoredStyle, fixedStyleBelow, supportsAnchorPositioning } from './anchorPosition';
+
 export type UseAnchoredPopoverOptions = {
   /** Element the popover is placed under. Pointer presses inside it do not dismiss. */
   anchorRef: Ref<HTMLElement | null | undefined>;
@@ -25,9 +27,10 @@ const supportsPopover = (el: HTMLElement) => typeof el.showPopover === 'function
  * the input (and its async `toggle` event races the input's own click).
  * Outside presses are detected here instead; callers handle Esc.
  *
- * ponytail: JS positioning, refreshed on scroll/resize while open; switch to
- * CSS anchor positioning (`position-area` + `position-try-fallbacks`) once
- * it is Baseline.
+ * Positioning uses CSS anchor positioning against the implicit anchor set by
+ * `showPopover({ source })`, so the browser keeps it attached and flips it at
+ * the viewport edge. Without anchor positioning it falls back to fixed
+ * coordinates refreshed on scroll/resize.
  *
  * Without Popover API support the element stays an ordinary fixed-position
  * element, so callers should still toggle its content with `v-if`.
@@ -40,20 +43,11 @@ export const useAnchoredPopover = ({
   matchWidth = false,
 }: UseAnchoredPopoverOptions) => {
   const style = ref<Record<string, string>>({});
+  // Decided when first shown, not at setup, so SSR never touches CSS.
+  let useCss = false;
 
   const updatePosition = () => {
-    const anchor = anchorRef.value;
-    if (!anchor) return;
-    const rect = anchor.getBoundingClientRect();
-    style.value = {
-      position: 'fixed',
-      margin: '0',
-      right: 'auto',
-      bottom: 'auto',
-      top: `${rect.bottom + 4}px`,
-      left: `${rect.left}px`,
-      ...(matchWidth ? { width: `${rect.width}px` } : {}),
-    };
+    if (anchorRef.value) style.value = fixedStyleBelow(anchorRef.value, 'start', matchWidth);
   };
 
   const onPointerDown = (event: PointerEvent) => {
@@ -64,17 +58,25 @@ export const useAnchoredPopover = ({
 
   const listen = (on: boolean) => {
     const method = on ? 'addEventListener' : 'removeEventListener';
+    document[method]('pointerdown', onPointerDown as EventListener, true);
+    if (useCss) return;
     // Capture so scrolling inside any container (e.g. a modal body) repositions.
     window[method]('scroll', updatePosition, true);
     window[method]('resize', updatePosition);
-    document[method]('pointerdown', onPointerDown as EventListener, true);
   };
 
   const show = () => {
-    updatePosition();
-    listen(true);
     const el = popoverRef.value;
-    if (el && supportsPopover(el) && !el.matches(':popover-open')) el.showPopover();
+    useCss = !!el && supportsPopover(el) && supportsAnchorPositioning();
+    if (useCss) style.value = anchoredStyle('start', matchWidth);
+    else updatePosition();
+    listen(true);
+    if (el && supportsPopover(el) && !el.matches(':popover-open')) {
+      // `source` makes the anchor the popover's implicit anchor for CSS.
+      (el.showPopover as (options?: { source?: HTMLElement }) => void)({
+        source: anchorRef.value ?? undefined,
+      });
+    }
   };
 
   const hide = () => {
