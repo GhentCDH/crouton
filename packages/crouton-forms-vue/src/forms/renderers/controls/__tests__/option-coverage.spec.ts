@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
 import { type ControlVariant, usedOptionKeys } from './control-variant';
+import { numberVariants } from './number.variants';
 import { stringVariants } from './string.variants';
 import { textareaVariants } from './textarea.variants';
 
@@ -19,6 +20,8 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
       customRender: CUSTOM_RENDER,
     },
   },
+  number: { variants: numberVariants, skipped: { customRender: CUSTOM_RENDER } },
+  integer: { variants: numberVariants, skipped: { customRender: CUSTOM_RENDER } },
   textarea: { variants: textareaVariants, skipped: { customRender: CUSTOM_RENDER } },
 };
 

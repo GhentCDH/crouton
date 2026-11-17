@@ -53,6 +53,9 @@ const isTooSmallString: IssueTester = (issue) =>
 const isTooBigString: IssueTester = (issue) =>
   issue.code === 'too_big' && (issue as SizedIssue).origin === 'string';
 
+const isNumeric = (issue: CustomErrorIssue) =>
+  ['number', 'int'].includes((issue as SizedIssue).origin ?? '');
+
 const errorDictionary: {
   test: IssueTester;
   message: string | ((issue: CustomErrorIssue) => string);
@@ -65,6 +68,19 @@ const errorDictionary: {
   {
     test: isTooBigString,
     message: (issue) => `Must be at most ${(issue as SizedIssue).maximum} characters`,
+  },
+  {
+    test: (issue) => issue.code === 'too_small' && isNumeric(issue),
+    message: (issue) => `Minimum value is ${(issue as SizedIssue).minimum}`,
+  },
+  {
+    test: (issue) => issue.code === 'too_big' && isNumeric(issue),
+    message: (issue) => `Maximum value is ${(issue as SizedIssue).maximum}`,
+  },
+  {
+    test: (issue) =>
+      issue.code === 'invalid_type' && (issue as CustomErrorIssue & { expected?: string }).expected === 'int',
+    message: 'Must be a whole number',
   },
   {
     // `pattern`, `format: email|uri|…` — otherwise the raw code "invalid_format" is shown.
@@ -89,7 +105,8 @@ export const registerZodErrorMap = () => {
               : match.message,
         };
       }
-      return { message: issue.message ?? issue.code };
+      // Fall back to zod's own (readable) message rather than the bare issue code.
+      return undefined;
     },
   });
 };

@@ -5,7 +5,7 @@
       autocomplete="off"
       data-lpignore="true"
       data-bwignore="true"
-      :aria-label="id"
+      :aria-label="label"
       type="number"
       class="w-full"
       :class="[style]"
