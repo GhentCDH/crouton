@@ -8,8 +8,7 @@
     "directory": "packages/crouton-vue"
   },
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "type": "module",
   "exports": {

@@ -8,8 +8,7 @@
     "directory": "packages/crouton-api"
   },
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "type": "module",
   "exports": {
