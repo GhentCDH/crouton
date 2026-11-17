@@ -57,7 +57,13 @@ Read this file to find the right doc for your task.
 | 6.recipes/custom-field-input.md | working with custom field input |
 | 6.recipes/decision-tables.md | working with decision tables |
 | README.md | getting a high-level overview of the docs |
+| components/buttons.md | working with buttons |
+| components/cards.md | working with cards |
+| components/data.md | working with data |
+| components/feedback.md | working with feedback |
+| components/form-controls.md | working with form controls |
 | components/index.md | getting an overview of this section |
+| components/modals.md | working with modals |
 | reference/crouton-json.md | editing or understanding crouton.json |
 | reference/endpoints.md | reference for REST endpoints |
 | reference/enums.md | reference for enum definitions |

@@ -70,14 +70,8 @@ After all steps: `pnpm nx run crouton-core:build` + `pnpm nx run crouton-core:te
 
 After creating the component and exporting it from `packages/crouton-ui-vue/src/index.ts`:
 
-1. **Add to gallery component** — open `docs/.vuepress/components/ComponentGallery.vue`, import the component, and add a `<section>` demonstrating it with representative props.
-2. **Register in docs client** — open `docs/.vuepress/client.ts` and add:
-   ```ts
-   import MyNewDemo from './components/MyNewDemo.vue'; // if creating a separate demo file
-   app.component('MyNewDemo', MyNewDemo);
-   ```
-   For small additions, adding directly to `ComponentGallery.vue` is preferred over a separate file.
-3. **No sidebar change needed** — `docs/guide/components/index.md` already embeds `<ComponentGallery />` and the sidebar is auto-generated from the file system.
+1. **Add a demo** — pick the matching page in `docs/guide/components/` (`buttons`, `form-controls`, `cards`, `data`, `modals`, `feedback`) or create a new one. Import the component in the page's `<script setup>`, add a `## Section` with the live demo wrapped in `<ClientOnly><div class="demo">…</div></ClientOnly>` (no blank lines inside the HTML block), followed by a `vue` code snippet.
+2. **New page?** Add a row to the table in `docs/guide/components/index.md`. The sidebar is auto-generated from the file system.
 
 ## Adding a resource-level option
 

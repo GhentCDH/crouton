@@ -53,3 +53,27 @@
     text-overflow: ellipsis;
 }
 
+
+/* Component docs: live preview box above each code snippet */
+.demo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin: 1rem 0 0.5rem;
+    border: 1px solid var(--vp-c-border, var(--color-base-300));
+    border-radius: 0.5rem;
+    background: var(--color-base-100);
+}
+
+.demo.demo-stack {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.demo-note {
+    align-self: center;
+    font-size: 0.875rem;
+    opacity: 0.6;
+}
