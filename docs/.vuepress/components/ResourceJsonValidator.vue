@@ -15,7 +15,7 @@ const EXAMPLES = {
   valid: JSON.stringify(
     {
       name: 'book',
-      model: 'Book',
+      source: { model: 'Book' },
       title: 'Books',
       tag: 'Books',
       columns: {
@@ -30,7 +30,7 @@ const EXAMPLES = {
     {
       name: 'article',
       kind: 'custom',
-      model: 'Article',
+      source: { model: 'Article' },
       title: 'Articles',
     },
     null,
@@ -94,7 +94,7 @@ const loadExample = (key: keyof typeof EXAMPLES) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="demo-surface flex flex-col gap-3 border border-base-300 rounded-lg p-4">
     <div class="flex flex-wrap items-center gap-2">
       <span class="text-sm opacity-70">Load example:</span>
       <button

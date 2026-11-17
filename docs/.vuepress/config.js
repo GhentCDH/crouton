@@ -35,7 +35,7 @@ export default defineUserConfig({
         alias: {
           '@ghentcdh/crouton-vue/styles.css': fileURLToPath(
             new URL(
-              '../../packages/crouton-vue/src/styles.scss',
+              '../../packages/crouton-vue/src/styles.css',
               import.meta.url,
             ),
           ),
@@ -80,17 +80,13 @@ export default defineUserConfig({
     markdown: {
       mermaid: true,
       include: true,
+      tabs: true,
+      codeTabs: true,
+      demo: true,
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/GhentCDH/crouton' },
     ],
-    plugins: {
-      mdEnhance: {
-        tabs: true,
-        codetabs: true,
-        demo: true,
-      },
-    },
     navbar: [{ text: 'Home', link: '/' }],
     sidebar: [
       {

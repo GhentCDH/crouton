@@ -399,7 +399,7 @@ The proxy forwards `/api` requests to the NestJS backend during development.
 pnpm dev
 ```
 
-For more frontend configuration, see [Frontend setup](frontend.md).
+For more frontend configuration, see [Frontend setup](../4.frontend/index.md).
 
 ## Nx workspace extras
 

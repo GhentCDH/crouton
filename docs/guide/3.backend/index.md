@@ -51,7 +51,7 @@ The config object accepts the following fields:
 |--------------|----------|-------------|
 | `baseUrl`    | `string` | Absolute base URL prepended to operation URIs returned to the frontend (e.g. `https://api.example.com`). |
 | `prefix`     | `string` | Optional URL path prefix prepended to every crouton controller route (e.g. `'api'`). See [Route prefix](#route-prefix). |
-| `enumsFile`  | `string` | Path to the shared [enum registry](../cli/cli.md#enum-registry). When omitted, found by walking up from the resources directory. |
+| `enumsFile`  | `string` | Path to the shared [enum registry](../5.tooling/cli.md#enum-registry). When omitted, found by walking up from the resources directory. |
 | `security`   | object   | Named NestJS guards and an optional module-level default. See [Security](../2.resources/security.md). |
 
 ### Other registration styles

@@ -458,7 +458,7 @@ the relation column to keep the child's own nested controller.
 
 ## See also
 
-- [resource.json reference](resource-json.md)
+- [resource.json reference](./index.md)
 - [Hooks](hooks.md) — apply to custom resources too
 - [Actions](actions.md)
 - [Data sources & Adapters](../3.backend/data-sources.md) — use a custom-adapter datasource for non-Prisma backends without per-resource repository.ts

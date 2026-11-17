@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-between gap-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
     <div class="flex gap-1">
       <PaginationButton
         v-bind="props"
@@ -48,7 +48,7 @@
         @update-page="goToPage"
       />
     </div>
-    <div class="flex items-center gap-4 text-xs text-base-content/60">
+    <div class="flex flex-wrap items-center gap-4 text-xs text-base-content/60">
       <label class="flex items-center gap-2 whitespace-nowrap text-sm">
         {{ t('table.recordsPerPage', 'Records per page') }}:
         <select

@@ -199,4 +199,4 @@ npx @ghentcdh/add-crouton --cwd /path/to/project
 6. **Installs dependencies** — runs `<pm> install` if missing deps were detected.
 
 After running `@ghentcdh/add-crouton`, wire `CroutonApiModule` into your NestJS app module —
-see [Backend setup](backend.md).
+see [Backend setup](../3.backend/index.md).

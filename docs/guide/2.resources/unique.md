@@ -70,7 +70,7 @@ composite `P2002` is attributed to the scoped field (here `email`), not to every
 column in the index.
 
 Each `scope` entry must reference a real column id on the same resource — the
-[resource validator](validate-resource-json.md) reports an error otherwise.
+[resource validator](../5.tooling/validator.md) reports an error otherwise.
 
 ## The check endpoint
 

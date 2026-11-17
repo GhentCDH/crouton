@@ -53,7 +53,7 @@ const onSave = (data: unknown) => {
 </script>
 
 <template>
-  <div class="border border-base-300 rounded-lg p-4">
+  <div class="demo-surface border border-base-300 rounded-lg p-4">
     <CroutonForm
       :views="views"
       :data="formData"
@@ -63,7 +63,7 @@ const onSave = (data: unknown) => {
     />
   </div>
   <h2>Validate on mount</h2>
-  <div class="border border-base-300 rounded-lg p-4">
+  <div class="demo-surface border border-base-300 rounded-lg p-4">
     <CroutonForm
       :views="views"
       :data="formData"
