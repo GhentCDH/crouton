@@ -66,6 +66,14 @@ const errorDictionary: {
     test: isTooBigString,
     message: (issue) => `Must be at most ${(issue as SizedIssue).maximum} characters`,
   },
+  {
+    // `pattern`, `format: email|uri|…` — otherwise the raw code "invalid_format" is shown.
+    test: (issue) => issue.code === 'invalid_format',
+    message: (issue) => {
+      const format = (issue as CustomErrorIssue & { format?: string }).format;
+      return format === 'regex' ? 'Does not match the required pattern' : `Must be a valid ${format ?? 'value'}`;
+    },
+  },
 ];
 
 export const registerZodErrorMap = () => {

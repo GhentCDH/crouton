@@ -33,6 +33,14 @@
       "type": "boolean",
       "markdownDescription": "Always render the input disabled\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
     },
+    "errorMessage": {
+      "description": "Replace the validation error text shown under the input",
+      "examples": [
+        "Please fill this in"
+      ],
+      "type": "string",
+      "markdownDescription": "Replace the validation error text shown under the input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/custom)"
+    },
     "disabledWhen": {
       "description": "Disable the input when the condition matches another field",
       "examples": [

@@ -22,6 +22,10 @@ export const BaseOptionsSchema = z
     disabled: opt(z.boolean().optional(), {
       description: 'Always render the input disabled',
     }),
+    errorMessage: opt(z.string().optional(), {
+      description: 'Replace the validation error text shown under the input',
+      examples: ['Please fill this in'],
+    }),
     disabledWhen: opt(WhenConditionSchema.optional(), {
       description: 'Disable the input when the condition matches another field',
       examples: [{ field: 'id', exists: true }],

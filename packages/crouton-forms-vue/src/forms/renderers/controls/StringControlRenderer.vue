@@ -2,20 +2,26 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 
+import type { ControlOptions } from '@ghentcdh/crouton-core';
 import { Input } from '@ghentcdh/crouton-ui-vue';
 
-import { useControlBinding } from './composables/useControlBinding';
+import { useCustomControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, onBlur, onChange, isValidating } = useControlBinding(
-  props.uischema,
-  props.schema,
-);
+const { wrapper, value, onBlur, onChange, isValidating, appliedOptions } =
+  useCustomControlBinding<ControlOptions<'string'>>()(props.uischema, props.schema);
 </script>
 
 <template>
-  <Input v-bind="wrapper" v-model="value" @blur="onBlur" @change="onChange" />
+  <Input
+    v-bind="wrapper"
+    v-model="value"
+    :clearable="appliedOptions.clearable ?? false"
+    @blur="onBlur"
+    @change="onChange"
+    @clear="onChange"
+  />
   <span v-if="isValidating" class="text-xs text-gray-400 mt-1 block">
     Checking availability…
   </span>
