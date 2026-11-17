@@ -31,7 +31,7 @@ const {
 } = useBooleanBinding(props.uischema, props.schema);
 
 const onChange = (val: boolean) => {
-  field.setValue(Boolean(val) ?? false);
+  field.setValue(Boolean(val));
   onFieldChange();
 };
 </script>
