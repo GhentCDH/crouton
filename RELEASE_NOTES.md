@@ -1,3 +1,19 @@
+## 0.0.1-rc.2 (2026-11-17)
+
+### 🚀 Features
+
+- **crouton-ui-vue:** native hover tooltips for Btn ([#526](https://github.com/GhentCDH/crouton/pull/526))
+
+### 🩹 Fixes
+
+- **crouton-ui-vue:** render select option labels as text, not HTML ([#515](https://github.com/GhentCDH/crouton/pull/515))
+- **crouton-ui-vue:** make SubMenu a popover with honest semantics ([#520](https://github.com/GhentCDH/crouton/pull/520))
+- **ui:** give icon-only buttons an accessible name ([#521](https://github.com/GhentCDH/crouton/pull/521))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.0.1-rc.1 (2026-11-16)
 
 ### 🚀 Features
