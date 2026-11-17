@@ -30,6 +30,8 @@ type OptionsStrategy<ITEM> = {
   options: Ref<OptionValue[]>;
 
   setOptions: (options: ITEM[] | undefined) => void;
+  /** Extra list used only to resolve labels of values that are not in `options`. */
+  setDisplayOptions: (options: ITEM[] | undefined) => void;
   getOption: (options: ITEM) => OptionValue | undefined;
   getOriginal: (options: OptionValue) => ITEM | undefined;
   getOriginals: (...options: OptionValue[]) => ITEM[];
@@ -43,6 +45,16 @@ const DefaultOptionsStrategy = <ITEM>(
   const options = ref<OptionValue[]>([]);
   const originalMap = new Map<string, ITEM>();
   const optionMap = new Map<string, OptionValue>();
+  const displayLabelMap = new Map<string, string>();
+
+  const setDisplayOptions = (_options: ITEM[] | undefined) => {
+    displayLabelMap.clear();
+    _options?.forEach((option) => {
+      const value = getValue(option, props);
+      const label = getLabel(option, props);
+      if (value !== undefined && label !== undefined) displayLabelMap.set(value, label);
+    });
+  };
 
   const setOptions = (_options: ITEM[] | undefined) => {
     const optionList = [] as OptionValue[];
@@ -84,9 +96,11 @@ const DefaultOptionsStrategy = <ITEM>(
     return optionList.map((option) => {
       // When storeValue is used, the stored value is a primitive — look up label from optionMap.
       if (option !== null && option !== undefined && typeof option !== 'object') {
-        return optionMap.get(String(option))?.label ?? String(option);
+        const key = String(option);
+        return optionMap.get(key)?.label ?? displayLabelMap.get(key) ?? key;
       }
-      return getLabel(option, props) ?? '';
+      const value = getValue(option, props);
+      return getLabel(option, props) ?? (value !== undefined ? displayLabelMap.get(value) : undefined) ?? '';
     });
   };
 
@@ -97,6 +111,7 @@ const DefaultOptionsStrategy = <ITEM>(
   return {
     options,
     setOptions,
+    setDisplayOptions,
     getOriginal,
     getLabels,
     getValues,
