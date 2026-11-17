@@ -8,8 +8,7 @@
     "directory": "packages/crouton-prisma"
   },
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "type": "module",
   "bin": {

@@ -7,8 +7,7 @@
     "directory": "packages/crouton-auth"
   },
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "type": "module",
   "exports": {
