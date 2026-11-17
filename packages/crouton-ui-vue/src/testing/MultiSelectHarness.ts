@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `MultiSelect` component.
@@ -8,7 +8,7 @@ import { Harness, byRole } from './Harness';
  */
 export class MultiSelectHarness extends Harness {
   static byId(parent: Locator | Page, id: string): MultiSelectHarness {
-    return new MultiSelectHarness(byRole(parent, 'combobox', id));
+    return new MultiSelectHarness(byControlId(parent, 'combobox', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): MultiSelectHarness {
@@ -45,7 +45,7 @@ export class MultiSelectHarness extends Harness {
 
   /** Remove a selected chip by its label. */
   async removeChip(label: string): Promise<this> {
-    const group = this.locator.locator('xpath=ancestor::*[@role="select"][1]');
+    const group = this.locator.locator('xpath=ancestor::*[@data-control-id][1]');
     await group.getByText(label, { exact: true }).getByRole('button').click();
     return this;
   }

@@ -35,7 +35,7 @@ See the `ui-e2e` package for end-to-end examples.
 Each harness ships at least one factory:
 
 - `byLabel(parent, label)` — match the control's visible / aria label
-- `byId(parent, id)` — match the `aria-label="{id}"` set by lib components
+- `byId(parent, id)` — match the control inside the wrapper with `data-control-id="{id}"` (lib controls name themselves by their label, not their id)
 - `for(locator)` — wrap an existing Locator you've already scoped
 
 JsonForm-specific callers use `byScopeName` from

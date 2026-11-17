@@ -13,14 +13,14 @@ const toOptionString = (value: unknown): string | undefined =>
   value === null || value === undefined ? undefined : String(value);
 
 export const getLabel = (item: unknown, props: OptionsProperties) => {
-  if (!item) return undefined;
+  if (item === null || item === undefined) return undefined;
   return typeof item === 'object'
     ? toOptionString((item as Record<string, unknown>)[props.labelKey])
     : toOptionString(item);
 };
 
 const getValue = (item: unknown, props: OptionsProperties) => {
-  if (!item) return undefined;
+  if (item === null || item === undefined) return undefined;
   return typeof item === 'object'
     ? toOptionString((item as Record<string, unknown>)[props.valueKey])
     : toOptionString(item);

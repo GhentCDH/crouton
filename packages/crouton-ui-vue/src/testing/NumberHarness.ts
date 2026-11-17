@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `InputNumber` component.
@@ -8,7 +8,7 @@ import { Harness, byRole } from './Harness';
  */
 export class NumberHarness extends Harness {
   static byId(parent: Locator | Page, id: string): NumberHarness {
-    return new NumberHarness(byRole(parent, 'spinbutton', id));
+    return new NumberHarness(byControlId(parent, 'spinbutton', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): NumberHarness {

@@ -1,5 +1,5 @@
 <template>
-  <fieldset class="fieldset" :class="[width, mergedStyles.control.wrapper]">
+  <fieldset class="fieldset" :class="[width, mergedStyles.control.wrapper]" :data-control-id="id">
     <legend
       class="w-full inline-block"
       :class="[

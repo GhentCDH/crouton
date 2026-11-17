@@ -1,4 +1,4 @@
-export { Harness, byRole } from './Harness';
+export { Harness, byControlId, byRole } from './Harness';
 export { TextHarness } from './TextHarness';
 export { NumberHarness } from './NumberHarness';
 export { TextAreaHarness } from './TextAreaHarness';

@@ -12,6 +12,8 @@ export const SelectProperties = {
   valueKey: { type: String, default: 'value' },
   /** add a new button next to the list */
   enableCreate: { type: Boolean, default: false },
+  /** Label shown when the selected value is not among `options` (e.g. outside a restricted list) */
+  displayLabel: { type: String, default: undefined },
   /** Whether to show the clear button when a value is selected */
   clearable: { type: Boolean, default: false },
   /** Alternative to v-model — accepts a string id or a full option object */

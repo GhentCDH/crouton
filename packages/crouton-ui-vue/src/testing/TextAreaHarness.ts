@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byRole } from './Harness';
+import { Harness, byControlId, byRole } from './Harness';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `Textarea` component.
@@ -8,7 +8,7 @@ import { Harness, byRole } from './Harness';
  */
 export class TextAreaHarness extends Harness {
   static byId(parent: Locator | Page, id: string): TextAreaHarness {
-    return new TextAreaHarness(byRole(parent, 'textbox', id));
+    return new TextAreaHarness(byControlId(parent, 'textbox', id));
   }
 
   static byLabel(parent: Locator | Page, label: string): TextAreaHarness {

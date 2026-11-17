@@ -5,6 +5,7 @@ import { defineComponent, h, ref } from 'vue';
 import '@ghentcdh/crouton-ui-vue';
 
 import { type UniqueCheckFn, provideUniqueCheck } from '../../../../composables/useUniqueValidator';
+import type { HttpClient } from '../../../../http-client';
 import FormComponent from '../../../FormComponent.vue';
 import type { ControlVariant } from './control-variant';
 
@@ -14,7 +15,7 @@ import type { ControlVariant } from './control-variant';
  */
 export const mountControl = (
   variant: ControlVariant,
-  { uniqueCheck }: { uniqueCheck?: UniqueCheckFn } = {},
+  { uniqueCheck, http }: { uniqueCheck?: UniqueCheckFn; http?: HttpClient } = {},
 ) => {
   const last = ref<Record<string, unknown> | undefined>(variant.formData);
 
@@ -31,6 +32,7 @@ export const mountControl = (
             schema: variant.schema,
             uiSchema: variant.uiSchema,
             formData: variant.formData,
+            http,
             ...variant.form,
             onChange: (data: Record<string, unknown>) => {
               last.value = data;
