@@ -1,5 +1,7 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
+
+import { disableAnimations } from '../../helpers/disable-animations';
 
 /**
  * String control in isolation — each variant on /controls/string renders its
@@ -8,11 +10,15 @@ import { expect, test } from '@playwright/test';
 test.describe('String control', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/controls/string');
+    await disableAnimations(page);
     await expect(page.getByTestId('control-page-string')).toBeVisible();
   });
 
   const variant = (page: Page, id: string) =>
     page.getByTestId(`variant-${id}`);
+
+  // Rendered controls only — excludes the app-wide form debug panels.
+  const rendered = (section: Locator) => section.locator('form > :first-child');
 
   test('default: label derived from property name, typing updates the value', async ({ page }) => {
     const v = variant(page, 'default');
@@ -112,5 +118,26 @@ test.describe('String control', () => {
   test('uri format renders a url input', async ({ page }) => {
     const input = variant(page, 'uri').getByRole('textbox', { name: 'Value' });
     await expect(input).toHaveAttribute('type', 'url');
+  });
+
+  test.describe('visual', () => {
+    test('every variant matches its snapshot', async ({ page }) => {
+      const sections = page.locator('[data-testid^="variant-"]');
+      await expect(sections.first()).toBeVisible();
+
+      for (const section of await sections.all()) {
+        const id = await section.getAttribute('data-testid');
+        await expect.soft(rendered(section)).toHaveScreenshot(`string-${id}.png`, { maxDiffPixelRatio: 0.01 });
+      }
+    });
+
+    test('required error state matches its snapshot', async ({ page }) => {
+      const v = variant(page, 'required');
+      await v.getByRole('textbox', { name: 'Value' }).clear();
+      await page.keyboard.press('Tab');
+      await expect(v).toContainText('This field is required');
+
+      await expect(rendered(v)).toHaveScreenshot('string-variant-required-error.png', { maxDiffPixelRatio: 0.01 });
+    });
   });
 });
