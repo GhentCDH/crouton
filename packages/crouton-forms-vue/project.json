@@ -10,6 +10,21 @@
       "options": {
         "cwd": "{projectRoot}"
       }
+    },
+    "test": {
+      "command": "vitest run --project node",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
+    "test-browser": {
+      "command": "vitest run --project browser --coverage",
+      "options": {
+        "cwd": "{projectRoot}"
+      },
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "outputs": ["{projectRoot}/coverage"]
     }
   }
 }

@@ -7,6 +7,7 @@
 | `placeholder` | string | No |  | Placeholder text shown inside the input when empty | `"Search..."` |
 | `readonly` | boolean | No |  | Render the field in read-only mode |  |
 | `disabled` | boolean | No |  | Always render the input disabled |  |
+| `errorMessage` | string | No |  | Replace the validation error text shown under the input | `"Please fill this in"` |
 | `disabledWhen` | object | No |  | Disable the input when the condition matches another field | `{"field":"id","exists":true}` |
 | `colspan` | number | No |  | Grid column span (1–12) | `6`, `12` |
 | `width` | string | No |  | Named width (xs, sm, md, lg, xl, full) or any CSS value | `"md"`, `"240px"` |

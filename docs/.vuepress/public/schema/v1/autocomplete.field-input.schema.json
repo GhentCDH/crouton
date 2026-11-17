@@ -30,6 +30,13 @@
           "description": "Always render the input disabled",
           "type": "boolean"
         },
+        "errorMessage": {
+          "description": "Replace the validation error text shown under the input",
+          "examples": [
+            "Please fill this in"
+          ],
+          "type": "string"
+        },
         "disabledWhen": {
           "description": "Disable the input when the condition matches another field",
           "examples": [
@@ -219,6 +226,13 @@
         "disabled": {
           "description": "Always render the input disabled",
           "type": "boolean"
+        },
+        "errorMessage": {
+          "description": "Replace the validation error text shown under the input",
+          "examples": [
+            "Please fill this in"
+          ],
+          "type": "string"
         },
         "disabledWhen": {
           "description": "Disable the input when the condition matches another field",
@@ -410,6 +424,13 @@
           "description": "Always render the input disabled",
           "type": "boolean"
         },
+        "errorMessage": {
+          "description": "Replace the validation error text shown under the input",
+          "examples": [
+            "Please fill this in"
+          ],
+          "type": "string"
+        },
         "disabledWhen": {
           "description": "Disable the input when the condition matches another field",
           "examples": [
@@ -599,6 +620,13 @@
         "disabled": {
           "description": "Always render the input disabled",
           "type": "boolean"
+        },
+        "errorMessage": {
+          "description": "Replace the validation error text shown under the input",
+          "examples": [
+            "Please fill this in"
+          ],
+          "type": "string"
         },
         "disabledWhen": {
           "description": "Disable the input when the condition matches another field",

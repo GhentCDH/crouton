@@ -6,4 +6,5 @@
 
 | Option | Type | Required | Default | Description | Example |
 |--------|------|----------|---------|-------------|---------|
+| `clearable` | boolean | No | `false` | Show a clear (✕) button inside the input when it has a value |  |
 | `unique` | object | No |  | Async uniqueness validation: present when the column declares `unique`. |  |
