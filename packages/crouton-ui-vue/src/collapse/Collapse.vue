@@ -21,7 +21,7 @@
         <span>{{ title }}</span>
         <div
           v-if="properties.actions.length > 0"
-          class="relative z-10 flex gap-1 overflow-y-auto"
+          class="relative z-10 flex gap-1 shrink-0"
           @click.stop
         >
           <Btn

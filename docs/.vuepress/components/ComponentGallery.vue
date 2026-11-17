@@ -2,17 +2,21 @@
 import { ref } from 'vue';
 import {
   Alert,
+  Autocomplete,
   Btn,
   BtnBadge,
   Card,
   Checkbox,
   Collapse,
   CollapseRow,
+  IconEnum,
   Input,
   InputNumber,
   Loading,
   Modal,
+  MultiSelect,
   SelectComponent,
+  SubMenu,
   Textarea,
 } from '@ghentcdh/crouton-ui-vue';
 import { DatePicker } from '@ghentcdh/crouton-forms-vue';
@@ -22,15 +26,44 @@ const numberValue = ref(42);
 const textareaValue = ref('');
 const checkboxValue = ref(false);
 const selectValue = ref('');
+const multiValue = ref<string[]>(['a']);
+const autocompleteValue = ref('');
 const modalOpen = ref(false);
+const modalSelectValue = ref('');
+const modalDateValue = ref<string | undefined>();
 const dateValue = ref<string | undefined>('2026-08-14T00:00:00.000Z');
 const dateTimeValue = ref<string | undefined>();
+const lastAction = ref('—');
 
 const selectOptions = [
   { value: 'a', label: 'Option A' },
   { value: 'b', label: 'Option B' },
   { value: 'c', label: 'Option C' },
 ];
+
+const cityOptions = ['Antwerp', 'Bruges', 'Brussels', 'Ghent', 'Leuven', 'Liège', 'Namur'].map(
+  (city) => ({ value: city.toLowerCase(), label: city }),
+);
+
+const collapseActions = [
+  { icon: IconEnum.Edit, tooltip: 'Edit', onClick: () => (lastAction.value = 'Edit') },
+  { icon: IconEnum.Delete, tooltip: 'Delete', onClick: () => (lastAction.value = 'Delete') },
+];
+
+const userMenu = {
+  label: 'Jane Doe',
+  items: [
+    { label: 'Profile', action: () => (lastAction.value = 'Profile') },
+    {
+      label: 'Language',
+      items: [
+        { label: 'English', action: () => (lastAction.value = 'English') },
+        { label: 'Nederlands', action: () => (lastAction.value = 'Nederlands') },
+      ],
+    },
+    { label: 'Logout', action: () => (lastAction.value = 'Logout') },
+  ],
+};
 </script>
 
 <template>
@@ -50,6 +83,13 @@ const selectOptions = [
           <Btn color="primary" size="xs">XSmall</Btn>
           <Btn color="primary" size="sm">Small</Btn>
           <Btn color="primary" size="md">Medium</Btn>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center mt-2">
+          <!-- Icon-only: aria-label gives the name, tooltip shows it on hover/focus -->
+          <Btn :icon="IconEnum.Edit" color="secondary" size="xs" tooltip="Edit" aria-label="Edit" />
+          <Btn :icon="IconEnum.View" color="secondary" size="xs" tooltip="View" aria-label="View" />
+          <Btn :icon="IconEnum.Delete" color="error" size="xs" tooltip="Delete" aria-label="Delete" />
+          <Btn color="primary" outline tooltip="Copies the record without its relations">Duplicate</Btn>
         </div>
         <div class="flex flex-wrap gap-2 items-center mt-2">
           <BtnBadge>Badge</BtnBadge>
@@ -88,6 +128,19 @@ const selectOptions = [
             label-key="label"
             width="w-64"
           />
+          <MultiSelect
+            v-model="multiValue"
+            label="Multi select"
+            :options="selectOptions"
+            width="w-64"
+          />
+          <Autocomplete
+            v-model="autocompleteValue"
+            label="Autocomplete"
+            :options="cityOptions"
+            placeholder="Type a city…"
+            width="w-64"
+          />
         </div>
       </section>
 
@@ -120,6 +173,20 @@ const selectOptions = [
           <Collapse title="Closed by default" :opened="false">
             <CollapseRow title="Hidden item" label="Revealed on expand" />
           </Collapse>
+          <Collapse title="With actions" :opened="true" :actions="collapseActions">
+            <CollapseRow title="Item" label="Icon actions in the header" />
+          </Collapse>
+        </div>
+        <p class="text-sm opacity-60 mt-2">Last action: {{ lastAction }}</p>
+      </section>
+
+      <!-- Menu -->
+      <section>
+        <h2 class="text-lg font-semibold mb-3 border-b pb-2">Menu</h2>
+        <!-- popovertarget button + popover list: Esc, outside click and choosing an item close it -->
+        <div class="flex items-center gap-4">
+          <SubMenu v-bind="userMenu" />
+          <span class="text-sm opacity-60">Last action: {{ lastAction }}</span>
         </div>
       </section>
 
@@ -147,7 +214,20 @@ const selectOptions = [
         <Btn color="primary" @click="modalOpen = true">Open modal</Btn>
         <Modal modal-title="Example modal" :open="modalOpen" @close-modal="modalOpen = false">
           <template #content>
-            Native &lt;dialog&gt;: Esc closes, focus is trapped and returned.
+            <p>Native &lt;dialog&gt;: Esc closes, focus is trapped and returned.</p>
+            <p class="text-sm opacity-60">
+              The dropdowns below open in the top layer, above the dialog. Esc inside an open
+              dropdown closes only the dropdown.
+            </p>
+            <div class="flex flex-wrap gap-4 items-start mt-2">
+              <SelectComponent
+                v-model="modalSelectValue"
+                label="Select"
+                :options="selectOptions"
+                width="w-56"
+              />
+              <DatePicker v-model="modalDateValue" label="Date" width="w-56" />
+            </div>
           </template>
           <template #actions>
             <Btn color="secondary" outline @click="modalOpen = false">Cancel</Btn>
