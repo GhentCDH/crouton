@@ -4,7 +4,7 @@
       size="xs"
       color="ghost"
       class="border-gray-300 text-base-content/50 h-8 "
-      @click="showFilters = !showFilters"
+      :popovertarget="panelId"
     >
       <span class="px-2 flex gap-2 items-center">
         <Icon :icon="IconEnum.Filter" size="sm" class="text-base-500" />
@@ -18,10 +18,16 @@
       </span>
     </Btn>
 
+    <!-- popover="auto" opened by the button above: the browser handles light
+         dismiss and Esc, and the button is the panel's implicit anchor. -->
     <div
-      v-if="showFilters"
+      :id="panelId"
+      ref="panelRef"
+      popover
       data-testid="filter-panel"
-      class="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 min-w-[560px] border border-base-200 rounded-xl bg-base-100 shadow-lg p-4"
+      class="min-w-[560px] overflow-visible border border-base-200 rounded-xl bg-base-100 text-base-content shadow-lg p-4"
+      :style="panelStyle"
+      @beforetoggle="onBeforeToggle"
     >
       <div class="flex flex-col gap-2">
         <FilterRowInput
@@ -50,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, ref, useId, watch } from 'vue';
 
 import type { FieldType, Filter } from '@ghentcdh/crouton-core';
 import { useUiTranslator } from '../../composables/useUiTranslator';
@@ -59,29 +65,36 @@ import {
   filterToString,
   OperatorNoValue,
 } from '@ghentcdh/crouton-core';
-import { Btn, Icon, IconEnum } from '@ghentcdh/crouton-ui-vue';
+import {
+  anchoredStyle,
+  Btn,
+  fixedStyleBelow,
+  Icon,
+  IconEnum,
+  supportsAnchorPositioning,
+} from '@ghentcdh/crouton-ui-vue';
 
 import type { FieldOption } from './field-option';
 import FilterRowInput from './FilterRowInput.vue';
 
 const t = useUiTranslator();
-const showFilters = ref(false);
 const appliedCount = ref(0);
+const panelId = `table-filter-${useId()}`;
 const containerRef = ref<HTMLElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
+const panelStyle = ref<Record<string, string>>({});
 
-const onClickOutside = (event: MouseEvent) => {
-  const target = event.target as Node;
-  // Ignore clicks inside the filter container itself
-  if (containerRef.value?.contains(target)) return;
-  // Ignore clicks inside a teleported select listbox (rendered outside container in <body>)
-  if ((target as Element).closest?.('[data-select-listbox]')) return;
-  showFilters.value = false;
+// Right-align the panel under the button (it is wider than the button and
+// sits near the right edge). Runs before the popover is painted.
+const onBeforeToggle = (event: Event) => {
+  if ((event as ToggleEvent).newState !== 'open' || !containerRef.value) return;
+  panelStyle.value = supportsAnchorPositioning()
+    ? anchoredStyle('end')
+    : fixedStyleBelow(containerRef.value, 'end');
 };
 
-onMounted(() => document.addEventListener('mousedown', onClickOutside));
-onBeforeUnmount(() =>
-  document.removeEventListener('mousedown', onClickOutside),
-);
+const closePanel = () => panelRef.value?.hidePopover();
+
 const props = defineProps<{
   /** Active filter strings from the URL, e.g. ["title:foo:contains"] */
   filters: string[];
@@ -165,13 +178,13 @@ const onApply = () => {
     .map(filterToString);
   appliedCount.value = serialized.length;
   emit('changeFilters', serialized);
-  showFilters.value = false;
+  closePanel();
 };
 
 const onReset = () => {
   rows.value = [emptyRow()];
   appliedCount.value = 0;
   emit('changeFilters', []);
-  showFilters.value = false;
+  closePanel();
 };
 </script>
