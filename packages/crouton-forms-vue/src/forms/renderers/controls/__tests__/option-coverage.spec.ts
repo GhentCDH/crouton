@@ -7,6 +7,7 @@ import { type ControlVariant, usedOptionKeys } from './control-variant';
 import { numberVariants } from './number.variants';
 import { stringVariants } from './string.variants';
 import { textareaVariants } from './textarea.variants';
+import { toggleVariants } from './toggle.variants';
 
 /**
  * Option coverage: every option a control's schema declares must be used by at
@@ -27,6 +28,10 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
   boolean: {
     variants: booleanVariants,
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a checkbox has no placeholder' },
+  },
+  toggle: {
+    variants: toggleVariants,
+    skipped: { customRender: CUSTOM_RENDER, placeholder: 'a button group has no placeholder' },
   },
 };
 
