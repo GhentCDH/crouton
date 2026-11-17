@@ -7,7 +7,7 @@
       <label class="fieldset-label">
         <input
           v-model="model"
-          :aria-label="id"
+          :aria-label="label"
           role="checkbox"
           type="checkbox"
           :class="style"
@@ -16,7 +16,7 @@
           @focus="onFocus"
           @blur="onBlur"
         >
-        <span class="font-bold text-gray-500 text-sm"> {{ label }}</span>
+        <span v-if="!hideLabel" class="font-bold text-gray-500 text-sm"> {{ label }}</span>
       </label>
     </ControlWrapper>
   </div>

@@ -2,6 +2,7 @@ import type { z } from 'zod';
 
 import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
+import { booleanVariants } from './boolean.variants';
 import { type ControlVariant, usedOptionKeys } from './control-variant';
 import { numberVariants } from './number.variants';
 import { stringVariants } from './string.variants';
@@ -23,6 +24,10 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
   number: { variants: numberVariants, skipped: { customRender: CUSTOM_RENDER } },
   integer: { variants: numberVariants, skipped: { customRender: CUSTOM_RENDER } },
   textarea: { variants: textareaVariants, skipped: { customRender: CUSTOM_RENDER } },
+  boolean: {
+    variants: booleanVariants,
+    skipped: { customRender: CUSTOM_RENDER, placeholder: 'a checkbox has no placeholder' },
+  },
 };
 
 const declaredKeys = (type: string): string[] => {
