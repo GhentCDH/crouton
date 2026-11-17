@@ -4,18 +4,22 @@ import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
 import { type ControlVariant, usedOptionKeys } from './control-variant';
 import { stringVariants } from './string.variants';
+import { textareaVariants } from './textarea.variants';
 
 /**
  * Option coverage: every option a control's schema declares must be used by at
  * least one variant in its browser spec, unless listed in `skipped` with a reason.
  */
+const CUSTOM_RENDER = 'resolved by crouton-vue custom components, not by this renderer';
+
 const controls: Record<string, { variants: ControlVariant[]; skipped: Record<string, string> }> = {
   string: {
     variants: stringVariants,
     skipped: {
-      customRender: 'resolved by crouton-vue custom components, not by this renderer',
+      customRender: CUSTOM_RENDER,
     },
   },
+  textarea: { variants: textareaVariants, skipped: { customRender: CUSTOM_RENDER } },
 };
 
 const declaredKeys = (type: string): string[] => {

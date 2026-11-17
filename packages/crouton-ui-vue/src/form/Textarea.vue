@@ -6,7 +6,7 @@
       data-lpignore="true"
       data-bwignore="true"
       type="text"
-      :aria-label="id"
+      :aria-label="label"
       class="w-full"
       :class="style"
       :disabled="!enabled"

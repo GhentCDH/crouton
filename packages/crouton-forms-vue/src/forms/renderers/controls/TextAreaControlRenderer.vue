@@ -30,8 +30,10 @@ const textValue = computed({
   get: () => field.value.value as string | undefined,
   set: (v: string | undefined) => field.setValue(v),
 });
-const textareaHeight = computed(() => appliedOptions.value?.height?.toString());
-const textareaMinHeight = computed(() => appliedOptions.value?.minHeight?.toString());
+// Options accept a CSS value or a pixel number (e.g. 200 → "200px").
+const toCss = (v: string | number | undefined) => (typeof v === 'number' ? `${v}px` : v);
+const textareaHeight = computed(() => toCss(appliedOptions.value?.height));
+const textareaMinHeight = computed(() => toCss(appliedOptions.value?.minHeight));
 
 // Read the direction value from the form's reactive values proxy directly.
 // This avoids registering a phantom field (useField side effect) and avoids
