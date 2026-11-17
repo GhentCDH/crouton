@@ -8,6 +8,7 @@
         :size="toggleSize ?? 'sm'"
         :color="isActive(opt) ? (toggleColor ?? 'primary') : 'blank'"
         :outline="!isActive(opt)"
+        :aria-pressed="isActive(opt)"
         :disabled="wrapper.enabled === false"
         @click="onSelect(opt)"
       >
