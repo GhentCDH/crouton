@@ -3,6 +3,7 @@
     v-if="fetchOptions"
     v-bind="wrapper"
     :model-value="(displayValue as string | Record<string, unknown> | undefined)"
+    :options="inlineOptions"
     :fetch-options="fetchOptions?.fetchOptions ?? undefined"
     :label-key="fetchOptions.labelKey"
     :value-key="fetchOptions.valueKey"
@@ -16,7 +17,7 @@
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import { useFormContext } from 'vee-validate';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 
@@ -59,9 +60,35 @@ watch(
   { immediate: true, deep: true },
 );
 
+// Inline list: `options`, or the deprecated `values` alias.
+const inlineOptions = computed(() => {
+  const opts = appliedOptions.value as { options?: unknown[]; values?: unknown[] } | undefined;
+  return opts?.options ?? opts?.values;
+});
+
+// A scalar stored from an inline list (storeValue) resolves to its record
+// locally; remote/resource lists resolve through fetchByValue.
+// Records picked or created that are not in the inline list (e.g. via `create`).
+const rememberedInline = new Map<unknown, unknown>();
+const inlineConfig = computed(() => {
+  const list = inlineOptions.value;
+  if (!list || !fetchOptions.value) return fetchOptions.value;
+  const valueKey = (fetchOptions.value.valueKey as string | undefined) ?? 'value';
+  const find = (v: unknown) =>
+    rememberedInline.get(v) ??
+    list.find((o) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[valueKey] : o) === v) ??
+    null;
+  return {
+    ...fetchOptions.value,
+    fetchByValue: (v: unknown) => Promise.resolve(find(v)),
+    peekByValue: find,
+    rememberValue: (v: unknown, record: unknown) => rememberedInline.set(v, record),
+  };
+});
+
 const { displayValue } = useAutocompleteDisplayValue(
   value,
-  fetchOptions,
+  inlineConfig,
   () => fetchOptions.value?.labelKey as string | undefined,
   () => fetchOptions.value?.valueKey as string | undefined,
 );
@@ -76,7 +103,8 @@ const modalOpener = useModalOpener();
 const path = scopeToPath(props.uischema.scope);
 
 const setValue = (result: Record<string, unknown>) => {
-  if (!result || !fetchOptions.value) {
+  // Empty, or a free-text string (freeText): store as-is.
+  if (!result || typeof result !== 'object' || !fetchOptions.value) {
     displayValue.value = result;
     field.setValue(result);
     return;
@@ -87,7 +115,7 @@ const setValue = (result: Record<string, unknown>) => {
   // storeValue: true → store only the primitive value (e.g. an id string)
   if ((appliedOptions.value as unknown as Record<string, unknown>)?.storeValue && valueKey && valueKey in result) {
     // Remember the picked record so the label survives a reload of this form.
-    fetchOptions.value.rememberValue?.(result[valueKey], result);
+    inlineConfig.value?.rememberValue?.(result[valueKey], result);
     displayValue.value = result;
     field.setValue(result[valueKey]);
     return;

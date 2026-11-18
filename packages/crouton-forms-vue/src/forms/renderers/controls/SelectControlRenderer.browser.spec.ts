@@ -2,8 +2,9 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { cleanup } from 'vitest-browser-vue';
 
+import { fakeHttp } from './__tests__/fake-http';
 import { mountControl } from './__tests__/mount-control';
-import { fakeHttp, selectVariants } from './__tests__/select.variants';
+import { selectVariants } from './__tests__/select.variants';
 
 const mount = (id: string) => {
   const variant = selectVariants.find((v) => v.id === id);
