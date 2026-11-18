@@ -140,7 +140,7 @@ resources/zotero_item/
 | `-r, --route <route>`   | URL segment (defaults to the name)                                                        |
 | `-t, --tag <tag>`       | OpenAPI tag                                                                               |
 | `--title <title>`       | UI title                                                                                  |
-| `-d, --database <name>` | Datasource exposed to the repository as `ctx.prisma`                                      |
+| `-d, --datasource <name>` | Datasource exposed to the repository as `ctx.prisma` (`--database` is a deprecated alias) |
 | `--id-type <type>`      | `string` (default) or `number`                                                            |
 | `--cwd <dir>`           | Project directory                                                                         |
 | `-p, --project <name>`  | Project to use ([choosing a project](#choosing-a-project))                                |
