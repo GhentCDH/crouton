@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { Row } from '@ghentcdh/crouton-core';
 
+import { invalid } from '../../../../testing/index';
+import type { Resource } from '../../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
 import { loadRelationsIntoRow, loadRelationsIntoRows } from './relation-loader';
 
@@ -105,5 +107,46 @@ describe('loadRelationsIntoRows', () => {
     expect(result).toHaveLength(2);
     expect(result[0]['child']).toEqual({ id: 'x' });
     expect(result[1]['child']).toEqual({ id: 'x' });
+  });
+});
+
+describe('custom child repositories receive the request context (#556)', () => {
+  const parentConfig = invalid<Resource>({ name: 'families', route: 'families' });
+  const request = { user: { id: 'u1' } };
+
+  it('oneToMany: findAllByParent gets request, op, config and parent', async () => {
+    const repo = { findAllByParent: vi.fn().mockResolvedValue({ data: [] }) };
+    const sub = baseSub({ relationType: 'oneToMany', repository: repo as never });
+
+    await loadRelationsIntoRow({ id: 'f1' }, [sub], 'id', {}, { parentConfig, request });
+
+    expect(repo.findAllByParent.mock.calls[0][2]).toMatchObject({
+      request,
+      op: 'findAll',
+      config: parentConfig,
+      parent: { route: 'families', param: 'id', id: 'f1' },
+    });
+  });
+
+  it('manyToOne: findOne gets request but no parent (target is not nested)', async () => {
+    const repo = { findOne: vi.fn((_id: unknown, _ctx: Record<string, unknown>) => Promise.resolve({ id: '42' })) };
+    const sub = baseSub({ relationType: 'manyToOne', repository: repo as never });
+
+    await loadRelationsIntoRow({ id: 'f1', childId: '42' }, [sub], 'id', {}, { parentConfig, request });
+
+    const ctx = repo.findOne.mock.calls[0][1];
+    expect(ctx).toMatchObject({ request, op: 'findOne', id: '42' });
+    expect(ctx.parent).toBeUndefined();
+  });
+
+  it('list embed (loadRelationsIntoRows) forwards the request per row', async () => {
+    const repo = {
+      findAllByParent: vi.fn((_p: unknown, _params: unknown, _ctx: { request?: unknown }) => Promise.resolve({ data: [] })),
+    };
+    const sub = baseSub({ relationType: 'oneToMany', repository: repo as never });
+
+    await loadRelationsIntoRows([{ id: 'a' }, { id: 'b' }], [sub], 'id', {}, { parentConfig, request });
+
+    expect(repo.findAllByParent.mock.calls.map((c) => c[2].request)).toEqual([request, request]);
   });
 });

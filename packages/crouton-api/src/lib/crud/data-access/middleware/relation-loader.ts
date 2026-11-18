@@ -1,5 +1,7 @@
 import type { Row } from '@ghentcdh/crouton-core';
 
+import { childCtx } from '../../custom-repository/child-delegate';
+import type { Resource } from '../../resource/ResourceConfig.schema';
 import type { SubResourceConfig } from '../../resource/SubResource.schema';
 import type { PrismaClientLike } from '../../types/prisma.types';
 import { getDelegate } from '../../types/prisma.types';
@@ -13,11 +15,22 @@ const DEFAULT_FIND_ALL_PARAMS = {
   include: [] as string[],
 };
 
+/**
+ * Request context of the read that triggers the embed. Custom repositories get
+ * the same `ctx` (request, op, config, parent, dataSources) as when their own
+ * route is called, so access checks in `repository.ts` keep working.
+ */
+export interface RelationLoadContext {
+  parentConfig: Resource;
+  request?: unknown;
+}
+
 const loadOneRelation = async (
   sub: SubResourceConfig,
   row: Row,
   parentIdField: string,
   prisma: unknown,
+  load?: RelationLoadContext,
 ): Promise<unknown> => {
   const parentId = row[parentIdField] as string | number;
 
@@ -28,9 +41,16 @@ const loadOneRelation = async (
     if (sub.relationType === 'manyToOne') {
       const fk = row[sub.foreignKey] as string | number | undefined;
       if (fk == null) return null;
-      return repo['findOne']?.(fk, { prisma }) ?? null;
+      // manyToOne target is not nested under this row — no `parent` in ctx.
+      const ctx = load
+        ? { ...childCtx({ ...load, prisma, op: 'findOne', parentId, id: fk }), parent: undefined }
+        : { prisma };
+      return repo['findOne']?.(fk, ctx) ?? null;
     }
-    const result = await repo['findAllByParent']?.(parentId, DEFAULT_FIND_ALL_PARAMS, { prisma });
+    const ctx = load
+      ? childCtx({ ...load, prisma, op: 'findAll', parentId, params: DEFAULT_FIND_ALL_PARAMS })
+      : { prisma };
+    const result = await repo['findAllByParent']?.(parentId, DEFAULT_FIND_ALL_PARAMS, ctx);
     return (result as { data?: unknown[] } | undefined)?.data ?? [];
   }
 
@@ -56,12 +76,13 @@ export const loadRelationsIntoRow = async (
   subsToLoad: SubResourceConfig[],
   parentIdField: string,
   prisma: unknown,
+  load?: RelationLoadContext,
 ): Promise<Row> => {
   if (!subsToLoad.length) return row;
 
   const patches = await Promise.all(
     subsToLoad.map(async (sub) => {
-      const data = await loadOneRelation(sub, row, parentIdField, prisma);
+      const data = await loadOneRelation(sub, row, parentIdField, prisma, load);
       return [sub.column, data] as const;
     }),
   );
@@ -74,6 +95,7 @@ const batchLoadRelation = async (
   sub: SubResourceConfig,
   parentIdField: string,
   prisma: unknown,
+  load?: RelationLoadContext,
 ): Promise<Row[]> => {
   if (sub.childKind !== 'custom') {
     const delegate = getDelegate(prisma as PrismaClientLike, sub.childModel);
@@ -108,7 +130,7 @@ const batchLoadRelation = async (
 
   // ponytail: custom child N+1 per row; batch by adding findAllBy(field, values) to CustomRepository when throughput matters
   if (!sub.repository) return rows.map((r) => ({ ...r, [sub.column]: sub.relationType === 'manyToOne' ? null : [] }));
-  return Promise.all(rows.map((row) => loadRelationsIntoRow(row, [sub], parentIdField, prisma)));
+  return Promise.all(rows.map((row) => loadRelationsIntoRow(row, [sub], parentIdField, prisma, load)));
 };
 
 /**
@@ -120,12 +142,13 @@ export const loadRelationsIntoRows = async (
   subsToLoad: SubResourceConfig[],
   parentIdField: string,
   prisma: unknown,
+  load?: RelationLoadContext,
 ): Promise<Row[]> => {
   if (!subsToLoad.length || !rows.length) return rows;
 
   let result = rows;
   for (const sub of subsToLoad) {
-    result = await batchLoadRelation(result, sub, parentIdField, prisma);
+    result = await batchLoadRelation(result, sub, parentIdField, prisma, load);
   }
   return result;
 };
