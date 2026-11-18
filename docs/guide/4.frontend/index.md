@@ -4,7 +4,7 @@ description: Bootstrap the Crouton admin UI in a Vue 3 application — install c
 
 # Frontend setup
 
-> Last verified against crouton `0.1.0`
+> Last verified against crouton `0.0.1-alpha.81`
 
 Add the crouton admin UI to a Vue 3 application.
 
