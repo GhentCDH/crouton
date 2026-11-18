@@ -32,15 +32,19 @@ removed.
 | `resource`   | Relative path to the target `resource.json`                                      |
 | `type`       | `"manyToOne"` \| `"oneToMany"` \| `"manyToMany"`                                 |
 | `foreignKey` | FK column name (on **this** resource for manyToOne; on **target** for oneToMany) |
-| `name`       | Prisma relation field name when different from the column id                     |
-| `displayKey` | Field on the related record shown in autocomplete / lookup                       |
+| `prismaField`| Prisma relation field name. For a manyToOne on its FK column (`authorId`) it defaults to the FK without `Id`/`_id` (`author`) |
+| `displayKey` | Field on the related record shown in the table cell and lookups (column-level `displayKey` wins) |
 | `sort`       | Default sort field for the related list                                          |
 | `sortDir`    | `"asc"` \| `"desc"` (default `"asc"`)                                            |
 
 ## manyToOne (autocomplete lookup)
 
 FK is on **this** resource (e.g. `book.authorId → author.id`).
-Frontend renders an autocomplete search dropdown.
+Frontend renders an autocomplete search dropdown. In the table, the cell shows
+the related record's `displayKey`, read from the included relation (`author`);
+it falls back to the raw id when the relation is not included. Include the
+relation by its Prisma field name, and set `relation.prismaField` when that is
+not the FK name minus `Id`.
 
 ```json
 {

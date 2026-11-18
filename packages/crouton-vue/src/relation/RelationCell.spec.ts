@@ -74,4 +74,27 @@ describe('RelationCell – display value resolution', () => {
     expect(mountCell(null).find('button').exists()).toBe(false);
     expect(mountCell(undefined).find('button').exists()).toBe(false);
   });
+
+  describe('manyToOne on the FK column (#549)', () => {
+    const mountFk = (data: Record<string, unknown>, options: Record<string, unknown> = {}) =>
+      mount(RelationCell, {
+        props: {
+          data,
+          column: { id: 'textSelectionId', label: 'Selection' },
+          options: { relationType: 'manyToOne', relationField: 'textSelection', displayKey: 'text', ...options },
+        },
+      });
+
+    it('shows the included relation record, not "N records"', () => {
+      const wrapper = mountFk({ textSelectionId: 515, textSelection: { id: 515, text: 'Hello' } });
+      expect(wrapper.text()).toContain('Hello');
+      expect(wrapper.text()).not.toContain('records');
+    });
+
+    it('falls back to the raw id when the relation is not included', () => {
+      const wrapper = mountFk({ textSelectionId: 515 });
+      expect(wrapper.text()).toContain('515');
+      expect(wrapper.text()).not.toContain('records');
+    });
+  });
 });

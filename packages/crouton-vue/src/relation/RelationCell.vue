@@ -24,11 +24,17 @@ const props = defineProps({
   options: { type: Object as PropType<Record<string, unknown>> },
 });
 
+const isManyToOne = computed(() => props.options?.relationType === 'manyToOne');
+
+// A manyToOne on its FK column points at the included relation object via
+// `relationField`; fall back to the raw FK when the relation is not included.
 const value = computed(() => {
-  return props.data[props.column.id];
+  const field = props.options?.relationField as string | undefined;
+  return (field ? props.data[field] : undefined) ?? props.data[props.column.id];
 });
-const isNumberValue = computed(() => {
-  return typeof value.value === 'number';
+// A number is a count for to-many relations; for manyToOne it is the FK id.
+const isCountValue = computed(() => {
+  return typeof value.value === 'number' && !isManyToOne.value;
 });
 
 const getNestedValue = (value: unknown, path: string): unknown => {
@@ -40,13 +46,14 @@ const getNestedValue = (value: unknown, path: string): unknown => {
 };
 const label = computed(() => {
   const val = value.value;
-  if (isNumberValue.value) {
+  if (isCountValue.value) {
     if (val === 1) return '1 record';
     else return `${val} records`;
   }
 
-  if (typeof val === 'undefined' || typeof val === 'undefined' || val === null)
+  if (typeof val === 'undefined' || val === null)
     return undefined;
+  if (typeof val !== 'object') return String(val);
 
   const displayKey = ((props.options?.displayKey ?? props.options?.key) ?? 'id') as string;
 
@@ -54,7 +61,7 @@ const label = computed(() => {
 });
 
 const openDetails = () => {
-  if (props.options?.relationType === 'manyToOne')
+  if (isManyToOne.value)
     return openDetailsManyToOne();
   return openDetailsManyToMany();
 };
