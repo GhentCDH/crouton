@@ -128,21 +128,26 @@ components freely.
 
 ### Component item options
 
-```ts
+```jsonc
 {
-  "component"
-:
-  "MyComponent",
-    "colspan"
-:
-  6,   // optional
-    "label"
-:
-  "..."  // optional
+  "component": "RecordSummary",
+  "colspan": 6,                           // optional, 1–12 (default 12)
+  "label": "Summary",                     // optional
+  "props": { "compact": true }            // optional, static props for the component
 }
 ```
 
 Component references resolve by name from the app's `customComponents` registry (registered via `useCrouton()`).
+
+In `layout.form` / `layout.view` the component receives these props:
+
+| Prop       | Value                                                       |
+|------------|-------------------------------------------------------------|
+| `data`     | The record being edited or viewed (current form values)     |
+| `readonly` | `true` in the detail view / readonly forms                  |
+| `schema`   | JSON Schema of the form                                     |
+| `uischema` | The component element (`options.component`, `options.props`) |
+| …`props`   | Every key of the item's `props`, spread as its own prop     |
 
 ## Examples
 
