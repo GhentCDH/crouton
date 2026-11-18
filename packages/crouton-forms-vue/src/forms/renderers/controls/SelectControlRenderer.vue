@@ -2,8 +2,8 @@
   <SelectComponent
     v-bind="wrapper"
     :model-value="value"
-    :options="selectOptions"
-    :display-label="displayLabel"
+    :options="options"
+    :display-options="appliedOptions?.displayValues"
     :clearable="appliedOptions?.clearable ?? true"
     @change="onChange"
     @blur="onBlur"
@@ -12,15 +12,12 @@
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import { useFormContext } from 'vee-validate';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 
-import type { AutocompleteAllOptions } from '@ghentcdh/crouton-core';
 import { SelectComponent } from '@ghentcdh/crouton-ui-vue';
 
-import { useFetchOptions } from './composables/useFetchOption';
 import { useSelectBinding } from './composables/useSelectBinding';
-import { useHttpClient } from '../../../composables/useHttpClient';
+import { useSelectOptions } from './composables/useSelectOptions';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
@@ -33,52 +30,8 @@ const {
   appliedOptions,
 } = useSelectBinding(props.uischema, props.schema);
 
-const http = useHttpClient();
-const { values: formValues } = useFormContext();
-
+const { options } = useSelectOptions(appliedOptions);
 const valueKey = computed(() => appliedOptions.value?.valueKey ?? 'value');
-const isRemote = computed(
-  () => !!appliedOptions.value?.uri || !!appliedOptions.value?.resource,
-);
-
-// Remote options fetched from URI or resource.
-const remoteOptions = ref<unknown[]>([]);
-
-watch(
-  [appliedOptions, formValues],
-  async ([opts]) => {
-    if (!isRemote.value) return;
-    const fetcher = await useFetchOptions(
-      (opts as unknown) as AutocompleteAllOptions,
-      http,
-      formValues,
-    );
-    if (!fetcher.fetchOptions) return;
-    try {
-      const results: unknown = await fetcher.fetchOptions(
-        '',
-        new AbortController().signal,
-      );
-      remoteOptions.value = Array.isArray(results) ? results : [];
-    } catch {
-      remoteOptions.value = [];
-    }
-  },
-  { immediate: true, deep: true },
-);
-
-const selectOptions = computed<unknown[]>(() => {
-  if (isRemote.value) return remoteOptions.value;
-  return appliedOptions.value?.options ?? appliedOptions.value?.values ?? [];
-});
-
-// Label for a stored value outside `options`, resolved by the binding from `displayValues`.
-const displayLabel = computed(() => {
-  const record = (wrapper.value as { displayValue?: unknown }).displayValue;
-  if (!record || typeof record !== 'object') return undefined;
-  const label = (record as Record<string, unknown>)[(appliedOptions.value?.labelKey as string) ?? 'label'];
-  return label === undefined || label === null ? undefined : String(label);
-});
 
 const onChange = (val: unknown) => {
   const stored =

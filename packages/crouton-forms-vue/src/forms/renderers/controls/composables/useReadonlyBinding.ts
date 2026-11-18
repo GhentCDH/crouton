@@ -82,6 +82,20 @@ const getSelectValue = (value: unknown, opts: ReadonlyOpts): unknown => {
   return resolved === undefined || resolved === '' ? null : resolved;
 };
 
+/** A multi-select value is an array, or a JSON string of one (string DB column). */
+const getMultiSelectValue = (value: unknown, opts: ReadonlyOpts): string | null => {
+  let items: unknown = value;
+  if (typeof value === 'string') {
+    try {
+      items = JSON.parse(value);
+    } catch {
+      return value || null;
+    }
+  }
+  if (!Array.isArray(items) || items.length === 0) return null;
+  return items.map((item) => String(getSelectValue(item, opts) ?? '')).join(', ');
+};
+
 export const getNestedValue = (value: unknown, opts: ReadonlyOpts, formValues: Record<string, unknown>): unknown => {
   // Traverse the dotted dataPath in formValues (e.g. "bibliography" → formValues.bibliography)
 
@@ -108,6 +122,7 @@ const getDisplayValue = (value: unknown, formValues: Record<string, unknown>, op
 
   if (format === 'select') return getSelectValue(value, opts);
   if (format === 'autocomplete') return getSelectValue(value, opts);
+  if (format === 'multiSelect') return getMultiSelectValue(value, opts);
 
   if (typeof value !== 'object') {
     return value ?? null;

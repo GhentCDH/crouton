@@ -3,7 +3,7 @@
     v-bind="properties"
     :options="values"
     :is-open="isOpen"
-    :query="undefined"
+    :query="displayValues"
     :is-active="hasValue"
     @close="close"
     @select="select"
@@ -13,12 +13,13 @@
       type="button"
       class="truncate block text-left"
       :class="[style, width]"
-      :aria-label="id"
+      :aria-label="label"
+      :aria-expanded="isOpen"
       role="combobox"
       :disabled="!enabled"
       @click="isOpen = true"
     >
-      {{ displayValues ?? 'Select value' }}
+      {{ displayValues ?? placeholder ?? 'Select value' }}
     </button>
   </SelectWrapper>
 </template>
@@ -54,16 +55,22 @@ watch(
   },
   { immediate: true },
 );
+watch(
+  () => properties.displayOptions,
+  () => optionsHelper.setDisplayOptions(properties.displayOptions),
+  { immediate: true },
+);
 
 const displayValues = computed(() =>
-  model.value ? optionsHelper.getLabels(...model.value).join(', ') : undefined,
+  model.value?.length ? optionsHelper.getLabels(...model.value).join(', ') : undefined,
 );
 const selectedValues = computed(() =>
   optionsHelper.getValues(...(model.value ?? [])),
 );
 
 const select = (result: OptionValue) => {
-  let selection = model.value ?? [];
+  // Copy: never mutate the array handed in through v-model.
+  let selection = [...(model.value ?? [])];
 
   if (hasValue(result))
     selection = selection.filter(

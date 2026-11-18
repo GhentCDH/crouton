@@ -46,7 +46,9 @@ export const controlRenderers = [
   // testers (12), otherwise a select with numeric values renders as a number input.
   { tester: rankWith(13, isSelectControl), renderer: r(SelectControlRenderer) },
   { tester: rankWith(12, isToggleControl), renderer: r(ToggleControlRenderer) },
-  { tester: rankWith(11, isMultiselectControl), renderer: r(MultiSelectControlRenderer) },
+  // Rank 13: an explicit `format: 'multiSelect'` must beat the array renderer
+  // (12) for an array schema, like select beats number/integer.
+  { tester: rankWith(13, isMultiselectControl), renderer: r(MultiSelectControlRenderer) },
   { tester: rankWith(12, isAutoCompleteControl), renderer: r(AutocompleteControlRenderer) },
   { tester: rankWith(12, isNumberFormat), renderer: r(NumberControlRenderer) },
   { tester: rankWith(12, isIntegerFormat), renderer: r(NumberControlRenderer) },

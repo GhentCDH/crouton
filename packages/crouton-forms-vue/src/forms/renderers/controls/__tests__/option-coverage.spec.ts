@@ -4,6 +4,7 @@ import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
 import { booleanVariants } from './boolean.variants';
 import { type ControlVariant, usedOptionKeys } from './control-variant';
+import { multiSelectVariants } from './multiselect.variants';
 import { numberVariants } from './number.variants';
 import { selectVariants } from './select.variants';
 import { stringVariants } from './string.variants';
@@ -31,6 +32,7 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a checkbox has no placeholder' },
   },
   select: { variants: selectVariants, skipped: { customRender: CUSTOM_RENDER } },
+  multiSelect: { variants: multiSelectVariants, skipped: { customRender: CUSTOM_RENDER } },
   toggle: {
     variants: toggleVariants,
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a button group has no placeholder' },

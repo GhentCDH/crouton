@@ -51,6 +51,11 @@ watch(
   },
   { immediate: true },
 );
+watch(
+  () => properties.displayOptions,
+  () => optionsHelper.setDisplayOptions(properties.displayOptions),
+  { immediate: true },
+);
 
 const onChange = (event: unknown) => {
   emit('change', event);
@@ -61,11 +66,9 @@ const activeValue = computed(() => model.value ?? properties.value);
 
 // Only null/undefined/'' mean "no value" — 0 and false are real selections.
 const isEmpty = (v: unknown) => v === null || v === undefined || v === '';
-const displayValue = computed(() => {
-  if (isEmpty(activeValue.value)) return undefined;
-  if (!optionsHelper.getOption(activeValue.value) && properties.displayLabel) return properties.displayLabel;
-  return optionsHelper.getLabels(activeValue.value)[0];
-});
+const displayValue = computed(() =>
+  isEmpty(activeValue.value) ? undefined : optionsHelper.getLabels(activeValue.value)[0],
+);
 
 const styles = computed(() => mergeStyles(properties.styles));
 const style = computed(() =>
