@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { buildResourceDefinitions } from '@ghentcdh/crouton-core';
 import type { CrudDefinition as ResourceDefinition, SecurityConfig  } from '@ghentcdh/crouton-core';
 
 import { invalid } from '../../testing/index';
@@ -84,5 +85,39 @@ describe('securityForSub', () => {
     expect(securityForSub(res, sub({ findAll: true }), 'findAll', mod)).toEqual(
       { guard: 'mod' },
     );
+  });
+});
+
+describe('securityFor with resource.json per-operation security (#553)', () => {
+  const ops = {
+    findAll: true,
+    findOne: { security: { public: true } },
+    create: true,
+    update: true,
+    patch: true,
+    delete: { security: { guard: 'admin' } },
+  } as const;
+  const def = buildResourceDefinitions(undefined, ops, undefined);
+  const mod: SecurityConfig = { guard: 'authenticated' };
+
+  it('per-op public overrides a stricter module default', () => {
+    expect(securityFor(resource(), def, 'findOne', mod)).toEqual({ public: true });
+  });
+
+  it('per-op stricter guard overrides a weaker resource default', () => {
+    expect(securityFor(resource({ guard: 'authenticated' }), def, 'delete', mod)).toEqual({ guard: 'admin' });
+  });
+
+  it('ops without security fall back to the module default', () => {
+    expect(securityFor(resource(), def, 'findAll', mod)).toEqual(mod);
+  });
+
+  it('keeps security on external (uri) operations', () => {
+    const ext = buildResourceDefinitions(
+      undefined,
+      { ...ops, findOne: { uri: 'https://x/y', security: { public: true } } },
+      undefined,
+    );
+    expect(ext.findOne).toEqual({ uri: 'https://x/y', security: { public: true } });
   });
 });
