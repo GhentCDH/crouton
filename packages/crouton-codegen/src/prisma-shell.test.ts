@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { pullAndGenerate, resolveFieldCollisions } from './prisma-shell';
 import { EventEmitter } from 'node:events';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
 
 
 const calls: string[][] = [];
@@ -21,7 +23,6 @@ vi.mock('node:child_process', () => ({
   },
 }));
 
-const { pullAndGenerate } = await import('./prisma-shell');
 
 const GOOD = 'model A { id Int @id }\n';
 const BROKEN = 'model A { id Int @id\n  x String\n  x Int }\n';
@@ -65,5 +66,54 @@ describe('pullAndGenerate', () => {
     expect(result.backupPath).toBe(`${input.schemaPath}.bak`);
     expect(readFileSync(`${input.schemaPath}.bak`, 'utf-8')).toBe(GOOD);
     expect(pullArgs()).toContain('--force');
+  });
+});
+
+describe('resolveFieldCollisions (#539)', () => {
+  const SCHEMA = `model Text {
+  id             Int             @id @default(autoincrement())
+  revisionStatus String?         @map("revision_status") @db.VarChar
+  revisionStatusId Int?          @map("revision_status_id")
+  revisionStatus RevisionStatus? @relation(fields: [revisionStatusId], references: [id])
+  textSelection  TextSelection[]
+
+  @@map("text")
+}
+
+model TextSelection {
+  id     Int    @id
+  text   String
+  textId Int    @map("text_id")
+  text   Text   @relation(fields: [textId], references: [id])
+}
+
+model RevisionStatus {
+  id   Int     @id
+  name String?
+  text Text[]
+}
+`;
+
+  it('renames the relation field, never the scalar', () => {
+    const { schema, renames } = resolveFieldCollisions(SCHEMA);
+
+    expect(renames).toEqual([
+      { model: 'Text', from: 'revisionStatus', to: 'revisionStatusRef' },
+      { model: 'TextSelection', from: 'text', to: 'textRef' },
+    ]);
+    expect(schema).toContain('revisionStatus String?         @map("revision_status")');
+    expect(schema).toContain('revisionStatusRef RevisionStatus? @relation(fields: [revisionStatusId]');
+    expect(schema).toContain('  text   String\n');
+    expect(schema).toContain('textRef   Text   @relation(fields: [textId]');
+  });
+
+  it('leaves schemas without collisions untouched', () => {
+    const clean = 'model A {\n  id Int @id\n  b  B   @relation(fields: [bId], references: [id])\n  bId Int\n}\n\nmodel B {\n  id Int @id\n  a  A[]\n}\n';
+    expect(resolveFieldCollisions(clean)).toEqual({ schema: clean, renames: [] });
+  });
+
+  it('picks a free suffix when <name>Ref is already taken', () => {
+    const s = 'model A {\n  b    String\n  bRef Int\n  b    B @relation(fields: [bRef], references: [id])\n}\n\nmodel B {\n  id Int @id\n  a  A[]\n}\n';
+    expect(resolveFieldCollisions(s).renames).toEqual([{ model: 'A', from: 'b', to: 'bRef2' }]);
   });
 });

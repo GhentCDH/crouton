@@ -418,6 +418,11 @@ export const runUpdateResources = async (
       if (result.normalizeSchema && result.normalizeSchema.renamed > 0) {
         clack.log.info(`Normalized ${result.normalizeSchema.renamed} relation field name(s)`);
       }
+      for (const r of result.fieldCollisions ?? []) {
+        clack.log.warn(
+          `${r.model}.${r.from}: relation field collided with a scalar column — renamed to ${r.to}`,
+        );
+      }
       if (result.generate && !result.generate.ok) {
         clack.log.warn(result.generate.output);
       }

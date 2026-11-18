@@ -245,12 +245,14 @@ export interface PullAndGenerateResult {
   dbPull: PrismaRunResult;
   caseFormat?: PrismaRunResult;
   normalizeSchema?: { ok: boolean; renamed: number };
+  /** Relation fields renamed because they collided with a scalar field (#539). */
+  fieldCollisions?: FieldRename[];
   generate?: PrismaRunResult;
 }
 
 /**
  * Full pull-and-generate pipeline: validate → backup → dbPull → caseFormat →
- * normalizeSchema → generate.
+ * normalizeSchema → resolveFieldCollisions → generate.
  *
  * If the current schema is invalid (e.g. a previous run failed half-way), the
  * last good `.bak` is kept and `db pull --force` is used — the schema is being
@@ -274,6 +276,7 @@ export const pullAndGenerate = async (
   if (!dbPull.ok) return { ok: false, backupPath, recoveredInvalidSchema, dbPull };
   const caseFormat = await prismaCaseFormat(root, schemaPath);
   const normalized = await normalizeSchema(schemaPath);
+  const fieldCollisions = await resolveSchemaFieldCollisions(schemaPath);
   guardCroutonPrisma(root, schemaPath);
   const generate = await prismaGenerate(root, prismaConfigPath);
   return {
@@ -283,8 +286,60 @@ export const pullAndGenerate = async (
     dbPull,
     caseFormat,
     normalizeSchema: { ok: true, renamed: normalized.renamed },
+    fieldCollisions,
     generate,
   };
+};
+
+export interface FieldRename {
+  model: string;
+  from: string;
+  to: string;
+}
+
+const FIELD_LINE_RE = /^(\s+)(\w+)(\s+)(\w+)(\[\]|\?)?/;
+
+/**
+ * Case-formatting can give a scalar column and a relation field the same name
+ * (e.g. column `revision_status` + FK `revision_status_id → revision_status`
+ * both become `revisionStatus`), which Prisma rejects with P1012. For every
+ * model with duplicate field names, rename the relation field(s) to
+ * `<name>Ref` (or `<name>Ref2`, … if taken). Scalars are never renamed — they
+ * are referenced by `@relation(fields: [...])`, `@@index`, etc.
+ */
+export const resolveFieldCollisions = (schema: string): { schema: string; renames: FieldRename[] } => {
+  const models = new Set([...schema.matchAll(/^model\s+(\w+)\s*\{/gm)].map((m) => m[1]));
+  const renames: FieldRename[] = [];
+
+  const out = schema.replace(/(^model\s+(\w+)\s*\{)(.*?)(^\})/gms, (_, head: string, model: string, body: string, tail: string) => {
+    const lines = body.split('\n');
+    const fields = lines.map((l) => FIELD_LINE_RE.exec(l));
+    const taken = new Set(fields.flatMap((f) => (f ? [f[2]] : [])));
+    const count = new Map<string, number>();
+    for (const f of fields) if (f) count.set(f[2], (count.get(f[2]) ?? 0) + 1);
+
+    fields.forEach((f, i) => {
+      if (!f || (count.get(f[2]) ?? 0) < 2) return;
+      const isRelation = models.has(f[4]) || lines[i].includes('@relation(');
+      if (!isRelation) return;
+      let to = `${f[2]}Ref`;
+      for (let n = 2; taken.has(to); n++) to = `${f[2]}Ref${n}`;
+      taken.add(to);
+      count.set(f[2], (count.get(f[2]) ?? 0) - 1);
+      lines[i] = lines[i].replace(FIELD_LINE_RE, `$1${to}$3$4$5`);
+      renames.push({ model, from: f[2], to });
+    });
+    return `${head}${lines.join('\n')}${tail}`;
+  });
+
+  return { schema: out, renames };
+};
+
+/** File wrapper around {@link resolveFieldCollisions}; only writes when something changed. */
+const resolveSchemaFieldCollisions = async (schemaPath: string): Promise<FieldRename[]> => {
+  const { schema, renames } = resolveFieldCollisions(await readFile(schemaPath, 'utf-8'));
+  if (renames.length) await writeFile(schemaPath, schema, 'utf-8');
+  return renames;
 };
 
 interface NormalizeConfig {
