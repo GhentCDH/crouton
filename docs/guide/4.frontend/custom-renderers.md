@@ -7,7 +7,7 @@ a table cell. Everything uses the same `customComponents` registry.
 
 | Name                        | Set where                     | Replaces                         |
 |-----------------------------|-------------------------------|----------------------------------|
-| `display.customComponent`   | `resource.json` top-level     | Entire form / page for a resource|
+| `layout.view.component`     | `resource.json` `layout.view` | Extra content alongside the form |
 | `fieldInput.options.customComponent` | `resource.json` column| A single form field              |
 | `fieldTable.options.customComponent` | `resource.json` column| A single table cell              |
 
@@ -166,18 +166,20 @@ Register it for the table cell via `fieldTable`:
 }
 ```
 
-## Example: extra content alongside the form (`display.customComponent`)
+## Example: extra content alongside the form (`layout.view.component`)
 
-`display.customComponent` renders a custom Vue component **after** the generated form (in the `#content-after` slot).
-It does not replace the form. Combine it with `mode: "page"` when you want to show related stats, a preview, or any
+`layout.view.component` renders a custom Vue component **after** the generated form (in the `#content-after` slot).
+It does not replace the form. Combine it with `container.mode: "page"` when you want to show related stats, a preview, or any
 extra UI next to the edit form.
 
 ```json
 // resources/book/resource.json
 {
-  "display": {
-    "mode": "page",
-    "customComponent": "BookEditor"
+  "layout": {
+    "view": {
+      "container": { "mode": "page" },
+      "component": "BookEditor"
+    }
   }
 }
 ```

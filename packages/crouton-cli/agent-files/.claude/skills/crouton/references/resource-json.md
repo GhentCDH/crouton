@@ -79,6 +79,12 @@
       "computed": {
         "sql": "SELECT COUNT(*) FROM chapter WHERE chapter.book_id = main.id"
       }
+    },
+    "createdAt": {
+      "label": "Created"
+    },
+    "updatedAt": {
+      "label": "Updated"
     }
   },
   "operations": {

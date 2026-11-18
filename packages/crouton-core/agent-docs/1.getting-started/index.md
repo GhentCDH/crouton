@@ -4,7 +4,7 @@ description: Scaffold a new Crouton project with create-crouton, or add Crouton 
 
 # Getting started
 
-> Last verified against crouton `0.0.1-alpha.81`
+> Last verified against crouton `0.1.0`
 
 Two ways to start with crouton: **create a new project** from scratch, or **add crouton** to an existing one.
 
@@ -46,7 +46,7 @@ node packages/create-crouton/dist/index.js my-test-app
 | `--nx`            | prompt  | Use Nx monorepo layout (backend + frontend + shared libs).          |
 | `--no-nx`         | —       | Skip Nx layout (scaffold a regular single-app project).             |
 | `--no-frontend`   | —       | Skip Vue frontend generation (Nx layout only).                      |
-| `--no-postgres`   | —       | Skip PostgreSQL setup (Prisma schema, adapter, Docker).             |
+| `--no-postgres`   | —       | Skip the PostgreSQL Docker service (use an external DB).            |
 | `--sample`        | —       | Include a sample resource.                                          |
 | `--pm <manager>`  | prompt  | Package manager: `pnpm`, `npm`, `yarn`, or `bun`.                   |
 | `--no-install`    | —       | Skip dependency installation.                                       |

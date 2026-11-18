@@ -17,7 +17,9 @@ API endpoints, validation wiring, table columns, form fields, and filters.
     "datasource": "maindb"
   },
   "route": "books",
-  "tag": "Book",
+  "openapi": {
+    "tag": "Book"
+  },
   "title": "Books",
   "sidebar": {
     "position": 1,
@@ -105,22 +107,24 @@ See [Operations](operations.md) for external operations, per-op security, and PU
 Set the presentation on `layout.form.container` / `layout.view.container` (the root `display` key was removed — see
 [Layout](layout.md#how-a-record-opens-layout-form-view-container)). The fields below describe the container.
 
-| Field             | Type                | Default    | Description                                                                                      |
-|-------------------|---------------------|------------|--------------------------------------------------------------------------------------------------|
-| `mode`            | `'page' \| 'modal'` | `'modal'`  | Render the form inline on the page or in a pop-up modal.                                         |
-| `customComponent` | `string \| null`    | `null`     | Name of a registered custom Vue component to render alongside the form. See below.               |
+| Field                   | Type                         | Default   | Description                                                                         |
+|-------------------------|------------------------------|-----------|-------------------------------------------------------------------------------------|
+| `container.mode`        | `'page' \| 'modal'`          | `'modal'` | Render the form inline on the page or in a pop-up modal.                            |
+| `container.size`        | `'xs' \| 'sm' \| 'lg' \| 'xl'` | `'sm'`    | Modal width (ignored in page mode).                                                 |
+| `layout.view.component` | `string`                     | —         | Name of a registered custom Vue component to render alongside the form. See below. |
 
 ### `mode: "modal"` (default)
 
-Clicking a row or **Add** opens a modal dialog. The table stays visible behind it. `modalSize` controls the dialog
+Clicking a row or **Add** opens a modal dialog. The table stays visible behind it. `container.size` controls the dialog
 width (`xs` / `sm` / `lg` / `xl`, default `sm`).
 
 ### `mode: "page"`
 
 ```json
 {
-  "display": {
-    "mode": "page"
+  "layout": {
+    "form": { "container": { "mode": "page" } },
+    "view": { "container": { "mode": "page" } }
   }
 }
 ```
@@ -129,9 +133,9 @@ Clicking a row or **Add** hides the table and renders `CroutonForm` inline on th
 the table back. Both edit and view (read-only) actions use the inline form in page mode — no separate view modal opens.
 
 Use page mode when the record has many fields, needs a rich layout, or when you want to show extra content alongside
-the form (see `customComponent` below).
+the form (see `layout.view.component` below).
 
-### `display.customComponent`
+### `layout.view.component`
 
 Set to the name of a Vue component registered in `CroutonPlugin({ customComponents })`. When set, the component is
 rendered **after** the form (in the `#content-after` slot), receiving the `resource` object and all form config as
@@ -139,9 +143,11 @@ props.
 
 ```json
 {
-  "display": {
-    "mode": "page",
-    "customComponent": "BalanceStats"
+  "layout": {
+    "view": {
+      "container": { "mode": "page" },
+      "component": "BalanceStats"
+    }
   }
 }
 ```
@@ -165,7 +171,7 @@ The component receives:
 | `resource` | `Resource`   | Resource instance — has `loadData`, `getOneById`, `save`, `create`, `delete`, `closeForm` |
 | form config props | various | Same props bound to the form component (form data, schema, etc.)                    |
 
-`customComponent` works in both `modal` and `page` mode, but is most useful combined with `mode: "page"` where the
+`layout.view.component` works in both `modal` and `page` mode, but is most useful combined with `mode: "page"` where the
 extra content sits naturally beside the form. See [Custom renderers](../4.frontend/custom-renderers.md) for the full
 registration API.
 

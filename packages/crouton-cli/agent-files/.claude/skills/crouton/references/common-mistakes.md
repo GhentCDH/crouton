@@ -78,7 +78,7 @@ Only edit `fieldInput`, `label`, `hidden`, `required`, `relation` inside each co
 ## 6. `kind: "custom"` when you need `adapter: "custom"`
 
 `kind: "custom"` = this resource has a custom `repository.ts`.
-If your data source is external (not Prisma), set `adapter: "custom"` in `datasource.json` instead.
+If your data source is external (not Prisma), set `adapter: "custom"` in `data-source.json` instead.
 
 ## 7. Typos in fieldInput type
 

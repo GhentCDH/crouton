@@ -4,7 +4,7 @@
 
 Use when: data lives in the relational DB and a Prisma model exists.
 
-`datasource.json`:
+`data-source.json`:
 ```json
 {
   "name": "default",
@@ -18,13 +18,13 @@ Use when: data lives in the relational DB and a Prisma model exists.
 ```
 
 - `crouton update` introspects this datasource and manages column lists.
-- Resources reference it implicitly when `kind` is `"default"`.
+- Resources reference it implicitly when `kind` is `"prisma"` (the default).
 
 ## Custom adapter
 
 Use when: data comes from an external API, file, or non-Prisma store.
 
-`datasource.json`:
+`data-source.json`:
 ```json
 {
   "name": "external-api",
@@ -38,10 +38,10 @@ Use when: data comes from an external API, file, or non-Prisma store.
 
 ## kind vs adapter
 
-| Scenario | resource.json `kind` | datasource.json `adapter` |
+| Scenario | resource.json `kind` | data-source.json `adapter` |
 |----------|----------------------|---------------------------|
-| Prisma-backed resource | `"default"` (or omit) | omit (Prisma) |
+| Prisma-backed resource | `"prisma"` (or omit) | omit (Prisma) |
 | Config-only resource with custom repo | `"custom"` | omit (Prisma still used for other resources) |
 | Fully external data source | `"custom"` | `"custom"` |
 
-**Common mistake**: using `kind: "custom"` when you only need a custom adapter. If your data is in the DB but you want custom read logic, keep `kind: "default"` and override the repository at the NestJS module level.
+**Common mistake**: using `kind: "custom"` when you only need a custom adapter. If your data is in the DB but you want custom read logic, keep `kind: "prisma"` and override the repository at the NestJS module level.
