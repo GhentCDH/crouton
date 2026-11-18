@@ -9,6 +9,7 @@ export type { JsonSchemaInput, SchemaInput } from '../json/schema-input';
 const ExternalOperationDefSchema = z.object({
   uri: z.string(),
   method: z.string().optional(),
+  security: SecuritySchema.optional(),
 });
 
 const OperationDefSchema = z.union([
