@@ -30,6 +30,12 @@ export const ColumnRelationSchema = z.object({
     .describe(
       'Override the Prisma relation field name when it differs from the column id.',
     ),
+  displayKey: z
+    .string()
+    .optional()
+    .describe(
+      'Field on the related record shown in tables and lookups (e.g. "name"). Column-level `displayKey` wins when both are set.',
+    ),
   sort: z
     .string()
     .optional()

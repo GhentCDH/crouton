@@ -42,6 +42,19 @@ const pickSharedCellOptions = (
   );
 };
 
+/**
+ * A manyToOne relation declared on its own FK column (`authorId` with
+ * `relation.foreignKey: "authorId"`) holds only the id; the related record is
+ * included under the Prisma relation field (`author`). Return that field so
+ * the cell can show the record instead of the raw id.
+ */
+const fkRelationField = (col: JsonColumn): string | undefined => {
+  const rel = col.relation;
+  if (rel?.type !== 'manyToOne' || rel.foreignKey !== col.id) return undefined;
+  // ponytail: naming heuristic (authorId / author_id → author); set relation.prismaField when it does not hold
+  return rel.prismaField ?? col.id.replace(/_?[Ii]d$/, '');
+};
+
 /** Build the TableBuilder UI schema — one TextCell / BooleanCell per visible column. */
 export const buildTableUiSchema = (
   cols: JsonColumn[],
@@ -78,6 +91,8 @@ export const buildTableUiSchema = (
       : { sortable: false };
     const relationType = col.relation?.type ?? col.fieldInput?.relationType;
     const relationTypeOption = relationType ? { relationType } : {};
+    const relationField = fkRelationField(col);
+    const displayKey = col.displayKey ?? col.relation?.displayKey;
     return {
       ...el,
       options: {
@@ -89,7 +104,8 @@ export const buildTableUiSchema = (
         // The legacy `key` option (format: keyValue) is consumed by text/boolean
         // cells; object columns render via RecordCell/RelationCell, which reads
         // `displayKey` — emit both so the cell is self-describing.
-        ...(col.displayKey && { displayKey: col.displayKey }),
+        ...(displayKey && { displayKey }),
+        ...(relationField && relationField !== col.id && { relationField }),
         ...(isDateRange(col) && { format: 'dateRange' }),
         label: col.label,
       },

@@ -42,3 +42,41 @@ describe('buildTableUiSchema – displayKey propagation', () => {
     expect(options['displayKey']).toBeUndefined();
   });
 });
+
+describe('buildTableUiSchema – manyToOne declared on the FK column (#549)', () => {
+  const fkCol = (relation: Record<string, unknown>) =>
+    buildTableUiSchema([
+      {
+        id: 'textSelectionId',
+        relation: { resource: '../textSelection/resource.json', type: 'manyToOne', foreignKey: 'textSelectionId', ...relation },
+        fieldInput: { type: 'autocomplete' },
+      },
+    ]);
+  const optionsOf = (ui: Record<string, unknown>) =>
+    elementFor(ui, 'textSelectionId')?.['options'] as Record<string, unknown>;
+
+  it('points the cell at the included relation object and forwards relation.displayKey', () => {
+    const options = optionsOf(fkCol({ displayKey: 'text' }));
+    expect(options['relationField']).toBe('textSelection');
+    expect(options['displayKey']).toBe('text');
+    expect(options['relationType']).toBe('manyToOne');
+  });
+
+  it('honours relation.prismaField over the naming heuristic', () => {
+    expect(optionsOf(fkCol({ prismaField: 'selection' }))['relationField']).toBe('selection');
+  });
+
+  it('derives the relation field from snake_case FKs', () => {
+    const ui = buildTableUiSchema([
+      { id: 'author_id', relation: { resource: '../author/resource.json', type: 'manyToOne', foreignKey: 'author_id' } },
+    ]);
+    expect((elementFor(ui, 'author_id')?.['options'] as Record<string, unknown>)['relationField']).toBe('author');
+  });
+
+  it('leaves relation-field columns (id ≠ foreignKey) unchanged', () => {
+    const ui = buildTableUiSchema([
+      { id: 'author', relation: { resource: '../author/resource.json', type: 'manyToOne', foreignKey: 'authorId' } },
+    ]);
+    expect((elementFor(ui, 'author')?.['options'] as Record<string, unknown>)['relationField']).toBeUndefined();
+  });
+});

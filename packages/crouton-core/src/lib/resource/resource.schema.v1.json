@@ -1098,6 +1098,11 @@
                 "type": "string",
                 "markdownDescription": "Override the Prisma relation field name when it differs from the column id.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
               },
+              "displayKey": {
+                "description": "Field on the related record shown in tables and lookups (e.g. \"name\"). Column-level `displayKey` wins when both are set.",
+                "type": "string",
+                "markdownDescription": "Field on the related record shown in tables and lookups (e.g. \"name\"). Column-level `displayKey` wins when both are set.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/resource-json)"
+              },
               "sort": {
                 "description": "Field to sort related records by",
                 "type": "string",
