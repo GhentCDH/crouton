@@ -43,13 +43,6 @@ export const validateResourceConfig = (
   }
 
   if (config.kind === 'custom') {
-    if (config.database) {
-      warnings.push(
-        '"database" is set alongside kind: "custom" — it selects the client injected as ' +
-          'ctx.prisma, but data access still comes from repository.ts.',
-      );
-    }
-
     const repoError = validateCustomRepository(config, config.repository);
     if (repoError) errors.push(repoError);
   } else {

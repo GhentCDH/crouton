@@ -1,5 +1,5 @@
 import * as clack from '@clack/prompts';
-import type { Command } from 'commander';
+import { type Command, Option } from 'commander';
 
 import { runCreateProject } from '@ghentcdh/create-crouton/lib';
 
@@ -9,7 +9,7 @@ import { assertNotCancel } from '../prompts';
 import { type CommonOptions, registerCommonOptions, resolveTargetProject, withRun } from './shared';
 
 interface CreateResourceCliOptions extends CommonOptions {
-  kind?: string; route?: string; tag?: string; title?: string; database?: string; idType?: string;
+  kind?: string; route?: string; tag?: string; title?: string; datasource?: string; database?: string; idType?: string;
 }
 
 interface CreateProjectCliOptions extends Omit<CommonOptions, 'project'> {
@@ -29,7 +29,7 @@ const createResource = async (name: string | undefined, opts: CreateResourceCliO
     route: opts.route,
     tag: opts.tag,
     title: opts.title,
-    database: opts.database,
+    database: opts.datasource ?? opts.database,
     idType: opts.idType,
     cwd: await resolveTargetProject(opts),
     dryRun: opts.dryRun,
@@ -106,7 +106,8 @@ export const registerCreateCommand = (program: Command) => {
       .option('-r, --route <route>', 'URL segment (defaults to the name)')
       .option('-t, --tag <tag>', 'OpenAPI tag (defaults to a label from the name)')
       .option('--title <title>', 'UI title (defaults to a label from the name)')
-      .option('-d, --database <name>', 'datasource exposed to the repository as ctx.prisma')
+      .option('-d, --datasource <name>', 'datasource exposed to the repository as ctx.prisma')
+      .addOption(new Option('--database <name>', 'deprecated alias for --datasource').hideHelp())
       .option('--id-type <type>', 'primary key type: string | number'),
   ).action(withRun(createResource));
 

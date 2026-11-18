@@ -196,7 +196,7 @@ describe('loadResourceConfigsFromDir', () => {
     expect(formProps.count.type).toBe('integer');
   });
 
-  it('records a warning when kind:custom also sets database', async () => {
+  it('does not warn when kind:custom sets source.datasource', async () => {
     const customWithDb = {
       name: 'custom_res',
       route: 'custom-res',
@@ -219,6 +219,7 @@ describe('loadResourceConfigsFromDir', () => {
     expect(resourceLoadErrorsRegistry.getAll()).toHaveLength(0);
     const warnings = resourceLoadReportRegistry
       .getByState('warning') as WarningResourceNotice[];
-    expect(warnings.some((w) => w.warning.includes('"database" is set alongside kind: "custom"'))).toBe(true);
+    expect(configs[0].database).toBe('secondary');
+    expect(warnings).toHaveLength(0);
   });
 });
