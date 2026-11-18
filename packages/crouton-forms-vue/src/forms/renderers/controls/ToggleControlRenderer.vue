@@ -35,6 +35,7 @@ const {
   field,
   onChange: onFieldChange,
   appliedOptions,
+  emptyValue,
 } = useCustomControlBinding<ControlOptions<'toggle'>>()(props.uischema, props.schema);
 
 const labelKey = computed(() => appliedOptions.value?.labelKey ?? 'label');
@@ -68,7 +69,7 @@ const onSelect = (opt: unknown) => {
 
   // Toggle off when clicking the active option and clearing is allowed.
   if (clearable && isActive(opt)) {
-    field.setValue(undefined);
+    field.setValue(emptyValue());
     onFieldChange();
     return;
   }

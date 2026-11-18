@@ -23,7 +23,7 @@ import { useCustomControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, field, onBlur, onChange, appliedOptions } =
+const { wrapper, value, field, onBlur, onChange, appliedOptions, emptyValue } =
   useCustomControlBinding<ControlOptions<'date'>>()(props.uischema, props.schema);
 
 const withTime = computed(() =>
@@ -35,13 +35,12 @@ const withTime = computed(() =>
 
 /**
  * `DatePicker` emits the ISO string (or `undefined` to clear), so set it on the
- * field explicitly instead of using `v-model` — that keeps a cleared date as
- * `null` (persisted as NULL) rather than an empty string. Must be `null` not
- * `undefined`: JSON.stringify drops undefined keys, so the PATCH body would
- * omit the field entirely and the server would never clear the value.
+ * field explicitly instead of using `v-model`. A cleared date stores the form's
+ * empty value: `null` in API-backed forms (an `undefined` key would be dropped
+ * from the autosave PATCH and never cleared on the server), else `undefined`.
  */
 const onUpdate = (next?: string) => {
-  field.setValue(next ?? null);
+  field.setValue(next ?? emptyValue());
   onChange();
 };
 </script>

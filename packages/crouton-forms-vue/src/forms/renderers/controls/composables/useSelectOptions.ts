@@ -3,7 +3,7 @@ import { type Ref, computed, ref, watch } from 'vue';
 
 import type { AutocompleteAllOptions, ControlOptions } from '@ghentcdh/crouton-core';
 
-import { useHttpClient } from '../../../../composables/useHttpClient';
+import { useOptionalHttpClient } from '../../../../composables/useHttpClient';
 import { useFetchOptions } from './useFetchOption';
 
 /**
@@ -12,7 +12,7 @@ import { useFetchOptions } from './useFetchOption';
  * from the server (empty when that request fails).
  */
 export const useSelectOptions = (appliedOptions: Ref<ControlOptions<'select'> | undefined>) => {
-  const http = useHttpClient();
+  const http = useOptionalHttpClient();
   const { values: formValues } = useFormContext();
 
   const isRemote = computed(() => !!appliedOptions.value?.uri || !!appliedOptions.value?.resource);

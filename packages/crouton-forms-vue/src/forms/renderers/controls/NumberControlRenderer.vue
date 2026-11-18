@@ -18,7 +18,7 @@ import { useControlBinding } from './composables/useControlBinding';
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-const { wrapper, value, onBlur, onChange } = useControlBinding(
+const { wrapper, value, onBlur, onChange, emptyValue } = useControlBinding(
   props.uischema,
   props.schema,
   { defaultType: 'number' },
@@ -31,7 +31,7 @@ const isInteger = computed(() => props.schema.type === 'integer');
 const model = computed({
   get: () => value.value,
   set: (v: unknown) => {
-    value.value = v === '' ? undefined : v;
+    value.value = v === '' ? emptyValue() : v;
   },
 });
 </script>

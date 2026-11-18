@@ -4,6 +4,7 @@ import type {
   AutocompleteResourceOptions
 } from '@ghentcdh/crouton-core';
 
+import { requireHttpClient } from '../../../../composables/useHttpClient';
 import type { HttpClient } from '../../../../http-client';
 import { getResourceSchema } from '../resource';
 
@@ -286,7 +287,8 @@ const useResourceOptions = async (
  */
 export const useFetchOptions = async (
   options: AutocompleteAllOptions,
-  http: HttpClient,
+  /** Required only for `uri` / `resource` options; inline options need none. */
+  http: HttpClient | null,
   formValues: FormValues = {},
   runtimeExclude?: unknown[],
   ownValue?: unknown,
@@ -299,11 +301,11 @@ export const useFetchOptions = async (
 
   let config: Record<string, unknown> = {};
   if ('uri' in options && options.uri)
-    config = useRemoteOption(options as AutocompleteRemoteOptions, http, formValues, getExclude);
+    config = useRemoteOption(options as AutocompleteRemoteOptions, requireHttpClient(http), formValues, getExclude);
   if ('resource' in options && options.resource)
     config = await useResourceOptions(
       options as AutocompleteResourceOptions,
-      http,
+      requireHttpClient(http),
       formValues,
       getExclude,
     );

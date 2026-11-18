@@ -28,6 +28,7 @@ const {
   onBlur,
   onChange: onFieldChange,
   appliedOptions,
+  emptyValue,
 } = useSelectBinding(props.uischema, props.schema);
 
 const { options } = useSelectOptions(appliedOptions);
@@ -38,7 +39,7 @@ const onChange = (val: unknown) => {
     appliedOptions.value?.storeValue && val && typeof val === 'object'
       ? (val as Record<string, unknown>)[valueKey.value]
       : val;
-  field.setValue(stored);
+  field.setValue(stored ?? emptyValue());
   onFieldChange();
 };
 </script>
