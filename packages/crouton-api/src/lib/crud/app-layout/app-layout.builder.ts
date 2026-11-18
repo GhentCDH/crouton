@@ -59,6 +59,8 @@ export const buildLayoutPayload = (
   for (const c of visible) {
     const leaf = SidebarLeafSchema.parse({
       id: c.name,
+      // The API serves the resource under `route`, which can differ from `name`.
+      route: c.route,
       label: c.sidebar?.label ?? c.title ?? c.tag,
       position: c.sidebar?.position,
     });

@@ -6,7 +6,10 @@ import { CROUTON_FORM } from '../router';
 
 export type SidebarLeaf = {
   kind: 'item';
+  /** Resource `name` — stable id for URLs and translation keys. */
   id: string;
+  /** API mount point of the resource; differs from `id` when `route` ≠ `name`. */
+  route?: string;
   label: string;
   position?: number;
 };
@@ -32,6 +35,18 @@ export const firstLeafId = (nodes: SidebarNode[]): string | undefined => {
   const first = nodes[0];
   if (!first) return undefined;
   return isSidebarGroup(first) ? first.children[0]?.id : first.id;
+};
+
+/**
+ * API route for a sidebar id (resource `name`). Falls back to the id itself
+ * when it is not a sidebar leaf — callers may already pass a route.
+ */
+export const routeOfLeaf = (nodes: SidebarNode[], id: string): string => {
+  for (const n of nodes) {
+    const leaf = isSidebarGroup(n) ? n.children.find((c) => c.id === id) : n.id === id ? n : undefined;
+    if (leaf) return leaf.route ?? id;
+  }
+  return id;
 };
 
 const leafToMenuItem = (leaf: SidebarLeaf) => ({
