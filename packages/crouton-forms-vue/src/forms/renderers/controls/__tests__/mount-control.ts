@@ -18,6 +18,7 @@ export const mountControl = (
   { uniqueCheck, http }: { uniqueCheck?: UniqueCheckFn; http?: HttpClient } = {},
 ) => {
   const last = ref<Record<string, unknown> | undefined>(variant.formData);
+  const events: Record<string, unknown>[] = [];
 
   const Host = defineComponent({
     setup: () => {
@@ -37,6 +38,9 @@ export const mountControl = (
             onChange: (data: Record<string, unknown>) => {
               last.value = data;
             },
+            onEvents: (event: Record<string, unknown>) => {
+              events.push(event);
+            },
           }),
         ]),
       ];
@@ -47,5 +51,7 @@ export const mountControl = (
   return {
     root: page.getByTestId(`variant-${variant.id}`),
     values: () => last.value,
+    /** Form events a control dispatched (e.g. autocomplete `create`). */
+    events: () => events,
   };
 };

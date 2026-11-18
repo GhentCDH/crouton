@@ -7,6 +7,8 @@ import { SelectProperties } from './SelectWrapper.properties';
 export const AutocompleteProperties = {
   ...SelectProperties,
   ...ListProperties,
+  /** Inline option records (local search); filtered by `labelKey`. */
+  options: { type: Array as PropType<unknown[]>, default: undefined },
   /** v-model binding */
   modelValue: {
     type: [String, Object],

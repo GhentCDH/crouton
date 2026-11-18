@@ -1,4 +1,3 @@
-import type { HttpClient } from '../../../../http-client';
 import { type ControlVariant, multiControl, singleControl } from './control-variant';
 
 /** The select renderer is selected by `format: 'select'`. */
@@ -152,35 +151,3 @@ export const selectVariants: ControlVariant[] = [
     { value: select({ storeValue: true, disabledWhen: { field: 'lock', exists: true } }) },
   ),
 ];
-
-const COUNTRIES = [
-  { name: 'Belgium', code: 'BE' },
-  { name: 'Netherlands', code: 'NL' },
-];
-
-/** Fake HTTP client for the remote variants (uri, dataField, resource). */
-export const fakeHttp = (): HttpClient => {
-  const respond = (url: string): unknown => {
-    if (url.startsWith('/api/countries')) return COUNTRIES;
-    if (url.startsWith('/api/wrapped')) return { items: COUNTRIES };
-    if (url.startsWith('/schemas/country')) {
-      return {
-        id: 'country',
-        uri: '/api/resource/country',
-        operations: { findAll: true, findOne: false, create: false, update: false, patch: false, delete: false },
-      };
-    }
-    if (url.startsWith('/api/resource/country')) return { data: COUNTRIES };
-    if (url.startsWith('/api/fail')) throw new Error('fakeHttp: 500');
-    throw new Error(`fakeHttp: unexpected GET ${url}`);
-  };
-  const get = <T>(url: string) => {
-    try {
-      return Promise.resolve({ data: respond(url) as T });
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  };
-  const unsupported = () => Promise.reject(new Error('fakeHttp: only GET is supported'));
-  return { get, post: unsupported, patch: unsupported, delete: unsupported };
-};

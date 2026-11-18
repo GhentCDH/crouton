@@ -13,7 +13,7 @@
       ref="inputRef"
       type="text"
       role="combobox"
-      :aria-label="id"
+      :aria-label="label"
       :aria-expanded="isOpen"
       aria-autocomplete="list"
       aria-haspopup="listbox"
@@ -69,14 +69,15 @@ watch(
   { immediate: true },
 );
 // ─── Sync external modelValue → query display ────────────────────────────────
+const labelOf = (val: unknown): string => {
+  if (val === null || val === undefined || val === '') return '';
+  return String(typeof val === 'object' ? (val as Record<string, unknown>)[props.labelKey] ?? '' : val);
+};
+
 watch(
   () => props.modelValue,
   (val) => {
-    if (val === null || val === undefined || val === '') {
-      query.value = '';
-      return;
-    }
-    const display = typeof val === 'object' ? val[props.labelKey] : val;
+    const display = labelOf(val);
     if (display !== query.value) query.value = display;
   },
   { immediate: true },
@@ -102,8 +103,15 @@ function onBlur() {
     isOpen.value = false;
     if (props.freeText) {
       emit('change', query.value);
-    } else if (!props.modelValue) {
-      query.value = '';
+    } else if (!query.value && props.modelValue) {
+      // Text deleted → the selection is cleared too (`clear` lets relation
+      // pickers persist an explicit null).
+      emit('update:modelValue', '');
+      emit('change', undefined);
+      emit('clear');
+    } else {
+      // Unmatched text without a pick → show the current selection again.
+      query.value = labelOf(props.modelValue);
     }
   }, 150);
 }

@@ -1,7 +1,8 @@
-import type { z } from 'zod';
+import { ZodUnion, type z } from 'zod';
 
 import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
+import { autocompleteVariants } from './autocomplete.variants';
 import { booleanVariants } from './boolean.variants';
 import { type ControlVariant, usedOptionKeys } from './control-variant';
 import { multiSelectVariants } from './multiselect.variants';
@@ -33,6 +34,13 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
   },
   select: { variants: selectVariants, skipped: { customRender: CUSTOM_RENDER } },
   multiSelect: { variants: multiSelectVariants, skipped: { customRender: CUSTOM_RENDER } },
+  autocomplete: {
+    variants: autocompleteVariants,
+    skipped: {
+      customRender: CUSTOM_RENDER,
+      skipAuth: 'not read by the renderer or useFetchOptions — the injected http client decides auth',
+    },
+  },
   toggle: {
     variants: toggleVariants,
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a button group has no placeholder' },
@@ -42,7 +50,9 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
 const declaredKeys = (type: string): string[] => {
   const def = fieldInputRegistry.get(type);
   if (!def) throw new Error(`Unknown control type "${type}"`);
-  return Object.keys((def.options as z.ZodObject).shape);
+  // A union (e.g. autocomplete: inline | remote | resource) declares the keys of all members.
+  const members = def.options instanceof ZodUnion ? (def.options.options as z.ZodObject[]) : [def.options as z.ZodObject];
+  return [...new Set(members.flatMap((m) => Object.keys(m.shape)))];
 };
 
 describe('control option coverage', () => {
