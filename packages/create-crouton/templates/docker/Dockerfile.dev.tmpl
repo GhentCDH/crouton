@@ -5,7 +5,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV CI=true
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY --parents {{appsRoot}}/*/package.json {{generatedGlob}}/*/package.json ./
+COPY --parents {{appsRoot}}/*/package.json {{generatedGlob}}/types/package.json ./
 
 RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install
 

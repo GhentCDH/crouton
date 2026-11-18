@@ -9,15 +9,11 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml nx.json tsconfig.base.json pnpm-workspace.yaml ./
-COPY --parents {{appsRoot}}/*/package.json ./
+COPY --parents {{appsRoot}}/*/package.json {{generatedGlob}}/types/package.json ./
 
-# Stub generated workspace packages (pnpm needs them for resolution)
-RUN mkdir -p {{generatedGlob}}/client && \
-    echo '{"name":"@{{name}}/generated-default-client","version":"0.0.1","private":true}' > {{generatedGlob}}/client/package.json && \
-    mkdir -p {{generatedGlob}}/types && \
-    echo '{"name":"@{{name}}/generated-default-types","version":"0.0.1","private":true}' > {{generatedGlob}}/types/package.json
-
-RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install --no-frozen-lockfile
+# The generated Prisma client is not a workspace package, so the committed
+# lockfile matches as-is.
+RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install --frozen-lockfile
 
 # ========================================================
 # Stage 2: Build
@@ -30,12 +26,6 @@ COPY . .
 
 # Generate Prisma client for Linux
 RUN cd {{workspaceRoot}} && DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy npx prisma generate --config prisma/default/prisma.config.ts
-
-# Prisma 7+ hashes the package name — restore workspace-compatible name
-RUN sed -i 's/"name": "prisma-client-[^"]*"/"name": "@{{name}}\/generated-default-client"/' {{generatedGlob}}/client/package.json
-
-# Re-link after prisma generate
-RUN pnpm install --no-frozen-lockfile
 
 # Build applications
 {{/if}}{{#if nxFrontend}}RUN npx nx build {{backendApp}} && npx nx build {{frontendApp}}
@@ -79,6 +69,9 @@ ENV NODE_ENV=production
 COPY --from=build /app/dist/apps/backend ./backend
 COPY --from=build /app/deployed-backend/node_modules ./node_modules
 COPY --from=build /app/{{generatedGlob}}/client ./generated/client
+# Not a workspace package (see pnpm-workspace.yaml) — place it where the
+# runtime-required data-sources resolve `@{{name}}/generated-default-client`.
+COPY --from=build /app/{{generatedGlob}}/client ./node_modules/@{{name}}/generated-default-client
 COPY --from=build /app/{{generatedGlob}}/types ./node_modules/@{{name}}/generated-default-types
 {{/if}}{{#if nxFrontend}}COPY --from=build /app/{{appsRoot}}/frontend/dist /srv/frontend
 {{/if}}{{#if nx}}

@@ -410,9 +410,18 @@ For Nx monorepos, you also need:
 ```yaml
 packages:
   - apps/*
-  - generated/default/*
+  - generated/**
+  - '!generated/*/client'
   - libs/*
 ```
+
+The generated Prisma client is **not** a workspace package: `prisma generate`
+rewrites its `package.json` (hashed name, exact `@prisma/client-runtime-utils`
+version) on every run, which would make `pnpm-lock.yaml` outdated and break
+`pnpm install --frozen-lockfile` in CI and Docker. Import it through
+`tsconfig` paths (`@my-app/generated-default-client` →
+`./generated/default/client`) and add `@prisma/client-runtime-utils` (same
+range as `@prisma/client`) to the backend and the workspace root.
 
 ### nx.json
 
@@ -453,7 +462,14 @@ Backend app tsconfigs should extend the base:
 
 ### Generated package.json files
 
-Each generated output needs a `../../../package.json` for workspace resolution:
+The generated types are a workspace package. Commit their `package.json`
+(gitignore the rest of `generated/`) so installs resolve without stubs:
+
+```gitignore
+**/generated/*/client/
+**/generated/*/types/*
+!**/generated/*/types/package.json
+```
 
 `generated/default/types/package.json`:
 
@@ -469,13 +485,21 @@ Each generated output needs a `../../../package.json` for workspace resolution:
 }
 ```
 
-`generated/default/client/package.json`:
+The Prisma client writes its own `package.json` — do not add one, and do not
+list `@my-app/generated-default-client` as a `workspace:*` dependency.
 
-```json
-{
-  "name": "@my-app/generated-default-client",
-  "version": "0.0.1",
-  "private": true,
-  "main": "./src/index.ts"
-}
-```
+::: tip Migrating an existing project
+Projects created before this change list `generated/**` in
+`pnpm-workspace.yaml` and `"@my-app/generated-default-client": "workspace:*"`
+in the backend. To get a stable lockfile:
+
+1. Add `'!generated/*/client'` to `pnpm-workspace.yaml`.
+2. In the backend `package.json`, remove the `generated-default-client`
+   dependency and add `"@prisma/client-runtime-utils"` (same range as
+   `@prisma/client`); add it to the root `package.json` too.
+3. Update `.gitignore` as above and commit `generated/*/types/package.json`.
+4. In Docker/CI, drop the `package.json` stubs and the `sed` rename, install
+   with `--frozen-lockfile`, and in the production image copy the client to
+   `node_modules/@my-app/generated-default-client`.
+5. Run `pnpm install` once and commit `pnpm-lock.yaml`.
+:::

@@ -17,13 +17,9 @@ jobs:
     uses: GhentCDH/crouton/.github/workflows/shared-ci.yml@main
     with:
       targets: '["lint", "build"]'
-      # {{generatedGlob}}/ is gitignored, but its packages are part of the pnpm
-      # workspace: stub them so pnpm can resolve, generate them from the
-      # committed Prisma schema (no database needed), then re-link.
+      # The generated types package.json is committed and the Prisma client is
+      # not a workspace package, so the lockfile installs frozen. Then generate
+      # from the committed Prisma schema (no database needed).
       install-command: |
-        mkdir -p {{generatedGlob}}/client {{generatedGlob}}/types
-        echo '{"name":"@{{name}}/generated-default-client","version":"0.0.1","private":true}' > {{generatedGlob}}/client/package.json
-        echo '{"name":"@{{name}}/generated-default-types","version":"0.0.1","private":true}' > {{generatedGlob}}/types/package.json
-        pnpm install --no-frozen-lockfile
+        pnpm install --frozen-lockfile
         DATABASE_URL=postgresql://ci:ci@localhost:5432/ci pnpm crouton update resources --yes --skip-pull{{#if prefix}} --project {{prefix}}{{/if}}
-        pnpm install --no-frozen-lockfile

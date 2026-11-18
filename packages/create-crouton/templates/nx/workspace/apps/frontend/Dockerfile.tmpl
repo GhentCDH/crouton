@@ -11,7 +11,7 @@ ENV CI=true
 
 # Copy package.json files for dependency caching
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY --parents apps/*/package.json generated/*/package.json ./
+COPY --parents apps/*/package.json generated/*/types/package.json ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile

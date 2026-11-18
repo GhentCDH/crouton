@@ -1,6 +1,11 @@
 node_modules
 dist
-generated
+# Generated code. The types package.json is ours and stable — committed so
+# pnpm resolves the workspace without stubs; the Prisma client is not a
+# workspace package (Prisma rewrites its package.json on every generate).
+**/generated/*/client/
+**/generated/*/types/*
+!**/generated/*/types/package.json
 .env
 .env.local
 *.tsbuildinfo
