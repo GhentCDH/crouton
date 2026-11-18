@@ -25,6 +25,7 @@ import type { ResourceConfigRegistry } from '../resource-config.registry';
 import { type PrismaClientLike, type PrismaDelegateLike, getDelegate } from '../types/prisma.types';
 import type { CroutonRequest } from '../types/request.types';
 import type { DataSourceAdapter } from './adapter';
+import { applyAfterFindAll, applyBeforeFindAll } from './middleware/hooks';
 import { loadRelationsIntoRow, loadRelationsIntoRows } from './middleware/relation-loader';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
 import { buildFilterWhere, buildNestedPath } from './query/filter';
@@ -482,7 +483,7 @@ export class ReadRepository<T = unknown> {
   async findAllByParent(
     parentId: string | number,
     childRoute: string,
-    params: ListRequest,
+    rawParams: ListRequest,
     request?: unknown,
   ): Promise<{ data: T[]; count: number }> {
     const sub = (this.config.subResources ?? []).find(
@@ -492,6 +493,11 @@ export class ReadRepository<T = unknown> {
       throw new Error(
         `No sub-resource "${childRoute}" on "${this.config.name}"`,
       );
+
+    // Same list hooks as a top-level findAll: beforeFindAll can scope the query
+    // (e.g. tenant filter), afterFindAll sees the decorated rows.
+    const parent = this.parentHookContext(parentId);
+    const params = await applyBeforeFindAll(rawParams, sub, this.adapter, request, parent);
 
     if (sub.childKind === 'custom') {
       const findAll = childRepositoryFn(sub, 'findAll', this.config.name);
@@ -518,7 +524,7 @@ export class ReadRepository<T = unknown> {
                 prisma: this.prisma,
                 op: 'findAll',
                 request,
-                parent: this.parentHookContext(parentId),
+                parent,
               }),
             ),
           )
@@ -526,7 +532,8 @@ export class ReadRepository<T = unknown> {
       const labeled = (decorated as unknown[]).map((r) =>
         applyValueLabelColumns(r as Record<string, unknown>, resolveValueLabelColumns(sub.columns)),
       );
-      return { data: labeled as T[], count: typedResult?.count ?? labeled.length };
+      const data = await applyAfterFindAll(labeled, sub, this.adapter, request, parent);
+      return { data: data as T[], count: typedResult?.count ?? labeled.length };
     }
 
     const childModel = getDelegate(this.prisma, sub.childModel);
@@ -576,7 +583,7 @@ export class ReadRepository<T = unknown> {
               prisma: this.prisma,
               op: 'findAll',
               request,
-              parent: this.parentHookContext(parentId),
+              parent,
             }),
           ),
         )
@@ -585,7 +592,8 @@ export class ReadRepository<T = unknown> {
     const labeled = (decorated as unknown[]).map((r) =>
       applyValueLabelColumns(r as Record<string, unknown>, resolveValueLabelColumns(sub.columns)),
     );
-    return { data: labeled as T[], count };
+    const rows = await applyAfterFindAll(labeled, sub, this.adapter, request, parent);
+    return { data: rows as T[], count };
   }
 
   /**
