@@ -87,10 +87,21 @@ export interface PrismaRunResult {
   output: string;
 }
 
-/** Introspect the live database into the schema file. */
-const prismaDbPull = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
+/** `prisma validate` — true when the current schema file parses and validates. */
+const prismaValidate = async (cwd: string, prismaConfig: string): Promise<PrismaRunResult> => {
   const [bin, prefix] = resolveBin('prisma', cwd);
-  const { code, stdout, stderr } = await runProcess(bin, [...prefix, 'db', 'pull', '--config', prismaConfig], cwd);
+  const { code, stdout, stderr } = await runProcess(bin, [...prefix, 'validate', '--config', prismaConfig], cwd);
+  return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
+};
+
+/**
+ * Introspect the live database into the schema file. `force` ignores the
+ * current schema (needed when it is invalid — Prisma refuses to pull otherwise).
+ */
+const prismaDbPull = async (cwd: string, prismaConfig: string, force = false): Promise<PrismaRunResult> => {
+  const [bin, prefix] = resolveBin('prisma', cwd);
+  const args = [...prefix, 'db', 'pull', '--config', prismaConfig, ...(force ? ['--force'] : [])];
+  const { code, stdout, stderr } = await runProcess(bin, args, cwd);
   return { ok: code === 0, output: `${stdout}\n${stderr}`.trim() };
 };
 
@@ -226,6 +237,11 @@ export interface PullAndGenerateInput {
 export interface PullAndGenerateResult {
   ok: boolean;
   backupPath: string;
+  /**
+   * True when the existing schema was invalid: the previous `.bak` was kept
+   * (not overwritten) and `db pull --force` re-introspected from scratch.
+   */
+  recoveredInvalidSchema: boolean;
   dbPull: PrismaRunResult;
   caseFormat?: PrismaRunResult;
   normalizeSchema?: { ok: boolean; renamed: number };
@@ -233,8 +249,12 @@ export interface PullAndGenerateResult {
 }
 
 /**
- * Full pull-and-generate pipeline: backup → dbPull → caseFormat →
+ * Full pull-and-generate pipeline: validate → backup → dbPull → caseFormat →
  * normalizeSchema → generate.
+ *
+ * If the current schema is invalid (e.g. a previous run failed half-way), the
+ * last good `.bak` is kept and `db pull --force` is used — the schema is being
+ * regenerated from the database anyway, so a broken one must not block it.
  *
  * Returns a structured result; callers handle UI / error presentation.
  * `dbPull` failure is fatal (returns early with `ok: false`); subsequent
@@ -248,14 +268,23 @@ export const pullAndGenerate = async (
 ): Promise<PullAndGenerateResult> => {
   const { root, prismaConfigPath, schemaPath } = input;
   loadDotenv(dirname(schemaPath));
-  const backupPath = await backupSchema(schemaPath);
-  const dbPull = await prismaDbPull(root, prismaConfigPath);
-  if (!dbPull.ok) return { ok: false, backupPath, dbPull };
+  const recoveredInvalidSchema = !(await prismaValidate(root, prismaConfigPath)).ok;
+  const backupPath = recoveredInvalidSchema ? `${schemaPath}.bak` : await backupSchema(schemaPath);
+  const dbPull = await prismaDbPull(root, prismaConfigPath, recoveredInvalidSchema);
+  if (!dbPull.ok) return { ok: false, backupPath, recoveredInvalidSchema, dbPull };
   const caseFormat = await prismaCaseFormat(root, schemaPath);
   const normalized = await normalizeSchema(schemaPath);
   guardCroutonPrisma(root, schemaPath);
   const generate = await prismaGenerate(root, prismaConfigPath);
-  return { ok: true, backupPath, dbPull, caseFormat, normalizeSchema: { ok: true, renamed: normalized.renamed }, generate };
+  return {
+    ok: true,
+    backupPath,
+    recoveredInvalidSchema,
+    dbPull,
+    caseFormat,
+    normalizeSchema: { ok: true, renamed: normalized.renamed },
+    generate,
+  };
 };
 
 interface NormalizeConfig {
