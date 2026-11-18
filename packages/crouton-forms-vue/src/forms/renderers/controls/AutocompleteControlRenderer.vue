@@ -23,7 +23,7 @@ import { Autocomplete } from '@ghentcdh/crouton-ui-vue';
 
 import { useAutocompleteDisplayValue } from '../../../composables/useAutocompleteDisplayValue';
 import { useFormEvents } from '../../../composables/useFormEvents';
-import { useHttpClient } from '../../../composables/useHttpClient';
+import { requireHttpClient, useOptionalHttpClient } from '../../../composables/useHttpClient';
 import { useModalOpener } from '../../../composables/useModalOpener';
 import { scopeToPath } from '../../scope';
 import { useFetchOptions } from './composables/useFetchOption';
@@ -38,9 +38,10 @@ const {
   onBlur,
   onChange: onFieldChange,
   appliedOptions,
+  emptyValue,
 } = useAutocompleteBinding(props.uischema, props.schema);
 
-const http = useHttpClient();
+const http = useOptionalHttpClient();
 const { values: formValues } = useFormContext();
 const fetchOptions = ref<Awaited<ReturnType<typeof useFetchOptions>> | null>(
   null,
@@ -103,8 +104,14 @@ const modalOpener = useModalOpener();
 const path = scopeToPath(props.uischema.scope);
 
 const setValue = (result: Record<string, unknown>) => {
-  // Empty, or a free-text string (freeText): store as-is.
-  if (!result || typeof result !== 'object' || !fetchOptions.value) {
+  // Cleared: store the form's empty value (null in API-backed forms).
+  if (result === undefined || result === null || (result as unknown) === '') {
+    displayValue.value = undefined;
+    field.setValue(emptyValue());
+    return;
+  }
+  // A free-text string (freeText): store as-is.
+  if (typeof result !== 'object' || !fetchOptions.value) {
     displayValue.value = result;
     field.setValue(result);
     return;
@@ -144,7 +151,7 @@ const onCreate = () => {
       schema: form.data as Record<string, unknown>,
       uiSchema: form.ui as Record<string, unknown>,
       modalTitle: `Create new ${(wrapper.value as { label?: string }).label}`,
-      http,
+      http: requireHttpClient(http),
       onClose: (result) => {
         if (!result || !result.valid) return;
         void form.create(result.data).then((res) => {

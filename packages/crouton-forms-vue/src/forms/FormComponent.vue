@@ -42,6 +42,7 @@ import {
 import { registerZodErrorMap } from './errorMessages';
 import {
   ERROR_MODE_KEY,
+  FORM_NULLABLE_KEY,
   FORM_READONLY_KEY,
   FORM_SUBMITTED_KEY,
 } from './errorMode';
@@ -127,6 +128,7 @@ const submitted = ref(false);
 provide(ERROR_MODE_KEY, toRef(properties, 'errorMode'));
 provide(FORM_SUBMITTED_KEY, submitted);
 provide(FORM_READONLY_KEY, toRef(properties, 'readonly'));
+provide(FORM_NULLABLE_KEY, toRef(properties, 'optionalPropertiesNullable'));
 
 // Validate on mount to emit accurate initial validity state.
 // When the initial data is already invalid (e.g. a pre-existing empty required

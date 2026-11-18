@@ -2,10 +2,11 @@ import type { ControlElement, JsonSchema } from '@jsonforms/core';
 import type { FieldContext } from 'vee-validate';
 import { useField, useFormContext } from 'vee-validate';
 import type { Ref } from 'vue';
-import { computed, inject } from 'vue';
+import { computed, inject, ref } from 'vue';
 
 import type { ControlOption } from '@ghentcdh/crouton-core';
 
+import { FORM_NULLABLE_KEY } from '../../../errorMode';
 import { scopeToPath } from '../../../scope';
 import type { UseInputOptions } from './useInput';
 import { useInputProps } from './useInput';
@@ -100,6 +101,7 @@ export const useCustomControlBinding = <
       { useProps, setDefaultValue },
     );
 
+    const nullable = inject(FORM_NULLABLE_KEY, ref(false));
     const onBlur = () => field.handleBlur(new Event('blur'));
     const onChange = () => field.handleChange(field.value.value);
 
@@ -112,6 +114,8 @@ export const useCustomControlBinding = <
       field,
       onBlur,
       onChange,
+      /** Value to store for "cleared": `null` in API-backed (nullable) forms, else `undefined`. */
+      emptyValue: () => (nullable.value ? null : undefined),
       // True while an async field validation (e.g. a unique check) is in flight.
       isValidating: computed(() => !!(field.meta as { pending?: unknown })?.pending),
       appliedOptions: computed(

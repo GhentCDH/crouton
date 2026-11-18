@@ -6,7 +6,7 @@ export type ControlVariant = {
   schema: Record<string, unknown>;
   uiSchema: Record<string, unknown>;
   formData?: Record<string, unknown>;
-  form?: { errorMode?: ErrorMode; readonly?: boolean };
+  form?: { errorMode?: ErrorMode; readonly?: boolean; optionalPropertiesNullable?: boolean };
 };
 
 type Options = Record<string, unknown>;
