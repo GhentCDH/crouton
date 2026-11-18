@@ -5,7 +5,7 @@
     <template #left-drawer>
       <div class="gap-2 flex flex-col h-full">
         <div class="flex items-center gap-2">
-          <h2>{{ app.title }} Admin</h2>
+          <h2>{{ lang.t('admin.title', '{title} Admin').replace('{title}', app.title.value) }}</h2>
         </div>
         <ul class="menu w-full gap-2 flex-1 flex-grow h-full flex-nowrap">
           <template v-for="node in app.sidebar" :key="node.id">

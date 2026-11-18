@@ -60,6 +60,9 @@ const en: UiDefaults = {
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
   },
+  admin: {
+    title: '{title} Admin',
+  },
   auth: {
     signInWith: 'Sign in with',
     accessDenied: 'Sign-in failed or this account has no access.',
@@ -125,6 +128,9 @@ const nl: UiDefaults = {
     actionSuccess: 'Done',
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
+  },
+  admin: {
+    title: '{title} Beheer',
   },
   auth: {
     signInWith: 'Aanmelden met',
@@ -192,6 +198,9 @@ const fr: UiDefaults = {
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
   },
+  admin: {
+    title: '{title} Administration',
+  },
   auth: {
     signInWith: 'Se connecter avec',
     accessDenied: 'Échec de la connexion ou ce compte n’a pas accès.',
@@ -257,6 +266,9 @@ const de: UiDefaults = {
     actionSuccess: 'Done',
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
+  },
+  admin: {
+    title: '{title} Verwaltung',
   },
   auth: {
     signInWith: 'Anmelden mit',
@@ -324,6 +336,9 @@ const wv: UiDefaults = {
     actionSuccess: 'Done',
     actionFailed: 'Action failed',
     actionError: 'Something went wrong, please try again',
+  },
+  admin: {
+    title: '{title} Beheer',
   },
   auth: {
     signInWith: 'Anmelden mee',
