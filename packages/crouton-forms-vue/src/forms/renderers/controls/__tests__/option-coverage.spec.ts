@@ -5,6 +5,7 @@ import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 import { autocompleteVariants } from './autocomplete.variants';
 import { booleanVariants } from './boolean.variants';
 import { type ControlVariant, usedOptionKeys } from './control-variant';
+import { dateVariants } from './date.variants';
 import { multiSelectVariants } from './multiselect.variants';
 import { numberVariants } from './number.variants';
 import { selectVariants } from './select.variants';
@@ -17,6 +18,8 @@ import { toggleVariants } from './toggle.variants';
  * least one variant in its browser spec, unless listed in `skipped` with a reason.
  */
 const CUSTOM_RENDER = 'resolved by crouton-vue custom components, not by this renderer';
+
+const NATIVE_DATE = 'native date inputs do not show a placeholder';
 
 const controls: Record<string, { variants: ControlVariant[]; skipped: Record<string, string> }> = {
   string: {
@@ -41,6 +44,8 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
       skipAuth: 'not read by the renderer or useFetchOptions — the injected http client decides auth',
     },
   },
+  date: { variants: dateVariants, skipped: { customRender: CUSTOM_RENDER, placeholder: NATIVE_DATE } },
+  dateTime: { variants: dateVariants, skipped: { customRender: CUSTOM_RENDER, placeholder: NATIVE_DATE } },
   toggle: {
     variants: toggleVariants,
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a button group has no placeholder' },

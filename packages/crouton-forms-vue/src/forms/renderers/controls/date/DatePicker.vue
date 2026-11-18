@@ -12,6 +12,7 @@
           :max="boundMax"
           :disabled="!enabled"
           :placeholder="placeholder"
+          :aria-label="label"
           :aria-invalid="!!errors"
           autocomplete="off"
           data-lpignore="true"
@@ -102,7 +103,8 @@
             :class="cellClass(cell)"
             :data-key="cell.key"
             :disabled="cell.disabled"
-            :tabindex="cell.key === focusKey ? 0 : -1"
+            :tabindex="cell.key === tabbableKey ? 0 : -1"
+            :aria-label="cellLabel(cell)"
             :aria-selected="cell.isSelected"
             :aria-current="cell.isToday ? 'date' : undefined"
             role="gridcell"
@@ -173,6 +175,15 @@ const focusKey = ref<string | null>(null);
 
 const selectedDate = computed(() => parseDate(props.modelValue));
 
+/**
+ * The one day cell reachable with Tab (roving tabindex): the focused cell, else
+ * the selected day, else today. Without a fallback every cell was tabindex=-1
+ * and keyboard users could not enter the grid.
+ */
+const tabbableKey = computed(
+  () => focusKey.value ?? toDateKey(selectedDate.value ?? new Date()),
+);
+
 /** The month the popover opens on: the selected day, else today. */
 const initialView = () => {
   const base = parseDate(props.modelValue) ?? new Date();
@@ -233,6 +244,12 @@ const heading = computed(() =>
 const todaySelectable = computed(() =>
   isWithinBounds(new Date(), props.min, props.max),
 );
+
+/** Full date as the cell's accessible name — the visible day number alone is ambiguous across months. */
+const cellLabel = (cell: DateGridCell) =>
+  new Intl.DateTimeFormat(props.locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+    cell.date,
+  );
 
 const cellClass = (cell: DateGridCell) => {
   if (cell.isSelected) return 'btn-primary';
@@ -340,7 +357,7 @@ const onGridKeydown = (event: KeyboardEvent) => {
   }
 
   if (event.key === 'Enter' || event.key === ' ') {
-    const cell = cells.value.find((c) => c.key === focusKey.value);
+    const cell = cells.value.find((c) => c.key === tabbableKey.value);
     if (!cell) return;
     event.preventDefault();
     select(cell);

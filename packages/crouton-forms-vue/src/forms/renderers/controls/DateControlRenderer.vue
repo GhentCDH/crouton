@@ -6,6 +6,7 @@
     :min="appliedOptions.min"
     :max="appliedOptions.max"
     :locale="appliedOptions.locale"
+    :first-day-of-week="appliedOptions.firstDayOfWeek"
     @update:model-value="onUpdate"
     @blur="onBlur"
   />
