@@ -5,7 +5,6 @@ generator client {
 generator crouton {
   provider  = "node ../../../../packages/crouton-prisma/dist/generator.cjs"
   output    = "../../generated/default/types/src"
-  zodOutput = "../../generated/default/types/src"
 }
 
 datasource db {

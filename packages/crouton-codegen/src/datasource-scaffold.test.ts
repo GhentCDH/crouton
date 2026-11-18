@@ -55,8 +55,11 @@ describe('buildDatasourceFiles', () => {
   it('gives each datasource a unique, posix-relative client + zod output', () => {
     const schema = file('schema.prisma').contents;
     expect(schema).toContain('output   = "../../generated/analyticsdb/client"');
-    expect(schema).toContain('zodOutput = "../../generated/analyticsdb/src"');
-    expect(schema).toContain('provider  = "crouton-prisma"');
+    expect(schema).toContain('output   = "../../generated/analyticsdb/src"');
+    // crouton generator uses Prisma's standard `output` (not `zodOutput`), so
+    // `prisma generate` logs the real types path.
+    expect(schema).toMatch(/generator crouton \{\n {2}provider = "crouton-prisma"\n {2}output {3}= "..\/..\/generated\/analyticsdb\/src"\n\}/);
+    expect(schema).not.toContain('zodOutput');
     expect(schema).toContain('provider = "postgresql"');
     // no url in the datasource block (Prisma 7)
     expect(schema).not.toMatch(/^\s*url\s*=/m);

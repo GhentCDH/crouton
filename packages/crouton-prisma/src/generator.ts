@@ -34,11 +34,15 @@ generatorHandler({
     const schemaPath = options.schemaPath;
     const schemaDir = dirname(schemaPath);
 
+    // Output dir: the standard `output` (Prisma resolves it and prints it in
+    // "Generated Crouton to …"), or the legacy `zodOutput` config key, which
+    // Prisma does not know — it then logs `defaultOutput` instead of the real path.
     const zodOutput = config['zodOutput'];
-    if (!zodOutput) throw new Error('[crouton-prisma] zodOutput is required in generator config');
     const zodOutputStr = Array.isArray(zodOutput) ? zodOutput[0] : zodOutput;
-
-    const absZodOutput = resolve(schemaDir, zodOutputStr);
+    const absZodOutput = zodOutputStr
+      ? resolve(schemaDir, zodOutputStr)
+      : options.generator.output?.value;
+    if (!absZodOutput) throw new Error('[crouton-prisma] set `output` in the generator block');
 
     // 1. Normalize: rename relation fields per normalize-schema.json, write back to schema.prisma
     await normalizeSchema(schemaPath);
