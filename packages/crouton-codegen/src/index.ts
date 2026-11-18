@@ -57,6 +57,7 @@ export * from './enum-registry';
 export * from './translations';
 export { clone, columnEntries, columnsMapFromEntries, deepEqual } from './util';
 export type {
+  FieldRename,
   PrismaRunResult,
   PullAndGenerateInput,
   PullAndGenerateResult,
@@ -71,6 +72,7 @@ export {
   prismaGenerate,
   pullAndGenerate,
   resolveBin,
+  resolveFieldCollisions,
   runProcess,
 } from './prisma-shell';
 export * from './validate';
