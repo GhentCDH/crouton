@@ -1,105 +1,101 @@
 <template>
-  <ControlLabel v-bind="wrapper">
+  <ControlWrapper v-bind="wrapper">
     <div class="flex items-end gap-2">
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ fromLabel }}</small>
         <input
-          v-if="yearOnly"
-          type="text"
-          class="input w-28"
-          autocomplete="off"
-          placeholder="e.g. 450 CE"
-          :value="value?.[fromField] ?? ''"
-          @input="update(fromField, ($event.target as HTMLInputElement).value)"
-          @blur="onBlur"
-        />
-        <input
-          v-else
-          type="date"
-          class="input w-36"
+          :type="yearOnly ? 'text' : 'date'"
+          :class="[inputClass, yearOnly ? 'w-28' : 'w-36']"
           autocomplete="off"
           data-lpignore="true"
           data-bwignore="true"
+          :placeholder="yearOnly ? yearPlaceholder : undefined"
           :value="value?.[fromField] ?? ''"
-          :max="value?.[toField] || undefined"
+          :max="yearOnly ? undefined : value?.[toField] || undefined"
+          :disabled="!enabled"
+          :aria-invalid="!!wrapper.errors"
           @input="update(fromField, ($event.target as HTMLInputElement).value)"
           @blur="onBlur"
         />
       </label>
-      <span class="text-secondary pb-2">→</span>
+      <span class="text-secondary pb-2" aria-hidden="true">→</span>
       <label class="flex flex-col gap-1">
         <small class="text-gray-500">{{ toLabel }}</small>
         <input
-          v-if="yearOnly"
-          type="text"
-          class="input w-28"
-          autocomplete="off"
-          placeholder="e.g. 450 CE"
-          :value="value?.[toField] ?? ''"
-          @input="update(toField, ($event.target as HTMLInputElement).value)"
-          @blur="onBlur"
-        />
-        <input
-          v-else
-          type="date"
-          class="input w-36"
+          :type="yearOnly ? 'text' : 'date'"
+          :class="[inputClass, yearOnly ? 'w-28' : 'w-36']"
           autocomplete="off"
           data-lpignore="true"
           data-bwignore="true"
+          :placeholder="yearOnly ? yearPlaceholder : undefined"
           :value="value?.[toField] ?? ''"
-          :min="value?.[fromField] || undefined"
+          :min="yearOnly ? undefined : value?.[fromField] || undefined"
+          :disabled="!enabled"
+          :aria-invalid="!!wrapper.errors"
           @input="update(toField, ($event.target as HTMLInputElement).value)"
           @blur="onBlur"
         />
       </label>
     </div>
-  </ControlLabel>
+  </ControlWrapper>
 </template>
 
 <script setup lang="ts">
 import type { ControlElement, JsonSchema } from '@jsonforms/core';
-import type { ControlOptions } from '@ghentcdh/crouton-core';
-import { useCustomControlBinding } from './composables/useControlBinding';
 import { computed } from 'vue';
-import ControlLabel from './ControlLabel.vue';
+
+import type { ControlOptions } from '@ghentcdh/crouton-core';
+import { ControlWrapper } from '@ghentcdh/crouton-ui-vue';
+
+import { useCustomControlBinding } from './composables/useControlBinding';
 
 type DateRange = Record<string, string | undefined>;
 
 const props = defineProps<{ uischema: ControlElement; schema: JsonSchema }>();
 
-// Binds to a single property whose value is stored as a JSON string in the DB.
-const { value: rawValue, wrapper, onBlur, onChange, appliedOptions } =
+const { value: rawValue, wrapper, onBlur, onChange, appliedOptions, emptyValue } =
   useCustomControlBinding<ControlOptions<'dateRange'>>()(props.uischema, props.schema);
 
-// Parse the JSON string from the DB into a DateRange object for the template.
+// An object schema holds the range as an object; anything else (e.g. a Prisma
+// `String?` column) keeps it as a JSON string.
+const storesJson = computed(() => {
+  const type = props.schema.type;
+  return !(type === 'object' || (Array.isArray(type) && type.includes('object')));
+});
+
 const value = computed<DateRange | undefined>(() => {
   const v = rawValue.value;
   if (!v) return undefined;
   if (typeof v === 'object') return v as DateRange;
-  try { return JSON.parse(v as string) as DateRange; } catch { return undefined; }
+  try {
+    return JSON.parse(v as string) as DateRange;
+  } catch {
+    return undefined;
+  }
 });
+
+const enabled = computed(() => (wrapper.value as { enabled?: boolean }).enabled !== false);
+const inputClass = computed(
+  () => (wrapper.value as { styles?: { control?: { input?: string } } }).styles?.control?.input ?? 'input',
+);
 
 const fromLabel = computed(() => appliedOptions.value?.fromLabel ?? 'From');
 const toLabel = computed(() => appliedOptions.value?.toLabel ?? 'To');
-
-// JSON object keys used for the two bounds. Default to 'from' / 'to'.
 const fromField = computed(() => appliedOptions.value?.fromField ?? 'from');
 const toField = computed(() => appliedOptions.value?.toField ?? 'to');
-
-const yearOnly = computed<boolean>(
-  // appliedOptions is typed as ControlOption | { [key: string]: any } from jsonforms;
-  // custom options not in ControlOption need a cast to access without TS2339.
-  () => !!((appliedOptions.value as Record<string, unknown>)?.yearOnly),
+const yearOnly = computed(() => !!appliedOptions.value?.yearOnly);
+const yearPlaceholder = computed(
+  () => (wrapper.value as { placeholder?: string }).placeholder ?? 'e.g. 450 CE',
 );
 
-function update(key: string, v: string) {
+const update = (key: string, v: string) => {
   const next: DateRange = { ...(value.value ?? {}) };
   if (v) next[key] = v;
   else delete next[key];
-  // collapse to undefined when both ends are empty so it persists as NULL
-  const result = next[fromField.value] || next[toField.value] ? next : undefined;
-  // Store as JSON string — Prisma column is String?, not a JSON column. Use null (not undefined) when empty so schema string | null validates.
-  rawValue.value = result !== undefined ? JSON.stringify(result) : null;
+  const hasValue = !!(next[fromField.value] || next[toField.value]);
+  // Both ends empty → the form's empty value (null in API forms, so it persists as NULL).
+  if (!hasValue) rawValue.value = emptyValue();
+  else rawValue.value = storesJson.value ? JSON.stringify(next) : next;
   onChange();
-}
+};
 </script>
