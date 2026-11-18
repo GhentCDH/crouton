@@ -72,8 +72,8 @@ generator client {
 }
 
 generator crouton {
-  provider  = "crouton-prisma"
-  zodOutput = "../../generated/default/types/src"
+  provider = "crouton-prisma"
+  output   = "../../generated/default/types/src"
 }
 
 datasource db {

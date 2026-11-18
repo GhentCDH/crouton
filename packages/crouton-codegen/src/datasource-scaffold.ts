@@ -195,8 +195,8 @@ export default client;
 }
 
 generator crouton {
-  provider  = "crouton-prisma"
-  zodOutput = "${relZod}"
+  provider = "crouton-prisma"
+  output   = "${relZod}"
 }
 
 datasource db {

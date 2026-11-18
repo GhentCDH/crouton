@@ -47,7 +47,7 @@ what the CLI / codegen needs to introspect and generate.
 | `prismaSchema`         | Path to this datasource's Prisma schema, relative to the project root.                            |
 | `urlEnv`               | Env var holding the connection URL used when the CLI runs `prisma db pull` / `generate`.          |
 | `generatedTypesImport` | Import path for this datasource's generated Zod types. New `schema.ts` files re-export from here. |
-| `zodOutput`            | Zod types output dir (project-relative). Passed to `crouton-prisma` as `zodOutput`.               |
+| `zodOutput`            | Zod types output dir (project-relative). Written to the `crouton` generator block as `output`.  |
 | `clientOutput`         | Prisma client output dir (project-relative). Should match the `output` in the generator block.    |
 | `prismaConfig`         | Prisma config file for this datasource. Defaults to `prisma/<name>/prisma.config.ts`.             |
 
