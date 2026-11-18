@@ -74,13 +74,24 @@ describe('crouton create project', () => {
 
       // root registration
       expect(read('pnpm-workspace.yaml')).toBe(
-        'packages:\n  - archive/apps/*\n  - archive/generated/**\n  - apps/*\n  - generated/**\n  - libs/*\n',
+        'packages:\n  - archive/apps/*\n  - archive/generated/**\n  - \'!archive/generated/*/client\'\n  - apps/*\n  - generated/**\n  - libs/*\n',
       );
       const paths = json<{ compilerOptions: { paths: Record<string, string[]> } }>('tsconfig.base.json').compilerOptions.paths;
       expect(paths['@ws/generated-default-types']).toEqual(['./generated/default/types/src']);
       expect(paths['@archive/generated-default-types']).toEqual(['./archive/generated/default/types/src']);
       expect(paths['@archive/generated-default-client']).toEqual(['./archive/generated/default/client']);
       expect(read('compose.yml')).toBe('include:\n  - compose.app.ws.yml\n  - compose.app.archive.yml\n');
+    });
+
+    it('keeps the generated Prisma client out of the pnpm workspace (#543)', async () => {
+      expect(await run(['create', 'project', 'archive', '--cwd', root, '-y'])).toBeFalsy();
+
+      // Prisma rewrites the client's package.json on every generate, so no app
+      // may depend on it as a workspace package — it is imported via tsconfig paths.
+      const backend = json<{ dependencies: Record<string, string> }>('archive/apps/backend/package.json');
+      expect(backend.dependencies['@archive/generated-default-client']).toBeUndefined();
+      expect(backend.dependencies['@prisma/client-runtime-utils']).toBe(backend.dependencies['@prisma/client']);
+      expect(backend.dependencies['@archive/generated-default-types']).toBe('workspace:*');
     });
 
     it('--no-frontend skips the frontend app', async () => {

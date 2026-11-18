@@ -67,7 +67,7 @@ export const nxRootEdits = (root: string, name: string): RootEdit[] => [
   {
     path: join(root, 'pnpm-workspace.yaml'),
     apply: (text) => {
-      const globs = [`${name}/apps/*`, `${name}/generated/**`].filter((g) => !text.includes(`- ${g}`));
+      const globs = [`${name}/apps/*`, `${name}/generated/**`, `'!${name}/generated/*/client'`].filter((g) => !text.includes(`- ${g}`));
       if (!globs.length) return undefined;
       return text.replace(/^packages:\n/m, (m) => m + globs.map((g) => `  - ${g}\n`).join(''));
     },

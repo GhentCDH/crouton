@@ -152,8 +152,12 @@ const ensureGeneratedScaffold = async (
 };
 
 /**
- * Ensure every app `package.json` under `apps/` lists workspace deps for the
- * generated types (and client for backend apps). Adds missing entries only.
+ * Ensure every app `package.json` under `apps/` lists the workspace dep for
+ * the generated types. Adds missing entries only.
+ *
+ * The generated Prisma client is deliberately NOT a workspace dep: Prisma
+ * rewrites its package.json on every generate, which would invalidate the
+ * lockfile (#543). Apps import it through tsconfig paths instead.
  */
 const ensureAppWorkspaceDeps = async (
   root: string,
@@ -167,7 +171,6 @@ const ensureAppWorkspaceDeps = async (
   const entries = await readdir(appsDir, { withFileTypes: true });
 
   const typesName = `@${projectName}/generated-${ds.name}-types`;
-  const clientName = `@${projectName}/generated-${ds.name}-client`;
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -182,13 +185,6 @@ const ensureAppWorkspaceDeps = async (
     // Types dep — needed by both frontend and backend
     if (ds.zodOutput && !allDeps[typesName]) {
       deps[typesName] = 'workspace:*';
-      changed = true;
-    }
-
-    // Client dep — only for backend apps (has @nestjs/core or @prisma/client)
-    const isBackend = '@nestjs/core' in allDeps || '@prisma/client' in allDeps;
-    if (ds.clientOutput && isBackend && !allDeps[clientName]) {
-      deps[clientName] = 'workspace:*';
       changed = true;
     }
 
