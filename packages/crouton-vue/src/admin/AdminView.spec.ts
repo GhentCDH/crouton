@@ -14,9 +14,10 @@ vi.mock('@ghentcdh/crouton-ui-vue', () => ({
 vi.mock('../router', () => ({ CROUTON_DEV_RESOURCES: 'dev', CROUTON_FORM: 'form' }));
 vi.mock('../i18n/LanguageSelect.vue', () => ({ default: { name: 'LanguageSelect', render: () => null } }));
 vi.mock('../composables/useApi', () => ({ useApi: () => ({}) }));
+const state: { title: string | undefined } = { title: 'X admin' };
 vi.mock('../composables/useCrouton', () => ({
   useCrouton: () => ({
-    title: computed(() => 'X admin'),
+    title: computed(() => state.title),
     sidebar: [],
     isDev: computed(() => false),
     version: '1.0.0',
@@ -30,7 +31,10 @@ const heading = () =>
   mount(AdminView, { global: { stubs: { RouterView: true, RouterLink: true } } }).find('h2').text();
 
 describe('AdminView header', () => {
-  afterEach(() => setUiDictionary({}));
+  afterEach(() => {
+    setUiDictionary({});
+    state.title = 'X admin';
+  });
 
   it('renders the title through the default admin.title template', () => {
     expect(heading()).toBe('X admin Admin');
@@ -39,5 +43,10 @@ describe('AdminView header', () => {
   it('lets admin.title override the suffix (no hard-coded " Admin")', () => {
     setUiDictionary({ admin: { title: '{title}' } });
     expect(heading()).toBe('X admin');
+  });
+
+  it('does not print "undefined" when crouton.json has no title', () => {
+    state.title = undefined;
+    expect(heading()).toBe('Admin');
   });
 });
