@@ -403,6 +403,11 @@ export const runUpdateResources = async (
       if (result.ok) spin.stop('Pull + generate complete');
       else spin.error('db pull failed');
 
+      if (result.recoveredInvalidSchema) {
+        clack.log.warn(
+          `${ds.prismaSchema} was invalid — kept previous backup (${result.backupPath}) and re-introspected with \`db pull --force\``,
+        );
+      }
       if (!result.ok) {
         clack.log.error(result.dbPull.output);
         throw new CancelledError();
