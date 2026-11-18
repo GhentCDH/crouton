@@ -28,7 +28,7 @@ import {
 import { CROUTON_STATUS } from '../router';
 import { type CustomComponentEntry } from '../utils/custom-component';
 import { ResourceDefinitionCache } from './resource-definition';
-import { firstLeafId, isSidebarGroup } from './sidebar';
+import { firstLeafId, isSidebarGroup, routeOfLeaf } from './sidebar';
 import type { SidebarNode } from './sidebar';
 import { configureApi, useApi } from './useApi';
 
@@ -245,10 +245,12 @@ const createCrouton = (
      * @deprecated use getFormDefById
      * @param formId
      */
-    getFormDef: (formId: string) => formDefCache.getById(formId),
-    getFormDefById: (formId: string) => formDefCache.getById(formId),
+    getFormDef: (formId: string) => formDefCache.getById(routeOfLeaf(sidebar.value, formId)),
+    getFormDefById: (formId: string) => formDefCache.getById(routeOfLeaf(sidebar.value, formId)),
     getFormByUri: (uri: string) => formDefCache.getByUri(uri),
-    invalidateFormDef: (formId: string) => formDefCache.invalidate(formId),
+    invalidateFormDef: (formId: string) => formDefCache.invalidate(routeOfLeaf(sidebar.value, formId)),
+    /** API route for a sidebar id (resource `name`); the id itself when unknown. */
+    routeOf: (formId: string): string => routeOfLeaf(sidebar.value, formId),
     invalidateAllFormDefs: () => formDefCache.invalidateAll(),
     /**
      * Re-fetches `/_app/layout` (sidebar, isDev, autoSave, title) without
@@ -290,6 +292,7 @@ export type UseCrouton = {
   getFormDefById: (formId: string) => Promise<ResourceDefinition>;
   getFormByUri: (uri: string) => Promise<ResourceDefinition>;
   invalidateFormDef: (formId: string) => void;
+  routeOf: (formId: string) => string;
   invalidateAllFormDefs: () => void;
   refreshLayout: () => Promise<void>;
   isInSidebar: (formId: string) => boolean;

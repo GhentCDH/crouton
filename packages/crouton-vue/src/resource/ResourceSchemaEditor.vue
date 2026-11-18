@@ -22,7 +22,7 @@ const crouton = useCrouton();
 const api = useApi();
 
 const remote = computedAsync(async () => {
-  const res = await api.get(`${props.formId}/resource-json-raw`);
+  const res = await api.get(`${crouton.routeOf(props.formId)}/resource-json-raw`);
   return res.data as ResourceJsonInput;
 });
 
@@ -44,7 +44,7 @@ const onSave = async () => {
   saving.value = true;
   saveError.value = null;
   try {
-    await api.put(`${props.formId}/resource-json-raw`, payload);
+    await api.put(`${crouton.routeOf(props.formId)}/resource-json-raw`, payload);
     crouton.invalidateFormDef(props.formId);
     emits('saved');
     emits('closeModal');

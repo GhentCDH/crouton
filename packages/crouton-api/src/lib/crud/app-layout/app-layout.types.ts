@@ -4,7 +4,10 @@ import { z } from 'zod';
 
 export const SidebarLeafSchema = z.object({
   kind: z.literal('item').default('item'),
+  /** Stable id (resource `name`) — used for translation keys and app URLs. */
   id: z.string(),
+  /** API mount point. Differs from `id` when `route` ≠ `name`. */
+  route: z.string().optional(),
   label: z.string(),
   position: z.number().optional(),
 });
