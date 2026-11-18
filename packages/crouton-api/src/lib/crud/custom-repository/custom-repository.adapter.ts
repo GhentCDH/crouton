@@ -222,7 +222,10 @@ export const createCustomRepository = <T = Row>(
       (s) => s.includeRelationInParentFindOne,
     );
     const loaded: T | Row = subsToEmbed.length
-      ? await loadRelationsIntoRow(row as Row, subsToEmbed, config.idField ?? 'id', prisma)
+      ? await loadRelationsIntoRow(row as Row, subsToEmbed, config.idField ?? 'id', prisma, {
+          parentConfig: config,
+          request,
+        })
       : row;
 
     return decorateRow(
