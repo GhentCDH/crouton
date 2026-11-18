@@ -70,27 +70,15 @@ settings** — datasources are described in their own folders (see [Data sources
   "title": "My App",
   "resourcesDir": "apps/backend/src/app/resources",
   "dataSourcesDir": "apps/backend/src/app/data-sources",
-  "schemaExportName": "{Model}WithRelationsSchema",
-  "enumsFile": "crouton.enums.json",
-  "sidebarGroups": [
-    { "id": "catalogue", "label": "Catalogue", "position": 1 }
-  ],
-  "autoSave": false,
+  "sidebarGroups": {
+    "catalogue": { "label": "Catalogue", "position": 1 }
+  },
   "i18n": { "languages": ["en", "nl"], "defaultLanguage": "en" }
 }
 ```
 
-| Field              | Description                                                                                                            |
-|--------------------|------------------------------------------------------------------------------------------------------------------------|
-| `title`            | App title shown in the admin UI (required).                                                                            |
-| `resourcesDir`     | Where resource directories live, relative to the project root.                                                         |
-| `dataSourcesDir`   | Where datasource folders live. The CLI scans this to discover datasources.                                             |
-| `schemaExportName` | Optional. Template for a model's Zod export name; `{Model}` → Prisma model name. Default `{Model}WithRelationsSchema`. |
-| `enumsFile`        | Optional. Path to the shared [enum registry](#enum-registry). Default `crouton.enums.json`.                            |
-| `sidebarGroups`    | Optional. Groups for the sidebar navigation — `id`, `label`, `position`. Resources reference them by `id`.             |
-| `autoSave`         | Optional. Enable autosave globally for all forms. Default `false`.                                                     |
-| `i18n`             | Optional. Translation settings: `languages` array, `defaultLanguage`.                                                  |
-| `rules`            | Optional. Global validation rules applied to all resources.                                                            |
+`title`, `resourcesDir` and `dataSourcesDir` are required; everything else is optional. `sidebarGroups` is an object
+keyed by group slug. See the [crouton.json reference](../reference/crouton-json.md) for the full field list and defaults.
 
 If no `crouton.json` is found, the CLI proposes one (and a `data-source.json` per detected datasource) and offers to
 write it.
