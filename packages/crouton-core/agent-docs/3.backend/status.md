@@ -63,9 +63,11 @@ do **not** set `valid: false` or increment `resourceErrors`. Current sources:
 
 | Warning | Cause |
 |---------|-------|
-| `"database" is set alongside kind: "custom"` | `database` selects `ctx.prisma`; data still comes from `repository.ts`. Usually harmless, but the field is redundant. |
-| `repository.ts present on a prisma resource` | The file is ignored. Set `kind: "custom"` if you intended to use it. |
-| `All operations disabled` | The resource serves no endpoints. |
+| `All operations are disabled — this resource serves nothing.` | Every operation is set to `false`. |
+| `repository.ts is present on a prisma resource and will be ignored — set kind: "custom" if you want to use it for data access.` | The file is ignored. Set `kind: "custom"` if you intended to use it. |
+| `Column "<id>" is the id field; "unique" is redundant there.` | `unique` has no effect on the `idField` column. |
+
+A `unique.scope` entry that names an unknown column is an error, not a warning.
 
 ### Database checks
 

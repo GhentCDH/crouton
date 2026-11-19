@@ -1,6 +1,6 @@
 # Project structure
 
-After scaffolding with `create-crouton` or `add-crouton`, your project has three key directories:
+After scaffolding with `create-crouton`, your project has three key directories:
 
 ```
 src/

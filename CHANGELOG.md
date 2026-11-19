@@ -14,7 +14,7 @@
 - Every layout node now has a single **`items`** list (replaces the separate `controls` and `items` lists). Order is preserved — components, fields, and nested nodes can be freely interleaved.
 - Table-specific settings (`rowActions`, `tableActions`, `searchFields`, `filterFields`, `title`/`label`) now live on the **`type: "table"` node**, not on a wrapper grid.
 - `actions` is renamed to **`rowActions`** (per-record actions). The compiled `/schemas` output renames `Table.options.actions` → `Table.options.tableActions`.
-- `schemaVersion` bumped to **2**. Old resources with `schemaVersion: 1` must be migrated.
+- `schemaVersion` stays **1**: the layout rename ships as `crouton migrate` codemods, not a version bump.
 - A table node with `title` or `label` renders a heading above the table.
 - **Migration:** use [migrate-to-next-alpha.md](./migrate-to-next-alpha) with an AI assistant to migrate existing resources.
 

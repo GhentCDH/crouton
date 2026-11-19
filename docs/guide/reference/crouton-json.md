@@ -30,7 +30,8 @@ Source of truth: `CroutonConfigSchema` in `@ghentcdh/crouton-core` (editor autoc
 | Field              | Type      | Required | Description                                                                                                    |
 |--------------------|-----------|----------|----------------------------------------------------------------------------------------------------------------|
 | `$schema`          | `string`  | no       | URL of the generated JSON Schema, for editor autocomplete/validation. Ignored at runtime.                      |
-| `title`            | `string`  | **yes**  | App title, served via `GET /_app/layout` and shown in the admin sidebar header.                                |
+| `title`            | `string`  | **yes**  | App title, served via `GET /_app/layout` and shown in the admin sidebar header and login screen.               |
+| `logo`             | `string`  | no       | URL of the app logo (e.g. `/logo.svg`). Shown on the login screen and sidebar header, and served via `GET /_app/layout`. |
 | `resourcesDir`     | `string`  | **yes**  | Where resource directories live, relative to the project root.                                                 |
 | `dataSourcesDir`   | `string`  | **yes**  | Where datasource folders live. The CLI scans this to discover datasources.                                     |
 | `schemaExportName` | `string`  | no       | Template for a model's Zod export name; `{Model}` → Prisma model name. Default `{Model}WithRelationsSchema`.  |

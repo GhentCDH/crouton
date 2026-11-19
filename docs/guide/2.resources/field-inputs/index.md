@@ -14,7 +14,7 @@ Each column can declare a `fieldInput` block that controls how the field is rend
 }
 ```
 
-The `$schema` is stamped automatically by `crouton generate`. It points to a versioned JSON Schema file that your editor uses for autocomplete and validation of the `options` block.
+The `$schema` is stamped automatically by `crouton update resources` (and `crouton create resource`). It points to a versioned JSON Schema file that your editor uses for autocomplete and validation of the `options` block.
 
 ## Available types
 

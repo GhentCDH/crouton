@@ -28,8 +28,12 @@ Each operation is only registered when enabled in `operations`. See [Operations]
 
 | Endpoint                      | Method   | Description                                                                              |
 |-------------------------------|----------|------------------------------------------------------------------------------------------|
-| `GET /_app/layout`            | `GET`    | Sidebar items for all resources (respects `sidebar.hide` / `sidebar.position`)           |
+| `GET /_app/layout`            | `GET`    | Sidebar items for all resources (respects `sidebar.hide` / `sidebar.position`) plus app `title` / `logo` |
 | `GET /_app/translations`      | `GET`    | UI + validation translation dictionary for the current language                         |
+| `GET /_app/auth`              | `GET`    | Public auth providers (no secrets), or `{ enabled: false }` when auth is off             |
+| `GET /_app/me`                | `GET`    | Current user, or `null` when unauthenticated                                            |
+| `GET /_app/auth/:provider/login`    | `GET` | Start server-side login for one provider                                           |
+| `GET /_app/auth/:provider/callback` | `GET` | OAuth callback; redirects to the frontend with the session token                   |
 | `GET /crouton/status.json`    | `GET`    | Health check: databases, resource load status, i18n. Always HTTP 200.                   |
 
 ## Sub-resource endpoints

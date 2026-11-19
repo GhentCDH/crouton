@@ -11,6 +11,8 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 
 ```json
 {
+  "$schema": "https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json",
+  "schemaVersion": 1,
   "name": "book",
   "source": {
     "model": "book",
@@ -44,10 +46,7 @@ API endpoints, validation wiring, table columns, form fields, and filters.
       "hiddenInForm": true,
       "hiddenInView": true
     },
-    "title": {
-      "sortable": true,
-      "defaultSort": true
-    },
+    "title": {},
     "summary": {
       "hiddenInTable": true,
       "fieldInput": {
@@ -63,6 +62,9 @@ API endpoints, validation wiring, table columns, form fields, and filters.
   }
 }
 ```
+
+Table-only presentation (sorting, search/filter fields, hidden columns) lives in `layout.table` — see
+[Layout](layout.md#table-layout-layouttable).
 
 ## Top-level fields
 
@@ -85,6 +87,8 @@ API endpoints, validation wiring, table columns, form fields, and filters.
 | `columns` | map | Column definitions keyed by id. Unknown keys inside a column fail validation — see [Columns](columns.md) |
 | `lookup` | object | How this resource is labelled in other resources' dropdowns (`labels`, `separator`) |
 | `layout` | object | Form, view and table layout, including row/table actions and the modal/page container — see [Layout](layout.md) |
+
+Apps can register additional top-level sections (for example an `annotation` block) — see [Extensions](extensions.md).
 
 ## Operations
 

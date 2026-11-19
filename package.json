@@ -9,7 +9,7 @@
     "lint": "nx run-many -t lint",
     "check:duplicate-exports": "node tools/check-duplicate-exports.mjs --fail",
     "format": "prettier --write \"packages/**/*.{ts,js,json,md}\"",
-    "docs:build": "nx run docs:build",
+    "docs:build": "nx run docs:build-llms",
     "docs:serve": "nx run docs:serve",
     "prepare": "husky",
     "release": "nx release --skip-publish",

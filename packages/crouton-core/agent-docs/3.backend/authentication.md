@@ -193,6 +193,12 @@ The `dev` token never expires and is not affected by these settings.
 
 ## Custom provider
 
+Custom providers use `defineAuthProvider` from `@ghentcdh/crouton-auth`:
+
+```sh
+pnpm add @ghentcdh/crouton-auth
+```
+
 ```ts
 // auth-providers/ldap/index.ts
 import { defineAuthProvider } from '@ghentcdh/crouton-auth';

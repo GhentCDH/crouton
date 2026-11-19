@@ -94,7 +94,8 @@ field only numbers; anything else is rejected with 400. On these fields `contain
 ### Migration from `searchFields` / `filterFields`
 
 `layout.table.searchFields` / `filterFields` fail validation; per-column `searchable` / `filterable` flags are
-deprecated. Use [migrate-to-next-alpha.md](/migrate-to-next-alpha) with an AI assistant to migrate automatically.
+deprecated. Use [migrate-to-next-alpha.md](https://github.com/GhentCDH/crouton/blob/main/migrate-to-next-alpha.md)
+with an AI assistant to migrate automatically.
 
 ## PUT vs PATCH
 
