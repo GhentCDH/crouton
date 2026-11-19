@@ -1,13 +1,26 @@
 import type { JsonColumn, RelationFieldInputOptions } from '../resource';
 import { isRelationColumn } from '../resource/Column';
+import { columnTypeName, columnTypeToJsonSchema } from '../resource/ColumnType.schema';
 import type { LookupConfig } from '../schema/definition/lookup.schema';
+
+/** Field inputs that always sit on a string column (a `select` may be a Prisma enum). */
+const TEXT_FIELD_INPUTS = new Set(['string', 'text', 'textarea', 'markdown']);
+
+/** Text columns only: a `contains` search on a number/boolean/enum column makes Prisma throw (#594). */
+const isTextColumn = (c: JsonColumn): boolean => {
+  const input = c.fieldInput?.type;
+  if (input) return TEXT_FIELD_INPUTS.has(input);
+  if (c.type === undefined) return false;
+  const schema = columnTypeToJsonSchema(c.type);
+  return columnTypeName(c.type) === 'string' && !schema.format && !schema.enum;
+};
 
 const isSearchableColumn = (c: JsonColumn): boolean =>
   !c.idField &&
   !c.computed &&
   !isRelationColumn(c) &&
   !c.fieldInput?.relationType &&
-  c.fieldInput?.type !== 'date';
+  isTextColumn(c);
 
 export const buildSearch = (
   columns: JsonColumn[] | undefined,
@@ -15,7 +28,9 @@ export const buildSearch = (
   findAllEnabled = false,
 ): string[] | undefined => {
   if (!columns) return undefined;
-  if (!searchPaths?.length) {
+  // An explicit `search: []` disables free-text search.
+  if (searchPaths?.length === 0) return undefined;
+  if (!searchPaths) {
     if (!findAllEnabled) return undefined;
     const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
     return fallback.length ? fallback : undefined;
