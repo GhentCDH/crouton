@@ -5,7 +5,7 @@ import { router } from './router';
 import App from './App.vue';
 import { useApi } from './api';
 
-loadRuntimeConfig().then(() => {
+loadRuntimeConfig({ base: import.meta.env.BASE_URL }).then(() => {
   const api = useApi();
   const app = createApp(App);
 

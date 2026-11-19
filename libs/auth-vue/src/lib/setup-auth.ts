@@ -3,6 +3,7 @@ import type { AxiosInstance } from 'axios';
 
 import {
   CALLBACK_PATH,
+  currentAppPath,
   loadOidcUser,
   pickBrowserProvider,
   setAuthProviders,
@@ -24,7 +25,7 @@ export const setupAuth = async (
   apiBase: string,
   axios: AxiosInstance,
 ): Promise<AuthSetupResult> => {
-  const isCallbackPage = window.location.pathname.startsWith('/auth/');
+  const isCallbackPage = currentAppPath().startsWith('/auth/');
 
   // Token interceptor registered FIRST (LIFO: runs last, after queue releases).
   // Reads oidcUser lazily so it always picks up the token set by loadOidcUser()
@@ -53,7 +54,7 @@ export const setupAuth = async (
   axios.interceptors.response.use(
     (r) => r,
     async (err) => {
-      if (err?.response?.status === 401 && !window.location.pathname.startsWith('/auth/')) {
+      if (err?.response?.status === 401 && !currentAppPath().startsWith('/auth/')) {
         setSessionToken(null); // rejected by the backend (expired, rotated secret) → drop it
         await login();
       }

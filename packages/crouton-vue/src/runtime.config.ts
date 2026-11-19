@@ -9,15 +9,21 @@ let cachedConfig: RuntimeConfig | null = null;
 
 export const loadRuntimeConfig = async <
   RUNTIME_CONFIG extends RuntimeConfig,
->(): Promise<RUNTIME_CONFIG> => {
+>(
+  /**
+   * App base path, e.g. `{ base: import.meta.env.BASE_URL }` from the app's
+   * own code. Defaults to `/`. Reading `BASE_URL` here would bake in the
+   * library's build-time value, not the app's (#592).
+   */
+  options: { base?: string } = {},
+): Promise<RUNTIME_CONFIG> => {
   if (cachedConfig) {
     return cachedConfig as RUNTIME_CONFIG;
   }
 
-  // In production, fetch from config.json (relative to base URL)
   try {
-    const baseUrl = import.meta.env.BASE_URL || '/';
-    const response = await fetch(`${baseUrl}config.json`);
+    const base = (options.base || '/').replace(/\/?$/, '/');
+    const response = await fetch(`${base}config.json`);
     if (!response.ok) {
       throw new Error(`Failed to load config: ${response.status}`);
     }
