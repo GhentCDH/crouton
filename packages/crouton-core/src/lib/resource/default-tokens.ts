@@ -11,7 +11,11 @@ const DYNAMIC_DEFAULTS: Record<string, (ctx: DefaultTokenContext) => unknown> =
     $user: (ctx) => ctx.defaults?.['$user'],
   };
 
-const resolveValue = (value: unknown, ctx: DefaultTokenContext): unknown => {
+/** Resolve a single value: a dynamic token ("$now", …) → its runtime value, anything else unchanged. */
+export const resolveDefaultToken = (
+  value: unknown,
+  ctx: DefaultTokenContext = {},
+): unknown => {
   if (typeof value !== 'string') return value;
   const resolver = DYNAMIC_DEFAULTS[value];
   return resolver ? resolver(ctx) : value;
@@ -36,5 +40,5 @@ export const resolveDefaultTokens = (
       ]),
     );
   }
-  return resolveValue(value, ctx);
+  return resolveDefaultToken(value, ctx);
 };
