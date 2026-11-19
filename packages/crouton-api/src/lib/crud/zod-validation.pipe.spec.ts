@@ -1,7 +1,11 @@
 import { Decimal } from '@prisma/client/runtime/client';
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
+import { type ZodTypeAny, z } from 'zod';
 
+import { buildResourceDefinitions, schemaFor } from '@ghentcdh/crouton-core';
+import type { JsonColumn } from '@ghentcdh/crouton-core';
+
+import { invalid } from '../../testing/index';
 import { ZodValidationPipe } from './zod-validation.pipe';
 
 const schema = z.object({
@@ -118,5 +122,44 @@ describe('ZodValidationPipe — empty-string handling', () => {
     const p = new ZodValidationPipe(s);
     const result = p.transform({ name: null, count: 42 });
     expect(result).toEqual({ name: null, count: 42 });
+  });
+});
+
+// #584: relation keys of a `*WithRelationsSchema` listed as columns without a
+// `relation` block must not be required on create nor forwarded to Prisma.
+describe('ZodValidationPipe — relation columns without relation config', () => {
+  const User = z.object({ id: z.string(), name: z.string() });
+  const Item = z.object({ id: z.string() });
+  const Bucket = z.object({
+    id: z.string(),
+    title: z.string(),
+    meta: z.lazy(() => z.union([z.string(), z.number()])).nullable(),
+  });
+  const BucketWithRelations = Bucket.merge(
+    z.object({
+      creator: z.lazy(() => User).nullable(),
+      bucketItem: z.lazy(() => Item).array(),
+    }),
+  );
+  const columns = ['id', 'title', 'meta', 'creator', 'bucketItem'].map(
+    (id) => invalid<JsonColumn>({ id, idField: id === 'id' }),
+  );
+  const def = buildResourceDefinitions(
+    BucketWithRelations,
+    { findAll: true, findOne: true, create: true, update: true, patch: true, delete: true },
+    columns,
+  );
+
+  it('create without the oneToMany key passes and drops the manyToOne key', () => {
+    const p = new ZodValidationPipe(schemaFor(def, 'create') as ZodTypeAny, {
+      coerceNullableUndefinedToNull: true,
+    });
+    const result = p.transform({ title: 'b', creator: { id: 'u', name: 'U' } });
+    expect(result).toEqual({ title: 'b', meta: null });
+  });
+
+  it('update schema has no relation keys', () => {
+    const shape = (schemaFor(def, 'update') as typeof Bucket).shape;
+    expect(Object.keys(shape)).toEqual(['title', 'meta']);
   });
 });

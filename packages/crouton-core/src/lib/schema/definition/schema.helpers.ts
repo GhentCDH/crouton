@@ -1,9 +1,10 @@
-import type { ZodObject, ZodRawShape } from 'zod';
+import type { ZodObject, ZodRawShape, ZodType } from 'zod';
 
 import type { JsonResourceOperations, SecurityConfig } from '../../data-source';
 import type { JsonColumn } from '../../resource';
 import { pickByColumns } from '../json/pick-by-columns';
 import type { SchemaInput } from '../json/schema-input';
+import { isLazyRelationField } from '../zod.utils';
 import type { CrudDefinition, OperationDef } from './definition.schema';
 
 const opWithSchema = (
@@ -33,15 +34,21 @@ export const buildResourceDefinitions = (
   enrichedColumns: JsonColumn[] | undefined,
 ): CrudDefinition => {
   const picked = pickByColumns(schema, enrichedColumns);
+  // A relation key from a `*WithRelationsSchema` listed as a column without a
+  // `relation` block is read-only: never required on, or forwarded by, a write (#584).
+  const writable = (c: JsonColumn) => {
+    const field = schema?.shape[c.id];
+    return !c.idField && !(field && isLazyRelationField(field as ZodType));
+  };
   const createSchema = pickByColumns(
     schema,
     enrichedColumns,
-    (c) => !c.idField && c.creatable !== false,
+    (c) => writable(c) && c.creatable !== false,
   );
   const updateSchema = pickByColumns(
     schema,
     enrichedColumns,
-    (c) => !c.idField && c.updatable !== false,
+    (c) => writable(c) && c.updatable !== false,
   );
 
   const findAll = opWithSchema(operations.findAll, picked);
