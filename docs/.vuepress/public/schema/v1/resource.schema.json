@@ -1708,6 +1708,14 @@
                           "label": {
                             "description": "Optional label rendered above the component slot.",
                             "type": "string"
+                          },
+                          "props": {
+                            "description": "Static props passed to the component, next to the runtime props `data` (current record), `readonly`, `schema` and `uischema`.",
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {}
                           }
                         },
                         "required": [
@@ -2486,6 +2494,14 @@
                   "label": {
                     "description": "Optional label rendered above the component slot.",
                     "type": "string"
+                  },
+                  "props": {
+                    "description": "Static props passed to the component, next to the runtime props `data` (current record), `readonly`, `schema` and `uischema`.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
                   }
                 },
                 "required": [
@@ -2571,6 +2587,14 @@
                   "label": {
                     "description": "Optional label rendered above the component slot.",
                     "type": "string"
+                  },
+                  "props": {
+                    "description": "Static props passed to the component, next to the runtime props `data` (current record), `readonly`, `schema` and `uischema`.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
                   }
                 },
                 "required": [
@@ -2666,6 +2690,14 @@
                             "label": {
                               "description": "Optional label rendered above the component slot.",
                               "type": "string"
+                            },
+                            "props": {
+                              "description": "Static props passed to the component, next to the runtime props `data` (current record), `readonly`, `schema` and `uischema`.",
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
                             }
                           },
                           "required": [

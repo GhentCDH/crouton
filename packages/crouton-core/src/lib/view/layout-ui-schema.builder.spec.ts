@@ -238,3 +238,16 @@ describe('orderTableColumnsFromLayout', () => {
     expect(ordered.columns?.[1].label).toBeUndefined(); // bio has no explicit label
   });
 });
+
+describe('component items forward static props (#545)', () => {
+  it('copies `props` onto the ComponentElement options', () => {
+    const node = invalid<LayoutNode>({
+      items: [{ component: 'RecordSummary', colspan: 6, props: { compact: true, title: 'Summary' } }],
+    });
+    const el = invalid<{ type: string; options: Record<string, unknown> }>(
+      asLayout(buildFormUiSchemaFromLayout(node, cols)).elements[0],
+    );
+    expect(el.type).toBe('ComponentElement');
+    expect(el.options).toMatchObject({ component: 'RecordSummary', colspan: 6, props: { compact: true, title: 'Summary' } });
+  });
+});
