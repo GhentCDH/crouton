@@ -59,7 +59,10 @@ beforeWrite ? : (data, ctx: {
 ```
 
 Called with the validated payload right before it is passed to Prisma. Whatever you return is what gets written.
-`ctx.id` is set for updates, `undefined` for creates.
+`ctx.id` is set for updates and deletes, `undefined` for creates.
+
+On `delete`, `beforeWrite` runs before the row is removed with `data` set to `undefined`. Throw to block the delete
+(for example an ownership check); the return value is ignored.
 
 Typical use: resolve or create related entities. For example, a form's autocomplete field submits an object — the hook
 reduces it to a foreign key, creating the related record if needed:
@@ -145,6 +148,8 @@ afterFindAll  ? : (rows,  ctx: { prisma; dataSource; request?; parent? }) => any
 ```
 
 `beforeFindAll` receives the query object before it is sent to Prisma, letting you add filters or scopes.
+The `operations.findAll.filter` allowlist is checked on the client's filters before the hook runs, so filters the hook
+adds (e.g. `userEmail:<me>:equals` or a relation path like `trip.familyId:["f1"]:in`) don't need to be allowlisted.
 `afterFindAll` receives the full result array and lets you add or remove rows.
 
 ::: tip
@@ -180,6 +185,10 @@ resources/groups/
 ```
 
 The parent-scoped `hooks/<name>.ts` wins if both exist.
+
+A sub-resource's hooks run on its nested routes like a top-level resource's: `beforeWrite` / `afterWrite` on
+create, update and delete, and `beforeFindAll` / `afterFindAll` on the nested list (`GET /<parent>/:id/<child>`), with
+[`ctx.parent`](#getting-the-parent-id) set.
 
 ### Getting the parent id
 

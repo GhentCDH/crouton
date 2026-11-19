@@ -1709,7 +1709,7 @@ This was a version bump only, there were no code changes.
 - Single `items` list per layout node (order preserved)
 - Table settings on the `type: "table"` node
 - `actions` → `rowActions`; compiled `Table.options.actions` → `Table.options.tableActions`
-- `schemaVersion` 2; table heading via `title`/`label` on the table node
+- `schemaVersion` stays 1; table heading via `title`/`label` on the table node
 - Bug fix: `sortable`/`defaultSort` now honoured inside wrapper table layouts
 - **Migration for all above:** use [migrate-to-next-alpha.md](./migrate-to-next-alpha) with an AI assistant
 

@@ -4,8 +4,6 @@ description: Scaffold a new Crouton project with create-crouton, or add Crouton 
 
 # Getting started
 
-> Last verified against crouton `0.0.1-alpha.81`
-
 Two ways to start with crouton: **create a new project** from scratch, or **add crouton** to an existing one.
 
 ## @ghentcdh/create-crouton
@@ -160,8 +158,13 @@ crouton update resources --project split
 
 ## @ghentcdh/add-crouton
 
+::: warning Not published yet
+`@ghentcdh/add-crouton` is not on npm yet (see the [roadmap](../roadmap.md)). Until it is released, use the
+[manual setup](manual-setup.md) guide to add crouton to an existing project.
+:::
+
 Add crouton to an **existing** NestJS project — regular or Nx. This command is additive: it never overwrites existing
-files.
+files. Once released, run it from the project root:
 
 ```sh
 npx @ghentcdh/add-crouton

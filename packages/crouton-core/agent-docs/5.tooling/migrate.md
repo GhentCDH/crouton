@@ -5,14 +5,22 @@ description: Upgrade a crouton project to a new release — crouton migrate rewr
 # Upgrading crouton
 
 During `0.x`, `resource.json` stays at **`schemaVersion: 1`** and its `$schema` URL stays
-`https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json`. Breaking changes to the file shape are described
-in the **migration guide**, `migrate-to-next-alpha.md`, with the rule and a before/after example — and
-`crouton migrate` applies those rules for you. See [Versioning](../2.resources/versioning.md) for what a release may
-change.
+`https://ghentcdh.github.io/crouton/schema/v1/resource.schema.json`. Breaking changes are described in a
+per-release migration guide at the repository root, with the rule and a before/after example:
+
+- [migrate-to-0.2.0.md](https://github.com/GhentCDH/crouton/blob/main/migrate-to-0.2.0.md) — `0.1.0` → `0.2.0`
+  (hooks, filter coercion, generated Prisma client layout, frontend renderers).
+- [migrate-to-next-alpha.md](https://github.com/GhentCDH/crouton/blob/main/migrate-to-next-alpha.md) — historical
+  `0.0.1-alpha.N` → `0.1.0` upgrade.
+
+`crouton migrate` applies the `resource.json` codemods for you. See
+[Versioning](../2.resources/versioning.md) for what a release may change.
 
 ## Steps
 
-1. Bump every `@ghentcdh/crouton-*` package to the same new version.
+1. Bump every `@ghentcdh/crouton-*` package to the same new version, then work through the matching migration guide
+   for changes the codemods cannot make. For `0.2.0`, follow
+   [migrate-to-0.2.0.md](https://github.com/GhentCDH/crouton/blob/main/migrate-to-0.2.0.md).
 2. Preview, then apply the codemods:
 
    ```sh

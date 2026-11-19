@@ -22,8 +22,9 @@
 ---
 
 > **0.x release** — crouton follows [semver](https://semver.org): within `0.x`, patch releases don't break you,
-> minor releases may, and every breaking change is listed in the [migration guide](https://github.com/GhentCDH/crouton/blob/main/migrate-to-next-alpha.md) with
-> before/after examples. See [Versioning](https://ghentcdh.github.io/crouton/guide/2.resources/versioning.html).
+> minor releases may, and every breaking change is listed in the migration guide
+> ([0.1 → 0.2](https://github.com/GhentCDH/crouton/blob/main/migrate-to-0.2.0.md),
+> [alpha → 0.1](https://github.com/GhentCDH/crouton/blob/main/migrate-to-next-alpha.md)) with before/after examples. See [Versioning](https://ghentcdh.github.io/crouton/guide/2.resources/versioning.html).
 
 A schema-driven CRUD framework for **NestJS + Vue**. Define your resources once in JSON — crouton handles the rest: API
 endpoints, data tables, forms, and filters.

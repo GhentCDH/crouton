@@ -47,7 +47,9 @@ Two independent version numbers:
 - Upgrade within a major: bump all `@ghentcdh/crouton-*` packages to the same version. Mixing versions is not
   supported.
 
-Release notes per version: `RELEASE_NOTES.md` and the GitHub release.
+Release notes per version: `RELEASE_NOTES.md` and the GitHub release. Upgrade steps per minor release live in
+`migrate-to-<version>.md` at the repository root (e.g. `migrate-to-0.2.0.md`), written so you can hand the file to an
+AI assistant.
 
 ## Auto-migration on load (dev only)
 

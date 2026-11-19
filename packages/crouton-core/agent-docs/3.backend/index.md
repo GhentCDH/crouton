@@ -4,8 +4,6 @@ description: How to register the CroutonModule in a NestJS application, configur
 
 # Backend setup
 
-> Last verified against crouton `0.0.1-alpha.81`
-
 Add crouton to a NestJS application.
 
 ## Install

@@ -1,10 +1,10 @@
 ---
-description: What is planned after the first crouton release, and what 0.1.0 deliberately does not include.
+description: What is planned next for crouton, and what is deliberately not included yet.
 ---
 
 # Roadmap
 
-Planned after `0.1.0`. Nothing here is promised for a specific release.
+Planned next. Nothing here is promised for a specific release.
 
 ## User-facing
 
