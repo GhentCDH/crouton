@@ -4,7 +4,7 @@
  * then writes a README.md index.
  */
 
-import { copyFile, mkdir, readdir, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -82,6 +82,8 @@ const collectMd = async (dir, baseDir, acc = []) => {
 
 const files = await collectMd(srcDir, srcDir);
 
+// Start clean so pages removed from docs/guide don't linger here.
+await rm(destDir, { recursive: true, force: true });
 await mkdir(destDir, { recursive: true });
 
 for (const rel of files) {

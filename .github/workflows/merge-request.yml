@@ -18,12 +18,16 @@ jobs:
     uses: ./.github/workflows/shared-ci.yml
     with:
       knip: true
-      # Generated resource.schema.json and docs must be committed up to date.
+      # Generated resource.schema.json, docs and agent-docs (built from docs/guide
+      # by crouton-core:build-agent-docs) must be committed up to date.
+      # `add -N` makes newly generated, uncommitted agent-docs files show in the diff.
       post-build: >-
+        git add -N packages/crouton-core/agent-docs &&
         git diff --exit-code --
         'packages/crouton-core/src/lib/resource/resource.schema*.json'
         docs/.vuepress/public/schema
         'docs/guide/2.resources/field-inputs/_generated'
+        packages/crouton-core/agent-docs
 
   duplicate-exports:
     runs-on: ubuntu-latest
