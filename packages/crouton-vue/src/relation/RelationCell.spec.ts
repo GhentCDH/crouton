@@ -16,6 +16,8 @@ vi.mock('./RelationModal.vue', () => ({ default: { name: 'RelationModal', render
 vi.mock('../resource', () => ({ useResources: () => ({ view: () => undefined }) }));
 vi.mock('../composables/useCrouton', () => ({ useCrouton: () => ({ getFormByUri: async () => null }) }));
 
+import { TextCell } from '@ghentcdh/crouton-ui-vue';
+
 import RelationCell from './RelationCell.vue';
 
 const mountCell = (value: unknown, options?: Record<string, unknown>) =>
@@ -95,6 +97,27 @@ describe('RelationCell – display value resolution', () => {
       const wrapper = mountFk({ textSelectionId: 515 });
       expect(wrapper.text()).toContain('515');
       expect(wrapper.text()).not.toContain('records');
+    });
+  });
+
+  describe('link marker (#255)', () => {
+    it('shows a decorative link icon so the cell reads as a link to another record', () => {
+      const wrapper = mountCell({ id: 1, name: 'Dune' }, { displayKey: 'name' });
+      const icon = wrapper.find('[data-testid="relation-cell-icon"]');
+
+      expect(icon.exists()).toBe(true);
+      expect(icon.attributes('aria-hidden')).toBe('true');
+      // The button keeps the label as its accessible name.
+      expect(wrapper.find('button').text()).toBe('Dune');
+    });
+
+    it('is absent from a plain text cell', () => {
+      const wrapper = mount(TextCell, {
+        props: { data: { title: 'Dune' }, column: { id: 'title' } },
+      });
+
+      expect(wrapper.text()).toContain('Dune');
+      expect(wrapper.find('svg').exists()).toBe(false);
     });
   });
 });
