@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { pullAndGenerate, resolveFieldCollisions } from './prisma-shell';
+import { normalizeSchema, pullAndGenerate, resolveFieldCollisions } from './prisma-shell';
 import { EventEmitter } from 'node:events';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -115,5 +115,53 @@ model RevisionStatus {
   it('picks a free suffix when <name>Ref is already taken', () => {
     const s = 'model A {\n  b    String\n  bRef Int\n  b    B @relation(fields: [bRef], references: [id])\n}\n\nmodel B {\n  id Int @id\n  a  A[]\n}\n';
     expect(resolveFieldCollisions(s).renames).toEqual([{ model: 'A', from: 'b', to: 'bRef2' }]);
+  });
+});
+
+describe('normalizeSchema renames (#540)', () => {
+  const SCHEMA = `model Text {
+  id               Int             @id
+  revisionStatus   String?
+  revisionStatusId Int?
+  revisionStatus   RevisionStatus? @relation(fields: [revisionStatusId], references: [id])
+}
+
+model RevisionStatus {
+  id   Int    @id
+  text Text[]
+}
+`;
+
+  const normalize = async (renames: unknown) => {
+    const dir = mkdtempSync(join(tmpdir(), 'crouton-normalize-'));
+    const schemaPath = join(dir, 'schema.prisma');
+    writeFileSync(schemaPath, SCHEMA);
+    writeFileSync(join(dir, 'normalize-schema.json'), JSON.stringify({ renames }));
+    const result = await normalizeSchema(schemaPath);
+    return { ...result, schema: readFileSync(schemaPath, 'utf-8') };
+  };
+
+  it('object form with relationOnly renames only the relation field', async () => {
+    const { renamed, schema } = await normalize({
+      Text: { revisionStatus: { to: 'revisionStatusRel', relationOnly: true } },
+    });
+
+    expect(renamed).toBe(1);
+    expect(schema).toContain('  revisionStatus   String?\n');
+    expect(schema).toContain('  revisionStatusRel   RevisionStatus? @relation(fields: [revisionStatusId]');
+  });
+
+  it('string form keeps renaming every line with that name', async () => {
+    const { renamed, schema } = await normalize({ Text: { revisionStatus: 'status' } });
+
+    expect(renamed).toBe(1);
+    expect(schema).toContain('  status   String?\n');
+    expect(schema).toContain('  status   RevisionStatus?');
+    expect(schema).toContain('  revisionStatusId Int?');
+  });
+
+  it('object form without relationOnly behaves like the string form', async () => {
+    const { schema } = await normalize({ Text: { revisionStatus: { to: 'status' } } });
+    expect(schema).not.toMatch(/^\s+revisionStatus\s/m);
   });
 });
