@@ -59,7 +59,10 @@ beforeWrite ? : (data, ctx: {
 ```
 
 Called with the validated payload right before it is passed to Prisma. Whatever you return is what gets written.
-`ctx.id` is set for updates, `undefined` for creates.
+`ctx.id` is set for updates and deletes, `undefined` for creates.
+
+On `delete`, `beforeWrite` runs before the row is removed with `data` set to `undefined`. Throw to block the delete
+(for example an ownership check); the return value is ignored.
 
 Typical use: resolve or create related entities. For example, a form's autocomplete field submits an object — the hook
 reduces it to a foreign key, creating the related record if needed:

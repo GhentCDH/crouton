@@ -188,7 +188,7 @@ export function createCrudRepository<T = Row>(
       decorateRow(row, 'findOne', hookTarget, resolvedAdapter, request, undefined, id);
     const prepareData = (
       data: unknown,
-      op: 'create' | 'update' | 'patch',
+      op: 'create' | 'update' | 'patch' | 'delete',
       id?: string | number,
       request?: unknown,
     ) => prepareWrite(data, op, hookTarget, resolvedAdapter, id, request);
@@ -376,6 +376,8 @@ export function createCrudRepository<T = Row>(
       delete: async (id, request) => {
         const coercedId = toId(id);
         if (!resolvedAdapter.delete) throw new Error(`Adapter "${config.name}" has no delete`);
+        // beforeWrite gets no payload on delete; it can still throw to block it (#582).
+        await prepareData(undefined, 'delete', coercedId, request);
         const result = await resolvedAdapter.delete(
           adapterModelKey,
           id,
@@ -475,7 +477,7 @@ export function createCrudRepository<T = Row>(
 
   const prepareData = (
     data: unknown,
-    op: 'create' | 'update' | 'patch',
+    op: 'create' | 'update' | 'patch' | 'delete',
     id?: string | number,
     request?: unknown,
   ) => prepareWrite(data, op, legacyHookTarget, adapter, id, request);
@@ -542,6 +544,7 @@ export function createCrudRepository<T = Row>(
     },
     delete: async (id, request) => {
       const coercedId = toId(id);
+      await prepareData(undefined, 'delete', coercedId, request);
       const result = await writer.delete(id, request);
       return postData(result, 'delete', coercedId, request);
     },

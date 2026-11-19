@@ -361,6 +361,15 @@ export const createCustomRepository = <T = Row>(
     patch: (id, data, request) => write('patch', data, id, request),
     delete: async (id, request) => {
       const coercedId = toId(id);
+      await prepareWrite(
+        undefined,
+        'delete',
+        hookTarget,
+        adapter,
+        coercedId,
+        request,
+        parentHookCtx(request),
+      );
       let result: T;
 
       if (parentRef) {
