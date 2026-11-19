@@ -2,6 +2,7 @@ import { generatorHandler } from '@prisma/generator-helper';
 
 import {
   fixEsmBarrels,
+  fixPrismaClientImport,
   fixZodImports,
   normalizeSchema,
   resolveBin,
@@ -107,7 +108,17 @@ generatorHandler({
     // 4. Fix missing zod imports in generated output
     await fixZodImports(absZodOutput);
 
-    // 5. Fix ESM directory imports and ensure barrel index files exist
+    // 5. Import `Prisma` from the app's generated client, not the bare `@prisma/client` (#597)
+    const client = options.otherGenerators.find((g) =>
+      ['prisma-client-js', 'prisma-client'].includes(g.provider.value ?? ''),
+    );
+    const clientOutput = client?.output?.value;
+    if (clientOutput) {
+      const entry = client.provider.value === 'prisma-client' ? 'client' : 'index';
+      await fixPrismaClientImport(absZodOutput, join(clientOutput, entry));
+    }
+
+    // 6. Fix ESM directory imports and ensure barrel index files exist
     await fixEsmBarrels(absZodOutput);
   },
 });
