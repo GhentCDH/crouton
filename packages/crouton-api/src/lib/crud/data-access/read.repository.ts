@@ -28,13 +28,16 @@ import type { DataSourceAdapter } from './adapter';
 import { applyAfterFindAll, applyBeforeFindAll } from './middleware/hooks';
 import { loadRelationsIntoRow, loadRelationsIntoRows } from './middleware/relation-loader';
 import { applyValueLabelColumns } from './middleware/value-label.apply';
-import { buildFilterWhere, buildNestedPath } from './query/filter';
+import { type FilterFieldTypes, buildFilterWhere, buildNestedPath, filterFieldTypes } from './query/filter';
 import { orderableChildSort } from './query/sort';
 import {
   buildFindOneIncludes,
   buildIncludeClause,
   mergeCalculatedColumnsForRows,
 } from './query/sql.helpers'; // Re-exported for backwards compatibility
+
+// ReadRepository is created per request in the adapter path; cache per config.
+const FIELD_TYPES = new WeakMap<object, FilterFieldTypes>();
 
 /**
  * Handles all read operations for a resource — list, count, detail, and sub-resource queries.
@@ -76,6 +79,16 @@ export class ReadRepository<T = unknown> {
     return (this.config.idType ?? 'string') === 'number' ? +id : String(id);
   }
 
+  /** Field types for filter value coercion — computed once per resource config. */
+  private get fieldTypes(): FilterFieldTypes {
+    let types = FIELD_TYPES.get(this.config);
+    if (!types) {
+      types = filterFieldTypes(this.config.definition, this.config.columns);
+      FIELD_TYPES.set(this.config, types);
+    }
+    return types;
+  }
+
   private buildWhere(filter: string[] | undefined) {
     if (!filter?.length) return undefined;
     const allowlist = this.config.filterAllowlist;
@@ -114,7 +127,7 @@ export class ReadRepository<T = unknown> {
           return f;
         })
       : filter;
-    return buildFilterWhere(remapped);
+    return buildFilterWhere(remapped, this.fieldTypes);
   }
 
   private projection(op: 'findAll' | 'findOne') {
@@ -360,7 +373,7 @@ export class ReadRepository<T = unknown> {
   }
 
   /** Count records matching the given filter strings and optional free-text search. */
-  count(filter: string[], q?: string): Promise<number> {
+  async count(filter: string[], q?: string): Promise<number> {
     const filterWhere = this.buildWhere(filter);
     const searchWhere = this.buildSearchOrWhere(q);
     const where =
