@@ -56,8 +56,11 @@ export const importDefault = async <T>(
       return (mod['default'] ?? mod) as T;
     } else {
       // CJS mode (nodemon + @swc-node/register): require() is patched to handle .ts.
-      const mod = _require(filePath) as { default?: T };
-      return mod.default;
+      // Only an *own* `default` is an ES default export: `export =` / `module.exports = x`
+      // exports the value itself, and a zod schema's inherited `.default()` method
+      // must never be mistaken for it (#600).
+      const mod = _require(filePath) as Record<string, unknown>;
+      return (Object.hasOwn(mod, 'default') ? mod['default'] : mod) as T;
     }
   } catch (error) {
     if (onError) onError(error, filePath);

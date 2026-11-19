@@ -46,6 +46,20 @@ import { findModule, importDefault } from './module.loader';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
+const isZodSchema = (value: unknown): boolean =>
+  !!value && typeof (value as { safeParse?: unknown }).safeParse === 'function';
+
+const schemaImportError = (error: unknown): string => {
+  const message = error instanceof Error ? error.message : String(error);
+  const missingGenerated =
+    (error as { code?: string }).code === 'MODULE_NOT_FOUND' && /generated/.test(message);
+  return `Failed to import schema.ts — resource not served: ${message}${
+    missingGenerated
+      ? ' — the generated types are missing; run `crouton update resources` or `prisma generate`.'
+      : ''
+  }`;
+};
+
 export const loadResourceConfigsFromDir = async (
   dirPath: string,
   baseUrl?: string,
@@ -67,10 +81,22 @@ export const loadResourceConfigsFromDir = async (
   for (const dir of dirs) {
     const basePath = join(dirPath, dir);
 
+    // A schema.ts that fails to import or doesn't export a zod schema must not
+    // leave the resource served without validation (#595, #600).
     const schemaFile = findModule(basePath, 'schema');
+    let schemaError: string | undefined;
     const schema = schemaFile
-      ? await importDefault<ZodObject<ZodRawShape>>(schemaFile)
+      ? await importDefault<ZodObject<ZodRawShape>>(schemaFile, (error) => {
+          schemaError = schemaImportError(error);
+        })
       : undefined;
+    if (schemaFile && !schemaError && !isZodSchema(schema)) {
+      schemaError = 'schema.ts must `export default` a zod schema — resource not served.';
+    }
+    if (schemaFile && schemaError) {
+      resourceLoadErrorsRegistry.record({ name: dir, path: schemaFile, error: schemaError });
+      continue;
+    }
 
     // A broken hooks.ts must not fail open: hooks usually carry access control,
     // so the resource is recorded as an error and not served (#574).
