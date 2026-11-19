@@ -40,6 +40,22 @@ describe('validateResourceFile', () => {
     expect(issues[0].code).toBe('JSON_PARSE_ERROR');
   });
 
+  it('flags a legacy fieldInput type with a migrate hint (#599)', async () => {
+    const file = join(tmpDir, 'legacy-text.json');
+    await writeFile(
+      file,
+      JSON.stringify({ ...validResource, columns: { ...validResource.columns, title: { fieldInput: { type: 'text' } } } }),
+    );
+    const issues = await validateResourceFile(file);
+    expect(issues).toEqual([
+      expect.objectContaining({
+        path: '/columns/title/fieldInput/type',
+        message: 'Legacy fieldInput type "text" (now "string")',
+        hint: 'Run `crouton migrate` to rewrite it.',
+      }),
+    ]);
+  });
+
   it('returns an issue with "Did you mean autocomplete?" for a typo in fieldInput.type', async () => {
     const typoResource = {
       name: 'book',

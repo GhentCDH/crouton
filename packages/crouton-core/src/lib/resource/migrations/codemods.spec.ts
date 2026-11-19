@@ -100,6 +100,7 @@ describe('resource codemods', () => {
         columns: {
           isbn: { createable: false, updateable: false },
           pages: { fieldInput: { type: 'Integer' } },
+          name: { fieldInput: { type: 'text' } },
           period: { fieldInput: { format: 'date-range' } },
           loans: { fieldInput: { detail: { layout: 'row', controls: [{ property: 'amount' }] } } },
           body: { type: 'text', fieldView: { type: 'markdown' }, columnType: 'longtext' },
@@ -110,6 +111,7 @@ describe('resource codemods', () => {
       columns: {
         isbn: { creatable: false, updatable: false },
         pages: { fieldInput: { type: 'integer' } },
+        name: { fieldInput: { type: 'string' } },
         period: { fieldInput: { type: 'dateRange' } },
         loans: { fieldInput: { detail: { layout: 'row', items: [{ property: 'amount' }] } } },
         body: { type: 'text' },

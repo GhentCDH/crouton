@@ -7,6 +7,7 @@
  * `CURRENT_RESOURCE_VERSION` stays 1 during alpha, so files are not version-gated.
  */
 
+import { FIELD_INPUT_TYPE_ALIASES } from '../field-input/aliases';
 import { migrateLayoutNodes } from './layout-nodes';
 import type { RawResourceJson } from './types';
 
@@ -174,11 +175,6 @@ const showInLookup: Transform = {
 // ── Column transforms ─────────────────────────────────────────────────
 
 const COLUMN_KEY_ALIASES: Record<string, string> = { createable: 'creatable', updateable: 'updatable' };
-const FIELD_INPUT_TYPE_ALIASES: Record<string, string> = {
-  Integer: 'integer',
-  mutliSelect: 'multiSelect',
-  'date-range': 'dateRange',
-};
 
 /** `createable`/`updateable` and old field-input type spellings. */
 const spelling: Transform = {

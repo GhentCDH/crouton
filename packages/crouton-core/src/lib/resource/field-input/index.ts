@@ -14,3 +14,4 @@ export * from './types/relation.options';
 export * from './types/array.options';
 export * from './types/custom.options';
 export * from './registry';
+export * from './aliases';
