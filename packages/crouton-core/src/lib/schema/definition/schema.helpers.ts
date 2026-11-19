@@ -1,7 +1,8 @@
-import type { ZodObject, ZodRawShape, ZodType } from 'zod';
+import { ZodObject, type ZodRawShape, type ZodType } from 'zod';
 
 import type { JsonResourceOperations, SecurityConfig } from '../../data-source';
 import type { JsonColumn } from '../../resource';
+import { resolveDefaultToken } from '../../resource/default-tokens';
 import { pickByColumns } from '../json/pick-by-columns';
 import type { SchemaInput } from '../json/schema-input';
 import { isLazyRelationField } from '../zod.utils';
@@ -28,6 +29,32 @@ const opWithSchema = (
   return { ...(schema && { schema }), ...(security && { security }) };
 };
 
+/**
+ * On create, a column with `fieldInput.defaultValue` (codegen writes it for
+ * every Prisma `@default(<literal>)`) is filled in when the client omits it.
+ * `prefault` runs the default through parsing (coercion still applies) and is
+ * evaluated per request, so `$now` / `$today` are fresh. Tokens that don't
+ * resolve server-side (`$user`) leave the field required.
+ */
+const applyCreateDefaults = (
+  schema: SchemaInput | undefined,
+  columns: JsonColumn[] | undefined,
+): SchemaInput | undefined => {
+  if (!(schema instanceof ZodObject)) return schema;
+  const shape = schema.shape as Record<string, ZodType>;
+  const defaults = (columns ?? [])
+    .filter(
+      (c) =>
+        c.id in shape &&
+        resolveDefaultToken(c.fieldInput?.defaultValue) !== undefined,
+    )
+    .map((c) => [
+      c.id,
+      shape[c.id].prefault(() => resolveDefaultToken(c.fieldInput?.defaultValue)),
+    ]);
+  return defaults.length ? schema.extend(Object.fromEntries(defaults)) : schema;
+};
+
 export const buildResourceDefinitions = (
   schema: ZodObject<ZodRawShape> | undefined,
   operations: JsonResourceOperations,
@@ -40,10 +67,13 @@ export const buildResourceDefinitions = (
     const field = schema?.shape[c.id];
     return !c.idField && !(field && isLazyRelationField(field as ZodType));
   };
-  const createSchema = pickByColumns(
-    schema,
+  const createSchema = applyCreateDefaults(
+    pickByColumns(
+      schema,
+      enrichedColumns,
+      (c) => writable(c) && c.creatable !== false,
+    ),
     enrichedColumns,
-    (c) => writable(c) && c.creatable !== false,
   );
   const updateSchema = pickByColumns(
     schema,
