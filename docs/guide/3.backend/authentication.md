@@ -46,7 +46,9 @@ Set `<PROVIDER>_CLIENT_SECRET` and `<PROVIDER>_CALLBACK_URL` — e.g. `GOOGLE_CL
 |---|---|---|
 | `CROUTON_AUTH_SECRET` | — | HMAC secret for session JWTs. **Required** as soon as any provider has server-side login configured — the backend refuses to start without it. Use a long random value. |
 | `CROUTON_SESSION_TTL` | `8h` | Session lifetime (e.g. `30m`, `8h`, `7d`). After expiry the user logs in again. |
-| `CROUTON_FRONTEND_URL` | `''` | Frontend origin the callback redirects to, e.g. `http://localhost:4200`. |
+| `CROUTON_FRONTEND_URL` | `''` | Frontend URL the callback redirects to, e.g. `http://localhost:4200`. Include the app's base path when it is served under a sub-path, e.g. `https://example.com/book`. |
+
+**Sub-path apps.** Auth routes (`/auth/callback`, `/auth/login`) follow the router's history base: with `createWebHistory(import.meta.env.BASE_URL)` and `base: '/book/'` they live at `/book/auth/*`. Browser-mode providers then need `https://example.com/book/auth/callback` registered as redirect URI.
 
 Roles are baked into the session token at login: role changes (e.g. editing `roles.byEmail`) apply after the next login.
 

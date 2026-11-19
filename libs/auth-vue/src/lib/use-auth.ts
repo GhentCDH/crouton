@@ -7,6 +7,22 @@ const PROVIDER_KEY = 'crouton.auth.provider';
 export const LOGIN_PATH = '/auth/login';
 export const CALLBACK_PATH = '/auth/callback';
 
+/** App base path without trailing slash (e.g. `/book`), '' at the origin root. */
+let appBase = '';
+/** Set from the router's history base so auth paths work under a sub-path (#592). */
+export const setAppBase = (base: string) => {
+  appBase = base.split('#')[0].replace(/\/$/, '');
+};
+/** Browser path for an app-relative path: `/auth/login` → `/book/auth/login`. */
+export const appPath = (path: string) => `${appBase}${path}`;
+/** Current browser path relative to the app base: `/book/auth/login` → `/auth/login`. */
+export const currentAppPath = () => {
+  const p = window.location.pathname;
+  if (!appBase) return p;
+  if (p === appBase) return '/';
+  return p.startsWith(`${appBase}/`) ? p.slice(appBase.length) : p;
+};
+
 let manager: UserManager | null = null;
 const oidcUser: Ref<User | null> = ref(null);
 let configuredRolesClaim = 'roles';
@@ -80,7 +96,7 @@ export const setupBrowserProvider = (p: PublicAuthProvider): boolean => {
     {
       authority: p.issuer,
       client_id: p.clientId,
-      redirect_uri: `${window.location.origin}${CALLBACK_PATH}`,
+      redirect_uri: `${window.location.origin}${appPath(CALLBACK_PATH)}`,
       scope: (p.scopes ?? ['openid', 'profile', 'email']).join(' '),
       automaticSilentRenew: true,
       revokeTokensOnSignout: true,
@@ -124,7 +140,7 @@ const loginWith = async (p: PublicAuthProvider) => {
 const login = async () => {
   const list = providers.value;
   if (list.length === 1) return loginWith(list[0]);
-  if (list.length > 1 && window.location.pathname !== LOGIN_PATH) window.location.assign(LOGIN_PATH);
+  if (list.length > 1 && currentAppPath() !== LOGIN_PATH) window.location.assign(appPath(LOGIN_PATH));
 };
 
 export const useAuth = () => {
@@ -158,7 +174,7 @@ export const useAuth = () => {
   const logout = async () => {
     if (sessionToken.value) {
       setSessionToken(null);
-      window.location.assign('/');
+      window.location.assign(appPath('/'));
       return;
     }
     await manager?.signoutRedirect();
