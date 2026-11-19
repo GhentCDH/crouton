@@ -3,11 +3,20 @@ import type { SubResourceConfig } from '../../../resource/SubResource.schema';
 import type { ResourceHooks } from './hooks.types';
 import { join } from 'node:path';
 
+/** Called when a hooks file exists but fails to import. */
+export type HooksImportError = (error: unknown, filePath: string) => void;
+
+/**
+ * Load a resource's `hooks.ts`. An import failure is reported through
+ * `onError` — callers must not serve the resource without its hooks, since
+ * hooks typically carry access control (#574).
+ */
 export const loadResourceHooks = async (
   basePath: string,
+  onError?: HooksImportError,
 ): Promise<ResourceHooks | undefined> => {
   const file = findModule(basePath, 'hooks');
-  return file ? importDefault<ResourceHooks>(file) : undefined;
+  return file ? importDefault<ResourceHooks>(file, onError) : undefined;
 };
 
 /**
@@ -31,13 +40,17 @@ export const loadResourceHooks = async (
 export const loadSubResourceHooks = async (
   subResources: SubResourceConfig[],
   basePath: string,
+  onError?: (error: unknown, filePath: string, sub: SubResourceConfig) => void,
 ): Promise<void> => {
   for (const sub of subResources) {
     const file =
       (sub.name ? findModule(join(basePath, 'hooks'), sub.name) : undefined) ??
       (sub.childDir ? findModule(sub.childDir, 'hooks') : undefined);
     if (!file) continue;
-    const hooks = await importDefault<ResourceHooks>(file);
+    const hooks = await importDefault<ResourceHooks>(
+      file,
+      onError && ((error, filePath) => onError(error, filePath, sub)),
+    );
     if (hooks) Object.assign(sub, { hooks });
   }
 };
