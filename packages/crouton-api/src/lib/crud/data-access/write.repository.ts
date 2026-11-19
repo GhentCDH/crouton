@@ -225,25 +225,24 @@ export class WriteRepository<T = unknown> {
       request,
     });
 
-    let payload: unknown;
-    if (op !== 'delete') {
-      const stripped =
-        op === 'create' ? stripNonCreateableChildFields(sub, data) : data;
-      const normalized = normalizeValueLabels(
-        stripped,
-        resolveValueLabelColumns(sub.columns),
-      );
-      payload = sub.hooks?.beforeWrite
-        ? await sub.hooks.beforeWrite(normalized, {
-            dataSource: this.adapter,
-            prisma: this.prisma,
-            op: op === 'patch' ? 'patch' : op,
-            ...(id !== undefined && { id }),
-            request,
-            parent: ctx.parent,
-          })
-        : normalized;
-    }
+    // On delete there is no payload, but beforeWrite still runs so it can block the delete (#582).
+    const normalized =
+      op === 'delete'
+        ? undefined
+        : normalizeValueLabels(
+            op === 'create' ? stripNonCreateableChildFields(sub, data) : data,
+            resolveValueLabelColumns(sub.columns),
+          );
+    const payload = sub.hooks?.beforeWrite
+      ? await sub.hooks.beforeWrite(normalized, {
+          dataSource: this.adapter,
+          prisma: this.prisma,
+          op,
+          ...(id !== undefined && { id }),
+          request,
+          parent: ctx.parent,
+        })
+      : normalized;
 
     const result =
       op === 'create'
@@ -437,10 +436,22 @@ export class WriteRepository<T = unknown> {
       );
     }
 
+    const id =
+      (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
+    // beforeWrite gets no payload on delete; it can still throw to block it (#582).
+    await sub.hooks?.beforeWrite?.(undefined, {
+      dataSource: this.adapter,
+      prisma: this.prisma,
+      op: 'delete',
+      id,
+      request,
+      ...(parentId !== undefined && {
+        parent: this.parentHookContext(parentId),
+      }),
+    });
+
     if (sub.relationType === 'manyToMany') {
       const idField = sub.idField ?? 'id';
-      const id =
-        (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
       return this.prismaModel.update({
         where: { [this.config.idField ?? 'id']: this.toId(parentId ?? '') },
         data: {
@@ -453,8 +464,6 @@ export class WriteRepository<T = unknown> {
     if (!childModel)
       throw new Error(`Prisma model "${sub.childModel}" not found`);
 
-    const id =
-      (sub.idType ?? 'string') === 'number' ? +childId : String(childId);
     const idField = sub.idField ?? 'id';
     const where: Record<string, unknown> = { [idField]: id };
     if (parentId !== undefined) where[sub.foreignKey] = this.toId(parentId);
