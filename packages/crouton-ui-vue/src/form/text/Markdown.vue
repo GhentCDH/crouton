@@ -98,6 +98,19 @@ watch(
   (enabled) => editor.value?.setEditable(enabled),
 );
 
+// ProseMirror only re-reads `attributes` on a state change; an error that
+// appears on blur (no transaction) must update the surface directly.
+watch(
+  [() => properties.errors, () => properties.label, editor],
+  () => {
+    const dom = editor.value?.view.dom;
+    if (!dom) return;
+    dom.setAttribute('aria-invalid', properties.errors ? 'true' : 'false');
+    dom.setAttribute('aria-label', properties.label ?? '');
+  },
+  { flush: 'post' },
+);
+
 // Follow value changes from outside (form reset, autosave refresh).
 watch(model, (value) => {
   const next = (value as string | null | undefined) ?? '';
