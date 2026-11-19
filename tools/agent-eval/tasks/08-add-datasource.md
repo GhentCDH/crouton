@@ -6,7 +6,7 @@ You are working in a crouton project. The `src/data-sources/` directory exists a
 
 ## Your task
 
-1. Create `src/data-sources/external-api/datasource.json`:
+1. Create `src/data-sources/external-api/data-source.json`:
    ```json
    {
      "name": "external-api",
@@ -34,5 +34,5 @@ Expected: exits 0 with no issues (validate ignores datasource files currently, b
 
 - Use the crouton skill if available
 - Read `node_modules/@ghentcdh/crouton-core/agent-docs/README.md` for docs
-- The `name` in `datasource.json` must match the directory name
+- The `name` in `data-source.json` must match the directory name
 - The `adapter` path is relative to the datasource directory

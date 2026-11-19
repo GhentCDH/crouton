@@ -57,8 +57,8 @@ import { RelationInline } from '@ghentcdh/crouton-vue';
 </script>
 ```
 
-Both components are most useful in custom form components (registered via `display.customComponent`). In `resource.json`
-the built-in relation renderer is selected automatically based on `relationType` — `RelationButton` for `manyToOne` and
+Both components are most useful in custom form components (registered via `layout.view.component`). In `resource.json`
+the built-in relation renderer is selected automatically based on `column.relation.type` — `RelationButton` for `manyToOne` and
 `RelationInline` for `oneToMany`.
 
 See [Custom renderers](custom-renderers.md) for how to register a custom page-level component.

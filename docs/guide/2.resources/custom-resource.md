@@ -59,8 +59,8 @@ Useful flags: `--route`, `--tag`, `--title`, `--database`, `--id-type`,
 
 ## resource.json
 
-Everything a prisma resource supports still applies — `sidebar`, `display`,
-`operations`, `actions`, `tableActions`, `modalSize`, `include`. Three differences:
+Everything a prisma resource supports still applies — `sidebar`, `operations` (including
+`operations.<op>.include`), `layout` (containers, `rowActions`, `tableActions`). Three differences:
 
 |               | prisma resource                   | custom resource              |
 |---------------|-----------------------------------|------------------------------|
@@ -76,7 +76,7 @@ Everything a prisma resource supports still applies — `sidebar`, `display`,
 
   "name": "zotero_item",
   "route": "zotero-items",
-  "tag": "Zotero",
+  "openapi": { "tag": "Zotero" },
   "title": "Zotero items",
 
   // Optional. Selects which datasource client is handed to the repository as
@@ -158,7 +158,7 @@ The resource's json model is assembled from these: the column label becomes the 
 renders as a record cell in the table (showing that one key) and as a nested group of controls in the form.
 
 Two columns are exempt from needing a `type`, because their shape lives in the resource they point at: relation columns
-(`fieldInput.format: "relation"`) and autocomplete columns (`fieldInput.type: "autocomplete"`).
+(`column.relation`) and autocomplete columns (`fieldInput.type: "autocomplete"`).
 
 The form control follows from the type — the renderers test the resolved schema, so `"type": "number"` gets a number
 input and `"type": "date"` a date picker with no `fieldInput` needed. Set `fieldInput.type` only to override that choice
@@ -356,17 +356,16 @@ resources/groups/expense/repository.ts
 "expense": {
   "label": "Expenses",
   "hiddenInTable": true,
-  "fieldInput": {
+  "relation": {
     "resource": "./expense/resource.json"
   }
 }
 ```
 
-`resource` is the whole declaration. `format: "relation"` is filled in when a column names a `resource` and sets neither
-`format` nor `type`, and
-`relationType` defaults to `oneToMany`. Spelling both out is harmless but adds nothing.
+`relation.resource` is the whole declaration. `relation.type` defaults to `oneToMany`; spelling it out is harmless but
+adds nothing.
 
-`foreignKey` is not needed either. It tells the *Prisma* child which column points back at the parent; a custom child
+`relation.foreignKey` is not needed either. It tells the *Prisma* child which column points back at the parent; a custom child
 gets the parent id as the first argument to every operation and decides for itself what to do with it.
 
 ::: tip It is a route, not a database relation The parent's model needs no relation field of that name. The parent never
@@ -453,7 +452,7 @@ the relation column to keep the child's own nested controller.
 - **No `calculatedColumns`.** They are raw SQL against a table.
 - **`crouton update resources` skips custom resources.** They have no model to introspect, so the pipeline would
   otherwise offer to delete every column.
-- **`relationType` is worth being explicit about** on a `manyToOne` relation column of a custom resource: there is no
+- **`relation.type` is worth being explicit about** on a `manyToOne` relation column of a custom resource: there is no
   Zod model to infer cardinality from, and the default is `oneToMany`.
 
 ## See also

@@ -299,6 +299,12 @@ export interface FieldRename {
 
 const FIELD_LINE_RE = /^(\s+)(\w+)(\s+)(\w+)(\[\]|\?)?/;
 
+const modelNames = (schema: string) => new Set([...schema.matchAll(/^model\s+(\w+)\s*\{/gm)].map((m) => m[1]));
+
+/** A field line is a relation when its type is a model in the schema or it carries `@relation(`. */
+const isRelationLine = (line: string, models: Set<string>) =>
+  models.has(FIELD_LINE_RE.exec(line)?.[4] ?? '') || line.includes('@relation(');
+
 /**
  * Case-formatting can give a scalar column and a relation field the same name
  * (e.g. column `revision_status` + FK `revision_status_id → revision_status`
@@ -308,7 +314,7 @@ const FIELD_LINE_RE = /^(\s+)(\w+)(\s+)(\w+)(\[\]|\?)?/;
  * are referenced by `@relation(fields: [...])`, `@@index`, etc.
  */
 export const resolveFieldCollisions = (schema: string): { schema: string; renames: FieldRename[] } => {
-  const models = new Set([...schema.matchAll(/^model\s+(\w+)\s*\{/gm)].map((m) => m[1]));
+  const models = modelNames(schema);
   const renames: FieldRename[] = [];
 
   const out = schema.replace(/(^model\s+(\w+)\s*\{)(.*?)(^\})/gms, (_, head: string, model: string, body: string, tail: string) => {
@@ -320,8 +326,7 @@ export const resolveFieldCollisions = (schema: string): { schema: string; rename
 
     fields.forEach((f, i) => {
       if (!f || (count.get(f[2]) ?? 0) < 2) return;
-      const isRelation = models.has(f[4]) || lines[i].includes('@relation(');
-      if (!isRelation) return;
+      if (!isRelationLine(lines[i], models)) return;
       let to = `${f[2]}Ref`;
       for (let n = 2; taken.has(to); n++) to = `${f[2]}Ref${n}`;
       taken.add(to);
@@ -342,8 +347,11 @@ const resolveSchemaFieldCollisions = async (schemaPath: string): Promise<FieldRe
   return renames;
 };
 
+/** `"old": "new"` renames every field line named `old`; `relationOnly` limits it to relation fields (#540). */
+type NormalizeRename = string | { to: string; relationOnly?: boolean };
+
 interface NormalizeConfig {
-  renames: Record<string, Record<string, string>>;
+  renames: Record<string, Record<string, NormalizeRename>>;
 }
 
 /**
@@ -364,6 +372,7 @@ export const normalizeSchema = async (
   ) as NormalizeConfig;
   let schema = await readFile(schemaPath, 'utf-8');
   let renamed = 0;
+  const models = modelNames(schema);
 
   for (const [modelName, fields] of Object.entries(config.renames)) {
     // Match the model block: `model ModelName { ... }`
@@ -372,10 +381,13 @@ export const normalizeSchema = async (
       'ms',
     );
     schema = schema.replace(modelRe, (_, head: string, body: string, tail: string) => {
-      for (const [ugly, clean] of Object.entries(fields)) {
+      for (const [ugly, rename] of Object.entries(fields)) {
+        const { to, relationOnly } = typeof rename === 'string' ? { to: rename, relationOnly: false } : rename;
         // Replace field name at start of line (after optional whitespace)
-        const fieldRe = new RegExp(`^(\\s+)${ugly}\\b`, 'gm');
-        const replaced = body.replace(fieldRe, `$1${clean}`);
+        const fieldRe = new RegExp(`^(\\s+)${ugly}\\b(.*)$`, 'gm');
+        const replaced = body.replace(fieldRe, (line: string, ws: string, rest: string) =>
+          relationOnly && !isRelationLine(line, models) ? line : `${ws}${to}${rest}`,
+        );
         if (replaced !== body) {
           body = replaced;
           renamed++;

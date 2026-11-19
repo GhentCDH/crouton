@@ -204,7 +204,7 @@ is displayed, and crouton never touches the data itself.
     "delete":  { "uri": "/annotation/{id}" }
   },
   "columns": {
-    "id": { "idField": true },
+    "id": { "idField": true, "type": "string" },
     "text": { "type": "string" }
   }
 }

@@ -35,7 +35,8 @@ prisma/
 
 - **`renames`** — map of Prisma model names to field rename maps.
 - Each key inside a model is the *current* field name in the schema (after `prisma-case-format` has run); the value is
-  the name you want.
+  the name you want, or `{ "to": "name", "relationOnly": true }` to rename only the relation field
+  (see [Renaming only the relation field](#renaming-only-the-relation-field)).
 
 ## Example
 
@@ -73,6 +74,38 @@ model Work {
 ```
 
 The `@relation` name and `fields`/`references` are untouched — only the field name changes.
+
+## Renaming only the relation field
+
+A string rename matches **every** field line with that name in the model. When case-formatting gives a scalar and a
+relation the same name (e.g. column `revision_status` and FK `revision_status_id → revision_status` both become
+`revisionStatus`), use the object form with `relationOnly` to rename just the relation field:
+
+```json
+{
+  "renames": {
+    "Text": {
+      "revisionStatus": { "to": "revisionStatusRel", "relationOnly": true }
+    }
+  }
+}
+```
+
+```prisma
+model Text {
+  revisionStatus    String?
+  revisionStatusId  Int?
+  revisionStatusRel RevisionStatus? @relation(fields: [revisionStatusId], references: [id])
+}
+```
+
+A field counts as a relation when its type is a model in the schema or the line contains `@relation(`. Scalar lines
+are left alone. `{ "to": "..." }` without `relationOnly` behaves like the string form.
+
+::: tip
+You only need this to pick your own name. If you do nothing, `crouton update resources` resolves such collisions
+automatically after `normalizeSchema` by renaming the relation field to `<name>Ref` (e.g. `revisionStatusRef`).
+:::
 
 ## When it runs
 
