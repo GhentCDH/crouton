@@ -38,8 +38,16 @@ export const migrateResourceFile = async (
 
   const result = buildResourceJsonSchema().safeParse(migrated);
   if (!result.success) {
-    const error = result.error.issues.map((i) => `${i.path.join('.') || '<root>'}: ${i.message}`).join('; ');
-    return { status: 'failed', file, applied, error };
+    const issues = result.error.issues.map((i) => {
+      const path = i.path.join('.') || '<root>';
+      // Old relations could rely on the Prisma relation alone; a resource is now required (#598).
+      const hint = /^columns\.[^.]+\.relation\.resource$/.test(path)
+        ? ' — add "resource" pointing at the related resource.json (e.g. "../customer/resource.json")'
+        : '';
+      return `${path}: ${i.message}${hint}`;
+    });
+    const rules = applied.length ? ` (after rules: ${applied.join(', ')})` : '';
+    return { status: 'failed', file, applied, error: `${issues.join('; ')}${rules}` };
   }
 
   if (!opts.dryRun) await writeFile(file, output, 'utf-8');
