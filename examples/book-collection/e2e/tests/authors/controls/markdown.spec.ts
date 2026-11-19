@@ -36,9 +36,8 @@ test.describe('Markdown control — notes field', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    // The outer textbox is the TipTap wrapper; the inner textbox is the editable surface
-    const outer = modal.getByRole('textbox', { name: /notes/i }).first();
-    const inner = outer.getByRole('textbox').first();
+    // The TipTap editing surface itself is the textbox named by the label.
+    const inner = modal.getByRole('textbox', { name: /notes/i }).first();
     await inner.click();
     await inner.fill('Author notes content');
     await form.waitForAutoSave();

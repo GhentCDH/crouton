@@ -1,9 +1,8 @@
 <template>
   <ControlWrapper v-bind="properties">
     <div
-      :class="[minHeight]"
-      :aria-label="id"
-      role="textbox"
+      :class="sizeClass"
+      :style="sizeStyle"
       class="card bg-base-100 border border-base-300 w-full"
     >
       <!-- Toolbar -->
@@ -18,13 +17,14 @@
           class="btn btn-sm btn-ghost"
           :class="{ 'btn-active': editor?.isActive(action.name) }"
           :title="action.label"
+          :disabled="!enabled"
           @click="action.action(editor)"
         >
           <span v-html="action.label" />
         </button>
       </div>
 
-      <!-- Editor -->
+      <!-- Editor: the ProseMirror surface itself is the labelled textbox. -->
       <div class="card-body p-3">
         <EditorContent
           :editor="editor"
@@ -39,7 +39,7 @@
 import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { Markdown } from 'tiptap-markdown';
-import { onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, watch } from 'vue';
 
 import { MarkdownComponentProperties, MarkdownEmits } from './MarkdownComponent.properties';
 import ControlWrapper from '../core/ControlWrapper.vue';
@@ -49,8 +49,26 @@ const properties = defineProps(MarkdownComponentProperties);
 const emit = defineEmits(MarkdownEmits);
 const model = defineModel();
 
+// `minHeight` is a CSS length ('200px') from resource options, or a utility class.
+const isCssLength = computed(() => /^\d/.test(properties.minHeight ?? ''));
+const sizeClass = computed(() => (isCssLength.value ? undefined : properties.minHeight));
+const sizeStyle = computed(() => (isCssLength.value ? { minHeight: properties.minHeight } : undefined));
+
+const getMarkdown = (): string =>
+  (editor.value?.storage as { markdown?: { getMarkdown(): string } } | undefined)?.markdown?.getMarkdown() ?? '';
+
 const editor = useEditor({
   content: model.value ?? '',
+  editable: properties.enabled,
+  editorProps: {
+    // Name the editable surface, not the wrapper (which also holds the toolbar).
+    attributes: () => ({
+      role: 'textbox',
+      'aria-multiline': 'true',
+      'aria-label': properties.label ?? '',
+      'aria-invalid': properties.errors ? 'true' : 'false',
+    }),
+  },
   extensions: [
     StarterKit.configure({
       heading: false,
@@ -73,6 +91,30 @@ const editor = useEditor({
     model.value = markdown;
     emit('change', markdown);
   },
+});
+
+watch(
+  () => properties.enabled,
+  (enabled) => editor.value?.setEditable(enabled),
+);
+
+// ProseMirror only re-reads `attributes` on a state change; an error that
+// appears on blur (no transaction) must update the surface directly.
+watch(
+  [() => properties.errors, () => properties.label, editor],
+  () => {
+    const dom = editor.value?.view.dom;
+    if (!dom) return;
+    dom.setAttribute('aria-invalid', properties.errors ? 'true' : 'false');
+    dom.setAttribute('aria-label', properties.label ?? '');
+  },
+  { flush: 'post' },
+);
+
+// Follow value changes from outside (form reset, autosave refresh).
+watch(model, (value) => {
+  const next = (value as string | null | undefined) ?? '';
+  if (editor.value && next !== getMarkdown()) editor.value.commands.setContent(next, { emitUpdate: false });
 });
 
 onBeforeUnmount(() => {

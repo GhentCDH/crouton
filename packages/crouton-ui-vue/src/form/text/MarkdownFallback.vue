@@ -2,8 +2,9 @@
   <ControlWrapper v-bind="properties">
     <textarea
       :id="id"
-      :aria-label="id"
+      :aria-label="label"
       :class="[minHeight, width]"
+      :disabled="!enabled"
       class="textarea textarea-bordered w-full font-mono text-sm"
       :value="(model as string) ?? ''"
       @input="onInput"

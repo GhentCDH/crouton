@@ -1,29 +1,32 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { Harness, byControlId, byRole } from './Harness';
+import { Harness, byRole } from './Harness';
 
 export type MarkdownToolbarButton = 'B' | 'I';
 
 /**
  * Drives the `@ghentcdh/crouton-ui-vue` `Markdown` component (TipTap-backed).
  *
- * The component renders `<div role="textbox" aria-label="{id}">` with a
- * toolbar of `<button>`s whose visible text is the mark label (`B`, `I`, …).
+ * The locator is the control wrapper (`data-control-id`): it holds a toolbar of
+ * `<button>`s whose visible text is the mark label (`B`, `I`, …) and the
+ * TipTap editing surface, a `role="textbox"` named by the field label.
  */
 export class MarkdownHarness extends Harness {
   static byId(parent: Locator | Page, id: string): MarkdownHarness {
-    return new MarkdownHarness(byControlId(parent, 'textbox', id));
+    return new MarkdownHarness(parent.locator(`[data-control-id="${id}"]`));
   }
 
   static byLabel(parent: Locator | Page, label: string): MarkdownHarness {
-    return new MarkdownHarness(byRole(parent, 'textbox', label));
+    return new MarkdownHarness(
+      byRole(parent, 'textbox', label).locator('xpath=ancestor::*[@data-control-id][1]'),
+    );
   }
 
   static for(locator: Locator): MarkdownHarness {
     return new MarkdownHarness(locator);
   }
 
-  /** The editable inner surface — TipTap renders a nested `role="textbox"`. */
+  /** The editable TipTap surface inside the wrapper. */
   private get editor(): Locator {
     return this.locator.getByRole('textbox');
   }
