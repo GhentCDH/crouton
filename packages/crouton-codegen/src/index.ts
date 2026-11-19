@@ -65,6 +65,7 @@ export type {
 export {
   backupSchema,
   fixEsmBarrels,
+  fixPrismaClientImport,
   fixZodImports,
   isGitDirty,
   loadDotenv,

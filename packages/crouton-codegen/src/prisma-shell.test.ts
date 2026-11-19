@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { normalizeSchema, pullAndGenerate, resolveFieldCollisions } from './prisma-shell';
+import { fixPrismaClientImport, normalizeSchema, pullAndGenerate, resolveFieldCollisions } from './prisma-shell';
 import { EventEmitter } from 'node:events';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -163,5 +163,27 @@ model RevisionStatus {
   it('object form without relationOnly behaves like the string form', async () => {
     const { schema } = await normalize({ Text: { revisionStatus: { to: 'status' } } });
     expect(schema).not.toMatch(/^\s+revisionStatus\s/m);
+  });
+});
+
+describe('fixPrismaClientImport (#597)', () => {
+  it('rewrites bare @prisma/client imports to the generated client, relative per file', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'crouton-client-'));
+    const types = join(root, 'generated/default/types/src');
+    mkdirSync(join(types, 'modelSchema'), { recursive: true });
+    writeFileSync(join(types, 'modelSchema/OrderSchema.ts'), 'import { Prisma } from \'@prisma/client\'\n');
+    writeFileSync(join(types, 'index.ts'), 'import type { Prisma } from "@prisma/client";\n');
+    writeFileSync(join(types, 'other.ts'), 'import { z } from \'zod\';\n');
+
+    const fixed = await fixPrismaClientImport(types, join(root, 'generated/default/client/index'));
+
+    expect(fixed).toBe(2);
+    expect(readFileSync(join(types, 'modelSchema/OrderSchema.ts'), 'utf-8')).toBe(
+      'import { Prisma } from \'../../../client/index\'\n',
+    );
+    expect(readFileSync(join(types, 'index.ts'), 'utf-8')).toBe(
+      'import type { Prisma } from \'../../client/index\';\n',
+    );
+    expect(readFileSync(join(types, 'other.ts'), 'utf-8')).toBe('import { z } from \'zod\';\n');
   });
 });
