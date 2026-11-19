@@ -67,6 +67,12 @@ export const LayoutComponentItemSchema = z.object({
   rowspan: z.number().int().min(1).max(6).default(1).describe('Number of grid rows this slot spans (1–6). Defaults to 1.'),
   width: z.string().default('full').describe('Tailwind width class applied to the slot wrapper. Defaults to full width.'),
   label: z.string().optional().describe('Optional label rendered above the component slot.'),
+  props: z
+    .record(z.string(), z.unknown())
+    .optional()
+    .describe(
+      'Static props passed to the component, next to the runtime props `data` (current record), `readonly`, `schema` and `uischema`.',
+    ),
 });
 
 

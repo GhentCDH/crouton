@@ -95,18 +95,19 @@ The book resource from the book-collection example — a Prisma model with searc
     },
     "authorId": {
       "label": "Author",
+      "relation": {
+        "resource": "./author.resource",
+        "type": "manyToOne"
+      },
       "fieldInput": {
-        "type": "autocomplete",
-        "relationType": "manyToOne",
-        "resource": "./author.resource"
+        "type": "autocomplete"
       }
     },
     "categories": {
       "label": "Categories",
-      "fieldInput": {
-        "format": "relation",
-        "relationType": "manyToMany",
-        "resource": "./category.resource"
+      "relation": {
+        "resource": "./category.resource",
+        "type": "manyToMany"
       },
       "hiddenInTable": true
     }

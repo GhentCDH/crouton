@@ -46,7 +46,7 @@ node packages/create-crouton/dist/index.js my-test-app
 | `--nx`            | prompt  | Use Nx monorepo layout (backend + frontend + shared libs).          |
 | `--no-nx`         | —       | Skip Nx layout (scaffold a regular single-app project).             |
 | `--no-frontend`   | —       | Skip Vue frontend generation (Nx layout only).                      |
-| `--no-postgres`   | —       | Skip PostgreSQL setup (Prisma schema, adapter, Docker).             |
+| `--no-postgres`   | —       | Skip the PostgreSQL Docker service (use an external DB).            |
 | `--sample`        | —       | Include a sample resource.                                          |
 | `--pm <manager>`  | prompt  | Package manager: `pnpm`, `npm`, `yarn`, or `bun`.                   |
 | `--no-install`    | —       | Skip dependency installation.                                       |

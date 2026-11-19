@@ -104,6 +104,7 @@ const buildNodeInto = (
             ...(ctrl.rowspan !== undefined && { rowspan: ctrl.rowspan }),
             ...(ctrl.width !== undefined && { width: ctrl.width }),
             ...(ctrl.label !== undefined && { label: ctrl.label }),
+            ...(ctrl.props !== undefined && { props: ctrl.props }),
           },
         }),
       });

@@ -195,9 +195,10 @@ context, use layout item overrides:
     "author": {
       "label": "Author",
       "displayKey": "name",
+      "relation": {
+        "resource": "./author/resource.json"
+      },
       "fieldInput": {
-        "format": "relation",
-        "resource": "./author/resource.json",
         "options": {
           "display": "autocomplete",
           "displayKey": "name"

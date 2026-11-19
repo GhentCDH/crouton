@@ -72,7 +72,20 @@ export const loadResourceConfigsFromDir = async (
       ? await importDefault<ZodObject<ZodRawShape>>(schemaFile)
       : undefined;
 
-    const hooks = await loadResourceHooks(basePath);
+    // A broken hooks.ts must not fail open: hooks usually carry access control,
+    // so the resource is recorded as an error and not served (#574).
+    let hooksFailure: { error: unknown; path: string } | undefined;
+    const hooks = await loadResourceHooks(basePath, (error, path) => {
+      hooksFailure = { error, path };
+    });
+    const recordHooksFailure = (name: string, failure: { error: unknown; path: string }) =>
+      resourceLoadErrorsRegistry.record({
+        name,
+        path: failure.path,
+        error: `Failed to import hooks — resource not served: ${
+          failure.error instanceof Error ? failure.error.message : String(failure.error)
+        }`,
+      });
 
     const jsonFile = join(basePath, 'resource.json');
     if (existsSync(jsonFile)) {
@@ -127,6 +140,11 @@ export const loadResourceConfigsFromDir = async (
         });
         continue;
       }
+      if (hooksFailure) {
+        recordHooksFailure(dir, hooksFailure);
+        continue;
+      }
+
       // Custom resources own their data access; prisma resources never load a
       // repository, so a stray repository.ts on one is simply ignored.
       const errorsBeforeRepo = resourceLoadErrorsRegistry.getAll().length;
@@ -170,7 +188,14 @@ export const loadResourceConfigsFromDir = async (
         resourceLoadReportRegistry.record({ state: 'warning', name: config.name, path: jsonFile, warning });
       }
 
-      await loadSubResourceHooks(config.subResources ?? [], basePath);
+      // The parent serves its sub-resources' routes, so a child whose hooks
+      // fail to import takes the parent down too rather than running unguarded.
+      let subHooksFailed = false;
+      await loadSubResourceHooks(config.subResources ?? [], basePath, (error, path, sub) => {
+        subHooksFailed = true;
+        recordHooksFailure(`${config.name}.${sub.childRoute}`, { error, path });
+      });
+      if (subHooksFailed) continue;
       // A custom sub-resource brings its own data access; the parent's
       // repository delegates to it instead of querying a Prisma model.
       await loadSubResourceRepositories(config.subResources ?? [], config.name);
@@ -197,6 +222,11 @@ export const loadResourceConfigsFromDir = async (
           path: tsFile,
           version: config.schemaVersion,
         });
+        continue;
+      }
+
+      if (hooksFailure) {
+        recordHooksFailure(dir, hooksFailure);
         continue;
       }
 

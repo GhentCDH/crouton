@@ -37,6 +37,14 @@ const hooks: ResourceHooks = {
 export default hooks;
 ```
 
+::: warning A broken hooks file takes the resource offline
+If `hooks.ts` exists but fails to import (syntax error, missing module), the
+resource is **not served** and is listed as an error on the status page
+(`ok: false`). Hooks often carry access control, so crouton never runs a
+resource without them. For a sub-resource's hooks, the parent (which serves
+the child routes) is taken offline.
+:::
+
 ## beforeWrite
 
 ```ts

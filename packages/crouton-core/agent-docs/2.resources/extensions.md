@@ -4,6 +4,7 @@ Resource extensions let another application add its own **top-level sections** t
 `annotation` block or a `context` block — that crouton validates, carries through the pipeline, and re-emits on the
 served schema payloads.
 
+<!-- docs-check: skip (needs a registered extension) -->
 ```json
 {
   "id": "example",
@@ -67,6 +68,7 @@ loading the configs.
 
 Write the extension key at the top level, as a sibling of `columns`:
 
+<!-- docs-check: skip (needs a registered extension) -->
 ```json
 {
   "$schema": "./resource.schema.json",
