@@ -61,7 +61,7 @@ export class CroutonFormPage {
 
   fillMarkdown = async (label: string, value: string) => {
     const modal = this.page.getByTestId('form-modal');
-    const editor = modal.locator(`[aria-label="${label}"] .ProseMirror, [aria-label="${label}"] .cm-content, textarea[aria-label="${label}"]`).first();
+    const editor = modal.locator(`.ProseMirror[aria-label="${label}"], textarea[aria-label="${label}"]`).first();
     await editor.click();
     await editor.fill(value);
   };
