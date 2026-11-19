@@ -186,6 +186,10 @@ resources/groups/
 
 The parent-scoped `hooks/<name>.ts` wins if both exist.
 
+A sub-resource's hooks run on its nested routes like a top-level resource's: `beforeWrite` / `afterWrite` on
+create, update and delete, and `beforeFindAll` / `afterFindAll` on the nested list (`GET /<parent>/:id/<child>`), with
+[`ctx.parent`](#getting-the-parent-id) set.
+
 ### Getting the parent id
 
 `ctx.parent` carries the parent a nested read or write is scoped to:
