@@ -23,10 +23,10 @@ description: Decision tables for pairs that are easy to confuse in crouton.
 |---|---|---|
 | **What is stored** | The raw FK value (string or number) | The raw FK value, via Prisma relation |
 | **What is displayed** | The `labelKey` field from the remote endpoint | The `displayKey` field from the related resource |
-| **Backend include** | Not included automatically — you fetch it | Listed in `include`; Prisma joins it |
+| **Backend include** | Not included automatically — you fetch it | Listed in `operations.<op>.include`; Prisma joins it |
 | **Filtering/searching** | By the stored value only | By any column on the related resource |
 | **When to use** | Simple lookup with no need for the related record's other fields | Full Prisma relation with include, filters, and sub-resource display |
-| **Config** | `fieldInput.options.storeValue: true`, `options.uri` or `options.resource` | `fieldInput.type: "autocomplete"`, `relationType: "manyToOne"`, `resource: "./other.resource"` |
+| **Config** | `fieldInput.options.storeValue: true`, `options.uri` or `options.resource` | `relation: { "resource": "./other.resource", "type": "manyToOne" }`, `fieldInput.type: "autocomplete"` |
 | **Common mistake** | Forgetting `storeValue: true` — stores the whole `{ value, label }` object in a text column | Using a relation column when there is no Prisma relation in the schema |
 
 ## `crouton update` vs hand edits

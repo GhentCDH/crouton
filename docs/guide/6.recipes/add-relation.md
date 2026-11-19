@@ -4,7 +4,7 @@ description: Add manyToOne (autocomplete) and oneToMany (table) relations to a r
 
 # Add relations
 
-Relations are declared as columns on the **child** (the model that holds the foreign key). The frontend picks the correct control based on `relationType`.
+Relations are declared as columns on the **child** (the model that holds the foreign key). The relation itself lives in `column.relation`; `fieldInput` only picks the UI widget.
 
 ## manyToOne — autocomplete
 
@@ -13,24 +13,28 @@ A `manyToOne` relation stores a foreign key in the child model's table. Declare 
 ```json
 "authorId": {
   "label": "Author",
-  "searchable": true,
+  "relation": {
+    "resource": "./author.resource",
+    "type": "manyToOne"
+  },
   "fieldInput": {
-    "type": "autocomplete",
-    "relationType": "manyToOne",
-    "resource": "./author.resource"
+    "type": "autocomplete"
   }
 }
 ```
 
 Required fields:
+- `relation.resource`: relative path to the related resource file (`.resource` extension resolves to `resource.json`)
+- `relation.type`: `"manyToOne"` — tells the frontend this is a single-select
 - `fieldInput.type`: `"autocomplete"` — renders a searchable dropdown
-- `fieldInput.relationType`: `"manyToOne"` — tells the frontend this is a single-select
-- `fieldInput.resource`: relative path to the related resource file (`.resource` extension resolves to `resource.json`)
 
-Add the relation name to `include` so the backend eagerly loads it:
+Add the relation name to `operations.<op>.include` so the backend eagerly loads it:
 
 ```json
-"include": ["author"]
+"operations": {
+  "findAll": { "include": ["author"] },
+  "findOne": { "include": ["author"] }
+}
 ```
 
 ## oneToMany — sub-resource table
@@ -42,23 +46,23 @@ A `oneToMany` relation shows the related records as an embedded table in the par
   "label": "Books",
   "hiddenInTable": true,
   "hiddenInForm": true,
-  "fieldInput": {
-    "format": "relation",
-    "relationType": "oneToMany",
-    "resource": "./book.resource"
+  "relation": {
+    "resource": "./book.resource",
+    "type": "oneToMany"
   }
 }
 ```
 
 Required fields:
-- `fieldInput.format`: `"relation"` — triggers sub-resource rendering
-- `fieldInput.relationType`: `"oneToMany"` — renders an embedded table
-- `fieldInput.resource`: relative path to the child resource
+- `relation.resource`: relative path to the child resource — declaring `relation` triggers sub-resource rendering
+- `relation.type`: `"oneToMany"` — renders an embedded table
 
-Add the relation name to `include`:
+Add the relation name to `operations.findOne.include`:
 
 ```json
-"include": ["books"]
+"operations": {
+  "findOne": { "include": ["books"] }
+}
 ```
 
 ## Complete example — parent (author) + child (book)
@@ -92,10 +96,9 @@ Add the relation name to `include`:
       "label": "Books",
       "hiddenInTable": true,
       "hiddenInForm": true,
-      "fieldInput": {
-        "format": "relation",
-        "relationType": "oneToMany",
-        "resource": "./book.resource"
+      "relation": {
+        "resource": "./book.resource",
+        "type": "oneToMany"
       }
     }
   },
@@ -136,10 +139,12 @@ Add the relation name to `include`:
     },
     "authorId": {
       "label": "Author",
+      "relation": {
+        "resource": "./author.resource",
+        "type": "manyToOne"
+      },
       "fieldInput": {
-        "type": "autocomplete",
-        "relationType": "manyToOne",
-        "resource": "./author.resource"
+        "type": "autocomplete"
       }
     }
   },
@@ -163,22 +168,24 @@ The `manyToOne` column goes on the model that **holds the FK**. The book holds `
 
 | Symptom | Cause |
 |---|---|
-| Autocomplete shows but saves nothing | `relationType` is `oneToMany` on the FK column |
-| Sub-resource table appears on the wrong side | `format: "relation"` / `oneToMany` declared on the child instead of the parent |
+| Autocomplete shows but saves nothing | `relation.type` is `oneToMany` on the FK column |
+| Sub-resource table appears on the wrong side | `relation.type: "oneToMany"` declared on the child instead of the parent |
 
 See [Common mistakes](./common-mistakes.md#wrong-relation-direction) for details.
 
 ## Custom foreign key name
 
-When the FK column does not follow the `${ParentModel}Id` convention, set `foreignKey` on `fieldInput`:
+When the FK column does not follow the `${ParentModel}Id` convention, set `relation.foreignKey`:
 
 ```json
 "authorId": {
-  "fieldInput": {
-    "type": "autocomplete",
-    "relationType": "manyToOne",
+  "relation": {
     "resource": "./author.resource",
+    "type": "manyToOne",
     "foreignKey": "writer_id"
+  },
+  "fieldInput": {
+    "type": "autocomplete"
   }
 }
 ```

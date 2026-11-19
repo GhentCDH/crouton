@@ -74,14 +74,16 @@ app.use(CroutonPlugin(apiUrl, { customComponents }));
 
 ### 3. Reference from `resource.json`
 
-Set `fieldInput.type` to the registered name. Pass any component-specific config under `fieldInput.options`:
+Set `fieldInput.type` to `"custom"` and `fieldInput.options.customComponent` to the name you passed to
+`customComponentIs`. Pass any component-specific config under `fieldInput.options` too:
 
 ```json
 "rating": {
   "label": "Rating",
   "fieldInput": {
-    "type": "rating",
+    "type": "custom",
     "options": {
+      "customComponent": "rating",
       "max": 5
     }
   }
@@ -121,8 +123,9 @@ Full `resource.json` for a resource with a custom rating field:
       "label": "Rating",
       "hiddenInTable": true,
       "fieldInput": {
-        "type": "rating",
+        "type": "custom",
         "options": {
+          "customComponent": "rating",
           "max": 5
         }
       }
@@ -145,7 +148,7 @@ To replace only the table cell (not the form field), use `fieldTable.options.cus
 ```json
 "rating": {
   "label": "Rating",
-  "fieldInput": { "type": "rating" },
+  "fieldInput": { "type": "custom", "options": { "customComponent": "rating" } },
   "fieldTable": {
     "options": { "customComponent": "RatingStars" }
   }
