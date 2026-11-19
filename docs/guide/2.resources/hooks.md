@@ -148,6 +148,8 @@ afterFindAll  ? : (rows,  ctx: { prisma; dataSource; request?; parent? }) => any
 ```
 
 `beforeFindAll` receives the query object before it is sent to Prisma, letting you add filters or scopes.
+The `operations.findAll.filter` allowlist is checked on the client's filters before the hook runs, so filters the hook
+adds (e.g. `userEmail:<me>:equals` or a relation path like `trip.familyId:["f1"]:in`) don't need to be allowlisted.
 `afterFindAll` receives the full result array and lets you add or remove rows.
 
 ::: tip

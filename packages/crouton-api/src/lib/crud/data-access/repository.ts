@@ -27,7 +27,7 @@ import {
   prepareWrite,
 } from './middleware/hooks';
 import { toSelectFields } from './query/select';
-import { ReadRepository } from './read.repository';
+import { ReadRepository, assertFiltersAllowed } from './read.repository';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
@@ -182,8 +182,11 @@ export function createCrudRepository<T = Row>(
         return applyAfterFindAll(decorated, hookTarget, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
-    const applyBefore = (params: ListRequest, request?: unknown) =>
-      applyBeforeFindAll(params, hookTarget, resolvedAdapter, request);
+    // Allowlist the client's filters only; whatever beforeFindAll adds is trusted (#585).
+    const applyBefore = (params: ListRequest, request?: unknown) => {
+      assertFiltersAllowed(params.filter, config);
+      return applyBeforeFindAll(params, hookTarget, resolvedAdapter, request);
+    };
     const decorateFindOne = (row: unknown, request?: unknown, id?: string | number) =>
       decorateRow(row, 'findOne', hookTarget, resolvedAdapter, request, undefined, id);
     const prepareData = (
@@ -304,8 +307,10 @@ export function createCrudRepository<T = Row>(
         );
         return decorateFindAll(data, request);
       },
-      count: (filter, q) =>
-        adCount(adapterModelKey, filter, { ...baseCtx, q }),
+      count: (filter, q) => {
+        assertFiltersAllowed(filter, config);
+        return adCount(adapterModelKey, filter, { ...baseCtx, q });
+      },
       findOne: async (id, request) => {
         if (!resolvedAdapter.findOne) throw new Error(`Adapter "${config.name}" has no findOne`);
         const row = await resolvedAdapter.findOne(
@@ -496,6 +501,7 @@ export function createCrudRepository<T = Row>(
   return {
     prisma,
     findAll: async (params, request) => {
+      assertFiltersAllowed(params.filter, config);
       const effectiveParams = await applyBeforeFindAll(
         params,
         legacyHookTarget,
@@ -507,7 +513,10 @@ export function createCrudRepository<T = Row>(
         request,
       );
     },
-    count: reader.count.bind(reader),
+    count: (filter, q) => {
+      assertFiltersAllowed(filter, config);
+      return reader.count(filter, q);
+    },
     findOne: async (id, request) =>
       decorateFindOne(await reader.findOne(id, request), request, toId(id)),
     findAllByParent: reader.findAllByParent.bind(reader),

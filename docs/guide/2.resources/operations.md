@@ -73,7 +73,8 @@ The second form restricts search to `name` and `email` only.
 
 `operations.findAll.filter` lists the columns that get a filter control in the table toolbar. It is also the server
 allowlist: a `?filter=` on any other column (except the id field) is rejected with 400. Omit it to show no filter
-controls and accept filters on every column.
+controls and accept filters on every column. Only the client's filters are checked: filters a
+[`beforeFindAll` hook](./hooks.md#beforefindall-afterfindall) adds are trusted.
 
 A dotted entry is a Prisma relation path, e.g. `"tags.some.name"` → `?filter=tags.some.name:x:equals` becomes
 `{ tags: { some: { name: { equals: 'x' } } } }`. It is allowed through the server allowlist but gets no toolbar control.
