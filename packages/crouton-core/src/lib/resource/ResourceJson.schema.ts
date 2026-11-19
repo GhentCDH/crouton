@@ -10,6 +10,7 @@ import { ParentRefSchema } from './ParentRef.schema';
 import { ResourceKindSchema } from './ResourceKind';
 import { SidebarSchema } from './Sidebar.schema';
 import { getResourceExtensions, getResourceExtensionsStamp } from './extensions';
+import { FIELD_INPUT_TYPE_ALIASES } from './field-input/aliases';
 import { BASELINE_RESOURCE_VERSION } from './version';
 
 // ── Removed-key registry ─────────────────────────────────────────────
@@ -624,12 +625,6 @@ const STRIPPED_COLUMN_KEYS = new Set<string>([
 const COLUMN_KEY_ALIASES: Record<string, string> = {
   createable: 'creatable',
   updateable: 'updatable',
-};
-/** Old `fieldInput.type`/`format` values, rewritten before validation (alpha only). */
-const FIELD_INPUT_TYPE_ALIASES: Record<string, string> = {
-  Integer: 'integer',
-  mutliSelect: 'multiSelect',
-  'date-range': 'dateRange',
 };
 
 /** Rename alias keys; when both spellings are present the new one wins. */
