@@ -15,8 +15,10 @@ test.describe('Layout — horizontal container', () => {
     await form.waitForModal();
 
     const modal = page.getByTestId('form-modal');
-    const bioField = modal.getByLabel('Bio', { exact: false });
-    const notesField = modal.getByRole('textbox', { name: /notes/i }).first();
+    // Compare the field groups (label + control), not the inner controls: the
+    // markdown editing surface sits below its toolbar, the textarea does not.
+    const bioField = modal.getByRole('group', { name: /^bio/i });
+    const notesField = modal.getByRole('group', { name: /^notes/i });
 
     await expect(bioField).toBeVisible();
     await expect(notesField).toBeVisible();
