@@ -389,6 +389,9 @@ await bookApi.getOneById('42');
   in; a 401 from the API still starts the login.
 - `layout.table.rowClick: "edit" | "view"` now opens the record (it had no effect on resource tables).
 - `crouton generate` — CI-safe `prisma generate` without `db pull` (used in Step 14).
+- Action procedures get `{ data, request }` as last argument — `(prisma, ctx)` for table actions,
+  `(prisma, recordId, ctx)` for row actions — so a table action's static `data` now reaches its procedure
+  (one procedure can serve several buttons). Existing procedures need no change.
 - `useAuth().user.picture` — the login provider's profile photo URL (Google and OIDC providers that send a
   `picture` claim; http(s) only; empty for Microsoft). Users already logged in get it after their next login.
 
