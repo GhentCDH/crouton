@@ -11,7 +11,7 @@ import { spawn } from 'node:child_process';
 import { type Dirent, existsSync, readFileSync } from 'node:fs';
 import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 
 /**
  * Load a .env file from `dir` (or the nearest parent that has one) into
@@ -151,6 +151,39 @@ export const fixZodImports = async (zodOutputDir: string): Promise<number> => {
           await writeFile(full, `import { z } from 'zod';\n${src}`, 'utf-8');
           fixed++;
         }
+      }
+    }
+  };
+  await walk(zodOutputDir);
+  return fixed;
+};
+
+/**
+ * zod-prisma-types runs against a temp schema without the client generator, so
+ * it imports `Prisma` from the bare `@prisma/client`, which cannot find a client
+ * generated to a custom `output` (#597). Point those imports at the real client.
+ * `clientModule` is the client entry without extension (e.g. `<output>/index`).
+ */
+export const fixPrismaClientImport = async (zodOutputDir: string, clientModule: string): Promise<number> => {
+  let fixed = 0;
+  const walk = async (dir: string): Promise<void> => {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(full);
+      } else if (entry.name.endsWith('.ts')) {
+        const src = await readFile(full, 'utf-8');
+        if (!/from ['"]@prisma\/client['"]/.test(src)) continue;
+        let rel = relative(dir, clientModule).split(sep).join('/');
+        if (!rel.startsWith('.')) rel = `./${rel}`;
+        await writeFile(full, src.replace(/from ['"]@prisma\/client['"]/g, `from '${rel}'`), 'utf-8');
+        fixed++;
       }
     }
   };
