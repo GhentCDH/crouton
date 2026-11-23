@@ -62,6 +62,12 @@ Applied when columns are generated from a Prisma model: `crouton update` and the
 | `sharedEnums`          | Reference enums from `crouton.enums.json` instead of inlining their values. |
 | `defaultOperations`    | CRUD operations enabled on generated resources (same shape as `operations`). |
 
+`rules.tableDownload` is the exception: it is read at runtime, defaults to `false`, and is served on `/_app/layout`.
+
+| Field               | Description                                                                                       |
+|---------------------|---------------------------------------------------------------------------------------------------|
+| `tableDownload.csv` | Show a **Download CSV** button on every table. A table overrides it via `layout.table.download.csv`. |
+
 ## `sidebarGroups`
 
 Keyed by slug. Each group accepts:

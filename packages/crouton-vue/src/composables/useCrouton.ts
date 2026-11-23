@@ -53,6 +53,7 @@ type LayoutResponse = {
   title?: string;
   logo?: string;
   autoSave?: boolean;
+  tableDownload?: { csv?: boolean };
   isDev?: boolean;
   i18n?: {
     languages?: string[];
@@ -74,6 +75,12 @@ export const AppConfig = {
    * restore explicit Save/Cancel buttons across the whole application.
    */
   autoSave: true,
+  /**
+   * Global table export defaults. Served by the backend via `GET /_app/layout`
+   * from `rules.tableDownload` in `crouton.json`. A table overrides it via
+   * `layout.table.download` in its resource.json. Hidden by default.
+   */
+  tableDownload: { csv: false } as { csv?: boolean },
   showErrors: false,
   debugValue: false,
   /**
@@ -147,6 +154,10 @@ const createCrouton = (
           overrides.autoSave === undefined
         ) {
           config.value = { ...config.value, autoSave: res.data.autoSave };
+        }
+        // tableDownload from the backend wins unless the consumer passed an explicit override.
+        if (res.data.tableDownload && overrides.tableDownload === undefined) {
+          config.value = { ...config.value, tableDownload: res.data.tableDownload };
         }
         // isDev always reflects the connected backend — never consumer-overridable.
         if (res.data.isDev !== undefined) {
@@ -224,6 +235,7 @@ const createCrouton = (
     title: computed(() => config.value.title),
     logo: computed(() => config.value.logo),
     autoSave: computed(() => config.value.autoSave),
+    tableDownload: computed(() => config.value.tableDownload),
     showErrors: computed(() => config.value.showErrors),
     debugValue: computed(() => config.value.debugValue),
     isDev: computed(() => config.value.isDev),
@@ -286,6 +298,7 @@ export type UseCrouton = {
   title: ComputedRef<string>;
   logo: ComputedRef<string | undefined>;
   autoSave: ComputedRef<boolean>;
+  tableDownload: ComputedRef<{ csv?: boolean }>;
   showErrors: ComputedRef<boolean>;
   debugValue: ComputedRef<boolean>;
   isDev: ComputedRef<boolean>;

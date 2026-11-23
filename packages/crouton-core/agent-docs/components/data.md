@@ -4,7 +4,7 @@ title: Tables & trees
 
 <script setup>
 import { computed, ref } from 'vue';
-import { IconEnum, PaginationComponent, Table, TextCell, TreeView } from '@ghentcdh/crouton-vue';
+import { DownloadCsvButton, IconEnum, PaginationComponent, Table, TextCell, TreeView } from '@ghentcdh/crouton-vue';
 
 const cities = ['Antwerp', 'Bruges', 'Brussels', 'Ghent', 'Leuven', 'Liège', 'Namur', 'Mons', 'Hasselt', 'Kortrijk', 'Ostend', 'Mechelen'];
 const rows = cities.map((name, i) => ({ id: i + 1, name, province: i % 2 ? 'Flanders' : 'Wallonia', url: `https://example.org/${name.toLowerCase()}` }));
@@ -33,6 +33,11 @@ const onSort = (column) =>
     sortColumn: column,
     sortDirection: sort.value.sortColumn === column && sort.value.sortDirection === 'asc' ? 'desc' : 'asc',
   });
+
+const csvColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'province', label: 'Province' },
+];
 
 const pagerPage = ref(1);
 const pagerSize = ref(10);
@@ -98,6 +103,33 @@ Used inside `Table`, also available standalone.
 
 ```vue
 <PaginationComponent :total-items="137" :items-per-page="size" :current-page="page" @update-page="(p) => (page = p)" />
+```
+
+## Download CSV
+
+Exports rows as an Excel-friendly CSV: `;` separator, UTF-8 with BOM, every cell quoted, dates as
+`dd/MM/yyyy HH:mm`, booleans as translated yes/no. `rows` is an array or an (async) function called on click.
+Resource tables show this button via `layout.table.download` (see [Layout](../2.resources/layout.md#csv-download)).
+
+<ClientOnly>
+<div class="demo">
+  <DownloadCsvButton :columns="csvColumns" :rows="rows" file-name="cities" />
+</div>
+</ClientOnly>
+
+```vue
+<script setup>
+import { DownloadCsvButton, downloadCsv } from '@ghentcdh/crouton-vue';
+
+const columns = [
+  { key: 'name', label: 'Name' },
+  { key: 'author.name', label: 'Author' },            // dot path
+  { key: 'tags', label: 'Tags', value: (r) => r.tags.map((t) => t.label) },
+];
+// or without a button: downloadCsv(columns, rows, 'cities');
+</script>
+
+<DownloadCsvButton :columns="columns" :rows="rows" file-name="cities" />
 ```
 
 ## Tree view

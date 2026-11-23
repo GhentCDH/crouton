@@ -62,6 +62,24 @@ export class Resource extends PaginatedRequestService {
     this.data.value = (data as unknown as { data: unknown })?.data ?? null;
   }
 
+  /**
+   * Fetch every row matching the current filter/search/sort, page by page.
+   * Returns `null` when a page fails (the api already notified the user).
+   * ponytail: sequential client-side loop; add a server-side streaming export if large exports get slow.
+   */
+  public loadAll = async (pageSize = 500): Promise<unknown[] | null> => {
+    const rows: unknown[] = [];
+    for (let page = 1; ; page++) {
+      const res = (await this.api.loadData({ ...this.requestData.value, page, pageSize })) as
+        | { data?: unknown[]; request?: { count?: number } }
+        | null;
+      if (!res) return null;
+      const data = res.data ?? [];
+      rows.push(...data);
+      if (data.length < pageSize || rows.length >= (res.request?.count ?? 0)) return rows;
+    }
+  };
+
   /** Update the active filter strings (wire format: `"field:value:operator"`). */
   public updateFilters = (filter: string[]) => {
     this.updateRequest({ filter });

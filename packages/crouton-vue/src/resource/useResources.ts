@@ -4,9 +4,10 @@ import { enumKey } from '@crouton/i18n';
 import { cloneDeep } from 'lodash-es';
 import { type Component, type Ref, computed, reactive, ref } from 'vue';
 
-import type { Action, ResourceDefinition, ViewColumnConfig } from '@ghentcdh/crouton-core';
+import { type Action, type ResourceDefinition, type ViewColumnConfig, findColumnDef } from '@ghentcdh/crouton-core';
 
 import { useCrouton } from '../composables/useCrouton';
+import { type CsvColumn, getPath } from '../csv/csv';
 import { useLanguage } from '../i18n/useLanguage';
 import { computedAsync } from '../utils/computedAsync';
 import { type Request } from '../utils/request';
@@ -39,6 +40,31 @@ const translateEnumValue = (val: unknown, enumName: string, t: (k: string, f?: s
 };
 
 type UiSchemaNode = { type?: string; elements?: UiSchemaNode[]; options?: Record<string, unknown>; [key: string]: unknown };
+
+/** Pick the display value of a relation / keyValue cell, mirroring RelationCell + TextCell. */
+const displayOf = (val: unknown, displayKey: string | undefined): unknown => {
+  if (!displayKey || val == null || typeof val !== 'object') return val;
+  if (Array.isArray(val)) return val.map((v) => displayOf(v, displayKey));
+  return getPath(val, displayKey);
+};
+
+const buildCsvColumns = (ui: UiSchemaNode | null, schema: unknown): CsvColumn[] =>
+  (ui?.elements ?? [])
+    .filter((e) => e.options?.['visible'] !== false)
+    .map((e) => {
+      const { id } = findColumnDef(e as never, schema as never);
+      const o = e.options ?? {};
+      const relationField = o['relationField'] as string | undefined;
+      const dataPath = (o['dataPath'] as string | undefined) ?? id;
+      const displayKey = (o['displayKey'] ?? o['key']) as string | undefined;
+      return {
+        key: dataPath,
+        label: (o['label'] as string | undefined) ?? id,
+        value: (row: Record<string, unknown>) =>
+          displayOf((relationField ? row[relationField] : undefined) ?? row[dataPath], displayKey),
+      };
+    })
+    .filter((c) => c.key);
 
 /** When the table UI schema is a wrapper layout, extract the inner Table element. */
 const resolveTableUiSchema = (ui: unknown): UiSchemaNode | null => {
@@ -94,6 +120,10 @@ export interface UseResource {
   } | null;
   api: ResourceApiInstance;
   reload: () => void;
+  /** Visible table columns as CSV columns (localized labels, relation/enum display values). */
+  csvColumns: CsvColumn[];
+  /** All rows matching the current filter/search/sort (all pages), enum labels translated. */
+  fetchAllRows: () => Promise<Record<string, unknown>[] | null>;
   lastAction: ActionStatus | null;
 }
 
@@ -158,16 +188,23 @@ export const useResources = (
   const enumCols: ViewColumnConfig[] = ((_formDef.schemas.table as unknown as { columns?: ViewColumnConfig[] }).columns ?? []).filter(
     (c: ViewColumnConfig) => c.enumName,
   );
+  const translateRows = (rows: Record<string, unknown>[]) =>
+    rows.map((row) => {
+      const out: Record<string, unknown> = { ...row };
+      for (const col of enumCols) out[col.id] = translateEnumValue(out[col.id], col.enumName ?? '', translator);
+      return out;
+    });
   const data =
     enumCols.length === 0
       ? resource.data
-      : computed(() =>
-          ((resource.data.value as Record<string, unknown>[]) ?? []).map((row: Record<string, unknown>) => {
-            const out: Record<string, unknown> = { ...row };
-            for (const col of enumCols) out[col.id] = translateEnumValue(out[col.id], col.enumName ?? '', translator);
-            return out;
-          }),
-        );
+      : computed(() => translateRows((resource.data.value as Record<string, unknown>[]) ?? []));
+
+  const tableUi = resolveTableUiSchema(_formDef.schemas.table.ui);
+  const csvColumns = buildCsvColumns(tableUi, _formDef.schemas.table.data);
+  const fetchAllRows = async () => {
+    const rows = (await resource.loadAll()) as Record<string, unknown>[] | null;
+    return rows && translateRows(rows);
+  };
 
   if (readonly) {
     _formDef.operations.delete = null;
@@ -212,7 +249,7 @@ export const useResources = (
   return reactive({
     id: formDef.id,
     operations: _formDef.operations ?? {},
-    uiSchema: resolveTableUiSchema(_formDef.schemas.table.ui),
+    uiSchema: tableUi,
     schema: _formDef.schemas.table.data,
     filterSchema,
     loading: resource.loading,
@@ -251,6 +288,8 @@ export const useResources = (
     closeForm: resourceModal.closeForm,
     form: resourceModal.form,
     reload: () => resource.reload(),
+    csvColumns,
+    fetchAllRows,
     api,
     lastAction,
   }) as unknown as UseResource;
