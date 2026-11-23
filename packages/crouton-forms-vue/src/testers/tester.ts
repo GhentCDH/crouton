@@ -110,6 +110,10 @@ export const isToggleControl = and(
   uiTypeIs('Control'),
   optionIsIgnoreCase('format', ControlType.toggle),
 );
+export const isColorControl = and(
+  uiTypeIs('Control'),
+  optionIsIgnoreCase('format', ControlType.color),
+);
 export const isBooleanControl = or(
   and(uiTypeIs('Control'), schemaTypeIs('boolean')),
   and(uiTypeIs('Control'), optionIsIgnoreCase('format', ControlType.boolean)),

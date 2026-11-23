@@ -7,6 +7,7 @@ import {
 } from '../../table/table.builder';
 import {
   isBoolean,
+  isColor,
   isDateRange,
   isObjectCell,
   isRecordCell,
@@ -107,10 +108,12 @@ export const buildTableUiSchema = (
         ...(displayKey && { displayKey }),
         ...(relationField && relationField !== col.id && { relationField }),
         ...(isDateRange(col) && { format: 'dateRange' }),
+        ...(isColor(col) && { format: 'color' }),
         label: col.label,
       },
       ...((isRecordCell(col) || isObjectCell(col)) && { type: 'RecordCell' }),
       ...(isDateRange(col) && { type: 'Control' }),
+      ...(isColor(col) && { type: 'Control' }),
     };
   });
 

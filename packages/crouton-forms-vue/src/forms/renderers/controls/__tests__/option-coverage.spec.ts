@@ -4,6 +4,7 @@ import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
 import { autocompleteVariants } from './autocomplete.variants';
 import { booleanVariants } from './boolean.variants';
+import { colorVariants } from './color.variants';
 import { type ControlVariant, usedOptionKeys } from './control-variant';
 import { dateVariants } from './date.variants';
 import { dateRangeVariants } from './daterange.variants';
@@ -57,6 +58,7 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
       styles: 'the editor card ignores control styles (wrapper styles still apply via ControlWrapper)',
     },
   },
+  color: { variants: colorVariants, skipped: { customRender: CUSTOM_RENDER } },
   toggle: {
     variants: toggleVariants,
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a button group has no placeholder' },

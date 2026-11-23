@@ -5,6 +5,7 @@ import { rankWith } from '../../../testers/jsonforms-testers';
 import {
   isAutoCompleteControl,
   isBooleanControl,
+  isColorControl,
   isDateControl,
   isDateRangeControl,
   isIntegerFormat,
@@ -19,6 +20,7 @@ import {
 } from '../../../testers/tester';
 import AutocompleteControlRenderer from './AutocompleteControlRenderer.vue';
 import BooleanControlRenderer from './BooleanControlRenderer.vue';
+import ColorControlRenderer from './ColorControlRenderer.vue';
 import DateControlRenderer from './DateControlRenderer.vue';
 import DateRangeControlRenderer from './DateRangeControlRenderer.vue';
 import MarkdownControlRenderer from './MarkdownControlRenderer.vue';
@@ -46,6 +48,8 @@ export const controlRenderers = [
   // testers (12), otherwise a select with numeric values renders as a number input.
   { tester: rankWith(13, isSelectControl), renderer: r(SelectControlRenderer) },
   { tester: rankWith(12, isToggleControl), renderer: r(ToggleControlRenderer) },
+  // Rank 12: beats isStringFormat (10) — a color is a JSON Schema string.
+  { tester: rankWith(12, isColorControl), renderer: r(ColorControlRenderer) },
   // Rank 13: an explicit `format: 'multiSelect'` must beat the array renderer
   // (12) for an array schema, like select beats number/integer.
   { tester: rankWith(13, isMultiselectControl), renderer: r(MultiSelectControlRenderer) },

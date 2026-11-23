@@ -14,6 +14,7 @@ Read this file to find the right doc for your task.
 | 2.resources/field-inputs/array.md | using array field inputs |
 | 2.resources/field-inputs/autocomplete.md | using autocomplete field inputs |
 | 2.resources/field-inputs/boolean.md | using boolean field inputs |
+| 2.resources/field-inputs/color.md | working with color |
 | 2.resources/field-inputs/common-options.md | understanding options shared by all field inputs |
 | 2.resources/field-inputs/custom.md | creating custom field inputs |
 | 2.resources/field-inputs/date-range.md | using date-range field inputs |
