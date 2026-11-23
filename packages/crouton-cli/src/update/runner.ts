@@ -208,11 +208,16 @@ const assertNotCancel = <T>(value: T | symbol): T => {
 const loadOrScaffoldConfig = async (
   cwd: string,
   yes: boolean,
+  dryRun: boolean,
 ): Promise<LoadedConfig> => {
   try {
     return await loadConfig(cwd);
   } catch {
     clack.log.warn('No crouton.json found.');
+    if (dryRun) {
+      clack.log.error('Run without --dry-run to scaffold crouton.json first.');
+      throw new CancelledError();
+    }
     const { config, datasources, notes } = await scaffoldConfigFromProject(cwd);
     for (const n of notes) clack.log.info(n);
     clack.log.message(pc.dim(JSON.stringify(config, null, 2)));
@@ -360,7 +365,7 @@ export const runUpdateResources = async (
   clack.intro(pc.bold('crouton update resources'));
 
   try {
-    const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes);
+    const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes, !!opts.dryRun);
     loadDotenv(loaded.root);
     const datasources = await loadDatasources(loaded);
     const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
@@ -371,6 +376,15 @@ export const runUpdateResources = async (
       );
       clack.outro('Nothing to do for a custom datasource.');
       return;
+    }
+
+    // A dry run writes nothing: `db pull` / `generate` rewrite schema.prisma and the
+    // generated dirs, so plan against the current schema instead.
+    if (opts.dryRun && (!opts.skipPull || !opts.skipGenerate)) {
+      clack.log.info(
+        `Dry run — skipping prisma db pull + generate; planning against the current ${ds.prismaSchema}.`,
+      );
+      opts = { ...opts, skipPull: true, skipGenerate: true };
     }
 
     const schemaAbs = resolveFromRoot(loaded.root, ds.prismaSchema);

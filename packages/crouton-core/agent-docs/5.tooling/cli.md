@@ -208,7 +208,7 @@ Useful flags:
 |-----------------------------------|-----------------------------------------------------------------|
 | `--datasource <name>`             | Use a specific datasource.                                      |
 | `--models <a,b>`                  | Limit to specific models (Prisma or resource names).            |
-| `--dry-run`                       | Show the plan without writing.                                  |
+| `--dry-run`                       | Show the plan without writing; skips the Prisma steps (plans against the current schema). |
 | `--yes`                           | Non-interactive; accept recommended choices.                    |
 | `--skip-pull` / `--skip-generate` | Skip the Prisma steps.                                          |
 | `--draft`                         | Write new resources with `draft: true` (hidden until reviewed). |
