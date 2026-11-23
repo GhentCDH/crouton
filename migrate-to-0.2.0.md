@@ -429,6 +429,9 @@ pnpm crouton update translations
   in; a 401 from the API still starts the login.
 - `useAuth().user.picture` — the login provider's profile photo URL (Google and OIDC providers that send a
   `picture` claim; http(s) only; empty for Microsoft). Users already logged in get it after their next login.
+- `signSession`, `verifySession` and `getSessionSecret` are exported from `@ghentcdh/crouton-api`. If your app
+  copied the session JWT logic (issuer/audience `crouton`, HS256, `CROUTON_AUTH_SECRET`, `CROUTON_SESSION_TTL`) to
+  issue its own tokens, replace the copy with these.
 
 **CLI**
 
