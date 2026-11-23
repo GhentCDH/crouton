@@ -27,6 +27,8 @@ services:
     env_file: [{{envFile}}]
     ports:
       - "${BACKEND_PORT:-{{backendPort}}}:${BACKEND_PORT:-{{backendPort}}}"
+    # The Prisma client is git-ignored: generate it before serving (serve even if it fails, errors show on /crouton/status).
+    command: sh -c "pnpm exec crouton generate --yes --cwd {{workspaceRoot}}; pnpm exec nx run {{backendApp}}:serve"
     environment:
       - NX_COMMAND={{backendApp}}:serve
       - WATCHPACK_POLLING=true
@@ -43,6 +45,8 @@ services:
     env_file: [{{envFile}}]
     ports:
       - "{{backendPort}}:{{backendPort}}"
+    # The Prisma client is git-ignored: generate it before serving (serve even if it fails, errors show on /crouton/status).
+    command: sh -c "pnpm exec crouton generate --yes; pnpm dev"
     environment:
       - PORT={{backendPort}}
     volumes:

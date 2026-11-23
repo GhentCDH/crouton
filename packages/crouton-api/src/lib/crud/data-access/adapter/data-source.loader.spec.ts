@@ -120,4 +120,20 @@ describe('loadDataSourcesFromDir', () => {
     expect(errors[0].name).toBe('bads');
     expect(errors[0].error).toContain('must default-export a DataSourceAdapter');
   });
+
+  it('adds a `crouton generate` hint when the generated client is missing', async () => {
+    const dsDir = join(tempDir, 'default');
+    mkdirSync(dsDir);
+    writeFileSync(
+      join(dsDir, 'data-source.json'),
+      JSON.stringify({ name: 'default', urlEnv: 'DATABASE_URL' }),
+    );
+    writeFileSync(join(dsDir, 'index.js'), 'module.exports = require("@app/generated-default-client");');
+
+    await loadDataSourcesFromDir(tempDir);
+
+    const errors = resourceLoadErrorsRegistry.getAll();
+    expect(errors).toHaveLength(1);
+    expect(errors[0].error).toContain('run `crouton generate`');
+  });
 });
