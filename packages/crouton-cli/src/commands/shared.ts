@@ -5,7 +5,7 @@ import pc from 'picocolors';
 import { discoverProjects, findConfigPath } from '@ghentcdh/crouton-codegen';
 
 import { assertNotCancel } from '../prompts';
-import { relative, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 
 /** Options every cwd-touching command accepts. */
 export interface CommonOptions {
@@ -19,7 +19,7 @@ export interface CommonOptions {
 export const registerCommonOptions = (cmd: Command): Command =>
   cmd
     .option('--cwd <dir>', 'project directory (defaults to the current directory)')
-    .option('-p, --project <name>', 'project to use: a subfolder of cwd containing crouton.json (asked when several exist)')
+    .option('-p, --project <name|path>', 'project to use: a subfolder of cwd, or a path, containing crouton.json (asked when several exist)')
     .option('--dry-run', 'show the planned changes without writing files')
     .option('-y, --yes', 'accept all recommended defaults (non-interactive)');
 
@@ -48,11 +48,15 @@ export const resolveTargetProject = async (opts: CommonOptions): Promise<string>
   const list = (names: string[]) => (names.length ? names.join(', ') : '(none)');
 
   if (opts.project) {
+    // A path (e.g. `apps/ms-service`) holding a config wins over name matching.
+    const dir = resolve(cwd, opts.project);
+    const config = await findConfigPath(dir);
+    if (config && dirname(config) === dir) return dir;
     const projects = await candidates();
     const found = projects.find((p) => p.name === opts.project);
     if (!found) {
       throw new Error(
-        `Unknown project "${opts.project}" under ${cwd}. Available: ${list(projects.map((p) => p.name))}.`,
+        `Unknown project "${opts.project}" under ${cwd}. Available: ${list(projects.map((p) => p.name))} (or pass a path to a folder with crouton.json).`,
       );
     }
     return found.root;

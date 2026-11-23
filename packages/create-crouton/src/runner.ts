@@ -11,7 +11,7 @@ import { render } from './lib/render';
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 declare const __CROUTON_VERSION__: string;
@@ -29,7 +29,79 @@ export interface CreateOptions {
   force?: boolean;
   dbUrl?: string;
   prefix?: string;
+  appsDir?: string;
+  backendDir?: string;
+  frontendDir?: string;
+  generatedDir?: string;
 }
+
+/** Folder layout overrides (Nx only). All repo-relative except backend/frontend (under appsDir). */
+export interface LayoutOptions {
+  prefix?: string;
+  appsDir?: string;
+  backendDir?: string;
+  frontendDir?: string;
+  generatedDir?: string;
+}
+
+/** Resolved Nx folder layout; every path is repo-relative posix (`.` = repo root). */
+export interface LayoutPaths {
+  /** Where crouton.json, .env and the Dockerfiles live. */
+  configDir: string;
+  appsRoot: string;
+  backendRoot: string;
+  frontendRoot: string;
+  generatedRoot: string;
+}
+
+const cleanPath = (p: string, flag: string): string => {
+  // normalize collapses repeated slashes, so at most one trailing `/` is left.
+  const norm = posix.normalize(p.trim().replaceAll('\\', '/'));
+  const out = (norm.length > 1 && norm.endsWith('/') ? norm.slice(0, -1) : norm) || '.';
+  if (posix.isAbsolute(out) || out === '..' || out.startsWith('../')) {
+    throw new Error(`${flag} must be a path inside the workspace, got "${p}".`);
+  }
+  return out;
+};
+
+/**
+ * Defaults reproduce the classic layout: `<prefix>/apps/{backend,frontend}` and
+ * `<prefix>/generated`. `--apps-dir` without `--prefix` puts crouton.json in the apps dir.
+ */
+export const resolveLayoutPaths = (o: LayoutOptions): LayoutPaths => {
+  const configDir = cleanPath(o.prefix || o.appsDir || '.', '--prefix');
+  const appsRoot = o.appsDir ? cleanPath(o.appsDir, '--apps-dir') : posix.join(configDir, 'apps');
+  return {
+    configDir,
+    appsRoot,
+    backendRoot: posix.join(appsRoot, cleanPath(o.backendDir || 'backend', '--backend-dir')),
+    frontendRoot: posix.join(appsRoot, cleanPath(o.frontendDir || 'frontend', '--frontend-dir')),
+    generatedRoot: o.generatedDir ? cleanPath(o.generatedDir, '--generated-dir') : posix.join(configDir, 'generated'),
+  };
+};
+
+/** `a/b/c` → `../../../`; `.` → `` */
+const upTo = (dir: string): string => (dir === '.' ? '' : '../'.repeat(dir.split('/').length));
+const relFrom = (from: string, to: string): string => posix.relative(from, to) || '.';
+
+/** Rewrites workspace template paths (`apps/backend/…`, `apps/frontend/…`, `generated/…`) to the resolved layout, relative to configDir. */
+export const workspacePathMapper = (p: LayoutPaths) => {
+  const map: [string, string][] = [
+    ['apps/backend', relFrom(p.configDir, p.backendRoot)],
+    ['apps/frontend', relFrom(p.configDir, p.frontendRoot)],
+    ['generated', relFrom(p.configDir, p.generatedRoot)],
+  ];
+  return (path: string): string => {
+    for (const [from, to] of map) {
+      if (path === from || path.startsWith(`${from}/`)) return posix.join(to, path.slice(from.length));
+    }
+    return path;
+  };
+};
+
+/** `.gitignore` prefix for generated dirs: the classic any-depth `generated` glob when it matches, else the exact root. */
+export const generatedIgnoreRoot = (generatedRoot: string): string =>
+  posix.basename(generatedRoot) === 'generated' ? '**/generated' : generatedRoot;
 
 /**
  * Resolve the templates directory. At runtime after tsup bundling, templates
@@ -53,10 +125,9 @@ const capitalize = (s: string): string =>
 export const toTitle = (name: string): string =>
   name.replace(/[-_]+/g, ' ').split(' ').map(capitalize).join(' ');
 
-export interface TokenInput {
+export interface TokenInput extends LayoutOptions {
   name: string;
   layout: 'nx' | 'regular';
-  prefix?: string;
   frontend: boolean;
   postgres: boolean;
   dbUrl: string;
@@ -69,9 +140,12 @@ export interface TokenInput {
 
 /** Template tokens shared by `create-crouton` and `crouton create project`. */
 export const buildTokens = (t: TokenInput): Record<string, string> => {
-  const { name, layout, prefix, frontend, postgres, pm } = t;
+  const { name, layout, frontend, postgres, pm } = t;
+  const paths = layout === 'nx' ? resolveLayoutPaths(t) : undefined;
+  const configDir = paths?.configDir ?? '.';
   const dbName = name.replace(/[^a-zA-Z0-9]/g, '_');
-  const appName = prefix || name;
+  // Last segment, so a nested config dir (`apps/ms-service`) still gives a valid Nx/compose name.
+  const appName = configDir === '.' ? name : posix.basename(configDir);
   const tokens: Record<string, string> = {
     name,
     Name: toTitle(name),
@@ -91,36 +165,31 @@ export const buildTokens = (t: TokenInput): Record<string, string> => {
     frontendPort: String(t.frontendPort ?? 4200),
     backendPort: String(t.backendPort ?? 3000),
   };
-  if (layout === 'nx') {
-    tokens['nx'] = 'true';
-    tokens['backendApp'] = `${appName}-backend`;
-    tokens['frontendApp'] = `${appName}-frontend`;
-    tokens['workspaceRoot'] = prefix || '.';
-    tokens['dockerfileDev'] = prefix
-      ? `${prefix}/Dockerfile.dev`
-      : 'Dockerfile.dev';
-    tokens['envFile'] = prefix ? `${prefix}/.env` : '.env';
-    tokens['generatedGlob'] = prefix
-      ? `${prefix}/generated/default`
-      : 'generated/default';
-
-    if (prefix) {
-      tokens['prefix'] = prefix;
-      tokens['appsRoot'] = `${prefix}/apps`;
-      tokens['schemaPath'] =
-        '../../../node_modules/nx/schemas/project-schema.json';
-      tokens['tsconfigBase'] = '../../../tsconfig.base.json';
-      tokens['generatedTypesPath'] = `${prefix}/generated/default/types/src`;
-      tokens['generatedClientPath'] = `${prefix}/generated/default/client`;
-    } else {
-      tokens['noPrefix'] = 'true';
-      tokens['appsRoot'] = 'apps';
-      tokens['schemaPath'] =
-        '../../node_modules/nx/schemas/project-schema.json';
-      tokens['tsconfigBase'] = '../../tsconfig.base.json';
-      tokens['generatedTypesPath'] = 'generated/default/types/src';
-      tokens['generatedClientPath'] = 'generated/default/client';
-    }
+  if (paths) {
+    const inConfig = (f: string) => posix.join(configDir, f);
+    Object.assign(tokens, {
+      nx: 'true',
+      backendApp: `${appName}-backend`,
+      frontendApp: `${appName}-frontend`,
+      workspaceRoot: configDir,
+      dockerfileDev: inConfig('Dockerfile.dev'),
+      envFile: inConfig('.env'),
+      appsRoot: paths.appsRoot,
+      backendRoot: paths.backendRoot,
+      frontendRoot: paths.frontendRoot,
+      backendDist: posix.join('dist', paths.backendRoot),
+      backendToRoot: upTo(paths.backendRoot),
+      frontendToRoot: upTo(paths.frontendRoot),
+      backendFromConfig: relFrom(configDir, paths.backendRoot),
+      frontendToConfig: relFrom(paths.frontendRoot, configDir),
+      backendToGenerated: relFrom(paths.backendRoot, paths.generatedRoot),
+      generatedRoot: paths.generatedRoot,
+      generatedIgnore: generatedIgnoreRoot(paths.generatedRoot),
+      generatedGlob: posix.join(paths.generatedRoot, 'default'),
+      generatedTypesPath: posix.join(paths.generatedRoot, 'default/types/src'),
+      generatedClientPath: posix.join(paths.generatedRoot, 'default/client'),
+    });
+    if (configDir !== '.') tokens['prefix'] = configDir;
   } else {
     tokens['regular'] = 'true';
     tokens['dockerfileDev'] = 'Dockerfile.dev';
@@ -133,23 +202,30 @@ export const buildTokens = (t: TokenInput): Record<string, string> => {
   return tokens;
 };
 
-/** The default datasource for a project rooted at `baseDir` (`name` = package scope in Nx). */
+/**
+ * The default datasource for a project rooted at `baseDir` (`name` = package scope in Nx).
+ * Nx: `paths` places data-sources + generated output; paths in data-source.json are relative to configDir.
+ */
 export const datasourceFiles = (
   layout: 'nx' | 'regular',
   name: string,
   baseDir: string,
+  paths: LayoutPaths = resolveLayoutPaths({}),
 ): FileEntry[] => {
   const nx = layout === 'nx';
+  const generated = nx ? relFrom(paths.configDir, paths.generatedRoot) : 'generated';
   const { files } = buildDatasourceFiles({
     name: 'default',
-    dataSourcesDir: nx ? 'apps/backend/src/app/data-sources' : 'src/data-sources',
+    dataSourcesDir: nx
+      ? posix.join(relFrom(paths.configDir, paths.backendRoot), 'src/app/data-sources')
+      : 'src/data-sources',
     urlEnv: 'DATABASE_URL',
     generatedTypesImport: nx ? `@${name}/generated-default-types` : '@app/generated/default/types',
     generatedClientImport: nx ? `@${name}/generated-default-client` : '@app/generated/default/client',
     type: 'postgres',
     default: true,
-    zodOutput: 'generated/default/types/src',
-    clientOutput: 'generated/default/client',
+    zodOutput: posix.join(generated, 'default/types/src'),
+    clientOutput: posix.join(generated, 'default/client'),
   });
   return files.map((f) => ({ path: resolve(baseDir, f.path), contents: f.contents }));
 };
@@ -176,7 +252,9 @@ export const runCreate = async (
     // 2. Prompts
     const layout = await resolveLayout(opts);
     const frontend = await resolveFrontend(opts, layout);
-    const prefix = layout === 'nx' ? await resolvePrefix(opts) : undefined;
+    const layoutOpts = layout === 'nx' ? await resolveLayoutOptions(opts) : {};
+    const paths = resolveLayoutPaths(layoutOpts);
+    const prefix = paths.configDir === '.' ? undefined : paths.configDir;
     const pm = await resolvePm(opts);
 
     // Verify pnpm version early — before writing any files
@@ -196,7 +274,7 @@ export const runCreate = async (
     }
 
     // 3. Resolve tokens
-    const tokens = buildTokens({ name, layout, prefix, frontend, postgres, dbUrl, pm });
+    const tokens = buildTokens({ name, layout, ...layoutOpts, frontend, postgres, dbUrl, pm });
 
     // 4. Read + render templates
     const templateRoot = resolveTemplateDir();
@@ -226,6 +304,7 @@ export const runCreate = async (
         tokens,
         workspaceTarget,
         skipPaths,
+        workspacePathMapper(paths),
       );
       files.push(...workspaceFiles);
 
@@ -242,7 +321,7 @@ export const runCreate = async (
       }
 
       // 5. Generate datasource files
-      files.push(...datasourceFiles('nx', name, workspaceTarget));
+      files.push(...datasourceFiles('nx', name, workspaceTarget, paths));
 
       // 6. Write all files
       const written = await writeFiles(files, { force: opts.force });
@@ -476,7 +555,7 @@ const postScaffold = async (
 const resolveLayout = async (
   opts: CreateOptions,
 ): Promise<'nx' | 'regular'> => {
-  if (opts.prefix) return 'nx'; // --prefix implies Nx layout
+  if (opts.prefix || hasCustomLayout(opts)) return 'nx'; // layout flags imply Nx
   if (opts.yes) return opts.nx ? 'nx' : 'regular';
   if (opts.nx) return 'nx';
 
@@ -512,7 +591,7 @@ const resolveFrontend = async (
 };
 
 const resolvePrefix = async (
-  opts: CreateOptions,
+  opts: { prefix?: string; yes?: boolean },
 ): Promise<string | undefined> => {
   if (opts.prefix) return opts.prefix;
   if (opts.yes) return undefined;
@@ -525,6 +604,38 @@ const resolvePrefix = async (
     }),
   ) as string;
   return prefix.trim() || undefined;
+};
+
+const hasCustomLayout = (o: LayoutOptions): boolean =>
+  Boolean(o.appsDir || o.backendDir || o.frontendDir || o.generatedDir);
+
+/** Folder layout: flags win; interactive users may opt into customizing every path. */
+export const resolveLayoutOptions = async (opts: LayoutOptions & { yes?: boolean }): Promise<LayoutOptions> => {
+  const flags: LayoutOptions = {
+    prefix: opts.prefix,
+    appsDir: opts.appsDir,
+    backendDir: opts.backendDir,
+    frontendDir: opts.frontendDir,
+    generatedDir: opts.generatedDir,
+  };
+  if (opts.yes || opts.prefix || hasCustomLayout(flags)) return flags;
+
+  const customize = assertNotCancel(
+    await clack.confirm({ message: 'Customize the folder layout?', initialValue: false }),
+  ) as boolean;
+  if (!customize) return { prefix: await resolvePrefix(opts) };
+
+  const ask = async (message: string, initial: string): Promise<string> =>
+    (assertNotCancel(await clack.text({ message, initialValue: initial, defaultValue: initial })) as string).trim() || initial;
+  const appsDir = await ask('Apps folder (holds backend + frontend)', 'apps');
+  const prefix = await ask('Config folder (crouton.json, .env, Dockerfiles)', appsDir === 'apps' ? '.' : appsDir);
+  return {
+    prefix,
+    appsDir,
+    backendDir: await ask('Backend folder name', 'backend'),
+    frontendDir: await ask('Frontend folder name', 'frontend'),
+    generatedDir: await ask('Generated code folder', prefix === '.' ? 'generated' : `${prefix}/generated`),
+  };
 };
 
 const resolvePm = async (opts: CreateOptions): Promise<PackageManager> => {
@@ -588,6 +699,8 @@ export const loadAndRenderTemplates = async (
   tokens: Record<string, string>,
   targetDir: string,
   skipPaths: string[] = [],
+  /** Rewrites a template-relative output path (e.g. to a custom folder layout). */
+  mapPath: (rel: string) => string = (rel) => rel,
 ): Promise<FileEntry[]> => {
   const files: FileEntry[] = [];
   const dir = subPath ? resolve(templateDir, subPath) : templateDir;
@@ -608,12 +721,13 @@ export const loadAndRenderTemplates = async (
         tokens,
         targetDir,
         skipPaths,
+        mapPath,
       );
       files.push(...nested);
     } else if (entry.name.endsWith('.tmpl')) {
       const raw = await loadTemplate(templateDir, relPath);
       const rendered = render(raw, tokens);
-      const outName = relPath.replace(/\.tmpl$/, '');
+      const outName = mapPath(relPath.replace(/\.tmpl$/, ''));
       files.push({ path: resolve(targetDir, outName), contents: rendered });
     }
   }

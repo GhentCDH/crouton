@@ -1,11 +1,8 @@
 packages:
-{{#if prefix}}  - {{prefix}}/apps/*
-  - {{prefix}}/generated/**
-  - '!{{prefix}}/generated/*/client'
-{{/if}}{{#if noPrefix}}  - apps/*
-  - generated/**
-  - '!generated/*/client'
-{{/if}}  - libs/*
+  - {{appsRoot}}/*
+  - {{generatedRoot}}/**
+  - '!{{generatedRoot}}/*/client'
+  - libs/*
 
 allowBuilds:
   '@swc/core': true

@@ -50,7 +50,11 @@ node packages/create-crouton/dist/index.js my-test-app
 | `--no-install`    | —       | Skip dependency installation.                                       |
 | `--no-git`        | —       | Skip `git init`.                                                    |
 | `--no-docker`     | —       | Skip Docker files (Dockerfile, compose.yml).                        |
-| `--prefix <name>` | prompt  | Subfolder prefix for apps/config (e.g. `split`). Implies Nx layout. |
+| `--prefix <dir>` | prompt  | Folder for `crouton.json`, `.env` and Dockerfiles (e.g. `split`, may be nested). Implies Nx layout. |
+| `--apps-dir <dir>` | `<prefix>/apps` | Folder holding backend + frontend. Without `--prefix`, `crouton.json` goes here too. Implies Nx. |
+| `--backend-dir <name>` | `backend` | Backend folder name under the apps dir. |
+| `--frontend-dir <name>` | `frontend` | Frontend folder name under the apps dir. |
+| `--generated-dir <dir>` | `<prefix>/generated` | Root for generated types and Prisma client. |
 | `--db-url <url>`  | prompt  | Database connection URL.                                            |
 | `-y, --yes`       | —       | Accept all defaults (non-interactive).                              |
 | `--force`         | —       | Overwrite existing files.                                           |
@@ -131,6 +135,34 @@ my-app/
 ├── pnpm-workspace.yaml
 └── package.json
 ```
+
+#### Custom folder layout
+
+The `--apps-dir`, `--backend-dir`, `--frontend-dir` and `--generated-dir` flags set your own folder layout. Without
+`-y`, the interactive mode can also ask for these paths. All paths are relative to the workspace root. Example: one
+folder per service, with generated code collected at the root:
+
+```sh
+create-crouton my-app --apps-dir apps/ms-service \
+  --backend-dir crouton-backend --frontend-dir crouton-frontend \
+  --generated-dir generated/ms-service
+```
+
+```
+my-app/
+├── apps/ms-service/
+│   ├── crouton-backend/
+│   ├── crouton-frontend/
+│   ├── prisma/default/
+│   └── crouton.json
+├── generated/ms-service/default/
+│   ├── types/
+│   └── client/
+└── nx.json
+```
+
+The Nx projects are named after the last segment of the config folder (`ms-service-backend`, `ms-service-frontend`).
+Point the CLI at the service with a path: `crouton update resources --project apps/ms-service`.
 
 ### What happens after scaffolding
 

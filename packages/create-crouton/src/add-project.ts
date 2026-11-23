@@ -6,15 +6,19 @@ import { type FileEntry, fileExists, writeFiles } from './lib/files';
 import { pmExec } from './lib/pm';
 import { CancelledError, assertNotCancel } from './lib/prompts';
 import {
+  type LayoutPaths,
   buildTokens,
   datasourceFiles,
+  generatedIgnoreRoot,
   loadAndRenderTemplates,
   renderDockerTemplates,
+  resolveLayoutPaths,
   resolveTemplateDir,
+  workspacePathMapper,
 } from './runner';
 import { existsSync } from 'node:fs';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
-import { basename, join, relative, resolve } from 'node:path';
+import { basename, join, posix, relative, resolve } from 'node:path';
 
 export interface CreateProjectOptions {
   /** Codespace root (defaults to process.cwd()). */
@@ -28,6 +32,11 @@ export interface CreateProjectOptions {
   dryRun?: boolean;
   yes?: boolean;
   force?: boolean;
+  /** Nx only — folder layout overrides (repo-relative); default `<name>/apps/{backend,frontend}`, `<name>/generated`. */
+  appsDir?: string;
+  backendDir?: string;
+  frontendDir?: string;
+  generatedDir?: string;
 }
 
 /** A change to a file that already exists at the codespace root. */
@@ -63,11 +72,16 @@ export const nextFreePort = (start: number, used: Set<number>): number => {
 };
 
 /** Root files a new Nx project has to be registered in. Missing files are skipped. */
-export const nxRootEdits = (root: string, name: string): RootEdit[] => [
+export const nxRootEdits = (
+  root: string,
+  name: string,
+  dirs: LayoutPaths = resolveLayoutPaths({ prefix: name }),
+): RootEdit[] => [
   {
     path: join(root, 'pnpm-workspace.yaml'),
     apply: (text) => {
-      const globs = [`${name}/apps/*`, `${name}/generated/**`, `'!${name}/generated/*/client'`].filter((g) => !text.includes(`- ${g}`));
+      const gen = dirs.generatedRoot;
+      const globs = [`${dirs.appsRoot}/*`, `${gen}/**`, `'!${gen}/*/client'`].filter((g) => !text.includes(`- ${g}`));
       if (!globs.length) return undefined;
       return text.replace(/^packages:\n/m, (m) => m + globs.map((g) => `  - ${g}\n`).join(''));
     },
@@ -80,18 +94,28 @@ export const nxRootEdits = (root: string, name: string): RootEdit[] => [
       const alias = `@${name}/generated-default-types`;
       if (paths[alias]) return undefined;
       Object.assign(paths, {
-        [alias]: [`./${name}/generated/default/types/src`],
-        [`${alias}/*`]: [`./${name}/generated/default/types/src/*`],
-        [`@${name}/generated-default-client`]: [`./${name}/generated/default/client`],
-        [`@${name}/generated-default-client/*`]: [`./${name}/generated/default/client/*`],
+        [alias]: [`./${dirs.generatedRoot}/default/types/src`],
+        [`${alias}/*`]: [`./${dirs.generatedRoot}/default/types/src/*`],
+        [`@${name}/generated-default-client`]: [`./${dirs.generatedRoot}/default/client`],
+        [`@${name}/generated-default-client/*`]: [`./${dirs.generatedRoot}/default/client/*`],
       });
       return `${JSON.stringify(json, null, 2)}\n`;
     },
   },
   {
+    // The root .gitignore covers any-depth `generated/` folders; other names need their own lines.
+    path: join(root, '.gitignore'),
+    apply: (text) => {
+      const ignore = generatedIgnoreRoot(dirs.generatedRoot);
+      if (ignore === '**/generated' || text.includes(`${ignore}/*/client/`)) return undefined;
+      const lines = [`${ignore}/*/client/`, `${ignore}/*/types/*`, `!${ignore}/*/types/package.json`];
+      return `${text.replace(/\n*$/, '\n')}${lines.join('\n')}\n`;
+    },
+  },
+  {
     path: join(root, 'compose.yml'),
     apply: (text) => {
-      const line = `  - compose.app.${name}.yml`;
+      const line = `  - compose.app.${posix.basename(dirs.configDir)}.yml`;
       if (text.includes(line)) return undefined;
       return `${text.replace(/\n*$/, '\n')}${line}\n`;
     },
@@ -145,9 +169,22 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
   try {
     const layout = await detectLayout(root);
     const name = await resolveName(nameArg, opts);
-    const targetDir = join(root, name);
+    if (layout === 'regular' && (opts.appsDir || opts.backendDir || opts.frontendDir || opts.generatedDir)) {
+      throw new Error('--apps-dir/--backend-dir/--frontend-dir/--generated-dir need an Nx codespace.');
+    }
+    // Nx: crouton.json goes in `<name>/`, or in the apps dir when one is given.
+    const layoutOpts = {
+      prefix: opts.appsDir ? undefined : name,
+      appsDir: opts.appsDir,
+      backendDir: opts.backendDir,
+      frontendDir: opts.frontendDir,
+      generatedDir: opts.generatedDir,
+    };
+    const paths = resolveLayoutPaths(layout === 'nx' ? layoutOpts : { prefix: name });
+    const projectDir = paths.configDir;
+    const targetDir = join(root, projectDir);
     if (!opts.force && existsSync(targetDir) && (await readdir(targetDir)).length > 0) {
-      throw new Error(`Directory "${name}" already exists and is not empty. Use --force to overwrite.`);
+      throw new Error(`Directory "${projectDir}" already exists and is not empty. Use --force to overwrite.`);
     }
 
     const pm: PackageManager = (await detectPackageManager(root)) ?? 'pnpm';
@@ -174,7 +211,7 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
     const tokens = buildTokens({
       name,
       layout,
-      prefix: layout === 'nx' ? name : undefined,
+      ...(layout === 'nx' ? layoutOpts : {}),
       frontend,
       postgres: false,
       dbUrl,
@@ -191,8 +228,9 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
       tokens,
       targetDir,
       frontend ? [] : ['apps/frontend'],
+      layout === 'nx' ? workspacePathMapper(paths) : undefined,
     );
-    files.push(...datasourceFiles(layout, name, targetDir));
+    files.push(...datasourceFiles(layout, name, targetDir, paths));
 
     if (opts.docker !== false) {
       // Nx: compose.app.<name>.yml at the root next to the others, Dockerfiles in <name>/;
@@ -209,14 +247,14 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
 
     const edits: { path: string; contents: string }[] = [];
     if (layout === 'nx') {
-      for (const edit of nxRootEdits(root, name)) {
+      for (const edit of nxRootEdits(root, name, paths)) {
         if (!existsSync(edit.path)) continue;
         if (edit.path.endsWith('compose.yml') && opts.docker === false) continue;
         try {
           const next = edit.apply(await readFile(edit.path, 'utf-8'));
           if (next !== undefined) edits.push({ path: edit.path, contents: next });
         } catch {
-          clack.log.warn(`Could not update ${relative(root, edit.path)} — register ${name}/ there by hand.`);
+          clack.log.warn(`Could not update ${relative(root, edit.path)} — register ${projectDir}/ there by hand.`);
         }
       }
     }
@@ -233,7 +271,7 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
     const written = await writeFiles(files, { force: opts.force });
     for (const e of edits) await writeFile(e.path, e.contents, 'utf-8');
     clack.log.success(
-      `Wrote ${written} file(s) to ${pc.cyan(`${name}/`)}${edits.length ? `, updated ${edits.map((e) => rel(e.path)).join(', ')}` : ''}.`,
+      `Wrote ${written} file(s) to ${pc.cyan(`${projectDir}/`)}${edits.length ? `, updated ${edits.map((e) => rel(e.path)).join(', ')}` : ''}.`,
     );
 
     const crouton = pmExec(pm, 'crouton');
@@ -242,8 +280,8 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
       (layout === 'nx'
         ? [
             `${pm} install                                  # link the new workspace packages`,
-            `${crouton} update resources --project ${name}   # needs DATABASE_URL in ${name}/.env`,
-            `${pmRun} nx run ${name}-backend:serve${frontend ? ` / ${name}-frontend:dev` : ''}`,
+            `${crouton} update resources --project ${projectDir}   # needs DATABASE_URL in ${projectDir}/.env`,
+            `${pmRun} nx run ${tokens['backendApp']}:serve${frontend ? ` / ${tokens['frontendApp']}:dev` : ''}`,
           ]
         : [
             `cd ${name} && ${pm} install`,

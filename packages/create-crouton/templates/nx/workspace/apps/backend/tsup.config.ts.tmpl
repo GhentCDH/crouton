@@ -4,7 +4,7 @@ import { swcPlugin } from 'esbuild-plugin-swc';
 export default defineConfig({
   entry: ['src/main.ts'],
   format: ['cjs'],
-  outDir: '../../dist/apps/backend',
+  outDir: '{{backendToRoot}}{{backendDist}}',
   clean: true,
   sourcemap: true,
   platform: 'node',

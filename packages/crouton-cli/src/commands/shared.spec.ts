@@ -24,3 +24,15 @@ describe('resolveTargetProject (#624)', () => {
     expect(codegen.discoverProjects).toHaveBeenCalled();
   });
 });
+
+describe('resolveTargetProject --project <path>', () => {
+  it('accepts a nested path that holds crouton.json', async () => {
+    vi.mocked(codegen.findConfigPath).mockResolvedValueOnce('/ws/apps/ms-service/crouton.json');
+    await expect(resolveTargetProject({ cwd: '/ws', project: 'apps/ms-service' })).resolves.toBe('/ws/apps/ms-service');
+  });
+
+  it('ignores a config found further up and falls back to name matching', async () => {
+    vi.mocked(codegen.findConfigPath).mockResolvedValueOnce('/ws/crouton.json');
+    await expect(resolveTargetProject({ cwd: '/ws', project: 'nope' })).rejects.toThrow(/Unknown project "nope"/);
+  });
+});

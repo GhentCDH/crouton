@@ -14,6 +14,7 @@ interface CreateResourceCliOptions extends CommonOptions {
 
 interface CreateProjectCliOptions extends Omit<CommonOptions, 'project'> {
   frontend?: boolean; dbUrl?: string; docker?: boolean; backendPort?: string; frontendPort?: string; force?: boolean;
+  appsDir?: string; backendDir?: string; frontendDir?: string; generatedDir?: string;
 }
 
 interface CreateDatasourceCliOptions extends CommonOptions {
@@ -71,6 +72,10 @@ const createProject = async (name: string | undefined, opts: CreateProjectCliOpt
     dryRun: opts.dryRun,
     yes: opts.yes,
     force: opts.force,
+    appsDir: opts.appsDir,
+    backendDir: opts.backendDir,
+    frontendDir: opts.frontendDir,
+    generatedDir: opts.generatedDir,
   });
 
 export const registerCreateCommand = (program: Command) => {
@@ -140,6 +145,10 @@ export const registerCreateCommand = (program: Command) => {
     .option('--no-docker', 'skip Docker files')
     .option('--backend-port <n>', 'backend port (default: next free port from 3000)')
     .option('--frontend-port <n>', 'frontend port (default: next free port from 4200)')
+    .option('--apps-dir <dir>', 'Nx: folder holding backend + frontend, also gets crouton.json (default <name>/apps)')
+    .option('--backend-dir <name>', 'Nx: backend folder name under the apps dir (default backend)')
+    .option('--frontend-dir <name>', 'Nx: frontend folder name under the apps dir (default frontend)')
+    .option('--generated-dir <dir>', 'Nx: generated types/client root (default <name>/generated)')
     .option('--dry-run', 'list the files that would be written, without writing')
     .option('-y, --yes', 'accept all defaults (non-interactive)')
     .option('--force', 'write into a non-empty project directory')
