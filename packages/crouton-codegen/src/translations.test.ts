@@ -102,6 +102,29 @@ describe('buildTranslationBundle', () => {
     expect(bundle.resources?.group?.actions?.publish).toBe('Publish');
   });
 
+  it('includes layout titles and labels from form and view, not field labels', () => {
+    const res = resource({
+      name: 'book',
+      layout: {
+        form: {
+          items: [
+            { type: 'tabs', items: [
+              { type: 'group', title: 'General info', items: ['title', { id: 'isbn', label: 'ISBN code' }] },
+              { type: 'collapse', title: 'Loans', items: [{ component: 'LoanList', label: 'Open loans' }] },
+            ] },
+          ],
+        },
+        view: { items: [{ type: 'group', title: 'History', items: [] }] },
+      } as Record<string, unknown>,
+    });
+    expect(buildTranslationBundle([res], {}).resources?.book?.layout).toEqual({
+      general_info: 'General info',
+      loans: 'Loans',
+      open_loans: 'Open loans',
+      history: 'History',
+    });
+  });
+
   it('builds enum section from registry', () => {
     const bundle = buildTranslationBundle([], enums);
     expect(bundle.enums).toEqual({
