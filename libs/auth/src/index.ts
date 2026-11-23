@@ -13,3 +13,4 @@ export type {
 export { defineAuthProvider } from './lib/types';
 export { evaluateGuard } from './lib/guards';
 export { buildPublicAuthConfig } from './lib/public-config';
+export { pictureUrl } from './lib/claim-mapping';

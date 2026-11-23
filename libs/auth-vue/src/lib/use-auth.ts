@@ -1,4 +1,5 @@
 import type { AuthAppInfo, CroutonUser, PublicAuthProvider } from '@crouton/auth';
+import { pictureUrl } from '@crouton/auth';
 import { type User, UserManager, type UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts';
 import { type Ref, computed, ref } from 'vue';
 
@@ -151,6 +152,7 @@ export const useAuth = () => {
         id: String(s['sub'] ?? ''),
         email: typeof s['email'] === 'string' ? s['email'] : undefined,
         name: typeof s['name'] === 'string' ? s['name'] : undefined,
+        picture: pictureUrl(s['picture']),
         roles: Array.isArray(s['roles']) ? s['roles'].filter((r): r is string => typeof r === 'string') : [],
         provider: String(s['provider'] ?? ''),
         claims: s,
@@ -164,6 +166,7 @@ export const useAuth = () => {
       id: String(profile['sub'] ?? ''),
       email: profile['email'] ? String(profile['email']) : undefined,
       name: profile['name'] ? String(profile['name']) : undefined,
+      picture: pictureUrl(profile['picture']),
       roles: Array.isArray(rawRoles) ? rawRoles.filter((r): r is string => typeof r === 'string') : [],
       provider: storage.get(PROVIDER_KEY) ?? 'oidc',
       claims: profile,
