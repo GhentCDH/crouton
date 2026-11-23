@@ -55,7 +55,9 @@ export interface LayoutPaths {
 }
 
 const cleanPath = (p: string, flag: string): string => {
-  const out = posix.normalize(p.trim().replace(/\\/g, '/')).replace(/\/+$/, '') || '.';
+  // normalize collapses repeated slashes, so at most one trailing `/` is left.
+  const norm = posix.normalize(p.trim().replaceAll('\\', '/'));
+  const out = (norm.length > 1 && norm.endsWith('/') ? norm.slice(0, -1) : norm) || '.';
   if (posix.isAbsolute(out) || out === '..' || out.startsWith('../')) {
     throw new Error(`${flag} must be a path inside the workspace, got "${p}".`);
   }
