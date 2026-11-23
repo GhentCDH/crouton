@@ -4,6 +4,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Inject,
   NotFoundException,
   Param,
   Patch,
@@ -46,7 +47,7 @@ import {
 } from '../resource/ResourceFlags';
 import { resourceLoadErrorsRegistry } from '../resource/resource-load-errors.registry';
 import { resourceLoadReportRegistry } from '../resource/resource-load-report.registry';
-import { type ResourceConfigRegistry } from '../resource-config.registry';
+import { ResourceConfigRegistry } from '../resource-config.registry';
 import {
   readRawResourceJson,
   validateResourceJson,
@@ -83,7 +84,10 @@ import {
 @ApiTags('Dev tools')
 export class DevResourcesController {
   constructor(
-    private readonly dataSourceRegistry: DataSourceRegistry,
+    // Explicit tokens: the lint rule `consistent-type-imports` would otherwise
+    // turn these into type-only imports and Nest would see `Object` (#596).
+    @Inject(DataSourceRegistry) private readonly dataSourceRegistry: DataSourceRegistry,
+    @Inject(ResourceConfigRegistry)
     private readonly resourceConfigRegistry: ResourceConfigRegistry,
   ) {}
 
