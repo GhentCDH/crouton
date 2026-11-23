@@ -25,6 +25,7 @@ import {
   buildTranslationBundle,
   commit,
   ensureClaudeMd,
+  excludeModels,
   introspect,
   isGitDirty,
   loadConfig,
@@ -464,7 +465,16 @@ export const runUpdateResources = async (
       }
     }
 
-    const allModels = await introspect({ schemaPath: schemaAbs });
+    const introspected = await introspect({ schemaPath: schemaAbs });
+    const { included: allModels, excluded } = excludeModels(
+      introspected,
+      ds.excludeTables,
+    );
+    if (excluded.length > 0) {
+      clack.log.info(
+        `Excluded by excludeTables: ${excluded.map((m) => m.prismaName).join(', ')}`,
+      );
+    }
     const models = await pickModels(allModels, opts.models, loaded, !!opts.yes);
     if (models.length === 0) {
       clack.outro('No models selected — nothing to do.');

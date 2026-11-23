@@ -16,6 +16,7 @@ vi.mock('@ghentcdh/crouton-codegen', () => ({
   pullAndGenerate: vi.fn(),
   prismaGenerate: vi.fn(),
   introspect: vi.fn(),
+  excludeModels: (models: unknown[]) => ({ included: models, excluded: [] }),
 }));
 
 const ds = {

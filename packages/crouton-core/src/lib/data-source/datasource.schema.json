@@ -63,6 +63,14 @@
       "description": "Prisma client output directory, relative to the project root. Defaults to \"generated/<name>/client\".",
       "type": "string",
       "markdownDescription": "Prisma client output directory, relative to the project root. Defaults to \"generated/<name>/client\".\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
+    },
+    "excludeTables": {
+      "description": "Tables that `crouton update resources` never turns into resources (internal/audit/queue tables, PostGIS spatial_ref_sys, …). Matches the Prisma model name or the @@map table name.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "markdownDescription": "Tables that `crouton update resources` never turns into resources (internal/audit/queue tables, PostGIS spatial_ref_sys, …). Matches the Prisma model name or the @@map table name.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/data-sources)"
     }
   },
   "required": [
