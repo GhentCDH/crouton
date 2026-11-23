@@ -15,6 +15,10 @@ const SHOW_ALL = process.argv.includes('--all');
 // §2.3 Re-export bridges: api file that re-exports from core with no logic.
 // Remove entries here as bridges are deleted in phase 7.
 const BRIDGES = new Set([
+  // libs/auth is private: crouton-api re-exports the session helpers for apps that issue tokens (#620)
+  'getSessionSecret|auth,crouton-api',
+  'signSession|auth,crouton-api',
+  'verifySession|auth,crouton-api',
   'buildDefinitionPayload|crouton-api,crouton-core',
   'buildLayouts|crouton-api,crouton-core',
   'buildResourceJsonPayload|crouton-api,crouton-core',

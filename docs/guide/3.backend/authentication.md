@@ -52,6 +52,18 @@ Set `<PROVIDER>_CLIENT_SECRET` and `<PROVIDER>_CALLBACK_URL` — e.g. `GOOGLE_CL
 
 Roles are baked into the session token at login: role changes (e.g. editing `roles.byEmail`) apply after the next login.
 
+**Issuing a session from your own code** (e.g. re-signing with extra profile data): use the helpers from
+`@ghentcdh/crouton-api` instead of copying the JWT format — they use the same issuer/audience, `CROUTON_AUTH_SECRET`
+and `CROUTON_SESSION_TTL` as the login flow.
+
+```ts
+import { getSessionSecret, signSession, verifySession } from '@ghentcdh/crouton-api';
+
+const secret = getSessionSecret(); // undefined when CROUTON_AUTH_SECRET is unset
+const token = await signSession(user, secret!);
+const sameUser = await verifySession(token, secret!); // CroutonUser, or null when invalid/expired
+```
+
 ::: warning Not yet supported
 The OAuth2 `state` parameter (login CSRF protection) is not sent yet.
 :::
