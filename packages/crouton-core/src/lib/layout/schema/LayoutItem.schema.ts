@@ -90,16 +90,20 @@ export const isFieldControlItem = (
 ): item is z.infer<typeof _LayoutFieldControlSchema> =>
   typeof item === 'object' && item !== null && 'id' in item;
 
+/** A `{ type: "custom", component }` node is a container, not a component item. */
+const isCustomNode = (item: object): boolean =>
+  (item as { type?: unknown }).type === 'custom';
+
 export const isComponentItem = (
   item: unknown,
 ): item is z.infer<typeof LayoutComponentItemSchema> =>
-  typeof item === 'object' && item !== null && 'component' in item;
+  typeof item === 'object' && item !== null && 'component' in item && !isCustomNode(item);
 
 export const isNodeItem = (item: unknown): item is Record<string, unknown> =>
   typeof item === 'object' &&
   item !== null &&
   !('id' in item) &&
-  !('component' in item);
+  (!('component' in item) || isCustomNode(item));
 
 export const resolveItemFieldId = (
   item: z.infer<typeof LayoutFieldItemSchema>,

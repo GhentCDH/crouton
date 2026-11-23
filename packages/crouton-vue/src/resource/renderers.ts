@@ -7,6 +7,7 @@ import {
   type CellRendererEntry,
   cellTypeIs,
   isComponentElement,
+  isCustomLayout,
   isRelationControl,
   optionIsIgnoreCase,
 } from '@ghentcdh/crouton-forms-vue';
@@ -51,6 +52,10 @@ export const customControlRenderers: JsonFormsRendererRegistryEntry[] = [
     tester: rankWith(15, isComponentElement),
     renderer: markRaw(ComponentLayoutRenderer) as Component,
   },
+  {
+    tester: rankWith(15, isCustomLayout),
+    renderer: markRaw(ComponentLayoutRenderer) as Component,
+  },
 ];
 
 export const relationReadonlyRenderers: JsonFormsRendererRegistryEntry[] = [
@@ -64,6 +69,10 @@ export const relationReadonlyRenderers: JsonFormsRendererRegistryEntry[] = [
   },
   {
     tester: rankWith(15, isComponentElement),
+    renderer: markRaw(ComponentLayoutRenderer) as Component,
+  },
+  {
+    tester: rankWith(15, isCustomLayout),
     renderer: markRaw(ComponentLayoutRenderer) as Component,
   },
 ];

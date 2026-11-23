@@ -61,7 +61,9 @@ order.
 
 ```ts
 {
-  type ? : "grid" | "vertical" | "horizontal" | "collapse" | "group",
+  type ? : "grid" | "vertical" | "horizontal" | "collapse" | "group" | "custom",
+    component ? : string,      // custom only: name of the registered layout component
+    props ? : object,          // custom only: static props for that component
     columns ? : number,        // grid column count (default 12)
     title ? : string,          // heading for collapse/group
     titleKey ? : string,       // resolve heading from a field value at render time
@@ -74,6 +76,31 @@ order.
 
 A node with no `type` defaults to `"grid"`.
 
+### Custom layout node
+
+`"type": "custom"` hands a node and its children to a Vue component you register in `customComponents` — the same
+registry as [component items](#component-item-options). Use it for tabs, steppers, side-by-side panes, or any layout
+crouton does not ship.
+
+```jsonc
+{
+  "type": "custom",
+  "component": "Tabs",                 // required: name in customComponents
+  "props": { "syncQuery": "tab" },     // optional: static props
+  "items": [
+    { "type": "group", "title": "General", "items": ["title", "isbn"] },
+    { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] }
+  ]
+}
+```
+
+The component receives the same props as a component item (`data`, `readonly`, `schema`, `uischema`, …`props`) plus
+`elements`: the built UI-schema children, one per entry in `items`. Render each with `Dispatch` from
+`@ghentcdh/crouton-forms-vue`. All children stay part of the one form, so there is a single Save.
+
+When no component matches the name, the children render stacked so no field is lost. Custom nodes work in
+`layout.form` and `layout.view`, not in `layout.table`. See the [custom layout recipe](../6.recipes/custom-layout.md).
+
 ## Items
 
 Every entry in an `items` array is one of four kinds, detected by its shape:
@@ -83,10 +110,11 @@ Every entry in an `items` array is one of four kinds, detected by its shape:
 | `"fieldName"` (string)                | **Field id**                    | The field's default renderer                 |
 | `{ "id": "fieldName", ... }`          | **Field control** (has `id`)    | Field renderer with overrides                |
 | `{ "component": "MyComponent", ... }` | **Component** (has `component`) | Custom Vue component from `customComponents` |
+| `{ "type": "custom", "component": … }` | **Custom node**                | Layout component from `customComponents`     |
 | Any other object                      | **Nested node**                 | Recursive layout container                   |
 
 Detection uses only the presence of `id` or `component` — not `type`, because field controls also have a `type` (input
-override, e.g. `"textarea"`).
+override, e.g. `"textarea"`). The one exception: `component` together with `"type": "custom"` is a custom layout node.
 
 **Order is preserved.** Items render exactly in the order declared — you can interleave fields, collapse sections, and
 components freely.

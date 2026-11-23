@@ -96,6 +96,7 @@ export type { ViewModalResult } from './view/modal/ViewModal.properties';
 export * from './forms/renderers';
 export {
   isComponentElement,
+  isCustomLayout,
   isDateControl,
   isRelationControl,
   optionIsIgnoreCase,
