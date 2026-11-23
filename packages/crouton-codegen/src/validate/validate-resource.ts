@@ -1,7 +1,12 @@
 
 import { type ZodError } from 'zod';
 
-import { ResourceJsonSchema, fieldInputRegistry, runResourceMigrations } from '@ghentcdh/crouton-core';
+import {
+  FIELD_INPUT_TYPE_ALIASES,
+  ResourceJsonSchema,
+  fieldInputRegistry,
+  runResourceMigrations,
+} from '@ghentcdh/crouton-core';
 
 import { FIELD_INPUT_DOCS_URL } from './docs-url-map';
 import { readFile } from 'node:fs/promises';
@@ -56,6 +61,17 @@ const checkFieldInputTypes = (
       const type = fi['type'] as string | undefined;
       if (!type) continue;
       if (fieldInputRegistry.has(type)) continue;
+      const legacy = FIELD_INPUT_TYPE_ALIASES[type];
+      if (legacy) {
+        issues.push({
+          file: filePath,
+          path: `/columns/${colId}/${variant}/type`,
+          code: 'UNKNOWN_FIELD_INPUT_TYPE',
+          message: `Legacy fieldInput type "${type}" (now "${legacy}")`,
+          hint: 'Run `crouton migrate` to rewrite it.',
+        });
+        continue;
+      }
       const suggestion = didYouMean(type);
       issues.push({
         file: filePath,
