@@ -1,4 +1,4 @@
-import { Param, Post, SetMetadata } from '@nestjs/common';
+import { Param, Post, Req, SetMetadata } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import {
@@ -25,13 +25,14 @@ export const registerActionRoutes = (ctx: OperationContext): void => {
     def(
       cls,
       methodName,
-      async function (this: { repo: CrudRepository }, recordId: string) {
-        return action.procedure(this.repo.prisma, recordId);
+      async function (this: { repo: CrudRepository }, recordId: string, request: unknown) {
+        return action.procedure(this.repo.prisma, recordId, { data: action.data ?? {}, request });
       },
     );
     const d = desc(cls, methodName);
     Post(`procedure/${action.id}/:recordId`)(cls.prototype, methodName, d);
     Param('recordId')(cls.prototype, methodName, 0);
+    Req()(cls.prototype, methodName, 1);
     ApiOperation({ summary: `Execute action "${action.label}" on a ${name}` })(
       cls.prototype,
       methodName,
@@ -66,11 +67,12 @@ export const registerTableActionRoutes = (ctx: OperationContext): void => {
 
   for (const action of procedureActions) {
     const methodName = `tableAction_${action.id}`;
-    def(cls, methodName, async function (this: { repo: CrudRepository }) {
-      return action.procedure(this.repo.prisma);
+    def(cls, methodName, async function (this: { repo: CrudRepository }, request: unknown) {
+      return action.procedure(this.repo.prisma, { data: action.data ?? {}, request });
     });
     const d = desc(cls, methodName);
     Post(`table-action/${action.id}`)(cls.prototype, methodName, d);
+    Req()(cls.prototype, methodName, 0);
     ApiOperation({
       summary: `Execute table action "${action.label ?? action.id}" on ${name}`,
     })(cls.prototype, methodName, d);
