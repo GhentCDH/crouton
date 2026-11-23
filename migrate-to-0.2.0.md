@@ -9,12 +9,26 @@ At the end, print a short report: step → applied / skipped / needs manual revi
 ```
 
 No `resource.json` changes are required — every `resource.json` valid on 0.1.0 is valid on 0.2.0.
+Coming from a `0.0.1-alpha.x` release? Do [Step 0](#step-0--coming-from-an-alpha) first.
 The breaking changes are in **runtime behaviour of hooks**, **filter handling**, the **generated Prisma
 client workspace layout**, and a few **frontend renderer details**.
 
 Placeholders below: `<name>` = the npm scope used for generated packages (see
 `@<name>/generated-default-types` in an app `package.json`), `<prefix>` = the folder that holds `apps/` and
 `generated/` (empty for single-project workspaces), `<ds>` = datasource name (`default` unless you added more).
+
+---
+
+## Step 0 — Coming from an alpha
+
+Apps still on `0.0.1-alpha.x` (the `alpha` dist-tag) upgrade without install errors, but their resource files use
+pre-0.1.0 shapes and fail validation: no CRUD routes get mapped, and the cause only shows in
+`/crouton/status.json` (e.g. `'model' moved to source.model (run crouton migrate)`).
+
+**Detect**: `grep -rln '"model"\|"display"' --include=resource.json . | grep -v node_modules`
+
+**Fix**: after Step 1, run `pnpm crouton migrate --yes` (per project: `--project <prefix>`), then
+`pnpm crouton validate`. Fix by hand whatever either reports.
 
 ---
 
@@ -28,6 +42,14 @@ pnpm up "@ghentcdh/crouton-*@0.2.0-rc.0" "@ghentcdh/create-crouton@0.2.0-rc.0"
 
 Packages no longer publish under the `alpha` dist-tag. Replace any `@alpha` / `alpha` range in `package.json`
 with an explicit version.
+
+- **CLI not installed?** `pnpm up` only updates packages you already have. Apps that depend only on
+  `@ghentcdh/create-crouton` need the CLI for the later steps: `pnpm add -D -w @ghentcdh/crouton-cli@0.2.0-rc.0`.
+- **`"*"` ranges in workspace libs** (e.g. `"@ghentcdh/crouton-api": "*"` in a shared lib's
+  `peerDependencies`) keep resolving to the old version, which gives two crouton copies and TS2742 errors
+  (*inferred type cannot be named without a reference to …/node_modules/@ghentcdh/crouton-api*). Pin them too.
+
+**Detect**: `grep -rn '"@ghentcdh/crouton-[a-z-]*": "\*"' --include=package.json . | grep -v node_modules`
 
 ---
 
@@ -82,6 +104,9 @@ grep -rln "beforeFindAll\|afterFindAll" --include='*.ts' . | grep -v node_module
 - do not add a filter that duplicates the parent FK the framework already applies.
 
 No change is needed if the hooks are only meant for top-level lists **and** are correct for nested lists too.
+
+If you worked around the skipped hooks by copying `beforeFindAll` logic into a custom repository's
+`findAllByParent`, remove that copy — the hook now runs before `findAllByParent`, so the logic would run twice.
 
 ---
 
@@ -140,6 +165,10 @@ grep -rn "generated-.*-client\": \"workspace" --include=package.json . | grep -v
 
 Skip this step when nothing is found.
 
+**Several crouton projects in one workspace?** Repeat every item below per `<prefix>`: each app
+`package.json`, each `'!<prefix>/generated/*/client'` exclusion, each committed `types/package.json` and each
+Dockerfile.
+
 **Fix** — apply in this order (removing the dependency before excluding the folder, otherwise
 `pnpm install` fails on an unresolvable `workspace:*`):
 
@@ -181,7 +210,20 @@ Skip this step when nothing is found.
      ```dockerfile
      COPY --from=build /app/<prefix>/generated/<ds>/client ./node_modules/@<name>/generated-<ds>-client
      ```
-7. Run `pnpm install` and commit the updated `pnpm-lock.yaml`.
+7. **`.dockerignore`** — if it ignores `generated`, re-include the types `package.json`, otherwise the new
+   `COPY` lines fail:
+   ```
+   **/generated/*/client
+   **/generated/*/types/*
+   !**/generated/*/types/package.json
+   ```
+8. **Hand-written CI** (no `install-command` stub block): add a generate step after install and before
+   `build` — the generated client and types are no longer in the repo or the lockfile.
+9. Run `pnpm install` and commit the updated `pnpm-lock.yaml`.
+
+On `0.2.0-rc.0`, generated zod types imported the bare `@prisma/client`, which the path alias doesn't cover
+(`Cannot find module '.prisma/client/default'`). Fixed after rc.0: re-run `prisma generate` and drop any symlink
+or `sed` workaround for it.
 
 Reference: a freshly scaffolded project (`pnpm create @ghentcdh/crouton`) shows the target layout.
 
@@ -190,6 +232,10 @@ Reference: a freshly scaffolded project (`pnpm create @ghentcdh/crouton`) shows 
 ## Step 7 — `schema.prisma`: `zodOutput` → `output` (optional)
 
 The `crouton-prisma` generator now takes Prisma's standard `output`. `zodOutput` still works.
+
+**Rename** the key, keeping its value — don't just delete `zodOutput`. Without either key the generator falls back
+to `./generated/types` relative to the schema folder (`prisma/<ds>/generated/types`), and imports of the
+generated types break without an error.
 
 ```prisma
 generator crouton {
@@ -261,5 +307,8 @@ pnpm crouton generate --yes
 pnpm nx run-many -t lint typecheck build
 ```
 
-Start the backend and confirm: no `resource not served` errors, a delete works, a list with a boolean filter
+Then run `pnpm crouton validate` — it must report 0 issues.
+
+Start the backend and confirm: no `resource not served` errors (check `/crouton/status.json` too: load errors are
+listed there, not always in the log), a delete works, a list with a boolean filter
 works, and a nested `/<parent>/:id/<child>` list returns rows.
