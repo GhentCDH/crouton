@@ -2,7 +2,7 @@
 /// <reference path="../lodash-es-shim.d.ts" />
 import { enumKey } from '@crouton/i18n';
 import { cloneDeep } from 'lodash-es';
-import { type Component, type Ref, computed, reactive, ref, shallowRef } from 'vue';
+import { type Component, type Ref, computed, reactive, ref } from 'vue';
 
 import type { Action, ResourceDefinition, ViewColumnConfig } from '@ghentcdh/crouton-core';
 
@@ -112,10 +112,16 @@ export const useResourcesByUri = (
 export const useResourcesById = (
   id: string,
   params: UseResourcesProperties = {},
-): Ref<UseResource | null> => {
+): Ref<UseResource | null | undefined> => {
   const crouton = useCrouton();
-  const config = computedAsync(() => crouton.getFormDefById(id as string));
-  return shallowRef(useResources(config.value, params));
+
+  // Build the controller once the definition has loaded; calling useResources
+  // synchronously saw an undefined config and returned null for good (#615).
+  return computedAsync(async () => {
+    const config = await crouton.getFormDefById(id);
+
+    return useResources(config, params);
+  });
 };
 
 export const useResources = (

@@ -60,20 +60,37 @@ openFormModal('book', { id: 42 });
 
 ## `useResourcesById` / `useResourcesByUri`
 
-Composables that provide typed CRUD access to a resource by its `name` or `route`:
+Composables that return the **table controller** of a resource — the same object `ResourceTable` renders — by its
+`name` or `route`. It is wrapped in a `Ref` that stays `undefined` until the resource definition has loaded:
 
 ```ts
 import { useResourcesById, useResourcesByUri } from '@ghentcdh/crouton-vue';
 
-const bookApi = useResourcesById('book');   // keyed by resource name
-const bookApi2 = useResourcesByUri('books'); // keyed by route
+const books = useResourcesById('book');    // keyed by resource name
+const books2 = useResourcesByUri('books'); // keyed by route
 
-// CRUD methods
+// books.value?.data, books.value?.page, books.value?.loading
+books.value?.onUpdatePage(2);
+books.value?.onSort('title');
+books.value?.edit(42);   // opens the edit form
+books.value?.reload();
+```
+
+## `useResourceApi`
+
+For plain CRUD calls without a table, use `useResourceApi` (async, keyed by resource name):
+
+```ts
+import { useResourceApi } from '@ghentcdh/crouton-vue';
+
+const bookApi = await useResourceApi('book');
+
 const list = await bookApi.findAll({ page: 1, pageSize: 20 });
-const record = await bookApi.findOne(42);
+const record = await bookApi.getOneById('42');
 const created = await bookApi.create({ title: 'New Book' });
-await bookApi.save(42, { title: 'Updated Title' });
-await bookApi.delete(42);
+await bookApi.save('42', { title: 'Updated Title' });
+await bookApi.patch('42', { title: 'Patched' });
+await bookApi.delete({ id: '42' }); // takes the record (reads its id field)
 ```
 
 ## `loadRuntimeConfig`
