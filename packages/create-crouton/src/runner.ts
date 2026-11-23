@@ -134,6 +134,8 @@ export interface TokenInput extends LayoutOptions {
   postgres: boolean;
   dbUrl: string;
   pm: PackageManager;
+  /** npm scope of the project's packages (backend, frontend, generated); defaults to `name`. */
+  scope?: string;
   /** Docker network prefix; defaults to `name` (an added project joins the codespace's network). */
   network?: string;
   backendPort?: number;
@@ -150,6 +152,7 @@ export const buildTokens = (t: TokenInput): Record<string, string> => {
   const appName = configDir === '.' ? name : posix.basename(configDir);
   const tokens: Record<string, string> = {
     name,
+    scope: t.scope ?? name,
     Name: toTitle(name),
     version:
       typeof __CROUTON_VERSION__ !== 'undefined'
@@ -259,7 +262,7 @@ export const runCreate = async (
     // 2. Prompts
     const layout = await resolveLayout(opts);
     const frontend = await resolveFrontend(opts, layout);
-    const layoutOpts = layout === 'nx' ? await resolveLayoutOptions(opts) : {};
+    const layoutOpts: LayoutOptions = layout === 'nx' ? await resolveLayoutOptions(opts) : {};
     const paths = resolveLayoutPaths(layoutOpts);
     const prefix = paths.configDir === '.' ? undefined : paths.configDir;
     const pm = await resolvePm(opts);
@@ -281,7 +284,10 @@ export const runCreate = async (
     }
 
     // 3. Resolve tokens
-    const tokens = buildTokens({ name, layout, ...layoutOpts, frontend, postgres, dbUrl, pm });
+    // With --prefix the project's packages get the project's scope (`@gateway/backend`),
+    // so a second project in the same workspace cannot collide with it (#673).
+    const scope = layoutOpts.prefix ? posix.basename(cleanPath(layoutOpts.prefix, '--prefix')) : name;
+    const tokens = buildTokens({ name, scope, layout, ...layoutOpts, frontend, postgres, dbUrl, pm });
 
     // 4. Read + render templates
     const templateRoot = resolveTemplateDir();
@@ -328,7 +334,7 @@ export const runCreate = async (
       }
 
       // 5. Generate datasource files
-      files.push(...datasourceFiles('nx', name, workspaceTarget, paths));
+      files.push(...datasourceFiles('nx', scope, workspaceTarget, paths));
 
       // 6. Write all files
       const written = await writeFiles(files, { force: opts.force });
