@@ -61,9 +61,9 @@ order.
 
 ```ts
 {
-  type ? : "grid" | "vertical" | "horizontal" | "collapse" | "group" | "custom",
+  type ? : "grid" | "vertical" | "horizontal" | "collapse" | "group" | "tabs" | "custom",
     component ? : string,      // custom only: name of the registered layout component
-    props ? : object,          // custom only: static props for that component
+    props ? : object,          // tabs/custom: static props for the layout component
     columns ? : number,        // grid column count (default 12)
     title ? : string,          // heading for collapse/group
     titleKey ? : string,       // resolve heading from a field value at render time
@@ -75,6 +75,31 @@ order.
 ```
 
 A node with no `type` defaults to `"grid"`.
+
+### Tabs
+
+`"type": "tabs"` shows one tab per child node. Each tab is labelled with the child's `title` (or the value of its
+`titleKey` field).
+
+```jsonc
+{
+  "type": "tabs",
+  "props": { "syncQuery": "tab" },     // optional: keep the active tab in ?tab=2
+  "items": [
+    { "type": "group", "title": "General", "items": ["title", "isbn", "publishedAt"] },
+    { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] },
+    { "type": "group", "title": "History", "items": [{ "component": "AuditLog" }] }
+  ]
+}
+```
+
+- All tabs are one form with a single Save. Inactive tabs stay mounted, so their fields are validated too.
+- A tab that holds an invalid field shows an error badge.
+- Arrow keys, Home and End move between tabs.
+- Works in `layout.form` and `layout.view`.
+
+`tabs` is shorthand for `{ "type": "custom", "component": "Tabs" }`. Register your own `Tabs` in
+`customComponents` to replace the built-in one.
 
 ### Custom layout node
 

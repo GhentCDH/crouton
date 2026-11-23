@@ -23,8 +23,9 @@ const buildContainerForNode = (node: LayoutNode): LayoutBuilder => {
       if (node.title) builder.title(node.title);
       if (node.titleKey) builder.titleKey(node.titleKey);
       break;
+    case 'tabs': // alias: built-in `Tabs` layout component (apps may override it in customComponents)
     case 'custom':
-      builder = LayoutBuilder.custom(node.component ?? '');
+      builder = LayoutBuilder.custom(type === 'tabs' ? 'Tabs' : (node.component ?? ''));
       if (node.props) builder.opt({ props: node.props });
       if (node.title) builder.title(node.title);
       if (node.titleKey) builder.titleKey(node.titleKey);

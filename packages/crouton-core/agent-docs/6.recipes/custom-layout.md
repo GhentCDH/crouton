@@ -4,8 +4,10 @@ description: Build a custom layout component (tabs as example), register it in c
 
 # Custom layout (tabs)
 
-Use this when the built-in layout nodes (`grid`, `vertical`, `horizontal`, `collapse`, `group`) are not enough — for
-example to split a long form into tabs. All tabs stay one form with a single Save.
+Use this when the built-in layout nodes (`grid`, `vertical`, `horizontal`, `collapse`, `group`, `tabs`) are not
+enough — for example a stepper, or tabs with your own look. The example below builds a tabs component; for plain tabs,
+use the built-in [`"type": "tabs"`](../2.resources/layout.md#tabs) instead. Registering your component under the
+name `Tabs` replaces the built-in one.
 
 ## Steps
 

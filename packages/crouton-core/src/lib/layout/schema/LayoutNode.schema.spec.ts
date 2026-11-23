@@ -38,6 +38,6 @@ describe('custom layout node', () => {
     const tabs = parsed.form?.items?.[0] as Record<string, unknown>;
     expect(tabs).toMatchObject({ type: 'custom', component: 'Tabs', props: { syncQuery: 'tab' } });
     expect((tabs['items'] as unknown[]).length).toBe(2);
-    expect(parsed.view?.items?.[0]).toMatchObject({ type: 'custom', component: 'Tabs' });
+    expect(parsed.view?.items?.[0]).toMatchObject({ type: 'tabs' });
   });
 });

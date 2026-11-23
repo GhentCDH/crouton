@@ -1,6 +1,10 @@
 type UiDefaults = Record<string, Record<string, string>>;
 
 const en: UiDefaults = {
+  layout: {
+    tab: 'Tab',
+    tabHasErrors: 'Contains errors',
+  },
   table: {
     search: 'Search...',
     filters: 'Filters',
@@ -70,6 +74,10 @@ const en: UiDefaults = {
 };
 
 const nl: UiDefaults = {
+  layout: {
+    tab: 'Tabblad',
+    tabHasErrors: 'Bevat fouten',
+  },
   table: {
     search: 'Zoeken...',
     filters: 'Filters',
@@ -139,6 +147,10 @@ const nl: UiDefaults = {
 };
 
 const fr: UiDefaults = {
+  layout: {
+    tab: 'Onglet',
+    tabHasErrors: 'Contient des erreurs',
+  },
   table: {
     search: 'Rechercher...',
     filters: 'Filtres',
@@ -208,6 +220,10 @@ const fr: UiDefaults = {
 };
 
 const de: UiDefaults = {
+  layout: {
+    tab: 'Tab',
+    tabHasErrors: 'Enthält Fehler',
+  },
   table: {
     search: 'Suchen...',
     filters: 'Filter',
@@ -277,6 +293,10 @@ const de: UiDefaults = {
 };
 
 const wv: UiDefaults = {
+  layout: {
+    tab: 'Tabblad',
+    tabHasErrors: 'Zit fouten in',
+  },
   table: {
     search: 'Zoekn...',
     filters: 'Filters',

@@ -9,7 +9,7 @@ import {
 // ── FormLayoutNode ─────────────────────────────────────────────────────
 
 export type FormLayoutNode = {
-  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'custom';
+  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'tabs' | 'custom';
   component?: string;
   props?: Record<string, unknown>;
   columns?: number;
@@ -24,10 +24,10 @@ export type FormLayoutNode = {
 export const FormLayoutNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
   z.object({
     type: z
-      .enum(['grid', 'vertical', 'horizontal', 'collapse', 'group', 'custom'])
+      .enum(['grid', 'vertical', 'horizontal', 'collapse', 'group', 'tabs', 'custom'])
       .optional()
       .describe(
-        'Layout container type. "grid" arranges items in a CSS grid; "vertical"/"horizontal" stack them; "collapse" is a collapsible section; "group" is a labeled group; "custom" renders the registered component named in `component`.',
+        'Layout container type. "grid" arranges items in a CSS grid; "vertical"/"horizontal" stack them; "collapse" is a collapsible section; "group" is a labeled group; "tabs" shows one tab per child node (title from the child\'s `title`); "custom" renders the registered component named in `component`.',
       ),
     component: z
       .string()
@@ -103,7 +103,7 @@ const NestedNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
 // all consumers migrate to FormLayoutNode / TableNode.
 
 export type LayoutNode = {
-  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'custom' | 'table';
+  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'tabs' | 'custom' | 'table';
   component?: string;
   props?: Record<string, unknown>;
   columns?: number;

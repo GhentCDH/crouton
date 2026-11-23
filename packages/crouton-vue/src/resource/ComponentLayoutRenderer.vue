@@ -1,21 +1,30 @@
 <script setup lang="ts">
 import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
+import type { Component } from 'vue';
 import { useFormContext } from 'vee-validate';
-import { computed, inject, ref } from 'vue';
+import { computed, inject, markRaw, ref } from 'vue';
 
 import { Dispatch, FORM_READONLY_KEY } from '@ghentcdh/crouton-forms-vue';
 
 import { useCrouton } from '../composables/useCrouton';
-import { findCustomComponent } from '../utils/custom-component';
+import { customComponentIs, findCustomComponent } from '../utils/custom-component';
+import TabsLayout from './TabsLayout.vue';
 
 const props = defineProps<{ uischema: UISchemaElement; schema: JsonSchema }>();
+
+/** Layout components crouton ships; `type: "tabs"` resolves to `Tabs`. Rank 0 so any app entry overrides. */
+const builtinLayoutComponents = [{ tester: customComponentIs('Tabs', 0), renderer: markRaw(TabsLayout) as Component }];
 
 const options = computed(
   () => ((props.uischema as unknown as Record<string, unknown>).options ?? {}) as Record<string, unknown>,
 );
 
+// App entries first: on equal rank the app's component wins over a built-in one.
 const component = computed(() =>
-  findCustomComponent(useCrouton().customComponents, options.value['component'] as string | undefined),
+  findCustomComponent(
+    [...useCrouton().customComponents, ...builtinLayoutComponents],
+    options.value['component'] as string | undefined,
+  ),
 );
 
 // Layout component items get the record being shown/edited (#545), plus the
