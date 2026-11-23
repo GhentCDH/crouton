@@ -139,6 +139,10 @@ test.describe('books visual regression', () => {
     const firstRow = list.getRows().first();
     const ratingStars = firstRow.locator('[data-testid="rating-stars"]');
     await ratingStars.waitFor({ state: 'visible' });
+    // Rating sits past the table's horizontal overflow. Playwright's own scroll only
+    // brings it to the right edge, under the sticky actions column, so the screenshot
+    // captured the action buttons instead. Center it so the stars are actually visible.
+    await ratingStars.evaluate((el) => el.scrollIntoView({ block: 'center', inline: 'center' }));
     await expect(ratingStars).toHaveScreenshot('book-rating-in-table.png', {
       maxDiffPixelRatio: 0.05,
     });
