@@ -141,6 +141,21 @@ Middlewares run after data is fetched (value-label decoration, translations, hoo
 | `loadConfig` / `findConfigPath` | `crouton-codegen` | `src/config.ts` |
 | All shared Node-only codegen/Prisma tooling | `crouton-codegen` | `src/` |
 
+## Updating dependencies (keeps `create-crouton` scaffolds in sync)
+
+Scaffolded projects (`create-crouton`, `crouton create project`) do **not** hardcode most versions. Templates use `{{dep:<name>}}` tokens, resolved at build time by `tools/template-dep-versions.mjs` from (first wins):
+
+1. `examples/book-collection/apps/{backend,frontend}/package.json` — the reference consumer project
+2. root `package.json`
+3. `pnpm` = root `packageManager`
+
+After **any** dependency bump:
+
+1. Bump the example apps too when the dep is something a consumer installs (nest, prisma, vue, vite, typescript, …) — that is what new projects get.
+2. `pnpm nx run crouton-cli:test` — `template-deps.spec.ts` fails if a template hardcodes a range crouton knows, or if a scaffolded major mismatches crouton-api / crouton-vue peers.
+3. Deps not used anywhere in crouton stay literal in `packages/create-crouton/templates/**/package.json.tmpl` (`@nestjs/config`, `@nestjs/cli`, `pg`, `esbuild-plugin-swc`, `vee-validate`). On a major bump of nest/prisma check these with `npm view <pkg> peerDependencies`.
+4. TypeScript: scaffolds use the example's `typescript` (currently `~5.9`; `crouton-prisma`/`crouton-mcp` peer `^5`). Move it together with Nx and those peers, never alone.
+
 # Package Boundaries
 
 - `crouton-core` — browser-safe shared code (types, schemas, utilities). No Node-only imports (`child_process`, `fs`, etc.)

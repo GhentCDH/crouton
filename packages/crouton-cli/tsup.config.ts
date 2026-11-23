@@ -1,8 +1,9 @@
 import { defineConfig } from 'tsup';
 
+// eslint-disable-next-line @nx/enforce-module-boundaries -- build-time only: reads repo package.jsons
+import { readDepVersions } from '../../tools/template-dep-versions.mjs';
 import { readFileSync } from 'node:fs';
 import { cp, readFile, writeFile } from 'node:fs/promises';
-
 
 const outDir = './dist';
 
@@ -40,6 +41,7 @@ export default defineConfig([
     esbuildOptions: sharedEsbuildOptions,
     define: {
       __CROUTON_VERSION__: JSON.stringify(JSON.parse(readFileSync('./package.json', 'utf8')).version),
+      __CROUTON_DEP_VERSIONS__: JSON.stringify(readDepVersions('../..')),
     },
     // Emit a self-contained package.json into dist so the folder is both a
     // publishable unit (`npm publish ../../dist/crouton-cli`) and a valid

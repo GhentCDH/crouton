@@ -6,7 +6,7 @@ FROM node:24-alpine AS build
 WORKDIR /app
 
 # Enable pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@{{dep:pnpm}} --activate
 ENV CI=true
 
 # Copy package.json files for dependency caching

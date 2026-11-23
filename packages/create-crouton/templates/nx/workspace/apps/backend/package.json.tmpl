@@ -6,29 +6,27 @@
     "prisma:migrate": "npx prisma migrate dev --config prisma/default/prisma.config.ts"
   },
   "dependencies": {
-    "@anatine/zod-nestjs": "^2.0.0",
     "@ghentcdh/crouton-api": "{{version}}",
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/config": "^4.0.0",
-    "@nestjs/core": "^11.0.0",
-    "@nestjs/platform-express": "^11.0.0",
-    "@nestjs/swagger": "^11.0.0",
-    "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
-    "@prisma/client-runtime-utils": "^7.0.0",
-    "dotenv": "^16.0.0",
-    "pg": "^8.18.0",
-    "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.0.0",
-    "tslib": "^2.8.0",
-    "zod": "^4.0.0",
+    "@nestjs/common": "{{dep:@nestjs/common}}",
+    "@nestjs/config": "^12.1.1",
+    "@nestjs/core": "{{dep:@nestjs/core}}",
+    "@nestjs/platform-express": "{{dep:@nestjs/platform-express}}",
+    "@nestjs/swagger": "{{dep:@nestjs/swagger}}",
+    "@prisma/adapter-pg": "{{dep:@prisma/client}}",
+    "@prisma/client": "{{dep:@prisma/client}}",
+    "@prisma/client-runtime-utils": "{{dep:@prisma/client}}",
+    "dotenv": "{{dep:dotenv}}",
+    "pg": "^8.23.0",
+    "reflect-metadata": "{{dep:reflect-metadata}}",
+    "rxjs": "{{dep:rxjs}}",
+    "tslib": "{{dep:tslib}}",
+    "zod": "{{dep:zod}}",
     "@{{name}}/generated-default-types": "workspace:*"
   },
   "devDependencies": {
-    "@nestjs/schematics": "^11.0.0",
-    "@types/node": "^22.0.0",
-    "prisma": "^7.0.0",
-    "typescript": "~5.9.0",
-    "zod-prisma-types": "^3.0.0"
+    "@types/node": "{{dep:@types/node}}",
+    "prisma": "{{dep:prisma}}",
+    "typescript": "{{dep:typescript}}",
+    "zod-prisma-types": "{{dep:zod-prisma-types}}"
   }
 }

@@ -10,5 +10,7 @@ export const render = (template: string, tokens: Record<string, string>): string
     /\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
     (_, key, body) => (tokens[key] ? body : ''),
   );
+  // Unbuilt (dev/test) runs have no injected dep versions — fall back like `version` does.
+  result = result.replace(/\{\{dep:[^}]+\}\}/g, 'latest');
   return result;
 };
