@@ -378,12 +378,14 @@ export const actions = (
       action: (id: unknown) => _modals.view(id),
       tooltip: useLanguage().t('actions.view', 'View'),
       icon: 'View',
+      kind: 'view',
     },
     !readonly && (op.update || op.patch)
       ? {
           action: (id: unknown) => _modals.edit(id),
           tooltip: useLanguage().t('actions.edit', 'Edit'),
           icon: 'Edit',
+          kind: 'edit',
           ...(editRequires?.length && {
             visible: (row: Record<string, unknown>) => editVisibleFor(row, editRequires),
           }),

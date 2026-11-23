@@ -10,6 +10,8 @@ export type TableAction = {
   visible?: <T>(data: T) => boolean;
   /** Optional predicate — when provided and returns true for the row, the button shows a loading spinner. */
   loading?: <T>(data: T) => boolean;
+  /** Marks the built-in view/edit action, so `rowClick: "view" | "edit"` can run it. */
+  kind?: 'view' | 'edit';
 };
 
 export type DisplayColumn = ColumnDef & { component?: object };
