@@ -80,3 +80,15 @@ describe('buildTableUiSchema – manyToOne declared on the FK column (#549)', ()
     expect((elementFor(ui, 'author')?.['options'] as Record<string, unknown>)['relationField']).toBeUndefined();
   });
 });
+
+describe('buildTableUiSchema – color', () => {
+  it('renders a color column as a Control cell with format color', () => {
+    const ui = buildTableUiSchema([
+      { id: 'hex', type: 'string', fieldInput: { type: 'color' } },
+    ]);
+
+    const el = elementFor(ui, 'hex');
+    expect(el?.['type']).toBe('Control');
+    expect((el?.['options'] as Record<string, unknown>)['format']).toBe('color');
+  });
+});

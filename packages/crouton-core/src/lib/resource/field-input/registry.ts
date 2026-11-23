@@ -3,6 +3,7 @@ import { type z } from 'zod';
 import { ArrayOptionsSchema } from './types/array.options';
 import { AutocompleteOptionsSchema } from './types/autocomplete.options';
 import { BooleanOptionsSchema } from './types/boolean.options';
+import { ColorOptionsSchema } from './types/color.options';
 import { CustomOptionsSchema } from './types/custom.options';
 import { DateRangeOptionsSchema } from './types/date-range.options';
 import { DateOptionsSchema } from './types/date.options';
@@ -36,6 +37,7 @@ const fieldInputDefs = {
   dateRange:    { options: DateRangeOptionsSchema,     schemaFile: 'date-range' },
   relation:     { options: RelationOptionsSchema,      schemaFile: 'relation' },
   array:        { options: ArrayOptionsSchema,         schemaFile: 'array' },
+  color:        { options: ColorOptionsSchema,         schemaFile: 'color' },
   custom:       { options: CustomOptionsSchema,        schemaFile: 'custom' },
 } as const satisfies Record<string, FieldInputTypeDef>;
 

@@ -27,6 +27,7 @@ The `$schema` is stamped automatically by `crouton update resources` (and `crout
 | `markdown`     | Markdown editor                          | [markdown.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/markdown.field-input.schema.json) |
 | `boolean`      | Checkbox                                 | [boolean.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/boolean.field-input.schema.json) |
 | `toggle`       | Button-group single-select               | [toggle.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/toggle.field-input.schema.json) |
+| `color`        | Hex color picker with swatch             | [color.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/color.field-input.schema.json) |
 | `select`       | Dropdown select                          | [select.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json) |
 | `multiSelect`  | Multi-select dropdown (alias for select) | [select.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/select.field-input.schema.json) |
 | `autocomplete` | Autocomplete with remote/inline options  | [autocomplete.field-input.schema.json](https://ghentcdh.github.io/crouton/schema/v1/autocomplete.field-input.schema.json) |

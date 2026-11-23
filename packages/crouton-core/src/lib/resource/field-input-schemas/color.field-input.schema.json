@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "label": {
+      "description": "Override the field label",
+      "examples": [
+        "My label"
+      ],
+      "type": "string",
+      "markdownDescription": "Override the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "hideLabel": {
+      "description": "Hide the field label",
+      "type": "boolean",
+      "markdownDescription": "Hide the field label\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "placeholder": {
+      "description": "Placeholder text shown inside the input when empty",
+      "examples": [
+        "Search..."
+      ],
+      "type": "string",
+      "markdownDescription": "Placeholder text shown inside the input when empty\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "readonly": {
+      "description": "Render the field in read-only mode",
+      "type": "boolean",
+      "markdownDescription": "Render the field in read-only mode\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "disabled": {
+      "description": "Always render the input disabled",
+      "type": "boolean",
+      "markdownDescription": "Always render the input disabled\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "errorMessage": {
+      "description": "Replace the validation error text shown under the input",
+      "examples": [
+        "Please fill this in"
+      ],
+      "type": "string",
+      "markdownDescription": "Replace the validation error text shown under the input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "disabledWhen": {
+      "description": "Disable the input when the condition matches another field",
+      "examples": [
+        {
+          "field": "id",
+          "exists": true
+        }
+      ],
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The other column id whose value is evaluated for the condition.",
+          "markdownDescription": "The other column id whose value is evaluated for the condition.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+        },
+        "eq": {
+          "description": "Show/hide/disable when the field value equals this value.",
+          "markdownDescription": "Show/hide/disable when the field value equals this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+        },
+        "neq": {
+          "description": "Show/hide/disable when the field value does NOT equal this value.",
+          "markdownDescription": "Show/hide/disable when the field value does NOT equal this value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+        },
+        "exists": {
+          "description": "When true, show/hide/disable when the field has a non-empty value.",
+          "type": "boolean",
+          "markdownDescription": "When true, show/hide/disable when the field has a non-empty value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+        },
+        "notExists": {
+          "description": "When true, show/hide/disable when the field has no value.",
+          "type": "boolean",
+          "markdownDescription": "When true, show/hide/disable when the field has no value.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "markdownDescription": "Disable the input when the condition matches another field\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "colspan": {
+      "description": "Grid column span (1–12)",
+      "examples": [
+        6,
+        12
+      ],
+      "type": "number",
+      "markdownDescription": "Grid column span (1–12)\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "width": {
+      "description": "Named width (xs, sm, md, lg, xl, full) or any CSS value",
+      "examples": [
+        "md",
+        "240px"
+      ],
+      "type": "string",
+      "markdownDescription": "Named width (xs, sm, md, lg, xl, full) or any CSS value\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "styles": {
+      "description": "Inline CSS style object applied to the field wrapper",
+      "examples": [
+        {
+          "color": "red"
+        }
+      ],
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {},
+      "markdownDescription": "Inline CSS style object applied to the field wrapper\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    },
+    "customRender": {
+      "description": "Name of a globally registered Vue component to render instead of the default input",
+      "examples": [
+        "MyCustomInput"
+      ],
+      "type": "string",
+      "markdownDescription": "Name of a globally registered Vue component to render instead of the default input\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+    }
+  },
+  "additionalProperties": {},
+  "title": "Crouton fieldInput options: color",
+  "description": "Hex color (`#rrggbb`) picked with the native color input. All common options apply.",
+  "$id": "https://ghentcdh.github.io/crouton/schema/v1/color.field-input.schema.json",
+  "markdownDescription": "Hex color (`#rrggbb`) picked with the native color input. All common options apply.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/2.resources/field-inputs/color)"
+}
