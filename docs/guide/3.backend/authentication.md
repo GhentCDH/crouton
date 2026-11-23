@@ -134,6 +134,18 @@ const { user, isAuthenticated, login, loginWith, logout, hasRole, getToken, prov
 
 **One provider** → an unauthenticated visit redirects straight to it. **Several providers** → the `CroutonPlugin` (with a `router`) shows a login screen at `/auth/login`: the app logo and title, and one button per provider (Google and Microsoft get their icons). `loginWith(provider)` starts the login for one of `providers`.
 
+### Public pages
+
+By default the plugin logs in as soon as the app opens without a session, on every route. Pass `requireLogin` to let
+public pages load anonymously — `false`, or a function of the current app path (router base stripped):
+
+```ts
+app.use(CroutonPlugin(api, { router, requireLogin: (path) => path.startsWith('/admin') }));
+```
+
+Anonymous requests carry no token. Operations marked `security.public` answer; any other request returns 401, which
+still starts the login.
+
 ### Logo
 
 ```json
