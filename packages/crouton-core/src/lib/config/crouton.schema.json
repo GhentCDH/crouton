@@ -51,6 +51,9 @@
         "showRelationsInForm": true,
         "enumValueLabel": true,
         "sharedEnums": true,
+        "tableDownload": {
+          "csv": false
+        },
         "defaultOperations": {
           "findAll": true,
           "findOne": true,
@@ -122,6 +125,22 @@
           "description": "When true (default), shared enums from crouton.enums.json are merged into resource columns automatically.",
           "type": "boolean",
           "markdownDescription": "When true (default), shared enums from crouton.enums.json are merged into resource columns automatically.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "tableDownload": {
+          "default": {
+            "csv": false
+          },
+          "description": "Default export buttons for every table. A table overrides it via layout.table.download in its resource.json.",
+          "type": "object",
+          "properties": {
+            "csv": {
+              "default": false,
+              "description": "When true, every table shows a \"Download CSV\" button. Default false.",
+              "type": "boolean",
+              "markdownDescription": "When true, every table shows a \"Download CSV\" button. Default false.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+            }
+          },
+          "markdownDescription": "Default export buttons for every table. A table overrides it via layout.table.download in its resource.json.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
         },
         "defaultOperations": {
           "default": {

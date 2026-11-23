@@ -22,6 +22,7 @@ export const createAppLayoutController = (
   i18nConfig?: I18nConfig,
   prefix?: string,
   logo?: string,
+  tableDownload: { csv: boolean } = { csv: false },
 ) => {
   const layoutPayload = buildLayoutPayload(
     configs,
@@ -57,6 +58,7 @@ export const createAppLayoutController = (
       } else {
         payload = layoutPayload;
       }
+      payload = { ...payload, tableDownload };
 
       // Append i18n metadata + ui dictionary when translations are active.
       // Labels (sidebar, title, columns) are now translated client-side via /_app/translations.

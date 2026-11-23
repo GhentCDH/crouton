@@ -224,6 +224,7 @@ export class CroutonApiModule {
         config.i18n,
         prefix,
         config.logo,
+        config.rules.tableDownload,
       ),
       // Only registered (and thus only visible in Swagger/routing) when the
       // visual resource builder is enabled — see dev-resources.controller.ts.

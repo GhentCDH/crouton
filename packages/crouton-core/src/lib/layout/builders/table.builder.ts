@@ -39,7 +39,7 @@ export const buildTableLayout = (
 
     const tableNode = resolveTableNode(node);
     if (tableNode) {
-      const { pageSize, pageSizes, density, rowClick, selectable, emptyText } = tableNode;
+      const { pageSize, pageSizes, density, rowClick, selectable, emptyText, download } = tableNode;
       const ui = table.ui as Record<string, unknown>;
       table.ui = {
         ...ui,
@@ -51,6 +51,7 @@ export const buildTableLayout = (
           rowClick,
           ...(selectable != null && { selectable }),
           ...(emptyText != null && { emptyText }),
+          ...(download != null && { download }),
         },
       };
     }

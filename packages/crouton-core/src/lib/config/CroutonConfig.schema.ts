@@ -14,6 +14,9 @@ export const RulesetSchema = z.object({
   showRelationsInForm: z.boolean().default(true).describe('When true (default), relation columns are shown in the create/edit form.'),
   enumValueLabel: z.boolean().default(true).describe('When true (default), enum values are displayed as their label rather than their raw value.'),
   sharedEnums: z.boolean().default(true).describe('When true (default), shared enums from crouton.enums.json are merged into resource columns automatically.'),
+  tableDownload: z.object({
+    csv: z.boolean().default(false).describe('When true, every table shows a "Download CSV" button. Default false.'),
+  }).default({ csv: false }).describe('Default export buttons for every table. A table overrides it via layout.table.download in its resource.json.'),
   defaultOperations: JsonOperationsSchema.default(
     JsonOperationsSchema.parse({}),
   ).describe('Default CRUD operations enabled for all resources. Individual resources can override via their operations block.'),
