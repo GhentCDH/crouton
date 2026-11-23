@@ -441,8 +441,8 @@ const postScaffold = async (
 
     // Run crouton update resources (best-effort, requires DB to be running)
     if (dbUrl) {
+      const s2 = clack.spinner();
       try {
-        const s2 = clack.spinner();
         s2.start('Running crouton update resources');
         // In an Nx monorepo the CLI must run from the workspace root and target
         // the app via --project, so it can resolve nx.json / the pnpm workspace.
@@ -455,15 +455,11 @@ const postScaffold = async (
         resourcesUpdated = true;
         s2.stop('Resources updated');
       } catch (err) {
-        const stderr =
-          err instanceof Error && 'stderr' in err
-            ? String((err as { stderr: unknown }).stderr).trim()
-            : '';
-        const firstLine = stderr.split('\n').find((l) => l.trim()) ?? '';
-        clack.log.warn(
-          'crouton update resources failed — run it manually after setting up your database.',
-        );
-        if (firstLine) clack.log.error(firstLine);
+        s2.error('crouton update resources failed — run it manually after setting up your database.');
+        // The CLI prints most errors to stdout, so show both streams in full.
+        const { stdout, stderr } = err as { stdout?: unknown; stderr?: unknown };
+        const output = [stdout, stderr].map((o) => String(o ?? '').trim()).filter(Boolean).join('\n');
+        if (output) clack.log.error(output);
       }
     }
   }
