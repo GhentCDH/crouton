@@ -1,18 +1,25 @@
 # Resource builder — roadmap
 
+| | |
+|---|---|
+| **Status** | 📝 Planned (no phase started) |
+| **Last updated** | 2026-11-23 |
+
+Status legend: 📝 Planned · 🚧 In progress · ✅ Done · ⏸️ On hold
+
 Goal: a complete `resource.json` buildable from **either** a UI builder **or** a chat, both
 producing the same patches. Phase 1 (control builder) is in `control-builder.md` (#644).
 
 ## Phases
 
-| # | Phase | Scope | Why this order |
-|---|---|---|---|
-| 1 | Control builder | one column + translations | foundation: descriptors, patches, chat providers |
-| 2 | **Table layout builder** | `layout.table` (flat table node) | a flat ordered list: simplest layout, high value |
-| 3 | Form layout builder | `layout.form` tree (grid, tabs, collapse, …) | needs a tree editor + grid canvas |
-| 4 | View layout builder | `layout.view` | reuses phase 3 + "copy from form" |
-| 5 | Resource settings | name, route, title, kind, source, operations, security, sidebar, lookup, parent | schema-driven, reuses the phase 1 descriptor walker |
-| 6 | Resource composer | whole resource: columns list + all builders + chat across sections | glue + multi-step chat |
+| # | Phase | Issue | Status | Scope | Why this order |
+|---|---|---|---|---|---|
+| 1 | Control builder ([plan](./control-builder.md)) | #644 | 📝 Planned | one column + translations | foundation: descriptors, patches, chat providers |
+| 2 | **Table layout builder** | #645 | 📝 Planned | `layout.table` (flat table node) | a flat ordered list: simplest layout, high value |
+| 3 | Form layout builder | #646 | 📝 Planned | `layout.form` tree (grid, tabs, collapse, …) | needs a tree editor + grid canvas |
+| 4 | View layout builder | #647 | 📝 Planned | `layout.view` | reuses phase 3 + "copy from form" |
+| 5 | Resource settings | #648 | 📝 Planned | name, route, title, kind, source, operations, security, sidebar, lookup, parent | schema-driven, reuses the phase 1 descriptor walker |
+| 6 | Resource composer | #649 | 📝 Planned | whole resource: columns list + all builders + chat across sections | glue + multi-step chat |
 
 Follow-ups after 6: table wrapper layouts, custom control types, custom layout components,
 reading/writing files via the dev endpoint, relations/sub-resources.
@@ -31,6 +38,8 @@ reading/writing files via the dev endpoint, relations/sub-resources.
 - Every builder stays **dumb**: props in (the resource or a slice of it), patches out.
 
 ## Phase 2 — Table layout builder
+
+> Issue: #645 · Status: 📝 Planned
 
 Input: `columns` (read-only, for the palette) + `layout.table`. Output: table patches.
 
@@ -52,6 +61,8 @@ Chat examples
 - "make birthdate right-aligned" / "verwijder kolom id uit de tabel"
 
 ## Phase 3 — Form layout builder
+
+> Issue: #646 · Status: 📝 Planned
 
 Input: `columns` + `layout.form`. Output: form patches incl. tree ops.
 
@@ -86,16 +97,22 @@ Chat examples
 
 ## Phase 4 — View layout builder
 
+> Issue: #647 · Status: 📝 Planned
+
 Same tree editor and canvas as phase 3 plus `container.component`. Extra action: **copy from form**
 (then diverge). Mostly config, little new code.
 
 ## Phase 5 — Resource settings
+
+> Issue: #648 · Status: 📝 Planned
 
 Descriptor form over the resource root (`ResourceJsonShape`): name, route, title, kind,
 `source` (model, dbTable, datasource, idType), operations, security, sidebar, lookup, parent.
 Chat: "resource Author at /authors, only admins can delete, show in sidebar group Persons".
 
 ## Phase 6 — Resource composer
+
+> Issue: #649 · Status: 📝 Planned
 
 - Shell combining: resource settings · columns list (add/remove/reorder → phase 1 builder) ·
   table · form · view, with one JSON pane and one validation panel for the whole resource.
