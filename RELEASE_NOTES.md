@@ -1,3 +1,24 @@
+## 0.2.0-rc.2 (2026-11-23)
+
+### 🚀 Features
+
+- **cli:** excludeTables in data-source.json for update resources ([#650](https://github.com/GhentCDH/crouton/pull/650))
+- **create-crouton:** customizable folder layout ([#667](https://github.com/GhentCDH/crouton/pull/667))
+
+### 🩹 Fixes
+
+- **api:** compare calculated-column ids as text on postgres ([#654](https://github.com/GhentCDH/crouton/pull/654), [#660](https://github.com/GhentCDH/crouton/pull/660))
+- **create-crouton:** drop dead enumsFile from app.module templates ([#659](https://github.com/GhentCDH/crouton/pull/659), [#661](https://github.com/GhentCDH/crouton/pull/661))
+- **create-crouton:** generate Prisma client on dev backend start ([#655](https://github.com/GhentCDH/crouton/pull/655), [#662](https://github.com/GhentCDH/crouton/pull/662))
+- **create-crouton:** warn when a localhost db url is used with Docker ([#658](https://github.com/GhentCDH/crouton/pull/658), [#664](https://github.com/GhentCDH/crouton/pull/664))
+- **create-crouton:** show full output when update resources fails ([#657](https://github.com/GhentCDH/crouton/pull/657), [#665](https://github.com/GhentCDH/crouton/pull/665))
+- **crouton-core:** tolerate legacy `id` and unknown column keys ([#653](https://github.com/GhentCDH/crouton/pull/653), [#652](https://github.com/GhentCDH/crouton/issues/652))
+- **prisma:** skip zod generation when the schema has no models ([#656](https://github.com/GhentCDH/crouton/pull/656), [#663](https://github.com/GhentCDH/crouton/pull/663))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.2.0-rc.1 (2026-11-23)
 
 ### 🚀 Features
