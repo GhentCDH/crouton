@@ -79,6 +79,6 @@ See [Resource editor](../5.tooling/resource-editor.md) for full details on the d
 | `pageSize`     | Records per page. Default `20`.                                                      |
 | `sort`         | Field to sort by. Dotted paths (e.g. `author.name`) work for relation fields.        |
 | `sortDir`      | `asc` or `desc`. Default `asc`.                                                      |
-| `q`            | Free-text search across `operations.findAll.search` (default: all simple columns).   |
+| `q`            | Free-text search across `operations.findAll.search` (default: all text columns).     |
 | `filter`       | Field-level filters: `field:value:operator`. Multiple filters are ANDed.              |
 | `Accept-Language` | Requested language for translated labels. Negotiated via standard q-value parsing. |

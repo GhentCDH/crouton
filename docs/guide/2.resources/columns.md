@@ -68,8 +68,11 @@ Declare which columns are included in free-text search via `operations.findAll.s
   display field (e.g. `author.name`), so you never search against a raw foreign key string.
 - **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete
   option somewhere else. Do not use it to drive `?q=` search; use `operations.findAll.search` instead.
-- **Default**: when `findAll: true` and no explicit `search` is declared, all simple (non-id, non-relation, non-date)
-  columns are searched.
+- **Default**: when `findAll: true` and no explicit `search` is declared, all text columns (`fieldInput.type`
+  `string`, `textarea` or `markdown`; `type: "string"` without a format; or, for a column without either, a Prisma
+  `String` field) are searched. Numbers, booleans, dates,
+  selects (possibly an enum) and relations are skipped. A resource without text columns ignores `?q=`.
+- **`search: []`** disables free-text search.
 
 ## Nested object and array columns
 
