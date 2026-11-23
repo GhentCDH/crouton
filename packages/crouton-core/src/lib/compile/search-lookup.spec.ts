@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 
 import type { JsonColumn } from '../resource';
 import { buildSearch } from './search-lookup';
@@ -28,6 +29,21 @@ describe('buildSearch default fallback (#594)', () => {
 
   it('treats an explicit empty search list as disabled', () => {
     expect(buildSearch(columns, [], true)).toBeUndefined();
+  });
+
+  it('types untyped columns from the Prisma schema', () => {
+    const schema = z.object({
+      id: z.string(),
+      name: z.string(),
+      slug: z.string().nullable(),
+      email: z.string().email(),
+      stock: z.number().int(),
+      status: z.enum(['a', 'b']),
+      createdAt: z.date(),
+    });
+    const untyped = ['id', 'name', 'slug', 'email', 'stock', 'status', 'createdAt', 'missing']
+      .map((id) => ({ id, ...(id === 'id' && { idField: true }) })) as JsonColumn[];
+    expect(buildSearch(untyped, undefined, true, schema)).toEqual(['name', 'slug', 'email']);
   });
 
   it('keeps an explicit search list as is', () => {

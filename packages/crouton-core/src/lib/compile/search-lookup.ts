@@ -1,38 +1,49 @@
+import type { ZodObject, ZodRawShape, ZodType } from 'zod';
+
 import type { JsonColumn, RelationFieldInputOptions } from '../resource';
 import { isRelationColumn } from '../resource/Column';
 import { columnTypeName, columnTypeToJsonSchema } from '../resource/ColumnType.schema';
 import type { LookupConfig } from '../schema/definition/lookup.schema';
+import { unwrap } from '../schema/zod.utils';
 
 /** Field inputs that always sit on a string column (a `select` may be a Prisma enum). */
 const TEXT_FIELD_INPUTS = new Set(['string', 'text', 'textarea', 'markdown']);
 
 /** Text columns only: a `contains` search on a number/boolean/enum column makes Prisma throw (#594). */
-const isTextColumn = (c: JsonColumn): boolean => {
+const isTextColumn = (c: JsonColumn, modelSchema?: ZodObject<ZodRawShape>): boolean => {
   const input = c.fieldInput?.type;
   if (input) return TEXT_FIELD_INPUTS.has(input);
-  if (c.type === undefined) return false;
+  // Untyped column (`"name": {}`): the type comes from the Prisma model's Zod schema.
+  if (c.type === undefined) {
+    const field = modelSchema?.shape[c.id];
+    if (!field) return false;
+    // A Prisma String column, whatever its format; enums/numbers/dates are other types.
+    return unwrap(field as ZodType)._zod.def.type === 'string';
+  }
   const schema = columnTypeToJsonSchema(c.type);
   return columnTypeName(c.type) === 'string' && !schema.format && !schema.enum;
 };
 
-const isSearchableColumn = (c: JsonColumn): boolean =>
+const isSearchableColumn = (c: JsonColumn, modelSchema?: ZodObject<ZodRawShape>): boolean =>
   !c.idField &&
   !c.computed &&
   !isRelationColumn(c) &&
   !c.fieldInput?.relationType &&
-  isTextColumn(c);
+  isTextColumn(c, modelSchema);
 
 export const buildSearch = (
   columns: JsonColumn[] | undefined,
   searchPaths: string[] | undefined,
   findAllEnabled = false,
+  /** Prisma model schema, used to type columns that declare no `type` / `fieldInput`. */
+  schema?: ZodObject<ZodRawShape>,
 ): string[] | undefined => {
   if (!columns) return undefined;
   // An explicit `search: []` disables free-text search.
   if (searchPaths?.length === 0) return undefined;
   if (!searchPaths) {
     if (!findAllEnabled) return undefined;
-    const fallback = columns.filter(isSearchableColumn).map((c) => c.id);
+    const fallback = columns.filter((c) => isSearchableColumn(c, schema)).map((c) => c.id);
     return fallback.length ? fallback : undefined;
   }
   return searchPaths
