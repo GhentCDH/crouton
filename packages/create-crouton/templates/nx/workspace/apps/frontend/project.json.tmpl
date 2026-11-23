@@ -3,5 +3,11 @@
   "$schema": "{{frontendToRoot}}node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "{{frontendRoot}}/src",
-  "tags": ["scope:frontend"]
+  "tags": ["scope:frontend"],
+  "targets": {
+    "typecheck": {
+      "command": "vue-tsc --noEmit",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
 }
