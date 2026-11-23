@@ -21,3 +21,7 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+# Dependency updates
+
+`create-crouton` template versions are derived from the example app + root `package.json` (`tools/template-dep-versions.mjs`). After any dependency bump run `pnpm nx run crouton-cli:test` and follow "Updating dependencies" in `CLAUDE.md`.

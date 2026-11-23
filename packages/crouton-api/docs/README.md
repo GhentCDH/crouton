@@ -8,7 +8,7 @@
 pnpm add @ghentcdh/crouton-api
 ```
 
-Peer dependencies: `@nestjs/common`, `@nestjs/core`, `@nestjs/swagger`, `@anatine/zod-nestjs`, `@prisma/client`, `zod`.
+Peer dependencies: `@nestjs/common`, `@nestjs/core`, `@nestjs/swagger`, `@prisma/client`, `zod`.
 
 ## Quick start
 

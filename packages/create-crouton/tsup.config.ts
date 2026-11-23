@@ -1,5 +1,7 @@
 import { defineConfig } from 'tsup';
 
+// eslint-disable-next-line @nx/enforce-module-boundaries -- build-time only: reads repo package.jsons
+import { readDepVersions } from '../../tools/template-dep-versions.mjs';
 import { readFileSync } from 'node:fs';
 import { cp } from 'node:fs/promises';
 
@@ -28,6 +30,7 @@ export default defineConfig([
     external: ['@prisma/internals'],
     define: {
       __CROUTON_VERSION__: JSON.stringify(pkg.version),
+      __CROUTON_DEP_VERSIONS__: JSON.stringify(readDepVersions('../..')),
     },
     esbuildOptions(options) {
       options.conditions = ['@ghentcdh/crouton'];

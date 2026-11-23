@@ -15,6 +15,8 @@ import { posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 declare const __CROUTON_VERSION__: string;
+/** Dep name → range, injected at build from crouton's package.jsons (tools/template-dep-versions.mjs). */
+declare const __CROUTON_DEP_VERSIONS__: Record<string, string>;
 
 export interface CreateOptions {
   nx: boolean;
@@ -165,6 +167,11 @@ export const buildTokens = (t: TokenInput): Record<string, string> => {
     frontendPort: String(t.frontendPort ?? 4200),
     backendPort: String(t.backendPort ?? 3000),
   };
+  if (typeof __CROUTON_DEP_VERSIONS__ !== 'undefined') {
+    for (const [dep, range] of Object.entries(__CROUTON_DEP_VERSIONS__)) {
+      tokens[`dep:${dep}`] = range;
+    }
+  }
   if (paths) {
     const inConfig = (f: string) => posix.join(configDir, f);
     Object.assign(tokens, {
