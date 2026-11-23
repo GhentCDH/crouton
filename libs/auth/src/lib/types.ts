@@ -4,6 +4,8 @@ export type CroutonUser = {
   id: string;
   email?: string;
   name?: string;
+  /** Profile picture URL from the provider's `picture` claim (http/https only). */
+  picture?: string;
   roles: string[];
   provider: string;
   claims: Record<string, unknown>;

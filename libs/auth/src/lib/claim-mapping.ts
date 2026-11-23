@@ -1,6 +1,20 @@
 import type { AuthProviderConfig } from './schema';
 import type { CroutonUser } from './types';
 
+/**
+ * A `picture` claim as an http(s) URL, else undefined. It ends up in an `<img src>`,
+ * so `javascript:` / `data:` and other schemes are dropped.
+ */
+export const pictureUrl = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  try {
+    const { protocol } = new URL(value);
+    return protocol === 'https:' || protocol === 'http:' ? value : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const getNestedClaim = (claims: Record<string, unknown>, path: string): unknown =>
   path.split('.').reduce<unknown>((obj, key) => {
     if (obj && typeof obj === 'object') return (obj as Record<string, unknown>)[key];
@@ -40,6 +54,7 @@ export const mapClaims = (
     id: String(claims['sub'] ?? ''),
     email: claims['email'] ? String(claims['email']) : undefined,
     name: claims['name'] ? String(claims['name']) : undefined,
+    picture: pictureUrl(claims['picture']),
     roles,
     provider: providerName,
     claims,

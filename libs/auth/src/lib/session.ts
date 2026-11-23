@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 
+import { pictureUrl } from './claim-mapping';
 import type { CroutonUser } from './types';
 
 const ISSUER = 'crouton';
@@ -13,7 +14,13 @@ export const getSessionTtl = (): string => process.env['CROUTON_SESSION_TTL'] ||
 
 /** Signs a session JWT for a user verified at login. Roles are baked in: role changes need a re-login. */
 export const signSession = (user: CroutonUser, secret: string, ttl = getSessionTtl()): Promise<string> =>
-  new SignJWT({ email: user.email, name: user.name, roles: user.roles, provider: user.provider })
+  new SignJWT({
+    email: user.email,
+    name: user.name,
+    picture: pictureUrl(user.picture),
+    roles: user.roles,
+    provider: user.provider,
+  })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(user.id)
     .setIssuer(ISSUER)
@@ -29,6 +36,7 @@ export const verifySession = async (token: string, secret: string): Promise<Crou
       id: String(payload.sub ?? ''),
       email: typeof payload['email'] === 'string' ? payload['email'] : undefined,
       name: typeof payload['name'] === 'string' ? payload['name'] : undefined,
+      picture: pictureUrl(payload['picture']),
       roles: Array.isArray(payload['roles']) ? payload['roles'].filter((r): r is string => typeof r === 'string') : [],
       provider: String(payload['provider'] ?? ''),
       claims: payload as Record<string, unknown>,

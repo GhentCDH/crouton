@@ -130,6 +130,10 @@ import { useAuth } from '@ghentcdh/crouton-vue';
 const { user, isAuthenticated, login, loginWith, logout, hasRole, getToken, providers, app } = useAuth();
 ```
 
+`user.picture` is the provider's profile photo URL, taken from the `picture` claim (Google, and OIDC providers that
+send it) and kept in the session token; only `http(s)` URLs are accepted, otherwise it is `undefined`. Microsoft has no
+`picture` claim, so `user.picture` stays empty there.
+
 `getToken()` returns the session token (server-side login) or the OIDC access token (browser login), or `null`; the Crouton axios client attaches it as a `Bearer` header automatically.
 
 **One provider** → an unauthenticated visit redirects straight to it. **Several providers** → the `CroutonPlugin` (with a `router`) shows a login screen at `/auth/login`: the app logo and title, and one button per provider (Google and Microsoft get their icons). `loginWith(provider)` starts the login for one of `providers`.

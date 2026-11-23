@@ -25,6 +25,14 @@ describe('session JWT', () => {
     });
   });
 
+  it('keeps an http(s) picture and drops other schemes (#619)', async () => {
+    const withPicture = await signSession({ ...user, picture: 'https://lh3.googleusercontent.com/a/x' }, SECRET, '1h');
+    expect((await verifySession(withPicture, SECRET))?.picture).toBe('https://lh3.googleusercontent.com/a/x');
+
+    const unsafe = await signSession({ ...user, picture: 'javascript:alert(1)' }, SECRET, '1h');
+    expect((await verifySession(unsafe, SECRET))?.picture).toBeUndefined();
+  });
+
   it('rejects an expired token', async () => {
     const token = await signSession(user, SECRET, '-1m');
     expect(await verifySession(token, SECRET)).toBeNull();
