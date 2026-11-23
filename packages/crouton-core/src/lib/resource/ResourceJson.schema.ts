@@ -14,6 +14,15 @@ import { getResourceExtensions, getResourceExtensionsStamp } from './extensions'
 import { FIELD_INPUT_TYPE_ALIASES } from './field-input/aliases';
 import { BASELINE_RESOURCE_VERSION } from './version';
 
+/**
+ * Non-fatal resource.json cleanup notice — emitted when a legacy/unknown key is
+ * stripped rather than failing validation. Prefixed so it is grep-able in an
+ * app's logs.
+ */
+const warn = (message: string): void => {
+  console.warn(`[crouton] resource.json: ${message}`);
+};
+
 // ── Removed-key registry ─────────────────────────────────────────────
 // Keys that were removed from the root schema and where they moved to.
 const ROOT_REMOVED_KEYS: Record<string, string> = {
@@ -29,8 +38,15 @@ const ROOT_REMOVED_KEYS: Record<string, string> = {
   idType: '\'idType\' moved to source.idType (run crouton migrate)',
   calculatedColumns:
     '\'calculatedColumns\' moved to columns[id].computed (run crouton migrate)',
-  id: '\'id\' was removed — the resource id is always "name" (run crouton migrate)',
 };
+
+// ── Removed root `id` ────────────────────────────────────────────────
+// Root `id` was removed — the resource id is always `name`. Older files may
+// still carry it. Unlike the keys above it is *not* fatal: the loader strips it
+// (keeping the route when it differed from `name`) and warns, so a stray legacy
+// key does not take down every page served by the resource.
+const ROOT_ID_WARNING =
+  'root \'id\' was removed — the resource id is always "name" (run crouton migrate)';
 
 // ── Removed `source` keys ─────────────────────────────────────────────
 // Keys that were removed from the `source` object and where they moved to.
@@ -44,10 +60,48 @@ const SOURCE_REMOVED_KEYS: Record<string, string> = {
 
 // ── Shared primitives ────────────────────────────────────────────────
 
+/** Column keys the schema recognises. The map key supplies `id`. */
+const KNOWN_COLUMN_KEYS = new Set(Object.keys(JsonColumnSchema.shape));
+
+/**
+ * Warn about keys on a map-form column that will be stripped. A redundant `id`
+ * (the map key wins) and unknown keys used to fail validation (#498), but one
+ * stray key taking down the whole resource is worse than the typo — Zod strips
+ * them and this reports what was dropped so it can be cleaned up.
+ */
+const warnStrippedColumnKeys = (columns: unknown): void => {
+  const entries: [string, unknown][] = Array.isArray(columns)
+    ? (columns as unknown[]).map((c, i) => [String(i), c])
+    : columns && typeof columns === 'object'
+      ? Object.entries(columns)
+      : [];
+  for (const [id, col] of entries) {
+    if (!col || typeof col !== 'object') continue;
+    const c = col as Record<string, unknown>;
+    if ('id' in c) {
+      warn(
+        c['id'] === id
+          ? `column "${id}": ignoring redundant "id" — the map key is the column id`
+          : `column "${id}": ignoring "id" ("${String(c['id'])}") — the map key is the column id`,
+      );
+    }
+    const unknown = Object.keys(c).filter(
+      (k) => k !== 'id' && !KNOWN_COLUMN_KEYS.has(k),
+    );
+    if (unknown.length) {
+      warn(
+        `column "${id}": ignoring unknown ${unknown.length === 1 ? 'key' : 'keys'} ${unknown
+          .map((k) => `"${k}"`)
+          .join(', ')}`,
+      );
+    }
+  }
+};
+
 const JsonColumnsMapSchema = z.record(
   z.string(),
-  JsonColumnSchema.omit({ id: true }).strict(),
-); // map form — key becomes `id`; unknown column keys fail (typo protection)
+  JsonColumnSchema.omit({ id: true }),
+); // map form — key becomes `id`; a redundant `id` / unknown keys are stripped with a warning
 export type JsonColumnsMap = z.infer<typeof JsonColumnsMapSchema>;
 const ColumnsSchema = JsonColumnsMapSchema;
 
@@ -682,6 +736,22 @@ const createResourceJsonSchema = () => {
       let obj = raw as Record<string, unknown>;
       if ('columns' in obj)
         obj = { ...obj, columns: applyColumnAliases(obj['columns']) };
+
+      // Root `id` is removed — the resource id is always `name`. Strip it and warn
+      // (keeping the route when it differed from `name`), never fail.
+      if ('id' in obj) {
+        const { id: legacyId, ...rest } = obj;
+        obj =
+          typeof legacyId === 'string' &&
+          legacyId !== rest['name'] &&
+          rest['route'] === undefined
+            ? { ...rest, route: legacyId }
+            : rest;
+        warn(ROOT_ID_WARNING);
+      }
+
+      // Report the keys Zod will strip from map-form columns (redundant `id`, typos).
+      warnStrippedColumnKeys(obj['columns']);
 
       // Collect errors for removed root keys before Zod strips them
       _rawRootErrors = [

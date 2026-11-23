@@ -348,7 +348,8 @@ already exists, leave the file unchanged (assume it was set intentionally).
 
 **When to apply:** root-level `id` exists.
 
-The resource id is always `name`; a root `id` fails validation.
+The resource id is always `name`. A root `id` is now ignored with a warning instead of failing validation, but it
+should still be removed so the file matches the schema.
 
 ```json
 // BEFORE
@@ -1092,14 +1093,16 @@ grep -rn "json_schema\|ui_schema" --include="*.ts" --include="*.vue" src
 
 ---
 
-## Unknown column keys fail validation (breaking)
+## Unknown column keys are stripped with a warning
 
 **When to apply:** a column contains a key that is not a column option (a typo, or a removed key such as `fieldView`,
 `columnType`, `fieldTable`).
 
-Unknown keys inside a column used to be kept silently. They now fail validation with `Unrecognized key`. The
-deprecated table flags (`searchable`, `filterable`, `sortable`, `defaultSort`, `showWhen`, `hideWhen`,
-`disabledWhen`) are still lifted onto the table layout / `operations.findAll` during alpha.
+Unknown keys inside a column used to be kept silently; they were then rejected with `Unrecognized key`. They are now
+stripped with a `console.warn`, so a stray key no longer takes down the resource — but the file should still be fixed.
+A redundant `id` inside a map-form column (the map key is the column id) is treated the same way. The deprecated table
+flags (`searchable`, `filterable`, `sortable`, `defaultSort`, `showWhen`, `hideWhen`, `disabledWhen`) are still lifted
+onto the table layout / `operations.findAll` during alpha.
 
 **Rule:** Fix the spelling, or apply the migration for the removed key. Delete keys that have no replacement.
 
@@ -1189,7 +1192,7 @@ grep -rn '"fieldInput"' --include="resource.json" . | grep '"resource"'
 # OpenAPI tag
 grep -rn '"tag"' --include="resource.json" .
 
-# Root id (must not appear at root)
+# Root id (should not appear at root — stripped with a warning)
 grep -rn '"id"' --include="resource.json" .
 
 # Layout v1 migration (controls → items, actions → rowActions)
@@ -1252,9 +1255,10 @@ grep -rn '"format"' --include="resource.json" .
 - **`fieldTable` with a full fieldInput shape**: only `type` and `options` are valid on a table layout item.
 - **`position` / `colspan` / `hideLabel` on a column**: removed — order and placement live in
   `layout.<ctx>.items`. Positions in plain source order can simply be deleted.
-- **Root `model` / `table` / `database` / `idType` / `calculatedColumns` / `id`**: must not appear — they fail
-  validation. Use `source.*`, `columns[id].computed`, and `name`.
-- **Unknown column keys**: fail validation (`Unrecognized key`). Check the spelling.
+- **Root `model` / `table` / `database` / `idType` / `calculatedColumns`**: must not appear — they fail
+  validation. Use `source.*` and `columns[id].computed`. A root `id` is stripped with a warning instead of failing.
+- **Unknown column keys**: stripped with a warning. Check the spelling. A redundant `id` on a map-form column is
+  ignored (the map key is the column id).
 - **`createable` / `updateable`**: misspelled — use `creatable` / `updatable`.
 - **`"Integer"`, `"mutliSelect"`, `"date-range"` as a field-input type**: use `"integer"`, `"multiSelect"`,
   `"dateRange"` (type values are camelCase).
