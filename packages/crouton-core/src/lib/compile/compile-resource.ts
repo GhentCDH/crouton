@@ -152,6 +152,7 @@ export const compileResource = (
     enrichedColumns,
     extractFindAllSearch(findAll),
     findAllEnabled,
+    schema,
   );
   const filterAllowlist = extractFindAllFilter(findAll);
   const resolvedDisplayKeys = resolvers.resolveLookupDisplayKeys

@@ -11,6 +11,8 @@ jobs:
     uses: ./.github/workflows/shared-publish-docs.yml
     with:
       docs-base: /crouton
+      # Also generate llms.txt / llms-full.txt into the dist dir.
+      build-command: npx nx run docs:build-llms
     permissions:
       contents: read
       pages: write

@@ -34,6 +34,23 @@ describe('resource codemods', () => {
     });
   });
 
+  it('reads display in object form and drops an empty one (#598)', () => {
+    const container = { container: { mode: 'page' } };
+    expect(run({ name: 'b', display: { mode: 'page' } })).toEqual({ name: 'b', layout: { form: container, view: container } });
+    expect(run({ name: 'b', display: {} })).toEqual({ name: 'b' });
+  });
+
+  it('drops column-level format/foreignKey duplicated from a relation fieldInput (#598)', () => {
+    const fieldInput = { format: 'relation', foreignKey: 'orderId', resource: './orderLines/resource.json' };
+    expect(run({ name: 'o', columns: { orderLines: { format: 'relation', foreignKey: 'orderId', fieldInput } } })).toEqual({
+      name: 'o',
+      columns: { orderLines: { relation: { resource: './orderLines/resource.json', foreignKey: 'orderId' } } },
+    });
+    expect(
+      run({ name: 'o', columns: { lines: { format: 'relation', foreignKey: 'orderId', fieldInput: { format: 'relation', resource: './l.json' } } } }),
+    ).toEqual({ name: 'o', columns: { lines: { relation: { resource: './l.json', foreignKey: 'orderId' } } } });
+  });
+
   it('copies root include to findAll and findOne', () => {
     const include = ['author', { relation: 'chapters', orderBy: { position: 'asc' } }];
     expect(run({ name: 'b', include })).toEqual({
@@ -100,6 +117,7 @@ describe('resource codemods', () => {
         columns: {
           isbn: { createable: false, updateable: false },
           pages: { fieldInput: { type: 'Integer' } },
+          name: { fieldInput: { type: 'text' } },
           period: { fieldInput: { format: 'date-range' } },
           loans: { fieldInput: { detail: { layout: 'row', controls: [{ property: 'amount' }] } } },
           body: { type: 'text', fieldView: { type: 'markdown' }, columnType: 'longtext' },
@@ -110,6 +128,7 @@ describe('resource codemods', () => {
       columns: {
         isbn: { creatable: false, updatable: false },
         pages: { fieldInput: { type: 'integer' } },
+        name: { fieldInput: { type: 'string' } },
         period: { fieldInput: { type: 'dateRange' } },
         loans: { fieldInput: { detail: { layout: 'row', items: [{ property: 'amount' }] } } },
         body: { type: 'text' },

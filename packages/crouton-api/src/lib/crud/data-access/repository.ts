@@ -27,7 +27,7 @@ import {
   prepareWrite,
 } from './middleware/hooks';
 import { toSelectFields } from './query/select';
-import { ReadRepository } from './read.repository';
+import { ReadRepository, assertFiltersAllowed } from './read.repository';
 import { WriteRepository, stripSubResourceKeys } from './write.repository';
 
 /** Unified read/write interface for a CRUD resource, combining `ReadRepository` and `WriteRepository`. */
@@ -182,13 +182,16 @@ export function createCrudRepository<T = Row>(
         return applyAfterFindAll(decorated, hookTarget, adapter, request);
       };
     const decorateFindAll = mkDecorateFindAll(resolvedAdapter);
-    const applyBefore = (params: ListRequest, request?: unknown) =>
-      applyBeforeFindAll(params, hookTarget, resolvedAdapter, request);
+    // Allowlist the client's filters only; whatever beforeFindAll adds is trusted (#585).
+    const applyBefore = (params: ListRequest, request?: unknown) => {
+      assertFiltersAllowed(params.filter, config);
+      return applyBeforeFindAll(params, hookTarget, resolvedAdapter, request);
+    };
     const decorateFindOne = (row: unknown, request?: unknown, id?: string | number) =>
       decorateRow(row, 'findOne', hookTarget, resolvedAdapter, request, undefined, id);
     const prepareData = (
       data: unknown,
-      op: 'create' | 'update' | 'patch',
+      op: 'create' | 'update' | 'patch' | 'delete',
       id?: string | number,
       request?: unknown,
     ) => prepareWrite(data, op, hookTarget, resolvedAdapter, id, request);
@@ -304,8 +307,10 @@ export function createCrudRepository<T = Row>(
         );
         return decorateFindAll(data, request);
       },
-      count: (filter, q) =>
-        adCount(adapterModelKey, filter, { ...baseCtx, q }),
+      count: (filter, q) => {
+        assertFiltersAllowed(filter, config);
+        return adCount(adapterModelKey, filter, { ...baseCtx, q });
+      },
       findOne: async (id, request) => {
         if (!resolvedAdapter.findOne) throw new Error(`Adapter "${config.name}" has no findOne`);
         const row = await resolvedAdapter.findOne(
@@ -376,6 +381,8 @@ export function createCrudRepository<T = Row>(
       delete: async (id, request) => {
         const coercedId = toId(id);
         if (!resolvedAdapter.delete) throw new Error(`Adapter "${config.name}" has no delete`);
+        // beforeWrite gets no payload on delete; it can still throw to block it (#582).
+        await prepareData(undefined, 'delete', coercedId, request);
         const result = await resolvedAdapter.delete(
           adapterModelKey,
           id,
@@ -475,7 +482,7 @@ export function createCrudRepository<T = Row>(
 
   const prepareData = (
     data: unknown,
-    op: 'create' | 'update' | 'patch',
+    op: 'create' | 'update' | 'patch' | 'delete',
     id?: string | number,
     request?: unknown,
   ) => prepareWrite(data, op, legacyHookTarget, adapter, id, request);
@@ -494,6 +501,7 @@ export function createCrudRepository<T = Row>(
   return {
     prisma,
     findAll: async (params, request) => {
+      assertFiltersAllowed(params.filter, config);
       const effectiveParams = await applyBeforeFindAll(
         params,
         legacyHookTarget,
@@ -505,7 +513,10 @@ export function createCrudRepository<T = Row>(
         request,
       );
     },
-    count: reader.count.bind(reader),
+    count: (filter, q) => {
+      assertFiltersAllowed(filter, config);
+      return reader.count(filter, q);
+    },
     findOne: async (id, request) =>
       decorateFindOne(await reader.findOne(id, request), request, toId(id)),
     findAllByParent: reader.findAllByParent.bind(reader),
@@ -542,6 +553,7 @@ export function createCrudRepository<T = Row>(
     },
     delete: async (id, request) => {
       const coercedId = toId(id);
+      await prepareData(undefined, 'delete', coercedId, request);
       const result = await writer.delete(id, request);
       return postData(result, 'delete', coercedId, request);
     },

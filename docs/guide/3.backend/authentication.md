@@ -46,7 +46,9 @@ Set `<PROVIDER>_CLIENT_SECRET` and `<PROVIDER>_CALLBACK_URL` — e.g. `GOOGLE_CL
 |---|---|---|
 | `CROUTON_AUTH_SECRET` | — | HMAC secret for session JWTs. **Required** as soon as any provider has server-side login configured — the backend refuses to start without it. Use a long random value. |
 | `CROUTON_SESSION_TTL` | `8h` | Session lifetime (e.g. `30m`, `8h`, `7d`). After expiry the user logs in again. |
-| `CROUTON_FRONTEND_URL` | `''` | Frontend origin the callback redirects to, e.g. `http://localhost:4200`. |
+| `CROUTON_FRONTEND_URL` | `''` | Frontend URL the callback redirects to, e.g. `http://localhost:4200`. Include the app's base path when it is served under a sub-path, e.g. `https://example.com/book`. |
+
+**Sub-path apps.** Auth routes (`/auth/callback`, `/auth/login`) follow the router's history base: with `createWebHistory(import.meta.env.BASE_URL)` and `base: '/book/'` they live at `/book/auth/*`. Browser-mode providers then need `https://example.com/book/auth/callback` registered as redirect URI.
 
 Roles are baked into the session token at login: role changes (e.g. editing `roles.byEmail`) apply after the next login.
 
@@ -132,6 +134,18 @@ const { user, isAuthenticated, login, loginWith, logout, hasRole, getToken, prov
 
 **One provider** → an unauthenticated visit redirects straight to it. **Several providers** → the `CroutonPlugin` (with a `router`) shows a login screen at `/auth/login`: the app logo and title, and one button per provider (Google and Microsoft get their icons). `loginWith(provider)` starts the login for one of `providers`.
 
+### Public pages
+
+By default the plugin logs in as soon as the app opens without a session, on every route. Pass `requireLogin` to let
+public pages load anonymously — `false`, or a function of the current app path (router base stripped):
+
+```ts
+app.use(CroutonPlugin(api, { router, requireLogin: (path) => path.startsWith('/admin') }));
+```
+
+Anonymous requests carry no token. Operations marked `security.public` answer; any other request returns 401, which
+still starts the login.
+
 ### Logo
 
 ```json
@@ -192,6 +206,12 @@ Refresh tokens and session tokens are stored in `localStorage`, readable by any 
 The `dev` token never expires and is not affected by these settings.
 
 ## Custom provider
+
+Custom providers use `defineAuthProvider` from `@ghentcdh/crouton-auth`:
+
+```sh
+pnpm add @ghentcdh/crouton-auth
+```
 
 ```ts
 // auth-providers/ldap/index.ts

@@ -2116,6 +2116,20 @@
                 "emptyText": {
                   "description": "Message shown when the table has no rows.",
                   "type": "string"
+                },
+                "download": {
+                  "description": "Table export options. Overrides the global `rules.tableDownload` from crouton.json.",
+                  "type": "object",
+                  "properties": {
+                    "csv": {
+                      "description": "Show a \"Download CSV\" toolbar button. Omit to inherit `rules.tableDownload.csv` from crouton.json (default false).",
+                      "type": "boolean"
+                    },
+                    "fileName": {
+                      "description": "File name without extension. Defaults to the resource name.",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -3098,6 +3112,20 @@
                   "emptyText": {
                     "description": "Message shown when the table has no rows.",
                     "type": "string"
+                  },
+                  "download": {
+                    "description": "Table export options. Overrides the global `rules.tableDownload` from crouton.json.",
+                    "type": "object",
+                    "properties": {
+                      "csv": {
+                        "description": "Show a \"Download CSV\" toolbar button. Omit to inherit `rules.tableDownload.csv` from crouton.json (default false).",
+                        "type": "boolean"
+                      },
+                      "fileName": {
+                        "description": "File name without extension. Defaults to the resource name.",
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }

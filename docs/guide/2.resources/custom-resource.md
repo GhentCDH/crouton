@@ -54,7 +54,7 @@ resources/zotero_item/
 └── repository.ts     # ← your data access
 ```
 
-Useful flags: `--route`, `--tag`, `--title`, `--database`, `--id-type`,
+Useful flags: `--route`, `--tag`, `--title`, `--datasource`, `--id-type`,
 `--dry-run`, `-y`.
 
 ## resource.json

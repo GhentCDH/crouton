@@ -41,8 +41,8 @@ The following column-level options are **deprecated** and will be removed. Use `
 - `showWhen` / `hideWhen` / `disabledWhen` → `layout.table.items[{ id, showWhen, ... }]`
 - `fieldTable` → `layout.table.items[{ id, type, options }]`
 
-See [Layout — Table layout](layout.md#table-layout-layouttable) and [migrate-to-next-alpha.md](/migrate-to-next-alpha)
-for migration details.
+See [Layout — Table layout](layout.md#table-layout-layouttable) and
+[migrate-to-next-alpha.md](https://github.com/GhentCDH/crouton/blob/main/migrate-to-next-alpha.md) for migration details.
 :::
 
 ## Free-text search (`?q=`)
@@ -68,8 +68,11 @@ Declare which columns are included in free-text search via `operations.findAll.s
   display field (e.g. `author.name`), so you never search against a raw foreign key string.
 - **`showInLookup`** is a separate concern — it controls the label shown when this resource appears as an autocomplete
   option somewhere else. Do not use it to drive `?q=` search; use `operations.findAll.search` instead.
-- **Default**: when `findAll: true` and no explicit `search` is declared, all simple (non-id, non-relation, non-date)
-  columns are searched.
+- **Default**: when `findAll: true` and no explicit `search` is declared, all text columns (`fieldInput.type`
+  `string`, `textarea` or `markdown`; `type: "string"` without a format; or, for a column without either, a Prisma
+  `String` field) are searched. Numbers, booleans, dates,
+  selects (possibly an enum) and relations are skipped. A resource without text columns ignores `?q=`.
+- **`search: []`** disables free-text search.
 
 ## Nested object and array columns
 
@@ -177,8 +180,10 @@ onMounted(async () => {
 });
 ```
 
-> Token resolution only affects the create form pre-fill. It has no effect on existing records loaded for
-> editing, and it does not run server-side — use `beforeWrite` hooks for server-side defaults.
+> Defaults also apply on the server when a record is created: literal values and `$now` / `$today` become the Zod
+> default for an omitted field, so a required column can be satisfied by its `defaultValue`. `$user` is not resolved
+> server-side (there is no user context during validation), so a `$user` default cannot satisfy a required field at
+> the API — use a `beforeWrite` hook for that. Defaults never affect existing records loaded for editing.
 
 ## Field variants — per-context overrides
 

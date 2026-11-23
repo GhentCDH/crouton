@@ -258,7 +258,7 @@ per resource.
 | `-m, --models <list>`     | Comma-separated models to limit to.                  |
 | `--cwd <dir>`             | Project directory (defaults to cwd).                 |
 | `-p, --project <name>`    | Project subfolder (resolves cwd to `<cwd>/<name>`).  |
-| `--dry-run`               | Show planned changes without writing files.          |
+| `--dry-run`               | Show planned changes without writing files; skips `db pull` / `generate`. |
 | `-y, --yes`               | Accept all defaults (non-interactive).               |
 | `--skip-pull`             | Do not run `prisma db pull`.                         |
 | `--skip-generate`         | Do not run `prisma generate` after pulling.          |

@@ -11,6 +11,9 @@ import {
 export const isBoolean = (col: JsonColumn): boolean =>
   col.fieldInput?.type === 'boolean' || col.type === 'boolean';
 
+/** Returns `true` when the column uses the `color` field input. */
+export const isColor = (col: JsonColumn): boolean => col.fieldInput?.type === 'color';
+
 /** Returns `true` when the column is a sub-resource relation (renders an inline sub-table). */
 export const isRelation = isRelationColumn;
 

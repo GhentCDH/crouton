@@ -1,9 +1,11 @@
-import type { ZodObject, ZodRawShape } from 'zod';
+import { ZodObject, type ZodRawShape, type ZodType } from 'zod';
 
 import type { JsonResourceOperations, SecurityConfig } from '../../data-source';
 import type { JsonColumn } from '../../resource';
+import { resolveDefaultToken } from '../../resource/default-tokens';
 import { pickByColumns } from '../json/pick-by-columns';
 import type { SchemaInput } from '../json/schema-input';
+import { isLazyRelationField } from '../zod.utils';
 import type { CrudDefinition, OperationDef } from './definition.schema';
 
 const opWithSchema = (
@@ -27,21 +29,56 @@ const opWithSchema = (
   return { ...(schema && { schema }), ...(security && { security }) };
 };
 
+/**
+ * On create, a column with `fieldInput.defaultValue` (codegen writes it for
+ * every Prisma `@default(<literal>)`) is filled in when the client omits it.
+ * `prefault` runs the default through parsing (coercion still applies) and is
+ * evaluated per request, so `$now` / `$today` are fresh. Tokens that don't
+ * resolve server-side (`$user`) leave the field required.
+ */
+const applyCreateDefaults = (
+  schema: SchemaInput | undefined,
+  columns: JsonColumn[] | undefined,
+): SchemaInput | undefined => {
+  if (!(schema instanceof ZodObject)) return schema;
+  const shape = schema.shape as Record<string, ZodType>;
+  const defaults = (columns ?? [])
+    .filter(
+      (c) =>
+        c.id in shape &&
+        resolveDefaultToken(c.fieldInput?.defaultValue) !== undefined,
+    )
+    .map((c) => [
+      c.id,
+      shape[c.id].prefault(() => resolveDefaultToken(c.fieldInput?.defaultValue)),
+    ]);
+  return defaults.length ? schema.extend(Object.fromEntries(defaults)) : schema;
+};
+
 export const buildResourceDefinitions = (
   schema: ZodObject<ZodRawShape> | undefined,
   operations: JsonResourceOperations,
   enrichedColumns: JsonColumn[] | undefined,
 ): CrudDefinition => {
   const picked = pickByColumns(schema, enrichedColumns);
-  const createSchema = pickByColumns(
-    schema,
+  // A relation key from a `*WithRelationsSchema` listed as a column without a
+  // `relation` block is read-only: never required on, or forwarded by, a write (#584).
+  const writable = (c: JsonColumn) => {
+    const field = schema?.shape[c.id];
+    return !c.idField && !(field && isLazyRelationField(field as ZodType));
+  };
+  const createSchema = applyCreateDefaults(
+    pickByColumns(
+      schema,
+      enrichedColumns,
+      (c) => writable(c) && c.creatable !== false,
+    ),
     enrichedColumns,
-    (c) => !c.idField && c.creatable !== false,
   );
   const updateSchema = pickByColumns(
     schema,
     enrichedColumns,
-    (c) => !c.idField && c.updatable !== false,
+    (c) => writable(c) && c.updatable !== false,
   );
 
   const findAll = opWithSchema(operations.findAll, picked);

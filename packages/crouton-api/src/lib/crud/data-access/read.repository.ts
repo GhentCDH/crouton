@@ -36,6 +36,30 @@ import {
   mergeCalculatedColumnsForRows,
 } from './query/sql.helpers'; // Re-exported for backwards compatibility
 
+/**
+ * Reject client filters on fields outside `operations.findAll.filter`.
+ *
+ * Run it on the client's params *before* `beforeFindAll`: filters the hook adds
+ * (e.g. `userEmail:<me>:equals`, `trip.familyId:<ids>:in`) are trusted (#585).
+ */
+export const assertFiltersAllowed = (
+  filter: string[] | undefined,
+  config: Pick<Resource, 'filterAllowlist' | 'idField'>,
+): void => {
+  const allowlist = config.filterAllowlist;
+  if (!filter?.length || !allowlist?.length) return;
+  const forbidden = filter
+    .map(parseFilterString)
+    .filter((p): p is NonNullable<ReturnType<typeof parseFilterString>> => p != null)
+    // A json-path filter (`period->from`) is allowed when its column is.
+    .filter((p) => p.field !== config.idField && !allowlist.includes(p.field.split('->')[0]));
+  if (forbidden.length) {
+    throw new BadRequestException(
+      `Filter field not allowed: ${forbidden.map((p) => p.field).join(', ')}`,
+    );
+  }
+};
+
 // ReadRepository is created per request in the adapter path; cache per config.
 const FIELD_TYPES = new WeakMap<object, FilterFieldTypes>();
 
@@ -89,22 +113,9 @@ export class ReadRepository<T = unknown> {
     return types;
   }
 
+  /** Filter → `where`. No allowlist check here: see `assertFiltersAllowed` (#585). */
   private buildWhere(filter: string[] | undefined) {
     if (!filter?.length) return undefined;
-    const allowlist = this.config.filterAllowlist;
-    if (allowlist?.length) {
-      const idField = this.config.idField;
-      const forbidden = filter
-        .map(parseFilterString)
-        .filter((p): p is NonNullable<ReturnType<typeof parseFilterString>> => p != null)
-        // A json-path filter (`period->from`) is allowed when its column is.
-        .filter((p) => p.field !== idField && !allowlist.includes(p.field.split('->')[0]));
-      if (forbidden.length) {
-        throw new BadRequestException(
-          `Filter field not allowed: ${forbidden.map((p) => p.field).join(', ')}`,
-        );
-      }
-    }
     const manyToOneSubs = (this.config.subResources ?? []).filter(
       (s) => s.relationType === 'manyToOne' && s.displayKey,
     );
@@ -513,6 +524,7 @@ export class ReadRepository<T = unknown> {
 
     // Same list hooks as a top-level findAll: beforeFindAll can scope the query
     // (e.g. tenant filter), afterFindAll sees the decorated rows.
+    assertFiltersAllowed(rawParams.filter, this.config);
     const parent = this.parentHookContext(parentId);
     const params = await applyBeforeFindAll(rawParams, sub, this.adapter, request, parent);
 

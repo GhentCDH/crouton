@@ -1,0 +1,26 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import * as codegen from '@ghentcdh/crouton-codegen';
+
+import { resolveTargetProject } from './shared';
+
+vi.mock('@ghentcdh/crouton-codegen', () => ({
+  findConfigPath: vi.fn(async () => undefined),
+  discoverProjects: vi.fn(async () => [
+    { name: 'a', root: '/ws/a', configPath: '/ws/a/crouton.json' },
+    { name: 'b', root: '/ws/b', configPath: '/ws/b/crouton.json' },
+  ]),
+}));
+
+describe('resolveTargetProject (#624)', () => {
+  const isTTY = process.stdin.isTTY;
+  afterEach(() => {
+    process.stdin.isTTY = isTTY;
+  });
+
+  it('fails instead of prompting when stdin is not a TTY', async () => {
+    process.stdin.isTTY = false;
+    await expect(resolveTargetProject({ cwd: '/ws' })).rejects.toThrow(/Multiple crouton projects.*--project/);
+    expect(codegen.discoverProjects).toHaveBeenCalled();
+  });
+});

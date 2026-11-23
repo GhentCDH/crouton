@@ -1,4 +1,12 @@
-import { LOGIN_PATH, handleCallback, setSessionToken, setupAuth } from '@crouton/auth-vue';
+import {
+  CALLBACK_PATH,
+  LOGIN_PATH,
+  currentAppPath,
+  handleCallback,
+  setAppBase,
+  setSessionToken,
+  setupAuth,
+} from '@crouton/auth-vue';
 import type { JsonFormsRendererRegistryEntry } from '@jsonforms/core';
 import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
@@ -316,7 +324,15 @@ export const useCrouton = (): UseCrouton => {
 
 export const CroutonPlugin = (
   api: AxiosInstance,
-  options: Partial<typeof AppConfig> & { router?: Router } = {},
+  options: Partial<typeof AppConfig> & {
+    router?: Router;
+    /**
+     * Log in when the app opens without a session (default `true`). `false`, or a
+     * function returning `false` for the current path (e.g. `(path) => path.startsWith('/admin')`),
+     * lets public pages load anonymously; a 401 from the API still triggers the login.
+     */
+    requireLogin?: boolean | ((path: string) => boolean);
+  } = {},
 ) => ({
   install(app: App) {
     // Apply plugin language restriction before the first request goes out.
@@ -340,14 +356,17 @@ export const CroutonPlugin = (
     _crouton = createCrouton(api, options);
 
     if (typeof window !== 'undefined') {
-      const authSetup = setupAuth('', api);
+      // Router history base (e.g. `/book` from createWebHistory(BASE_URL)) so
+      // auth paths resolve under the app's sub-path.
+      setAppBase(options.router?.options.history.base ?? '');
+      const authSetup = setupAuth('', api, { requireLogin: options.requireLogin });
 
       // Always register the callback route so the router doesn't 404.
       // The actual callback logic runs in the plugin install code (see below)
       // so it is not blocked by the loading screen hiding <router-view>.
       if (options.router) {
         options.router.addRoute({
-          path: '/auth/callback',
+          path: CALLBACK_PATH,
           component: { template: '<div />' },
         });
         // Provider chooser — shown when several login providers are configured.
@@ -357,7 +376,7 @@ export const CroutonPlugin = (
         });
       }
 
-      if (window.location.pathname === '/auth/callback') {
+      if (currentAppPath() === CALLBACK_PATH) {
         // Callback page: handle the OIDC code exchange here (not in a route
         // component) so it runs even while the loading screen hides <router-view>.
         _authReady = authSetup.then(async ({ flushQueue }) => {

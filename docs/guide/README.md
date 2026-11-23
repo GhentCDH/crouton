@@ -88,21 +88,29 @@ FORM -->|CRUD requests|CRUD
 ## In this guide
 
 ### Getting started
-- [Getting started](1.getting-started/index.md) — `npm create @ghentcdh/crouton` or `npx @ghentcdh/add-crouton` to set up a new or existing project
+- [Getting started](1.getting-started/index.md) — `npm create @ghentcdh/crouton` for a new project, or manual setup for an existing one
 - [Project structure](1.getting-started/project-structure.md) — what lives where after scaffolding
 - [Manual setup](1.getting-started/manual-setup.md) — add crouton to an existing project step by step, without the CLI
 
 ### Resources
 - [resource.json](2.resources/index.md) — the resource configuration reference
 - [Columns](2.resources/columns.md) — column definitions, fieldInput, calculated columns
+- [Field input types](2.resources/field-inputs/index.md) — every control and its options
 - [Relations](2.resources/relations.md) — relation columns and sorting
+- [Layout](2.resources/layout.md) — form, view and table layouts, and row/table actions
 - [Operations](2.resources/operations.md) — CRUD operations and external operation URIs
 - [Actions](2.resources/actions.md) — custom row and table actions
 - [Hooks](2.resources/hooks.md) — lifecycle hooks around reads and writes
+- [Custom resources](2.resources/custom-resource.md) — hand-written data access with `kind: "custom"`
+- [Extensions](2.resources/extensions.md) — app-specific top-level sections
+- [Security](2.resources/security.md) — per-resource authorization guards
+- [Unique fields](2.resources/unique.md) — as-you-type uniqueness checks
+- [Versioning](2.resources/versioning.md) — `schemaVersion`, draft resources, auto-migration
 
 ### Backend
 - [Backend setup](3.backend/index.md) — register crouton in your NestJS application
 - [Data sources](3.backend/data-sources.md) — connecting one or more databases, custom adapters
+- [Authentication](3.backend/authentication.md) — providers, roles, sessions
 - [Status page](3.backend/status.md) — built-in health checks and diagnostics
 
 ### Frontend
@@ -114,9 +122,13 @@ FORM -->|CRUD requests|CRUD
 ### Tooling
 - [CLI & project config](5.tooling/cli.md) — `crouton.json`, `crouton create datasource`, and `crouton update resources`
 - [Resource editor](5.tooling/resource-editor.md) — dev-mode visual builder and ResourceJsonEditor component
+- [Upgrading crouton](5.tooling/migrate.md) — migration guides and codemods
+- [Validator](5.tooling/validator.md) — validate a `resource.json` against the runtime schema
 
 ### Reference
 - [crouton.json](reference/crouton-json.md) — all crouton.json keys in one place
 - [HTTP endpoints](reference/endpoints.md) — all routes in one place
 - [Packages](reference/packages.md) — what each package is and when to install it
+- [Enums](reference/enums.md) — shared enum registry
+- [normalize-schema](reference/normalize-schema.md) — rename generated Prisma fields
 - [parseSchema](reference/parse-schema.md) — offline schema compilation

@@ -22,6 +22,7 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton update`                       | Runs `update resources`, then `update translations` (asks once).     |
 | `crouton update resources`             | Introspect the database and create/update `resource.json` files.     |
 | `crouton update translations`          | Regenerate and merge translation bundles (`--lang`, `--prune`).      |
+| `crouton generate`                     | Only `prisma generate` (client + types) per datasource — CI-safe.     |
 | `crouton init translations`            | Create translation files for every configured language (`--lang`).   |
 | `crouton create`                       | Asks whether to create a resource, a datasource or a project.        |
 | `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
@@ -52,7 +53,7 @@ Every command works on one project — a folder with a `crouton.json`. It is res
 1. `--project <name>` → the subfolder of `--cwd` with that name (an unknown name lists the available ones).
 2. The current directory, or one of its parents, has a `crouton.json` → that project.
 3. Otherwise the immediate subfolders of the current directory are scanned: one project is used as-is, several open a
-   picker. With `-y` (or `validate resources --json`) several projects are an error that lists them — pass `--project`.
+   picker. With `-y`, without a terminal (CI, scripts) or with `validate resources --json`, several projects are an error that lists them — pass `--project`.
 
 ```sh
 # monorepo with apps/ and admin/ each holding a crouton.json
@@ -208,10 +209,13 @@ Useful flags:
 |-----------------------------------|-----------------------------------------------------------------|
 | `--datasource <name>`             | Use a specific datasource.                                      |
 | `--models <a,b>`                  | Limit to specific models (Prisma or resource names).            |
-| `--dry-run`                       | Show the plan without writing.                                  |
+| `--dry-run`                       | Show the plan without writing; skips the Prisma steps (plans against the current schema). |
 | `--yes`                           | Non-interactive; accept recommended choices.                    |
-| `--skip-pull` / `--skip-generate` | Skip the Prisma steps.                                          |
+| `--skip-pull` / `--skip-generate` | Skip the Prisma steps (resources are still updated).            |
 | `--draft`                         | Write new resources with `draft: true` (hidden until reviewed). |
+
+For CI or a fresh checkout, use `crouton generate` (`-d <datasource>` to limit it): it runs `prisma generate` and
+never touches resources, translations or agent files.
 
 ### What gets generated
 

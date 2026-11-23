@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import {
   Autocomplete,
   Checkbox,
+  ColorInput,
   DatePicker,
   Input,
   InputNumber,
@@ -18,6 +19,7 @@ import {
 
 const textValue = ref('');
 const numberValue = ref(42);
+const colorValue = ref('#3b82f6');
 const textareaValue = ref('');
 const checkboxValue = ref(false);
 const selectValue = ref('');
@@ -69,6 +71,22 @@ All controls are `v-model` driven and share `label`, `width`, `enabled` and erro
 ```vue
 <InputNumber v-model="count" label="Number" width="w-48" />
 <Textarea v-model="notes" label="Textarea" width="w-64" />
+```
+
+## Color
+
+Native color picker next to an editable hex value (`#rrggbb`). Used by `fieldInput.type: "color"`.
+
+<ClientOnly>
+<div class="demo">
+  <ColorInput v-model="colorValue" label="Color" width="w-64" />
+  <ColorInput v-model="colorValue" label="Disabled" :enabled="false" width="w-64" />
+  <span class="demo-note">Value: {{ colorValue }}</span>
+</div>
+</ClientOnly>
+
+```vue
+<ColorInput v-model="color" label="Color" width="w-64" />
 ```
 
 ## Checkbox

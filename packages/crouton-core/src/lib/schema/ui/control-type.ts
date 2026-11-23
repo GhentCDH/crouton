@@ -17,6 +17,7 @@ export const ControlType = {
   date: 'date',
   dateTime: 'dateTime',
   dateRange: 'dateRange',
+  color: 'color',
 } as const;
 
 export type ControlTypeValue = (typeof ControlType)[keyof typeof ControlType];

@@ -110,3 +110,18 @@ belong on the **`type: "table"` node**, not on the outer wrapper.
 `position`, `hideLabel`, `fieldInput.position` and `fieldInput.options.{colspan,rowspan,width,hideLabel,readonly,label}`
 on a column fail validation. Put order and placement on `layout.<ctx>.items` (`{ "id": "title", "colspan": 6 }`).
 When `layout.<ctx>` exists, `hiddenIn<Ctx>` does nothing — add or remove the id in `layout.<ctx>.items` instead.
+
+## 13. `beforeWrite` that assumes `data` is set
+
+`beforeWrite` also runs before a delete, with `data === undefined` and `ctx.op === 'delete'` — throw there to block
+the delete. Guard before touching `data`:
+
+```ts
+beforeWrite: async (data, ctx) => {
+  if (ctx.op === 'delete') return data;
+  return { ...data, updatedBy: ctx.request.user.email };
+},
+```
+
+Sub-resource hooks (`hooks/<child>.ts`) run on the nested routes too, including `beforeFindAll` / `afterFindAll`
+on `GET /<parent>/:id/<child>` with `ctx.parent` set.

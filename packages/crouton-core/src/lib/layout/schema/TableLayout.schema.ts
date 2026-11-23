@@ -170,6 +170,23 @@ export const TableNodeSchema = z.object({
     .string()
     .optional()
     .describe('Message shown when the table has no rows.'),
+  download: z
+    .object({
+      csv: z
+        .boolean()
+        .optional()
+        .describe(
+          'Show a "Download CSV" toolbar button. Omit to inherit `rules.tableDownload.csv` from crouton.json (default false).',
+        ),
+      fileName: z
+        .string()
+        .optional()
+        .describe('File name without extension. Defaults to the resource name.'),
+    })
+    .optional()
+    .describe(
+      'Table export options. Overrides the global `rules.tableDownload` from crouton.json.',
+    ),
 });
 
 export type TableNode = z.infer<typeof TableNodeSchema>;

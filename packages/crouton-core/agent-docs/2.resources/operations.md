@@ -73,10 +73,15 @@ The second form restricts search to `name` and `email` only.
 
 `operations.findAll.filter` lists the columns that get a filter control in the table toolbar. It is also the server
 allowlist: a `?filter=` on any other column (except the id field) is rejected with 400. Omit it to show no filter
-controls and accept filters on every column.
+controls and accept filters on every column. Only the client's filters are checked: filters a
+[`beforeFindAll` hook](./hooks.md#beforefindall-afterfindall) adds are trusted.
 
 A dotted entry is a Prisma relation path, e.g. `"tags.some.name"` → `?filter=tags.some.name:x:equals` becomes
 `{ tags: { some: { name: { equals: 'x' } } } }`. It is allowed through the server allowlist but gets no toolbar control.
+
+Filter values are converted to the field's type: on a boolean field only `true` / `false` are accepted, on a number
+field only numbers; anything else is rejected with 400. On these fields `contains` (the default operator) means
+`equals` and `not_contains` means `not_equals`.
 
 ```json
 {
@@ -89,7 +94,8 @@ A dotted entry is a Prisma relation path, e.g. `"tags.some.name"` → `?filter=t
 ### Migration from `searchFields` / `filterFields`
 
 `layout.table.searchFields` / `filterFields` fail validation; per-column `searchable` / `filterable` flags are
-deprecated. Use [migrate-to-next-alpha.md](/migrate-to-next-alpha) with an AI assistant to migrate automatically.
+deprecated. Use [migrate-to-next-alpha.md](https://github.com/GhentCDH/crouton/blob/main/migrate-to-next-alpha.md)
+with an AI assistant to migrate automatically.
 
 ## PUT vs PATCH
 

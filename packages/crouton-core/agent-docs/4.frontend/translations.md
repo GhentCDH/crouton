@@ -171,9 +171,10 @@ automatically. Switching back to a previously used language is instant (FormDefs
 
 ### UI dictionary
 
-Crouton ships built-in translations for all application chrome (buttons, modals, filters, …) for **English, Dutch, French, and German**. No configuration needed — the right strings load automatically based on the active language.
+Crouton ships built-in translations for all application chrome (buttons, modals, filters, …) for **English, Dutch, French, German, and West Flemish (`wv`)**. No configuration needed — the right strings load automatically based on the active language.
 
-For any other language, the English strings are used as fallback.
+For any other language, the English strings are used as fallback. The table below lists the EN / NL / FR / DE
+strings; the `wv` bundle covers the same keys.
 
 #### Bundled `ui` keys
 
@@ -223,6 +224,10 @@ For any other language, the English strings are used as fallback.
 | `notifications.actionSuccess` | Done | Done | Done | Done |
 | `notifications.actionFailed` | Action failed | Action failed | Action failed | Action failed |
 | `notifications.actionError` | Something went wrong… | Something went wrong… | Something went wrong… | Something went wrong… |
+| `validation.required` | This field is required | Dit veld is verplicht | Ce champ est obligatoire | Dieses Feld ist erforderlich |
+| `admin.title` | `{title} Admin` | `{title} Beheer` | `{title} Administration` | `{title} Verwaltung` |
+| `auth.signInWith` | Sign in with | Aanmelden met | Se connecter avec | Anmelden mit |
+| `auth.accessDenied` | Sign-in failed or this account has no access. | Aanmelden mislukt of dit account heeft geen toegang. | Échec de la connexion ou ce compte n'a pas accès. | Anmeldung fehlgeschlagen oder dieses Konto hat keinen Zugriff. |
 
 #### Overriding a bundled string
 

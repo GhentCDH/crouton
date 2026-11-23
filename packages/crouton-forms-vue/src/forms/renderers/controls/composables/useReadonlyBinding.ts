@@ -13,6 +13,7 @@ import {
 } from '../../../../testers/tester';
 import { resolveWithTime } from '../date/useDateModel';
 import BooleanValue from '../readonly/displayValue/BooleanValue.vue';
+import ColorValue from '../readonly/displayValue/ColorValue.vue';
 import DateRangeValue from '../readonly/displayValue/DateRangeValue.vue';
 import DateValue from '../readonly/displayValue/DateValue.vue';
 import LinkValue from '../readonly/displayValue/LinkValue.vue';
@@ -135,6 +136,8 @@ export const getDisplayComponent = (value: unknown, options: ReadonlyOpts): Comp
   switch (format) {
     case 'dateRange':
       return DateRangeValue as Component;
+    case ControlType.color:
+      return ColorValue as Component;
     case ControlType.number:
     case ControlType.integer:
       return NumberValue as Component;

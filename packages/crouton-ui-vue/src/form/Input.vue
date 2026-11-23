@@ -1,6 +1,7 @@
 <template>
   <ControlWrapper v-bind="properties">
     <div class="relative w-full">
+      <slot name="prefix" />
       <input
         v-model="model"
         :aria-label="label"
@@ -8,7 +9,7 @@
         data-lpignore="true"
         data-bwignore="true"
         :type="type"
-        :class="[style, { 'pr-7': clearable && model }]"
+        :class="[style, { 'pr-7': clearable && model, 'pl-11': $slots.prefix }]"
         class="!w-full"
         :disabled="!enabled"
         :autofocus="isFocused"

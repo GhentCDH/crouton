@@ -4,8 +4,6 @@ description: Bootstrap the Crouton admin UI in a Vue 3 application — install c
 
 # Frontend setup
 
-> Last verified against crouton `0.0.1-alpha.81`
-
 Add the crouton admin UI to a Vue 3 application.
 
 ## Install
@@ -104,7 +102,7 @@ const { sidebar } = useCrouton();
 Use it to render your own navigation, or hide resources from it via `sidebar.hide` in
 their [resource.json](../2.resources/index.md).
 
-::: tip Pass `router` to `CroutonPlugin` and the status page is registered automatically. See [Status page](status.md).
+::: tip Pass `router` to `CroutonPlugin` and the status page is registered automatically. See [Status page](../3.backend/status.md).
 :::
 
 ## Plugin options

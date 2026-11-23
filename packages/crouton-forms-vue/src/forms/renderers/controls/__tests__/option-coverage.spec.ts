@@ -4,9 +4,11 @@ import { fieldInputRegistry } from '@ghentcdh/crouton-core';
 
 import { autocompleteVariants } from './autocomplete.variants';
 import { booleanVariants } from './boolean.variants';
+import { colorVariants } from './color.variants';
 import { type ControlVariant, usedOptionKeys } from './control-variant';
 import { dateVariants } from './date.variants';
 import { dateRangeVariants } from './daterange.variants';
+import { markdownVariants } from './markdown.variants';
 import { multiSelectVariants } from './multiselect.variants';
 import { numberVariants } from './number.variants';
 import { selectVariants } from './select.variants';
@@ -48,6 +50,15 @@ const controls: Record<string, { variants: ControlVariant[]; skipped: Record<str
   date: { variants: dateVariants, skipped: { customRender: CUSTOM_RENDER, placeholder: NATIVE_DATE } },
   dateTime: { variants: dateVariants, skipped: { customRender: CUSTOM_RENDER, placeholder: NATIVE_DATE } },
   dateRange: { variants: dateRangeVariants, skipped: { customRender: CUSTOM_RENDER } },
+  markdown: {
+    variants: markdownVariants,
+    skipped: {
+      customRender: CUSTOM_RENDER,
+      placeholder: 'the TipTap editor has no placeholder extension configured',
+      styles: 'the editor card ignores control styles (wrapper styles still apply via ControlWrapper)',
+    },
+  },
+  color: { variants: colorVariants, skipped: { customRender: CUSTOM_RENDER } },
   toggle: {
     variants: toggleVariants,
     skipped: { customRender: CUSTOM_RENDER, placeholder: 'a button group has no placeholder' },

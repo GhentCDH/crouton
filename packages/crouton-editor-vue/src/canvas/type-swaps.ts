@@ -77,4 +77,5 @@ export const CANVAS_SUPPORTED_TYPES = new Set<string>([
   'select',
   'multiSelect',
   'toggle',
+  'color',
 ]);

@@ -7,6 +7,7 @@
  * `CURRENT_RESOURCE_VERSION` stays 1 during alpha, so files are not version-gated.
  */
 
+import { FIELD_INPUT_TYPE_ALIASES } from '../field-input/aliases';
 import { migrateLayoutNodes } from './layout-nodes';
 import type { RawResourceJson } from './types';
 
@@ -110,7 +111,11 @@ const rootDisplay: Transform = {
   name: 'display/modalSize → layout.<form|view>.container',
   run: (raw) => {
     if (raw['display'] === undefined && raw['modalSize'] === undefined) return raw;
-    const container = compact({ mode: raw['display'], size: raw['modalSize'] });
+    // Older alphas also wrote `display: { mode }`; an empty object carries nothing (#598).
+    const display = raw['display'];
+    const mode = isObj(display) ? display['mode'] : display;
+    const container = compact({ mode, size: raw['modalSize'] });
+    if (!Object.keys(container).length) return omit(raw, ['display', 'modalSize']);
     const layout = isObj(raw['layout']) ? { ...raw['layout'] } : {};
     for (const ctx of ['form', 'view']) {
       const node = isObj(layout[ctx]) ? layout[ctx] : {};
@@ -174,11 +179,6 @@ const showInLookup: Transform = {
 // ── Column transforms ─────────────────────────────────────────────────
 
 const COLUMN_KEY_ALIASES: Record<string, string> = { createable: 'creatable', updateable: 'updatable' };
-const FIELD_INPUT_TYPE_ALIASES: Record<string, string> = {
-  Integer: 'integer',
-  mutliSelect: 'multiSelect',
-  'date-range': 'dateRange',
-};
 
 /** `createable`/`updateable` and old field-input type spellings. */
 const spelling: Transform = {
@@ -214,14 +214,16 @@ const relation: Transform = {
       const isRelation = isObj(fi) && (fi['format'] === 'relation' || (fi['resource'] !== undefined && !fi['format'] && !fi['type']));
       if (!isObj(fi) || !isRelation) return col;
       const options = isObj(fi['options']) ? fi['options'] : {};
-      let out = col;
+      // Older alphas duplicated `format`/`foreignKey` on the column itself (#598).
+      const columnForeignKey = col['format'] === 'relation' ? col['foreignKey'] : undefined;
+      let out = col['format'] === 'relation' ? omit(col, ['format', 'foreignKey']) : col;
       if (out['relation'] === undefined) {
         out = {
           ...out,
           relation: compact({
             resource: fi['resource'] ?? options['resource'],
             type: fi['relationType'],
-            foreignKey: fi['foreignKey'],
+            foreignKey: fi['foreignKey'] ?? columnForeignKey,
             prismaField: fi['relation'],
             sort: options['sort'],
             sortDir: options['sortDir'],
