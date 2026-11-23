@@ -9,6 +9,12 @@
         {{ label ?? config.title }}
       </div>
       <div>
+        <DownloadCsvButton
+          v-if="showCsv"
+          :columns="resource.csvColumns"
+          :rows="resource.fetchAllRows"
+          :file-name="csvFileName"
+        />
         <Btn
           v-if="isDev"
           :icon="IconEnum.Edit"
@@ -46,6 +52,12 @@
       <span class="text-xl font-bold mr-4">{{ config.title }}</span>
     </template>
     <template #right>
+      <DownloadCsvButton
+        v-if="showCsv"
+        :columns="resource.csvColumns"
+        :rows="resource.fetchAllRows"
+        :file-name="csvFileName"
+      />
       <Btn
         v-if="isDev"
         :icon="IconEnum.Edit"
@@ -105,6 +117,8 @@ import { computed } from 'vue';
 import { TableToolbar } from '@ghentcdh/crouton-forms-vue';
 import { Btn, IconEnum } from '@ghentcdh/crouton-ui-vue';
 
+import { useCrouton } from '../composables/useCrouton';
+import { DownloadCsvButton } from '../csv';
 import { useLanguage } from '../i18n/useLanguage';
 import { ResourceTableContentProperties } from './ResourceTableContent.properties';
 
@@ -112,6 +126,15 @@ const props = defineProps(ResourceTableContentProperties);
 const emit = defineEmits(['editSchema', 'refresh']);
 const { t } = useLanguage();
 const configOps = computed(() => (props.config?.operations as Record<string, unknown>) ?? {});
+const crouton = useCrouton();
+const download = computed(
+  () => props.resource.uiSchema?.options?.['download'] as { csv?: boolean; fileName?: string } | undefined,
+);
+// Per-table `layout.table.download.csv` wins over the global `rules.tableDownload.csv`; hidden by default.
+const showCsv = computed(() => download.value?.csv ?? crouton.tableDownload.value?.csv ?? false);
+const csvFileName = computed(
+  () => download.value?.fileName ?? props.resource.id,
+);
 </script>
 
 <style scoped>

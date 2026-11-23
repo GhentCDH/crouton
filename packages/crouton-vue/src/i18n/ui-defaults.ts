@@ -11,6 +11,9 @@ const en: UiDefaults = {
     showing: 'Showing',
     of: 'of',
     records: 'records',
+    downloadCsv: 'Download CSV',
+    yes: 'Yes',
+    no: 'No',
   },
   filter: {
     contains: 'contains',
@@ -80,6 +83,9 @@ const nl: UiDefaults = {
     showing: 'Toont',
     of: 'van',
     records: 'records',
+    downloadCsv: 'CSV downloaden',
+    yes: 'Ja',
+    no: 'Nee',
   },
   filter: {
     contains: 'bevat',
@@ -149,6 +155,9 @@ const fr: UiDefaults = {
     showing: 'Affichage de',
     of: 'sur',
     records: 'enregistrements',
+    downloadCsv: 'Télécharger CSV',
+    yes: 'Oui',
+    no: 'Non',
   },
   filter: {
     contains: 'contient',
@@ -218,6 +227,9 @@ const de: UiDefaults = {
     showing: 'Zeige',
     of: 'von',
     records: 'Einträge',
+    downloadCsv: 'CSV herunterladen',
+    yes: 'Ja',
+    no: 'Nein',
   },
   filter: {
     contains: 'enthält',
@@ -287,6 +299,9 @@ const wv: UiDefaults = {
     showing: 'Toond',
     of: 'van de',
     records: 'Dingen',
+    downloadCsv: 'CSV downloaden',
+    yes: 'Joa',
+    no: 'Nee',
   },
   filter: {
     contains: 'ee',

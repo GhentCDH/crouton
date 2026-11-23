@@ -436,6 +436,7 @@ Beyond `items`, the table node accepts presentation options:
 | `selectable` | boolean                          | Show row checkboxes for multi-select.                                  |
 | `rowClick`   | `"view"` \| `"edit"` \| `"none"` | What happens when a row is clicked.                                    |
 | `emptyText`  | string                           | Message shown when there are no rows.                                  |
+| `download`   | `{ csv?, fileName? }`            | Export buttons. `csv: true` shows **Download CSV**; omit `csv` to inherit `rules.tableDownload` from `crouton.json` (hidden by default). |
 
 ```json
 "table": {
@@ -448,6 +449,7 @@ Beyond `items`, the table node accepts presentation options:
   "density": "compact",
   "rowClick": "view",
   "emptyText": "No books yet",
+  "download": { "csv": true, "fileName": "books" },
   "items": [
     {
       "id": "title",
@@ -472,6 +474,22 @@ Beyond `items`, the table node accepts presentation options:
   ]
 }
 ```
+
+##### CSV download
+
+**Download CSV** exports every row that matches the current filter, search and sort (all pages, not just the
+visible one). It includes the visible columns with their translated labels. The file opens correctly in Excel
+in `,`-decimal locales such as nl-BE:
+
+- `;` separator, UTF-8 with BOM, every cell quoted
+- dates as `dd/MM/yyyy`, date-times as `dd/MM/yyyy HH:mm` (UTC)
+- booleans as translated yes/no, enums and relations as their display label
+
+Enable it for every table with `"rules": { "tableDownload": { "csv": true } }` in `crouton.json`. Turn it off
+for one table with `"download": { "csv": false }`.
+
+For custom pages, use `downloadCsv(columns, rows, fileName)` or `<DownloadCsvButton>` from
+`@ghentcdh/crouton-vue` (see [Data components](../components/data.md#download-csv)).
 
 ### Table column order
 
