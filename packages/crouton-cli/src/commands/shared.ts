@@ -40,7 +40,7 @@ export const withRun =
  *  - `--project <name>` → the subfolder of cwd with that name holding a crouton config
  *  - cwd (or an ancestor) has a config → cwd (runners walk up from there)
  *  - else scan immediate subfolders: none → cwd (runner reports "no config"),
- *    one → it, several → interactive picker (`-y` → error listing candidates)
+ *    one → it, several → interactive picker (`-y` or no TTY → error listing candidates)
  */
 export const resolveTargetProject = async (opts: CommonOptions): Promise<string> => {
   const cwd = resolve(opts.cwd ?? process.cwd());
@@ -63,7 +63,8 @@ export const resolveTargetProject = async (opts: CommonOptions): Promise<string>
   const projects = await candidates();
   if (projects.length === 0) return cwd;
   if (projects.length === 1) return projects[0].root;
-  if (opts.yes) {
+  // No TTY (CI, scripts, agents): nobody can answer the picker, so fail like `-y`.
+  if (opts.yes || !process.stdin.isTTY) {
     throw new Error(
       `Multiple crouton projects under ${cwd}: ${list(projects.map((p) => p.name))}. Pick one with --project <name>.`,
     );

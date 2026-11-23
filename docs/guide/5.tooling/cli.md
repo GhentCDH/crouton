@@ -53,7 +53,7 @@ Every command works on one project — a folder with a `crouton.json`. It is res
 1. `--project <name>` → the subfolder of `--cwd` with that name (an unknown name lists the available ones).
 2. The current directory, or one of its parents, has a `crouton.json` → that project.
 3. Otherwise the immediate subfolders of the current directory are scanned: one project is used as-is, several open a
-   picker. With `-y` (or `validate resources --json`) several projects are an error that lists them — pass `--project`.
+   picker. With `-y`, without a terminal (CI, scripts) or with `validate resources --json`, several projects are an error that lists them — pass `--project`.
 
 ```sh
 # monorepo with apps/ and admin/ each holding a crouton.json
