@@ -389,6 +389,8 @@ await bookApi.getOneById('42');
   in; a 401 from the API still starts the login.
 - `layout.table.rowClick: "edit" | "view"` now opens the record (it had no effect on resource tables).
 - `crouton generate` — CI-safe `prisma generate` without `db pull` (used in Step 14).
+- `useAuth().user.picture` — the login provider's profile photo URL (Google and OIDC providers that send a
+  `picture` claim; http(s) only; empty for Microsoft). Users already logged in get it after their next login.
 
 ---
 
