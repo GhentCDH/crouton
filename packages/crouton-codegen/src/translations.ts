@@ -7,6 +7,7 @@
  */
 
 import type { TranslationBundle } from '@crouton/i18n';
+import { layoutTitleSlug } from '@crouton/i18n';
 
 import type { ResourceJson, TableNode } from '@ghentcdh/crouton-core';
 import { labelFromId, resolveTableNode  } from '@ghentcdh/crouton-core';
@@ -64,6 +65,19 @@ const setPath = (
   cur[keys[keys.length - 1]] = value;
 };
 
+/**
+ * Collect `title` / `label` of layout nodes and component items (not field
+ * controls — their label is the column's) into `out`, keyed by slug.
+ */
+const collectLayoutTitles = (node: unknown, out: Record<string, string>): void => {
+  if (!node || typeof node !== 'object' || 'id' in node) return;
+  const n = node as { title?: unknown; label?: unknown; items?: unknown };
+  for (const text of [n.title, n.label]) {
+    if (typeof text === 'string' && layoutTitleSlug(text)) out[layoutTitleSlug(text)] = text;
+  }
+  if (Array.isArray(n.items)) for (const item of n.items) collectLayoutTitles(item, out);
+};
+
 // ── build ───────────────────────────────────────────────────────────
 
 /**
@@ -110,6 +124,12 @@ export const buildTranslationBundle = (
       }
       entry.actions = acts;
     }
+
+    // layout titles (group / collapse / tabs / … in form + view)
+    const layoutTitles: Record<string, string> = {};
+    collectLayoutTitles(res.layout?.form, layoutTitles);
+    collectLayoutTitles(res.layout?.view, layoutTitles);
+    if (Object.keys(layoutTitles).length) entry.layout = layoutTitles;
 
     resSection[res.name] = entry;
   }

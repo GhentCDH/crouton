@@ -25,6 +25,18 @@ export const subResourceActionKey = (
   action: string,
 ): string => `resources.${parent}.subResources.${child}.actions.${action}`;
 
+/**
+ * Key segment for a layout title/label: lowercase, non letter/digit runs → `_`.
+ * `"General info"` → `general_info`. Empty when the text has no letters or digits.
+ */
+export const layoutTitleSlug = (text: string): string =>
+  // split + join, no trim regex: linear time on any input (CodeQL js/polynomial-redos)
+  text.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean).join('_');
+
+/** Layout node title / label (group, collapse, tabs, …) in `layout.form` / `layout.view`. */
+export const layoutTitleKey = (resource: string, text: string): string =>
+  `resources.${resource}.layout.${layoutTitleSlug(text)}`;
+
 export const enumKey = (enumName: string, value: string): string =>
   `enums.${enumName}.${value}`;
 

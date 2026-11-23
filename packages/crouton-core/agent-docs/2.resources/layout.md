@@ -76,10 +76,13 @@ order.
 
 A node with no `type` defaults to `"grid"`.
 
+Node `title` / `label` and component item `label` are translatable: `crouton translations` adds them under
+`resources.<name>.layout.<slug>` (see [Translations](../4.frontend/translations.md#key-conventions)).
+
 ### Tabs
 
-`"type": "tabs"` shows one tab per child node. Each tab is labelled with the child's `title` (or the value of its
-`titleKey` field).
+`"type": "tabs"` shows one tab per child node. Each tab is labelled with the child's `title` (translated like any
+layout title) or the value of its `titleKey` field.
 
 ```jsonc
 {

@@ -21,6 +21,7 @@ export const TranslationBundleSchema = z
             sidebar: z.string().optional(),
             columns: z.record(z.string(), z.string()).optional(),
             actions: z.record(z.string(), z.string()).optional(),
+            layout: z.record(z.string(), z.string()).optional(),
             subResources: z
               .record(
                 z.string(),
@@ -28,6 +29,7 @@ export const TranslationBundleSchema = z
                   .object({
                     title: z.string().optional(),
                     columns: z.record(z.string(), z.string()).optional(),
+                    layout: z.record(z.string(), z.string()).optional(),
                   })
                   .optional(),
               )

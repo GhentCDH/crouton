@@ -1,4 +1,4 @@
-import { actionKey, columnKey, resourceTitleKey } from '@crouton/i18n';
+import { actionKey, columnKey, layoutTitleKey, layoutTitleSlug, resourceTitleKey } from '@crouton/i18n';
 
 import type { ResourceDefinition, ViewColumnConfig, ViewConfig } from '@ghentcdh/crouton-core';
 
@@ -37,18 +37,40 @@ const keyCandidates = (def: ResourceDefinition) => {
       title: (): string[] => subKeys('.title'),
       column: (col: string): string[] => subKeys(`.columns.${col}`),
       action: (id: string): string[] => subKeys(`.actions.${id}`),
+      layout: (text: string): string[] => subKeys(`.layout.${layoutTitleSlug(text)}`),
     };
   }
   return {
     title: (): string[] => [resourceTitleKey(def.name)],
     column: (col: string): string[] => [columnKey(def.name, col)],
     action: (id: string): string[] => [actionKey(def.name, id)],
+    layout: (text: string): string[] => [layoutTitleKey(def.name, text)],
   };
 };
 
 /** Try each candidate key in order; the last fallback wins if none resolve. */
 const tFirst = (t: Translator, keys: string[], fallback: string): string =>
   keys.reduceRight((acc, key) => t(key, acc), fallback);
+
+/** Layout nodes and component items: translate `options.title` / `options.label` via `resources.<name>.layout.<slug>`. */
+const translateLayoutTitles = (
+  element: Record<string, unknown>,
+  t: Translator,
+  keys: ReturnType<typeof keyCandidates>,
+): Record<string, unknown> => {
+  const opts = element.options as Record<string, unknown> | undefined;
+  if (!opts) return element;
+  const tr = (text: unknown) =>
+    typeof text === 'string' && layoutTitleSlug(text) ? tFirst(t, keys.layout(text), text) : text;
+  return {
+    ...element,
+    options: {
+      ...opts,
+      ...(opts.title !== undefined && { title: tr(opts.title) }),
+      ...(opts.label !== undefined && { label: tr(opts.label) }),
+    },
+  };
+};
 
 const translateUiElements = (
   elements: unknown[],
@@ -61,16 +83,11 @@ const translateUiElements = (
     const scope = element.scope as string | undefined;
     const id = scope ? idFromScope(scope) : undefined;
     const opts = element.options as Record<string, unknown> | undefined;
-    const newEl =
-      id && opts?.label
-        ? {
-            ...element,
-            options: {
-              ...opts,
-              label: tFirst(t, keys.column(id), opts.label as string),
-            },
-          }
-        : element;
+    const newEl = id
+      ? opts?.label
+        ? { ...element, options: { ...opts, label: tFirst(t, keys.column(id), opts.label as string) } }
+        : element
+      : translateLayoutTitles(element, t, keys);
     const nested = (newEl as Record<string, unknown>).elements as unknown[] | undefined;
     if (Array.isArray(nested)) {
       return { ...(newEl as Record<string, unknown>), elements: translateUiElements(nested, t, keys) };

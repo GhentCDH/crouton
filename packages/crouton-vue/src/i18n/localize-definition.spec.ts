@@ -84,6 +84,24 @@ describe('localizeDefinition', () => {
     Object.assign(bundle, bundleDefaults);
   });
 
+  it('translates layout titles and labels, leaving untranslated ones as-is', () => {
+    bundle['resources.books.layout.general_info'] = 'Algemeen';
+    bundle['resources.books.layout.open_loans'] = 'Open leningen';
+    const group = {
+      type: 'GroupLayout',
+      options: { title: 'General info' },
+      elements: [
+        { type: 'ComponentElement', options: { component: 'LoanList', label: 'Open loans' } },
+        { type: 'CollapseLayout', options: { title: 'History' }, elements: [] },
+      ],
+    };
+    const out = localizeDefinition(def('books', 'books', { form: { ui: { type: 'GridLayout', elements: [group] } } }));
+    const ui = out.schemas.form.ui as { elements: Array<{ options: { title: string }; elements: Array<{ options: Record<string, string> }> }> };
+    expect(ui.elements[0]?.options.title).toBe('Algemeen');
+    expect(ui.elements[0]?.elements[0]?.options['label']).toBe('Open leningen');
+    expect(ui.elements[0]?.elements[1]?.options['title']).toBe('History');
+  });
+
   it('translates a top-level resource via flat keys', () => {
     const out = localizeDefinition(def('books', 'books'));
     expect(out.title).toBe('Boeken');
