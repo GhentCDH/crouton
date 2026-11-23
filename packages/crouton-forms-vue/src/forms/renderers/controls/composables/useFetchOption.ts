@@ -51,8 +51,9 @@ export const clearResolvedOptionCache = () => {
   inflightOptionRequests.clear();
 };
 
-const optionCacheKey = (resource: string, value: unknown) =>
-  `${resource}|${String(value)}`;
+// valueKey is part of the key: `id` 38 and `externalId` 38 are different records.
+const optionCacheKey = (resource: string, valueKey: string, value: unknown) =>
+  `${resource}|${valueKey}|${String(value)}`;
 
 const cachedResolve = (
   key: string,
@@ -211,7 +212,8 @@ const useResourceOptions = async (
   // TODO use the crouton logic for resources
   const fetchRecordByValue = async (value: unknown): Promise<unknown> => {
     // Preferred: findOne with an `{id}`-style placeholder in its uri.
-    if (findOne?.uri && /\{[^}]+\}/.test(findOne.uri)) {
+    // findOne looks up by primary key, so only use it when the stored value is the id.
+    if (valueKey === 'id' && findOne?.uri && /\{[^}]+\}/.test(findOne.uri)) {
       const uri = findOne.uri.replace(/\{[^}]+\}/g, () =>
         encodeURIComponent(String(value)),
       );
@@ -221,9 +223,9 @@ const useResourceOptions = async (
 
     // Fallback: findAll filtered on the value key (`field:value:operator`).
     const base = findAll?.uri ?? resource.uri;
-    const filter = encodeURIComponent(`${valueKey}:${String(value)}:eq`);
+    const filter = encodeURIComponent(`${valueKey}:${String(value)}:equals`);
     const uri = `${base}${base.includes('?') ? '&' : '?'}filter=${filter}`;
-    const response = await http.get(uri);;
+    const response = await http.get(uri);
     const body = response?.data as UnknownRecord| undefined;
     const rows = Array.isArray(body)
       ? body
@@ -249,15 +251,15 @@ const useResourceOptions = async (
     fetchByValue: (value: unknown) => {
       if (value === null || value === undefined || value === '')
         return Promise.resolve(null);
-      return cachedResolve(optionCacheKey(options.resource, value), () =>
+      return cachedResolve(optionCacheKey(options.resource, valueKey, value), () =>
         fetchRecordByValue(value),
       );
     },
     peekByValue: (value: unknown) =>
-      resolvedOptionCache.get(optionCacheKey(options.resource, value)),
+      resolvedOptionCache.get(optionCacheKey(options.resource, valueKey, value)),
     rememberValue: (value: unknown, record: unknown) => {
       if (value === null || value === undefined || value === '') return;
-      resolvedOptionCache.set(optionCacheKey(options.resource, value), record);
+      resolvedOptionCache.set(optionCacheKey(options.resource, valueKey, value), record);
     },
     enableCreate: !!(resource.operations.create && resource.schema?.ui),
     form: resource.operations.create && resource.schema

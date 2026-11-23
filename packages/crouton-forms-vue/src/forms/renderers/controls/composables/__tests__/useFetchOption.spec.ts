@@ -62,8 +62,32 @@ describe('useFetchOptions – fetchByValue', () => {
 
     await expect(config.fetchByValue(USER.id)).resolves.toEqual(USER);
     expect(http.get).toHaveBeenCalledWith(
-      `/users?filter=${encodeURIComponent('id:b4c6f946:eq')}`,
+      `/users?filter=${encodeURIComponent('id:b4c6f946:equals')}`,
     );
+  });
+
+  it('resolves a non-id valueKey through a findAll filter, not findOne', async () => {
+    const activity = { id: 1, externalId: 38, description: 'Reading' };
+    const http = httpMock(resourceDescriptor({ uri: '/users/{id}', method: 'get' }), activity);
+    const config = await useFetchOptions({ ...options, labelKey: 'description', valueKey: 'externalId' }, http);
+    if (!config.fetchByValue) throw new Error('fetchByValue must be defined');
+
+    await expect(config.fetchByValue(38)).resolves.toEqual(activity);
+    expect(http.get).toHaveBeenCalledWith(
+      `/users?filter=${encodeURIComponent('externalId:38:equals')}`,
+    );
+    expect(http.get).not.toHaveBeenCalledWith('/users/38', undefined, undefined);
+  });
+
+  it('does not share cached options between different valueKeys', async () => {
+    const http = httpMock(resourceDescriptor({ uri: '/users/{id}', method: 'get' }));
+    const byId = await useFetchOptions(options, http);
+    const byExternal = await useFetchOptions({ ...options, valueKey: 'externalId' }, http);
+    if (!byId.rememberValue || !byExternal.peekByValue) throw new Error('helpers must be defined');
+
+    byId.rememberValue(38, USER);
+
+    expect(byExternal.peekByValue(38)).toBeUndefined();
   });
 
   it('caches a resolved option and exposes it synchronously', async () => {
