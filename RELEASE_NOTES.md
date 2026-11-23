@@ -1,3 +1,61 @@
+## 0.2.0-rc.1 (2026-11-23)
+
+### 🚀 Features
+
+- add color field input type ([#630](https://github.com/GhentCDH/crouton/pull/630))
+- **api:** pass action data and request to procedures ([#616](https://github.com/GhentCDH/crouton/pull/616), [#640](https://github.com/GhentCDH/crouton/pull/640))
+- **api:** re-export signSession/verifySession/getSessionSecret ([#643](https://github.com/GhentCDH/crouton/pull/643))
+- **auth:** keep the provider profile picture in the session ([#619](https://github.com/GhentCDH/crouton/pull/619), [#639](https://github.com/GhentCDH/crouton/pull/639))
+- **cli:** add crouton generate for CI-safe prisma generate ([#601](https://github.com/GhentCDH/crouton/pull/601), [#609](https://github.com/GhentCDH/crouton/pull/609))
+- **codegen:** allow relation-only renames in normalize-schema.json ([#578](https://github.com/GhentCDH/crouton/pull/578), [#540](https://github.com/GhentCDH/crouton/issues/540))
+- **core:** table download option + global rules.tableDownload ([#617](https://github.com/GhentCDH/crouton/pull/617), [#632](https://github.com/GhentCDH/crouton/pull/632))
+- **crouton-vue:** mark relation cells with a link icon ([#579](https://github.com/GhentCDH/crouton/pull/579), [#255](https://github.com/GhentCDH/crouton/issues/255))
+- **i18n:** translate layout node titles and labels ([#641](https://github.com/GhentCDH/crouton/pull/641))
+- **layout:** custom layout nodes via registered components ([#631](https://github.com/GhentCDH/crouton/pull/631))
+- **layout:** built-in tabs layout node ([#637](https://github.com/GhentCDH/crouton/pull/637), [#629](https://github.com/GhentCDH/crouton/issues/629))
+- **vue:** requireLogin option so public pages can use CroutonPlugin ([#618](https://github.com/GhentCDH/crouton/pull/618), [#628](https://github.com/GhentCDH/crouton/pull/628))
+- **vue:** Download CSV button for tables + downloadCsv helper ([#617](https://github.com/GhentCDH/crouton/pull/617), [#635](https://github.com/GhentCDH/crouton/pull/635))
+
+### 🩹 Fixes
+
+- resolve resource route from name in the frontend ([#565](https://github.com/GhentCDH/crouton/pull/565), [#548](https://github.com/GhentCDH/crouton/issues/548))
+- show the related record for a manyToOne on its FK column ([#570](https://github.com/GhentCDH/crouton/pull/570), [#549](https://github.com/GhentCDH/crouton/issues/549))
+- pass record, readonly and props to layout component items ([#577](https://github.com/GhentCDH/crouton/pull/577), [#545](https://github.com/GhentCDH/crouton/issues/545))
+- **api:** run beforeFindAll/afterFindAll on sub-resource lists ([#562](https://github.com/GhentCDH/crouton/pull/562), [#555](https://github.com/GhentCDH/crouton/issues/555))
+- **api:** pass request context to embedded custom repositories ([#563](https://github.com/GhentCDH/crouton/pull/563), [#556](https://github.com/GhentCDH/crouton/issues/556))
+- **api:** stop warning when a custom resource sets source.datasource ([#572](https://github.com/GhentCDH/crouton/pull/572), [#547](https://github.com/GhentCDH/crouton/issues/547))
+- **api:** don't serve resources whose hooks fail to import ([#575](https://github.com/GhentCDH/crouton/pull/575), [#574](https://github.com/GhentCDH/crouton/issues/574))
+- **api:** coerce filter values to the field type ([#576](https://github.com/GhentCDH/crouton/pull/576), [#557](https://github.com/GhentCDH/crouton/issues/557))
+- **api:** run beforeWrite before delete ([#587](https://github.com/GhentCDH/crouton/pull/587), [#582](https://github.com/GhentCDH/crouton/issues/582))
+- **api:** don't allowlist-check filters added by beforeFindAll ([#588](https://github.com/GhentCDH/crouton/pull/588), [#585](https://github.com/GhentCDH/crouton/issues/585))
+- **api:** inject dev controller registries by explicit token ([#596](https://github.com/GhentCDH/crouton/pull/596), [#603](https://github.com/GhentCDH/crouton/pull/603))
+- **api:** record schema.ts load failures and share one module loader (#595, #600) ([#607](https://github.com/GhentCDH/crouton/pull/607), [#595](https://github.com/GhentCDH/crouton/issues/595), [#600](https://github.com/GhentCDH/crouton/issues/600))
+- **build:** typecheck workspace packages against source, not dist ([#566](https://github.com/GhentCDH/crouton/pull/566))
+- **cli:** update resources --dry-run writes nothing ([#626](https://github.com/GhentCDH/crouton/pull/626), [#622](https://github.com/GhentCDH/crouton/issues/622))
+- **cli:** no project picker without a TTY; cancel exits non-zero ([#624](https://github.com/GhentCDH/crouton/pull/624), [#627](https://github.com/GhentCDH/crouton/pull/627))
+- **codegen:** recover from invalid schema in update resources ([#550](https://github.com/GhentCDH/crouton/pull/550), [#541](https://github.com/GhentCDH/crouton/issues/541))
+- **codegen:** rename relation fields that collide with scalar columns ([#552](https://github.com/GhentCDH/crouton/pull/552), [#539](https://github.com/GhentCDH/crouton/issues/539))
+- **core:** keep per-operation security in resource definitions ([#559](https://github.com/GhentCDH/crouton/pull/559), [#553](https://github.com/GhentCDH/crouton/issues/553))
+- **core:** keep relation keys out of create/update schemas ([#589](https://github.com/GhentCDH/crouton/pull/589), [#584](https://github.com/GhentCDH/crouton/issues/584))
+- **core:** apply column defaults on create ([#583](https://github.com/GhentCDH/crouton/pull/583), [#586](https://github.com/GhentCDH/crouton/pull/586))
+- **core:** treat fieldInput type "text" as legacy alias of string ([#599](https://github.com/GhentCDH/crouton/pull/599), [#606](https://github.com/GhentCDH/crouton/pull/606))
+- **core:** limit default free-text search to text columns ([#605](https://github.com/GhentCDH/crouton/pull/605), [#594](https://github.com/GhentCDH/crouton/issues/594))
+- **create-crouton:** keep generated Prisma client out of pnpm workspace ([#567](https://github.com/GhentCDH/crouton/pull/567), [#543](https://github.com/GhentCDH/crouton/issues/543))
+- **crouton-vue:** make admin header title translatable ([#573](https://github.com/GhentCDH/crouton/pull/573), [#544](https://github.com/GhentCDH/crouton/issues/544))
+- **forms-vue:** persist cleared values in API forms; inline selects need no http ([#558](https://github.com/GhentCDH/crouton/pull/558))
+- **forms-vue:** resolve autocomplete label for non-id valueKey ([#611](https://github.com/GhentCDH/crouton/pull/611), [#625](https://github.com/GhentCDH/crouton/pull/625))
+- **migrate:** handle legacy display object and duplicated relation keys ([#598](https://github.com/GhentCDH/crouton/pull/598), [#608](https://github.com/GhentCDH/crouton/pull/608))
+- **prisma:** log the real types path in prisma generate ([#569](https://github.com/GhentCDH/crouton/pull/569))
+- **prisma:** import Prisma from the generated client in zod types ([#597](https://github.com/GhentCDH/crouton/pull/597), [#604](https://github.com/GhentCDH/crouton/pull/604))
+- **release:** drop publishConfig alpha tag so stable releases get latest ([#532](https://github.com/GhentCDH/crouton/pull/532))
+- **ui-vue:** rowClick edit/view opens the record ([#613](https://github.com/GhentCDH/crouton/pull/613), [#633](https://github.com/GhentCDH/crouton/pull/633))
+- **vue:** support apps served under a base path ([#593](https://github.com/GhentCDH/crouton/pull/593), [#592](https://github.com/GhentCDH/crouton/issues/592))
+- **vue:** useResourcesById resolves once the definition loads ([#615](https://github.com/GhentCDH/crouton/pull/615), [#634](https://github.com/GhentCDH/crouton/pull/634))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.1.0 (2026-11-17)
 
 ### 🚀 Features
