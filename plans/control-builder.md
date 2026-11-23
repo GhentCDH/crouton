@@ -1,5 +1,12 @@
 # Resource editor — Phase 1: Control Builder
 
+| | |
+|---|---|
+| **Status** | 📝 Planned (plan approved, implementation not started) |
+| **Issue** | #644 |
+| **Roadmap** | [`resource-builder-roadmap.md`](./resource-builder-roadmap.md) — next: #645 (table layout) |
+| **Last updated** | 2026-11-23 |
+
 Brand-new editor for `resource.json`, built from scratch (no code shared with `crouton-editor-vue`).
 Phase 1 = a **dumb, standalone control builder**: one column in → one column (+ translations) out.
 
