@@ -5,6 +5,9 @@
   "sourceRoot": "packages/crouton-cli/src",
   "tags": ["scope:crouton", "type:cli", "tech:node", "platform:cli"],
   "targets": {
+    "build": {
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/agent-docs"]
+    },
     "nx-release-publish": {
       "dependsOn": ["build"],
       "command": "npm publish --access public",

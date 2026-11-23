@@ -36,4 +36,4 @@ Crouton is a resource-driven admin UI framework. This skill teaches the correct 
 - `references/common-mistakes.md` — common mistakes
 
 ## Docs for the installed version
-`node_modules/@ghentcdh/crouton-core/agent-docs/README.md`
+`node_modules/@ghentcdh/crouton-cli/agent-docs/README.md`

@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 // eslint-disable-next-line @nx/enforce-module-boundaries -- build-time only: reads repo package.jsons
 import { readDepVersions } from '../../tools/template-dep-versions.mjs';
 import { readFileSync } from 'node:fs';
-import { cp, readFile, writeFile } from 'node:fs/promises';
+import { cp, readFile, rm, writeFile } from 'node:fs/promises';
 
 const outDir = './dist';
 
@@ -49,6 +49,10 @@ export default defineConfig([
     async onSuccess() {
       // `crouton create project` renders create-crouton's templates (resolved next to dist/index.js).
       await cp('../create-crouton/templates', `${outDir}/templates`, { recursive: true });
+      // Agent docs ship with the CLI (always a root dependency) so AGENTS.md links resolve
+      // under pnpm, where crouton-core is only a transitive dependency (#674).
+      await rm('./agent-docs', { recursive: true, force: true });
+      await cp('../crouton-core/agent-docs', './agent-docs', { recursive: true });
       const pkg = JSON.parse(await readFile('./package.json', 'utf8'));
       const distPkg = {
         name: pkg.name,
