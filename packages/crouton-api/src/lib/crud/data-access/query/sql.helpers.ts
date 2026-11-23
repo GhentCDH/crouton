@@ -48,6 +48,9 @@ const buildPlaceholders = (ids: unknown[], provider: string): string => {
   return ids.map((_, i) => `$${i + 1}`).join(', ');
 };
 
+const isPostgresLike = (provider: string): boolean =>
+  provider === 'postgresql' || provider === 'cockroachdb';
+
 /** Build the parameterised SQL for one calculated column query. */
 const buildCalculatedColumnSql = (
   col: CalculatedColumn,
@@ -58,9 +61,14 @@ const buildCalculatedColumnSql = (
 ): string => {
   const alias = col.alias ?? col.id;
   const placeholders = buildPlaceholders(ids, provider);
+  // Postgres won't implicitly cast text params to uuid (`uuid = text`), so
+  // compare on text; ids are bound as strings for these providers.
+  const key = isPostgresLike(provider)
+    ? `main."${idField}"::text`
+    : `main."${idField}"`;
   // The key column is aliased to `id` so the caller can merge on a stable name
   // regardless of what the resource's primary key is called.
-  return `SELECT main."${idField}" AS id, ${castExpression(col)} AS "${alias}" FROM "${tableName}" main WHERE main."${idField}" IN (${placeholders})`;
+  return `SELECT main."${idField}" AS id, ${castExpression(col)} AS "${alias}" FROM "${tableName}" main WHERE ${key} IN (${placeholders})`;
 };
 
 // ── Public helpers ────────────────────────────────────────────────────────
@@ -69,22 +77,6 @@ const buildCalculatedColumnSql = (
  * Run raw SQL for each calculated column and merge results onto rows by id.
  * Each `sqlExpression` may reference the row via the alias `main`.
  *
- * @param rows
- * @param calcCols
- * @param tableName
- * @param prisma
- * @param rows
- * @param calcCols
- * @param tableName
- * @param prisma
- * @param rows
- * @param calcCols
- * @param tableName
- * @param prisma
- * @param rows
- * @param calcCols
- * @param tableName
- * @param prisma
  * @param idField - Primary key column of `tableName`. Defaults to `'id'`.
  * @param provider - Database provider for placeholder syntax (`'postgresql'`, `'sqlite'`, etc.).
  */
@@ -98,7 +90,9 @@ export const mergeCalculatedColumnsForRows = async (
 ): Promise<Row[]> => {
   if (!calcCols.length || !rows.length) return rows;
 
-  const ids = rows.map((r) => r[idField]);
+  const ids = rows.map((r) =>
+    isPostgresLike(provider) ? String(r[idField]) : r[idField],
+  );
   const results = await Promise.all(
     calcCols.map(async (col) => {
       const alias = col.alias ?? col.id;
