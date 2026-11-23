@@ -11,7 +11,8 @@ At the end, print a short report: step → applied / skipped / needs manual revi
 No `resource.json` changes are required — every `resource.json` valid on 0.1.0 is valid on 0.2.0.
 Coming from a `0.0.1-alpha.x` release? Do [Step 0](#step-0--coming-from-an-alpha) first.
 The breaking changes are in **runtime behaviour of hooks**, **filter handling**, the **generated Prisma
-client workspace layout**, and a few **frontend renderer details**.
+client workspace layout**, the **default free-text search**, **CLI exit codes**, and a few **frontend renderer
+details**.
 
 Placeholders below: `<name>` = the npm scope used for generated packages (see
 `@<name>/generated-default-types` in an app `package.json`), `<prefix>` = the folder that holds `apps/` and
@@ -37,14 +38,14 @@ pre-0.1.0 shapes and fail validation: no CRUD routes get mapped, and the cause o
 All crouton packages are released in lockstep.
 
 ```bash
-pnpm up "@ghentcdh/crouton-*@0.2.0-rc.0" "@ghentcdh/create-crouton@0.2.0-rc.0"
+pnpm up "@ghentcdh/crouton-*@0.2.0-rc.1" "@ghentcdh/create-crouton@0.2.0-rc.1"
 ```
 
 Packages no longer publish under the `alpha` dist-tag. Replace any `@alpha` / `alpha` range in `package.json`
 with an explicit version.
 
 - **CLI not installed?** `pnpm up` only updates packages you already have. Apps that depend only on
-  `@ghentcdh/create-crouton` need the CLI for the later steps: `pnpm add -D -w @ghentcdh/crouton-cli@0.2.0-rc.0`.
+  `@ghentcdh/create-crouton` need the CLI for the later steps: `pnpm add -D -w @ghentcdh/crouton-cli@0.2.0-rc.1`.
 - **`"*"` ranges in workspace libs** (e.g. `"@ghentcdh/crouton-api": "*"` in a shared lib's
   `peerDependencies`) keep resolving to the old version, which gives two crouton copies and TS2742 errors
   (*inferred type cannot be named without a reference to …/node_modules/@ghentcdh/crouton-api*). Pin them too.
@@ -110,16 +111,21 @@ If you worked around the skipped hooks by copying `beforeFindAll` logic into a c
 
 ---
 
-## Step 4 — Broken `hooks.ts` takes the resource offline (behaviour change)
+## Step 4 — Broken `hooks.ts` / `schema.ts` takes the resource offline (behaviour change)
 
 If a `hooks.ts` (resource or sub-resource) throws on import, the resource is **no longer served** (it was
 served without hooks before — failing open). A failing sub-resource hooks file also takes the parent down.
 The failure is listed on the status page / resource load errors.
 
-**Detect** — start the backend and check the log / status page for
-`Failed to import hooks — resource not served`.
+The same now holds for `schema.ts`: one that fails to import, or whose default export is not a zod schema, used to
+serve the resource without a schema; now it is not served. Missing generated types get a hint to regenerate.
 
-**Fix** — fix the import error. Nothing to change if all hooks load.
+**Detect** — start the backend and check the log / `/crouton/status.json` for
+`Failed to import hooks — resource not served`, `Failed to import schema.ts — resource not served` or
+``schema.ts must `export default` a zod schema``.
+
+**Fix** — fix the import error (`pnpm crouton generate --yes` when the generated types are missing) or make
+`schema.ts` `export default` the zod schema. Nothing to change if everything loads.
 
 ---
 
@@ -283,7 +289,85 @@ grep -rn "rankWith(1[0-3], .*[Ss]elect\|role=\"select\"\|\[role=select\]\|getByR
 
 ---
 
-## Step 10 — New, opt-in features (no action needed)
+## Step 10 — Default free-text search only covers text columns (behaviour change)
+
+Without an explicit `operations.findAll.search`, `?q=` used to search almost every column. A number, boolean or
+enum column in that list made Prisma throw, so `?q=` returned **500**. Now the fallback only searches text columns:
+`fieldInput.type` `string` / `textarea` / `markdown`, `type: "string"` without a format, or an untyped column whose
+Prisma field is a `String`.
+
+| Column | Before | Now |
+|---|---|---|
+| `string` / `textarea` / `markdown`, Prisma `String` | searched | searched |
+| `fieldInput.type: "select"` on a `String` column | searched | **skipped** (a select may be an enum) |
+| number, boolean, enum, date | searched → 500 | skipped |
+| untyped column in a **sub-resource** table | searched | **skipped** (no Prisma schema to type it) |
+
+`search: []` now explicitly disables search.
+
+**Detect**: resources without an explicit search list:
+
+```bash
+grep -rL '"search"' --include=resource.json . | grep -v node_modules
+```
+
+**Fix**: for a listed resource whose search box should match a `select` column or a sub-resource column, declare
+the list explicitly:
+
+```json
+{ "operations": { "findAll": { "search": ["title", "status"] } } }
+```
+
+---
+
+## Step 11 — CLI: exit codes and `--dry-run` (behaviour change)
+
+Matters for CI jobs and scripts that call the CLI.
+
+| Change | Before | Now |
+|---|---|---|
+| Several projects under `--cwd`, no `--project`, stdin is not a TTY (CI, scripts, agents) | picker hangs or cancels, exit 0 | fails: *Multiple crouton projects … Pick one with --project &lt;name&gt;*, exit 1 |
+| A cancelled `update resources` / `create resource` / `create datasource` (Ctrl+C, or a failed `db pull`) | exit 0 | exit 1 |
+| `update resources --dry-run` | ran `prisma db pull + generate` and rewrote `schema.prisma` (left a `.bak`) | writes nothing: skips pull/generate and plans against the current `schema.prisma` |
+| `update resources --dry-run` without a `crouton.json` | scaffolded one | error: run without `--dry-run` first |
+| `fieldInput.type: "text"` | runtime accepted it, `crouton validate` rejected it | legacy alias of `string`; `crouton migrate` rewrites it |
+
+**Detect**: CLI calls in CI/scripts without `--project` in a multi-project workspace:
+
+```bash
+grep -rn "crouton \(validate\|update\|migrate\|generate\|create\)" .github scripts package.json 2>/dev/null | grep -v -- "--project"
+```
+
+**Fix**: add `--project <prefix>` to each listed call (single-project workspaces need nothing). A dry run no
+longer refreshes the schema from the database — run `crouton update resources` without `--dry-run` (or
+`prisma db pull`) when you need that.
+
+---
+
+## Step 12 — `useResourcesById` / `useResourcesByUri` (frontend)
+
+Both composables return the **table controller** (`data`, `page`, `loading`, `onSort`, `onUpdatePage`, `edit`,
+`view`, `reload`, …) in a `Ref` that is `undefined` until the resource definition loads. `useResourcesById` used to
+stay `null` forever. Older docs promised CRUD methods (`findAll`, `findOne`, `create`, `save`, `delete`); those were
+never on these composables.
+
+**Detect**:
+
+```bash
+grep -rn "useResourcesBy\(Id\|Uri\)" --include='*.ts' --include='*.vue' apps libs 2>/dev/null | grep -v node_modules
+```
+
+**Fix**: read the controller through `.value` (`books.value?.reload()`). For plain CRUD calls use `useResourceApi`:
+
+```ts
+const bookApi = await useResourceApi('book');
+await bookApi.findAll({ page: 1, pageSize: 20 });
+await bookApi.getOneById('42');
+```
+
+---
+
+## Step 13 — New, opt-in features (no action needed)
 
 - `fieldInput.errorMessage` (all field inputs) — replace the validation text.
 - `fieldInput.clearable` on `string` inputs.
@@ -296,10 +380,19 @@ grep -rn "rankWith(1[0-3], .*[Ss]elect\|role=\"select\"\|\[role=select\]\|getByR
   the old relation field name.
 - Per-operation `security` is now kept in resource definitions (was dropped).
 - manyToOne relation on its own FK column (`authorId`) shows the related record in tables.
+- `fieldInput.type: "color"` — native color picker next to a hex input; tables and views show a swatch.
+- `layout.table.download: { "csv": true, "fileName": "books" }` on the table node, or `rules.tableDownload.csv` in
+  `crouton.json` as global default (per-table wins). Config only for now; the download button follows.
+- `{ "type": "custom", "component": "<Name>", "elements": [...] }` layout nodes in `layout.form` / `layout.view`:
+  a component from `customComponents` renders the children (tabs, steppers, …) with one form and one Save.
+- `CroutonPlugin(api, { requireLogin })` — `false`, or `(path) => boolean`, lets public pages load without logging
+  in; a 401 from the API still starts the login.
+- `layout.table.rowClick: "edit" | "view"` now opens the record (it had no effect on resource tables).
+- `crouton generate` — CI-safe `prisma generate` without `db pull` (used in Step 14).
 
 ---
 
-## Step 11 — Verify
+## Step 14 — Verify
 
 ```bash
 pnpm install --frozen-lockfile
