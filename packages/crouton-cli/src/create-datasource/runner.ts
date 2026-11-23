@@ -204,6 +204,8 @@ export const runCreateDatasource = async (opts: CreateDatasourceOptions): Promis
   } catch (err) {
     if (err instanceof CancelledError) {
       clack.cancel('Cancelled.');
+      // Nothing was done: never let CI read a cancel as success.
+      process.exitCode = 1;
       return;
     }
     throw err;
