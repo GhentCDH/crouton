@@ -191,7 +191,7 @@ describe('mergeCalculatedColumnsForRows', () => {
     if (!sql) throw new Error('no SQL captured');
     expect(sql).toContain('CAST((main.is_active) AS BOOLEAN)');
     expect(sql).toContain('FROM "books" main');
-    expect(sql).toContain('WHERE main."id" IN ($1, $2)');
+    expect(sql).toContain('WHERE main."id"::text IN ($1, $2)');
   });
 
   it('uses the custom alias when set', async () => {
@@ -226,6 +226,31 @@ describe('mergeCalculatedColumnsForRows', () => {
       'postgresql',
     );
     expect(capturedArgs).toEqual(['1', '2']);
+  });
+
+  it('binds numeric ids as strings for postgresql (uuid/int keys compare on text)', async () => {
+    let capturedArgs: unknown[] | undefined;
+    const client = {
+      $queryRawUnsafe: vi.fn(async (_sql: string, ...args: unknown[]) => {
+        capturedArgs = args;
+        return [];
+      }),
+    };
+    await mergeCalculatedColumnsForRows(
+      [{ id: 1 }, { id: 2 }],
+      [col()],
+      'books',
+      client,
+      'id',
+      'postgresql',
+    );
+    expect(capturedArgs).toEqual(['1', '2']);
+  });
+
+  it('keeps raw ids and no ::text cast for sqlite', async () => {
+    const { client, lastSql } = mockPrisma();
+    await mergeCalculatedColumnsForRows(fakeRows, [col()], 'books', client, 'id', 'sqlite');
+    expect(lastSql()).toContain('WHERE main."id" IN (?, ?)');
   });
 
   it('returns rows unchanged when there are no calculated columns', async () => {
