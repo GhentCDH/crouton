@@ -1,5 +1,6 @@
 import { DataSourceSchema } from '@ghentcdh/crouton-core';
 
+import { findModule, importDefault } from '../../loader/module.loader';
 import { resourceLoadErrorsRegistry } from '../../resource/resource-load-errors.registry';
 import type { DataSourceAdapter } from './data-source.adapter';
 import type { DataSourceEntry } from './data-source.types';
@@ -59,8 +60,10 @@ export const loadDataSourcesFromDir = async (
 
     let adapter: DataSourceAdapter;
     try {
-      const mod = await import(indexFile) as Record<string, unknown>;
-      const exported: unknown = mod['default'];
+      // Same loader as resource modules, so compiled output needs one convention (#600).
+      const exported = await importDefault<unknown>(indexFile, (err) => {
+        throw err;
+      });
       if (!exported) continue;
 
       if (config.adapter === 'custom') {
@@ -105,12 +108,4 @@ export const loadDataSourcesFromDir = async (
   }
 
   return results;
-};
-
-const findModule = (dir: string, name: string): string | undefined => {
-  for (const ext of ['.ts', '.js']) {
-    const p = join(dir, `${name}${ext}`);
-    if (existsSync(p)) return p;
-  }
-  return undefined;
 };
