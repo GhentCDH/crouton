@@ -45,6 +45,13 @@ generatorHandler({
       : options.generator.output?.value;
     if (!absZodOutput) throw new Error('[crouton-prisma] set `output` in the generator block');
 
+    // zod-prisma-types crashes on a schema without models (e.g. before the
+    // first `prisma db pull`), so there is nothing to generate yet.
+    if (!options.dmmf.datamodel.models.length) {
+      console.warn('[crouton-prisma] no models in schema, skipping zod types');
+      return;
+    }
+
     // 1. Normalize: rename relation fields per normalize-schema.json, write back to schema.prisma
     await normalizeSchema(schemaPath);
 
