@@ -95,10 +95,11 @@ Always run `crouton validate` after any change to `resource.json` or `crouton.js
 `manyToOne`: FK is on **this** resource. `oneToMany`: FK is on the **target** resource.
 Swapping them causes the relation panel to query the wrong table.
 
-## 10. `colspan`/`rowspan`/`hideLabel` on table items
+## 10. `colspan`/`rowspan`/`hideLabel` on table-node items
 
-These form-layout options have no effect on table items and are rejected with a validation error.
-Remove them from `layout.table` items — use `width`, `align`, `truncate` for table-specific display.
+These form-layout options have no effect on items of the **`type: "table"` node** and are rejected there with a
+validation error — use `width`, `align`, `truncate` for table-specific display. `colspan` is fine on items of a
+**wrapper grid** around the table (e.g. `{ "component": "CreateByIsbn", "colspan": 12 }`).
 
 ## 11. Table/column settings on the wrapper instead of the table node
 

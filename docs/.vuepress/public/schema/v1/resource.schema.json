@@ -1796,7 +1796,7 @@
                             "type": "string"
                           },
                           "data": {
-                            "description": "Static query or body params passed to the procedure endpoint.",
+                            "description": "Static data passed to the procedure as `ctx.data`: `(prisma, ctx)` for table actions, `(prisma, recordId, ctx)` for row actions.",
                             "type": "object",
                             "propertyNames": {
                               "type": "string"
@@ -1968,7 +1968,7 @@
                             "type": "string"
                           },
                           "data": {
-                            "description": "Static query or body params passed to the procedure endpoint.",
+                            "description": "Static data passed to the procedure as `ctx.data`: `(prisma, ctx)` for table actions, `(prisma, recordId, ctx)` for row actions.",
                             "type": "object",
                             "propertyNames": {
                               "type": "string"
@@ -2823,7 +2823,7 @@
                               "type": "string"
                             },
                             "data": {
-                              "description": "Static query or body params passed to the procedure endpoint.",
+                              "description": "Static data passed to the procedure as `ctx.data`: `(prisma, ctx)` for table actions, `(prisma, recordId, ctx)` for row actions.",
                               "type": "object",
                               "propertyNames": {
                                 "type": "string"
@@ -2995,7 +2995,7 @@
                               "type": "string"
                             },
                             "data": {
-                              "description": "Static query or body params passed to the procedure endpoint.",
+                              "description": "Static data passed to the procedure as `ctx.data`: `(prisma, ctx)` for table actions, `(prisma, recordId, ctx)` for row actions.",
                               "type": "object",
                               "propertyNames": {
                                 "type": "string"

@@ -25,16 +25,22 @@ export const ResourceLinkActionSchema = ActionMetadataSchema.extend({
   href: z.string(),
 });
 
+/**
+ * Context passed to every procedure: the action's static `data` from `resource.json`
+ * and the incoming request (cast to `CroutonRequest` from `@ghentcdh/crouton-api`).
+ */
+export type ProcedureContext = { data: Record<string, unknown>; request: unknown };
+
 // ── Procedure actions — row-level ──────────────────────────────────────────
 
 export const ResourceRowProcedureActionSchema = ActionMetadataSchema.extend({
   type: z.literal('procedure').optional(),
   /** HTTP method for the endpoint. Defaults to `"post"`. */
   method: z.string().optional(),
-  /** Static data payload merged into the request body by the frontend. */
+  /** Static data, passed to the procedure as `ctx.data`. */
   data: z.record(z.string(), z.unknown()).optional(),
-  /** Procedure called with `(prisma, recordId)`. */
-  procedure: z.custom<(prisma: unknown, recordId: string | number) => Promise<unknown>>(
+  /** Procedure called with `(prisma, recordId, ctx)`. */
+  procedure: z.custom<(prisma: unknown, recordId: string | number, ctx: ProcedureContext) => Promise<unknown>>(
     (v) => typeof v === 'function',
   ),
 });
@@ -45,10 +51,10 @@ export const ResourceTableProcedureActionSchema = ActionMetadataSchema.extend({
   type: z.literal('procedure').optional(),
   /** HTTP method for the endpoint. Defaults to `"post"`. */
   method: z.string().optional(),
-  /** Static data payload merged into the request body by the frontend. */
+  /** Static data, passed to the procedure as `ctx.data`. */
   data: z.record(z.string(), z.unknown()).optional(),
-  /** Procedure called with `(prisma)` — no record id. */
-  procedure: z.custom<(prisma: unknown) => Promise<unknown>>(
+  /** Procedure called with `(prisma, ctx)` — no record id. */
+  procedure: z.custom<(prisma: unknown, ctx: ProcedureContext) => Promise<unknown>>(
     (v) => typeof v === 'function',
   ),
 });

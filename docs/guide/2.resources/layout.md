@@ -448,8 +448,8 @@ The table node carries all table-specific settings:
 `type` + `options` override the cell renderer for this column in the table only.
 
 ::: tip
-`colspan`, `rowspan`, and `hideLabel` are form-layout options and have no effect on table items — they produce a
-validation error if set.
+`colspan`, `rowspan`, and `hideLabel` are form-layout options and have no effect on items of the **table node** —
+they produce a validation error if set there. `colspan` *is* allowed on items of a [wrapper grid](#wrapper-layout).
 :::
 
 #### Table node options
@@ -611,8 +611,34 @@ Wrappers can nest arbitrarily:
 
 ::: tip
 Use the wrapper pattern when you need a custom action component alongside the table — for example a barcode scanner that
-creates a record directly. Each component receives a `resource` prop (the `UseResource` instance for the current table).
+creates a record directly.
 :::
+
+**What a wrapper component receives.** One prop, `resource`: the table controller of the current table (the same
+object `useResourcesById` returns). Useful members:
+
+| Member | Use |
+|---|---|
+| `data`, `page`, `sort`, `loading` | Current rows, paging and sort |
+| `reload()` | Re-fetch the table, e.g. after the component changed data |
+| `create()`, `edit(id)`, `view(id)` | Open the record form or view |
+| `api` | CRUD calls on the resource (`findAll`, `getOneById`, `create`, `save`, `patch`, `delete`) |
+| `backendAction(action)` | Run a procedure action and show its status in the toolbar |
+
+The selected rows and the live filter/search are not exposed. A wrapper component renders as its own block in the
+wrapper layout (above, beside or below the table, per the wrapper's order) — not inside the table toolbar, which keeps
+the `tableActions` of the table node.
+
+```vue
+<!-- RecalculateButtons.vue -->
+<script setup lang="ts">
+const props = defineProps({ resource: { type: Object, required: true } });
+const recalc = async (year: number) => {
+  await fetch(`/stats/recalculate/${year}`, { method: 'POST' });
+  props.resource.reload();
+};
+</script>
+```
 
 ## How a record opens (`layout.<form|view>.container`)
 

@@ -26,8 +26,8 @@ const asRuntimeAction = (action: JsonAction): RuntimeAction => {
  * - Procedure actions import their function from `{basePath}/actions/{procedure}.ts`.
  *
  * The `scope` parameter controls the procedure signature:
- * - `"row"`   → `(prisma, recordId) => Promise`
- * - `"table"` → `(prisma) => Promise`
+ * - `"row"`   → `(prisma, recordId, { data, request }) => Promise`
+ * - `"table"` → `(prisma, { data, request }) => Promise`
  *
  * All metadata fields (icon, tooltip, condition) are passed through for both scopes.
  */

@@ -62,7 +62,7 @@ describe('loadActions', () => {
     const publish = invalid<ResourceRowProcedureAction>(resolved[0]);
 
     expect(typeof publish.procedure).toBe('function');
-    expect(await publish.procedure(undefined, '42')).toBe('published 42');
+    expect(await publish.procedure(undefined, '42', { data: {}, request: undefined })).toBe('published 42');
     // In place: the mutated object is the one the loader was handed (the
     // layout node's action), not a copy.
     expect(resolved[0]).toBe(rowActions[0]);
@@ -83,7 +83,7 @@ describe('loadActions', () => {
     const exportAll = invalid<ResourceTableProcedureAction>(resolved[0]);
 
     expect(typeof exportAll.procedure).toBe('function');
-    expect(await exportAll.procedure(undefined)).toBe('exported all');
+    expect(await exportAll.procedure(undefined, { data: {}, request: undefined })).toBe('exported all');
   });
 
   it('passes link actions through untouched', async () => {
@@ -208,11 +208,11 @@ describe('resource loading — layout actions resolved in place', () => {
     const rowActions = getRowProcedureActions(config);
     expect(rowActions.map((a) => a.id)).toEqual(['publish']);
     const publish = invalid<ResourceRowProcedureAction>(rowActions[0]);
-    expect(await publish.procedure(undefined, '7')).toBe('published 7');
+    expect(await publish.procedure(undefined, '7', { data: {}, request: undefined })).toBe('published 7');
 
     const tableActions = getTableProcedureActions(config);
     expect(tableActions.map((a) => a.id)).toEqual(['exportAll']);
     const exportAll = invalid<ResourceTableProcedureAction>(tableActions[0]);
-    expect(await exportAll.procedure(undefined)).toBe('exported all');
+    expect(await exportAll.procedure(undefined, { data: {}, request: undefined })).toBe('exported all');
   });
 });

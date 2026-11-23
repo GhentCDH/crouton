@@ -64,7 +64,7 @@ const publish = async (prisma: PrismaClient, id: string | number) => {
 export default publish;
 ```
 
-Table-level procedures work the same, but receive only the Prisma client (no record id):
+Table-level procedures work the same, but get no record id:
 
 ```ts
 // resources/book/actions/reindex.ts
@@ -87,6 +87,41 @@ export default reindex;
   }
 }
 ```
+
+### Static `data` and the request
+
+Every procedure also gets a context as its last argument: `{ data, request }`. `data` is the action's static `data`
+from `resource.json` (`{}` when unset); `request` is the incoming request (cast it to `CroutonRequest` from
+`@ghentcdh/crouton-api` for headers, query and user).
+
+| Kind  | Signature                         |
+|-------|-----------------------------------|
+| Row   | `(prisma, recordId, { data, request })` |
+| Table | `(prisma, { data, request })`     |
+
+One procedure file can then serve several buttons:
+
+```json
+"tableActions": [
+  { "id": "recalc2025", "label": "Recalculate 2025", "procedure": "recalculate", "data": { "year": 2025 } },
+  { "id": "recalc2024", "label": "Recalculate 2024", "procedure": "recalculate", "data": { "year": 2024 } }
+]
+```
+
+```ts
+// resources/book/actions/recalculate.ts
+import type { ProcedureContext } from '@ghentcdh/crouton-core';
+
+const recalculate = async (prisma: PrismaClient, { data }: ProcedureContext) => {
+  await callStatsService(Number(data['year']));
+  return { success: true };
+};
+
+export default recalculate;
+```
+
+A list of buttons that has to grow by itself (one per year since 2020) is better built in a
+[component next to the table](./layout.md#wrapper-layout).
 
 ## Link actions
 
