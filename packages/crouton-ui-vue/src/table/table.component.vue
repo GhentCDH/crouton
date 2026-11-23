@@ -225,12 +225,14 @@ const toggleAll = () => {
 };
 
 const defaultActions = computed(() => {
-  const actions = properties.actions ?? [];
+  // Copy: pushing into the prop array would add the defaults again on every recompute.
+  const actions = [...(properties.actions ?? [])];
   if (hasView.value) {
     actions.push({
       tooltip: 'View',
       icon: IconEnum.View,
       action: view,
+      kind: 'view',
     });
   }
   if (hasEdit.value) {
@@ -238,6 +240,7 @@ const defaultActions = computed(() => {
       tooltip: 'Edit',
       icon: IconEnum.Edit,
       action: edit,
+      kind: 'edit',
     });
   }
   if (hasDelete.value) {
@@ -280,9 +283,12 @@ const onSort = (id: string) => {
   emits('sort', id);
 };
 
+// Same action as the row's view/edit button: resource tables pass it in `actions`,
+// plain tables via `@view` / `@edit` (both end up in defaultActions).
 const onRowClick = (item: any) => {
   if (!properties.rowClick || properties.rowClick === 'none') return;
-  if (properties.rowClick === 'view') (attrs.onView as Function)?.(item);
-  else if (properties.rowClick === 'edit') (attrs.onEdit as Function)?.(item);
+  const action = defaultActions.value.find((a) => a.kind === properties.rowClick);
+  if (!action || (action.visible && !action.visible(item))) return;
+  action.action(item);
 };
 </script>
