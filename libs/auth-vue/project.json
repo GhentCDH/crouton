@@ -3,16 +3,29 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/auth-vue/src",
   "projectType": "library",
-  "tags": ["type:ui", "tech:vue"],
+  "tags": [
+    "type:ui",
+    "tech:vue"
+  ],
   "targets": {
+    "test": {
+      "command": "vitest run",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/auth-vue",
         "main": "libs/auth-vue/src/index.ts",
         "tsConfig": "libs/auth-vue/tsconfig.lib.json",
-        "assets": ["libs/auth-vue/*.md"]
+        "assets": [
+          "libs/auth-vue/*.md"
+        ]
       }
     }
   }

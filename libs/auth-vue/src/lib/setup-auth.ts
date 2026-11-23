@@ -21,9 +21,17 @@ export type AuthSetupResult = {
   flushQueue: () => void;
 };
 
+/**
+ * Whether a visit without a session must log in first. `false` or a function
+ * returning `false` for the current app path lets public pages load anonymously;
+ * a 401 from the API still triggers the login.
+ */
+export type RequireLogin = boolean | ((path: string) => boolean);
+
 export const setupAuth = async (
   apiBase: string,
   axios: AxiosInstance,
+  { requireLogin = true }: { requireLogin?: RequireLogin } = {},
 ): Promise<AuthSetupResult> => {
   const isCallbackPage = currentAppPath().startsWith('/auth/');
 
@@ -98,13 +106,15 @@ export const setupAuth = async (
     await tryRenewOidcUser();
   }
 
-  if (!getToken()) {
+  const loginRequired =
+    typeof requireLogin === 'function' ? requireLogin(currentAppPath()) : requireLogin;
+  if (!getToken() && loginRequired) {
     // No valid session → login (single provider) or the chooser (several).
     await login();
     return { enabled: true, callbackPath, flushQueue };
   }
 
-  // Valid token (fresh or just renewed): release queued requests.
+  // Valid token (fresh or just renewed), or a public page: release queued requests.
   flushQueue();
   return { enabled: true, callbackPath, flushQueue };
 };
