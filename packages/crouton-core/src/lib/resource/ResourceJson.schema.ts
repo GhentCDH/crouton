@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { JsonOperationsSchema } from '../data-source/Operations.schema';
 import { SecuritySchema } from '../data-source/Security.schema';
 import { LayoutSchema } from '../layout/schema/Layout.schema';
+import { isNodeItem } from '../layout/schema/LayoutItem.schema';
 import { labelFromId } from '../schema/label.helper';
 import { type JsonColumn, JsonColumnSchema } from './Column';
 import { parseFieldInputOptions } from './FieldInput.schema';
@@ -273,7 +274,7 @@ const collectFormLayoutIds = (node: { items?: unknown[] }): string[] => {
       const obj = item as Record<string, unknown>;
       if ('id' in obj && typeof obj['id'] === 'string') {
         ids.push(obj['id']);
-      } else if (!('component' in obj) && 'items' in obj) {
+      } else if (isNodeItem(obj) && 'items' in obj) {
         ids.push(...collectFormLayoutIds(obj as { items?: unknown[] }));
       }
     }

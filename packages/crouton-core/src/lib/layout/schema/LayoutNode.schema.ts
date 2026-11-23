@@ -9,7 +9,9 @@ import {
 // ── FormLayoutNode ─────────────────────────────────────────────────────
 
 export type FormLayoutNode = {
-  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group';
+  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'custom';
+  component?: string;
+  props?: Record<string, unknown>;
   columns?: number;
   title?: string;
   titleKey?: string;
@@ -22,10 +24,22 @@ export type FormLayoutNode = {
 export const FormLayoutNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
   z.object({
     type: z
-      .enum(['grid', 'vertical', 'horizontal', 'collapse', 'group'])
+      .enum(['grid', 'vertical', 'horizontal', 'collapse', 'group', 'custom'])
       .optional()
       .describe(
-        'Layout container type. "grid" arranges items in a CSS grid; "vertical"/"horizontal" stack them; "collapse" is a collapsible section; "group" is a labeled group.',
+        'Layout container type. "grid" arranges items in a CSS grid; "vertical"/"horizontal" stack them; "collapse" is a collapsible section; "group" is a labeled group; "custom" renders the registered component named in `component`.',
+      ),
+    component: z
+      .string()
+      .optional()
+      .describe(
+        'Name of the registered Vue layout component that renders this node and its items. Required when type is "custom".',
+      ),
+    props: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe(
+        'Static props passed to the custom layout component, next to the runtime props `elements`, `data`, `readonly`, `schema` and `uischema`.',
       ),
     columns: z
       .number()
@@ -64,13 +78,24 @@ export const FormLayoutNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
       .describe('Label shown on the section or group header.'),
     items: z
       .array(
-        z.union([LayoutFieldItemSchema, LayoutComponentItemSchema, FormLayoutNodeSchema]),
+        // Node before component item so a `type: "custom"` node keeps its `items`;
+        // a plain `{ component }` fails NestedNodeSchema and lands on the component item.
+        z.union([LayoutFieldItemSchema, NestedNodeSchema, LayoutComponentItemSchema]),
       )
       .optional()
       .describe(
         'Ordered list of items in this layout node. Each entry is a column id string, a field config object, a component reference, or a nested layout node.',
       ),
+  }).superRefine((node, ctx) => {
+    if (node.type === 'custom' && !node.component) {
+      ctx.addIssue({ code: 'custom', path: ['component'], message: 'A "custom" layout node needs a `component` name.' });
+    }
   }),
+);
+
+/** A nested node: `component` only with `type: "custom"`, otherwise the item is a component item. */
+const NestedNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
+  FormLayoutNodeSchema.refine((node) => node.type === 'custom' || node.component === undefined),
 );
 
 // ── LayoutNode (legacy) ─────────────────────────────────────────────────
@@ -78,7 +103,9 @@ export const FormLayoutNodeSchema: z.ZodType<FormLayoutNode> = z.lazy(() =>
 // all consumers migrate to FormLayoutNode / TableNode.
 
 export type LayoutNode = {
-  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'table';
+  type?: 'grid' | 'vertical' | 'horizontal' | 'collapse' | 'group' | 'custom' | 'table';
+  component?: string;
+  props?: Record<string, unknown>;
   columns?: number;
   title?: string;
   titleKey?: string;

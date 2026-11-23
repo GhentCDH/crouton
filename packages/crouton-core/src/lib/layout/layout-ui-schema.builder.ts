@@ -23,6 +23,12 @@ const buildContainerForNode = (node: LayoutNode): LayoutBuilder => {
       if (node.title) builder.title(node.title);
       if (node.titleKey) builder.titleKey(node.titleKey);
       break;
+    case 'custom':
+      builder = LayoutBuilder.custom(node.component ?? '');
+      if (node.props) builder.opt({ props: node.props });
+      if (node.title) builder.title(node.title);
+      if (node.titleKey) builder.titleKey(node.titleKey);
+      break;
     case 'horizontal':
       builder = LayoutBuilder.horizontal();
       if (node.title) builder.title(node.title);

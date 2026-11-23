@@ -1,0 +1,36 @@
+{
+  "name": "book",
+  "route": "books",
+  "model": "Book",
+  "tag": "Books",
+  "kind": "custom",
+  "operations": { "findAll": true, "findOne": true, "create": true, "update": true },
+  "columns": [
+    { "id": "id", "type": "string", "idField": true, "hiddenInForm": true },
+    { "id": "title", "type": "string", "required": true },
+    { "id": "isbn", "type": "string" },
+    { "id": "summary", "type": "string" }
+  ],
+  "layout": {
+    "form": {
+      "items": [
+        {
+          "type": "custom",
+          "component": "Tabs",
+          "props": { "syncQuery": "tab" },
+          "items": [
+            { "type": "group", "title": "General", "items": ["title", "isbn"] },
+            { "type": "group", "title": "Details", "items": ["summary", { "component": "LoanList" }] }
+          ]
+        }
+      ]
+    },
+    "view": {
+      "items": [
+        { "type": "custom", "component": "Tabs", "items": [
+          { "type": "group", "title": "General", "items": ["title", "isbn", "summary"] }
+        ] }
+      ]
+    }
+  }
+}
