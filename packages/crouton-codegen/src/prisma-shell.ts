@@ -9,7 +9,7 @@
 
 import { spawn } from 'node:child_process';
 import { type Dirent, existsSync, readFileSync } from 'node:fs';
-import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
+import { copyFile, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, sep } from 'node:path';
 
@@ -304,9 +304,15 @@ export const pullAndGenerate = async (
   const { root, prismaConfigPath, schemaPath } = input;
   loadDotenv(dirname(schemaPath));
   const recoveredInvalidSchema = !(await prismaValidate(root, prismaConfigPath)).ok;
+  const hadBackup = existsSync(`${schemaPath}.bak`);
   const backupPath = recoveredInvalidSchema ? `${schemaPath}.bak` : await backupSchema(schemaPath);
   const dbPull = await prismaDbPull(root, prismaConfigPath, recoveredInvalidSchema);
-  if (!dbPull.ok) return { ok: false, backupPath, recoveredInvalidSchema, dbPull };
+  if (!dbPull.ok) {
+    // A failed pull leaves the schema untouched, so a backup made just now is a stray
+    // duplicate (e.g. `schema.prisma.bak` in a fresh scaffold without a database, #676).
+    if (!recoveredInvalidSchema && !hadBackup) await rm(backupPath, { force: true });
+    return { ok: false, backupPath, recoveredInvalidSchema, dbPull };
+  }
   const caseFormat = await prismaCaseFormat(root, schemaPath);
   const normalized = await normalizeSchema(schemaPath);
   const fieldCollisions = await resolveSchemaFieldCollisions(schemaPath);

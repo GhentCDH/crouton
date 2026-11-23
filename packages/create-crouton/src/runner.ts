@@ -534,11 +534,11 @@ const postScaffold = async (
     // Run crouton update resources (best-effort, requires DB to be running)
     if (dbUrl) {
       const s2 = clack.spinner();
+      // In an Nx monorepo the CLI must run from the workspace root and target
+      // the app via --project, so it can resolve nx.json / the pnpm workspace.
+      const prefixArg = prefix ? ` --project ${prefix}` : '';
       try {
         s2.start('Running crouton update resources');
-        // In an Nx monorepo the CLI must run from the workspace root and target
-        // the app via --project, so it can resolve nx.json / the pnpm workspace.
-        const prefixArg = prefix ? ` --project ${prefix}` : '';
         execSync(`${pmExec(pm, 'crouton')} update resources --yes${prefixArg}`, {
           cwd: targetDir,
           stdio: 'pipe',
@@ -547,11 +547,19 @@ const postScaffold = async (
         resourcesUpdated = true;
         s2.stop('Resources updated');
       } catch (err) {
-        s2.error('crouton update resources failed — run it manually after setting up your database.');
-        // The CLI prints most errors to stdout, so show both streams in full.
+        // The CLI prints most errors to stdout, so look at both streams.
         const { stdout, stderr } = err as { stdout?: unknown; stderr?: unknown };
         const output = [stdout, stderr].map((o) => String(o ?? '').trim()).filter(Boolean).join('\n');
-        if (output) clack.log.error(output);
+        const cmd = `${pmExec(pm, 'crouton')} update resources${prefixArg}`;
+        // P1000-P1003: auth failed / unreachable / timeout / no such database. The scaffold
+        // itself is fine, so a one-line hint beats Prisma's full error (#675).
+        const dbDown = /\bP100[0-3]\b/.exec(output);
+        if (dbDown) {
+          s2.stop(`Database not reachable (${dbDown[0]}) — start it, then run \`${cmd}\`.`);
+        } else {
+          s2.error(`\`${cmd}\` failed — run it manually after setting up your database.`);
+          if (output) clack.log.error(output);
+        }
       }
     }
   }
