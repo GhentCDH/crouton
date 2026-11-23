@@ -35,13 +35,13 @@ RUN cd {{workspaceRoot}} && DATABASE_URL=postgresql://dummy:dummy@localhost:5432
 RUN pnpm --filter @{{name}}/backend deploy --legacy --prod /app/deployed-backend
 
 # Transpile resource & data-source .ts → .js for runtime require()
-COPY {{appsRoot}}/backend/src/app/resources /app/dist/apps/backend/resources
-COPY {{appsRoot}}/backend/src/app/data-sources /app/dist/apps/backend/data-sources
-RUN find /app/dist/apps/backend/resources /app/dist/apps/backend/data-sources -name '*.ts' \
+COPY {{backendRoot}}/src/app/resources /app/{{backendDist}}/resources
+COPY {{backendRoot}}/src/app/data-sources /app/{{backendDist}}/data-sources
+RUN find /app/{{backendDist}}/resources /app/{{backendDist}}/data-sources -name '*.ts' \
     | while read f; do \
         npx esbuild "$f" --outfile="${f%.ts}.js" --platform=node --format=cjs --target=node22; \
       done \
-    && find /app/dist/apps/backend/resources /app/dist/apps/backend/data-sources -name '*.ts' -delete
+    && find /app/{{backendDist}}/resources /app/{{backendDist}}/data-sources -name '*.ts' -delete
 
 # Transpile generated types .ts → .js
 RUN find /app/{{generatedGlob}}/types/src -name '*.ts' \
@@ -66,20 +66,20 @@ ENV APP_VERSION=${VERSION}
 ENV BUILD_SHA=${BUILD_SHA}
 ENV NODE_ENV=production
 
-COPY --from=build /app/dist/apps/backend ./backend
+COPY --from=build /app/{{backendDist}} ./backend
 COPY --from=build /app/deployed-backend/node_modules ./node_modules
 COPY --from=build /app/{{generatedGlob}}/client ./generated/client
 # Not a workspace package (see pnpm-workspace.yaml) — place it where the
 # runtime-required data-sources resolve `@{{name}}/generated-default-client`.
 COPY --from=build /app/{{generatedGlob}}/client ./node_modules/@{{name}}/generated-default-client
 COPY --from=build /app/{{generatedGlob}}/types ./node_modules/@{{name}}/generated-default-types
-{{/if}}{{#if nxFrontend}}COPY --from=build /app/{{appsRoot}}/frontend/dist /srv/frontend
+{{/if}}{{#if nxFrontend}}COPY --from=build /app/{{frontendRoot}}/dist /srv/frontend
 {{/if}}{{#if nx}}
 # Crouton config (runtime: CroutonApiModule.forResourceDir looks for crouton.json)
 COPY {{workspaceRoot}}/crouton.json {{workspaceRoot}}/crouton.enums.json ./
 {{/if}}{{#if nxFrontend}}
-COPY {{appsRoot}}/frontend/Caddyfile /etc/caddy/Caddyfile
-COPY {{appsRoot}}/frontend/docker-entrypoint.sh /docker-entrypoint.sh
+COPY {{frontendRoot}}/Caddyfile /etc/caddy/Caddyfile
+COPY {{frontendRoot}}/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE 9000 3000

@@ -39,7 +39,7 @@ Common options, accepted by every command that touches a project:
 | Option                 | Effect                                                              |
 |------------------------|---------------------------------------------------------------------|
 | `--cwd <dir>`          | Project directory (defaults to the current directory).              |
-| `-p, --project <name>` | Project to use: a subfolder of `--cwd` holding a `crouton.json`.     |
+| `-p, --project <name>` | Project to use: a subfolder of `--cwd`, or a path, holding a `crouton.json`. |
 | `--dry-run`            | Show the planned changes without writing files.                     |
 | `-y, --yes`            | Accept all recommended defaults (non-interactive).                  |
 
@@ -50,7 +50,8 @@ nouns and are never applied implicitly.
 
 Every command works on one project — a folder with a `crouton.json`. It is resolved once per invocation:
 
-1. `--project <name>` → the subfolder of `--cwd` with that name (an unknown name lists the available ones).
+1. `--project <name|path>` → the folder at that path relative to `--cwd` (e.g. `admin` or `apps/ms-service`) when it holds a
+   `crouton.json`. An unknown name lists the available ones.
 2. The current directory, or one of its parents, has a `crouton.json` → that project.
 3. Otherwise the immediate subfolders of the current directory are scanned: one project is used as-is, several open a
    picker. With `-y`, without a terminal (CI, scripts) or with `validate resources --json`, several projects are an error that lists them — pass `--project`.
@@ -175,6 +176,9 @@ Backend and frontend ports are the next free ones after those found in the root 
 | `--db-url <url>` | Connection URL written to the project's `.env` (default: a database named after the project on `localhost:5432`) |
 | `--no-docker` | Skip Docker files |
 | `--backend-port <n>`, `--frontend-port <n>` | Override the detected free ports |
+| `--apps-dir <dir>` | Nx: folder holding backend + frontend; `crouton.json` goes here too (default `<name>/apps`, config in `<name>/`) |
+| `--backend-dir <name>`, `--frontend-dir <name>` | Nx: app folder names under the apps dir (default `backend` / `frontend`) |
+| `--generated-dir <dir>` | Nx: generated types/client root (default `<name>/generated`); registered in `.gitignore` when not named `generated` |
 | `--cwd <dir>` | Codespace root |
 | `--dry-run` | List the files without writing |
 | `-y, --yes` | Accept all defaults (non-interactive) |

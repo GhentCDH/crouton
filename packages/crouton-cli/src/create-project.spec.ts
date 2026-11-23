@@ -94,6 +94,52 @@ describe('crouton create project', () => {
       expect(backend.dependencies['@archive/generated-default-types']).toBe('workspace:*');
     });
 
+    it('custom folder layout: crouton.json in the apps dir, generated code elsewhere (#666)', async () => {
+      write(root, { '.gitignore': 'node_modules\n**/generated/*/client/\n' });
+      expect(await run([
+        'create', 'project', 'ms-service', '--cwd', root, '-y',
+        '--apps-dir', 'apps/ms-service', '--backend-dir', 'crouton-backend', '--frontend-dir', 'crouton-frontend',
+        '--generated-dir', 'generated/ms-service',
+      ])).toBeFalsy();
+
+      const svc = 'apps/ms-service';
+      const config = json<{ resourcesDir: string; dataSourcesDir: string }>(`${svc}/crouton.json`);
+      expect(config.resourcesDir).toBe('crouton-backend/src/app/resources');
+      expect(config.dataSourcesDir).toBe('crouton-backend/src/app/data-sources');
+      expect(existsSync(join(root, `${svc}/crouton-frontend/package.json`))).toBe(true);
+      expect(existsSync(join(root, 'generated/ms-service/default/types/package.json'))).toBe(true);
+      expect(existsSync(join(root, `${svc}/apps`))).toBe(false);
+
+      const ds = json<{ zodOutput: string; clientOutput: string }>(
+        `${svc}/crouton-backend/src/app/data-sources/default/data-source.json`,
+      );
+      expect(ds.zodOutput).toBe('../../generated/ms-service/default/types/src');
+      expect(ds.clientOutput).toBe('../../generated/ms-service/default/client');
+      expect(read(`${svc}/prisma/default/schema.prisma`)).toContain('output   = "../../../../generated/ms-service/default/client"');
+
+      // backend app: project name from the last segment, paths relative to its depth
+      const project = json<{ name: string; $schema: string; sourceRoot: string; targets: { serve: { options: { envFile: string } } } }>(
+        `${svc}/crouton-backend/project.json`,
+      );
+      expect(project.name).toBe('ms-service-backend');
+      expect(project.$schema).toBe('../../../node_modules/nx/schemas/project-schema.json');
+      expect(project.sourceRoot).toBe(`${svc}/crouton-backend/src`);
+      expect(project.targets.serve.options.envFile).toBe(`${svc}/.env`);
+      expect(read(`${svc}/crouton-backend/eslint.config.mjs`)).toContain('\'../../../eslint.config.mjs\'');
+      expect(read(`${svc}/crouton-backend/nodemon.json`)).toContain('"../../../generated/ms-service"');
+      expect(read(`${svc}/crouton-frontend/vite.config.ts`)).toContain('new URL(\'..\', import.meta.url)');
+      expect(read(`${svc}/Dockerfile.prod`)).toContain(`COPY ${svc}/crouton-backend/src/app/resources`);
+
+      // root registration
+      expect(read('pnpm-workspace.yaml')).toContain(
+        `  - ${svc}/*\n  - generated/ms-service/**\n  - '!generated/ms-service/*/client'\n`,
+      );
+      const paths = json<{ compilerOptions: { paths: Record<string, string[]> } }>('tsconfig.base.json').compilerOptions.paths;
+      expect(paths['@ms-service/generated-default-types']).toEqual(['./generated/ms-service/default/types/src']);
+      expect(read('.gitignore')).toContain('generated/ms-service/*/client/\n');
+      expect(read('compose.yml')).toContain('  - compose.app.ms-service.yml\n');
+    });
+
     it('--no-frontend skips the frontend app', async () => {
       expect(await run(['create', 'project', 'archive', '--cwd', root, '-y', '--no-frontend'])).toBeFalsy();
       expect(existsSync(join(root, 'archive/apps/frontend'))).toBe(false);

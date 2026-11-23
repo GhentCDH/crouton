@@ -1,7 +1,7 @@
 {
-  "name": "{{#if noPrefix}}{{name}}-{{/if}}{{#if prefix}}{{prefix}}-{{/if}}frontend",
-  "$schema": "{{schemaPath}}",
+  "name": "{{frontendApp}}",
+  "$schema": "{{frontendToRoot}}node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "{{appsRoot}}/frontend/src",
+  "sourceRoot": "{{frontendRoot}}/src",
   "tags": ["scope:frontend"]
 }
