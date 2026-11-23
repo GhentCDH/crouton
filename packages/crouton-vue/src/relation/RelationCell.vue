@@ -6,13 +6,15 @@
     class="px-5 text-gray-500 border-gray-300 max-w-96 [&>span]:flex [&>span]:min-w-0"
     @click="openDetails"
   >
+    <!-- Link icon marks the cell as a reference to another record (#255). -->
+    <Icon :icon="IconEnum.Link" size="sm" class="shrink-0 mr-1" data-testid="relation-cell-icon" />
     <div class="truncate min-w-0">{{ label }}</div>
   </Btn>
 </template>
 
 <script lang="ts" setup>
 import { type PropType, computed } from 'vue';
-import { Btn, ModalService } from '@ghentcdh/crouton-ui-vue';
+import { Btn, Icon, IconEnum, ModalService } from '@ghentcdh/crouton-ui-vue';
 import RelationModal from './RelationModal.vue';
 import { useResources } from '../resource';
 import { computedAsync } from '../utils/computedAsync';
