@@ -166,9 +166,10 @@ Skip this step when nothing is found.
    ```yaml
    install-command: |
      pnpm install --frozen-lockfile
-     DATABASE_URL=postgresql://ci:ci@localhost:5432/ci pnpm crouton update resources --yes --skip-pull
+     DATABASE_URL=postgresql://ci:ci@localhost:5432/ci pnpm crouton generate --yes
    ```
-   (keep `--project <prefix>` if it was there).
+   (keep `--project <prefix>` if it was there). `crouton generate` (cli ≥ 0.2.0) only runs `prisma generate`;
+   don't use `crouton update resources --skip-pull` here — it still rewrites resources, translations and agent files.
 6. **Dockerfiles**
    - Dev / frontend Dockerfile: `COPY --parents … generated/*/package.json` →
      `COPY --parents … generated/*/types/package.json`.
@@ -256,8 +257,8 @@ grep -rn "rankWith(1[0-3], .*[Ss]elect\|role=\"select\"\|\[role=select\]\|getByR
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm crouton generate --yes
 pnpm nx run-many -t lint typecheck build
-pnpm crouton update resources --yes --skip-pull
 ```
 
 Start the backend and confirm: no `resource not served` errors, a delete works, a list with a boolean filter

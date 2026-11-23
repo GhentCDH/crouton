@@ -22,6 +22,7 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton update`                       | Runs `update resources`, then `update translations` (asks once).     |
 | `crouton update resources`             | Introspect the database and create/update `resource.json` files.     |
 | `crouton update translations`          | Regenerate and merge translation bundles (`--lang`, `--prune`).      |
+| `crouton generate`                     | Only `prisma generate` (client + types) per datasource — CI-safe.     |
 | `crouton init translations`            | Create translation files for every configured language (`--lang`).   |
 | `crouton create`                       | Asks whether to create a resource, a datasource or a project.        |
 | `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
@@ -210,8 +211,11 @@ Useful flags:
 | `--models <a,b>`                  | Limit to specific models (Prisma or resource names).            |
 | `--dry-run`                       | Show the plan without writing.                                  |
 | `--yes`                           | Non-interactive; accept recommended choices.                    |
-| `--skip-pull` / `--skip-generate` | Skip the Prisma steps.                                          |
+| `--skip-pull` / `--skip-generate` | Skip the Prisma steps (resources are still updated).            |
 | `--draft`                         | Write new resources with `draft: true` (hidden until reviewed). |
+
+For CI or a fresh checkout, use `crouton generate` (`-d <datasource>` to limit it): it runs `prisma generate` and
+never touches resources, translations or agent files.
 
 ### What gets generated
 

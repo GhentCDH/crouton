@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 
 import { registerCreateCommand } from './commands/create';
+import { registerGenerateCommand } from './commands/generate.command';
 import { registerInitCommand } from './commands/init';
 import { registerMigrateCommand } from './commands/migrate.command';
 import { registerUpdateCommand } from './commands/update';
@@ -18,5 +19,6 @@ export const createProgram = (): Command => {
   registerInitCommand(program);
   registerValidateCommand(program);
   registerMigrateCommand(program);
+  registerGenerateCommand(program);
   return program;
 };
