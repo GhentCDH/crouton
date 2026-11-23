@@ -50,6 +50,7 @@ what the CLI / codegen needs to introspect and generate.
 | `zodOutput`            | Zod types output dir (project-relative). Written to the `crouton` generator block as `output`.  |
 | `clientOutput`         | Prisma client output dir (project-relative). Should match the `output` in the generator block.    |
 | `prismaConfig`         | Prisma config file for this datasource. Defaults to `prisma/<name>/prisma.config.ts`.             |
+| `excludeTables`        | Tables `crouton update resources` never turns into resources (audit/usage logs, queues, `spatial_ref_sys`). Matches the Prisma model name or the `@@map` table name. |
 
 ## index.ts
 

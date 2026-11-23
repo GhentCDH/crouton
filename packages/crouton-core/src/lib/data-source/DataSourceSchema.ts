@@ -15,6 +15,7 @@ export const DataSourceShape = z.object({
   prismaConfig: z.string().optional().describe('Path to the Prisma config file, relative to the project root. Defaults to "prisma/<name>/prisma.config.ts".'),
   zodOutput: z.string().optional().describe('zod-prisma-types output directory, relative to the project root. Defaults to "generated/<name>/src".'),
   clientOutput: z.string().optional().describe('Prisma client output directory, relative to the project root. Defaults to "generated/<name>/client".'),
+  excludeTables: z.array(z.string()).optional().describe('Tables that `crouton update resources` never turns into resources (internal/audit/queue tables, PostGIS spatial_ref_sys, …). Matches the Prisma model name or the @@map table name.'),
 });
 
 export const transformDataSource = <D extends z.infer<typeof DataSourceShape>>(

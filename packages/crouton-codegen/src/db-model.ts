@@ -61,3 +61,19 @@ export interface DbModel {
   hasCompositeId: boolean;
   fields: DbField[];
 }
+/**
+ * Split models by a datasource's `excludeTables` list. A model is excluded when
+ * its Prisma model name or its `@@map` table name is listed.
+ */
+export const excludeModels = (
+  models: DbModel[],
+  excludeTables: string[] = [],
+): { included: DbModel[]; excluded: DbModel[] } => {
+  const skip = new Set(excludeTables);
+  const isExcluded = (m: DbModel) =>
+    skip.has(m.prismaName) || (!!m.tableName && skip.has(m.tableName));
+  return {
+    included: models.filter((m) => !isExcluded(m)),
+    excluded: models.filter(isExcluded),
+  };
+};
