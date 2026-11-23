@@ -281,7 +281,10 @@
               }
             ],
             "options": {
-              "component": "Tabs"
+              "component": "Tabs",
+              "props": {
+                "syncQuery": "tab"
+              }
             }
           }
         ]

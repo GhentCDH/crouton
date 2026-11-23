@@ -27,7 +27,7 @@
     },
     "view": {
       "items": [
-        { "type": "custom", "component": "Tabs", "items": [
+        { "type": "tabs", "props": { "syncQuery": "tab" }, "items": [
           { "type": "group", "title": "General", "items": ["title", "isbn", "summary"] }
         ] }
       ]

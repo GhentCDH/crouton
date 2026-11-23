@@ -25,6 +25,7 @@ export {
   FORM_SUBMITTED_KEY,
 } from './forms/errorMode';
 export { default as Dispatch } from './forms/Dispatch.vue';
+export { scopeToPath } from './forms/scope';
 export type { HttpClient } from './http-client';
 export type {
   FormModalProp,
