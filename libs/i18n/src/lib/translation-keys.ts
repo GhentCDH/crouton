@@ -30,7 +30,8 @@ export const subResourceActionKey = (
  * `"General info"` → `general_info`. Empty when the text has no letters or digits.
  */
 export const layoutTitleSlug = (text: string): string =>
-  text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '');
+  // split + join, no trim regex: linear time on any input (CodeQL js/polynomial-redos)
+  text.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean).join('_');
 
 /** Layout node title / label (group, collapse, tabs, …) in `layout.form` / `layout.view`. */
 export const layoutTitleKey = (resource: string, text: string): string =>
