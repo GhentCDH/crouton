@@ -188,6 +188,12 @@ export const runCreate = async (
     const dbUrl = await resolveDbUrl(opts);
     const postgres =
       opts.docker !== false && !dbUrl ? await resolvePostgres(opts) : false;
+    if (opts.docker !== false && dbUrl && isLocalhostUrl(dbUrl)) {
+      clack.log.warn(
+        'The database URL points to localhost, which inside the backend container is the container itself.\n' +
+          'For Docker, use host.docker.internal instead of localhost in .env (Linux: add extra_hosts "host.docker.internal:host-gateway").',
+      );
+    }
 
     // 3. Resolve tokens
     const tokens = buildTokens({ name, layout, prefix, frontend, postgres, dbUrl, pm });
@@ -540,6 +546,14 @@ const resolvePm = async (opts: CreateOptions): Promise<PackageManager> => {
       ],
     }),
   ) as PackageManager;
+};
+
+const isLocalhostUrl = (url: string): boolean => {
+  try {
+    return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(url).hostname);
+  } catch {
+    return false;
+  }
 };
 
 const resolveDbUrl = async (opts: CreateOptions): Promise<string> => {
