@@ -96,10 +96,14 @@ export const loadDataSourcesFromDir = async (
         adapter = new PrismaDataSourceAdapter(exported);
       }
     } catch (err) {
+      const message = (err as Error).message;
+      const hint = /Cannot find module '[^']*generated-/.test(message)
+        ? ' — the Prisma client is not generated; run `crouton generate`.'
+        : '';
       resourceLoadErrorsRegistry.record({
         name: dir,
         path: indexFile,
-        error: `Failed to load datasource adapter: ${(err as Error).message}`,
+        error: `Failed to load datasource adapter: ${message}${hint}`,
       });
       continue;
     }
