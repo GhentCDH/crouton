@@ -14,6 +14,9 @@ The breaking changes are in **runtime behaviour of hooks**, **filter handling**,
 client workspace layout**, the **default free-text search**, **CLI exit codes**, and a few **frontend renderer
 details**.
 
+**Already on `0.2.0-rc.0`?** Do Step 1 (new version), then only what changed after rc.0: Step 4 (the `schema.ts`
+part), the rc.0 note near the end of Step 6, Steps 10–13, skim Step 14, and Step 15.
+
 Placeholders below: `<name>` = the npm scope used for generated packages (see
 `@<name>/generated-default-types` in an app `package.json`), `<prefix>` = the folder that holds `apps/` and
 `generated/` (empty for single-project workspaces), `<ds>` = datasource name (`default` unless you added more).
@@ -367,37 +370,78 @@ await bookApi.getOneById('42');
 
 ---
 
-## Step 13 — New, opt-in features (no action needed)
+## Step 13 — Layout titles are translatable (apps with `i18n`)
 
-- `fieldInput.errorMessage` (all field inputs) — replace the validation text.
-- `fieldInput.clearable` on `string` inputs.
+Layout `title` / `label` texts in `layout.form` / `layout.view` (`group`, `collapse`, `horizontal`, `tabs`, `custom`
+nodes and component items) were always shown as written. They now go through the translation bundle under
+`resources.<name>.layout.<slug>`; the slug is the English text lowercased with every run of other characters turned
+into `_` (`"General info"` → `general_info`). Missing keys fall back to the original text, so nothing changes until
+you translate them. A `titleKey` title comes from record data and is not translated.
+
+**Detect**: `grep -n '"i18n"' crouton.json` — skip this step without i18n.
+
+**Fix**: seed the new keys, then fill in the non-default languages:
+
+```bash
+pnpm crouton update translations --dry-run   # lists the new resources.<name>.layout keys
+pnpm crouton update translations
+```
+
+---
+
+## Step 14 — New, opt-in features (no action needed)
+
+**Fields**
+
+- `fieldInput.type: "color"` — native color picker next to a hex input; tables and views show a swatch.
+- `fieldInput.errorMessage` (all field inputs) replaces the validation text; `fieldInput.clearable` on `string`
+  inputs.
 - `relation.displayKey` on a relation column (column-level `displayKey` still wins).
+
+**Layout**
+
+- `{ "type": "tabs", "items": [ { "type": "group", "title": "General", "items": [...] }, ... ] }` — one tab per
+  child, one form and one Save; tabs holding invalid fields get an error badge; `"props": { "syncQuery": "tab" }`
+  keeps the active tab in the route query. Register your own `Tabs` in `customComponents` to replace it.
+- `{ "type": "custom", "component": "<Name>", "items": [...] }` — a component from `customComponents` renders the
+  children (steppers, side-by-side panes, …).
 - `props` on layout `component` items.
-- `normalize-schema.json` renames accept `{ "to": "…", "relationOnly": true }`.
+
+**Tables**
+
+- `layout.table.download: { "csv": true, "fileName": "books" }`, or `rules.tableDownload.csv` in `crouton.json`
+  as the global default (per table wins): a **Download CSV** button exporting all pages with the current
+  filter/search/sort. `downloadCsv` / `DownloadCsvButton` from `@ghentcdh/crouton-vue` do the same on custom pages.
+- `layout.table.rowClick: "edit" | "view"` now opens the record (it had no effect on resource tables).
+- Relation cells show a small link icon, so linked values stand out from plain text (visual only).
+- manyToOne relation on its own FK column (`authorId`) shows the related record in tables.
+
+**Actions and API**
+
+- Action procedures get `{ data, request }` as last argument — `(prisma, ctx)` for table actions,
+  `(prisma, recordId, ctx)` for row actions — so a table action's static `data` reaches its procedure (one
+  procedure can serve several buttons). Existing procedures need no change.
+- Per-operation `security` is now kept in resource definitions (was dropped).
+
+**Auth**
+
+- `CroutonPlugin(api, { requireLogin })` — `false`, or `(path) => boolean`, lets public pages load without logging
+  in; a 401 from the API still starts the login.
+- `useAuth().user.picture` — the login provider's profile photo URL (Google and OIDC providers that send a
+  `picture` claim; http(s) only; empty for Microsoft). Users already logged in get it after their next login.
+
+**CLI**
+
+- `crouton generate` — CI-safe `prisma generate` without `db pull` (used in Step 15).
 - `crouton update resources` auto-renames relation fields that collide with a scalar column
   (`revisionStatus` → `revisionStatusRef`) and recovers from an invalid `schema.prisma` with
   `db pull --force` (previous `.bak` kept). Check the log for renamed fields and update any code that used
   the old relation field name.
-- Per-operation `security` is now kept in resource definitions (was dropped).
-- manyToOne relation on its own FK column (`authorId`) shows the related record in tables.
-- `fieldInput.type: "color"` — native color picker next to a hex input; tables and views show a swatch.
-- `layout.table.download: { "csv": true, "fileName": "books" }` on the table node, or `rules.tableDownload.csv` in
-  `crouton.json` as global default (per-table wins). Config only for now; the download button follows.
-- `{ "type": "custom", "component": "<Name>", "elements": [...] }` layout nodes in `layout.form` / `layout.view`:
-  a component from `customComponents` renders the children (tabs, steppers, …) with one form and one Save.
-- `CroutonPlugin(api, { requireLogin })` — `false`, or `(path) => boolean`, lets public pages load without logging
-  in; a 401 from the API still starts the login.
-- `layout.table.rowClick: "edit" | "view"` now opens the record (it had no effect on resource tables).
-- `crouton generate` — CI-safe `prisma generate` without `db pull` (used in Step 14).
-- Action procedures get `{ data, request }` as last argument — `(prisma, ctx)` for table actions,
-  `(prisma, recordId, ctx)` for row actions — so a table action's static `data` now reaches its procedure
-  (one procedure can serve several buttons). Existing procedures need no change.
-- `useAuth().user.picture` — the login provider's profile photo URL (Google and OIDC providers that send a
-  `picture` claim; http(s) only; empty for Microsoft). Users already logged in get it after their next login.
+- `normalize-schema.json` renames accept `{ "to": "…", "relationOnly": true }`.
 
 ---
 
-## Step 14 — Verify
+## Step 15 — Verify
 
 ```bash
 pnpm install --frozen-lockfile
@@ -405,8 +449,8 @@ pnpm crouton generate --yes
 pnpm nx run-many -t lint typecheck build
 ```
 
-Then run `pnpm crouton validate` — it must report 0 issues.
+Then run `pnpm crouton validate` — it must report 0 issues (and exit 0).
 
 Start the backend and confirm: no `resource not served` errors (check `/crouton/status.json` too: load errors are
-listed there, not always in the log), a delete works, a list with a boolean filter
-works, and a nested `/<parent>/:id/<child>` list returns rows.
+listed there, not always in the log), a delete works, a list with a boolean filter works, a nested
+`/<parent>/:id/<child>` list returns rows, and `?q=<text>` on a list returns 200.
