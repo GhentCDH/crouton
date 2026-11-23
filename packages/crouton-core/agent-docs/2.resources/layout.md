@@ -61,7 +61,9 @@ order.
 
 ```ts
 {
-  type ? : "grid" | "vertical" | "horizontal" | "collapse" | "group",
+  type ? : "grid" | "vertical" | "horizontal" | "collapse" | "group" | "tabs" | "custom",
+    component ? : string,      // custom only: name of the registered layout component
+    props ? : object,          // tabs/custom: static props for the layout component
     columns ? : number,        // grid column count (default 12)
     title ? : string,          // heading for collapse/group
     titleKey ? : string,       // resolve heading from a field value at render time
@@ -74,6 +76,56 @@ order.
 
 A node with no `type` defaults to `"grid"`.
 
+### Tabs
+
+`"type": "tabs"` shows one tab per child node. Each tab is labelled with the child's `title` (or the value of its
+`titleKey` field).
+
+```jsonc
+{
+  "type": "tabs",
+  "props": { "syncQuery": "tab" },     // optional: keep the active tab in ?tab=2
+  "items": [
+    { "type": "group", "title": "General", "items": ["title", "isbn", "publishedAt"] },
+    { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] },
+    { "type": "group", "title": "History", "items": [{ "component": "AuditLog" }] }
+  ]
+}
+```
+
+- All tabs are one form with a single Save. Inactive tabs stay mounted, so their fields are validated too.
+- A tab that holds an invalid field shows an error badge.
+- Arrow keys, Home and End move between tabs.
+- Works in `layout.form` and `layout.view`.
+
+`tabs` is shorthand for `{ "type": "custom", "component": "Tabs" }`. Register your own `Tabs` in
+`customComponents` to replace the built-in one.
+
+### Custom layout node
+
+`"type": "custom"` hands a node and its children to a Vue component you register in `customComponents` — the same
+registry as [component items](#component-item-options). Use it for tabs, steppers, side-by-side panes, or any layout
+crouton does not ship.
+
+```jsonc
+{
+  "type": "custom",
+  "component": "Tabs",                 // required: name in customComponents
+  "props": { "syncQuery": "tab" },     // optional: static props
+  "items": [
+    { "type": "group", "title": "General", "items": ["title", "isbn"] },
+    { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] }
+  ]
+}
+```
+
+The component receives the same props as a component item (`data`, `readonly`, `schema`, `uischema`, …`props`) plus
+`elements`: the built UI-schema children, one per entry in `items`. Render each with `Dispatch` from
+`@ghentcdh/crouton-forms-vue`. All children stay part of the one form, so there is a single Save.
+
+When no component matches the name, the children render stacked so no field is lost. Custom nodes work in
+`layout.form` and `layout.view`, not in `layout.table`. See the [custom layout recipe](../6.recipes/custom-layout.md).
+
 ## Items
 
 Every entry in an `items` array is one of four kinds, detected by its shape:
@@ -83,10 +135,11 @@ Every entry in an `items` array is one of four kinds, detected by its shape:
 | `"fieldName"` (string)                | **Field id**                    | The field's default renderer                 |
 | `{ "id": "fieldName", ... }`          | **Field control** (has `id`)    | Field renderer with overrides                |
 | `{ "component": "MyComponent", ... }` | **Component** (has `component`) | Custom Vue component from `customComponents` |
+| `{ "type": "custom", "component": … }` | **Custom node**                | Layout component from `customComponents`     |
 | Any other object                      | **Nested node**                 | Recursive layout container                   |
 
 Detection uses only the presence of `id` or `component` — not `type`, because field controls also have a `type` (input
-override, e.g. `"textarea"`).
+override, e.g. `"textarea"`). The one exception: `component` together with `"type": "custom"` is a custom layout node.
 
 **Order is preserved.** Items render exactly in the order declared — you can interleave fields, collapse sections, and
 components freely.
@@ -436,6 +489,7 @@ Beyond `items`, the table node accepts presentation options:
 | `selectable` | boolean                          | Show row checkboxes for multi-select.                                  |
 | `rowClick`   | `"view"` \| `"edit"` \| `"none"` | What happens when a row is clicked.                                    |
 | `emptyText`  | string                           | Message shown when there are no rows.                                  |
+| `download`   | `{ csv?, fileName? }`            | Export buttons. `csv: true` shows **Download CSV**; omit `csv` to inherit `rules.tableDownload` from `crouton.json` (hidden by default). |
 
 ```json
 "table": {
@@ -448,6 +502,7 @@ Beyond `items`, the table node accepts presentation options:
   "density": "compact",
   "rowClick": "view",
   "emptyText": "No books yet",
+  "download": { "csv": true, "fileName": "books" },
   "items": [
     {
       "id": "title",
@@ -472,6 +527,22 @@ Beyond `items`, the table node accepts presentation options:
   ]
 }
 ```
+
+##### CSV download
+
+**Download CSV** exports every row that matches the current filter, search and sort (all pages, not just the
+visible one). It includes the visible columns with their translated labels. The file opens correctly in Excel
+in `,`-decimal locales such as nl-BE:
+
+- `;` separator, UTF-8 with BOM, every cell quoted
+- dates as `dd/MM/yyyy`, date-times as `dd/MM/yyyy HH:mm` (UTC)
+- booleans as translated yes/no, enums and relations as their display label
+
+Enable it for every table with `"rules": { "tableDownload": { "csv": true } }` in `crouton.json`. Turn it off
+for one table with `"download": { "csv": false }`.
+
+For custom pages, use `downloadCsv(columns, rows, fileName)` or `<DownloadCsvButton>` from
+`@ghentcdh/crouton-vue` (see [Data components](../components/data.md#download-csv)).
 
 ### Table column order
 

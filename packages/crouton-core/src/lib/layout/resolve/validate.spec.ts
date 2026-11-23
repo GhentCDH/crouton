@@ -16,6 +16,14 @@ describe('validateLayout', () => {
     expect(result.warnings).toEqual([]);
   });
 
+  it('sees fields inside a custom layout node', () => {
+    const node: FormLayoutNode = {
+      items: [{ type: 'custom', component: 'Tabs', items: [{ type: 'group', items: ['name'] }, 'name'] }],
+    };
+    const { errors } = validateLayout(node, [col('name')], 'form');
+    expect(errors).toContain('layout.form: duplicate column id "name"');
+  });
+
   it('error for unknown column id', () => {
     const node: FormLayoutNode = { items: ['name', 'typo'] };
     const cols = [col('name')];

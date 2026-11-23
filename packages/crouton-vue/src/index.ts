@@ -30,6 +30,7 @@ export { default as RelationInline } from './relation/RelationInline.vue';
  * your app's shell/sidebar makes sense (crouton-vue has no opinion on that).
  */
 export { default as DevResourcesPanel } from './dev-tools/DevResourcesPanel.vue';
+export * from './csv';
 export * from './utils/computedAsync';
 export * from './utils/custom-component';
 export * from './utils/PageService';

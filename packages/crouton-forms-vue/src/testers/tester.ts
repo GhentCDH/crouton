@@ -155,3 +155,6 @@ export const isDateRangeControl = and(
 );
 
 export const isComponentElement = uiTypeIs('ComponentElement');
+
+/** Layout node `{ type: "custom", component }` — rendered by an app-registered component. */
+export const isCustomLayout = uiTypeIs('CustomLayout');

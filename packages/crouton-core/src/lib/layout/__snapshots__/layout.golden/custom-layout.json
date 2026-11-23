@@ -1,0 +1,309 @@
+{
+  "views": {
+    "table": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "isbn": {
+            "type": "string",
+            "title": "isbn",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "summary",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "Table",
+        "elements": [
+          {
+            "type": "TextCell",
+            "scope": "#/properties/id",
+            "options": {
+              "sortId": "id"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/title",
+            "options": {
+              "sortId": "title"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/isbn",
+            "options": {
+              "sortId": "isbn"
+            }
+          },
+          {
+            "type": "TextCell",
+            "scope": "#/properties/summary",
+            "options": {
+              "sortId": "summary"
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "id",
+          "labelKey": "resources.book.columns.id"
+        },
+        {
+          "id": "title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "isbn",
+          "labelKey": "resources.book.columns.isbn"
+        },
+        {
+          "id": "summary",
+          "labelKey": "resources.book.columns.summary"
+        }
+      ],
+      "defaultSort": "id",
+      "defaultSortDir": "asc"
+    },
+    "form": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "isbn": {
+            "type": "string",
+            "title": "isbn",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "summary",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "title"
+        ]
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "CustomLayout",
+            "elements": [
+              {
+                "type": "GroupLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/title",
+                    "options": {
+                      "format": "text",
+                      "styles": {
+                        "width": "full",
+                        "control": {
+                          "wrapper": "input-full"
+                        }
+                      },
+                      "colspan": 12
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/isbn",
+                    "options": {
+                      "format": "text",
+                      "styles": {
+                        "width": "full",
+                        "control": {
+                          "wrapper": "input-full"
+                        }
+                      },
+                      "colspan": 12
+                    }
+                  }
+                ],
+                "options": {
+                  "title": "General"
+                }
+              },
+              {
+                "type": "GroupLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/summary",
+                    "options": {
+                      "format": "text",
+                      "styles": {
+                        "width": "full",
+                        "control": {
+                          "wrapper": "input-full"
+                        }
+                      },
+                      "colspan": 12
+                    }
+                  },
+                  {
+                    "type": "ComponentElement",
+                    "options": {
+                      "component": "LoanList"
+                    }
+                  }
+                ],
+                "options": {
+                  "title": "Details"
+                }
+              }
+            ],
+            "options": {
+              "component": "Tabs",
+              "props": {
+                "syncQuery": "tab"
+              }
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "isbn",
+          "labelKey": "resources.book.columns.isbn"
+        },
+        {
+          "id": "summary",
+          "labelKey": "resources.book.columns.summary"
+        }
+      ]
+    },
+    "view": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "title",
+            "minLength": 1
+          },
+          "isbn": {
+            "type": "string",
+            "title": "isbn",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "title": "summary",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "ui": {
+        "type": "GridLayout",
+        "elements": [
+          {
+            "type": "CustomLayout",
+            "elements": [
+              {
+                "type": "GroupLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/title",
+                    "options": {
+                      "format": "text",
+                      "styles": {
+                        "width": "full",
+                        "control": {
+                          "wrapper": "input-full"
+                        }
+                      },
+                      "colspan": 12
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/isbn",
+                    "options": {
+                      "format": "text",
+                      "styles": {
+                        "width": "full",
+                        "control": {
+                          "wrapper": "input-full"
+                        }
+                      },
+                      "colspan": 12
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/summary",
+                    "options": {
+                      "format": "text",
+                      "styles": {
+                        "width": "full",
+                        "control": {
+                          "wrapper": "input-full"
+                        }
+                      },
+                      "colspan": 12
+                    }
+                  }
+                ],
+                "options": {
+                  "title": "General"
+                }
+              }
+            ],
+            "options": {
+              "component": "Tabs",
+              "props": {
+                "syncQuery": "tab"
+              }
+            }
+          }
+        ]
+      },
+      "columns": [
+        {
+          "id": "title",
+          "labelKey": "resources.book.columns.title"
+        },
+        {
+          "id": "isbn",
+          "labelKey": "resources.book.columns.isbn"
+        },
+        {
+          "id": "summary",
+          "labelKey": "resources.book.columns.summary"
+        }
+      ]
+    }
+  },
+  "lookup": {}
+}

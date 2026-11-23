@@ -13,6 +13,7 @@ export const LayoutType = {
   Grid: 'GridLayout',
   Collapse: 'CollapseLayout',
   Group: 'GroupLayout',
+  Custom: 'CustomLayout',
   ComponentElement: 'ComponentElement',
 } as const;
 
@@ -33,4 +34,8 @@ export interface CroutonLayoutOptions extends CroutonElementOptions {
   title?: string;
   titleKey?: string;
   columns?: number;
+  /** Custom layout: name of the registered layout component. */
+  component?: string;
+  /** Custom layout: static props for the layout component. */
+  props?: Record<string, unknown>;
 }

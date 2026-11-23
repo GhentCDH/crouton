@@ -1,6 +1,10 @@
 type UiDefaults = Record<string, Record<string, string>>;
 
 const en: UiDefaults = {
+  layout: {
+    tab: 'Tab',
+    tabHasErrors: 'Contains errors',
+  },
   table: {
     search: 'Search...',
     filters: 'Filters',
@@ -11,6 +15,9 @@ const en: UiDefaults = {
     showing: 'Showing',
     of: 'of',
     records: 'records',
+    downloadCsv: 'Download CSV',
+    yes: 'Yes',
+    no: 'No',
   },
   filter: {
     contains: 'contains',
@@ -70,6 +77,10 @@ const en: UiDefaults = {
 };
 
 const nl: UiDefaults = {
+  layout: {
+    tab: 'Tabblad',
+    tabHasErrors: 'Bevat fouten',
+  },
   table: {
     search: 'Zoeken...',
     filters: 'Filters',
@@ -80,6 +91,9 @@ const nl: UiDefaults = {
     showing: 'Toont',
     of: 'van',
     records: 'records',
+    downloadCsv: 'CSV downloaden',
+    yes: 'Ja',
+    no: 'Nee',
   },
   filter: {
     contains: 'bevat',
@@ -139,6 +153,10 @@ const nl: UiDefaults = {
 };
 
 const fr: UiDefaults = {
+  layout: {
+    tab: 'Onglet',
+    tabHasErrors: 'Contient des erreurs',
+  },
   table: {
     search: 'Rechercher...',
     filters: 'Filtres',
@@ -149,6 +167,9 @@ const fr: UiDefaults = {
     showing: 'Affichage de',
     of: 'sur',
     records: 'enregistrements',
+    downloadCsv: 'Télécharger CSV',
+    yes: 'Oui',
+    no: 'Non',
   },
   filter: {
     contains: 'contient',
@@ -208,6 +229,10 @@ const fr: UiDefaults = {
 };
 
 const de: UiDefaults = {
+  layout: {
+    tab: 'Tab',
+    tabHasErrors: 'Enthält Fehler',
+  },
   table: {
     search: 'Suchen...',
     filters: 'Filter',
@@ -218,6 +243,9 @@ const de: UiDefaults = {
     showing: 'Zeige',
     of: 'von',
     records: 'Einträge',
+    downloadCsv: 'CSV herunterladen',
+    yes: 'Ja',
+    no: 'Nein',
   },
   filter: {
     contains: 'enthält',
@@ -277,6 +305,10 @@ const de: UiDefaults = {
 };
 
 const wv: UiDefaults = {
+  layout: {
+    tab: 'Tabblad',
+    tabHasErrors: 'Zit fouten in',
+  },
   table: {
     search: 'Zoekn...',
     filters: 'Filters',
@@ -287,6 +319,9 @@ const wv: UiDefaults = {
     showing: 'Toond',
     of: 'van de',
     records: 'Dingen',
+    downloadCsv: 'CSV downloaden',
+    yes: 'Joa',
+    no: 'Nee',
   },
   filter: {
     contains: 'ee',

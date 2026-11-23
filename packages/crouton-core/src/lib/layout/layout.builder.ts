@@ -42,6 +42,11 @@ export class LayoutBuilder<TYPE = Record<string, unknown>> extends ContainerBuil
     return new LayoutBuilder<TYPE>(LayoutType.Group);
   }
 
+  /** Layout rendered by an app-registered component (`customComponents`). */
+  static custom<TYPE = Record<string, unknown>>(component: string): LayoutBuilder<TYPE> {
+    return new LayoutBuilder<TYPE>(LayoutType.Custom).opt({ component });
+  }
+
   /** Collapse layout title. */
   title(title: string): this {
     return this.opt({ title });
