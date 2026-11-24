@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fixPrismaClientImport, normalizeSchema, pullAndGenerate, resolveFieldCollisions } from './prisma-shell';
 import { EventEmitter } from 'node:events';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -10,6 +10,7 @@ import { join } from 'node:path';
 
 const calls: string[][] = [];
 let validateExitCode = 0;
+let pullExitCode = 0;
 
 vi.mock('node:child_process', () => ({
   spawn: (_cmd: string, args: string[]) => {
@@ -17,7 +18,7 @@ vi.mock('node:child_process', () => ({
     const child = new EventEmitter() as EventEmitter & { stdout: EventEmitter; stderr: EventEmitter };
     child.stdout = new EventEmitter();
     child.stderr = new EventEmitter();
-    const code = args.includes('validate') ? validateExitCode : 0;
+    const code = args.includes('validate') ? validateExitCode : args.includes('pull') ? pullExitCode : 0;
     setImmediate(() => child.emit('close', code));
     return child;
   },
@@ -41,6 +42,19 @@ const pullArgs = () => calls.find((a) => a.includes('pull'));
 describe('pullAndGenerate', () => {
   beforeEach(() => {
     calls.length = 0;
+    pullExitCode = 0;
+  });
+
+  it('failed pull (#676): removes the backup it just made', async () => {
+    validateExitCode = 0;
+    pullExitCode = 1;
+    const input = setup(GOOD);
+    rmSync(`${input.schemaPath}.bak`);
+
+    const result = await pullAndGenerate(input);
+
+    expect(result.ok).toBe(false);
+    expect(existsSync(`${input.schemaPath}.bak`)).toBe(false);
   });
 
   it('valid schema: backs up current schema and pulls without --force', async () => {
