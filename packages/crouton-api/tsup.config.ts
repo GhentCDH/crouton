@@ -20,7 +20,6 @@ export default defineConfig({
     '@nestjs/testing',
     '@nestjs/swagger',
     '@nestjs/passport',
-    'nestjs-zod',
     '@prisma/client',
     '@nestjs/passport',
     'passport',

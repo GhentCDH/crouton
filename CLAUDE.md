@@ -157,6 +157,12 @@ After **any** dependency bump:
 4. TypeScript: scaffolds use the example's `typescript` (currently `~5.9`; `crouton-prisma`/`crouton-mcp` peer `^5`). Move it together with Nx and those peers, never alone.
 5. Before a release (or after changing templates / public API config): `node tools/scaffold-smoke.mjs` — scaffolds with the local build, installs packed crouton packages, runs peers check + build + typecheck + lint. Same as the `scaffold-smoke` CI job.
 
+After **removing** a dependency:
+
+1. Also remove it from the CLI / scaffold side: `git grep -n <name>` and clean every hit in `packages/crouton-cli`, `packages/create-crouton` (`templates/**` — `package.json.tmpl`, `pnpm-workspace.yaml.tmpl` `peerDependencyRules` / `allowBuilds` / `onlyBuiltDependencies`), `tools/template-dep-versions.mjs`, and the example apps.
+2. Drop it from tsup `external` lists and `docs/guide/reference/packages.md` + `packages/crouton-core/agent-docs/reference/packages.md`.
+3. `pnpm install`, then `pnpm nx run-many --targets=lint,typecheck,test --projects=crouton-cli,create-crouton,<owning-package>`.
+
 # Package Boundaries
 
 - `crouton-core` — browser-safe shared code (types, schemas, utilities). No Node-only imports (`child_process`, `fs`, etc.)

@@ -44,7 +44,7 @@ Crouton is split into focused packages. Most projects need only two: `@ghentcdh/
 
 | Package          | Peers                                                                                                                       |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `crouton-api`    | `@nestjs/common`, `@nestjs/core`, `@nestjs/swagger`, `@prisma/client`, `@prisma/internals`, `nestjs-zod`, `zod`              |
+| `crouton-api`    | `@nestjs/common`, `@nestjs/core`, `@nestjs/swagger`, `@prisma/client`, `@prisma/internals`, `zod` |
 | `crouton-vue`    | `@ghentcdh/crouton-core`, `vue` >=3, `vue-router` ^5, `axios`, `@jsonforms/core`, `vee-validate` >=5.0.0-beta.0, `zod`        |
 | `crouton-core`   | `@jsonforms/core`, `zod`                                                                                                    |
 | `crouton-auth`   | `zod`                                                                                                                       |

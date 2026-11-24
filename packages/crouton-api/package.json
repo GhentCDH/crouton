@@ -68,7 +68,6 @@
     "@nestjs/swagger": ">=7.0.0",
     "@prisma/client": ">=7.0.0",
     "@prisma/internals": ">=7.0.0",
-    "nestjs-zod": ">=5.0.0",
     "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {
