@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { hashContent, loadManifest, saveManifest } from './manifest';
 import { renderAgentFile } from './render';
 import { findAgentRoot, syncAgentFiles, writeAgentFiles } from './sync';
+import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -134,5 +135,19 @@ describe('writeAgentFiles', () => {
     expect(await readFile(join(root, 'AGENTS.md'), 'utf-8')).toContain('`apps/gateway/src/resources`');
     expect(await readFile(join(root, 'CLAUDE.md'), 'utf-8')).toBe('@AGENTS.md\n');
     expect(await readFile(join(root, '.claude/skills/crouton/SKILL.md'), 'utf-8')).toContain('resources: apps/gateway/src/resources');
+  });
+
+  it('honours agentFiles.dir from crouton.json over the Nx root', async () => {
+    const root = await mkTmp();
+    const projectDir = join(root, 'examples/app');
+    await mkdir(projectDir, { recursive: true });
+    await writeFile(join(root, 'nx.json'), '{}', 'utf-8');
+    await writeFile(join(projectDir, 'crouton.json'), JSON.stringify({ resourcesDir: 'src/resources', dataSourcesDir: 'src/data-sources', agentFiles: { dir: '.' } }), 'utf-8');
+    const agentFilesDir = await makeAgentFilesDir(await mkTmp());
+
+    await writeAgentFiles({ projectDir, rootDir: findAgentRoot(projectDir), agentFilesDir, version: '1.0.0' });
+
+    expect(await readFile(join(projectDir, 'AGENTS.md'), 'utf-8')).toContain('`src/resources`');
+    expect(existsSync(join(root, 'AGENTS.md'))).toBe(false);
   });
 });

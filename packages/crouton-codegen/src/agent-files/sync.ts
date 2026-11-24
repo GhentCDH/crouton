@@ -114,7 +114,7 @@ export const findAgentRoot = (dir: string): string => {
 /**
  * Write the crouton block in `AGENTS.md`, a `CLAUDE.md` pointing at it, and the
  * `.claude` / `.cursor` agent files into `rootDir`, for the crouton project at `projectDir`.
- * Paths in the files are relative to `rootDir`.
+ * Paths in the files are relative to `rootDir`; `agentFiles.dir` in `crouton.json` overrides it.
  */
 export const writeAgentFiles = async (opts: {
   projectDir: string;
@@ -124,7 +124,8 @@ export const writeAgentFiles = async (opts: {
   dryRun?: boolean;
 }): Promise<AgentFileSyncResult[]> => {
   const { config, root } = await loadConfig(opts.projectDir);
-  const rel = (p: string) => relative(opts.rootDir, resolve(root, p)).split(sep).join('/') || '.';
+  const rootDir = config.agentFiles?.dir ? resolve(root, config.agentFiles.dir) : opts.rootDir;
+  const rel = (p: string) => relative(rootDir, resolve(root, p)).split(sep).join('/') || '.';
   const context = {
     resourcesDir: rel(config.resourcesDir),
     dataSourcesDir: rel(config.dataSourcesDir),
@@ -132,7 +133,7 @@ export const writeAgentFiles = async (opts: {
   };
   if (!opts.dryRun) {
     await upsertAgentBlock(
-      join(opts.rootDir, 'AGENTS.md'),
+      join(rootDir, 'AGENTS.md'),
       '<!-- Leave the start & end comments to automatically receive updates. -->\n' +
         '# crouton\n' +
         `- Resources live in \`${context.resourcesDir}\`, data sources in \`${context.dataSourcesDir}\` (see \`crouton.json\`).\n` +
@@ -140,10 +141,10 @@ export const writeAgentFiles = async (opts: {
         '- After editing any `resource.json` or `crouton.json`, run `crouton validate`.\n' +
         '- Docs for the installed version: `node_modules/@ghentcdh/crouton-cli/agent-docs/README.md`',
     );
-    await ensureClaudeMd(join(opts.rootDir, 'CLAUDE.md'));
+    await ensureClaudeMd(join(rootDir, 'CLAUDE.md'));
   }
   return syncAgentFiles({
-    projectDir: opts.rootDir,
+    projectDir: rootDir,
     agentFilesDir: opts.agentFilesDir,
     context,
     targets: ['claude', 'cursor'],

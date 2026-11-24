@@ -48,6 +48,7 @@ export const CroutonConfigSchema = z.object({
   authProvidersDir: z.string().optional().describe('Path to auth-provider modules, relative to the config file directory. Defaults to "src/app/auth-providers".'),
   agentFiles: z.object({
     targets: z.array(z.enum(['claude', 'cursor'])).optional().describe('Which agent file sets to manage. Defaults to those already present in the project, or both on first run.'),
+    dir: z.string().optional().describe('Where AGENTS.md, CLAUDE.md and the skill files are written, relative to the config file directory. Defaults to the nearest Nx workspace root (nx.json), else the config file directory.'),
   }).optional().describe('Agent file sync configuration for `crouton update resources`. Stored after the first run.'),
 });
 
