@@ -21,7 +21,8 @@ import { applySchemaTransforms } from './schema-transforms';
  * - `default` from `fieldInput.defaultValue`, matching the Zod path where
  *   `injectFieldDefaults` does the same;
  * - `enum` from `fieldInput.options.values`, so an enum-backed select validates
- *   against its own option list.
+ *   against its own option list (on `items` for an array column: each element
+ *   is one of the options, not the array itself).
  *
  * An autocomplete column with no declared `type` is emitted as a typeless
  * property, matching `buildViewsFromColumns`: the value is a `{value, label}`
@@ -58,9 +59,10 @@ export const columnToJsonSchemaProperty = (
     property.default = col.fieldInput.defaultValue;
   }
 
-  if (property.enum === undefined) {
+  const target = property.type === 'array' && property.items ? (property.items = { ...property.items }) : property;
+  if (target.enum === undefined) {
     const values = optionValues(col);
-    if (values) property.enum = values;
+    if (values) target.enum = values;
   }
 
   return property;

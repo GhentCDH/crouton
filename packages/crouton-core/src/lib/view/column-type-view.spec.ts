@@ -82,6 +82,18 @@ describe('columnToJsonSchemaProperty', () => {
     expect(columnToJsonSchemaProperty(col).enum).toEqual(['draft', 'live']);
   });
 
+  it('puts option values on items for an array column', () => {
+    const [col] = columnsOf({
+      apps: {
+        type: { type: 'array', items: { type: 'string' } },
+        fieldInput: { type: 'custom', options: { values: [{ value: 'a', label: 'A' }, 'b'] } },
+      },
+    });
+    const prop = columnToJsonSchemaProperty(col);
+    expect(prop.enum).toBeUndefined();
+    expect(prop.items?.enum).toEqual(['a', 'b']);
+  });
+
   it('emits a typeless property for an untyped autocomplete column', () => {
     const [col] = columnsOf({
       author: { fieldInput: { type: 'autocomplete' } },
