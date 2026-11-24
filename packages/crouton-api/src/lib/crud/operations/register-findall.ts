@@ -3,11 +3,13 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import {
   type ListRequest,
+  RequestSchema,
   isOperationEnabled,
-  isOperationExternal, toJsonSchema } from '@ghentcdh/crouton-core';
+  isOperationExternal,
+  toJsonSchema,
+} from '@ghentcdh/crouton-core';
 
 import type { CrudRepository } from '../data-access/repository';
-import { RequestDtoNoOffset } from '../request.dto';
 import { type SubResourceConfig } from '../resource/SubResource.schema';
 import { ZodValidationPipe } from '../zod-validation.pipe';
 import { def, desc } from './decorator.utils';
@@ -133,7 +135,7 @@ export const registerFindAll = (
   def(cls, methodName, properties.findAll);
   const d = desc(cls, methodName);
   Get(route)(cls.prototype, methodName, d);
-  Query(new ZodValidationPipe(RequestDtoNoOffset.schema))(
+  Query(new ZodValidationPipe(RequestSchema))(
     cls.prototype,
     methodName,
     0,
