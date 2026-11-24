@@ -1,7 +1,7 @@
 import type { PackageManager } from './detect';
 import { execSync, spawn } from 'node:child_process';
 
-const MIN_PNPM_MAJOR = 11;
+const MIN_PNPM_MAJOR = 12;
 
 /**
  * Check that the installed pnpm version meets the minimum requirement.
