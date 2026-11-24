@@ -27,5 +27,5 @@ export default defineConfig({
   ],
   // All node_modules are automatically externalized for node platform
   // Bundle workspace packages since they ship as raw .ts source
-  noExternal: [/@{{name}}\/.*/],
+  noExternal: [/@{{scope}}\/.*/],
 });

@@ -84,6 +84,24 @@ const resolveProjectScope = async (root: string, fallback: string): Promise<stri
   return fallback;
 };
 
+/**
+ * Package names of the generated types/client workspace packages.
+ * `generatedTypesImport` in data-source.json is what the scaffolded apps depend on,
+ * so it wins: deriving the name again (from package.json or the crouton title) could
+ * rename the package under the apps, or use the workspace scope instead of the project's (#673).
+ * Path-style imports (`@app/generated/default/types`) fall back to `@<scope>/generated-<ds>-…`.
+ */
+export const generatedPkgNames = async (
+  root: string,
+  ds: DataSource,
+  title: string | undefined,
+): Promise<{ types: string; client: string }> => {
+  const pkg = /^(@[^/]+\/[^/]+)-types$/.exec(ds.generatedTypesImport ?? '');
+  if (pkg) return { types: pkg[0], client: `${pkg[1]}-client` };
+  const scope = await resolveProjectScope(root, title?.toLowerCase().replace(/\s+/g, '-') ?? 'app');
+  return { types: `@${scope}/generated-${ds.name}-types`, client: `@${scope}/generated-${ds.name}-client` };
+};
+
 export interface UpdateResourcesOptions {
   cwd?: string;
   datasource?: string;
@@ -107,7 +125,7 @@ export interface UpdateResourcesOptions {
 const ensureGeneratedScaffold = async (
   root: string,
   ds: DataSource,
-  projectName: string,
+  names: { types: string; client: string },
 ): Promise<number> => {
   let created = 0;
 
@@ -143,11 +161,11 @@ const ensureGeneratedScaffold = async (
 
   if (ds.zodOutput) {
     const typesDir = resolveFromRoot(root, dirname(ds.zodOutput));
-    await scaffoldPkg(typesDir, `@${projectName}/generated-${ds.name}-types`, { addZod: true });
+    await scaffoldPkg(typesDir, names.types, { addZod: true });
   }
   if (ds.clientOutput) {
     const clientDir = resolveFromRoot(root, ds.clientOutput);
-    await scaffoldPkg(clientDir, `@${projectName}/generated-${ds.name}-client`, { isClient: true });
+    await scaffoldPkg(clientDir, names.client, { isClient: true });
   }
   return created;
 };
@@ -163,15 +181,13 @@ const ensureGeneratedScaffold = async (
 const ensureAppWorkspaceDeps = async (
   root: string,
   ds: DataSource,
-  projectName: string,
+  typesName: string,
 ): Promise<number> => {
   const appsDir = join(root, 'apps');
   if (!existsSync(appsDir)) return 0;
 
   let patched = 0;
   const entries = await readdir(appsDir, { withFileTypes: true });
-
-  const typesName = `@${projectName}/generated-${ds.name}-types`;
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -451,15 +467,12 @@ export const runUpdateResources = async (
 
     // CLI-only scaffold steps (independent of pull vs generate-only).
     if (!opts.skipGenerate) {
-      const projectName = await resolveProjectScope(
-        loaded.root,
-        loaded.config.title?.toLowerCase().replace(/\s+/g, '-') ?? 'app',
-      );
-      const scaffolded = await ensureGeneratedScaffold(loaded.root, ds, projectName);
+      const names = await generatedPkgNames(loaded.root, ds, loaded.config.title);
+      const scaffolded = await ensureGeneratedScaffold(loaded.root, ds, names);
       if (scaffolded > 0) {
         clack.log.info(`Created ${scaffolded} scaffold file(s) in generated dirs`);
       }
-      const depsPatched = await ensureAppWorkspaceDeps(loaded.root, ds, projectName);
+      const depsPatched = await ensureAppWorkspaceDeps(loaded.root, ds, names.types);
       if (depsPatched > 0) {
         clack.log.info(`Added generated workspace deps to ${depsPatched} app(s)`);
       }

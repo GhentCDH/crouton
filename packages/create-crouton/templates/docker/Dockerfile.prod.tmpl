@@ -32,7 +32,7 @@ RUN cd {{workspaceRoot}} && DATABASE_URL=postgresql://dummy:dummy@localhost:5432
 {{/if}}{{#if nxBackendOnly}}RUN npx nx build {{backendApp}}
 {{/if}}{{#if nx}}
 # Create flat node_modules for backend (no pnpm symlinks)
-RUN pnpm --filter @{{name}}/backend deploy --legacy --prod /app/deployed-backend
+RUN pnpm --filter @{{scope}}/backend deploy --legacy --prod /app/deployed-backend
 
 # Transpile resource & data-source .ts → .js for runtime require()
 COPY {{backendRoot}}/src/app/resources /app/{{backendDist}}/resources
@@ -70,9 +70,9 @@ COPY --from=build /app/{{backendDist}} ./backend
 COPY --from=build /app/deployed-backend/node_modules ./node_modules
 COPY --from=build /app/{{generatedGlob}}/client ./generated/client
 # Not a workspace package (see pnpm-workspace.yaml) — place it where the
-# runtime-required data-sources resolve `@{{name}}/generated-default-client`.
-COPY --from=build /app/{{generatedGlob}}/client ./node_modules/@{{name}}/generated-default-client
-COPY --from=build /app/{{generatedGlob}}/types ./node_modules/@{{name}}/generated-default-types
+# runtime-required data-sources resolve `@{{scope}}/generated-default-client`.
+COPY --from=build /app/{{generatedGlob}}/client ./node_modules/@{{scope}}/generated-default-client
+COPY --from=build /app/{{generatedGlob}}/types ./node_modules/@{{scope}}/generated-default-types
 {{/if}}{{#if nxFrontend}}COPY --from=build /app/{{frontendRoot}}/dist /srv/frontend
 {{/if}}{{#if nx}}
 # Crouton config (runtime: CroutonApiModule.forResourceDir looks for crouton.json)
