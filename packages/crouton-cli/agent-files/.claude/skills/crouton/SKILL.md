@@ -1,10 +1,10 @@
 ---
 name: crouton
 description: Add or change crouton resources, relations, field inputs, layouts, operations and data sources (resource.json, data-source.json, crouton.json). Use for any change to these files.
-crouton-version: 0.0.1-alpha.82
+crouton-version: 0.0.0-template
 ---
 
-> If `crouton --version` differs from `crouton-version` above, the skill may be stale — check the installed version's docs in `node_modules/@ghentcdh/crouton-core/agent-docs/`.
+> `crouton-version` is stamped when the skill is synced into a project (`crouton update resources`). If `crouton --version` differs from it, the skill may be stale — check the installed version's docs in `node_modules/@ghentcdh/crouton-cli/agent-docs/`.
 
 # Crouton skill
 
@@ -61,4 +61,4 @@ defaults.
 
 ## Docs for the installed version
 
-`node_modules/@ghentcdh/crouton-core/agent-docs/README.md`
+`node_modules/@ghentcdh/crouton-cli/agent-docs/README.md`

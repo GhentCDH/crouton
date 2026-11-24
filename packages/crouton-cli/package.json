@@ -29,7 +29,8 @@
   },
   "files": [
     "dist",
-    "agent-files"
+    "agent-files",
+    "agent-docs"
   ],
   "scripts": {
     "build": "tsup",

@@ -80,3 +80,6 @@ e2e.db
 vitest.config.*.timestamp*
 tsconfig.tsbuildinfo
 .vitest
+
+# copied from crouton-core at build time (#674)
+packages/crouton-cli/agent-docs/
