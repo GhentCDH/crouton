@@ -148,6 +148,10 @@ describe('crouton create project', () => {
     it('--no-frontend skips the frontend app', async () => {
       expect(await run(['create', 'project', 'archive', '--cwd', root, '-y', '--no-frontend'])).toBeFalsy();
       expect(existsSync(join(root, 'archive/apps/frontend'))).toBe(false);
+      for (const env of ['archive/.env', 'archive/.env.example']) {
+        expect(read(env)).not.toContain('FRONTEND_PORT');
+        expect(read(env)).toContain('\nBACKEND_PORT=');
+      }
     });
 
     it('refuses a non-empty target and an invalid name', async () => {
