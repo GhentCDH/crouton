@@ -1,3 +1,21 @@
+## 0.2.0-rc.4 (2026-11-24)
+
+### 🚀 Features
+
+- **create-crouton:** note when --db-url skips compose.infra.yml ([#687](https://github.com/GhentCDH/crouton/pull/687), [#680](https://github.com/GhentCDH/crouton/issues/680))
+- **create-crouton:** emit agent files on scaffold at workspace root ([#688](https://github.com/GhentCDH/crouton/pull/688), [#678](https://github.com/GhentCDH/crouton/issues/678))
+
+### 🩹 Fixes
+
+- **create-crouton:** scope project packages by --prefix project name ([#683](https://github.com/GhentCDH/crouton/pull/683), [#673](https://github.com/GhentCDH/crouton/issues/673))
+- **create-crouton:** quiet db pull failure, no stray schema.prisma.bak ([#685](https://github.com/GhentCDH/crouton/pull/685), [#675](https://github.com/GhentCDH/crouton/issues/675), [#676](https://github.com/GhentCDH/crouton/issues/676))
+- **create-crouton:** make scaffolded projects pass typecheck ([#669](https://github.com/GhentCDH/crouton/pull/669), [#672](https://github.com/GhentCDH/crouton/issues/672), [#677](https://github.com/GhentCDH/crouton/issues/677))
+- **crouton-cli:** ship agent-docs with the CLI, drop stale skill version ([#684](https://github.com/GhentCDH/crouton/pull/684), [#674](https://github.com/GhentCDH/crouton/issues/674), [#679](https://github.com/GhentCDH/crouton/issues/679))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.2.0-rc.3 (2026-11-24)
 
 This was a version bump only, there were no code changes.
