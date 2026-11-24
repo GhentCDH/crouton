@@ -155,6 +155,7 @@ After **any** dependency bump:
 2. `pnpm nx run crouton-cli:test` — `template-deps.spec.ts` fails if a template hardcodes a range crouton knows, or if a scaffolded major mismatches crouton-api / crouton-vue peers.
 3. Deps not used anywhere in crouton stay literal in `packages/create-crouton/templates/**/package.json.tmpl` (`@nestjs/config`, `@nestjs/cli`, `pg`, `esbuild-plugin-swc`, `vee-validate`). On a major bump of nest/prisma check these with `npm view <pkg> peerDependencies`.
 4. TypeScript: scaffolds use the example's `typescript` (currently `~5.9`; `crouton-prisma`/`crouton-mcp` peer `^5`). Move it together with Nx and those peers, never alone.
+5. Before a release (or after changing templates / public API config): `node tools/scaffold-smoke.mjs` — scaffolds with the local build, installs packed crouton packages, runs peers check + build + typecheck + lint. Same as the `scaffold-smoke` CI job.
 
 # Package Boundaries
 

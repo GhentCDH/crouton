@@ -16,7 +16,7 @@ jobs:
     # More shared workflows (docs, GitHub release, labeler) live next to it.
     uses: GhentCDH/crouton/.github/workflows/shared-ci.yml@main
     with:
-      targets: '["lint", "build"]'
+      targets: '["lint", "typecheck", "build"]'
       # The generated types package.json is committed and the Prisma client is
       # not a workspace package, so the lockfile installs frozen. Then generate
       # from the committed Prisma schema (no database needed).

@@ -103,3 +103,17 @@ jobs:
           name: playwright-report
           path: examples/book-collection/e2e/playwright-report/
           retention-days: 7
+
+  # Scaffold a project with the local create-crouton + packed crouton packages,
+  # then install, peers check, build, typecheck and lint it (tools/scaffold-smoke.mjs).
+  scaffold-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/use-cache
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build release packages
+        run: pnpm nx run-many -t build -p crouton-core crouton-vue crouton-api @ghentcdh/create-crouton crouton-prisma crouton-cli crouton-auth
+      - name: Scaffold, install, build, typecheck, lint
+        run: node tools/scaffold-smoke.mjs
