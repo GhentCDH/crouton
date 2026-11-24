@@ -14,6 +14,7 @@ import {
   renderDockerTemplates,
   resolveLayoutPaths,
   resolveTemplateDir,
+  scaffoldAgentFiles,
   workspacePathMapper,
 } from './runner';
 import { existsSync } from 'node:fs';
@@ -270,6 +271,7 @@ export const runCreateProject = async (nameArg: string | undefined, opts: Create
 
     const written = await writeFiles(files, { force: opts.force });
     for (const e of edits) await writeFile(e.path, e.contents, 'utf-8');
+    await scaffoldAgentFiles(targetDir, layout === 'nx' ? root : targetDir);
     clack.log.success(
       `Wrote ${written} file(s) to ${pc.cyan(`${projectDir}/`)}${edits.length ? `, updated ${edits.map((e) => rel(e.path)).join(', ')}` : ''}.`,
     );

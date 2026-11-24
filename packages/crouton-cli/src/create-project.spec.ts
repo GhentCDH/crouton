@@ -81,6 +81,11 @@ describe('crouton create project', () => {
       expect(paths['@archive/generated-default-types']).toEqual(['./archive/generated/default/types/src']);
       expect(paths['@archive/generated-default-client']).toEqual(['./archive/generated/default/client']);
       expect(read('compose.yml')).toBe('include:\n  - compose.app.ws.yml\n  - compose.app.archive.yml\n');
+
+      // agent files at the workspace root, paths relative to it (#678)
+      expect(read('AGENTS.md')).toContain('Resources live in `archive/apps/backend/src/app/resources`');
+      expect(read('CLAUDE.md')).toBe('@AGENTS.md\n');
+      expect(existsSync(join(root, 'archive/AGENTS.md'))).toBe(false);
     });
 
     it('keeps the generated Prisma client out of the pnpm workspace (#543)', async () => {

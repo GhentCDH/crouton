@@ -49,6 +49,8 @@ export default defineConfig([
     async onSuccess() {
       // `crouton create project` renders create-crouton's templates (resolved next to dist/index.js).
       await cp('../create-crouton/templates', `${outDir}/templates`, { recursive: true });
+      // …plus the agent files it syncs into new projects (create-crouton merges them the same way).
+      await cp('./agent-files', `${outDir}/templates/shared`, { recursive: true });
       // Agent docs ship with the CLI (always a root dependency) so AGENTS.md links resolve
       // under pnpm, where crouton-core is only a transitive dependency (#674).
       await rm('./agent-docs', { recursive: true, force: true });

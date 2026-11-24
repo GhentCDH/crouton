@@ -24,6 +24,7 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton update translations`          | Regenerate and merge translation bundles (`--lang`, `--prune`).      |
 | `crouton generate`                     | Only `prisma generate` (client + types) per datasource — CI-safe.     |
 | `crouton init translations`            | Create translation files for every configured language (`--lang`).   |
+| `crouton init agents`                  | (Re)sync `AGENTS.md`, `CLAUDE.md` and the `crouton` agent skill (Nx: at the workspace root). |
 | `crouton create`                       | Asks whether to create a resource, a datasource or a project.        |
 | `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
 | `crouton create datasource`            | Scaffold a new [datasource](../3.backend/data-sources.md).           |
