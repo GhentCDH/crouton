@@ -400,6 +400,8 @@ export const runUpdateResources = async (
   try {
     const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes, !!opts.dryRun);
     loadDotenv(loaded.root);
+    // Always, so a crouton upgrade refreshes the skill even when there is nothing else to write.
+    if (existsSync(join(loaded.root, 'crouton.json'))) await syncProjectAgentFiles(loaded.root, !!opts.dryRun);
     const datasources = await loadDatasources(loaded);
     const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
 
@@ -676,7 +678,6 @@ export const runUpdateResources = async (
       await writeFile(tp.absPath, tp.content, 'utf-8');
       written += 1;
     }
-    await syncProjectAgentFiles(loaded.root);
 
     clack.outro(
       pc.green(`Done — ${written} written, ${skipped} skipped (existing).`),
