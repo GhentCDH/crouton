@@ -276,11 +276,14 @@ export const runCreate = async (
     const dbUrl = await resolveDbUrl(opts);
     const postgres =
       opts.docker !== false && !dbUrl ? await resolvePostgres(opts) : false;
-    if (opts.docker !== false && dbUrl && isLocalhostUrl(dbUrl)) {
-      clack.log.warn(
-        'The database URL points to localhost, which inside the backend container is the container itself.\n' +
-          'For Docker, use host.docker.internal instead of localhost in .env (Linux: add extra_hosts "host.docker.internal:host-gateway").',
-      );
+    if (opts.docker !== false && dbUrl) {
+      clack.log.info('Using external database — compose.infra.yml (postgres) not generated.');
+      if (isLocalhostUrl(dbUrl)) {
+        clack.log.warn(
+          'The database URL points to localhost, which inside the backend container is the container itself.\n' +
+            'For Docker, use host.docker.internal instead of localhost in .env (Linux: add extra_hosts "host.docker.internal:host-gateway").',
+        );
+      }
     }
 
     // 3. Resolve tokens
