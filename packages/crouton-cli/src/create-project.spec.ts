@@ -72,6 +72,12 @@ describe('crouton create project', () => {
       expect(existsSync(join(root, 'archive/Dockerfile.dev'))).toBe(true);
       expect(existsSync(join(root, '.dockerignore'))).toBe(false);
 
+      // pnpm's store must live on the node_modules volume so dev-container
+      // installs hard-link instead of copying (#694)
+      const dockerfileDev = read('archive/Dockerfile.dev');
+      expect(dockerfileDev).toContain('ENV npm_config_store_dir=/app/node_modules/.pnpm-store');
+      expect(dockerfileDev.indexOf('npm_config_store_dir')).toBeLessThan(dockerfileDev.indexOf('pnpm install'));
+
       // root registration
       expect(read('pnpm-workspace.yaml')).toBe(
         'packages:\n  - archive/apps/*\n  - archive/generated/**\n  - \'!archive/generated/*/client\'\n  - apps/*\n  - generated/**\n  - libs/*\n',
@@ -166,6 +172,7 @@ describe('crouton create project', () => {
     expect(existsSync(join(root, 'archive/src/data-sources/default/data-source.json'))).toBe(true);
     expect(read('archive/.env')).toContain('BACKEND_PORT=3001');
     expect(read('archive/compose.app.archive.yml')).toContain('name: books-net');
+    expect(read('archive/Dockerfile.dev')).toContain('ENV npm_config_store_dir=/app/node_modules/.pnpm-store');
     expect(read('package.json')).toBe(JSON.stringify({ name: 'books' }));
   });
 

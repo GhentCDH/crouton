@@ -3,6 +3,10 @@ FROM node:24-alpine
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@{{dep:pnpm}} --activate
 ENV CI=true
+# Keep the store on the node_modules volume (compose mounts it as an anonymous
+# volume). Build- and runtime installs then hard-link instead of copying, and a
+# lockfile change no longer reinstalls every package from scratch. See #694.
+ENV npm_config_store_dir=/app/node_modules/.pnpm-store
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --parents {{appsRoot}}/*/package.json {{generatedGlob}}/types/package.json ./
@@ -14,6 +18,10 @@ CMD pnpm exec nx run ${NX_COMMAND}
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@{{dep:pnpm}} --activate
 ENV CI=true
+# Keep the store on the node_modules volume (compose mounts it as an anonymous
+# volume). Build- and runtime installs then hard-link instead of copying, and a
+# lockfile change no longer reinstalls every package from scratch. See #694.
+ENV npm_config_store_dir=/app/node_modules/.pnpm-store
 COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=secret,id=npmrc,target=/app/.npmrc pnpm install
 CMD ["pnpm","dev"]
