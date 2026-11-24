@@ -137,6 +137,26 @@ describe('writeAgentFiles', () => {
     expect(await readFile(join(root, '.claude/skills/crouton/SKILL.md'), 'utf-8')).toContain('resources: apps/gateway/src/resources');
   });
 
+  it('lists every project when several share the root, independent of which one ran last (#690)', async () => {
+    const root = await mkTmp();
+    await writeFile(join(root, 'nx.json'), '{}', 'utf-8');
+    for (const p of ['apps/a', 'apps/b']) {
+      await mkdir(join(root, p), { recursive: true });
+      await writeFile(join(root, p, 'crouton.json'), JSON.stringify({ resourcesDir: 'src/resources', dataSourcesDir: 'src/data-sources' }), 'utf-8');
+    }
+    const agentFilesDir = await makeAgentFilesDir(await mkTmp());
+    const read = async () => [await readFile(join(root, 'AGENTS.md'), 'utf-8'), await readFile(join(root, '.claude/skills/crouton/SKILL.md'), 'utf-8')];
+
+    await writeAgentFiles({ projectDir: join(root, 'apps/b'), rootDir: root, agentFilesDir, version: '1.0.0' });
+    const afterB = await read();
+    await writeAgentFiles({ projectDir: join(root, 'apps/a'), rootDir: root, agentFilesDir, version: '1.0.0' });
+
+    expect(await read()).toEqual(afterB);
+    expect(afterB[0]).toContain('- `apps/a`: resources in `apps/a/src/resources`, data sources in `apps/a/src/data-sources`');
+    expect(afterB[0]).toContain('- `apps/b`: resources in `apps/b/src/resources`');
+    expect(afterB[1]).toContain('resources: <resourcesDir>');
+  });
+
   it('honours agentFiles.dir from crouton.json over the Nx root', async () => {
     const root = await mkTmp();
     const projectDir = join(root, 'examples/app');

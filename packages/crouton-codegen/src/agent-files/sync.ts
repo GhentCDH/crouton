@@ -1,3 +1,5 @@
+import { CONFIG_FILES } from '@ghentcdh/crouton-core';
+
 import { ensureClaudeMd, upsertAgentBlock } from '../agent-block/upsert-agent-block';
 import { loadConfig } from '../config';
 import { type AgentFilesManifest, hashContent, loadManifest, saveManifest } from './manifest';
@@ -116,6 +118,24 @@ export const findAgentRoot = (dir: string): string => {
  * `.claude` / `.cursor` agent files into `rootDir`, for the crouton project at `projectDir`.
  * Paths in the files are relative to `rootDir`; `agentFiles.dir` in `crouton.json` overrides it.
  */
+/** Crouton config dirs under `dir` (sorted). ponytail: depth-limited walk, add ignore globs if workspaces get deeper. */
+const findProjectDirs = async (dir: string, depth = 4): Promise<string[]> => {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  const found = entries.some((e) => e.isFile() && CONFIG_FILES.includes(e.name)) ? [dir] : [];
+  if (depth === 0) return found;
+  for (const e of entries) {
+    if (!e.isDirectory() || e.name.startsWith('.') || e.name === 'node_modules' || e.name === 'dist') continue;
+    found.push(...await findProjectDirs(join(dir, e.name), depth - 1));
+  }
+  return found.sort();
+};
+
+/**
+ * Write the crouton block in `AGENTS.md`, a `CLAUDE.md` pointing at it, and the
+ * `.claude` / `.cursor` agent files into `rootDir`, for the crouton project at `projectDir`.
+ * Paths in the files are relative to `rootDir`; `agentFiles.dir` in `crouton.json` overrides it.
+ * With several projects sharing `rootDir`, the files list all of them instead of the last one run (#690).
+ */
 export const writeAgentFiles = async (opts: {
   projectDir: string;
   rootDir: string;
@@ -125,20 +145,37 @@ export const writeAgentFiles = async (opts: {
 }): Promise<AgentFileSyncResult[]> => {
   const { config, root } = await loadConfig(opts.projectDir);
   const rootDir = config.agentFiles?.dir ? resolve(root, config.agentFiles.dir) : opts.rootDir;
-  const rel = (p: string) => relative(rootDir, resolve(root, p)).split(sep).join('/') || '.';
-  const context = {
-    resourcesDir: rel(config.resourcesDir),
-    dataSourcesDir: rel(config.dataSourcesDir),
-    version: opts.version,
-  };
+  const rel = (from: string, p: string) => relative(rootDir, resolve(from, p)).split(sep).join('/') || '.';
+
+  const projects = [{ root, config }];
+  for (const dir of await findProjectDirs(rootDir)) {
+    if (dir === root) continue;
+    const other = await loadConfig(dir).catch(() => undefined);
+    if (!other) continue;
+    const otherRoot = other.config.agentFiles?.dir ? resolve(other.root, other.config.agentFiles.dir) : findAgentRoot(other.root);
+    if (otherRoot === rootDir) projects.push(other);
+  }
+  const multi = projects.length > 1;
+
+  const context = multi
+    ? { resourcesDir: '<resourcesDir>', dataSourcesDir: '<dataSourcesDir>', version: opts.version }
+    : { resourcesDir: rel(root, config.resourcesDir), dataSourcesDir: rel(root, config.dataSourcesDir), version: opts.version };
+  const where = multi
+    ? '- Crouton projects (`<resourcesDir>` / `<dataSourcesDir>` in the crouton skill = the dirs of the project you work on):\n' +
+      projects
+        .map((p) => ({ dir: rel(p.root, '.'), res: rel(p.root, p.config.resourcesDir), ds: rel(p.root, p.config.dataSourcesDir) }))
+        .sort((a, b) => a.dir.localeCompare(b.dir))
+        .map((p) => `  - \`${p.dir}\`: resources in \`${p.res}\`, data sources in \`${p.ds}\`\n`)
+        .join('')
+    : `- Resources live in \`${context.resourcesDir}\`, data sources in \`${context.dataSourcesDir}\` (see \`crouton.json\`).\n`;
   if (!opts.dryRun) {
     await upsertAgentBlock(
       join(rootDir, 'AGENTS.md'),
       '<!-- Leave the start & end comments to automatically receive updates. -->\n' +
         '# crouton\n' +
-        `- Resources live in \`${context.resourcesDir}\`, data sources in \`${context.dataSourcesDir}\` (see \`crouton.json\`).\n` +
+        where +
         '- Use the `crouton` skill for any resource/datasource change.\n' +
-        '- After editing any `resource.json` or `crouton.json`, run `crouton validate`.\n' +
+        `- After editing any \`resource.json\` or \`crouton.json\`, run \`crouton validate${multi ? ' --project <dir>' : ''}\`.\n` +
         '- Docs for the installed version: `node_modules/@ghentcdh/crouton-cli/agent-docs/README.md`',
     );
     await ensureClaudeMd(join(rootDir, 'CLAUDE.md'));
