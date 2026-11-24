@@ -40,7 +40,7 @@ describe('crouton CLI', () => {
       expect.arrayContaining([
         'update', 'update resources', 'update translations',
         'create', 'create resource', 'create datasource',
-        'init translations',
+        'init translations', 'init agents',
         'validate', 'validate resources',
         'migrate', 'migrate resources', 'migrate layout',
       ]),
@@ -69,6 +69,7 @@ describe('crouton CLI', () => {
       ['migrate'],
       ['update translations'],
       ['init translations'],
+      ['init agents'],
       ['create resource smoke_test'],
       ['create datasource --name smoke --adapter prisma --type postgresql'],
     ])('%s', async (cmd) => {

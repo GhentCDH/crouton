@@ -24,13 +24,14 @@ Every command is **verb → noun**. A bare verb runs all of its nouns.
 | `crouton update translations`          | Regenerate and merge translation bundles (`--lang`, `--prune`).      |
 | `crouton generate`                     | Only `prisma generate` (client + types) per datasource — CI-safe.     |
 | `crouton init translations`            | Create translation files for every configured language (`--lang`).   |
+| `crouton init agents`                  | (Re)sync `AGENTS.md`, `CLAUDE.md` and the `crouton` agent skill (Nx: at the workspace root). |
 | `crouton create`                       | Asks whether to create a resource, a datasource or a project.        |
 | `crouton create resource [name]`       | Scaffold a [custom resource](../2.resources/custom-resource.md).     |
 | `crouton create datasource`            | Scaffold a new [datasource](../3.backend/data-sources.md).           |
 | `crouton create project [name]`        | Add a project to an existing codespace ([below](#crouton-create-project)). |
 | `crouton validate`                     | Validate every discovered `resource.json`, nested sub-resources too. |
 | `crouton validate resources [paths…]`  | Validate the given files/directories (`--json`).                     |
-| `crouton migrate`                      | Runs `migrate resources`, then `migrate layout` (asks once).         |
+| `crouton migrate`                      | Runs `migrate resources`, `migrate layout`, then `init agents` (asks once). |
 | `crouton migrate resources`            | Rewrite every `resource.json` to the current shape ([upgrading](./migrate.md)). |
 | `crouton migrate layout`               | Rewrite only layout nodes (`controls` → `items`, `actions` → `rowActions`, …). |
 

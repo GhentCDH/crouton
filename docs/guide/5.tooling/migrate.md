@@ -44,7 +44,7 @@ per-release migration guide at the repository root, with the rule and a before/a
 |-----------------------------|--------------------------------------------------------------------------------------------|
 | `crouton migrate resources` | Every rule in the guide: root keys → `source` / `openapi` / `operations`, relation config, spellings, layout nodes, column presentation → layout items, `$schema` + `schemaVersion`. |
 | `crouton migrate layout`    | Layout nodes only: `controls` → `items`, `actions` → `rowActions`, table search/filter fields → `operations.findAll`. |
-| `crouton migrate`           | Both, in that order (the layout pass is then a no-op).                                     |
+| `crouton migrate`           | Both, in that order (the layout pass is then a no-op), then `init agents` to refresh `AGENTS.md` and the crouton skill to the installed version. |
 
 All three take `--cwd`, `-p/--project`, `--dry-run` and `-y`.
 

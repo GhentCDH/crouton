@@ -6,6 +6,7 @@ import { type MigrateFileOutcome, discoverResourceEntries, migrateResourceFile }
 import { type Codemod, LAYOUT_CODEMODS, RESOURCE_CODEMODS } from '@ghentcdh/crouton-core';
 
 import { assertNotCancel } from '../prompts';
+import { syncProjectAgentFiles } from '../update/runner';
 import { type CommonOptions, registerCommonOptions, resolveTargetProject, runAggregate, withRun } from './shared';
 import { existsSync } from 'node:fs';
 import { relative } from 'node:path';
@@ -61,6 +62,8 @@ export const registerMigrateCommand = (program: Command) => {
         { name: 'migrate resources', run: (common) => migrate(common, RESOURCE_CODEMODS, true) },
         // ponytail: layout ⊂ resources, so this pass is a no-op after the first; kept so the aggregate runs every noun.
         { name: 'migrate layout', run: (common) => migrate(common, LAYOUT_CODEMODS, true) },
+        // Refresh AGENTS.md / the crouton skill to the installed crouton version.
+        { name: 'init agents', run: (common) => syncProjectAgentFiles(common.cwd ?? process.cwd(), common.dryRun) },
       ]),
     ),
   );

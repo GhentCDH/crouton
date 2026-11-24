@@ -1007,6 +1007,11 @@
             ]
           },
           "markdownDescription": "Which agent file sets to manage. Defaults to those already present in the project, or both on first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
+        },
+        "dir": {
+          "description": "Where AGENTS.md, CLAUDE.md and the skill files are written, relative to the config file directory. Defaults to the nearest Nx workspace root (nx.json), else the config file directory.",
+          "type": "string",
+          "markdownDescription": "Where AGENTS.md, CLAUDE.md and the skill files are written, relative to the config file directory. Defaults to the nearest Nx workspace root (nx.json), else the config file directory.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"
         }
       },
       "markdownDescription": "Agent file sync configuration for `crouton update resources`. Stored after the first run.\n\n[Docs](https://ghentcdh.github.io/crouton/guide/1.setup/crouton-json)"

@@ -1,6 +1,8 @@
+import * as clack from '@clack/prompts';
 import type { Command } from 'commander';
 
 import { runTranslationsInit } from '../translations/runner';
+import { syncProjectAgentFiles } from '../update/runner';
 import { type CommonOptions, registerCommonOptions, resolveTargetProject, withRun } from './shared';
 
 export const registerInitCommand = (program: Command) => {
@@ -20,5 +22,17 @@ export const registerInitCommand = (program: Command) => {
         yes: opts.yes,
       }),
     ),
+  );
+
+  registerCommonOptions(
+    init
+      .command('agents')
+      .description('Write AGENTS.md, CLAUDE.md and the crouton agent skill (Nx: at the workspace root)'),
+  ).action(
+    withRun(async (opts: CommonOptions) => {
+      clack.intro('crouton init agents');
+      await syncProjectAgentFiles(await resolveTargetProject(opts), opts.dryRun);
+      clack.outro(opts.dryRun ? 'Dry run — no files written.' : 'Agent files in sync.');
+    }),
   );
 };

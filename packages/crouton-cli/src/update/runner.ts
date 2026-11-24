@@ -24,8 +24,8 @@ import {
   buildResourceDiffs,
   buildTranslationBundle,
   commit,
-  ensureClaudeMd,
   excludeModels,
+  findAgentRoot,
   introspect,
   isGitDirty,
   loadConfig,
@@ -48,8 +48,7 @@ import {
   scaffoldConfigFromProject,
   serializeEnumRegistry,
   serializeTranslationBundle,
-  syncAgentFiles,
-  upsertAgentBlock,
+  writeAgentFiles,
 } from '@ghentcdh/crouton-codegen';
 import { type DataSource } from '@ghentcdh/crouton-core';
 
@@ -62,6 +61,23 @@ import { dirname, join, resolve as pathResolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const agentFilesDir = fileURLToPath(new URL('../agent-files', import.meta.url));
+
+/**
+ * Sync AGENTS.md / CLAUDE.md / the crouton skill for the project at `projectDir`
+ * into its Nx workspace root (or the project itself outside Nx).
+ */
+export const syncProjectAgentFiles = async (projectDir: string, dryRun?: boolean): Promise<void> => {
+  let version = '0.0.1-alpha.82';
+  try {
+    version = (JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf-8')) as { version: string }).version;
+  } catch { /* use default */ }
+  const results = await writeAgentFiles({ projectDir, rootDir: findAgentRoot(projectDir), agentFilesDir, version, dryRun });
+  const updated = results.filter((r) => r.action === 'written').length;
+  if (updated > 0) clack.log.info(`${dryRun ? 'Would update' : 'Updated'} ${updated} agent file(s)`);
+  for (const r of results.filter((r) => r.action === 'skipped')) {
+    clack.log.warn(`Agent file edited locally, skipped: ${r.path} (${r.reason})`);
+  }
+};
 
 /**
  * Derive the project scope from `root/package.json` only.
@@ -384,6 +400,8 @@ export const runUpdateResources = async (
   try {
     const loaded = await loadOrScaffoldConfig(cwd, !!opts.yes, !!opts.dryRun);
     loadDotenv(loaded.root);
+    // Always, so a crouton upgrade refreshes the skill even when there is nothing else to write.
+    if (existsSync(join(loaded.root, 'crouton.json'))) await syncProjectAgentFiles(loaded.root, !!opts.dryRun);
     const datasources = await loadDatasources(loaded);
     const ds = await pickDatasource(datasources, opts.datasource, !!opts.yes);
 
@@ -660,36 +678,6 @@ export const runUpdateResources = async (
       await writeFile(tp.absPath, tp.content, 'utf-8');
       written += 1;
     }
-    const agentBlock =
-      '<!-- Leave the start & end comments to automatically receive updates. -->\n' +
-      '# crouton\n' +
-      `- Resources live in \`${loaded.config.resourcesDir}\`, data sources in \`${loaded.config.dataSourcesDir}\` (see \`crouton.json\`).\n` +
-      '- Use the `crouton` skill for any resource/datasource change.\n' +
-      '- After editing any `resource.json` or `crouton.json`, run `crouton validate`.\n' +
-      '- Docs for the installed version: `node_modules/@ghentcdh/crouton-cli/agent-docs/README.md`';
-    await upsertAgentBlock(join(cwd, 'AGENTS.md'), agentBlock);
-    await ensureClaudeMd(join(cwd, 'CLAUDE.md'));
-
-    let cliVersion = '0.0.1-alpha.82';
-    try {
-      const cliPkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf-8')) as { version: string };
-      cliVersion = cliPkg.version;
-    } catch { /* use default */ }
-
-    const agentSyncResults = await syncAgentFiles({
-      projectDir: cwd,
-      agentFilesDir,
-      context: {
-        resourcesDir: loaded.config.resourcesDir,
-        dataSourcesDir: loaded.config.dataSourcesDir,
-        version: cliVersion,
-      },
-      targets: ['claude', 'cursor'],
-    });
-    const agentUpdated = agentSyncResults.filter((r) => r.action === 'written').length;
-    const agentSkipped = agentSyncResults.filter((r) => r.action === 'skipped');
-    if (agentUpdated > 0) clack.log.info(`Updated ${agentUpdated} agent file(s)`);
-    for (const r of agentSkipped) clack.log.warn(`Agent file edited locally, skipped: ${r.path} (${r.reason})`);
 
     clack.outro(
       pc.green(`Done — ${written} written, ${skipped} skipped (existing).`),

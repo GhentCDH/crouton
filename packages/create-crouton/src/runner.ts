@@ -1,7 +1,7 @@
 import * as clack from '@clack/prompts';
 import pc from 'picocolors';
 
-import { buildDatasourceFiles } from '@ghentcdh/crouton-codegen';
+import { buildDatasourceFiles, writeAgentFiles } from '@ghentcdh/crouton-codegen';
 
 import type { PackageManager } from './lib/detect';
 import { type FileEntry, loadTemplate, writeFiles } from './lib/files';
@@ -119,6 +119,16 @@ export const resolveTemplateDir = (): string => {
   const distPath = resolve(thisDir, 'templates');
   if (existsSync(distPath)) return distPath;
   return resolve(thisDir, '..', 'templates');
+};
+
+/** AGENTS.md, CLAUDE.md and the crouton agent skill for the project at `projectDir`, written to the repo root (#678). */
+export const scaffoldAgentFiles = async (projectDir: string, rootDir: string): Promise<void> => {
+  await writeAgentFiles({
+    projectDir,
+    rootDir,
+    agentFilesDir: resolve(resolveTemplateDir(), 'shared'),
+    version: typeof __CROUTON_VERSION__ !== 'undefined' ? __CROUTON_VERSION__ : 'latest',
+  });
 };
 
 const capitalize = (s: string): string =>
@@ -342,6 +352,7 @@ export const runCreate = async (
       // 6. Write all files
       const written = await writeFiles(files, { force: opts.force });
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
+      await scaffoldAgentFiles(workspaceTarget, targetDir);
 
       // 7. Post-scaffold steps
       ({ resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl, prefix));
@@ -374,6 +385,7 @@ export const runCreate = async (
       // Write all files
       const written = await writeFiles(files, { force: opts.force });
       clack.log.success(`Wrote ${written} file(s) to ${pc.cyan(name)}/`);
+      await scaffoldAgentFiles(targetDir, targetDir);
 
       // Post-scaffold steps
       ({ resourcesUpdated } = await postScaffold(opts, targetDir, pm, dbUrl));

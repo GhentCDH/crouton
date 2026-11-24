@@ -1,8 +1,10 @@
+import { ensureClaudeMd, upsertAgentBlock } from '../agent-block/upsert-agent-block';
+import { loadConfig } from '../config';
 import { type AgentFilesManifest, hashContent, loadManifest, saveManifest } from './manifest';
 import { renderAgentFile } from './render';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 
 export type AgentFileSyncResult = {
   path: string;
@@ -99,4 +101,53 @@ export const syncAgentFiles = async (opts: {
   }
 
   return results;
+};
+
+/** Where agent files belong: the nearest Nx workspace root (`nx.json`) at or above `dir`, else `dir`. */
+export const findAgentRoot = (dir: string): string => {
+  for (let d = resolve(dir); ; d = dirname(d)) {
+    if (existsSync(join(d, 'nx.json'))) return d;
+    if (dirname(d) === d) return resolve(dir);
+  }
+};
+
+/**
+ * Write the crouton block in `AGENTS.md`, a `CLAUDE.md` pointing at it, and the
+ * `.claude` / `.cursor` agent files into `rootDir`, for the crouton project at `projectDir`.
+ * Paths in the files are relative to `rootDir`; `agentFiles.dir` in `crouton.json` overrides it.
+ */
+export const writeAgentFiles = async (opts: {
+  projectDir: string;
+  rootDir: string;
+  agentFilesDir: string;
+  version: string;
+  dryRun?: boolean;
+}): Promise<AgentFileSyncResult[]> => {
+  const { config, root } = await loadConfig(opts.projectDir);
+  const rootDir = config.agentFiles?.dir ? resolve(root, config.agentFiles.dir) : opts.rootDir;
+  const rel = (p: string) => relative(rootDir, resolve(root, p)).split(sep).join('/') || '.';
+  const context = {
+    resourcesDir: rel(config.resourcesDir),
+    dataSourcesDir: rel(config.dataSourcesDir),
+    version: opts.version,
+  };
+  if (!opts.dryRun) {
+    await upsertAgentBlock(
+      join(rootDir, 'AGENTS.md'),
+      '<!-- Leave the start & end comments to automatically receive updates. -->\n' +
+        '# crouton\n' +
+        `- Resources live in \`${context.resourcesDir}\`, data sources in \`${context.dataSourcesDir}\` (see \`crouton.json\`).\n` +
+        '- Use the `crouton` skill for any resource/datasource change.\n' +
+        '- After editing any `resource.json` or `crouton.json`, run `crouton validate`.\n' +
+        '- Docs for the installed version: `node_modules/@ghentcdh/crouton-cli/agent-docs/README.md`',
+    );
+    await ensureClaudeMd(join(rootDir, 'CLAUDE.md'));
+  }
+  return syncAgentFiles({
+    projectDir: rootDir,
+    agentFilesDir: opts.agentFilesDir,
+    context,
+    targets: ['claude', 'cursor'],
+    dryRun: opts.dryRun,
+  });
 };

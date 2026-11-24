@@ -41,7 +41,7 @@ Source of truth: `CroutonConfigSchema` in `@ghentcdh/crouton-core` (editor autoc
 | `i18n`             | `object`  | no       | Translation settings. Omit for a single-language app. See [`i18n`](#i18n).                                     |
 | `rules`            | `object`  | no       | Defaults used when columns are generated from a Prisma model. See [`rules`](#rules).                          |
 | `authProvidersDir` | `string`  | no       | Auth-provider modules, relative to `crouton.json`. Default `src/app/auth-providers`.                           |
-| `agentFiles`       | `object`  | no       | `{ "targets": ["claude", "cursor"] }` — which AI-agent file sets `crouton update resources` keeps in sync. Stored after the first run. |
+| `agentFiles`       | `object`  | no       | `{ "targets": ["claude", "cursor"] }` — which AI-agent file sets `crouton update resources` keeps in sync. Stored after the first run. Optional `dir` (relative to `crouton.json`) sets where `AGENTS.md`, `CLAUDE.md` and the skill files go; defaults to the nearest `nx.json` root, else the `crouton.json` directory. |
 
 ## `rules`
 
