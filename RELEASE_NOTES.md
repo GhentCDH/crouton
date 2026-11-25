@@ -1,3 +1,16 @@
+## 0.2.0-rc.5 (2026-11-25)
+
+### 🩹 Fixes
+
+- **core:** put option values enum on items for an array column ([#695](https://github.com/GhentCDH/crouton/pull/695))
+- **create-crouton:** omit FRONTEND_PORT from .env without frontend ([#693](https://github.com/GhentCDH/crouton/pull/693), [#691](https://github.com/GhentCDH/crouton/issues/691))
+- **create-crouton:** keep pnpm store on the node_modules volume ([#694](https://github.com/GhentCDH/crouton/pull/694), [#696](https://github.com/GhentCDH/crouton/pull/696))
+- **crouton-codegen:** list all projects in root agent files when several share it ([#692](https://github.com/GhentCDH/crouton/pull/692), [#690](https://github.com/GhentCDH/crouton/issues/690))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.2.0-rc.4 (2026-11-24)
 
 ### 🚀 Features
