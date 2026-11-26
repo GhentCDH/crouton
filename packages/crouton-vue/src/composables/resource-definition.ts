@@ -1,13 +1,12 @@
 import { ref } from 'vue';
 import { fromJSONSchema, z } from 'zod';
 
-import  { ResourceDefinition, ResourceJson, ResourceJsonSchema, ResourceViewSchema } from '@ghentcdh/crouton-core';
-import { ResourceDefinitionResponseZ } from '@ghentcdh/crouton-core';
+import  { type ResourceDefinition, type ResourceJson, ResourceJsonSchema, type ResourceViewSchema } from '@ghentcdh/crouton-core';
+import { ResourceDefinitionResponseZ, parseSchema } from '@ghentcdh/crouton-core';
 
 import { localizeDefinition } from '../i18n/localize-definition';
 import { useApi } from './useApi';
 
-import { parseSchema } from '@ghentcdh/crouton-core';
 const stripAdditionalProperties = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripAdditionalProperties);
   if (value !== null && typeof value === 'object') {

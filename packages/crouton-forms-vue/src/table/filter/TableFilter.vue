@@ -58,13 +58,16 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue';
 
-import type { FieldType, Filter } from '@ghentcdh/crouton-core';
+import type {
+  FieldType,
+  Filter,
+  OperatorType,
+} from '@ghentcdh/crouton-core';
 import { useUiTranslator } from '../../composables/useUiTranslator';
 import {
   extractFilters,
   filterToString,
   OperatorsByType,
-  type OperatorType,
   OperatorNoValue,
 } from '@ghentcdh/crouton-core';
 import {
