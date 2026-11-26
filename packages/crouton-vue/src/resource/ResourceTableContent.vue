@@ -44,6 +44,7 @@
     :filter-schema="resource.filterSchema"
     :filters="resource.filter"
     :search="resource.search"
+    :hide-search="hideSearch"
     :actions="resource.tableActions"
     @update-search="resource.onUpdateSearch"
     @update-filters="resource.onUpdateFilters"

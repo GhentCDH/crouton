@@ -84,6 +84,11 @@ export interface UseResourcesProperties {
   readonly?: boolean;
   initialLoad?: boolean;
   inline?: boolean;
+  /**
+   * Override the built-in "view" action (row click and View button).
+   * Receives the record id. When omitted, crouton opens its own view modal.
+   */
+  onView?: (id: unknown) => void;
 }
 
 export interface UseResource {
@@ -168,6 +173,7 @@ export const useResources = (
     readonly = false,
     initialLoad = true,
     inline = false,
+    onView,
   }: UseResourcesProperties = {},
 ): UseResource | null => {
   if (!formDef) return null;
@@ -277,6 +283,7 @@ export const useResources = (
       readonly,
       resourceModal,
       setStatus,
+      onView,
     ),
     backendAction: (action: Action) =>
       backendAction(resource, formDef, defaultUriParams, action, setStatus),

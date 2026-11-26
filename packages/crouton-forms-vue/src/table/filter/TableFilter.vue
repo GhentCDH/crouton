@@ -63,6 +63,8 @@ import { useUiTranslator } from '../../composables/useUiTranslator';
 import {
   extractFilters,
   filterToString,
+  OperatorsByType,
+  type OperatorType,
   OperatorNoValue,
 } from '@ghentcdh/crouton-core';
 import {
@@ -141,13 +143,20 @@ const defaultField = computed<string>(() => {
   return first?.value ?? '';
 });
 
+/** First operator that is valid for the default field's type. */
+const defaultOperator = computed<OperatorType>(() => {
+  const type =
+    fields.value.find((f) => f.value === defaultField.value)?.type ?? 'string';
+  return OperatorsByType[type][0];
+});
+
 const rows = ref<Filter[]>([]);
 
 // Sync rows when the active filters change from outside (URL navigation)
 const emptyRow = (): Filter => ({
   key: defaultField.value,
   value: '',
-  operator: 'contains',
+  operator: defaultOperator.value,
 });
 
 watch(
@@ -163,7 +172,7 @@ watch(
 const addRow = () => {
   rows.value = [
     ...rows.value,
-    { key: defaultField.value, value: '', operator: 'contains' },
+    { key: defaultField.value, value: '', operator: defaultOperator.value },
   ];
 };
 

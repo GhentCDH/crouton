@@ -130,6 +130,16 @@ describe('parseSchema — appConfig', () => {
     expect(result.uri).toBe('https://api.example.com/pages');
   });
 
+  it('route with a leading slash does not produce a protocol-relative uri', () => {
+    const result = parseSchema(
+      { ...minimalCustom, route: '/api/text', operations: {} },
+      { baseUrl: '' },
+    ) as Record<string, unknown>;
+    expect(result.uri).toBe('/api/text');
+    const operations = result.operations as Record<string, { uri: string }>;
+    expect(operations.findAll.uri).toBe('/api/text');
+  });
+
   it('schemaEnricher merged on top (can override keys)', () => {
     const enricher = (_payload: Record<string, unknown>) => ({ extra: 'injected', route: 'overridden' });
     const result = parseSchema(minimalCustom, { schemaEnricher: enricher }, 'resource.json') as Record<string, unknown>;

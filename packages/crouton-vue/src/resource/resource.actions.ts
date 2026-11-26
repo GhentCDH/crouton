@@ -344,6 +344,7 @@ export const actions = (
   readonly: boolean,
   modals?: ReturnType<typeof resourceModals>,
   setStatus?: (status: ActionStatus | null, autoClear?: boolean) => void,
+  onView?: (id: unknown) => void,
 ) => {
   if (!formDef) return [] as TableAction[];
 
@@ -375,7 +376,18 @@ export const actions = (
       },
     ),
     {
-      action: (id: unknown) => _modals.view(id),
+      action: (id: unknown) => {
+        if (!onView) {
+          _modals.view(id);
+          return;
+        }
+        // Row clicks and the View button both pass the whole row object.
+        const rowId =
+          typeof id === 'object' && id !== null
+            ? (id as Record<string, unknown>)[formDef.idField]
+            : id;
+        onView(rowId);
+      },
       tooltip: useLanguage().t('actions.view', 'View'),
       icon: 'View',
       kind: 'view',

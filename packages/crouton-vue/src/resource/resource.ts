@@ -82,11 +82,12 @@ export class Resource extends PaginatedRequestService {
 
   /** Update the active filter strings (wire format: `"field:value:operator"`). */
   public updateFilters = (filter: string[]) => {
-    this.updateRequest({ filter });
+    // A filter change can shrink the result set, so start again on page 1.
+    this.updateRequest({ filter, page: 1 });
   };
 
   /** Update the search query (`q` param used for lookup search). */
   public updateSearch = (q: string) => {
-    this.updateRequest({ q: q || undefined });
+    this.updateRequest({ q: q || undefined, page: 1 });
   };
 }

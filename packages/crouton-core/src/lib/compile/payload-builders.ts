@@ -35,6 +35,20 @@ export const deriveDisplay = (layout: Layout | undefined) => ({
   },
 });
 
+/**
+ * Join a base URL (may be `''` or an absolute origin) with path segments.
+ * Strips slashes at the joins so a route such as `/api/text` does not become
+ * `//api/text` — a protocol-relative URL the browser resolves to host `api`.
+ */
+const joinBase = (baseUrl: string | undefined, ...parts: string[]): string => {
+  const base = (baseUrl ?? '').replace(/\/+$/, '');
+  const path = parts
+    .map((part) => part.replace(/^\/+|\/+$/g, ''))
+    .filter(Boolean)
+    .join('/');
+  return `${base}/${path}`;
+};
+
 interface TableInjectOptions {
   rowActions: unknown[];
   tableActions: unknown[];
@@ -200,7 +214,7 @@ export const buildResourceJsonPayload = (
 ): Record<string, unknown> => {
   const { route } = config;
   const definition = resolveDefinition(config);
-  const uri = `${baseUrl}/${route}`;
+  const uri = joinBase(baseUrl, route);
   const operations: Record<string, unknown> = Object.fromEntries(
     RESOURCE_OPS.map((op) => [op, isOperationEnabled(definition, op)]),
   );
@@ -242,8 +256,8 @@ export const buildViewsPayload = (
   if (!config.views || !Object.keys(config.views).length) return undefined;
   const definition = resolveDefinition(config);
   const baseUri = config.parent
-    ? `${baseUrl}/${config.parent.route}/{${config.parent.param}}/${config.route}`
-    : `${baseUrl}/${config.route}`;
+    ? joinBase(baseUrl, config.parent.route, `{${config.parent.param}}`, config.route)
+    : joinBase(baseUrl, config.route);
   const operations: Record<string, unknown> = buildResourceOperations(
     definition,
     baseUri,
@@ -313,7 +327,12 @@ export const buildSubResourceViewsPayload = (
 ): Record<string, unknown> | undefined => {
   if (!sub.views) return undefined;
   const { route } = config;
-  const childUri = `${baseUrl}/${route}/{parent.id}/${sub.childRoute}`;
+  const childUri = joinBase(
+    baseUrl,
+    route,
+    '{parent.id}',
+    sub.childRoute,
+  );
   // Preserve the old conditional: a child without a form container emitted no modalSize.
   const subModalSize = readModalSize(sub.layout);
 
@@ -341,7 +360,7 @@ export const buildSubResourceViewsPayload = (
       const subTable = subSchemas['table'] ?? {};
       const subFilterSchema = subSchemas['filter'] as Record<string, unknown> | undefined;
       delete (subSchemas as Record<string, unknown>)['filter'];
-      const subChildUri = `${baseUrl}/${sub.childRoute}`;
+      const subChildUri = joinBase(baseUrl, sub.childRoute);
       const tableLayout = resolveTableNode(sub.layout?.['table'] as LayoutNode | undefined);
       (subSchemas as Record<string, unknown>)['table'] = {
         ...subTable,

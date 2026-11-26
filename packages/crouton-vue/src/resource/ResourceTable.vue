@@ -21,9 +21,18 @@ const props = defineProps({
   defaultUriParams: { type: Object, default: {} },
   hideToolbar: { type: Boolean, default: false },
   hideTitle: { type: Boolean, default: false },
+  hideSearch: { type: Boolean, default: false },
   tableComponent: {
     type: Object as PropType<Component>,
     default: () => TableComponent as Component,
+  },
+  /**
+   * Override the built-in view action (row click and View button) with a
+   * custom handler, e.g. to navigate to an app route. Receives the record id.
+   */
+  onView: {
+    type: Function as PropType<(id: unknown) => void>,
+    required: false,
   },
 });
 
@@ -55,6 +64,7 @@ const resource = shallowRef(
     onRequest,
     handleEvent,
     inline: true,
+    onView: props.onView,
   }),
 );
 
@@ -68,6 +78,7 @@ watch(
           onRequest,
           handleEvent,
           inline: true,
+          onView: props.onView,
         })
       : null;
   },
@@ -146,6 +157,7 @@ const showSchemaEditor = ref(false);
         :table-component="props.tableComponent"
         :hide-toolbar="hideToolbar"
         :hide-title="hideTitle"
+        :hide-search="hideSearch"
         :is-dev="crouton.isDev.value"
         :id="id"
         @edit-schema="showSchemaEditor = true"
@@ -161,6 +173,7 @@ const showSchemaEditor = ref(false);
       :table-component="props.tableComponent"
       :hide-toolbar="hideToolbar"
       :hide-title="hideTitle"
+      :hide-search="hideSearch"
       :is-dev="crouton.isDev.value"
       :id="id"
       @edit-schema="showSchemaEditor = true"

@@ -29,5 +29,12 @@
       "@crouton/auth-nest": ["./libs/auth-nest/src/index.ts"],
       "@crouton/auth-vue": ["./libs/auth-vue/src/index.ts"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp",
+    "dist",
+    ".nx",
+    ".angular"
+  ]
 }

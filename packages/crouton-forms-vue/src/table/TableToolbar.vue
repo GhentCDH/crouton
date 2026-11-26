@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="navbar-center flex gap-2 items-center">
-      <div class="mt-2">
+      <div v-if="!hideSearch" class="mt-2">
         <Input
           data-testid="search-input"
           :placeholder="t('table.search', 'Search...')"
@@ -66,6 +66,8 @@ const props = defineProps<{
   /** Current search query (the `q` lookup param). */
   search?: string;
   actions?: unknown[];
+  /** Hide the free-text search input (e.g. when the backend has no `q` search). */
+  hideSearch?: boolean;
 }>();
 
 const emit = defineEmits<{
