@@ -43,7 +43,19 @@ export const deriveDisplay = (layout: Layout | undefined) => ({
 const joinBase = (baseUrl: string | undefined, ...parts: string[]): string => {
   const base = (baseUrl ?? '').replace(/\/+$/, '');
   const path = parts
-    .map((part) => part.replace(/^\/+|\/+$/g, ''))
+    .map((part) => {
+      // Avoid polynomial regex behavior by using a simple loop approach
+      let result = part;
+      // Strip leading slashes
+      while (result.length > 0 && result[0] === '/') {
+        result = result.substring(1);
+      }
+      // Strip trailing slashes
+      while (result.length > 0 && result[result.length - 1] === '/') {
+        result = result.substring(0, result.length - 1);
+      }
+      return result;
+    })
     .filter(Boolean)
     .join('/');
   return `${base}/${path}`;
