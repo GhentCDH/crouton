@@ -41,7 +41,11 @@ export const deriveDisplay = (layout: Layout | undefined) => ({
  * `//api/text` — a protocol-relative URL the browser resolves to host `api`.
  */
 const joinBase = (baseUrl: string | undefined, ...parts: string[]): string => {
-  const base = (baseUrl ?? '').replace(/\/+$/, '');
+  // Avoid polynomial regex behavior by using a simple loop approach for trailing slashes
+  let base = baseUrl ?? '';
+  while (base.length > 0 && base.endsWith('/')) {
+    base = base.substring(0, base.length - 1);
+  }
   const path = parts
     .map((part) => {
       // Avoid polynomial regex behavior by using a simple loop approach
