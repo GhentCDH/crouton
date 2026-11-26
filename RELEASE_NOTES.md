@@ -1,3 +1,13 @@
+## 0.2.0-rc.6 (2026-11-26)
+
+### 🚀 Features
+
+- add support for code-defined resources and fix route handling ([#697](https://github.com/GhentCDH/crouton/pull/697))
+
+### ❤️ Thank You
+
+- Bo Vandersteene @bovandersteene
+
 ## 0.2.0-rc.5 (2026-11-25)
 
 ### 🩹 Fixes
