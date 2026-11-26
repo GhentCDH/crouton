@@ -32,7 +32,7 @@ export const isSidebarGroup = (node: SidebarNode): node is SidebarGroup =>
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export const firstLeafId = (nodes: SidebarNode[]): string | undefined => {
-  const first = nodes[0];
+  const first = nodes?.[0];
   if (!first) return undefined;
   return isSidebarGroup(first) ? first.children[0]?.id : first.id;
 };
@@ -42,7 +42,7 @@ export const firstLeafId = (nodes: SidebarNode[]): string | undefined => {
  * when it is not a sidebar leaf — callers may already pass a route.
  */
 export const routeOfLeaf = (nodes: SidebarNode[], id: string): string => {
-  for (const n of nodes) {
+  for (const n of nodes ?? []) {
     const leaf = isSidebarGroup(n) ? n.children.find((c) => c.id === id) : n.id === id ? n : undefined;
     if (leaf) return leaf.route ?? id;
   }

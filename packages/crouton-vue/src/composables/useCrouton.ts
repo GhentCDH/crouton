@@ -12,7 +12,7 @@ import type { AxiosInstance } from 'axios';
 import { type App, type ComputedRef, computed, ref } from 'vue';
 import type { Router } from 'vue-router';
 
-import type { ResourceDefinition } from '@ghentcdh/crouton-core';
+import type { ResourceDefinition, ResourceJson } from '@ghentcdh/crouton-core';
 import type { CellRendererEntry } from '@ghentcdh/crouton-forms-vue';
 import {
   CROUTON_EDITABLE_RENDERERS,
@@ -140,7 +140,11 @@ const createCrouton = (
     useApi()
       .get<LayoutResponse>('/_app/layout')
       .then((res) => {
-        sidebar.value = res.data.sidebar as SidebarNode[];
+        // Older/partial backends may omit `sidebar`; keep it iterable so
+        // `routeOfLeaf` and friends never receive `undefined`.
+        sidebar.value = Array.isArray(res.data.sidebar)
+          ? res.data.sidebar
+          : [];
         // Title from the backend wins unless the consumer passed an explicit override.
         if (res.data.title && !overrides.title) {
           config.value = { ...config.value, title: res.data.title };
@@ -225,6 +229,7 @@ const createCrouton = (
       });
   };
 
+
   return {
     init,
     /** Reactive when accessed during render — implemented as a getter so late `init()` calls update consumers. */
@@ -261,14 +266,16 @@ const createCrouton = (
     setDefault: (token: string, value: unknown) => {
       config.value.defaults[token] = value;
     },
-    /**
-     * @deprecated use getFormDefById
-     * @param formId
-     */
-    getFormDef: (formId: string) => formDefCache.getById(routeOfLeaf(sidebar.value, formId)),
-    getFormDefById: (formId: string) => formDefCache.getById(routeOfLeaf(sidebar.value, formId)),
+    registerFormDefById: (formId: string, formDef: ResourceDefinition) =>
+      formDefCache.registerFormDefById(formId, formDef),
+    registerJsonResource: (resource: ResourceJson) =>
+      formDefCache.registerJsonResource(resource),
+    getFormDefById: async (formId: string) =>
+      formDefCache.getRegistered(formId) ??
+      formDefCache.getById(routeOfLeaf(sidebar.value, formId)),
     getFormByUri: (uri: string) => formDefCache.getByUri(uri),
-    invalidateFormDef: (formId: string) => formDefCache.invalidate(routeOfLeaf(sidebar.value, formId)),
+    invalidateFormDef: (formId: string) =>
+      formDefCache.invalidate(routeOfLeaf(sidebar.value, formId)),
     /** API route for a sidebar id (resource `name`); the id itself when unknown. */
     routeOf: (formId: string): string => routeOfLeaf(sidebar.value, formId),
     invalidateAllFormDefs: () => formDefCache.invalidateAll(),
@@ -312,6 +319,11 @@ export type UseCrouton = {
   setDefault: (token: string, value: unknown) => void;
   getFormDefById: (formId: string) => Promise<ResourceDefinition>;
   getFormByUri: (uri: string) => Promise<ResourceDefinition>;
+  registerFormDefById: (
+    formId: string,
+    definition: ResourceDefinition,
+  ) => ResourceDefinition;
+  registerJsonResource: (resource: ResourceJson) => ResourceDefinition;
   invalidateFormDef: (formId: string) => void;
   routeOf: (formId: string) => string;
   invalidateAllFormDefs: () => void;

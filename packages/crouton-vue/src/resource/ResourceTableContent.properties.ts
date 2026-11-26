@@ -13,6 +13,7 @@ export const ResourceTableContentProperties = {
   },
   hideToolbar: { type: Boolean, default: false },
   hideTitle: { type: Boolean, default: false },
+  hideSearch: { type: Boolean, default: false },
   isDev: { type: Boolean, default: false },
   id: { type: String, required: true as const },
 };
