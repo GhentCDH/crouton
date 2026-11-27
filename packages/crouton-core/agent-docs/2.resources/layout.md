@@ -107,17 +107,17 @@ layout title) or the value of its `titleKey` field.
 ### Custom layout node
 
 `"type": "custom"` hands a node and its children to a Vue component you register in `customComponents` — the same
-registry as [component items](#component-item-options). Use it for tabs, steppers, side-by-side panes, or any layout
-crouton does not ship.
+registry as [component items](#component-item-options). Use it for steppers, side-by-side panes, or any layout
+crouton does not ship (for tabs, use the built-in [`tabs`](#tabs)).
 
 ```jsonc
 {
   "type": "custom",
-  "component": "Tabs",                 // required: name in customComponents
-  "props": { "syncQuery": "tab" },     // optional: static props
+  "component": "Stepper",              // required: name in customComponents
+  "props": { "linear": true },         // optional: static props
   "items": [
-    { "type": "group", "title": "General", "items": ["title", "isbn"] },
-    { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] }
+    { "type": "group", "title": "Basics", "items": ["title", "isbn"] },
+    { "type": "group", "title": "Publication", "items": ["publisher", "publishedAt"] }
   ]
 }
 ```
