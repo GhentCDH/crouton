@@ -100,6 +100,9 @@ layout title) or the value of its `titleKey` field.
 - A tab that holds an invalid field shows an error badge.
 - Arrow keys, Home and End move between tabs.
 - Works in `layout.form` and `layout.view`.
+- Only `group`, `collapse`, `horizontal` and `custom` children carry a `title`; wrap a `grid` in a `group` to label its tab.
+
+Full example: [tabs layout recipe](../6.recipes/tabs-layout.md).
 
 `tabs` is shorthand for `{ "type": "custom", "component": "Tabs" }`. Register your own `Tabs` in
 `customComponents` to replace the built-in one.
@@ -107,17 +110,17 @@ layout title) or the value of its `titleKey` field.
 ### Custom layout node
 
 `"type": "custom"` hands a node and its children to a Vue component you register in `customComponents` — the same
-registry as [component items](#component-item-options). Use it for tabs, steppers, side-by-side panes, or any layout
-crouton does not ship.
+registry as [component items](#component-item-options). Use it for steppers, side-by-side panes, or any layout
+crouton does not ship (for tabs, use the built-in [`tabs`](#tabs)).
 
 ```jsonc
 {
   "type": "custom",
-  "component": "Tabs",                 // required: name in customComponents
-  "props": { "syncQuery": "tab" },     // optional: static props
+  "component": "Stepper",              // required: name in customComponents
+  "props": { "linear": true },         // optional: static props
   "items": [
-    { "type": "group", "title": "General", "items": ["title", "isbn"] },
-    { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] }
+    { "type": "group", "title": "Basics", "items": ["title", "isbn"] },
+    { "type": "group", "title": "Publication", "items": ["publisher", "publishedAt"] }
   ]
 }
 ```

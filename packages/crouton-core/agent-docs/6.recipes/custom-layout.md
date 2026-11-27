@@ -1,13 +1,17 @@
 ---
-description: Build a custom layout component (tabs as example), register it in customComponents, and use it from layout.form / layout.view.
+description: Build a custom layout component (stepper as example), register it in customComponents, and use it from layout.form / layout.view.
 ---
 
-# Custom layout (tabs)
+# Custom layout (stepper)
 
 Use this when the built-in layout nodes (`grid`, `vertical`, `horizontal`, `collapse`, `group`, `tabs`) are not
-enough — for example a stepper, or tabs with your own look. The example below builds a tabs component; for plain tabs,
-use the built-in [`"type": "tabs"`](../2.resources/layout.md#tabs) instead. Registering your component under the
-name `Tabs` replaces the built-in one.
+enough — for example a stepper, or side-by-side panes. The example below builds a stepper.
+
+::: tip Tabs are built in
+For tabs, use [`"type": "tabs"`](../2.resources/layout.md#tabs) — no custom component needed; see the
+[tabs layout recipe](./tabs-layout.md). To restyle them,
+register your own component under the name `Tabs`; it replaces the built-in one and receives the same props as below.
+:::
 
 ## Steps
 
@@ -17,7 +21,7 @@ The component receives `elements` — one built UI-schema element per entry in t
 with `Dispatch`.
 
 ```vue
-<!-- src/components/TabsLayout.vue -->
+<!-- src/components/StepperLayout.vue -->
 <script setup lang="ts">
 import type { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { Dispatch } from '@ghentcdh/crouton-forms-vue';
@@ -28,27 +32,24 @@ defineProps({
   schema: { type: Object as PropType<JsonSchema>, required: true },
 });
 
-const active = ref(0);
+const step = ref(0);
 const titleOf = (el: UISchemaElement, i: number) =>
-  (el.options?.title as string | undefined) ?? `Tab ${i + 1}`;
+  (el.options?.title as string | undefined) ?? `Step ${i + 1}`;
 </script>
 
 <template>
-  <div role="tablist" class="tabs tabs-bordered">
-    <button
-      v-for="(el, i) in elements"
-      :key="i"
-      role="tab"
-      type="button"
-      :class="['tab', { 'tab-active': active === i }]"
-      @click="active = i"
-    >
+  <ul class="steps w-full">
+    <li v-for="(el, i) in elements" :key="i" :class="['step', { 'step-primary': i <= step }]">
       {{ titleOf(el, i) }}
-    </button>
-  </div>
-  <!-- v-show, not v-if: hidden tabs stay mounted so their fields keep validating -->
-  <div v-for="(el, i) in elements" v-show="active === i" :key="i" role="tabpanel" class="pt-4">
+    </li>
+  </ul>
+  <!-- v-show, not v-if: hidden steps stay mounted so their fields keep validating -->
+  <div v-for="(el, i) in elements" v-show="step === i" :key="i" class="pt-4">
     <Dispatch :uischema="el" :schema="schema" />
+  </div>
+  <div class="flex justify-between pt-4">
+    <button type="button" class="btn" :disabled="step === 0" @click="step--">Previous</button>
+    <button type="button" class="btn" :disabled="step === elements.length - 1" @click="step++">Next</button>
   </div>
 </template>
 ```
@@ -62,10 +63,10 @@ of the node's `props`.
 // src/custom-components.ts
 import { customComponentIs, type CustomComponentEntry } from '@ghentcdh/crouton-vue';
 import { markRaw } from 'vue';
-import TabsLayout from './components/TabsLayout.vue';
+import StepperLayout from './components/StepperLayout.vue';
 
 export const customComponents: CustomComponentEntry[] = [
-  { tester: customComponentIs('Tabs', 10), renderer: markRaw(TabsLayout) },
+  { tester: customComponentIs('Stepper', 10), renderer: markRaw(StepperLayout) },
 ];
 ```
 
@@ -82,10 +83,10 @@ app.use(CroutonPlugin(apiUrl, { customComponents }));
     "items": [
       {
         "type": "custom",
-        "component": "Tabs",
+        "component": "Stepper",
         "items": [
-          { "type": "group", "title": "General", "items": ["title", "isbn", "publishedAt"] },
-          { "type": "group", "title": "Loans", "items": [{ "component": "LoanList" }] }
+          { "type": "group", "title": "Basics", "items": ["title", "isbn"] },
+          { "type": "group", "title": "Publication", "items": ["publisher", "publishedAt"] }
         ]
       }
     ]
@@ -93,10 +94,11 @@ app.use(CroutonPlugin(apiUrl, { customComponents }));
 }
 ```
 
-Use the same node in `layout.view` for a read-only detail view with tabs.
+Use the same node in `layout.view` for a read-only detail view.
 
 ## Notes
 
-- Keep inactive panels mounted (`v-show`); with `v-if`, fields on hidden tabs skip validation.
+- Keep inactive panels mounted (`v-show`); with `v-if`, fields on hidden steps skip validation.
+- All steps are one form with a single Save — the stepper only changes what is visible.
 - Fields inside the custom node count as placed — they are not appended again at the end of the form.
 - Custom nodes are for `layout.form` / `layout.view`; `layout.table` does not support them.
