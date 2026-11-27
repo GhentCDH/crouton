@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { ResourceJsonSchema } from './ResourceJson.schema';
 
@@ -190,7 +190,7 @@ describe('layout validation (Phase 3)', () => {
 
 describe('column presentation keys moved to layout items', () => {
   const withColumn = (column: Record<string, unknown>) =>
-    ResourceJsonSchema.safeParse({ ...base, columns: { ...base.columns, extra: column } });
+    ResourceJsonSchema.safeParse({ ...base, columns: { ...base.columns, extra: { type: 'string', ...column } } });
 
   it.each([
     [{ position: 1 }, '\'position\' moved to the order of layout'],
@@ -200,13 +200,17 @@ describe('column presentation keys moved to layout items', () => {
     [{ fieldInput: { options: { width: 'md' } } }, '\'fieldInput.options.width\' moved to the layout item'],
     [{ fieldInput: { options: { readonly: true } } }, '\'fieldInput.options.readonly\' moved to the layout item'],
     [{ fieldInput: { options: { label: 'x' } } }, '\'fieldInput.options.label\' was removed'],
-  ])('rejects %j with a migration hint', (column, message) => {
+  ])('strips %j with a migration warning instead of failing', (column, message) => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const result = withColumn(column);
-    expect(result.success).toBe(false);
-    expect(issueMessages(result)).toEqual(
-      expect.arrayContaining([expect.stringContaining(message)]),
-    );
-    expect(issueMessages(result).join()).toContain('migrate-to-next-alpha.md');
+    expect(result.success).toBe(true);
+    // same result as if the moved key was never written
+    const stripped = JSON.parse(JSON.stringify(column).replace(/"(position|hideLabel|colspan|width|readonly|label)":[^,}]+,?/, '')) as Record<string, unknown>;
+    expect(result.data).toEqual(withColumn(stripped).data);
+    const warnings = warnSpy.mock.calls.map(([m]) => String(m)).join();
+    expect(warnings).toContain(message);
+    expect(warnings).toContain('migrate-to-next-alpha.md');
+    warnSpy.mockRestore();
   });
 
   it('accepts the props on layout items', () => {
