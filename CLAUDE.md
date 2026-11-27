@@ -193,3 +193,9 @@ After **removing** a dependency:
 Any user-visible string added to crouton-vue MUST go through `useLanguage().t('key', 'English fallback')`.
 Add the key to `packages/crouton-vue/src/i18n/ui-defaults.ts` under the appropriate namespace.
 Never hardcode English strings directly into templates or composable logic.
+
+# Branches for AI-authored work
+
+AI agents (Claude Code, Copilot, Codex, …) must start every branch name with `claude/` (or `ai/`, `copilot/`,
+`codex/`), e.g. `claude/feat/date-filter`. The `merge-gate` workflow then labels the PR `needs review` and blocks
+merging until a human removes the label. See `.github/rulesets/README.md`.
