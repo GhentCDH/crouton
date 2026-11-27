@@ -1,0 +1,63 @@
+# Reusable: required check that blocks merging while a PR has a blocking label.
+#
+# - `block`        : set by hand, merge impossible until removed.
+# - `needs review` : added automatically when the PR branch starts with an AI prefix
+#                    (claude/, copilot/, …), on open and on every push. A human removes it
+#                    after reviewing; the next AI push adds it again.
+#
+# Labels are read from the API, not the event payload: a label added with GITHUB_TOKEN
+# does not trigger a new run, so the label added in step 1 must be seen in this run.
+#
+# Caller: on pull_request_target, types [opened, reopened, synchronize, labeled, unlabeled],
+# permissions pull-requests: write. Make `merge-gate / gate` a required check.
+# Safe under pull_request_target: nothing from the PR is checked out or executed.
+name: Shared Merge Gate
+
+on:
+  workflow_call:
+    inputs:
+      ai-branch-prefixes:
+        description: Comma-separated branch prefixes that mark AI-authored work
+        type: string
+        default: ai/,claude/,copilot/,codex/
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      ACTION: ${{ github.event.action }}
+      PREFIXES: ${{ inputs.ai-branch-prefixes }}
+    steps:
+      - name: Tag AI-authored work
+        if: contains(fromJSON('["opened","reopened","synchronize"]'), github.event.action)
+        run: |
+          IFS=',' read -ra prefixes <<< "$PREFIXES"
+          for p in "${prefixes[@]}"; do
+            p="${p// /}"
+            if [ -n "$p" ] && [[ "$HEAD_REF" == "$p"* ]]; then
+              echo "Branch '$HEAD_REF' matches AI prefix '$p' → adding 'needs review'"
+              gh pr edit "$PR" --add-label "needs review"
+              exit 0
+            fi
+          done
+          echo "Branch '$HEAD_REF' is not an AI branch."
+
+      - name: Check blocking labels
+        run: |
+          labels=$(gh pr view "$PR" --json labels --jq '.labels[].name')
+          blocking=()
+          grep -qxF 'block' <<< "$labels" && blocking+=('block')
+          grep -qxF 'needs review' <<< "$labels" && blocking+=('needs review')
+          if [ ${#blocking[@]} -gt 0 ]; then
+            msg="Merge blocked by label(s): ${blocking[*]}. Remove after review to allow merging."
+            echo "::error::$msg"
+            echo "❌ $msg" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "✅ No blocking labels." >> "$GITHUB_STEP_SUMMARY"

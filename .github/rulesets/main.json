@@ -49,6 +49,9 @@
           },
           {
             "context": "duplicate-exports"
+          },
+          {
+            "context": "merge-gate / gate"
           }
         ]
       }
