@@ -126,7 +126,9 @@ const {
   schema,
   uiSchema,
 } = useFormLogic(
-  { ...properties, renderers: properties.renderers as JsonFormsRendererRegistryEntry[] | null },
+  // Pass the reactive props object itself: spreading snapshots it, so the
+  // `watch(() => properties.data)` in the form logic would never fire.
+  properties as typeof properties & { renderers: JsonFormsRendererRegistryEntry[] | null },
   emits,
   formData as { value: Record<string, unknown> },
   formRef as unknown as { value: { validate?: () => Promise<{ valid: boolean }>; markSubmitted?: () => void; getCurrentValues?: () => Record<string, unknown> } | null | undefined },
