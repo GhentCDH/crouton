@@ -8,7 +8,8 @@ Use this when the built-in layout nodes (`grid`, `vertical`, `horizontal`, `coll
 enough — for example a stepper, or side-by-side panes. The example below builds a stepper.
 
 ::: tip Tabs are built in
-For tabs, use [`"type": "tabs"`](../2.resources/layout.md#tabs) — no custom component needed. To restyle them,
+For tabs, use [`"type": "tabs"`](../2.resources/layout.md#tabs) — no custom component needed; see the
+[tabs layout recipe](./tabs-layout.md). To restyle them,
 register your own component under the name `Tabs`; it replaces the built-in one and receives the same props as below.
 :::
 

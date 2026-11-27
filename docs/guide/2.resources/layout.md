@@ -100,6 +100,9 @@ layout title) or the value of its `titleKey` field.
 - A tab that holds an invalid field shows an error badge.
 - Arrow keys, Home and End move between tabs.
 - Works in `layout.form` and `layout.view`.
+- Only `group`, `collapse`, `horizontal` and `custom` children carry a `title`; wrap a `grid` in a `group` to label its tab.
+
+Full example: [tabs layout recipe](../6.recipes/tabs-layout.md).
 
 `tabs` is shorthand for `{ "type": "custom", "component": "Tabs" }`. Register your own `Tabs` in
 `customComponents` to replace the built-in one.

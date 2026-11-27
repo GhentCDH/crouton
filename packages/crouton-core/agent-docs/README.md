@@ -58,6 +58,7 @@ Read this file to find the right doc for your task.
 | 6.recipes/custom-field-input.md | working with custom field input |
 | 6.recipes/custom-layout.md | working with custom layout |
 | 6.recipes/decision-tables.md | working with decision tables |
+| 6.recipes/tabs-layout.md | working with tabs layout |
 | README.md | getting a high-level overview of the docs |
 | components/buttons.md | working with buttons |
 | components/cards.md | working with cards |
