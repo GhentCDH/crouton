@@ -36,12 +36,16 @@ Or for all packages: `pnpm nx run-many --target=lint`. Lint errors in CI are not
 
 <!-- nx configuration end-->
 
+# Architecture
+
+Read `docs/guide/reference/architecture.md` before any change that crosses packages (package graph, backend boot → compile → serve, frontend payload flow, generated artefacts). Keep it updated when moving folders or adding packages.
+
 # Development patterns
 
 ## Adding an option to an existing field input
 
 1. Open `packages/crouton-core/src/lib/resource/field-input/types/<type>.options.ts` and add the field using `opt()` from `../option-meta`.
-2. If the option needs custom handling in codegen, open `packages/crouton-codegen/src/lib/view/form-schema.builder.ts` in `buildFormControl` and update the relevant branch.
+2. If the option needs custom handling in the form schema, open `packages/crouton-core/src/lib/schema/column/form-control.ts` in `buildFormControl` and update the relevant branch.
 3. Run `pnpm nx run crouton-core:build` — this regenerates JSON schemas and the `_generated/` docs.
 4. Verify no drift: `git diff docs/guide/2.resources/field-inputs/_generated/`.
 
@@ -85,16 +89,15 @@ After creating the component and exporting it from `packages/crouton-ui-vue/src/
 
 ## Adding a new HTTP operation
 
-1. Add the handler in `packages/crouton-api/src/lib/crud/operation/handlers/<name>.handler.ts` — call `registerOperation(...)` from `../operation-handler.ts`.
-2. Add the operation key to `packages/crouton-api/src/lib/crud/operation/route-order.ts` to control NestJS route priority.
-3. Wire it in `packages/crouton-api/src/lib/crud/operation/index.ts` (`registerOperations`).
-4. If the operation needs a `resource.json` entry, add it to the operation schema in `packages/crouton-core/src/lib/operation/`.
+1. Add `packages/crouton-api/src/lib/crud/operations/register-<name>.ts` exporting `register<Name>(ctx: OperationContext, sub?: SubResourceConfig)` (copy `register-findone.ts`).
+2. Call it from `packages/crouton-api/src/lib/crud/operations/register-endpoints.ts`. Order = NestJS route priority: static paths (`/unique`, `/schemas`) **before** `:id` routes.
+3. If the operation needs a `resource.json` entry, add it to `packages/crouton-core/src/lib/data-source/Operations.schema.ts`.
 
 ## Adding a compile step
 
-1. Add the step function in `packages/crouton-core/src/lib/compile/steps/<name>.ts`.
-2. Import and call it at the right point in `packages/crouton-core/src/lib/compile/pipeline.ts`.
-3. Add a snapshot/unit test adjacent to the step or in `packages/crouton-core/src/lib/compile/__snapshots__/`.
+1. Add the step function in `packages/crouton-core/src/lib/compile/<name>.ts`. Keep it pure — anything needing the filesystem or another resource goes through `CompileResolvers` (injected by `crouton-api/src/lib/crud/loader`).
+2. Import and call it at the right point in `compileResource` (`packages/crouton-core/src/lib/compile/compile-resource.ts`).
+3. Add `<name>.spec.ts` next to it; snapshots live in `packages/crouton-core/src/lib/compile/__snapshots__/`.
 
 ## Adding a data-source middleware
 
@@ -105,9 +108,9 @@ Middlewares run after data is fetched (value-label decoration, translations, hoo
 
 ## Adding a layout kind
 
-1. Add the Zod schema in `packages/crouton-core/src/lib/layout/schema/<kind>.schema.ts`.
-2. Register the kind in `packages/crouton-core/src/lib/layout/registry.ts`.
-3. Add resolve/build logic in `packages/crouton-core/src/lib/layout/resolve/` and `layout/build/`.
+1. Add the Zod schema in `packages/crouton-core/src/lib/layout/schema/` (see `TableLayout.schema.ts`) and export it from `layout/schema/index.ts`.
+2. Add the builder in `packages/crouton-core/src/lib/layout/builders/` and register it with `registerLayoutBuilder` (`layout/builders/registry.ts`). Kind must not shadow `form`/`view`/`table`/`filter`.
+3. Resolve logic (visibility, defaults) goes in `layout/resolve/`.
 4. Run `pnpm nx run crouton-core:build` to regenerate JSON schemas.
 
 ## Where does code go?
@@ -125,14 +128,14 @@ Middlewares run after data is fetched (value-label decoration, translations, hoo
 | HTTP response payload contracts | `crouton-core` | `schema/response/` |
 | `ListRequest`, `SortDirEnum`, filter helpers | `crouton-core` | `request/` |
 | Layout schema (from `resource.json`) | `crouton-core` | `layout/schema/` |
-| Layout builders (form/view/table) | `crouton-core` | `layout/build/` |
-| Operation schema / URI helpers | `crouton-core` | `operation/` |
+| Layout builders (form/view/table) | `crouton-core` | `layout/builders/` |
+| Operation schema | `crouton-core` | `data-source/Operations.schema.ts` |
 | Action schema / resolve | `crouton-core` | `action/` |
-| Compile pipeline steps | `crouton-core` | `compile/steps/` |
-| `/schemas` + `/definition` HTTP payloads | `crouton-core` | `compile/payload/` |
-| NestJS operation handlers | `crouton-api` | `crud/operation/handlers/` |
+| Compile steps (`compileResource`) | `crouton-core` | `compile/` |
+| `/schemas` + `/definition` HTTP payloads | `crouton-core` | `compile/payload-builders.ts` |
+| NestJS route registration (one file per op) | `crouton-api` | `crud/operations/register-*.ts` |
 | Action handlers (row/table) | `crouton-api` | `crud/action/` |
-| Public `/schemas` endpoint | `crouton-api` | `crud/schema-endpoints/` |
+| Public `/schemas` + `/definition` endpoints | `crouton-api` | `crud/operations/register-schemas.ts`, `register-schema-endpoints.ts` |
 | Dev-only endpoints (resource-json editor) | `crouton-api` | `crud/dev/` |
 | Prisma/in-memory adapters | `crouton-api` | `crud/data-access/adapter/` |
 | Post-fetch middleware (value-labels, translations, hooks) | `crouton-api` | `crud/data-access/middleware/` |
