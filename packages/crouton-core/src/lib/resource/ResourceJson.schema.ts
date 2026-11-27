@@ -604,59 +604,41 @@ const COLUMN_OPTION_REMOVED_KEYS = [
 ];
 
 /**
- * Walk raw columns (map or array) for presentation keys that moved to the layout.
- * Zod would strip them silently; report them so the file gets migrated.
+ * Strip column presentation keys that moved to the layout (pasted / legacy
+ * resources). Warn instead of failing, so the rest of the resource still loads.
  */
-const collectRemovedColumnKeyErrors = (
-  columns: unknown,
-): Array<{ path: string[]; message: string }> => {
-  const entries: [string, unknown][] = Array.isArray(columns)
-    ? (columns as unknown[]).map((c, i) => [String(i), c])
-    : columns && typeof columns === 'object'
-      ? Object.entries(columns)
-      : [];
-  const errors: Array<{ path: string[]; message: string }> = [];
-  for (const [key, col] of entries) {
-    if (!col || typeof col !== 'object') continue;
-    const c = col as Record<string, unknown>;
-    const base = ['columns', key];
-    if ('position' in c)
-      errors.push({
-        path: [...base, 'position'],
-        message: `'position' ${ORDER_MOVED}`,
-      });
-    if ('hideLabel' in c)
-      errors.push({
-        path: [...base, 'hideLabel'],
-        message: `'hideLabel' ${ITEM_MOVED('hideLabel')}`,
-      });
+const stripRemovedColumnKeys = (columns: unknown): unknown => {
+  const strip = (key: string, col: unknown): unknown => {
+    if (!col || typeof col !== 'object' || Array.isArray(col)) return col;
+    const { position, hideLabel, ...c } = col as Record<string, unknown>;
+    if (position !== undefined) warn(`column "${key}": 'position' ${ORDER_MOVED} — ignored`);
+    if (hideLabel !== undefined) warn(`column "${key}": 'hideLabel' ${ITEM_MOVED('hideLabel')} — ignored`);
     const fi = c['fieldInput'];
-    if (!fi || typeof fi !== 'object') continue;
-    const f = fi as Record<string, unknown>;
-    if ('position' in f) {
-      errors.push({
-        path: [...base, 'fieldInput', 'position'],
-        message: `'fieldInput.position' ${ORDER_MOVED}`,
-      });
-    }
+    if (!fi || typeof fi !== 'object' || Array.isArray(fi)) return c;
+    const { position: fiPosition, ...f } = fi as Record<string, unknown>;
+    if (fiPosition !== undefined) warn(`column "${key}": 'fieldInput.position' ${ORDER_MOVED} — ignored`);
     const options = f['options'];
-    if (!options || typeof options !== 'object') continue;
-    for (const k of COLUMN_OPTION_REMOVED_KEYS) {
-      if (k in options) {
-        errors.push({
-          path: [...base, 'fieldInput', 'options', k],
-          message: `'fieldInput.options.${k}' ${ITEM_MOVED(k)}`,
-        });
+    if (options && typeof options === 'object' && !Array.isArray(options)) {
+      const o = { ...(options as Record<string, unknown>) };
+      for (const k of [...COLUMN_OPTION_REMOVED_KEYS, 'label']) {
+        if (!(k in o)) continue;
+        delete o[k];
+        warn(
+          k === 'label'
+            ? `column "${key}": 'fieldInput.options.label' was removed — ignored; use the column 'label', or a layout item 'label' per context ${MIGRATE_HINT}`
+            : `column "${key}": 'fieldInput.options.${k}' ${ITEM_MOVED(k)} — ignored`,
+        );
       }
+      f['options'] = o;
     }
-    if ('label' in options) {
-      errors.push({
-        path: [...base, 'fieldInput', 'options', 'label'],
-        message: `'fieldInput.options.label' was removed: use the column 'label', or a layout item 'label' per context ${MIGRATE_HINT}`,
-      });
-    }
-  }
-  return errors;
+    return { ...c, fieldInput: f };
+  };
+  if (Array.isArray(columns)) return columns.map((c, i) => strip(String(i), c));
+  if (columns && typeof columns === 'object')
+    return Object.fromEntries(
+      Object.entries(columns).map(([k, c]) => [k, strip(k, c)]),
+    );
+  return columns;
 };
 
 /** Legacy column flags lifted onto the table layout item (see migrate-to-next-alpha.md). */
@@ -735,7 +717,10 @@ const createResourceJsonSchema = () => {
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
       let obj = raw as Record<string, unknown>;
       if ('columns' in obj)
-        obj = { ...obj, columns: applyColumnAliases(obj['columns']) };
+        obj = {
+          ...obj,
+          columns: stripRemovedColumnKeys(applyColumnAliases(obj['columns'])),
+        };
 
       // Root `id` is removed — the resource id is always `name`. Strip it and warn
       // (keeping the route when it differed from `name`), never fail.
@@ -758,7 +743,6 @@ const createResourceJsonSchema = () => {
         ...Object.entries(ROOT_REMOVED_KEYS)
           .filter(([k]) => k in obj)
           .map(([k, message]) => ({ path: [k], message })),
-        ...collectRemovedColumnKeyErrors(obj['columns']),
       ];
 
       // Collect errors for removed keys before any transforms

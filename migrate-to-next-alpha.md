@@ -773,7 +773,7 @@ overrides; use the column's top-level `type` instead of `columnType`).
 `fieldInput.options.{colspan,rowspan,width,hideLabel,readonly,label}`.
 
 A column describes the **data**. Where and how it is placed in a form/view/table lives only in
-`layout.<form|view|table>`. These keys now fail validation.
+`layout.<form|view|table>`. These keys are stripped with a warning (they no longer have any effect).
 
 | Removed key | Moves to |
 |---|---|
