@@ -67,6 +67,7 @@ Read this file to find the right doc for your task.
 | components/form-controls.md | working with form controls |
 | components/index.md | getting an overview of this section |
 | components/modals.md | working with modals |
+| reference/architecture.md | changing crouton itself: package graph, compile + request flow |
 | reference/crouton-json.md | editing or understanding crouton.json |
 | reference/endpoints.md | reference for REST endpoints |
 | reference/enums.md | reference for enum definitions |

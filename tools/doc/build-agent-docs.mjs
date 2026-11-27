@@ -46,6 +46,7 @@ const readWhen = (rel) => {
     'enums': 'reference for enum definitions',
     'normalize-schema': 'understanding schema normalisation',
     'packages': 'understanding which packages to install',
+    'architecture': 'changing crouton itself: package graph, compile + request flow',
     'parse-schema': 'reference for schema parsing utilities',
     'README': 'getting a high-level overview of the docs',
     'array': 'using array field inputs',
